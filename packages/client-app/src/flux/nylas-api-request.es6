@@ -1,13 +1,9 @@
-/* eslint global-require: 0 */
-
-import fs from 'fs'
 import request from 'request'
-import crypto from 'crypto'
 import {remote} from 'electron'
+
 import Utils from './models/utils'
 import Actions from './actions'
-import {APIError, RequestEnsureOnceError} from './errors'
-import PriorityUICoordinator from '../priority-ui-coordinator'
+import {APIError} from './errors'
 import IdentityStore from './stores/identity-store'
 
 export default class NylasAPIRequest {
@@ -16,8 +12,7 @@ export default class NylasAPIRequest {
       url: `${options.APIRoot || api.APIRoot}${options.path}`,
       method: 'GET',
       json: true,
-      timeout: 15000,
-      ensureOnce: false,
+      timeout: 30000,
       started: () => {},
     }
 
@@ -32,172 +27,132 @@ export default class NylasAPIRequest {
     }
   }
 
-  constructAuthHeader() {
-    if (!this.options.accountId) {
-      throw new Error("Cannot make Nylas request without specifying `auth` or an `accountId`.");
-    }
-
-    const identity = IdentityStore.identity();
-    if (identity && !identity.token) {
-      const clickedIndex = remote.dialog.showMessageBox({
-        type: 'error',
-        message: 'Identity is present but identity token is missing.',
-        detail: `Actions like sending and receiving mail require this token. Please log back into your Nylas ID to restore it—your email accounts will not be removed in this process.`,
-        buttons: ['Log out'],
-      })
-      if (clickedIndex === 0) {
-        Actions.logoutNylasIdentity()
-      }
-    }
-
-    const accountToken = this.api.accessTokenForAccountId(this.options.accountId);
-    if (!accountToken) {
-      throw new Error(`Cannot make Nylas request for account ${this.options.accountId} auth token.`);
-    }
-
-    return {
-      user: accountToken,
-      pass: identity ? identity.token : '',
-      sendImmediately: true,
-    };
-  }
-
-  getRequestHash() {
-    const {url, method, requestId, body, qs} = this.options
-    const query = qs ? qs.toJSON() : ''
-    const md5sum = crypto.createHash('md5')
-    const data = `${requestId || ''}${method}${url}${query}${body || ''}`
-    md5sum.update(data)
-    return md5sum.digest('hex')
-  }
-
-  requestHasSucceededBefore() {
-    const hash = this.getRequestHash()
-    return fs.existsSync(`${NylasEnv.getConfigDirPath()}/${hash}`)
-  }
-
-  writeRequestSuccessRecord() {
+  async run() {
+    if (NylasEnv.getLoadSettings().isSpec) return Promise.resolve([]);
     try {
-      const hash = this.getRequestHash()
-      fs.writeFileSync(`${NylasEnv.getConfigDirPath()}/${hash}`)
-    } catch (e) {
-      console.warn('NylasAPIRequest: Error writing request success record to filesystem')
+      this.options.auth = this.options.auth || this._defaultAuth();
+      return await this._asyncRequest(this.options)
+    } catch (error) {
+      let apiError = error
+      if (!(apiError instanceof APIError)) {
+        apiError = new APIError({error: apiError, statusCode: 500})
+      }
+      this._notifyOfAPIError(apiError)
+      throw apiError
     }
   }
 
-  run() {
-    const NylasAPI = require("./nylas-api").default
-    const NylasAPIHelpers = require("./nylas-api-helpers")
-
-    if (NylasEnv.getLoadSettings().isSpec) {
-      return Promise.resolve([])
-    }
-
-    if (this.options.ensureOnce === true) {
-      try {
-        if (this.requestHasSucceededBefore()) {
-          const error = new RequestEnsureOnceError('NylasAPIRequest: request with `ensureOnce = true` has already succeeded before. This commonly happens when the worker window reboots before send has completed.')
-          return Promise.reject(error)
-        }
-      } catch (error) {
-        return Promise.reject(error)
-      }
-    }
-    if (!this.options.auth) {
-      try {
-        this.options.auth = this.constructAuthHeader();
-      } catch (err) {
-        return Promise.reject(new APIError({body: err.message, statusCode: 400}));
-      }
-    }
-
-    const requestId = Utils.generateTempId();
-
-    const onSuccess = (body) => {
-      let responseBody = body;
-      if (this.options.beforeProcessing) {
-        responseBody = this.options.beforeProcessing(responseBody)
-      }
-      if (this.options.returnsModel) {
-        NylasAPIHelpers.handleModelResponse(responseBody).then(() => {
-          return Promise.resolve(responseBody)
-        })
-      }
-      return Promise.resolve(responseBody)
-    }
-
-    const onError = (err) => {
-      const {url, auth, returnsModel} = this.options
-
-      let handlePromise = Promise.resolve()
-      if (err.response) {
-        if (err.response.statusCode === 404 && returnsModel) {
-          handlePromise = NylasAPIHelpers.handleModel404(url)
-        }
-
-        // If we got a 401 or 403 from our local sync engine, mark the account
-        // as having auth issues.
-        if ([401, 403].includes(err.response.statusCode) && url.startsWith(NylasAPI.APIRoot)) {
-          const apiName = this.api.constructor.name
-          handlePromise = NylasAPIHelpers.handleAuthenticationFailure(url, auth.user, apiName)
-        }
-        if (err.response.statusCode === 400) {
-          NylasEnv.reportError(err)
-        }
-      }
-      return handlePromise.finally(() => Promise.reject(err))
-    }
-
+  /**
+   * An async wrapper around `request`. We reject on any non 2xx codes or
+   * other errors.
+   *
+   * Resolves to the JSON body or rejects with an APIError object.
+   */
+  async _asyncRequest(options = {}) {
     return new Promise((resolve, reject) => {
-      this.options.startTime = Date.now();
-      Actions.willMakeAPIRequest({
-        request: this.options,
-        requestId: requestId,
-      });
+      const requestId = Utils.generateTempId();
+      const reqTrackingArgs = {request: options, requestId}
+      Actions.willMakeAPIRequest(reqTrackingArgs);
+      const req = request(options, (error, response, body) => {
+        this.response = response;
+        let statusCode = (response || {}).statusCode;
 
-      const req = request(this.options, (error, response = {}, body) => {
-        Actions.didMakeAPIRequest({
-          request: this.options,
-          statusCode: response.statusCode,
-          error: error,
-          requestId: requestId,
-        });
+        if (statusCode >= 200 && statusCode <= 299) {
+          Actions.didMakeAPIRequest({statusCode, ...reqTrackingArgs});
+          return resolve(body)
+        }
 
-        PriorityUICoordinator.settle.then(() => {
-          if (error || (response.statusCode > 299)) {
-            // Some errors (like socket errors and some types of offline
-            // errors) return with a valid `error` object but no `response`
-            // object (and therefore no `statusCode`. To normalize all of
-            // this, we inject our own offline status code so people down
-            // the line can have a more consistent interface.
-            if (!response.statusCode) {
-              response.statusCode = NylasAPI.TimeoutErrorCodes[0];
-            }
-            const apiError = new APIError({error, response, body, requestOptions: this.options});
-            const msg = (error || {}).message || `Unknown Error: ${error}`
-            const fingerprint = ["{{ default }}", "local api", response.statusCode, msg];
-            NylasEnv.reportError(apiError, {fingerprint: fingerprint});
-            reject(apiError);
+        if (error) {
+          // If the server returns anything (including 500s and other bad
+          // responses, the `error` object for the `request` will be null)
+          //
+          // The Node `request` library emits a special type of timeout
+          // error for ESOCKETTIMEDOUT and ETIMEDOUT. When it does this it
+          // sets the `cod` param on the error object. These errors are
+          // retryable and we use out special `0` status code.
+          //
+          // It may also emit normal `Error` objects for other unforseen
+          // issues. In this case we set a `500` status code.
+          if (error.code) {
+            statusCode = 0;
           } else {
-            if (this.options.ensureOnce === true) {
-              this.writeRequestSuccessRecord()
-            }
-            this.response = response
-            resolve(body);
+            statusCode = 500;
           }
+        }
+        const apiError = new APIError({
+          body: body,
+          error: error,
+          response: response,
+          statusCode: statusCode,
+          requestOptions: options,
         });
+        Actions.didMakeAPIRequest({...reqTrackingArgs, statusCode, error: apiError});
+        return reject(apiError)
       });
-
-      req.on('abort', () => {
-        const canceled = new APIError({
-          statusCode: NylasAPI.CanceledErrorCode,
-          body: 'Request Aborted',
-        });
-        reject(canceled);
-      });
-
-      this.options.started(req);
+      options.started(req);
     })
-    .then(onSuccess, onError)
+  }
+
+
+  async _notifyOfAPIError(apiError) {
+    const ignorableStatusCodes = [
+      0,   // Local issues like ETIMEDOUT or ESOCKETTIMEDOUT
+      404, // Don't report not-founds
+      408, // Timeout error code
+      429, // Too many requests
+    ]
+    if (!ignorableStatusCodes.includes(apiError.statusCode)) {
+      const msg = apiError.message || `Unknown Error: ${apiError}`
+      const fingerprint = ["{{ default }}", "local api", apiError.statusCode, msg];
+      NylasEnv.reportError(apiError, {fingerprint: fingerprint});
+      apiError.reported = true
+    }
+
+    if ([401, 403].includes(apiError.statusCode)) {
+      Actions.apiAuthError(apiError, this.options, this.api.constructor.name)
+    }
+  }
+
+  /**
+   * Generates the basic auth username from the account token and the
+   * basic auth password from the NylasID token.
+   *
+   * This asserts if any of these pieces are missing and throws an
+   * APIError object.
+   */
+  _defaultAuth() {
+    try {
+      if (!this.options.accountId) {
+        throw new Error("Cannot make Nylas request without specifying `auth` or an `accountId`.");
+      }
+
+      const identity = IdentityStore.identity();
+
+      if (!identity || !identity.token) {
+        const clickedIndex = remote.dialog.showMessageBox({
+          type: 'error',
+          message: 'Your NylasID is invalid. Please log out then log back in.',
+          detail: `Actions like sending and receiving mail require this token. Please log back into your Nylas ID to restore it—your email accounts will not be removed in this process.`,
+          buttons: ['Log out'],
+        })
+        if (clickedIndex === 0) {
+          Actions.logoutNylasIdentity()
+        }
+        throw new Error("No Identity")
+      }
+
+      const accountToken = this.api.accessTokenForAccountId(this.options.accountId);
+      if (!accountToken) {
+        throw new Error(`Auth token missing for account`);
+      }
+
+      return {
+        user: accountToken,
+        pass: identity.token,
+        sendImmediately: true,
+      };
+    } catch (error) {
+      throw new APIError({error, statusCode: 400});
+    }
   }
 }
