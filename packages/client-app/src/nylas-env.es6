@@ -295,7 +295,7 @@ export default class NylasEnvConstructor {
     });
 
     if (this.inSpecMode() || this.inDevMode()) {
-      return Promise.longStackTraces();
+      return Promise.config({longStackTraces: true});
     }
     return null;
   }
