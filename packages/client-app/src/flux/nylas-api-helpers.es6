@@ -155,8 +155,8 @@ export async function handleModelResponse(jsons) {
 }
 
 /*
-If we make a request that `returnsModel` and we get a 404, we want to handle
-it intelligently and in a centralized way. This method identifies the object
+If we make a request for a model and we get a 404, we want to handle it
+intelligently and in a centralized way. This method identifies the object
 that could not be found and purges it from local cache.
 
 Handles: /account/<nid>/<collection>/<id>
@@ -192,31 +192,6 @@ export function handleModel404(modelUrl) {
   return Promise.resolve()
 }
 
-export function handleAuthenticationFailure(modelUrl, apiToken, apiName) {
-  // Prevent /auth errors from presenting auth failure notices
-  if (!apiToken) {
-    return Promise.resolve()
-  }
-
-  AccountStore = AccountStore || require('./stores/account-store').default
-  const account = AccountStore.accounts().find((acc) => {
-    const tokens = AccountStore.tokensForAccountId(acc.id);
-    if (!tokens) return false
-    const localMatch = tokens.localSync === apiToken;
-    const cloudMatch = tokens.n1Cloud === apiToken;
-    return localMatch || cloudMatch;
-  })
-
-  if (account) {
-    let syncState = Account.SYNC_STATE_AUTH_FAILED
-    if (apiName === "N1CloudAPI") {
-      syncState = Account.SYNC_STATE_N1_CLOUD_AUTH_FAILED
-    }
-    Actions.updateAccount(account.id, {syncState})
-  }
-  return Promise.resolve()
-}
-
 export function makeDraftDeletionRequest(draft) {
   if (!draft.serverId) return
   NylasAPI.incrementRemoteChangeLock(Message, draft.serverId)
@@ -227,7 +202,6 @@ export function makeDraftDeletionRequest(draft) {
       accountId: draft.accountId,
       method: "DELETE",
       body: {version: draft.version},
-      returnsModel: false,
     },
   }).run()
   return
@@ -243,7 +217,6 @@ export function getCollection(accountId, collection, params = {}, requestOptions
       path: `/${collection}`,
       accountId: accountId,
       qs: params,
-      returnsModel: false,
     }),
   })
   return req.run()

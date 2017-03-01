@@ -169,6 +169,7 @@ class Actions {
   ```
   */
   static updateAccount = ActionScopeWindow;
+  static apiAuthError = ActionScopeWindow;
 
   /*
   Public: Re-order the provided account in the account list.

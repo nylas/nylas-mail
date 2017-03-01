@@ -27,6 +27,7 @@ class AccountStore extends NylasStore {
     this.listenTo(Actions.removeAccount, this._onRemoveAccount)
     this.listenTo(Actions.updateAccount, this._onUpdateAccount)
     this.listenTo(Actions.reorderAccount, this._onReorderAccount)
+    this.listenTo(Actions.apiAuthError, this._onAPIAuthError)
 
     NylasEnv.config.onDidChange(configVersionKey, async (change) => {
       // If we already have this version of the accounts config, it means we
@@ -56,6 +57,31 @@ class AccountStore extends NylasStore {
         Actions.setCollapsedSidebarItem('Inbox', false)
       }
     })
+  }
+
+  _onAPIAuthError = (apiError, apiOptions, apiName) => {
+    // Prevent /auth errors from presenting auth failure notices
+    const apiToken = apiOptions.auth.user
+    if (!apiToken) {
+      return Promise.resolve()
+    }
+
+    const account = this.accounts().find((acc) => {
+      const tokens = this.tokensForAccountId(acc.id);
+      if (!tokens) return false
+      const localMatch = tokens.localSync === apiToken;
+      const cloudMatch = tokens.n1Cloud === apiToken;
+      return localMatch || cloudMatch;
+    })
+
+    if (account) {
+      let syncState = Account.SYNC_STATE_AUTH_FAILED
+      if (apiName === "N1CloudAPI") {
+        syncState = Account.SYNC_STATE_N1_CLOUD_AUTH_FAILED
+      }
+      this._onUpdateAccount(account.id, {syncState})
+    }
+    return Promise.resolve()
   }
 
   _loadAccounts = () => {
