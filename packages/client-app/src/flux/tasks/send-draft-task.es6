@@ -115,7 +115,6 @@ export default class SendDraftTask extends BaseDraftTask {
           method: 'POST',
           body: this.draft.toJSON(),
           timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-          ensureOnce: false, // TODO We disabled ensureOnce since K2 handles the task now
           requestId: this.draft.clientId,
           onSyncbackRequestCreated: (syncbackRequest) => {
             this._syncbackRequestId = syncbackRequest.id
