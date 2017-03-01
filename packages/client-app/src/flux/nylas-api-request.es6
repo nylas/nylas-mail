@@ -89,6 +89,27 @@ export default class NylasAPIRequest {
         Actions.didMakeAPIRequest({...reqTrackingArgs, statusCode, error: apiError});
         return reject(apiError)
       });
+      req.on('abort', () => {
+        // Use a status code of 0 because we don't want to report the error when
+        // we manually abort the request
+        const statusCode = 0
+        const abortedError = new APIError({
+          statusCode,
+          body: 'Request aborted by client',
+        });
+        Actions.didMakeAPIRequest({...reqTrackingArgs, statusCode, error: abortedError});
+        reject(abortedError);
+      });
+
+      req.on('aborted', () => {
+        const statusCode = "ECONNABORTED"
+        const abortedError = new APIError({
+          statusCode,
+          body: 'Request aborted by server',
+        });
+        Actions.didMakeAPIRequest({...reqTrackingArgs, statusCode, error: abortedError});
+        reject(abortedError);
+      });
       options.started(req);
     })
   }
@@ -96,7 +117,7 @@ export default class NylasAPIRequest {
 
   async _notifyOfAPIError(apiError) {
     const ignorableStatusCodes = [
-      0,   // Local issues like ETIMEDOUT or ESOCKETTIMEDOUT
+      0,   // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
       404, // Don't report not-founds
       408, // Timeout error code
       429, // Too many requests
