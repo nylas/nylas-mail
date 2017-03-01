@@ -1,17 +1,11 @@
 /* eslint global-require: 0 */
-
 import _ from 'underscore'
-
 import NylasAPI from './nylas-api'
 import NylasAPIRequest from './nylas-api-request'
 import DatabaseStore from './stores/database-store'
-import Actions from './actions'
-import Account from './models/account'
 import Message from './models/message'
 import Thread from './models/thread'
 
-// Lazy-loaded
-let AccountStore = null
 
 function attachMetadataToResponse(jsons, metadataToAttach) {
   if (!metadataToAttach) return
