@@ -120,13 +120,9 @@ function linkJasmineConfigs() {
 }
 
 function linkIsomorphicCoreSpecs() {
-  console.log("\n---> Linking isomorphic-core specs to client-app")
-  const dir = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'isomorphic-core'))
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
+  console.log("\n---> Linking isomorphic-core specs to client-app specs")
   const from = path.resolve(path.join('packages', 'isomorphic-core', 'spec'))
-  const to = path.resolve(path.join(dir, 'spec'))
+  const to = path.resolve(path.join('packages', 'client-app', 'spec', 'isomorphic-core'))
   unlinkIfExistsSync(to)
   fs.symlinkSync(from, to, 'dir')
 }

@@ -15,7 +15,6 @@
 **/internal_packages/activity-list
 **/internal_packages/composer-mail-merge
 **/internal_packages/composer-scheduler
-**/internal_packages/isomorphic-core
 **/internal_packages/link-tracking
 **/internal_packages/open-tracking
 **/internal_packages/send-later
@@ -53,6 +52,9 @@ spec-saved-state.json
 # Symlinked Jasmine config files
 **/jasmine/config.json
 !packages/isomorphic-core/spec/jasmine/config.json
+
+# Symlinked isomorphic-core Specs
+packages/client-app/spec/isomorphic-core
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
