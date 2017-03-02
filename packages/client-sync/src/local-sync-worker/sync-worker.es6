@@ -1,27 +1,31 @@
-const _ = require('underscore')
-const {
+import _ from 'underscore'
+import {
   IMAPErrors,
-  IMAPConnectionPool,
   SendmailClient,
   MetricsReporter,
-} = require('isomorphic-core');
-const {
+  IMAPConnectionPool,
+  ExponentialBackoffScheduler,
+} from 'isomorphic-core';
+import {
   Actions,
+  Account,
   APIError,
   NylasAPI,
   N1CloudAPI,
   IdentityStore,
   NylasAPIRequest,
   BatteryStatusManager,
-  Account: {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR},
-} = require('nylas-exports')
-const Interruptible = require('../shared/interruptible')
-const SyncTaskFactory = require('./sync-task-factory');
-const SyncbackTaskRunner = require('./syncback-task-runner').default;
-const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
+} from 'nylas-exports'
+import Interruptible from '../shared/interruptible'
+import SyncTaskFactory from './sync-task-factory';
+import SyncbackTaskRunner from './syncback-task-runner'
+import LocalSyncDeltaEmitter from './local-sync-delta-emitter'
 
+const {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR} = Account
 const AC_SYNC_LOOP_INTERVAL_MS = 10 * 1000            // 10 sec
 const BATTERY_SYNC_LOOP_INTERVAL_MS = 5 * 60 * 1000   //  5 min
+const MAX_SYNC_BACKOFF_MS = 5 * 60 * 1000 // 5 min
+const PERMANENT_ERROR_RETRY_BACKOFF_MS = 60 * 1000 // 1 min
 
 class SyncWorker {
   constructor(account, db, parentManager) {
@@ -43,11 +47,15 @@ class SyncWorker {
     this._stopped = false
     this._destroyed = false
     this._shouldIgnoreInboxFlagUpdates = false
-    this._numRetries = 0;
     this._numTimeoutErrors = 0;
     this._requireTokenRefresh = false
     this._batchProcessedUids = new Map();
     this._latestOpenTimesByFolder = new Map();
+
+    this._retryScheduler = new ExponentialBackoffScheduler({
+      baseDelay: 15 * 1000,
+      maxDelay: MAX_SYNC_BACKOFF_MS,
+    })
 
     this._syncTimer = setTimeout(() => {
       // TODO this is currently a hack to keep N1's account in sync and notify of
@@ -312,9 +320,12 @@ class SyncWorker {
     // If so, we don't want to save the error to the account, which will cause
     // a red box to show up.
     if (error instanceof IMAPErrors.RetryableError) {
-      this._numRetries += 1;
+      this._retryScheduler.nextDelay()
       return
     }
+    // If we don't encounter consecutive RetryableErrors, reset the exponential
+    // backoff
+    this._retryScheduler.reset()
 
     // Update account error state
     const errorJSON = error.toJSON()
@@ -366,22 +377,11 @@ class SyncWorker {
     let interval;
     if (error != null) {
       if (error instanceof IMAPErrors.RetryableError) {
-        // We do not want to retry over and over again when we get
-        // network/retryable errors, for two reasons:
-        // 1. most errors don't resolve immediately
-        // 2. we don't want to be hammering the server in a synchronized way.
-        const randomElement = (Math.floor(Math.random() * 20) + 1) * 1000;
-        const exponentialDuration = 15000 * this._numRetries + randomElement;
-        interval = Math.min(exponentialDuration, 120000 + randomElement);
+        interval = this._retryScheduler.currentDelay();
       } else {
-        // Encountered a permanent error
-        // In this case we could do something fancier, but for now, just retry
-        // with the normal sync loop interval
-        interval = AC_SYNC_LOOP_INTERVAL_MS;
+        interval = PERMANENT_ERROR_RETRY_BACKOFF_MS;
       }
     } else {
-      // Continue syncing immediately if initial sync isn't done, or if the loop was
-      // interrupted or a sync was requested
       const shouldSyncImmediately = (
         moreToSync ||
         this._interrupted ||
@@ -526,10 +526,11 @@ class SyncWorker {
           })
         },
       });
+
       await this._cleanupOrphanMessages();
       await this._onSyncDidComplete();
-      this._numRetries = 0;
       this._numTimeoutErrors = 0;
+      this._retryScheduler.reset()
     } catch (err) {
       error = err
       await this._onSyncError(error);
