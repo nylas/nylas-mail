@@ -43,7 +43,7 @@
     "semi": "off",
     "no-mixed-operators": "off",
     "import/extensions": ["error", "never", { "json": "always" }],
-    "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit", "electron", "nylas-store", "react-dom/server", "nylas-observables", "windows-shortcuts", "moment-round", "better-sqlite3", "chrono-node", "event-kit", "enzyme"]}],
+    "import/no-unresolved": ["error", {"ignore": ["nylas-exports", "nylas-component-kit", "electron", "nylas-store", "react-dom/server", "nylas-observables", "windows-shortcuts", "moment-round", "better-sqlite3", "chrono-node", "event-kit", "enzyme", "isomorphic-core"]}],
     "import/no-extraneous-dependencies": "off",
     "import/newline-after-import": "off",
     "import/prefer-default-export": "off",
