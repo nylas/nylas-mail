@@ -268,6 +268,13 @@ class IMAPConnection extends EventEmitter {
     return this._imap.serverSupports(capability);
   }
 
+  getLastOpenDuration() {
+    if (this._isOpeningBox) {
+      throw new RetryableError('IMAPConnection: Cannot operate on connection while opening a box.')
+    }
+    return this._lastOpenDuration;
+  }
+
   /**
    * @return {Promise} that resolves to instance of IMAPBox
    */
@@ -281,22 +288,15 @@ class IMAPConnection extends EventEmitter {
     if (!refetchBoxInfo && folderName === this.getOpenBoxName()) {
       return Promise.resolve(new IMAPBox(this, this._imap._box));
     }
-    this._isOpeningBox = true
-    this._lastOpenDuration = null;
     return this._withPreparedConnection(async (imap) => {
+      this._isOpeningBox = true
+      this._lastOpenDuration = null;
       const before = Date.now();
       const box = await imap.openBoxAsync(folderName, readOnly)
       this._lastOpenDuration = Date.now() - before;
       this._isOpeningBox = false
       return new IMAPBox(this, box)
     })
-  }
-
-  getLastOpenDuration() {
-    if (this._isOpeningBox) {
-      throw new RetryableError('IMAPConnection: Cannot operate on connection while opening a box.')
-    }
-    return this._lastOpenDuration;
   }
 
   async getLatestBoxStatus(folderName) {
