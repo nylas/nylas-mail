@@ -12,7 +12,7 @@ module.exports = {
   PromiseUtils: require('./src/promise-utils'),
   DatabaseTypes: require('./src/database-types'),
   IMAPConnection: require('./src/imap-connection'),
-  IMAPConnectionPool: require('./src/imap-pool'),
+  IMAPConnectionPool: require('./src/imap-connection-pool'),
   SendmailClient: require('./src/sendmail-client'),
   DeltaStreamBuilder: require('./src/delta-stream-builder'),
   HookTransactionLog: require('./src/hook-transaction-log'),
