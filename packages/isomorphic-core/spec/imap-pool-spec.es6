@@ -1,4 +1,4 @@
-import IMAPConnectionPool from '../src/imap-pool';
+import IMAPConnectionPool from '../src/imap-connection-pool';
 import IMAPConnection from '../src/imap-connection';
 import IMAPErrors from '../src/imap-errors';
 
