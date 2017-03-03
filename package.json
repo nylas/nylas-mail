@@ -4,6 +4,7 @@
   "description": "All components required to run Nylas Mail",
   "devDependencies": {
     "babel-cli": "6.x.x",
+    "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-eslint": "7.1.0",
     "babel-preset-electron": "1.4.15",
@@ -30,6 +31,7 @@
     "grunt-contrib-less": "0.8.x",
     "grunt-electron-installer": "2.x.x",
     "grunt-lesslint": "0.13.x",
+    "jasmine": "2.x.x",
     "lerna": "2.0.0-beta.37",
     "load-grunt-parent-tasks": "0.1.1",
     "pm2": "2.4.0",
