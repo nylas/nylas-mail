@@ -35,132 +35,6 @@ const getThreadsForMessages = (db, messages, limit) => {
   });
 };
 
-class GmailSearchClient {
-  constructor(account) {
-    const credentials = account.decryptedCredentials();
-    this.accountToken = account.bearerToken(credentials.xoauth2);
-    this.account = account;
-    this._logger = global.Logger.forAccount(this.account);
-  }
-
-  // Note that the Gmail API returns message IDs in hex format. So for
-  // example the IMAP X-GM-MSGID 1438297078380071706 corresponds to
-  // 13f5db9286538b1a in API responses. Normally we could just use parseInt(id, 16),
-  // but many of the IDs returned are outside of the precise range of doubles,
-  // so this function accomplishes hex ID parsing using rudimentary arbitrary
-  // precision ints implemented using strings.
-  _parseHexId(hexId) {
-    const add = (a, b) => {
-      let carry = 0;
-      const x = a.split('').map(Number);
-      const y = b.split('').map(Number);
-      const result = [];
-      while (x.length || y.length) {
-        const sum = (x.pop() || 0) + (y.pop() || 0) + carry;
-        result.push(sum < 10 ? sum : sum - 10);
-        carry = sum < 10 ? 0 : 1;
-      }
-      if (carry) {
-        result.push(carry);
-      }
-      result.reverse();
-      return result.join('');
-    };
-
-    let value = '0';
-    for (const c of hexId) {
-      const digit = parseInt(c, 16);
-      for (let mask = 0x8; mask; mask >>= 1) {
-        value = add(value, value);
-        if (digit & mask) {
-          value = add(value, '1');
-        }
-      }
-    }
-    return value;
-  }
-
-  _search(query, limit) {
-    let results = [];
-    const params = {q: query, maxResults: limit};
-
-    return new Promise((resolve, reject) => {
-      const maxTries = 10;
-      const trySearch = (numTries) => {
-        if (numTries >= maxTries) {
-          // If we've been through the loop 10 times, it means we got a request
-          // a crazy-high offset --- raise an error.
-          this._logger.error('Too many results:', results.length);
-          reject(new Error('Too many results'));
-          return;
-        }
-
-        request('https://www.googleapis.com/gmail/v1/users/me/messages', {
-          qs: params,
-          headers: {Authorization: `Bearer ${this.accountToken}`},
-        }, (error, response, body) => {
-          if (error) {
-            reject(new Error(`Error issuing search request: ${error}`));
-            return;
-          }
-
-          if (response.statusCode !== 200) {
-            reject(new Error(`Error issuing search request: ${response.statusMessage}`));
-            return;
-          }
-
-          let data = null;
-          try {
-            data = JSON.parse(body);
-          } catch (e) {
-            reject(new Error(`Error parsing response as JSON: ${e}`));
-            return;
-          }
-          if (!data.messages) {
-            resolve(results);
-            return;
-          }
-
-          // Note that the Gmail API returns message IDs in hex format. So for
-          // example the IMAP X-GM-MSGID 1438297078380071706 corresponds to
-          // 13f5db9286538b1a in the API response we have here.
-          results = results.concat(data.messages.map((m) => this._parseHexId(m.id)));
-
-          if (results.length >= limit) {
-            resolve(results.slice(0, limit));
-            return;
-          }
-
-          if (!data.nextPageToken) {
-            resolve(results);
-            return;
-          }
-          params.pageToken = data.nextPageToken;
-          trySearch(numTries + 1);
-        });
-      };
-      trySearch(0);
-    });
-  }
-
-  async searchThreads(db, query, limit) {
-    const messageIds = await this._search(query, limit);
-    if (!messageIds.length) {
-      return Rx.Observable.of('[]');
-    }
-
-    const {Message} = db;
-    const messages = await Message.findAll({
-      attributes: ['id', 'threadId'],
-      where: {gMsgId: {$in: messageIds}},
-    });
-
-    const stringifiedThreads = getThreadsForMessages(db, messages, limit)
-      .then((threads) => `${JSON.stringify(threads)}\n`);
-    return Rx.Observable.fromPromise(stringifiedThreads);
-  }
-}
-
 class SearchFolder {
   constructor(folder, criteria) {
     this.folder = folder;
@@ -184,11 +58,11 @@ class ImapSearchClient {
     this._logger = global.Logger.forAccount(this.account);
   }
 
-  async _search(db, query) {
+  async _getFoldersForSearch(db) {
     // We want to start the search with the 'inbox', 'sent' and 'archive'
     // folders, if they exist.
     const {Folder} = db;
-    let folders = await Folder.findAll({
+    const folders = await Folder.findAll({
       where: {
         accountId: this.account.id,
         role: ['inbox', 'sent', 'archive'],
@@ -202,10 +76,17 @@ class ImapSearchClient {
       },
     });
 
-    folders = folders.concat(accountFolders);
+    return folders.concat(accountFolders);
+  }
 
+  _getCriteriaForQuery(query) {
     const parsedQuery = SearchQueryParser.parse(query);
-    const criteria = IMAPSearchQueryBackend.compile(parsedQuery);
+    return IMAPSearchQueryBackend.compile(parsedQuery);
+  }
+
+  async _search(db, query) {
+    const folders = await this._getFoldersForSearch(db);
+    const criteria = this._getCriteriaForQuery(query);
     let numTimeoutErrors = 0;
     let result = null;
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
@@ -267,6 +148,17 @@ class ImapSearchClient {
       }
       return '\n';
     });
+  }
+}
+
+class GmailSearchClient extends ImapSearchClient {
+  async _getFoldersForSearch(db) {
+    const allMail = await db.Folder.findOne({where: {role: 'all'}});
+    return [allMail];
+  }
+
+  _getCriteriaForQuery(query) {
+    return [['X-GM-RAW', query]];
   }
 }
 
