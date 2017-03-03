@@ -80,7 +80,7 @@ class ErrorReporter {
 
   _setupSentry() {
     // Initialize the Sentry connector
-    const sentryDSN = "https://0796ad36648a40a094128d6e0287eda4:0c329e562cc74e06a48488772dd0f578@sentry.io/134984"
+    const sentryDSN = "https://a556c0165bc74435952c95dccc5938ec:484978beb99f40208cb86610e66bead6@sentry.io/144447"
 
     Raven.disableConsoleAlerts();
     Raven.config(sentryDSN, {
