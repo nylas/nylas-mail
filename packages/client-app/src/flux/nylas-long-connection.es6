@@ -70,7 +70,7 @@ class NylasLongConnection {
       try {
         result = JSON.parse(resultJSON)
       } catch (e) {
-        console.error(`${resultJSON} could not be parsed as JSON.`, e)
+        console.warn(`${resultJSON} could not be parsed as JSON.`, e)
       }
       if (result) {
         this._results.push(result)
@@ -138,7 +138,6 @@ class NylasLongConnection {
             message: chunk.toString('utf8'),
             statusCode: responseStream.statusCode,
           })
-          console.error(error)
           this.onError(error)
           this.close()
         })
@@ -146,6 +145,10 @@ class NylasLongConnection {
       }
 
       responseStream.setEncoding('utf8')
+      responseStream.on('error', (error) => {
+        this.onError(new APIError({error}))
+        this.close()
+      })
       responseStream.on('close', () => this.close())
       responseStream.on('end', () => this.close())
       responseStream.on('data', (chunk) => {
@@ -162,7 +165,6 @@ class NylasLongConnection {
     this._req.setTimeout(60 * 60 * 1000)
     this._req.setSocketKeepAlive(true)
     this._req.on('error', (error) => {
-      console.error(error)
       this.onError(new APIError({error}))
       this.close()
     })
@@ -172,7 +174,15 @@ class NylasLongConnection {
         this.setStatus(Status.Connected)
         this.closeIfDataStops()
       })
+      socket.on('error', (error) => {
+        this.onError(new APIError({error}))
+        this.close()
+      })
+      socket.on('close', () => this.close())
+      socket.on('end', () => this.close())
     })
+    // We `end` the request to start it.
+    // See https://github.com/nylas/nylas-mail/pull/2004
     this._req.end()
     return this
   }
@@ -205,6 +215,17 @@ class NylasLongConnection {
       if (this._req.responseStream) {
         this._req.responseStream.removeAllListeners()
       }
+      if (this._req.socket) {
+        this._req.socket.removeAllListeners()
+      }
+
+      // Keep an error handler to prevent from logging and reporting uncaught
+      // errors that may occur after aborting this current request.
+      // For example, if we manually close this connection before any data has
+      // been received (frequently happens when searching threads), this will
+      // throw an uncaught socket hang up error that will get unnecessarily
+      // reported to sentry
+      this._req.on('error', () => {})
       this._req = null
     }
     return this
