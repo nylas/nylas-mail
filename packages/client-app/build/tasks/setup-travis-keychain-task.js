@@ -50,6 +50,10 @@ module.exports = (grunt) => {
     return cleanupKeychain()
     .then(() => spawnP({cmd: "security", args: ["create-keychain", '-p', tmpPass, tmpKeychain]}))
 
+    // Due to a bug in OSX, you must list-keychain with -s in order for it
+    // to actually add it to the list of keychains. See http://stackoverflow.com/questions/20391911/os-x-keychain-not-visible-to-keychain-access-app-in-mavericks
+    .then(() => spawnP({cmd: "security", args: ["list-keychains", "-s", tmpKeychain]}))
+
     // Make the custom keychain default, so xcodebuild will use it for signing
     .then(() => spawnP({cmd: "security", args: ["default-keychain", "-s", tmpKeychain]}))
 
