@@ -1,8 +1,6 @@
 import _ from 'underscore'
-import Rx from 'rx-lite'
 import NylasStore from 'nylas-store'
 import AccountStore from './account-store'
-import DatabaseStore from './database-store'
 import CategoryStore from './category-store'
 
 
@@ -13,14 +11,6 @@ import CategoryStore from './category-store'
  * The sync state for any given account has the following shape:
  *
  * {
- *   deltaCursors: {
- *     localSync,
- *     n1Cloud,
- *   },
- *   deltaStatus: {
- *     localSync,
- *     n1Cloud,
- *   },
  *   folderSyncProgress: {
  *     inbox: {
  *       progress: 0.5,
@@ -40,43 +30,27 @@ class NylasSyncStatusStore extends NylasStore {
   constructor() {
     super()
     this._statesByAccount = {}
-    this._accountSubscriptions = new Map()
     this._triggerDebounced = _.debounce(this.trigger, 100)
+  }
 
+  activate() {
     this.listenTo(AccountStore, () => this._onAccountsChanged())
     this.listenTo(CategoryStore, () => this._onCategoriesChanged())
 
     this._onCategoriesChanged()
-    this._setupAccountSubscriptions(AccountStore.accountIds())
-  }
-
-  _setupAccountSubscriptions(accountIds) {
-    accountIds.forEach((accountId) => {
-      if (this._accountSubscriptions.has(accountId)) { return; }
-      const query = DatabaseStore.findJSONBlob(`NylasSyncWorker:${accountId}`)
-      const sub = Rx.Observable.fromQuery(query)
-      .subscribe((json) => this._updateState(accountId, json))
-      this._accountSubscriptions.set(accountId, sub)
-    })
   }
 
   _onAccountsChanged() {
-    const currentIds = Array.from(this._accountSubscriptions.keys())
+    const currentIds = Object.keys(this._statesByAccount)
     const nextIds = AccountStore.accountIds()
-    const newIds = _.difference(nextIds, currentIds)
     const removedIds = _.difference(currentIds, nextIds)
 
     removedIds.forEach((accountId) => {
-      if (this._accountSubscriptions.has(accountId)) {
-        this._accountSubscriptions.get(accountId).dispose()
-      }
-
       if (this._statesByAccount[accountId]) {
         delete this._statesByAccount[accountId]
         this._triggerDebounced()
       }
     })
-    this._setupAccountSubscriptions(newIds)
   }
 
   _onCategoriesChanged() {
@@ -99,12 +73,8 @@ class NylasSyncStatusStore extends NylasStore {
     }
   }
 
-  _updateState(accountId, updates) {
+  _updateState(accountId, nextState) {
     const currentState = this._statesByAccount[accountId] || {}
-    const nextState = {
-      ...currentState,
-      ...updates,
-    }
     if (_.isEqual(currentState, nextState)) { return }
     this._statesByAccount[accountId] = nextState
     this._triggerDebounced()

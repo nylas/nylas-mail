@@ -73,7 +73,6 @@ lazyLoad(`LegacyEdgehillAPI`, 'flux/legacy-edgehill-api');
 lazyLoad(`NylasAPIHelpers`, 'flux/nylas-api-helpers');
 lazyLoad(`NylasAPIRequest`, 'flux/nylas-api-request');
 lazyLoad(`NylasLongConnection`, 'flux/nylas-long-connection');
-lazyLoad(`NylasSyncStatusStore`, 'flux/stores/nylas-sync-status-store');
 
 // The Database
 lazyLoad(`Matcher`, 'flux/attributes/matcher');
@@ -166,9 +165,11 @@ lazyLoadAndRegisterStore(`FocusedContentStore`, 'focused-content-store');
 lazyLoadAndRegisterStore(`MessageBodyProcessor`, 'message-body-processor');
 lazyLoadAndRegisterStore(`FocusedContactsStore`, 'focused-contacts-store');
 lazyLoadAndRegisterStore(`TaskQueueStatusStore`, 'task-queue-status-store');
+lazyLoadAndRegisterStore(`NylasSyncStatusStore`, 'nylas-sync-status-store');
 lazyLoadAndRegisterStore(`ThreadListActionsStore`, 'thread-list-actions-store');
 lazyLoadAndRegisterStore(`FocusedPerspectiveStore`, 'focused-perspective-store');
 lazyLoadAndRegisterStore(`SearchableComponentStore`, 'searchable-component-store');
+lazyLoadAndRegisterStore(`DeltaConnectionStatusStore`, 'delta-connection-status-store');
 lazyLoad(`CustomContenteditableComponents`, 'components/overlaid-components/custom-contenteditable-components');
 
 lazyLoad(`ServiceRegistry`, `registries/service-registry`);
