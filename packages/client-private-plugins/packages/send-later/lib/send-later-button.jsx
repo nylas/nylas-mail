@@ -58,13 +58,21 @@ class SendLaterButton extends Component {
     // Only check for feature usage and record metrics if this draft is not
     // already set to send later.
     if (!currentSendLaterDate) {
-      if (!FeatureUsageStore.isUsable("send-later")) {
-        this._showFeatureLimit()
-        return
+      const lexicon = {
+        displayName: "Send Later",
+        usedUpHeader: "All delayed sends used",
+        iconUrl: "nylas://send-later/assets/ic-send-later-modal@2x.png",
+      }
+
+      try {
+        await FeatureUsageStore.asyncUseFeature('send-later', {lexicon})
+      } catch (error) {
+        if (error instanceof FeatureUsageStore.NoProAccess) {
+          return
+        }
       }
 
       this.setState({saving: true});
-      await FeatureUsageStore.useFeature('send-later')
       const sendInSec = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000)
       Actions.recordUserEvent("Draft Send Later", {
         timeInSec: sendInSec,
@@ -169,35 +177,6 @@ class SendLaterButton extends Component {
     }
     const messageMetadata = draft.metadataForPluginId(PLUGIN_ID) || {};
     return messageMetadata.expiration;
-  }
-
-  _showFeatureLimit() {
-    const featureData = FeatureUsageStore.featureData("send-later");
-
-    let headerText = "";
-    let rechargeText = ""
-    if (!featureData.quota) {
-      headerText = "Send later not yet enabled";
-      rechargeText = "Upgrade to Pro to start sending later"
-    } else {
-      headerText = "All delayed sends used";
-      const next = FeatureUsageStore.nextPeriodString(featureData.period)
-      rechargeText = `You’ll have ${featureData.quota} more chances to send later ${next}`
-    }
-
-    Actions.openModal({
-      component: (
-        <FeatureUsedUpModal
-          modalClass="send-later"
-          featureName="send later"
-          headerText={headerText}
-          iconUrl="nylas://send-later/assets/ic-send-later-modal@2x.png"
-          rechargeText={rechargeText}
-        />
-      ),
-      height: 575,
-      width: 412,
-    })
   }
 
 

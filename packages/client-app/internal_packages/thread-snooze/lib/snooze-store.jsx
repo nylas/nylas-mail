@@ -1,7 +1,6 @@
 import _ from 'underscore';
-import {React, FeatureUsageStore, Actions, AccountStore,
+import {FeatureUsageStore, Actions, AccountStore,
   DatabaseStore, Message, CategoryStore} from 'nylas-exports';
-import {FeatureUsedUpModal} from 'nylas-component-kit'
 import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
@@ -68,44 +67,16 @@ class SnoozeStore {
     }
   };
 
-  _showFeatureLimit() {
-    const featureData = FeatureUsageStore.featureData("snooze");
-
-    let headerText = "";
-    let rechargeText = ""
-    if (!featureData.quota) {
-      headerText = "Snooze not yet enabled";
-      rechargeText = "Upgrade to Pro to start snoozing"
-    } else {
-      headerText = "All snoozes used";
-      const next = FeatureUsageStore.nextPeriodString(featureData.period)
-      rechargeText = `You’ll have ${featureData.quota} more snoozes ${next}`
-    }
-
-    Actions.openModal({
-      component: (
-        <FeatureUsedUpModal
-          modalClass="snooze"
-          featureName="Snooze"
-          headerText={headerText}
-          iconUrl="nylas://thread-snooze/assets/ic-snooze-modal@2x.png"
-          rechargeText={rechargeText}
-        />
-      ),
-      height: 575,
-      width: 412,
-    })
-  }
-
   onSnoozeThreads = (threads, snoozeDate, label) => {
-    if (!FeatureUsageStore.isUsable("snooze")) {
-      this._showFeatureLimit();
-      return Promise.resolve()
+    const lexicon = {
+      displayName: "Snooze",
+      usedUpHeader: "All Snoozes used",
+      iconUrl: "nylas://thread-snooze/assets/ic-snooze-modal@2x.png",
     }
-    this.recordSnoozeEvent(threads, snoozeDate, label)
 
-    return FeatureUsageStore.useFeature('snooze')
+    FeatureUsageStore.asyncUseFeature('snooze', {lexicon})
     .then(() => {
+      this.recordSnoozeEvent(threads, snoozeDate, label)
       return SnoozeUtils.moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
     })
     .then((updatedThreads) => {
@@ -128,10 +99,14 @@ class SnoozeStore {
       });
     })
     .catch((error) => {
+      if (error instanceof FeatureUsageStore.NoProAccess) {
+        return
+      }
       SnoozeUtils.moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)
       Actions.closePopover();
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to save your snooze settings. ${error.message}`);
+      return
     });
   };
 

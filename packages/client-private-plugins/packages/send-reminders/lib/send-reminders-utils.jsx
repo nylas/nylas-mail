@@ -88,45 +88,24 @@ export async function asyncUpdateFromSentMessage({messageClientId}) {
   Actions.setMetadata(message, PLUGIN_ID, newMetadata)
 }
 
-function _showFeatureLimit() {
-  const featureData = FeatureUsageStore.featureData("send-reminders");
-
-  let headerText = "";
-  let rechargeText = ""
-  if (!featureData.quota) {
-    headerText = "Reminders not yet enabled";
-    rechargeText = "Upgrade to Pro to start using reminders"
-  } else {
-    headerText = "All reminders used";
-    const next = FeatureUsageStore.nextPeriodString(featureData.period)
-    rechargeText = `You’ll have ${featureData.quota} more reminders ${next}`
-  }
-
-  Actions.openModal({
-    component: (
-      <FeatureUsedUpModal
-        modalClass="send-reminders"
-        featureName="reminders"
-        headerText={headerText}
-        iconUrl="nylas://send-reminders/assets/ic-send-reminders-modal@2x.png"
-        rechargeText={rechargeText}
-      />
-    ),
-    height: 575,
-    width: 412,
-  })
-}
-
 async function asyncSetReminder(accountId, reminderDate, dateLabel, {message, thread, isDraft, draftSession} = {}) {
   // Only check for feature usage and record metrics if this message doesn't
   // already have a reminder set
   if (!reminderDateForMessage(message)) {
-    if (!FeatureUsageStore.isUsable("send-reminders")) {
-      _showFeatureLimit();
-      return Promise.resolve()
+    const lexicon = {
+      displayName: "be Reminded",
+      usedUpHeader: "All reminders used",
+      iconUrl: "nylas://send-reminders/assets/ic-send-reminders-modal@2x.png",
     }
 
-    await FeatureUsageStore.useFeature('send-reminders')
+    try {
+      await FeatureUsageStore.asyncUseFeature('send-reminders', {lexicon})
+    } catch (error) {
+      if (error instanceof FeatureUsageStore.NoProAccess) {
+        return
+      }
+    }
+
     if (reminderDate && dateLabel) {
       const remindInSec = Math.round(((new Date(reminderDate)).valueOf() - Date.now()) / 1000)
       Actions.recordUserEvent("Set Reminder", {
