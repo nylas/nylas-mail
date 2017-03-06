@@ -59,16 +59,6 @@ class NylasAPI {
     return AccountStore.tokensForAccountId(aid).localSync
   }
 
-  longConnection = (opts) => {
-    const connection = new NylasLongConnection(this, opts.accountId, opts)
-    connection.onResults(opts.onResults)
-    return connection
-  }
-
-  startLongConnection = (opts) => {
-    return this.longConnection(opts).start()
-  }
-
   incrementRemoteChangeLock = (klass, id) => {
     this.lockTracker.increment(klass, id)
   }

@@ -4,10 +4,11 @@ import {
   NylasAPI,
   Thread,
   DatabaseStore,
+  SearchQueryParser,
   ComponentRegistry,
+  NylasLongConnection,
   FocusedContentStore,
   MutableQuerySubscription,
-  SearchQueryParser,
 } from 'nylas-exports'
 import SearchActions from './search-actions'
 
@@ -113,8 +114,9 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     }
 
     this._connections = this._accountIds.map((accountId) => {
-      return NylasAPI.startLongConnection({
+      const conn = new NylasLongConnection({
         accountId,
+        api: NylasAPI,
         path: `/threads/search/streaming?q=${encodeURIComponent(this._searchQuery)}`,
         onResults: (results) => {
           if (!this._remoteResultsReceivedAt) {
@@ -139,6 +141,8 @@ class SearchQuerySubscription extends MutableQuerySubscription {
           }
         },
       })
+
+      return conn.start()
     })
   }
 
