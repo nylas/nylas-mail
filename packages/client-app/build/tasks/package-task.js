@@ -58,11 +58,12 @@ module.exports = (grunt) => {
     const dirs = [
       'internal_packages',
       'src',
+      'spec',
       'node_modules',
     ];
 
     dirs.forEach((dir) => {
-      absoluteDir = path.join(appDir, dir);
+      const absoluteDir = path.join(appDir, dir);
       fs.readdirSync(absoluteDir).forEach((packageName) => {
         const relativePackageDir = path.join(dir, packageName)
         const absolutePackageDir = path.join(absoluteDir, packageName)
