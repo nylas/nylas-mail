@@ -3,24 +3,27 @@ import {NylasLongConnection, DatabaseStore} from 'nylas-exports'
 
 class DeltaStreamingConnection extends NylasLongConnection {
   constructor(api, accountId, opts = {}) {
+    // TODO FYI this whole class is changing in an upcoming diff
+    opts.api = api
+    opts.accountId = accountId
     opts.throttleResultsInterval = 1000
     opts.closeIfDataStopsInterval = 15 * 1000
-    super(api, accountId, opts)
+
+    // Update cursor when deltas received
+    opts.onResuls = (deltas = []) => {
+      if (opts.onDeltas) opts.onDeltas(deltas, {source: "n1Cloud"});
+      const last = _.last(deltas);
+      if (last && last.cursor) {
+        this._setCursor(last.cursor)
+      }
+    }
+    super(opts)
 
     this._onError = opts.onError || (() => {})
 
     const {getCursor, setCursor} = opts
     this._getCursor = getCursor
     this._setCursor = setCursor
-
-    // Update cursor when deltas received
-    this.onResults((deltas = []) => {
-      if (opts.onDeltas) opts.onDeltas(deltas, {source: "n1Cloud"});
-      const last = _.last(deltas);
-      if (last && last.cursor) {
-        this._setCursor(last.cursor)
-      }
-    })
   }
 
   _deltaStreamingPath(cursor) {

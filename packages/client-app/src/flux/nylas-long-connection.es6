@@ -18,11 +18,12 @@ const Status = {
 class NylasLongConnection {
   static Status = Status
 
-  constructor(api, accountId, opts = {}) {
+  constructor({api, accountId, ...opts} = {}) {
     const {
       path,
       timeout,
       onError,
+      onResults,
       onStatusChanged,
       throttleResultsInterval,
       closeIfDataStopsInterval,
@@ -42,9 +43,11 @@ class NylasLongConnection {
     this._path = path
     this._timeout = timeout || CONNECTION_TIMEOUT
     this._onError = onError || (() => {})
+    this._onResults = onResults || (() => {})
     this._onStatusChanged = onStatusChanged || (() => {})
     this._closeIfDataStopsInterval = closeIfDataStopsInterval
 
+    this._emitter.on('results-stopped-arriving', this._onResults)
     this._processBufferThrottled = _.throttle(this._processBuffer, PROCESS_BUFFER_THROTTLE, {leading: false})
     this._flushResultsSoon = () => {
       if (this._results.length === 0) { return }
@@ -91,10 +94,6 @@ class NylasLongConnection {
     if (this._status === status) { return }
     this._status = status
     this._onStatusChanged(this._status, this._httpStatusCode)
-  }
-
-  onResults(callback) {
-    this._emitter.on('results-stopped-arriving', callback)
   }
 
   onError(error) {
