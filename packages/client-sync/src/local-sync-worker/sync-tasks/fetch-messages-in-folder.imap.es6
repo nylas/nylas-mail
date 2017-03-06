@@ -14,12 +14,13 @@ const GMAIL_INBOX_PRIORITIZE_COUNT = 1000;
 
 
 class FetchMessagesInFolderIMAP extends SyncTask {
-  constructor({account, folder} = {}) {
+  constructor({account, folder, uids} = {}) {
     super({account})
     this._imap = null
     this._box = null
     this._db = null
     this._folder = folder;
+    this._uids = uids;
     if (!this._folder) {
       throw new Error("FetchMessagesInFolderIMAP requires a category")
     }
@@ -304,6 +305,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
           accountId: this._db.accountId,
         })
         processedUids.add(uid);
+        this.emit('message-processed');
 
         // If the user quits the app at this point, we will have to refetch
         // these messages because the folder.syncState won't get updated, but

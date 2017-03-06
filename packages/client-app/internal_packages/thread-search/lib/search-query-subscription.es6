@@ -78,9 +78,9 @@ class SearchQuerySubscription extends MutableQuerySubscription {
         this._localResultsReceivedAt = Date.now()
       }
       this._localResultsCount += results.length
-      if (results.length > 0) {
-        this.replaceQuery(dbQuery)
-      }
+      // Even if we don't have any results now we might sync additional messages
+      // from the provider which will cause new results to appear later.
+      this.replaceQuery(dbQuery)
     })
   }
 

@@ -10,8 +10,10 @@ class SyncTaskFactory {
         Task = require('./sync-tasks/fetch-messages-in-folder.imap'); break;
       case "FetchNewMessagesInFolder":
         Task = require('./sync-tasks/fetch-new-messages-in-folder.imap'); break;
+      case "FetchSpecificMessagesInFolder":
+        Task = require('./sync-tasks/fetch-specific-messages-in-folder.imap'); break;
       default:
-        throw new Error(`Task type not defined in syncback--factory: ${taskName}`)
+        throw new Error(`Task type not defined in sync task factory: ${taskName}`)
     }
     return new Task(...args)
   }

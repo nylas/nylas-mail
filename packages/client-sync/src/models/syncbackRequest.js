@@ -21,7 +21,8 @@ module.exports = (sequelize, Sequelize) => {
         "INPROGRESS-RETRYABLE",
         "INPROGRESS-NOTRETRYABLE",
         "SUCCEEDED",
-        "FAILED"
+        "FAILED",
+        "CANCELLED"
       ),
       defaultValue: "NEW",
       allowNull: false,

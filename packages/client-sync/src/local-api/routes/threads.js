@@ -75,7 +75,10 @@ module.exports = (server) => {
       const outputStream = stream.Readable();
       outputStream._read = () => { return };
       const disposable = source.subscribe((str) => outputStream.push(str));
-      request.on("disconnect", () => disposable.dispose());
+      request.on("disconnect", () => {
+        client.cancelSearchRequest();
+        disposable.dispose();
+      });
       reply(outputStream);
     },
   });
