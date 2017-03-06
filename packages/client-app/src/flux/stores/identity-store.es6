@@ -54,6 +54,10 @@ class IdentityStore extends NylasStore {
     return Utils.deepClone(this._identity);
   }
 
+  hasProAccess() {
+    return this._identity && this._identity.has_pro_access
+  }
+
   identityId() {
     if (!this._identity) {
       return null;
@@ -148,7 +152,7 @@ class IdentityStore extends NylasStore {
    * https://paper.dropbox.com/doc/Analytics-ID-Unification-oVDTkakFsiBBbk9aeuiA3
    * for the full list of utm_ labels.
    */
-  fetchSingleSignOnURL(path, {source, campaign, content}) {
+  fetchSingleSignOnURL(path, {source, campaign, content} = {}) {
     if (!this._identity) {
       return Promise.reject(new Error("fetchSingleSignOnURL: no identity set."));
     }
@@ -190,6 +194,11 @@ class IdentityStore extends NylasStore {
         }
       });
     });
+  }
+
+  async asyncRefreshIdentity() {
+    await this._fetchIdentity();
+    return true
   }
 
   async _fetchIdentity() {

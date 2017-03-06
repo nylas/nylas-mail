@@ -3,10 +3,9 @@
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 .container-identity {
-  width: 50%;
+  max-width: 887px;
   min-width: 530px;
   margin: auto;
-  padding-top: @padding-base-vertical * 2;
 
   .id-header {
     color: @text-color-very-subtle;
@@ -38,15 +37,27 @@
       width: 100%;
     }
 
-    .payment-row {
-      flex-direction: column;
-      align-items: flex-start;
-      border-top: 1px solid @border-color-primary;
+    .padded {
+      display: block;
       padding: 20px;
       padding-left: 137px;
-      &>div:first-child {
-        margin-bottom: @padding-base-vertical * 2;
+      border-top: 1px solid @border-color-primary;
+    }
+
+    .btn {
+      width: 180px;
+      &.minor-width {
+        width: 120px;
       }
+      text-align: center;
+      margin-right: @padding-base-horizontal;
+      margin-bottom: @padding-base-horizontal;
+    }
+    .identity-actions {
+      margin-top: @padding-small-vertical + 1;
+    }
+    .subscription-actions {
+      margin-top: 20px;
     }
 
     .info-row {
@@ -55,18 +66,10 @@
         margin-right: 30px;
       }
       .identity-info {
+        flex: 1;
         line-height: 1.9em;
         .name {
           font-size: 1.2em;
-        }
-        .identity-actions {
-          margin-top: @padding-small-vertical + 1;
-          .btn {
-            width: 170px;
-            text-align: center;
-            margin-right: @padding-base-horizontal;
-            margin-bottom: @padding-base-horizontal;
-          }
         }
       }
     }

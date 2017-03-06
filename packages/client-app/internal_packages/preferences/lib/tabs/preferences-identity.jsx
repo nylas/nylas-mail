@@ -1,6 +1,6 @@
 import React from 'react';
 import {Actions, IdentityStore} from 'nylas-exports';
-import {OpenIdentityPageButton, RetinaImg} from 'nylas-component-kit';
+import {OpenIdentityPageButton, BillingModal, RetinaImg} from 'nylas-component-kit';
 import {shell} from 'electron';
 
 class PreferencesIdentity extends React.Component {
@@ -8,12 +8,12 @@ class PreferencesIdentity extends React.Component {
 
   constructor() {
     super();
-    this.state = this.getStateFromStores();
+    this.state = this._getStateFromStores();
   }
 
   componentDidMount() {
     this.unsubscribe = IdentityStore.listen(() => {
-      this.setState(this.getStateFromStores());
+      this.setState(this._getStateFromStores());
     });
   }
 
@@ -21,10 +21,48 @@ class PreferencesIdentity extends React.Component {
     this.unsubscribe();
   }
 
-  getStateFromStores() {
+  _getStateFromStores() {
     return {
       identity: IdentityStore.identity() || {},
     };
+  }
+
+  _onUpgrade = () => {
+    Actions.openModal({
+      component: (
+        <BillingModal source="preferences" />
+      ),
+      height: 575,
+      width: 412,
+    })
+  }
+
+  _renderBasic() {
+    const learnMore = () => shell.openExternal("https://nylas.com/nylas-pro")
+    return (
+      <div className="row padded">
+        <div>
+        You are using <strong>Nylas Mail Basic</strong>. Upgrade to Nylas Mail Pro to unlock a more powerful email experience.
+        </div>
+        <div className="subscription-actions">
+          <div className="btn btn-emphasis" onClick={this._onUpgrade} style={{verticalAlign: "top"}}>Upgrade to Nylas Mail Pro</div>
+          <div className="btn minor-width" onClick={learnMore}>Learn More</div>
+        </div>
+      </div>
+    )
+  }
+
+  _renderPro() {
+    return (
+      <div className="row padded">
+        <div>
+        Thank you for using <strong>Nylas Mail Pro</strong>
+        </div>
+        <div className="subscription-actions">
+          <OpenIdentityPageButton label="Manage Billing" path="/dashboard#billing" source="Preferences Billing" campaign="Dashboard" />
+        </div>
+      </div>
+    )
   }
 
   render() {
@@ -32,14 +70,11 @@ class PreferencesIdentity extends React.Component {
     const {firstname, lastname, email} = identity;
 
     const logout = () => Actions.logoutNylasIdentity()
-    const learnMore = () => shell.openExternal("https://nylas.com/nylas-pro")
 
     return (
       <div className="container-identity">
-        <div className="id-header">
-          Nylas ID:
-        </div>
         <div className="identity-content-box">
+
           <div className="row info-row">
             <div className="logo">
               <RetinaImg
@@ -52,18 +87,13 @@ class PreferencesIdentity extends React.Component {
               <div className="email">{email}</div>
               <div className="identity-actions">
                 <OpenIdentityPageButton label="Account Details" path="/dashboard" source="Preferences" campaign="Dashboard" />
-                <OpenIdentityPageButton label="Upgrade to Nylas Pro" path="/dashboard?upgrade_to_pro=true" source="Preferences" campaign="Dashboard" />
-                <div className="btn" onClick={logout}>Sign Out</div>
+                <div className="btn minor-width" onClick={logout}>Sign Out</div>
               </div>
             </div>
           </div>
 
-          <div className="row payment-row">
-            <div>
-            You are using Nylas Mail Basic. Upgrade to Nylas Pro to unlock a more powerful email experience.
-            </div>
-            <div className="btn" onClick={learnMore}>Learn More about Nylas Pro</div>
-          </div>
+          {this.state.identity.has_pro_access ? this._renderPro() : this._renderBasic()}
+
         </div>
       </div>
     );
