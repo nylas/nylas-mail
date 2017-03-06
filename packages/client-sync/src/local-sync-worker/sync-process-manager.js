@@ -1,7 +1,7 @@
 const _ = require('underscore')
 const fs = require('fs')
 const {remote} = require('electron')
-const {Actions} = require('nylas-exports')
+const {Actions, OnlineStatusStore} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
@@ -9,15 +9,24 @@ const LocalDatabaseConnector = require('../shared/local-database-connector')
 class SyncProcessManager {
   constructor() {
     this._workers = {};
-    this._exiting = false;
     this._accounts = []
+    this._exiting = false;
+    this._resettingEmailCache = false
 
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
       this.wakeWorkerForAccount(accountId, {interrupt: true})
     );
-    this._resettingEmailCache = false
     Actions.resetEmailCache.listen(this._resetEmailCache, this)
-    Actions.debugSync.listen(this._onDebugSync)
+    Actions.debugSync.listen(this._onDebugSync, this)
+    OnlineStatusStore.listen(this._onOnlineStatusChanged, this)
+  }
+
+  _onOnlineStatusChanged() {
+    if (OnlineStatusStore.isOnline()) {
+      this._accounts.forEach(({id}) => {
+        this.wakeWorkerForAccount(id, {reason: 'Came back online'})
+      })
+    }
   }
 
   _onDebugSync() {
@@ -63,9 +72,17 @@ class SyncProcessManager {
     }
   }
 
-  accounts() { return this._accounts }
-  workers() { return _.values(this._workers) }
-  dbs() { return this.workers().map(w => w._db) }
+  accounts() {
+    return this._accounts
+  }
+
+  workers() {
+    return _.values(this._workers)
+  }
+
+  dbs() {
+    return this.workers().map(w => w._db)
+  }
 
   wakeWorkerForAccount(accountId, {reason = 'Waking sync', interrupt} = {}) {
     const worker = this._workers[accountId]
