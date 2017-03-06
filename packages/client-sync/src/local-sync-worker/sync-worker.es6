@@ -188,6 +188,7 @@ class SyncWorker {
       }
       return null
     } catch (err) {
+      this._logger.warn(`🔃  Unable to refresh access token.`, err);
       if (err instanceof APIError) {
         const {statusCode} = err
         this._logger.error(`🔃  Unable to refresh access token. Got status code: ${statusCode}`, err);
@@ -208,10 +209,10 @@ class SyncWorker {
           throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`);
         }
       }
-      this._logger.error(`🔃  Unable to refresh access token.`, err);
+      err.message = `Unknown error when refreshing access token: ${err.message}`
       const fingerprint = ["{{ default }}", "access token refresh", err.message];
       NylasEnv.reportError(err, {fingerprint: fingerprint})
-      throw new Error(`Unable to refresh access token, unknown error encountered`);
+      throw err
     }
   }
 
