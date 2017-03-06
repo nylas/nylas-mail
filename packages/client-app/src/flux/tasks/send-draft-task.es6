@@ -206,7 +206,10 @@ export default class SendDraftTask extends BaseDraftTask {
       SoundRegistry.playSound('send');
     }
     if (NylasEnv.timer.isPending(this._timerKey)) {
+      const account = AccountStore.accountForId(this.draft.accountId)
+      const provider = account ? account.provider : 'Unknown provider'
       Actions.recordPerfMetric({
+        provider,
         action: 'send-draft',
         actionTimeMs: NylasEnv.timer.stop(this._timerKey),
         maxValue: 60 * 1000,
@@ -218,7 +221,10 @@ export default class SendDraftTask extends BaseDraftTask {
 
   onError = (err) => {
     if (NylasEnv.timer.isPending(this._timerKey)) {
+      const account = AccountStore.accountForId(this.draft.accountId)
+      const provider = account ? account.provider : 'Unknown provider'
       Actions.recordPerfMetric({
+        provider,
         action: 'send-draft',
         actionTimeMs: NylasEnv.timer.stop(this._timerKey),
         maxValue: 60 * 1000,
