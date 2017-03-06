@@ -51,7 +51,7 @@ install:
 - nvm use --delete-prefix $NODE_VERSION
 
 script:
-- npm install && npm run build-client
+- travis_wait npm install && npm run build-client
 
 cache:
   directories:
