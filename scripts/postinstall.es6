@@ -55,7 +55,7 @@ async function installPrivateResources() {
 
 async function lernaBootstrap() {
   console.log("\n---> Installing packages");
-  await spawn("lerna", ["bootstrap", '--loglevel=silly'])
+  await spawn("lerna", ["bootstrap"])
 }
 
 const npmEnvs = {
