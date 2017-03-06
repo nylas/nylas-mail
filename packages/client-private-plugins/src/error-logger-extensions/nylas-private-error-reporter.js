@@ -19,6 +19,7 @@ class ErrorReporter {
     this.inDevMode = modes.inDevMode
     this.resourcePath = modes.resourcePath
     this.deviceHash = "Unknown Device Hash"
+    this.rateLimitDataByKey = new Map()
 
     if (!this.inSpecMode) {
       try {
@@ -48,6 +49,7 @@ class ErrorReporter {
 
   reportError(err, extra) {
     if (this.inSpecMode || this.inDevMode) { return }
+    if (!this._shouldReportError(extra)) { return }
 
     // It's possible for there to be more than 1 sentry capture object.
     // If an error comes from multiple plugins, we report a unique event
@@ -76,6 +78,41 @@ class ErrorReporter {
     for (const obj of captureObjects) {
       Raven.captureException(err, Object.assign(errData, obj))
     }
+  }
+
+  _shouldReportError(extra = {}) {
+    const {rateLimit} = extra
+    delete extra.rateLimit
+    const {key: rateLimitKey, ratePerHour} = rateLimit || {}
+    if (!rateLimitKey || !ratePerHour) {
+      return true
+    }
+    if (!this.rateLimitDataByKey.has(rateLimitKey)) {
+      this.rateLimitDataByKey.set(rateLimitKey, {
+        leftInHour: ratePerHour - 1,
+        hourStarted: Date.now(),
+      })
+      return true
+    }
+
+    const {leftInHour, hourStarted} = this.rateLimitDataByKey.get(rateLimitKey)
+    const oneHourTimestamp = hourStarted + (60 * 60 * 1000)
+    const now = Date.now()
+    if (now >= oneHourTimestamp) {
+      this.rateLimitDataByKey.set(rateLimitKey, {
+        leftInHour: ratePerHour - 1,
+        hourStarted: now,
+      })
+      return true
+    }
+    if (leftInHour > 0) {
+      this.rateLimitDataByKey.set(rateLimitKey, {
+        hourStarted,
+        leftInHour: leftInHour - 1,
+      })
+      return true
+    }
+    return false
   }
 
   _setupSentry() {

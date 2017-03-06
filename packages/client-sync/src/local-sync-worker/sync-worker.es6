@@ -211,7 +211,12 @@ class SyncWorker {
       }
       err.message = `Unknown error when refreshing access token: ${err.message}`
       const fingerprint = ["{{ default }}", "access token refresh", err.message];
-      NylasEnv.reportError(err, {fingerprint: fingerprint})
+      NylasEnv.reportError(err, {fingerprint,
+        rateLimit: {
+          ratePerHour: 30,
+          key: `SyncError:RefreshToken:${err.message}`,
+        },
+      })
       throw err
     }
   }
@@ -325,7 +330,12 @@ class SyncWorker {
     // Update account error state
     const errorJSON = error.toJSON()
     const fingerprint = ["{{ default }}", "sync loop", error.message];
-    NylasEnv.reportError(error, {fingerprint: fingerprint});
+    NylasEnv.reportError(error, {fingerprint,
+      rateLimit: {
+        ratePerHour: 30,
+        key: `SyncError:SyncLoop:${error.message}`,
+      },
+    });
 
     const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
     const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
