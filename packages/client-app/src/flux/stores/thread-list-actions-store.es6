@@ -70,10 +70,7 @@ class ThreadListActionsStore extends NylasStore {
         .map(id => AccountStore.accountForId(id))
         .filter(Boolean)
     } else {
-      accounts = threads
-        .map(t => t.accountId)
-        .map(id => AccountStore.accountForId(id))
-        .filter(Boolean)
+      accounts = AccountStore.accountsForItems(threads)
     }
     const firstProvider = accounts[0].provider
     const haveSameProvider = accounts
