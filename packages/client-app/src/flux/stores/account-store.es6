@@ -294,7 +294,7 @@ class AccountStore extends NylasStore {
     items.forEach(({accountId}) => {
       accounts[accountId] = accounts[accountId] || this.accountForId(accountId)
     })
-    return _.values(accounts)
+    return _.compact(_.values(accounts))
   }
 
   accountForItems = (items) => {
