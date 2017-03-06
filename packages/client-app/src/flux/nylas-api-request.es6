@@ -122,14 +122,20 @@ export default class NylasAPIRequest {
       408, // Timeout error code
       429, // Too many requests
     ]
-    if (!ignorableStatusCodes.includes(apiError.statusCode)) {
+    const {statusCode} = apiError
+    if (!ignorableStatusCodes.includes(statusCode)) {
       const msg = apiError.message || `Unknown Error: ${apiError}`
       const fingerprint = ["{{ default }}", "api error", apiError.statusCode, msg];
-      NylasEnv.reportError(apiError, {fingerprint: fingerprint});
+      NylasEnv.reportError(apiError, {fingerprint,
+        rateLimit: {
+          ratePerHour: 30,
+          key: `APIError:${statusCode}:${msg}`,
+        },
+      });
       apiError.reported = true
     }
 
-    if ([401, 403].includes(apiError.statusCode)) {
+    if ([401, 403].includes(statusCode)) {
       Actions.apiAuthError(apiError, this.options, this.api.constructor.name)
     }
   }
