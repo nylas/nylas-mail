@@ -2,6 +2,7 @@ import NylasStore from 'nylas-store'
 import Actions from '../actions'
 import Utils from '../models/utils'
 import TaskFactory from '../tasks/task-factory'
+import AccountStore from '../stores/account-store'
 import FocusedPerspectiveStore from '../stores/focused-perspective-store'
 
 
@@ -36,13 +37,14 @@ class ThreadListActionsStore extends NylasStore {
     const threadIdsInList = new Set(threads.map(t => t.id))
 
     for (const [timerId, timerData] of this._timers.entries()) {
-      const {threadIds, source, action, targetCategory} = timerData
+      const {threadIds, provider, source, action, targetCategory} = timerData
       const threadsHaveBeenRemoved = threadIds.every(id => !threadIdsInList.has(id))
       if (threadsHaveBeenRemoved) {
         const actionTimeMs = NylasEnv.timer.stop(timerId, updatedAt)
         Actions.recordPerfMetric({
           action,
           source,
+          provider,
           actionTimeMs,
           targetCategory,
           threadCount: threadIds.length,
@@ -53,15 +55,34 @@ class ThreadListActionsStore extends NylasStore {
     }
   }
 
-  _setNewTimer({threads, threadIds, source, action, targetCategory = 'unknown'} = {}) {
+  _setNewTimer({threads, threadIds, accountIds, source, action, targetCategory = 'unknown'} = {}) {
     if (!threads && !threadIds) {
       return
     }
+    if (threadIds && !accountIds) {
+      throw new Error('ThreadListActionStore._setNewTimer: Must pass accountIds along with threadIds')
+    }
     const tIds = threadIds || threads.map(t => t.id);
     const timerId = Utils.generateTempId()
+    let accounts
+    if (!threads) {
+      accounts = accountIds
+        .map(id => AccountStore.accountForId(id))
+        .filter(Boolean)
+    } else {
+      accounts = threads
+        .map(t => t.accountId)
+        .map(id => AccountStore.accountForId(id))
+        .filter(Boolean)
+    }
+    const firstProvider = accounts[0].provider
+    const haveSameProvider = accounts
+      .reduce((provider, acct) => (acct.provider === provider ? provider : false), firstProvider)
+    const provider = haveSameProvider ? firstProvider : 'mixed'
     const timerData = {
       source,
       action,
+      provider,
       targetCategory,
       threadIds: tIds,
     }
@@ -134,7 +155,7 @@ class ThreadListActionsStore extends NylasStore {
     Actions.queueTasks(tasks)
   }
 
-  _onMoveThreadsToPerspective = ({targetPerspective, threadIds} = {}) => {
+  _onMoveThreadsToPerspective = ({targetPerspective, threadIds, accountIds} = {}) => {
     if (!threadIds) { return }
     if (threadIds.length === 0) { return }
     const currentPerspective = FocusedPerspectiveStore.current()
@@ -151,6 +172,7 @@ class ThreadListActionsStore extends NylasStore {
       const targetCategory = targetPerspective.isArchive() ? 'archive' : targetPerspective.categoriesSharedName();
       this._setNewTimer({
         threadIds,
+        accountIds,
         targetCategory,
         source: "Dragged to Sidebar",
         action: 'remove-threads-from-list',

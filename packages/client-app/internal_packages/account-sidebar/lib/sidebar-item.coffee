@@ -95,6 +95,7 @@ class SidebarItem
         Actions.moveThreadsToPerspective({
           targetPerspective: item.perspective,
           threadIds: jsonData.threadIds,
+          accountIds: jsonData.accountIds,
         })
 
       shouldAcceptDrop: (item, event) ->
