@@ -192,12 +192,6 @@ class SyncWorker {
         const {statusCode} = err
         this._logger.error(`🔃  Unable to refresh access token. Got status code: ${statusCode}`, err);
 
-        if (statusCode >= 500) {
-          // Even though we don't consider 500s as permanent errors when
-          // refreshing tokens, we want to report them
-          const fingerprint = ["{{ default }}", "access token refresh", statusCode, err.message];
-          NylasEnv.reportError(err, {fingerprint: fingerprint})
-        }
         const isNonPermanentError = (
           // If we got a 5xx error from the server, that means that something is wrong
           // on the Nylas API side. It could be a bad deploy, or a bug on Google's side.
