@@ -2,6 +2,7 @@ const request = require('request');
 const _ = require('underscore');
 const Rx = require('rx-lite');
 const {IMAPConnectionPool} = require('isomorphic-core')
+const SyncProcessManager = require('../local-sync-worker/sync-process-manager')
 const {
   Actions,
   SearchQueryParser,
@@ -56,6 +57,7 @@ class ImapSearchClient {
   constructor(account) {
     this.account = account;
     this._logger = global.Logger.forAccount(this.account);
+    this._cancelled = false;
   }
 
   async _getFoldersForSearch(db) {
@@ -93,22 +95,15 @@ class ImapSearchClient {
       desiredCount: 1,
       logger: this._logger,
       onConnected: async ([conn], done) => {
-        result = Rx.Observable.create((observer) => {
-          const chain = folders.reduce((acc, folder) => {
-            return acc.then((uids) => {
-              if (uids.length > 0) {
-                observer.onNext(uids);
-              }
-              return this._searchFolder(conn, folder, criteria);
-            });
-          }, Promise.resolve([]));
-
-          chain.then((uids) => {
+        result = Rx.Observable.create(async (observer) => {
+          for (const folder of folders) {
+            const uids = await this._searchFolder(conn, folder, criteria);
             if (uids.length > 0) {
-              observer.onNext(uids);
+              observer.onNext({uids, folder});
             }
-            observer.onCompleted();
-          }).finally(() => done());
+          }
+          observer.onCompleted();
+          done();
         });
         return true;
       },
@@ -133,16 +128,70 @@ class ImapSearchClient {
     });
   }
 
+  cancelSearchRequest() {
+    this._cancelled = true;
+  }
+
   async searchThreads(db, query, limit) {
     const {Message} = db;
-    return (await this._search(db, query)).flatMap((uids) => {
-      return Message.findAll({
-        attributes: ['id', 'threadId'],
+    const uidFolderStream = await this._search(db, query);
+    // The first concatMap handles the fact that the async function returns promises
+    // of the new observable streams.
+    const messageListStreamStream = uidFolderStream.concatMap(async ({uids, folder}) => {
+      let messages = await Message.findAll({
+        attributes: ['id', 'threadId', 'folderImapUID'],
         where: {folderImapUID: uids},
       });
-    }).flatMap((messages) => {
+
+      let knownUids = new Set(messages.map(m => parseInt(m.folderImapUID, 10)));
+      const unknownUids = uids.filter(uid => !knownUids.has(uid));
+
+      if (unknownUids.length === 0) {
+        return Rx.Observable.from([messages]);
+      }
+
+      const syncbackRequest = await db.SyncbackRequest.create({
+        type: "SyncUnknownUIDs",
+        props: {folderId: folder.id, uids},
+        accountId: this.account.id,
+      })
+      SyncProcessManager.wakeWorkerForAccount(this.account.id, {interrupt: true, reason: 'Sync unknown UIDs'});
+
+      return Rx.Observable.create((observer) => {
+        observer.onNext(messages);
+        const findFn = async (remainingUids) => {
+          if (this._cancelled) {
+            syncbackRequest.status = 'CANCELLED';
+            await syncbackRequest.save();
+            observer.onCompleted();
+            return;
+          }
+          if (remainingUids.length === 0) {
+            observer.onCompleted();
+            return;
+          }
+
+          const newMessages = await Message.findAll({
+            attributes: ['id', 'threadId', 'folderImapUID'],
+            where: {folderImapUID: remainingUids},
+          });
+          messages = messages.concat(newMessages);
+          if (newMessages.length > 0) {
+            observer.onNext(newMessages);
+          } 
+          knownUids = new Set(messages.map(m => parseInt(m.folderImapUID, 10)));
+          setTimeout(findFn, 1000, remainingUids.filter(uid => !knownUids.has(uid)));
+        };
+        findFn(unknownUids);
+      });
+    });
+    // Now that we've unwrapped the promises with the previous concatMap, we
+    // can flatten the observable into a stream of message lists.
+    return messageListStreamStream.concatMap(messageListStream => {
+      return messageListStream;
+    }).map(messages => {
       return getThreadsForMessages(db, messages, limit);
-    }).flatMap((threads) => {
+    }).concatMap((threads) => {
       if (threads.length > 0) {
         return `${JSON.stringify(threads)}\n`;
       }

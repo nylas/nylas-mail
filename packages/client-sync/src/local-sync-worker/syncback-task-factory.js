@@ -38,6 +38,8 @@ class SyncbackTaskFactory {
         Task = require('./syncback-tasks/send-message-per-recipient.smtp'); break;
       case "EnsureMessageInSentFolder":
         Task = require('./syncback-tasks/ensure-message-in-sent-folder.imap'); break;
+      case "SyncUnknownUIDs":
+        Task = require('./syncback-tasks/sync-unknown-uids.imap'); break;
       default:
         throw new Error(`Task type not defined in syncback-task-factory: ${syncbackRequest.type}`)
     }
