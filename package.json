@@ -32,7 +32,7 @@
     "grunt-electron-installer": "2.x.x",
     "grunt-lesslint": "0.13.x",
     "jasmine": "2.x.x",
-    "lerna": "2.0.0-beta.37",
+    "lerna": "emorikawa/lerna#v2.0.0-beta.38.forked",
     "load-grunt-parent-tasks": "0.1.1",
     "pm2": "2.4.0",
     "request": "2.x.x",
