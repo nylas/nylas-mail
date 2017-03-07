@@ -13,8 +13,8 @@
 
   + Improve initial sync speed by scaling number of messages synced based on
     folder SELECT duration
-  + When app comes back online from having been disconnected from the internet,
-    it will Sync accounts when app comes back online
+  + Immediately restore sync process when app comes back online after being
+    disconnected from the internet.
   + Can now reply from within notifications again
 
 - Development:
