@@ -77,7 +77,9 @@ const npmEnvs = {
 
 async function npm(cmd, options) {
   const {cwd, env} = Object.assign({cwd: '.', env: 'system'}, options);
-  await spawn("npm", [cmd], {
+  let npmCmd = "npm"
+  if (process.platform === "win32") { npmCmd = "npm.cmd" }
+  await spawn(npmCmd, [cmd], {
     cwd: path.resolve(__dirname, '..', cwd),
     env: npmEnvs[env],
   })
