@@ -6,10 +6,10 @@ import {
   APIError,
   N1CloudAPI,
   DatabaseStore,
+  DeltaProcessor,
   OnlineStatusStore,
   NylasLongConnection,
 } from 'nylas-exports';
-import DeltaProcessor from './delta-processor'
 
 
 const MAX_RETRY_DELAY = 5 * 60 * 1000; // 5 minutes

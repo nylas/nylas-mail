@@ -1,12 +1,9 @@
 import _ from 'underscore';
-import {
-  Actions,
-  Thread,
-  Message,
-  NylasAPIHelpers,
-  DatabaseStore,
-  MailRulesProcessor,
-} from 'nylas-exports';
+import Actions from '../flux/actions'
+import Thread from '../flux/models/thread'
+import Message from '../flux/models/message'
+import DatabaseStore from '../flux/stores/database-store'
+import * as NylasAPIHelpers from '../flux/nylas-api-helpers'
 
 /**
  * This injests deltas from multiple sources. One is from local-sync, the
@@ -316,11 +313,6 @@ class DeltaProcessor {
       return;
     }
 
-    try {
-      await MailRulesProcessor.processMessages(created.message || [])
-    } catch (err) {
-      console.error("DeltaProcessor: Running mail rules on incoming mail failed.")
-    }
     Actions.onNewMailDeltas(created)
   }
 
