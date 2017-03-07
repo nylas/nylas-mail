@@ -38,7 +38,7 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
     if (latestBoxStatus.uidnext > fetchedmax) {
       this._box = await this._imap.openBox(this._folder.name)
       const boxUidnext = this._box.uidnext
-      yield this._fetchAndProcessMessages({min: fetchedmax, max: boxUidnext});
+      yield this._fetchAndProcessMessages({min: fetchedmax, max: boxUidnext, throttle: false});
     } else {
       this._logger.log(`🔚 📂 🆕  ${this._folder.name} has no new messages - skipping fetch messages`)
     }
