@@ -1,5 +1,38 @@
 # Nylas Mail Changelog
 
+### 1.0.32 (3/7/2017)
+
+- Development:
+
+  + Report provider when reporting remove-from-threads-from-list
+  + Report provider when reporting send perf metrics
+
+### 1.0.31 (3/6/2017)
+
+- Fixes:
+
+  + Improve initial sync speed by scaling number of messages synced based on
+    folder SELECT duration
+  + When app comes back online from having been disconnected from the internet,
+    it will Sync accounts when app comes back online
+  + Can now reply from within notifications again
+
+- Development:
+
+  + Add basic rate limiting to Sentry
+  + Report all search performance metrics
+  + Prevent noisy uncaught errors when closing long connection
+  + Improve reporting of refresh access token errors
+  + Don't double report refresh access token API errors
+  + Replace `setImmediate` with `setTimeout` as Promise scheduler
+  + Use new Bluebird preferred `longStackTraces` syntax
+  + NylasAPIRequest refactored and cleaned up
+  + Search refactors and improvements
+  + Protect from operating on IMAP connection while opening a box
+  + Enable logging in prod builds
+  + Make deploy-it support -h/--help
+  + Restore cloud testing environments
+
 ### 1.0.30 (2/28/2017)
 
 - Fixes:
