@@ -55,7 +55,9 @@ async function installPrivateResources() {
 
 async function lernaBootstrap() {
   console.log("\n---> Installing packages");
-  await spawn("lerna", ["bootstrap"])
+  let lernaCmd = "lerna"
+  if (process.platform === "win32") { lernaCmd = "lerna.cmd" }
+  await spawn(path.join('node_modules', '.bin', lernaCmd), ["bootstrap"])
 }
 
 const npmEnvs = {
