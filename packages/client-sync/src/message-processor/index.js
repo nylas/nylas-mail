@@ -53,7 +53,7 @@ class MessageProcessor {
    * If message processing fails, we will register the failure in the folder
    * syncState
    */
-  queueMessageForProcessing({accountId, folderId, imapMessage, struct, desiredParts}) {
+  queueMessageForProcessing({accountId, folderId, imapMessage, struct, desiredParts, timeout}) {
     return new Promise((resolve) => {
       this._queueLength++
       this._queue = this._queue.then(async () => {
@@ -67,8 +67,8 @@ class MessageProcessor {
 
         // Throttle message processing to meter cpu usage
         if (this._currentChunkSize === MAX_CHUNK_SIZE) {
-          const timeout = this._computeThrottlingTimeout();
-          await new Promise(r => setTimeout(r, timeout))
+          const delay = timeout == null ? this._computeThrottlingTimeout() : timeout;
+          await new Promise(r => setTimeout(r, delay))
           this._currentChunkSize = 0;
         }
 
