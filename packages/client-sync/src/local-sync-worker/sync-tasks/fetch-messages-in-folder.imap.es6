@@ -303,6 +303,9 @@ class FetchMessagesInFolderIMAP extends SyncTask {
           desiredParts: desiredPartsByUID[uid],
           folderId: this._folder.id,
           accountId: this._db.accountId,
+          // If we have specific uids we're trying to sync then we should do so
+          // as quickly as possible.
+          timeout: uids ? 0 : undefined,
         })
         processedUids.add(uid);
         this.emit('message-processed');
