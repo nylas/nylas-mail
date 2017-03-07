@@ -18,7 +18,7 @@ const BASE_RETRY_DELAY = 1000;
 class DeltaStreamingConnection {
   constructor(account) {
     this._account = account
-    this._state = {cursor: null, status: null}
+    this._state = null
     this._longConnection = null
     this._writeStateDebounced = _.debounce(this._writeState, 100)
     this._unsubscribers = []
@@ -33,8 +33,15 @@ class DeltaStreamingConnection {
     }
   }
 
-  start() {
+  account() {
+    return this._account
+  }
+
+  async start() {
     try {
+      if (!this._state) {
+        this._state = await this._loadState()
+      }
       const {cursor = 0} = this._state
       this._longConnection = new NylasLongConnection({
         api: N1CloudAPI,
@@ -70,26 +77,9 @@ class DeltaStreamingConnection {
   }
 
   end() {
+    this._state = null
     this._disposeListeners()
     this._longConnection.end()
-  }
-
-  async loadStateFromDatabase() {
-    let json = await DatabaseStore.findJSONBlob(`DeltaStreamingConnectionStatus:${this._account.id}`)
-
-    if (!json) {
-      // Migrate from old storage key
-      const oldState = await DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`)
-      if (!oldState) { return; }
-      const {deltaCursors = {}, deltaStatus = {}} = oldState
-      json = {
-        cursor: deltaCursors.n1Cloud || null,
-        status: deltaStatus.n1Cloud || null,
-      }
-    }
-
-    if (!json) { return }
-    this._state = json;
   }
 
   _setupListeners() {
@@ -102,17 +92,6 @@ class DeltaStreamingConnection {
   _disposeListeners() {
     this._unsubscribers.forEach(usub => usub())
     this._unsubscribers = []
-  }
-
-  _writeState() {
-    return DatabaseStore.inTransaction(t =>
-      t.persistJSONBlob(`DeltaStreamingConnectionStatus:${this._account.id}`, this._state)
-    );
-  }
-
-  _setCursor = (cursor) => {
-    this._state.cursor = cursor;
-    this._writeStateDebounced();
   }
 
   _onOnlineStatusChanged = () => {
@@ -175,6 +154,38 @@ class DeltaStreamingConnection {
 
     setTimeout(() => this.restart(), this._backoffScheduler.nextDelay());
   }
+
+  _setCursor = (cursor) => {
+    this._state.cursor = cursor;
+    this._writeStateDebounced();
+  }
+
+  async _loadState() {
+    const json = await DatabaseStore.findJSONBlob(`DeltaStreamingConnectionStatus:${this._account.id}`)
+    if (json) {
+      return json
+    }
+
+    // Migrate from old storage key
+    const oldState = await DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`)
+    if (!oldState) {
+      return {cursor: null, status: null};
+    }
+
+    const {deltaCursors = {}, deltaStatus = {}} = oldState
+    return {
+      cursor: deltaCursors.n1Cloud,
+      status: deltaStatus.n1Cloud,
+    }
+  }
+
+  async _writeState() {
+    if (!this._state) { return }
+    await DatabaseStore.inTransaction(t =>
+      t.persistJSONBlob(`DeltaStreamingConnectionStatus:${this._account.id}`, this._state)
+    );
+  }
+
 }
 
 export default DeltaStreamingConnection

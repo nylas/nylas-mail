@@ -19,7 +19,7 @@ import {
 import Interruptible from '../shared/interruptible'
 import SyncTaskFactory from './sync-task-factory';
 import SyncbackTaskRunner from './syncback-task-runner'
-import LocalSyncDeltaEmitter from './local-sync-delta-emitter'
+
 
 const {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR} = Account
 const AC_SYNC_LOOP_INTERVAL_MS = 10 * 1000            // 10 sec
@@ -37,7 +37,6 @@ class SyncWorker {
     this._currentTask = null
     this._mailListenerConn = null
     this._interruptible = new Interruptible()
-    this._localDeltas = new LocalSyncDeltaEmitter(db, account.id)
     this._logger = global.Logger.forAccount(account)
 
     this._startTime = Date.now()

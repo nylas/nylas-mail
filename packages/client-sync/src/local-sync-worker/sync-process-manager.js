@@ -3,27 +3,28 @@ const fs = require('fs')
 const {remote} = require('electron')
 const {Actions, OnlineStatusStore} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
+const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 const LocalDatabaseConnector = require('../shared/local-database-connector')
 
 
 class SyncProcessManager {
   constructor() {
-    this._workers = {};
-    this._accounts = []
     this._exiting = false;
     this._resettingEmailCache = false
+    this._workers = {};
+    this._localSyncDeltaEmitters = new Map()
 
+    OnlineStatusStore.listen(this._onOnlineStatusChanged, this)
+    Actions.resetEmailCache.listen(this._resetEmailCache, this)
+    Actions.debugSync.listen(this._onDebugSync, this)
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
       this.wakeWorkerForAccount(accountId, {interrupt: true})
     );
-    Actions.resetEmailCache.listen(this._resetEmailCache, this)
-    Actions.debugSync.listen(this._onDebugSync, this)
-    OnlineStatusStore.listen(this._onOnlineStatusChanged, this)
   }
 
   _onOnlineStatusChanged() {
     if (OnlineStatusStore.isOnline()) {
-      this._accounts.forEach(({id}) => {
+      Object.keys(this._workers).forEach((id) => {
         this.wakeWorkerForAccount(id, {reason: 'Came back online'})
       })
     }
@@ -96,13 +97,16 @@ class SyncProcessManager {
     const logger = global.Logger.forAccount(account)
 
     try {
-      const db = await LocalDatabaseConnector.forAccount(account.id);
       if (this._workers[account.id]) {
-        logger.warn(`SyncProcessManager: Worker for account already exists`)
+        logger.warn(`SyncProcessManager.addWorkerForAccount: Worker for account already exists - skipping`)
         return
       }
-      this._accounts.push(account)
+      const db = await LocalDatabaseConnector.forAccount(account.id);
       this._workers[account.id] = new SyncWorker(account, db, this);
+
+      const localSyncDeltaEmitter = new LocalSyncDeltaEmitter(account, db)
+      await localSyncDeltaEmitter.activate()
+      this._localSyncDeltaEmitters.set(account.id, localSyncDeltaEmitter)
       logger.log(`SyncProcessManager: Claiming Account Succeeded`)
     } catch (err) {
       logger.error(`SyncProcessManager: Claiming Account Failed`, err)
@@ -114,9 +118,13 @@ class SyncProcessManager {
       await this._workers[accountId].cleanup();
       this._workers[accountId] = null;
     }
+
+    if (this._localSyncDeltaEmitters.has(accountId)) {
+      this._localSyncDeltaEmitters.get(accountId).deactivate();
+      this._localSyncDeltaEmitters.delete(accountId)
+    }
   }
 }
 
-window.syncProcessManager = new SyncProcessManager();
-window.dbs = window.syncProcessManager.dbs.bind(window.syncProcessManager)
-module.exports = window.syncProcessManager
+window.$n.SyncProcessManager = new SyncProcessManager();
+module.exports = window.$n.SyncProcessManager

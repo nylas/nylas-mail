@@ -1,35 +1,73 @@
-const TransactionConnector = require('../shared/transaction-connector')
-const {DeltaStreamBuilder} = require('isomorphic-core')
+import _ from 'underscore'
+import {DeltaStreamBuilder} from 'isomorphic-core'
+import {DatabaseStore, DeltaProcessor} from 'nylas-exports'
+import TransactionConnector from '../shared/transaction-connector'
+
 
 export default class LocalSyncDeltaEmitter {
-  constructor(db, accountId) {
+  constructor(account, db) {
     this._db = db;
-    this._accountId = accountId;
-    NylasEnv.localSyncEmitter.on("startDeltasFor", this._startDeltasFor)
-    NylasEnv.localSyncEmitter.on("endDeltasFor", this._endDeltasFor)
-    /**
-     * The local-sync/sync-worker starts up asynchronously. We need to
-     * notify N1 client that there are more deltas it should be looking
-     * for.
-     */
-    NylasEnv.localSyncEmitter.emit("refreshLocalDeltas", accountId)
+    this._state = null
+    this._account = account;
+    this._disposable = {dispose: () => {}}
+    this._writeStateDebounced = _.debounce(this._writeState, 100)
   }
 
-  _startDeltasFor = ({accountId, cursor}) => {
-    if (accountId !== this._accountId) return;
-    if (this._disp && this._disp.dispose) this._disp.dispose()
-    this._disp = DeltaStreamBuilder.buildDeltaObservable({
+  async activate() {
+    if (this._disposable && this._disposable.dispose) {
+      this._disposable.dispose()
+    }
+    if (!this._state) {
+      this._state = await this._loadState()
+    }
+    const {cursor = 0} = this._state
+    this._disposable = DeltaStreamBuilder.buildDeltaObservable({
+      cursor,
       db: this._db,
-      cursor: cursor,
-      accountId: accountId,
-      deltasSource: TransactionConnector.getObservableForAccountId(accountId),
-    }).subscribe((deltas) => {
-      NylasEnv.localSyncEmitter.emit("localSyncDeltas", deltas)
+      accountId: this._account.id,
+      deltasSource: TransactionConnector.getObservableForAccountId(this._account.id),
+    })
+    .subscribe((deltas) => {
+      this._onDeltasReceived(deltas)
     })
   }
 
-  _endDeltasFor = ({accountId}) => {
-    if (accountId !== this._accountId) return;
-    if (this._disp && this._disp.dispose) this._disp.dispose()
+  deactivate() {
+    this._state = null
+    if (this._disposable && this._disposable.dispose) {
+      this._disposable.dispose()
+    }
+  }
+
+  _onDeltasReceived(deltas = []) {
+    const last = deltas[deltas.length - 1]
+    if (last) {
+      this._state.cursor = last.cursor;
+      this._writeStateDebounced();
+    }
+    DeltaProcessor.process(deltas, {source: "localSync"})
+  }
+
+  async _loadState() {
+    const json = await DatabaseStore.findJSONBlob(`LocalSyncStatus:${this._account.id}`)
+    if (json) {
+      return json
+    }
+
+    // Migrate from old storage key
+    const oldState = await DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`)
+    if (!oldState) {
+      return {}
+    }
+
+    const {deltaCursors = {}} = oldState
+    return {cursor: deltaCursors.localSync}
+  }
+
+  async _writeState() {
+    if (!this._state) { return }
+    await DatabaseStore.inTransaction(t =>
+      t.persistJSONBlob(`LocalSyncStatus:${this._account.id}`, this._state)
+    );
   }
 }
