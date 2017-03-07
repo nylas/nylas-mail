@@ -12,14 +12,8 @@ import DatabaseStore from './database-store'
  * The sync state for any given account has the following shape:
  *
  * {
- *   deltaCursors: {
- *     localSync,
- *     n1Cloud,
- *   },
- *   deltaStatus: {
- *     localSync,
- *     n1Cloud,
- *   },
+ *   cursor: 0,
+ *   status: 'connected',
  * }
  *
  */
@@ -44,9 +38,13 @@ class DeltaConnectionStatusStore extends NylasStore {
   _setupAccountSubscriptions(accountIds) {
     accountIds.forEach((accountId) => {
       if (this._accountSubscriptions.has(accountId)) { return; }
-      const query = DatabaseStore.findJSONBlob(`NylasSyncWorker:${accountId}`)
+      const query = DatabaseStore.findJSONBlob(`DeltaStreamingConnectionStatus:${accountId}`)
       const sub = Rx.Observable.fromQuery(query)
-      .subscribe((json) => this._updateState(accountId, json))
+      .subscribe((json) => {
+        // We need to copy `json` otherwise the query observable will mutate
+        // the reference to that object
+        this._updateState(accountId, {...json})
+      })
       this._accountSubscriptions.set(accountId, sub)
     })
   }

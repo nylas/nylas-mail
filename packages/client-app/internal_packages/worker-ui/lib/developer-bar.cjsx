@@ -70,9 +70,9 @@ class DeveloperBar extends React.Component
     </div>
 
   _renderDeltaStates: =>
-    _.map @state.longPollStates, (deltaStatus, accountId) =>
+    _.map @state.longPollStates, (status, accountId) =>
       <div className="delta-state-wrap" key={accountId} >
-        <div title={"Account #{accountId} - Cloud State: #{deltaStatus?.n1Cloud}"} key={"#{accountId}-n1Cloud"} className={"activity-status-bubble state-" + deltaStatus?.n1Cloud}></div>
+        <div title={"Account #{accountId} - Cloud State: #{status}"} key={"#{accountId}-n1Cloud"} className={"activity-status-bubble state-" + status}></div>
       </div>
 
   _sectionContent: =>
