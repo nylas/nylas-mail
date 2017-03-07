@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import {AccountStore} from 'nylas-exports'
-import AccountDeltaConnection from './account-delta-connection';
+import DeltaStreamingConnection from './delta-streaming-connection';
 
 
 class DeltaConnectionStore {
   constructor() {
-    this._accountConnections = [];
+    this._connections = [];
     this._unsubscribe = () => {}
   }
 
@@ -16,10 +16,6 @@ class DeltaConnectionStore {
 
   deactivate() {
     this._unsubscribe()
-  }
-
-  _existingConnectionsForAccount(account) {
-    return _.find(this._accountConnections, c => c.account().id === account.id);
   }
 
   async _ensureConnections() {
@@ -33,25 +29,27 @@ class DeltaConnectionStore {
     this._isBuildingDeltaConnections = true;
 
     try {
-      const originalConnections = this._accountConnections;
-      const currentConnections = []
+      const currentConnections = this._connections;
+      const nextConnections = []
       for (const account of AccountStore.accounts()) {
-        const existingDeltaConnection = this._existingConnectionsForAccount(account)
-        if (existingDeltaConnection) {
-          currentConnections.push(existingDeltaConnection);
+        const existingConnection = (
+          currentConnections
+          .find(conn => conn.account().id === account.id)
+        )
+        if (existingConnection) {
+          nextConnections.push(existingConnection);
           continue
         }
 
-        const newDeltaConnection = new AccountDeltaConnection(account);
-        await newDeltaConnection.loadStateFromDatabase()
-        newDeltaConnection.start()
-        currentConnections.push(newDeltaConnection);
+        const newDeltaConnection = new DeltaStreamingConnection(account);
+        await newDeltaConnection.start()
+        nextConnections.push(newDeltaConnection);
       }
-      const oldDeltaConnections = _.difference(originalConnections, currentConnections);
+      const oldDeltaConnections = _.difference(currentConnections, nextConnections);
       for (const deltaConnection of oldDeltaConnections) {
         deltaConnection.end()
       }
-      this._accountConnections = currentConnections;
+      this._connections = nextConnections;
     } finally {
       this._isBuildingDeltaConnections = false;
     }

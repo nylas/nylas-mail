@@ -226,7 +226,7 @@ export default class NylasEnvConstructor {
 
     this.timer = remote.getGlobal('application').timer;
 
-    this.localSyncEmitter = new Emitter();
+    this.globalWindowEmitter = new Emitter();
 
     if (!this.inSpecMode()) {
       this.actionBridge = new ActionBridge(ipcRenderer);
