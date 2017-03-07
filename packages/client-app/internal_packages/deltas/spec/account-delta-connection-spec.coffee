@@ -3,6 +3,7 @@ _ = require 'underscore'
 DeltaStreamingConnection = require('../lib/delta-streaming-connection').default
 AccountDeltaConnection = require('../lib/account-delta-connection').default
 
+# TODO these are badly out of date, we need to rewrite them
 xdescribe "AccountDeltaConnection", ->
   beforeEach ->
     @apiRequests = []

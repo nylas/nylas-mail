@@ -35,7 +35,14 @@ const BASE_RETRY_DELAY = 1000;
  */
 export default class AccountDeltaConnection {
 
+
   constructor(account) {
+    // TODO This class is in the process of being ripped apart, and replaced by
+    // DeltaStreamingConnection, and will disappear in
+    // the next diff, but for the purposes of making this diff smaller, I
+    // haven't removed it yet.
+    this._n1CloudConn = new DeltaStreamingConnection(account)
+
     this._state = { deltaCursors: {}, deltaStatus: {} }
     this.retryDelay = BASE_RETRY_DELAY;
     this._writeStateDebounced = _.debounce(this._writeState, 100)
@@ -77,6 +84,7 @@ export default class AccountDeltaConnection {
 
   start = () => {
     try {
+      this._n1CloudConn.start()
       this._refreshingCaches.map(c => c.start());
       _.map(this._deltaStreams, s => s.start())
     } catch (err) {
@@ -92,11 +100,7 @@ export default class AccountDeltaConnection {
 
   _setupDeltaStreams = (account) => {
     const localSync = new DeltaStreamingInMemoryConnection(account.id, this._deltaStreamOpts("localSync"));
-
-    const n1Cloud = new DeltaStreamingConnection(N1CloudAPI,
-        account.id, this._deltaStreamOpts("n1Cloud"));
-
-    return {localSync, n1Cloud};
+    return {localSync};
   }
 
   _deltaStreamOpts = (streamName) => {
