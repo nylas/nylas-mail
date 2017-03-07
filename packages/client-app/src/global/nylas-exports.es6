@@ -215,6 +215,7 @@ lazyLoad(`SoundRegistry`, 'registries/sound-registry');
 lazyLoad(`MailRulesTemplates`, 'mail-rules-templates');
 lazyLoad(`MailRulesProcessor`, 'mail-rules-processor');
 lazyLoad(`MailboxPerspective`, 'mailbox-perspective');
+lazyLoad(`DeltaProcessor`, 'services/delta-processor');
 lazyLoad(`NativeNotifications`, 'native-notifications');
 lazyLoad(`ModelSearchIndexer`, 'services/model-search-indexer');
 lazyLoad(`SearchIndexScheduler`, 'services/search-index-scheduler');

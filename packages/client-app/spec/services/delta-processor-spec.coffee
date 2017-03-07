@@ -8,7 +8,7 @@ path = require 'path'
  Message,
  Thread} = require 'nylas-exports'
 
-DeltaProcessor = require('../lib/delta-processor').default
+DeltaProcessor = require('../../src/services/delta-processor').default
 
 fixturesPath = path.resolve(__dirname, 'fixtures')
 
@@ -228,3 +228,4 @@ describe "DeltaProcessor", ->
         thread = @stubDB[@threadMetadataDelta.attributes.object_id]
         expect(thread.pluginMetadata.length).toEqual(1)
         expect(thread.metadataForPluginId('send-reminders')).toEqual({shouldNotify: true})
+
