@@ -30,7 +30,7 @@ class FetchSpecificMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
 
     this._logger.log(`🔜 📂 🆕  ${this._folder.name} - Fetching ${uids.length} UIDs`);
     this._box = await this._imap.openBox(this._folder.name)
-    yield this._fetchAndProcessMessages({uids});
+    yield this._fetchAndProcessMessages({uids, throttle: false});
     this._logger.log(`🔚 📂 🆕  ${this._folder.name} done`);
   }
 }

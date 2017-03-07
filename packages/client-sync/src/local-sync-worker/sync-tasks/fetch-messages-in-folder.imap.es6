@@ -226,7 +226,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * OR
    * It can fetch a specific set of `uids`
    */
-  async * _fetchAndProcessMessages({min, max, uids} = {}) {
+  async * _fetchAndProcessMessages({min, max, uids, throttle = true} = {}) {
     let rangeQuery;
     if (uids) {
       if (min || max) {
@@ -303,9 +303,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
           desiredParts: desiredPartsByUID[uid],
           folderId: this._folder.id,
           accountId: this._db.accountId,
-          // If we have specific uids we're trying to sync then we should do so
-          // as quickly as possible.
-          timeout: uids ? 0 : undefined,
+          throttle,
         })
         processedUids.add(uid);
         this.emit('message-processed');
@@ -412,17 +410,17 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       const fetchedmax = this._folder.syncState.fetchedmax || this._box.uidnext;
       if (this._box.uidnext > fetchedmax) {
         this._logger.log(`🔃 📂 ${this._folder.name} new messages present; fetching ${fetchedmax}:${this._box.uidnext}`);
-        totalProcessedMessages += yield this._fetchAndProcessMessages({min: fetchedmax, max: this._box.uidnext});
+        totalProcessedMessages += yield this._fetchAndProcessMessages({min: fetchedmax, max: this._box.uidnext, throttle: false});
       }
       const batchSplitIndex = Math.max(inboxUids.length - batchSize, 0);
       const uidsFetchNow = inboxUids.slice(batchSplitIndex);
       const uidsFetchLater = inboxUids.slice(0, batchSplitIndex);
       // this._logger.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${uidsFetchLater.length}`);
-      totalProcessedMessages += yield this._fetchAndProcessMessages({uids: uidsFetchNow});
+      totalProcessedMessages += yield this._fetchAndProcessMessages({uids: uidsFetchNow, throttle: false});
       await this._folder.updateSyncState({ gmailInboxUIDsRemaining: uidsFetchLater });
     } else {
       const lowerbound = Math.max(1, this._box.uidnext - batchSize);
-      totalProcessedMessages += yield this._fetchAndProcessMessages({min: lowerbound, max: this._box.uidnext});
+      totalProcessedMessages += yield this._fetchAndProcessMessages({min: lowerbound, max: this._box.uidnext, throttle: false});
       // We issue a UID FETCH ALL and record the correct minimum UID for the
       // mailbox, which could be something much larger than 1 (especially for
       // inbox because of archiving, which "loses" smaller UIDs over time). If
@@ -465,7 +463,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     let totalProcessedMessages = 0
     if (savedSyncState.fetchedmax < boxUidnext) {
       // this._logger.log(`FetchMessagesInFolderIMAP: fetching ${savedSyncState.fetchedmax}:${boxUidnext}`);
-      totalProcessedMessages += yield this._fetchAndProcessMessages({min: savedSyncState.fetchedmax, max: boxUidnext});
+      totalProcessedMessages += yield this._fetchAndProcessMessages({min: savedSyncState.fetchedmax, max: boxUidnext, throttle: false});
     } else {
       // this._logger.log('FetchMessagesInFolderIMAP: fetchedmax == uidnext, nothing more recent to fetch.')
     }
@@ -489,37 +487,37 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     const moreToFetchAvailable = () => !this._folder.isSyncComplete() || this._box.uidnext > this._folder.syncState.fetchedmax
     const batchSize = this._batchSizeForFolder(this._folder);
     while (totalProcessedMessages < batchSize && moreToFetchAvailable()) {
-      let numProcessed = 0;
       if (this._isFirstSync()) {
-        numProcessed = yield this._fetchFirstUnsyncedMessages(batchSize);
-      } else {
-        numProcessed = yield this._fetchUnsyncedMessages(batchSize);
-        if (numProcessed === 0) {
-          // Find where the gap in the UID space ends --- SEARCH can be slow on
-          // large mailboxes, but otherwise we could spin here arbitrarily long
-          // FETCHing empty space
-          let nextUid;
-          // IMAP range searches include both ends of the range
-          const minSearchUid = this._folder.syncState.fetchedmin - 1;
-          if (minSearchUid) {
-            const uids = await this._box.search([['UID',
-              `${this._folder.syncState.minUID}:${minSearchUid}`]]);
-            // Using old-school max because uids may be an array of a million
-            // items. Math.max can't take that many arguments
-            nextUid = uids[0] || 1;
-            for (const uid of uids) {
-              if (uid > nextUid) {
-                nextUid = uid;
-              }
-            }
-          } else {
-            nextUid = 1;
+        const numProcessed = yield this._fetchFirstUnsyncedMessages(batchSize);
+        totalProcessedMessages += numProcessed;
+        continue;
+      }
+
+      const numProcessed = yield this._fetchUnsyncedMessages(batchSize);
+      totalProcessedMessages += numProcessed
+      if (numProcessed > 0) {
+        continue;
+      }
+
+      // Find where the gap in the UID space ends --- SEARCH can be slow on
+      // large mailboxes, but otherwise we could spin here arbitrarily long
+      // FETCHing empty space
+      let nextUid = 1;
+      // IMAP range searches include both ends of the range
+      const minSearchUid = this._folder.syncState.fetchedmin - 1;
+      if (minSearchUid) {
+        const uids = await this._box.search([['UID', `${this._folder.syncState.minUID}:${minSearchUid}`]]);
+        // Using old-school max because uids may be an array of a million
+        // items. Math.max can't take that many arguments
+        nextUid = uids[0] || 1;
+        for (const uid of uids) {
+          if (uid > nextUid) {
+            nextUid = uid;
           }
-          this._logger.log(`🔃📂 ${this._folder.name} Found gap in UIDs; next fetchedmin is ${nextUid}`);
-          await this._folder.updateSyncState({ fetchedmin: nextUid });
         }
       }
-      totalProcessedMessages += numProcessed
+      this._logger.log(`🔃📂 ${this._folder.name} Found gap in UIDs; next fetchedmin is ${nextUid}`);
+      await this._folder.updateSyncState({ fetchedmin: nextUid });
     }
   }
 
