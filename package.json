@@ -42,7 +42,7 @@
     "underscore": "1.8.x"
   },
   "scripts": {
-    "start": "npm run start-client",
+    "start": "npm run client",
     "test": "npm run test-client && npm run test-cloud",
     "client": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --dev",
     "test-client": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test",
