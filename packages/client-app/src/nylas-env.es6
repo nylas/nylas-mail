@@ -270,8 +270,10 @@ export default class NylasEnvConstructor {
 
     // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
     window.onerror = (message, url, line, column, originalError) => {
+      if (!this.inDevMode()) {
+        return this.reportError(originalError, {url, line, column});
+      }
       const {line: newLine, column: newColumn} = mapSourcePosition({source: url, line, column});
-
       originalError.stack = convertStackTrace(originalError.stack, sourceMapCache);
       return this.reportError(originalError, {url, line: newLine, column: newColumn});
     };
@@ -289,7 +291,6 @@ export default class NylasEnvConstructor {
     process.on('unhandledRejection', error => {
       if (this.inDevMode()) {
         error.stack = convertStackTrace(error.stack, sourceMapCache);
-        return this.reportError(error);
       }
       return this.reportError(error);
     });
