@@ -102,10 +102,19 @@ module.exports = (grunt) => {
       const outputDir = grunt.config.get('outputDir');
       const uploads = [];
 
+      // We increment the version so we have an autoupdate target to test
+      const versionParts = fullVersion.split('.')
+      versionParts[2] = +versionParts[2] + 1
+      const nextVersion = versionParts.join('.')
+
       if (process.platform === 'darwin') {
         uploads.push({
           source: `${outputDir}/NylasMail.zip`,
           key: `${fullVersion}/${process.platform}/${process.arch}/NylasMail.zip`,
+        });
+        uploads.push({
+          source: `${outputDir}/NylasMail.zip`,
+          key: `${nextVersion}/${process.platform}/${process.arch}/NylasMail.zip`,
         });
         uploads.push({
           source: `${outputDir}/NylasMail.dmg`,
@@ -119,6 +128,10 @@ module.exports = (grunt) => {
         uploads.push({
           source: `${outputDir}/NylasMailSetup.exe`,
           key: `${fullVersion}/${process.platform}/${process.arch}/NylasMailSetup.exe`,
+        });
+        uploads.push({
+          source: `${outputDir}/NylasMailSetup.exe`,
+          key: `${nextVersion}/${process.platform}/${process.arch}/NylasMailSetup.exe`,
         });
         uploads.push({
           source: `${outputDir}/Nylas-${packageVersion}-full.nupkg`,
