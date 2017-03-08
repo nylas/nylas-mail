@@ -5,7 +5,7 @@ import CategoryStore from './category-store'
 
 
 /**
- * NylasSyncStatusStore keeps track of the sync state per account, and will
+ * FolderSyncProgressStore keeps track of the sync state per account, and will
  * trigger whenever it changes.
  *
  * The sync state for any given account has the following shape:
@@ -25,7 +25,7 @@ import CategoryStore from './category-store'
  * }
  *
  */
-class NylasSyncStatusStore extends NylasStore {
+class FolderSyncProgressStore extends NylasStore {
 
   constructor() {
     super()
@@ -160,4 +160,4 @@ class NylasSyncStatusStore extends NylasStore {
   }
 }
 
-export default new NylasSyncStatusStore()
+export default new FolderSyncProgressStore()

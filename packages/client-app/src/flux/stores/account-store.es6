@@ -43,17 +43,14 @@ class AccountStore extends NylasStore {
 
       if (NylasEnv.isMainWindow() && newAccountIds.length > 0) {
         const newId = newAccountIds[0]
-        // const NylasSyncStatusStore = require('./nylas-sync-status-store').default
+        Actions.focusDefaultMailboxPerspectiveForAccounts([newId], {sidebarAccountIds: accountIds})
+        const FolderSyncProgressStore = require('./folder-sync-progress-store').default
+        await FolderSyncProgressStore.whenCategoryListSynced(newId)
         Actions.focusDefaultMailboxPerspectiveForAccounts([newId], {sidebarAccountIds: accountIds})
         // TODO:
-        // Wait for a little bit before uncollapsong the sidebar to show the
-        // newly focused inbox
         // This Action is a hack, get rid of it in sidebar refactor
         // Wait until the FocusedPerspectiveStore triggers and the sidebar is
         // updated to uncollapse the inbox for the new account
-        const NylasSyncStatusStore = require('./nylas-sync-status-store').default
-        await NylasSyncStatusStore.whenCategoryListSynced(newId)
-        Actions.focusDefaultMailboxPerspectiveForAccounts([newId], {sidebarAccountIds: accountIds})
         Actions.setCollapsedSidebarItem('Inbox', false)
       }
     })

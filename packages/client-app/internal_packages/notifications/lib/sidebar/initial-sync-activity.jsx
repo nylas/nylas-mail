@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import _str from 'underscore.string';
-import {Utils, AccountStore, NylasSyncStatusStore, React} from 'nylas-exports';
+import {Utils, AccountStore, FolderSyncProgressStore, React} from 'nylas-exports';
 
 const MONTH_SHORT_FORMATS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
   'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -11,14 +11,14 @@ export default class InitialSyncActivity extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      syncState: NylasSyncStatusStore.getSyncState(),
+      syncState: FolderSyncProgressStore.getSyncState(),
     }
     this.mounted = false;
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.unsub = NylasSyncStatusStore.listen(this.onDataChanged)
+    this.unsub = FolderSyncProgressStore.listen(this.onDataChanged)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -32,7 +32,7 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   onDataChanged = () => {
-    const syncState = Utils.deepClone(NylasSyncStatusStore.getSyncState())
+    const syncState = Utils.deepClone(FolderSyncProgressStore.getSyncState())
     this.setState({syncState});
   }
 
@@ -68,7 +68,7 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   render() {
-    if (!AccountStore.accountsAreSyncing() || NylasSyncStatusStore.isSyncComplete()) {
+    if (!AccountStore.accountsAreSyncing() || FolderSyncProgressStore.isSyncComplete()) {
       return false;
     }
 

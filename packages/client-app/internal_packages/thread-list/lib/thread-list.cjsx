@@ -22,7 +22,7 @@ classnames = require 'classnames'
  ExtensionRegistry,
  FocusedContentStore,
  FocusedPerspectiveStore
- NylasSyncStatusStore} = require 'nylas-exports'
+ FolderSyncProgressStore} = require 'nylas-exports'
 
 ThreadListColumns = require './thread-list-columns'
 ThreadListScrollTooltip = require './thread-list-scroll-tooltip'
@@ -46,7 +46,7 @@ class ThreadList extends React.Component
 
   componentDidMount: =>
     @_reportAppBootTime()
-    @unsub = NylasSyncStatusStore.listen(@_onSyncStatusChanged)
+    @unsub = FolderSyncProgressStore.listen(@_onSyncStatusChanged)
     window.addEventListener('resize', @_onResize, true)
     ReactDOM.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
     @_onResize()

@@ -7,7 +7,7 @@ import {
   Category,
   Thread,
   CategoryStore,
-  NylasSyncStatusStore,
+  FolderSyncProgressStore,
 } from 'nylas-exports'
 import SnoozeUtils from '../lib/snooze-utils'
 
@@ -15,7 +15,7 @@ xdescribe('Snooze Utils', function snoozeUtils() {
   beforeEach(() => {
     this.name = 'Snoozed Folder'
     this.accId = 123
-    spyOn(NylasSyncStatusStore, 'whenCategoryListSynced').andReturn(Promise.resolve())
+    spyOn(FolderSyncProgressStore, 'whenCategoryListSynced').andReturn(Promise.resolve())
   })
 
   describe('snoozedUntilMessage', () => {
