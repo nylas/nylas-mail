@@ -10,14 +10,14 @@ path = require 'path'
 
 DeltaProcessor = require('../../src/services/delta-processor').default
 
-fixturesPath = path.resolve(__dirname, 'fixtures')
+fixturesPath = path.resolve(__dirname, '..', 'fixtures')
 
 describe "DeltaProcessor", ->
 
   describe "handleDeltas", ->
     beforeEach ->
-      @sampleDeltas = JSON.parse(fs.readFileSync("#{fixturesPath}/sample.json"))
-      @sampleClustered = JSON.parse(fs.readFileSync("#{fixturesPath}/sample-clustered.json"))
+      @sampleDeltas = JSON.parse(fs.readFileSync("#{fixturesPath}/sample-deltas.json"))
+      @sampleClustered = JSON.parse(fs.readFileSync("#{fixturesPath}/sample-deltas-clustered.json"))
 
     it "should immediately fire the received raw deltas event", ->
       spyOn(Actions, 'longPollReceivedRawDeltas')
@@ -82,8 +82,8 @@ describe "DeltaProcessor", ->
 
   describe "clusterDeltas", ->
     beforeEach ->
-      @sampleDeltas = JSON.parse(fs.readFileSync("#{fixturesPath}/sample.json"))
-      @expectedClustered = JSON.parse(fs.readFileSync("#{fixturesPath}/sample-clustered.json"))
+      @sampleDeltas = JSON.parse(fs.readFileSync("#{fixturesPath}/sample-deltas.json"))
+      @expectedClustered = JSON.parse(fs.readFileSync("#{fixturesPath}/sample-deltas-clustered.json"))
 
     it "should collect create/modify events into a hash by model type", ->
       {create, modify} = DeltaProcessor._clusterDeltas(@sampleDeltas)

@@ -51,17 +51,23 @@ export default class LocalSyncDeltaEmitter {
   async _loadState() {
     const json = await DatabaseStore.findJSONBlob(`LocalSyncStatus:${this._account.id}`)
     if (json) {
-      return json
+      return {
+        cursor: json.cursor || null,
+      }
     }
 
     // Migrate from old storage key
     const oldState = await DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`)
     if (!oldState) {
-      return {}
+      return {
+        cursor: null,
+      }
     }
 
     const {deltaCursors = {}} = oldState
-    return {cursor: deltaCursors.localSync}
+    return {
+      cursor: deltaCursors.localSync,
+    }
   }
 
   async _writeState() {
