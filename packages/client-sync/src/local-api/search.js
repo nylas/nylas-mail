@@ -132,6 +132,18 @@ class ImapSearchClient {
     this._cancelled = true;
   }
 
+  async _cancelSyncbackTasks(db) {
+    await db.SyncbackRequest.update(
+      {status: 'CANCELLED'},
+      {
+        where: {
+          type: "SyncUnknownUIDs",
+          status: {$in: ["NEW", "INPROGRESS-RETRYABLE", "INPROGRESS-NONRETRYABLE"]},
+          accountId: this.account.id,
+        },
+      });
+  }
+
   async searchThreads(db, query, limit) {
     const {Message} = db;
     const uidFolderStream = await this._search(db, query);
@@ -149,10 +161,12 @@ class ImapSearchClient {
       if (unknownUids.length === 0) {
         return Rx.Observable.from([messages]);
       }
+      // Sort into descending order so that we get the more recent messages sooner.
+      unknownUids.sort((a, b) => b - a);
 
-      const syncbackRequest = await db.SyncbackRequest.create({
+      await db.SyncbackRequest.create({
         type: "SyncUnknownUIDs",
-        props: {folderId: folder.id, uids},
+        props: {folderId: folder.id, uids: unknownUids},
         accountId: this.account.id,
       })
       SyncProcessManager.wakeWorkerForAccount(this.account.id, {interrupt: true, reason: 'Sync unknown UIDs'});
@@ -161,11 +175,11 @@ class ImapSearchClient {
         observer.onNext(messages);
         const findFn = async (remainingUids) => {
           if (this._cancelled) {
-            syncbackRequest.status = 'CANCELLED';
-            await syncbackRequest.save();
+            await this._cancelSyncbackTasks(db);
             observer.onCompleted();
             return;
           }
+
           if (remainingUids.length === 0) {
             observer.onCompleted();
             return;

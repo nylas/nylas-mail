@@ -102,17 +102,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
   performRemoteSearch() {
     const accountsSearched = new Set()
-    let resultIds = []
-
     const allAccountsSearched = () => accountsSearched.size === this._accountIds.length
-    const resultsReturned = () => {
-      // Don't emit a "result" until we have at least one thread to display.
-      // Otherwise it will show "No Results Found"
-      if (resultIds.length > 0 || allAccountsSearched()) {
-        this._addThreadIdsToSearch(resultIds)
-      }
-    }
-
     this._connections = this._accountIds.map((accountId) => {
       const conn = new NylasLongConnection({
         accountId,
@@ -120,12 +110,10 @@ class SearchQuerySubscription extends MutableQuerySubscription {
         path: `/threads/search/streaming?q=${encodeURIComponent(this._searchQuery)}`,
         onResults: (results) => {
           if (!this._remoteResultsReceivedAt) {
-            this._remoteResultsReceivedAt = Date.now()
+            this._remoteResultsReceivedAt = Date.now();
           }
-          const threads = results[0]
-          resultIds = resultIds.concat(_.pluck(threads, 'id'))
-          this._remoteResultsCount += resultIds.length
-          resultsReturned()
+          const threads = results[0];
+          this._remoteResultsCount += threads.length;
         },
         onStatusChanged: (status) => {
           const hasClosed = [
