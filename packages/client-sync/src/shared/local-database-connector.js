@@ -64,7 +64,7 @@ class LocalDatabaseConnector {
     });
   }
 
-  destroyAccountDatabase(accountId) {
+  async destroyAccountDatabase(accountId) {
     if (NylasEnv.inSpecMode()) {
       // The db is in memory, so we don't have to unlink it. Just drop the data.
       return this.forAccount(accountId).then(db => {
