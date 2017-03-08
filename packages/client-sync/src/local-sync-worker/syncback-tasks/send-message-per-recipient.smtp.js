@@ -1,7 +1,6 @@
-const {Errors: {APIError}} = require('isomorphic-core')
-const Utils = require('../../shared/utils')
+const {Errors: {APIError}, SendUtils} = require('isomorphic-core')
 const {SyncbackSMTPTask} = require('./syncback-task')
-const MessageFactory = require('../../shared/message-factory')
+const {MessageFactory} = require('isomorphic-core')
 
 
 /**
@@ -36,7 +35,14 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     await syncbackRequest.update({
       status: 'INPROGRESS-NOTRETRYABLE',
     })
-    const sendResult = await this._sendPerRecipient({db, smtp, baseMessage, usesOpenTracking, usesLinkTracking})
+
+    let sendResult;
+    try {
+      sendResult = await this._sendPerRecipient({
+        db, smtp, baseMessage, logger: this._logger, usesOpenTracking, usesLinkTracking})
+    } catch (err) {
+      throw new APIError('SendMessagePerRecipient: Sending failed for all recipients', 500);
+    }
     /**
      * Once messages have actually been delivered, we need to be very
      * careful not to throw an error from this task. An Error in the send
@@ -79,7 +85,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
         usesLinkTracking,
       })
 
-      const individualizedMessage = Utils.copyModel(Message, baseMessage, {
+      const individualizedMessage = SendUtils.copyModel(Message, baseMessage, {
         body: customBody,
       })
       // TODO we set these temporary properties which aren't stored in the

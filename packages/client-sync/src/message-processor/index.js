@@ -6,7 +6,7 @@ const mkdirp = require('mkdirp');
 const detectThread = require('./detect-thread');
 const extractFiles = require('./extract-files');
 const extractContacts = require('./extract-contacts');
-const MessageFactory = require('../shared/message-factory')
+const {MessageFactory} = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector');
 const {BatteryStatusManager} = require('nylas-exports');
 

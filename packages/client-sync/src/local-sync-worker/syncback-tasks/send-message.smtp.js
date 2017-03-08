@@ -1,4 +1,4 @@
-const MessageFactory = require('../../shared/message-factory')
+const {MessageFactory} = require('isomorphic-core')
 const {SyncbackSMTPTask} = require('../syncback-tasks/syncback-task')
 
 /**
