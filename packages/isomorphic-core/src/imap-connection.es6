@@ -289,13 +289,17 @@ class IMAPConnection extends EventEmitter {
       return Promise.resolve(new IMAPBox(this, this._imap._box));
     }
     return this._withPreparedConnection(async (imap) => {
-      this._isOpeningBox = true
-      this._lastOpenDuration = null;
-      const before = Date.now();
-      const box = await imap.openBoxAsync(folderName, readOnly)
-      this._lastOpenDuration = Date.now() - before;
-      this._isOpeningBox = false
-      return new IMAPBox(this, box)
+      try {
+        this._isOpeningBox = true
+        this._lastOpenDuration = null;
+        const before = Date.now();
+        const box = await imap.openBoxAsync(folderName, readOnly)
+        this._lastOpenDuration = Date.now() - before;
+        this._isOpeningBox = false
+        return new IMAPBox(this, box)
+      } finally {
+        this._isOpeningBox = false
+      }
     })
   }
 
