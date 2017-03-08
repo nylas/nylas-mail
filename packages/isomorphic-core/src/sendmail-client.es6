@@ -20,6 +20,7 @@ class SendmailClient {
   async _send(msgData) {
     let error;
     let results;
+
     // disable nodemailer's automatic X-Mailer header
     msgData.xMailer = false;
     for (let i = 0; i <= MAX_RETRIES; i++) {
@@ -73,7 +74,7 @@ class SendmailClient {
     msgData.date = message.date;
     msgData.subject = message.subject;
     msgData.html = message.body;
-    msgData.messageId = message.headerMessageId;
+    msgData.messageId = message.headerMessageId || message.message_id_header;
 
     msgData.attachments = []
     const uploads = message.uploads || []

@@ -35,6 +35,8 @@ export async function apiAuthenticate(req, username, password, cb) {
     identPath = "http://billing.lvh.me:5555"
   }
 
+  identPath = "https://billing-staging.nylas.com"
+
   try {
     const identity = await request(`${identPath}/n1/user`, {
       auth: {username: n1IdentityToken, password: ''},
@@ -61,6 +63,7 @@ export async function apiAuthenticate(req, username, password, cb) {
     if (err & err.options) {
       identityReqUri = err.options.uri
     }
+
     // cannot log entire err object because it contains sensitive information
     // such as the account token & auth headers - see example below
     req.logger.error({

@@ -1,7 +1,7 @@
-const {SendmailClient, Provider, Errors: {APIError}} = require('isomorphic-core')
+const {SendmailClient, Provider,
+       Errors: {APIError}, MessageFactory: {getReplyHeaders}} = require('isomorphic-core')
 const {SyncbackIMAPTask} = require('./syncback-task')
 const SyncTaskFactory = require('../sync-task-factory');
-const {getReplyHeaders} = require('../../shared/message-factory')
 
 
 async function deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
