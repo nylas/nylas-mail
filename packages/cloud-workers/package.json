@@ -26,7 +26,7 @@
     "js-base64": "2.1.9",
     "libhoney": "1.0.0-beta.2",
     "mimelib": "0.2.19",
-    "raven": "1.1.1",
+    "raven": "1.1.4",
     "request": "2.79.0",
     "request-promise": "4.1.1",
     "rx-lite": "4.0.8",
