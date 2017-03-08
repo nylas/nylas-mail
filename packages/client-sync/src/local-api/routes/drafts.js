@@ -1,8 +1,6 @@
-const {MessageFactory, Errors: {APIError}} = require('isomorphic-core')
 const Joi = require('joi');
-const crypto = require('crypto');
 
-// TODO: This is a placeholder.
+// TODO: This is a placeholder
 module.exports = (server) => {
   server.route({
     method: 'GET',
@@ -24,81 +22,6 @@ module.exports = (server) => {
     },
     handler: (request, reply) => {
       reply('[]');
-    },
-  });
-
-  // This is a placeholder route we use to make send-later happy.
-  // Eventually, we should flesh it out and actually sync back drafts.
-  server.route({
-    method: ['PUT', 'POST'],
-    path: `/drafts/{objectId?}`,
-    config: {
-      description: `Dummy draft update`,
-      tags: ['drafts'],
-      payload: {
-        output: 'data',
-        parse: true,
-      },
-      validate: {
-        params: {
-          objectId: Joi.string(),
-        },
-      },
-    },
-    handler: (request, reply) => {
-      const data = request.payload;
-      data.id = crypto.createHash('sha256').update(data.client_id, 'utf8').digest('hex')
-      return reply(data);
-    },
-  })
-
-  server.route({
-    method: ['PUT', 'POST'],
-    path: `/drafts/build`,
-    config: {
-      description: `Returns a ready-made draft message. Used by our send later plugin.`,
-      tags: ['drafts'],
-      payload: {
-        output: 'data',
-        parse: true,
-      },
-    },
-    handler: async (request, reply) => {
-      const db = await request.getAccountDatabase();
-      const account = request.auth.credentials;
-
-      let sentFolderName;
-      let sentFolder;
-      let trashFolderName;
-      let trashFolder;
-
-      if (account.provider === 'gmail') {
-        sentFolder = await db.Label.find({where: {role: 'sent'}});
-      } else {
-        sentFolder = await db.Folder.find({where: {role: 'sent'}});
-      }
-
-      if (sentFolder) {
-        sentFolderName = sentFolder.name;
-      } else {
-        throw new APIError(`Can't process draft for send later`, 500);
-      }
-
-      if (account.provider === 'gmail') {
-        trashFolder = await db.Label.find({where: {role: 'trash'}});
-      } else {
-        trashFolder = await db.Folder.find({where: {role: 'trash'}});
-      }
-
-      if (trashFolder) {
-        trashFolderName = trashFolder.name;
-      } else {
-        throw new APIError(`Can't process draft for send later`, 500);
-      }
-
-      const message = await MessageFactory.buildForSend(db, request.payload);
-      const ret = Object.assign(message.toJSON(), { sentFolderName, trashFolderName });
-      reply(JSON.stringify(ret));
     },
   });
 }

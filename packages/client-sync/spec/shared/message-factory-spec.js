@@ -1,4 +1,4 @@
-const {parseFromImap, parseSnippet, parseContacts} = require('../src/message-factory');
+const {parseFromImap, parseSnippet, parseContacts} = require('../../src/shared/message-factory');
 const {forEachJSONFixture, forEachHTMLAndTXTFixture, ACCOUNT_ID, getTestDatabase} = require('../helpers');
 
 xdescribe('MessageFactory', function MessageFactorySpecs() {

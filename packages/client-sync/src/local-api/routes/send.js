@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const {SendUtils} = require('isomorphic-core');
+const Utils = require('../../shared/utils');
 const {createAndReplyWithSyncbackRequest} = require('../route-helpers');
 
 
@@ -70,7 +70,7 @@ module.exports = (server) => {
       const {messageId} = request.params;
       const {sentPerRecipient} = request.payload;
 
-      if (!SendUtils.isValidId(messageId)) {
+      if (!Utils.isValidId(messageId)) {
         reply.badRequest(`messageId is not a base-36 integer`)
         return
       }
