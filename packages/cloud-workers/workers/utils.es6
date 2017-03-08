@@ -11,11 +11,9 @@ export async function asyncGetImapConnection(db, accountId, logger) {
   const credentials = account.decryptedCredentials();
 
   const currentUnixDate = Math.floor(Date.now() / 1000);
-  if (account.provider === 'gmail') {
-    if (!credentials.xoauth2 || currentUnixDate > credentials.expiry_date) {
-      logger.info(`Refreshing access token for account id: ${account.id}`);
-      await GmailOAuthHelpers.refreshAccessToken(account);
-    }
+  if (account.provider === 'gmail' && currentUnixDate > credentials.expiry_date) {
+    logger.info(`Refreshing access token for account id: ${account.id}`);
+    await GmailOAuthHelpers.refreshAccessToken(account);
   }
 
   return new IMAPConnection({

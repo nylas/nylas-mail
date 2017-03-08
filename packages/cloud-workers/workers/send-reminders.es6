@@ -59,7 +59,6 @@ export default class SendRemindersWorker extends ExpiredDataWorker {
   pluginId() {
     return 'send-reminders';
   }
-
   async performAction(metadatum) {
     const {messageIdHeaders, folderImapNames, replyTo, subject} = metadatum.value
     if (!messageIdHeaders || !folderImapNames || !replyTo) {

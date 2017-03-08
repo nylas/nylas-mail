@@ -1,5 +1,4 @@
 /* eslint no-useless-escape: 0 */
-import _ from 'underscore';
 const mimelib = require('mimelib');
 const encoding = require('encoding');
 const he = require('he');
@@ -7,29 +6,13 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
-const btoa = require('btoa')
-const {APIError} = require('./errors');
-const {deepClone} = require('./send-utils');
+const {Errors: {APIError}} = require('isomorphic-core');
+const {N1CloudAPI, RegExpUtils, Utils} = require('nylas-exports');
 
 // Aiming for the former in length, but the latter is the hard db cutoff
 const SNIPPET_SIZE = 100;
 const SNIPPET_MAX_SIZE = 255;
 
-// Copied from regexp-utils.coffee.
-// FIXME @karim: share code, somehow.
-// Test cases: https://regex101.com/r/cK0zD8/4
-// Catches link tags containing which are:
-// - Non empty
-// - Not a mailto: link
-// Returns the following capturing groups:
-// 1. start of the opening a tag to href="
-// 2. The contents of the href without quotes
-// 3. the rest of the opening a tag
-// 4. the contents of the a tag
-// 5. the closing tag
-function urlLinkTagRegex() {
-  return new RegExp(/(<a.*?href\s*?=\s*?['"])((?!mailto).+?)(['"].*?>)([\s\S]*?)(<\/a>)/gim);
-}
 
 // Format of input: ['a@example.com, B <b@example.com>', 'c@example.com'],
 // where each element of the array is the unparsed contents of a single
@@ -56,6 +39,7 @@ function parseContacts(input) {
   }
   return contacts;
 }
+
 
 function parseSnippet(body) {
   const doc = new DOMParser().parseFromString(body, 'text/html')
@@ -133,7 +117,7 @@ function htmlifyPlaintext(text) {
 
 
 function replaceMessageIdInBodyTrackingLinks(messageId, originalBody) {
-  const regex = new RegExp(`(https://.+?)MESSAGE_ID`, 'g')
+  const regex = new RegExp(`(${N1CloudAPI.APIRoot}.+?)MESSAGE_ID`, 'g')
   return originalBody.replace(regex, `$1${messageId}`)
 }
 
@@ -142,7 +126,7 @@ function stripTrackingLinksFromBody(originalBody) {
   let body = originalBody.replace(/<img class="n1-open"[^<]+src="([a-zA-Z0-9-_:/.]*)">/g, () => {
     return "";
   });
-  body = body.replace(urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
+  body = body.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
     const param = url.split("?")[1];
     if (param) {
       const link = decodeURIComponent(param.split("=")[1]);
@@ -166,7 +150,7 @@ function buildTrackingBodyForRecipient({baseMessage, recipient, usesOpenTracking
     });
   }
   if (usesLinkTracking) {
-    customBody = customBody.replace(urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
+    customBody = customBody.replace(RegExpUtils.urlLinkTagRegex(), (match, prefix, url, suffix, content, closingTag) => {
       return `${prefix}${url}&r=${encodedEmail}${suffix}${content}${closingTag}`;
     });
   }
@@ -322,7 +306,7 @@ async function parseFromImap(imapMessage, desiredParts, {db, accountId, folder})
    * zero pads digit dates. To make the hashes line up, we need to ensure
    * that the date string used in the ID generation is also zero-padded.
    */
-  const messageForHashing = deepClone(parsedMessage)
+  const messageForHashing = Utils.deepClone(parsedMessage)
   messageForHashing.date = Message.dateString(parsedMessage.date);
   // Inversely to `buildForSend`, we leave the date header as it is so that the
   // format is consistent for the generative IDs, then convert it to a Date object
@@ -423,7 +407,7 @@ async function buildForSend(db, json) {
   // nodemailer buildmail function that gives us the raw message and replaces
   // the date header with this modified UTC string
   // https://github.com/nodemailer/buildmail/blob/master/lib/buildmail.js#L470
-  const messageForHashing = deepClone(message)
+  const messageForHashing = Utils.deepClone(message)
   messageForHashing.date = Message.dateString(date)
   message.id = Message.hash(messageForHashing)
   message.body = replaceMessageIdInBodyTrackingLinks(message.id, message.body)

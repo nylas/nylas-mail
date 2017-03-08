@@ -15,15 +15,15 @@ export default class SendLaterStatus extends Component {
   };
 
   onCancelSendLater = () => {
-    Actions.setMetadata(this.props.draft, PLUGIN_ID, {expiration: null});
+    Actions.setMetadata(this.props.draft, PLUGIN_ID, {sendLaterDate: null});
   };
 
   render() {
     const {draft} = this.props
     const metadata = draft.metadataForPluginId(PLUGIN_ID)
-    if (metadata && metadata.expiration) {
-      const {expiration} = metadata
-      const formatted = DateUtils.format(moment(expiration), DATE_FORMAT_SHORT)
+    if (metadata && metadata.sendLaterDate) {
+      const {sendLaterDate} = metadata
+      const formatted = DateUtils.format(moment(sendLaterDate), DATE_FORMAT_SHORT)
       return (
         <div className="send-later-status">
           <span className="time">

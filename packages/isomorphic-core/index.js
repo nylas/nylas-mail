@@ -20,7 +20,5 @@ module.exports = {
   BackoffScheduler: require('./src/backoff-schedulers').BackoffScheduler,
   ExponentialBackoffScheduler: require('./src/backoff-schedulers').ExponentialBackoffScheduler,
   MetricsReporter: require('./src/metrics-reporter').default,
-  MessageFactory: require('./src/message-factory'),
-  SendUtils: require('./src/send-utils'),
   executeJasmine: require('./spec/jasmine/execute').default,
 }

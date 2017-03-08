@@ -1,7 +1,6 @@
 import _ from 'underscore'
 import SnoozeWorker from './workers/snooze'
 import SendRemindersWorker from './workers/send-reminders'
-import SendLaterWorker from './workers/send-later'
 import {setupMonitoring} from './monitoring'
 import Sentry from './sentry'
 const {DatabaseConnector, Logger, Metrics} = require('cloud-core')
@@ -20,6 +19,13 @@ process.on('unhandledRejection', onUnhandledError)
 
 const workerTable = {};
 const MAX_ELEMENTS = 1000;
+
+const workers = [
+  new SnoozeWorker(global.Logger),
+  new SendRemindersWorker(global.Logger),
+]
+const workersByPluginId = {}
+workers.forEach((worker) => { workersByPluginId[worker.pluginId()] = worker })
 
 // Ghetto check-in mechanism. We really want to be alerted
 // if for some reason our main loop blows up. To do that, we just
@@ -43,35 +49,24 @@ async function run() {
   logger.info(`Fetched ${expiredMetadata.length} expired elements from the db`);
 
   try {
-    const snoozeWorker = new SnoozeWorker(logger);
-    const sendWorker = new SendLaterWorker(logger);
-    const remindersWorker = new SendRemindersWorker(logger);
-
-    for (const datum of expiredMetadata) {
-      // Skip entries we're already processing.
-      if (workerTable[datum.id]) {
-        continue;
+    const expiredMetadataByPluginId = _.groupBy(expiredMetadata, (datum) => datum.pluginId)
+    for (const pluginId of Object.keys(expiredMetadataByPluginId)) {
+      const worker = workersByPluginId[pluginId]
+      if (!worker) {
+        throw new Error(`Could not find worker for pluginId ${pluginId}`)
       }
-
-      switch (datum.pluginId) {
-        case 'n1-send-later':
-          workerTable[datum.id] = sendWorker.run(datum);
-          break;
-        case 'snooze':
-          workerTable[datum.id] = snoozeWorker.run(datum);
-          break;
-        case 'send-reminders':
-          workerTable[datum.id] = remindersWorker.run(datum);
-          break;
-        default:
-          logger.warn(`Unknown plugin type ${datum.pluginId}, skipping.`)
-          break;
+      for (const datum of expiredMetadataByPluginId[pluginId]) {
+        // Skip entries we're already processing.
+        if (workerTable[datum.id]) {
+          logger.info(`Skipping metadum with id ${datum.id}, it's already being processed`)
+          continue;
+        }
+        workerTable[datum.id] = worker.run(datum)
+        workerTable[datum.id].then(() => {
+          logger.info(`Worker for task ${datum.id} completed.`);
+          delete workerTable[datum.id];
+        })
       }
-
-      workerTable[datum.id].then(() => {
-        logger.info(`Worker for task ${datum.id} completed.`);
-        delete workerTable[datum.id];
-      })
     }
   } catch (e) {
     Sentry.captureException(e);

@@ -1,13 +1,9 @@
 import React, {Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
-import {Actions, DateUtils, NylasAPIHelpers, DraftHelpers} from 'nylas-exports'
+import {Actions, DateUtils, NylasAPIHelpers} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import SendLaterPopover from './send-later-popover'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
-const {NylasAPIRequest, NylasAPI} = require('nylas-exports')
-
-const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
-const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
 
 class SendLaterButton extends Component {
@@ -63,44 +59,27 @@ class SendLaterButton extends Component {
     this.onSetMetadata(null);
   };
 
-  onSetMetadata = async (sendLaterDate) => {
+  onSetMetadata = (sendLaterDate) => {
     const {draft, session} = this.props;
 
     this.setState({saving: true});
 
-    try {
-      await NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId);
+    NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId).then(() => {
       if (!this.mounted) { return; }
       this.setState({saving: false});
 
       session.changes.add({pristine: false})
-      const draftContents = await DraftHelpers.prepareDraftForSyncback(session);
-      const req = new NylasAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: `/drafts/build`,
-          method: 'POST',
-          body: draftContents,
-          accountId: draft.accountId,
-          returnsModel: false,
-        },
-      });
-
-      const results = await req.run();
-      results.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
-      results.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
-      session.changes.addPluginMetadata(PLUGIN_ID,
-        Object.assign({expiration: sendLaterDate}, results));
-
+      session.changes.addPluginMetadata(PLUGIN_ID, {sendLaterDate});
       Actions.ensureDraftSynced(draft.clientId);
 
       if (sendLaterDate && NylasEnv.isComposerWindow()) {
         NylasEnv.close();
       }
-    } catch (error) {
+    })
+    .catch((error) => {
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
-    }
+    });
   }
 
   onClick = () => {
