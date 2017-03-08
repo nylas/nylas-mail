@@ -7,6 +7,7 @@ import {
   N1CloudAPI,
   DatabaseStore,
   DeltaProcessor,
+  NylasAPIRequest,
   OnlineStatusStore,
   NylasLongConnection,
 } from 'nylas-exports';
@@ -141,13 +142,7 @@ class DeltaStreamingConnection {
     }
 
     err.message = `Error connecting to delta stream: ${err.message}`
-    const ignorableStatusCodes = [
-      0,   // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
-      404, // Don't report not-founds
-      408, // Timeout error code
-      429, // Too many requests
-    ]
-    if (!ignorableStatusCodes.includes(err.statusCode)) {
+    if (!NylasAPIRequest.NonReportableStatusCodes.includes(err.statusCode)) {
       NylasEnv.reportError(err)
     }
     this.close()
