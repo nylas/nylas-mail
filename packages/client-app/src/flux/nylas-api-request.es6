@@ -118,6 +118,7 @@ export default class NylasAPIRequest {
   async _notifyOfAPIError(apiError) {
     const ignorableStatusCodes = [
       0,   // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
+      401, // Don't report `Incorrect username or password`
       404, // Don't report not-founds
       408, // Timeout error code
       429, // Too many requests
