@@ -125,11 +125,11 @@ export default class NylasAPIRequest {
     const {statusCode} = apiError
     if (!ignorableStatusCodes.includes(statusCode)) {
       const msg = apiError.message || `Unknown Error: ${apiError}`
-      const fingerprint = ["{{ default }}", "api error", apiError.statusCode, msg];
+      const fingerprint = ["{{ default }}", "api error", this.options.url, apiError.statusCode, msg];
       NylasEnv.reportError(apiError, {fingerprint,
         rateLimit: {
           ratePerHour: 30,
-          key: `APIError:${statusCode}:${msg}`,
+          key: `APIError:${this.options.url}:${statusCode}:${msg}`,
         },
       });
       apiError.reported = true
