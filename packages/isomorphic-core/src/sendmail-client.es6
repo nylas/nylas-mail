@@ -61,7 +61,13 @@ class SendmailClient {
       throw new APIError('Sending failed - Network Error', 401, {originalError: error})
     }
 
-    throw new APIError('Sending failed', 500, {originalError: error});
+    const {host, port, secure} = this._transporter.options;
+    throw new APIError('Sending failed', 500, {
+      originalError: error,
+      smtp_host: host,
+      smtp_port: port,
+      smtp_use_ssl: secure,
+    });
   }
 
   _getSendPayload(message) {
