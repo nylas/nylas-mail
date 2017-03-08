@@ -1,5 +1,23 @@
 # Nylas Mail Changelog
 
+### 1.0.33 (3/8/2017)
+
+- Features:
+
+  + Add intitial support for send later
+
+- Fixes:
+
+  + Fetch unknown message uids returned in search results
+  + Don't throttle message processing when syncing specific UIDs
+
+- Development:
+
+  + Better grouping for APIError by URL also
+  + Don't generate sourceMapCache in prod mode
+  + Upload a next-version to S3 for autoupdate testing
+  + Windows build fixes
+
 ### 1.0.32 (3/7/2017)
 
 - Development:
