@@ -6,7 +6,19 @@ import Actions from './actions'
 import {APIError} from './errors'
 import IdentityStore from './stores/identity-store'
 
+
+const NonReportableStatusCodes = [
+  0,   // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
+  401, // Don't report `Incorrect username or password`
+  404, // Don't report not-founds
+  408, // Timeout error code
+  429, // Too many requests
+]
+
 export default class NylasAPIRequest {
+
+  static NonReportableStatusCodes = NonReportableStatusCodes
+
   constructor({api, options}) {
     const defaults = {
       url: `${options.APIRoot || api.APIRoot}${options.path}`,
@@ -116,15 +128,8 @@ export default class NylasAPIRequest {
 
 
   async _notifyOfAPIError(apiError) {
-    const ignorableStatusCodes = [
-      0,   // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
-      401, // Don't report `Incorrect username or password`
-      404, // Don't report not-founds
-      408, // Timeout error code
-      429, // Too many requests
-    ]
     const {statusCode} = apiError
-    if (!ignorableStatusCodes.includes(statusCode)) {
+    if (!NonReportableStatusCodes.includes(statusCode)) {
       const msg = apiError.message || `Unknown Error: ${apiError}`
       const fingerprint = ["{{ default }}", "api error", this.options.url, apiError.statusCode, msg];
       NylasEnv.reportError(apiError, {fingerprint,
