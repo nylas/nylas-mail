@@ -1,16 +1,14 @@
 import _ from 'underscore'
 import {ExponentialBackoffScheduler} from 'isomorphic-core'
-import {
-  Actions,
-  Account,
-  APIError,
-  N1CloudAPI,
-  DatabaseStore,
-  DeltaProcessor,
-  NylasAPIRequest,
-  OnlineStatusStore,
-  NylasLongConnection,
-} from 'nylas-exports';
+import N1CloudAPI from '../n1-cloud-api'
+import Actions from '../flux/actions'
+import {APIError} from '../flux/errors'
+import Account from '../flux/models/account'
+import DeltaProcessor from './delta-processor'
+import DatabaseStore from '../flux/stores/database-store'
+import OnlineStatusStore from '../flux/stores/online-status-store'
+import NylasAPIRequest from '../flux/nylas-api-request'
+import NylasLongConnection from '../flux/nylas-long-connection'
 
 
 const MAX_RETRY_DELAY = 5 * 60 * 1000; // 5 minutes
@@ -32,10 +30,6 @@ class DeltaStreamingConnection {
     NylasEnv.onBeforeUnload = (readyToUnload) => {
       this._writeState().finally(readyToUnload)
     }
-  }
-
-  account() {
-    return this._account
   }
 
   async start() {
@@ -78,7 +72,6 @@ class DeltaStreamingConnection {
   }
 
   end() {
-    this._state = null
     this._disposeListeners()
     this._longConnection.end()
   }
@@ -158,7 +151,10 @@ class DeltaStreamingConnection {
   async _loadState() {
     const json = await DatabaseStore.findJSONBlob(`DeltaStreamingConnectionStatus:${this._account.id}`)
     if (json) {
-      return json
+      return {
+        cursor: json.cursor || null,
+        status: json.status || null,
+      }
     }
 
     // Migrate from old storage key
@@ -180,7 +176,6 @@ class DeltaStreamingConnection {
       t.persistJSONBlob(`DeltaStreamingConnectionStatus:${this._account.id}`, this._state)
     );
   }
-
 }
 
 export default DeltaStreamingConnection

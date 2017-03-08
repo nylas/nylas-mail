@@ -1,17 +1,16 @@
 _ = require 'underscore'
 {NylasAPI, NylasAPIHelpers, NylasAPIRequest, Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
-DeltaStreamingConnection = require('../lib/delta-streaming-connection').default
-AccountDeltaConnection = require('../lib/account-delta-connection').default
+DeltaStreamingConnection = require('../../src/services/delta-streaming-connection').default
 
 # TODO these are badly out of date, we need to rewrite them
-xdescribe "AccountDeltaConnection", ->
+xdescribe "DeltaStreamingConnection", ->
   beforeEach ->
     @apiRequests = []
     spyOn(NylasAPIRequest.prototype, "run").andCallFake ->
       @apiRequests.push({requestOptions: this.options})
     @localSyncCursorStub = undefined
     @n1CloudCursorStub = undefined
-    # spyOn(AccountDeltaConnection.prototype, '_fetchMetadata').andReturn(Promise.resolve())
+    # spyOn(DeltaStreamingConnection.prototype, '_fetchMetadata').andReturn(Promise.resolve())
     spyOn(DatabaseTransaction.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
@@ -36,7 +35,7 @@ xdescribe "AccountDeltaConnection", ->
 
     spyOn(DeltaStreamingConnection.prototype, 'start')
     @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
-    @worker = new AccountDeltaConnection(@account)
+    @worker = new DeltaStreamingConnection(@account)
     @worker.loadStateFromDatabase()
     advanceClock()
     @worker.start()
@@ -45,7 +44,7 @@ xdescribe "AccountDeltaConnection", ->
     advanceClock()
 
   it "should reset `busy` to false when reading state from disk", ->
-    @worker = new AccountDeltaConnection(@account)
+    @worker = new DeltaStreamingConnection(@account)
     spyOn(@worker, '_resume')
     @worker.loadStateFromDatabase()
     advanceClock()
@@ -145,7 +144,7 @@ xdescribe "AccountDeltaConnection", ->
       @n1CloudCursorStub = undefined
 
       # no cursor present
-      worker = new AccountDeltaConnection(@account)
+      worker = new DeltaStreamingConnection(@account)
       deltaStreams = worker._deltaStreams
       expect(deltaStreams.localSync.hasCursor()).toBe(false)
       expect(deltaStreams.n1Cloud.hasCursor()).toBe(false)
@@ -158,7 +157,7 @@ xdescribe "AccountDeltaConnection", ->
       @localSyncCursorStub = "new-school"
       @n1CloudCursorStub = 123
 
-      worker = new AccountDeltaConnection(@account)
+      worker = new DeltaStreamingConnection(@account)
       deltaStreams = worker._deltaStreams
       expect(deltaStreams.localSync.hasCursor()).toBe(false)
       expect(deltaStreams.n1Cloud.hasCursor()).toBe(false)
@@ -171,7 +170,7 @@ xdescribe "AccountDeltaConnection", ->
 
     it "should set the cursor to the last cursor after receiving deltas", ->
       spyOn(DeltaStreamingConnection.prototype, 'latestCursor').andReturn Promise.resolve()
-      worker = new AccountDeltaConnection(@account)
+      worker = new DeltaStreamingConnection(@account)
       advanceClock()
       deltaStreams = worker._deltaStreams
       deltas = [{cursor: '1'}, {cursor: '2'}]
@@ -338,7 +337,7 @@ xdescribe "AccountDeltaConnection", ->
 
     describe "successfully, with models", ->
       it "should start out by requesting a small number of items", ->
-        expect(@request.params.limit).toBe AccountDeltaConnection.INITIAL_PAGE_SIZE
+        expect(@request.params.limit).toBe DeltaStreamingConnection.INITIAL_PAGE_SIZE
 
       it "should request the next page", ->
         pageSize = @request.params.limit
@@ -359,13 +358,13 @@ xdescribe "AccountDeltaConnection", ->
         expect(@apiRequests[0].params.limit).toEqual pageSize * 1.5,
 
       it "never requests more then MAX_PAGE_SIZE", ->
-        pageSize = @request.params.limit = AccountDeltaConnection.MAX_PAGE_SIZE
+        pageSize = @request.params.limit = DeltaStreamingConnection.MAX_PAGE_SIZE
         models = []
         models.push(new Thread) for i in [0..(pageSize-1)]
         @request.requestOptions.success(models)
         advanceClock(2000); advanceClock()
         expect(@apiRequests.length).toBe(1)
-        expect(@apiRequests[0].params.limit).toEqual AccountDeltaConnection.MAX_PAGE_SIZE
+        expect(@apiRequests[0].params.limit).toEqual DeltaStreamingConnection.MAX_PAGE_SIZE
 
       it "should update the fetched count on the collection", ->
         expect(@worker._state.threads.fetched).toEqual(0)
@@ -439,3 +438,4 @@ xdescribe "AccountDeltaConnection", ->
       @worker.cleanup()
       advanceClock(50000); advanceClock()
       expect(@worker._resume.callCount).toBe(0)
+

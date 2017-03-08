@@ -164,12 +164,12 @@ lazyLoadAndRegisterStore(`PreferencesUIStore`, 'preferences-ui-store');
 lazyLoadAndRegisterStore(`FocusedContentStore`, 'focused-content-store');
 lazyLoadAndRegisterStore(`MessageBodyProcessor`, 'message-body-processor');
 lazyLoadAndRegisterStore(`FocusedContactsStore`, 'focused-contacts-store');
+lazyLoadAndRegisterStore(`DeltaConnectionStore`, 'delta-connection-store');
 lazyLoadAndRegisterStore(`TaskQueueStatusStore`, 'task-queue-status-store');
 lazyLoadAndRegisterStore(`FolderSyncProgressStore`, 'folder-sync-progress-store');
 lazyLoadAndRegisterStore(`ThreadListActionsStore`, 'thread-list-actions-store');
 lazyLoadAndRegisterStore(`FocusedPerspectiveStore`, 'focused-perspective-store');
 lazyLoadAndRegisterStore(`SearchableComponentStore`, 'searchable-component-store');
-lazyLoadAndRegisterStore(`DeltaConnectionStatusStore`, 'delta-connection-status-store');
 lazyLoad(`CustomContenteditableComponents`, 'components/overlaid-components/custom-contenteditable-components');
 
 lazyLoad(`ServiceRegistry`, `registries/service-registry`);
