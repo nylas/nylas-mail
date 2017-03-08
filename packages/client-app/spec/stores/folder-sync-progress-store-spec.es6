@@ -1,8 +1,8 @@
-import {NylasSyncStatusStore} from 'nylas-exports'
+import {FolderSyncProgressStore} from 'nylas-exports'
 
-const store = NylasSyncStatusStore
+const store = FolderSyncProgressStore
 
-xdescribe('NylasSyncStatusStore', function nylasSyncStatusStore() {
+xdescribe('FolderSyncProgressStore', function nylasSyncStatusStore() {
   beforeEach(() => {
     store._statesByAccount = {}
   });

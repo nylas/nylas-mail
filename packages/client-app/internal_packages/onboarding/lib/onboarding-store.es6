@@ -1,4 +1,4 @@
-import {AccountStore, Actions, IdentityStore, NylasSyncStatusStore} from 'nylas-exports';
+import {AccountStore, Actions, IdentityStore, FolderSyncProgressStore} from 'nylas-exports';
 import {ipcRenderer} from 'electron';
 import NylasStore from 'nylas-store';
 
@@ -174,7 +174,7 @@ class OnboardingStore extends NylasStore {
           provider: this._accountFromAuth.provider,
         });
       } else {
-        await NylasSyncStatusStore.whenCategoryListSynced(json.id)
+        await FolderSyncProgressStore.whenCategoryListSynced(json.id)
         this._onOnboardingComplete();
       }
     } catch (e) {

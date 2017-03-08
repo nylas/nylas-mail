@@ -4,7 +4,7 @@ ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 RetinaImg = require('./retina-img').default
 EventedIFrame = require './evented-iframe'
-{NylasSyncStatusStore,
+{FolderSyncProgressStore,
  FocusedPerspectiveStore} = require 'nylas-exports'
 {SyncingListState} = require 'nylas-component-kit'
 
@@ -91,7 +91,7 @@ class EmptyListState extends React.Component
   componentDidMount: ->
     @_mounted = true
     @_unlisteners = []
-    @_unlisteners.push NylasSyncStatusStore.listen((=> @setState @_getStateFromStores()), @)
+    @_unlisteners.push FolderSyncProgressStore.listen((=> @setState @_getStateFromStores()), @)
     @_unlisteners.push FocusedPerspectiveStore.listen((=> @setState @_getStateFromStores()), @)
     window.addEventListener('resize', @_onResize)
     if @props.visible and not @state.active

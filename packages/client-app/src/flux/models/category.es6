@@ -1,5 +1,5 @@
 /* eslint global-require: 0 */
-import {NylasSyncStatusStore} from 'nylas-exports';
+import {FolderSyncProgressStore} from 'nylas-exports';
 import Model from './model';
 import Attributes from '../attributes';
 let AccountStore = null
@@ -181,9 +181,9 @@ export default class Category extends Model {
     // assigned an object type yet, just return based on the sync status for the
     // entire account.
     if (this.object !== 'folder') {
-      return NylasSyncStatusStore.isSyncCompleteForAccount(this.accountId);
+      return FolderSyncProgressStore.isSyncCompleteForAccount(this.accountId);
     }
-    return NylasSyncStatusStore.isSyncCompleteForAccount(
+    return FolderSyncProgressStore.isSyncCompleteForAccount(
       this.accountId,
       this.name || this.displayName
     );
