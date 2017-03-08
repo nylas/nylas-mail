@@ -1,7 +1,9 @@
 const atob = require('atob')
 const crypto = require('crypto');
+
 const {JSONColumn, JSONArrayColumn} = require('../database-types');
 const {SUPPORTED_PROVIDERS, credentialsForProvider} = require('../auth-helpers');
+
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
 
@@ -136,11 +138,13 @@ module.exports = (sequelize, Sequelize) => {
             secure: ssl_required,
           };
         }
+
         if (this.provider === 'gmail') {
           const {xoauth2} = connectionCredentials;
           if (!xoauth2) {
             throw new Error("Missing XOAuth2 Token")
           }
+
           const token = this.bearerToken(xoauth2);
           config.auth = { user: connectionSettings.smtp_username, xoauth2: token }
         } else if (SUPPORTED_PROVIDERS.has(this.provider)) {

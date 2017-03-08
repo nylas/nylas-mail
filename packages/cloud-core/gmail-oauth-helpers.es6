@@ -86,27 +86,26 @@ class GmailOAuthHelpers {
 
   async refreshAccessToken(account) {
     const oauthClient = new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
-    const credentials = account.decryptedCredentials();
+    const credentials = account.decryptedCredentials()
+    const refreshToken = credentials.refresh_token;
+    oauthClient.setCredentials({ refresh_token: refreshToken });
 
-    oauthClient.setCredentials({ refresh_token: credentials.refresh_token });
-
-    const tokens = await new Promise((resolve, reject) => {
-      oauthClient.refreshAccessToken((error, _tokens) => {
-        if (error) {
-          reject(error)
-        } else {
-          resolve(_tokens)
+    return new Promise((resolve, reject) => {
+      oauthClient.refreshAccessToken(async (err, tokens) => {
+        if (err) {
+          reject(err);
         }
-      })
-    })
-    const res = {}
-    res.access_token = tokens.access_token;
-    res.xoauth2 = this.generateXOAuth2Token(account.emailAddress, tokens.access_token);
-    res.expiry_date = Math.floor(tokens.expiry_date / 1000);
-    const newCredentials = Object.assign(credentials, res);
-    account.setCredentials(newCredentials);
-
-    return newCredentials;
+        const res = {}
+        res.access_token = tokens.access_token;
+        res.xoauth2 = this.generateXOAuth2Token(account.emailAddress,
+                                                tokens.access_token);
+        res.expiry_date = Math.floor(tokens.expiry_date / 1000);
+        const newCredentials = Object.assign(credentials, res);
+        account.setCredentials(newCredentials);
+        await account.save();
+        resolve(newCredentials);
+      });
+    });
   }
 
   async createPendingAuthResponse({account, token}, imapSettings, n1Key) {
