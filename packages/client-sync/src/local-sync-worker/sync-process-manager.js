@@ -49,7 +49,7 @@ class SyncProcessManager {
         // DB
         fs.unlinkSync(`${NylasEnv.getConfigDirPath()}/edgehill.db`)
         for (const account of this.accounts()) {
-          LocalDatabaseConnector.destroyAccountDatabase(account.id)
+          await LocalDatabaseConnector.destroyAccountDatabase(account.id)
         }
         remote.app.relaunch()
         remote.app.quit()
