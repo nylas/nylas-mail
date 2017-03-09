@@ -151,7 +151,7 @@ async function main(args) {
 
   // Bump patch version in package.json
   try {
-    await exec('npm --no-git-tag-version version patch')
+    await exec('npm --no-git-tag-version version patch', {cwd: 'packages/client-app'})
   } catch (err) {
     console.error('Could not bump version in package.json')
     console.error(err)
