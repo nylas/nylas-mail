@@ -102,7 +102,7 @@
     "sanitize-html": "1.9.0",
     "season": "^5.1",
     "semver": "^4.2",
-    "sequelize": "github:nylas/sequelize#nylas-3.30.0",
+    "sequelize": "nylas/sequelize#nylas-3.40.0",
     "simplemde": "jstejada/simplemde-markdown-editor#input-style-support",
     "source-map-support": "^0.3.2",
     "sqlite3": "https://github.com/bengotow/node-sqlite3/archive/bengotow/usleep-v3.1.4.tar.gz",
