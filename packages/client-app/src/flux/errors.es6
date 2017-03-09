@@ -13,17 +13,16 @@ export class APIError extends Error {
 
     this.name = "APIError";
     this.error = error;
-    this.response = response;
     this.body = body;
     this.requestOptions = requestOptions;
     this.statusCode = statusCode;
     this.message = message;
 
     if (this.statusCode == null) {
-      this.statusCode = this.response ? this.response.statusCode : null;
+      this.statusCode = response ? response.statusCode : null;
     }
     if (this.requestOptions == null) {
-      this.requestOptions = this.response ? this.response.requestOptions : null;
+      this.requestOptions = response ? response.requestOptions : null;
     }
 
     this.stack = (new Error()).stack;
