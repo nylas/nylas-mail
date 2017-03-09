@@ -141,31 +141,37 @@ module.exports = (sequelize, Sequelize) => {
         const folder = await this.getFolder();
         let numTimeoutErrors = 0;
         let result = null;
+
+        const onConnected = async ([connection]) => {
+          const imapBox = await connection.openBox(folder.name);
+          const message = await imapBox.fetchMessage(this.folderImapUID);
+          if (!message) {
+            throw new Error(`Unable to fetch raw message for Message ${this.id}`);
+          }
+          // TODO: this can mangle the raw body of the email because it
+          // does not respect the charset specified in the headers, which
+          // MUST be decoded before you can figure out how to interpret the
+          // body MIME bytes
+          result = `${message.headers}${message.parts.TEXT}`;
+        };
+
+        const onTimeout = (socketTimeout) => {
+          numTimeoutErrors += 1;
+          Actions.recordUserEvent('Timeout error downloading raw message', {
+            accountId: account.id,
+            provider: account.provider,
+            socketTimeout,
+            numTimeoutErrors,
+          });
+        };
+
         await IMAPConnectionPool.withConnectionsForAccount(account, {
           desiredCount: 1,
           logger,
-          onConnected: async ([connection]) => {
-            const imapBox = await connection.openBox(folder.name);
-            const message = await imapBox.fetchMessage(this.folderImapUID);
-            if (!message) {
-              throw new Error(`Unable to fetch raw message for Message ${this.id}`);
-            }
-            // TODO: this can mangle the raw body of the email because it
-            // does not respect the charset specified in the headers, which
-            // MUST be decoded before you can figure out how to interpret the
-            // body MIME bytes
-            result = `${message.headers}${message.parts.TEXT}`;
-          },
-          onTimeout: (socketTimeout) => {
-            numTimeoutErrors += 1;
-            Actions.recordUserEvent('Timeout error downloading raw message', {
-              accountId: account.id,
-              provider: account.provider,
-              socketTimeout,
-              numTimeoutErrors,
-            });
-          },
+          onConnected,
+          onTimeout,
         });
+
         return result;
       },
 
