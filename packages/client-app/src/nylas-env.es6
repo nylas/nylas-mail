@@ -333,8 +333,10 @@ export default class NylasEnvConstructor {
     if (this.inSpecMode()) {
       jasmine.getEnv().currentSpec.fail(error);
     } else if (this.inDevMode() && !noWindows) {
-      this.openDevTools();
-      this.executeJavaScriptInDevTools("DevToolsAPI.showPanel('console')");
+      if (!this.isDevToolsOpened()) {
+        this.openDevTools();
+        this.executeJavaScriptInDevTools("DevToolsAPI.showPanel('console')");
+      }
     }
 
     this.errorLogger.reportError(error, extra);
@@ -997,6 +999,10 @@ export default class NylasEnvConstructor {
   // Extended: Open the dev tools for the current window.
   openDevTools() {
     return ipcRenderer.send('call-webcontents-method', 'openDevTools');
+  }
+
+  isDevToolsOpened() {
+    return this.getCurrentWindow().webContents.isDevToolsOpened()
   }
 
   // Extended: Toggle the visibility of the dev tools for the current window.
