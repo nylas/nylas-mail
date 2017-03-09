@@ -68,7 +68,9 @@ export default class AccountErrorNotification extends React.Component {
   }
 
   render() {
-    const erroredAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
+    const erroredAccounts = this.state.accounts.filter(a =>
+      a.hasN1CloudError() || a.hasSyncStateError()
+    );
     const checkAgainLabel = this.state.checking ? 'Checking...' : 'Check Again'
     let title;
     let subtitle;
@@ -87,41 +89,42 @@ export default class AccountErrorNotification extends React.Component {
       }];
     } else {
       const erroredAccount = erroredAccounts[0];
-      switch (erroredAccount.syncState) {
-        case Account.SYNC_STATE_N1_CLOUD_AUTH_FAILED:
-          title = `Cannot authenticate Nylas Mail Cloud Services with ${erroredAccount.emailAddress}`;
-          actions = [{
-            label: checkAgainLabel,
-            fn: (e) => this._onCheckAgain(e, erroredAccount),
-          }, {
-            label: 'Reconnect',
-            fn: () => this._onReconnect(erroredAccount),
-          }];
-          break;
-        case Account.SYNC_STATE_AUTH_FAILED:
-          title = `Cannot authenticate with ${erroredAccount.emailAddress}`;
-          actions = [{
-            label: checkAgainLabel,
-            fn: (e) => this._onCheckAgain(e, erroredAccount),
-          }, {
-            label: 'Reconnect',
-            fn: () => this._onReconnect(erroredAccount),
-          }];
-          break;
-        default: {
-          title = `Encountered an error while syncing ${erroredAccount.emailAddress}`;
-          let label = this.state.checking ? 'Retrying...' : 'Try Again'
-          if (this.state.debugKeyPressed) {
-            label = 'Debug'
+      if (erroredAccount.hasN1CloudError()) {
+        title = `Cannot authenticate Nylas Mail Cloud Services with ${erroredAccount.emailAddress}`;
+        actions = [{
+          label: checkAgainLabel,
+          fn: (e) => this._onCheckAgain(e, erroredAccount),
+        }, {
+          label: 'Reconnect',
+          fn: () => this._onReconnect(erroredAccount),
+        }];
+      } else {
+        switch (erroredAccount.syncState) {
+          case Account.SYNC_STATE_AUTH_FAILED:
+            title = `Cannot authenticate with ${erroredAccount.emailAddress}`;
+            actions = [{
+              label: checkAgainLabel,
+              fn: (e) => this._onCheckAgain(e, erroredAccount),
+            }, {
+              label: 'Reconnect',
+              fn: () => this._onReconnect(erroredAccount),
+            }];
+            break;
+          default: {
+            title = `Encountered an error while syncing ${erroredAccount.emailAddress}`;
+            let label = this.state.checking ? 'Retrying...' : 'Try Again'
+            if (this.state.debugKeyPressed) {
+              label = 'Debug'
+            }
+            actions = [{
+              label,
+              fn: (e) => this._onCheckAgain(e, erroredAccount),
+              props: {
+                onMouseEnter: (e) => this.setState({debugKeyPressed: e.metaKey}),
+                onMouseLeave: () => this.setState({debugKeyPressed: false}),
+              },
+            }];
           }
-          actions = [{
-            label,
-            fn: (e) => this._onCheckAgain(e, erroredAccount),
-            props: {
-              onMouseEnter: (e) => this.setState({debugKeyPressed: e.metaKey}),
-              onMouseLeave: () => this.setState({debugKeyPressed: false}),
-            },
-          }];
         }
       }
     }

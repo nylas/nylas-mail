@@ -36,9 +36,11 @@ export default class Account extends ModelWithMetadata {
 
   static SYNC_STATE_AUTH_FAILED = "invalid"
 
-  static SYNC_STATE_N1_CLOUD_AUTH_FAILED = "n1_cloud_auth_failed"
-
   static SYNC_STATE_ERROR = "sync_error"
+
+  static N1_CLOUD_STATE_RUNNING = "n1_cloud_running"
+
+  static N1_CLOUD_STATE_AUTH_FAILED = "n1_cloud_auth_failed"
 
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {
     name: Attributes.String({
@@ -81,6 +83,11 @@ export default class Account extends ModelWithMetadata {
     syncError: Attributes.Object({
       modelKey: 'syncError',
       jsonKey: 'sync_error',
+    }),
+
+    n1CloudState: Attributes.String({
+      modelKey: 'n1CloudState',
+      jsonKey: 'n1_cloud_state',
     }),
   });
 
@@ -190,6 +197,10 @@ export default class Account extends ModelWithMetadata {
       return trashCategory
     }
     return archiveCategory
+  }
+
+  hasN1CloudError() {
+    return this.n1CloudState === Account.N1_CLOUD_STATE_AUTH_FAILED
   }
 
   hasSyncStateError() {

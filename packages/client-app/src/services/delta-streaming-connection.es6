@@ -39,6 +39,7 @@ class DeltaStreamingConnection {
         this._state = await this._loadState()
       }
       const {cursor = 0} = this._state
+      this._clearRetryTimeout()
       this._longConnection = new NylasLongConnection({
         api: N1CloudAPI,
         accountId: this._account.id,
@@ -109,6 +110,9 @@ class DeltaStreamingConnection {
     const {Closed, Connected} = NylasLongConnection.Status
     if (status === Connected) {
       this._backoffScheduler.reset()
+      Actions.updateAccount(this._account.id, {
+        n1CloudState: Account.N1_CLOUD_STATE_RUNNING,
+      })
     }
     if (status === Closed) {
       if (this._retryTimeout) { return }
@@ -137,16 +141,15 @@ class DeltaStreamingConnection {
       return
     }
 
-    if (err instanceof APIError && err.statusCode === 401) {
-      Actions.updateAccount(this._account.id, {
-        syncState: Account.SYNC_STATE_AUTH_FAILED,
-        syncError: err.toJSON(),
-      })
-    }
-
     err.message = `Error connecting to delta stream: ${err.message}`
     if (!NylasAPIRequest.NonReportableStatusCodes.includes(err.statusCode)) {
       NylasEnv.reportError(err)
+    }
+
+    if (err instanceof APIError && err.statusCode === 401) {
+      Actions.updateAccount(this._account.id, {
+        n1CloudState: Account.N1_CLOUD_STATE_AUTH_FAILED,
+      })
     }
   }
 
