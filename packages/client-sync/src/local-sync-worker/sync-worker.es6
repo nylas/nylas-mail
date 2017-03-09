@@ -25,7 +25,6 @@ const {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR} = Account
 const AC_SYNC_LOOP_INTERVAL_MS = 10 * 1000            // 10 sec
 const BATTERY_SYNC_LOOP_INTERVAL_MS = 5 * 60 * 1000   //  5 min
 const MAX_SYNC_BACKOFF_MS = 5 * 60 * 1000 // 5 min
-const PERMANENT_ERROR_RETRY_BACKOFF_MS = 60 * 1000 // 1 min
 
 class SyncWorker {
   constructor(account, db, parentManager) {
@@ -294,56 +293,62 @@ class SyncWorker {
   }
 
   async _onSyncError(error) {
-    this._clearConnections();
-    this._logger.error(`🔃  SyncWorker: Errored while syncing account`, error)
+    try {
+      this._clearConnections();
+      this._logger.error(`🔃  SyncWorker: Errored while syncing account`, error)
 
-    // Check if we encountered an expired token error.
-    // We try to refresh Google OAuth2 access tokens in advance, but sometimes
-    // it doesn't work (e.g. the token expires during the sync loop). In this
-    // case, we need to immediately restart the sync loop & refresh the token.
-    // We don't want to save the error to the account in case refreshing the
-    // token fixes the issue.
-    //
-    // These error messages look like "Error: Invalid credentials (Failure)"
-    const isExpiredTokenError = (
-      this._account.provider === "gmail" &&
-      error instanceof IMAPErrors.IMAPAuthenticationError &&
-      /invalid credentials/i.test(error.message)
-    )
-    if (isExpiredTokenError) {
-      this._requireTokenRefresh = true
-      return
+      // Check if we encountered an expired token error.
+      // We try to refresh Google OAuth2 access tokens in advance, but sometimes
+      // it doesn't work (e.g. the token expires during the sync loop). In this
+      // case, we need to immediately restart the sync loop & refresh the token.
+      // We don't want to save the error to the account in case refreshing the
+      // token fixes the issue.
+      //
+      // These error messages look like "Error: Invalid credentials (Failure)"
+      const isExpiredTokenError = (
+        this._account.provider === "gmail" &&
+        error instanceof IMAPErrors.IMAPAuthenticationError &&
+        /invalid credentials/i.test(error.message)
+      )
+      if (isExpiredTokenError) {
+        this._requireTokenRefresh = true
+        return
+      }
+
+      // Check if we've encountered a retryable/network error.
+      // If so, we don't want to save the error to the account, which will cause
+      // a red box to show up.
+      if (error instanceof IMAPErrors.RetryableError) {
+        this._retryScheduler.nextDelay()
+        return
+      }
+      // If we don't encounter consecutive RetryableErrors, reset the exponential
+      // backoff
+      this._retryScheduler.reset()
+
+      // Update account error state
+      const errorJSON = error.toJSON()
+      const fingerprint = ["{{ default }}", "sync loop", error.message];
+      NylasEnv.reportError(error, {fingerprint,
+        rateLimit: {
+          ratePerHour: 30,
+          key: `SyncError:SyncLoop:${error.message}`,
+        },
+      });
+
+      const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
+      const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
+      // TODO this is currently a hack to keep N1's account in sync and notify of
+      // sync errors. This should go away when we merge the databases
+      Actions.updateAccount(this._account.id, {syncState: accountSyncState, syncError: errorJSON})
+
+      this._account.syncError = errorJSON
+      await this._account.save()
+    } catch (err) {
+      this._logger.error(`🔃  SyncWorker: Errored while handling error`, error)
+      err.message = `Error while handling sync loop error: ${err.message}`
+      NylasEnv.reportError(err)
     }
-
-    // Check if we've encountered a retryable/network error.
-    // If so, we don't want to save the error to the account, which will cause
-    // a red box to show up.
-    if (error instanceof IMAPErrors.RetryableError) {
-      this._retryScheduler.nextDelay()
-      return
-    }
-    // If we don't encounter consecutive RetryableErrors, reset the exponential
-    // backoff
-    this._retryScheduler.reset()
-
-    // Update account error state
-    const errorJSON = error.toJSON()
-    const fingerprint = ["{{ default }}", "sync loop", error.message];
-    NylasEnv.reportError(error, {fingerprint,
-      rateLimit: {
-        ratePerHour: 30,
-        key: `SyncError:SyncLoop:${error.message}`,
-      },
-    });
-
-    const isAuthError = error instanceof IMAPErrors.IMAPAuthenticationError
-    const accountSyncState = isAuthError ? SYNC_STATE_AUTH_FAILED : SYNC_STATE_ERROR;
-    // TODO this is currently a hack to keep N1's account in sync and notify of
-    // sync errors. This should go away when we merge the databases
-    Actions.updateAccount(this._account.id, {syncState: accountSyncState, syncError: errorJSON})
-
-    this._account.syncError = errorJSON
-    await this._account.save()
   }
 
   async _onSyncDidComplete() {
@@ -372,50 +377,58 @@ class SyncWorker {
   }
 
   async _scheduleNextSync(error) {
-    if (this._stopped) { return; }
-    const {Folder} = this._db;
-
-    const folders = await Folder.findAll();
-    const moreToSync = folders.some((f) => !f.isSyncComplete())
-
+    let reason;
     let interval;
-    if (error != null) {
-      if (error instanceof IMAPErrors.RetryableError) {
-        interval = this._retryScheduler.currentDelay();
+    try {
+      if (this._stopped) { return; }
+      const {Folder} = this._db;
+
+      const folders = await Folder.findAll();
+      const moreToSync = folders.some((f) => !f.isSyncComplete())
+
+      if (error != null) {
+        if (error instanceof IMAPErrors.RetryableError) {
+          interval = this._retryScheduler.currentDelay();
+        } else {
+          interval = AC_SYNC_LOOP_INTERVAL_MS;
+        }
       } else {
-        interval = PERMANENT_ERROR_RETRY_BACKOFF_MS;
+        const shouldSyncImmediately = (
+          moreToSync ||
+          this._interrupted ||
+          this._requireTokenRefresh
+        )
+        if (shouldSyncImmediately) {
+          interval = 1;
+        } else if (BatteryStatusManager.isBatteryCharging()) {
+          interval = AC_SYNC_LOOP_INTERVAL_MS;
+        } else {
+          interval = BATTERY_SYNC_LOOP_INTERVAL_MS;
+        }
       }
-    } else {
-      const shouldSyncImmediately = (
-        moreToSync ||
-        this._interrupted ||
-        this._requireTokenRefresh
-      )
-      if (shouldSyncImmediately) {
-        interval = 1;
-      } else if (BatteryStatusManager.isBatteryCharging()) {
-        interval = AC_SYNC_LOOP_INTERVAL_MS;
-      } else {
-        interval = BATTERY_SYNC_LOOP_INTERVAL_MS;
+
+      reason = 'Normal schedule'
+      if (error != null) {
+        reason = `Sync errored: ${error.message}`
+      } else if (this._interrupted) {
+        reason = `Sync interrupted and restarted. Interrupt reason: ${reason}`
+      } else if (moreToSync) {
+        reason = `More to sync`
       }
+    } catch (err) {
+      this._logger.error(`🔃  SyncWorker: Errored while scheduling next sync`, err)
+      err.message = `Error while scheduling next sync: ${err.message}`
+      NylasEnv.reportError(err)
+      interval = AC_SYNC_LOOP_INTERVAL_MS
+      reason = 'Errored while while scheduling next sync'
+    } finally {
+      const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
+      this._logger.log(`🔃 🔜 in ${nextSyncIn}ms - Reason: ${reason}`)
+
+      this._syncTimer = setTimeout(() => {
+        this.syncNow({reason});
+      }, nextSyncIn);
     }
-
-
-    let reason = "Scheduled"
-    if (error != null) {
-      reason = `Sync errored: ${error.message}`
-    } else if (this._interrupted) {
-      reason = `Sync interrupted and restarted. Interrupt reason: ${reason}`
-    } else if (moreToSync) {
-      reason = "More to sync"
-    }
-
-    const nextSyncIn = Math.max(1, this._lastSyncTime + interval - Date.now())
-    this._logger.log(`🔃 🔜 in ${nextSyncIn}ms - Reason: ${reason}`)
-
-    this._syncTimer = setTimeout(() => {
-      this.syncNow({reason});
-    }, nextSyncIn);
   }
 
   async _runTask(task) {
