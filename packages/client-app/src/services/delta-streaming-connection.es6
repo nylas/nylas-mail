@@ -19,8 +19,9 @@ class DeltaStreamingConnection {
     this._account = account
     this._state = null
     this._longConnection = null
-    this._writeStateDebounced = _.debounce(this._writeState, 100)
+    this._retryTimeout = null
     this._unsubscribers = []
+    this._writeStateDebounced = _.debounce(this._writeState, 100)
     this._backoffScheduler = new ExponentialBackoffScheduler({
       baseDelay: BASE_RETRY_DELAY,
       maxDelay: MAX_RETRY_DELAY,
@@ -67,11 +68,13 @@ class DeltaStreamingConnection {
   }
 
   close() {
+    this._clearRetryTimeout()
     this._disposeListeners()
     this._longConnection.close()
   }
 
   end() {
+    this._clearRetryTimeout()
     this._disposeListeners()
     this._longConnection.end()
   }
@@ -86,6 +89,11 @@ class DeltaStreamingConnection {
   _disposeListeners() {
     this._unsubscribers.forEach(usub => usub())
     this._unsubscribers = []
+  }
+
+  _clearRetryTimeout() {
+    clearTimeout(this._retryTimeout)
+    this._retryTimeout = null
   }
 
   _onOnlineStatusChanged = () => {
@@ -103,7 +111,9 @@ class DeltaStreamingConnection {
       this._backoffScheduler.reset()
     }
     if (status === Closed) {
-      setTimeout(() => this.restart(), this._backoffScheduler.nextDelay());
+      if (this._retryTimeout) { return }
+      this._clearRetryTimeout()
+      this._retryTimeout = setTimeout(() => this.restart(), this._backoffScheduler.nextDelay());
     }
   }
 
@@ -138,9 +148,6 @@ class DeltaStreamingConnection {
     if (!NylasAPIRequest.NonReportableStatusCodes.includes(err.statusCode)) {
       NylasEnv.reportError(err)
     }
-    this.close()
-
-    setTimeout(() => this.restart(), this._backoffScheduler.nextDelay());
   }
 
   _setCursor = (cursor) => {
@@ -160,7 +167,10 @@ class DeltaStreamingConnection {
     // Migrate from old storage key
     const oldState = await DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`)
     if (!oldState) {
-      return {cursor: null, status: null};
+      return {
+        cursor: null,
+        status: null,
+      };
     }
 
     const {deltaCursors = {}, deltaStatus = {}} = oldState
