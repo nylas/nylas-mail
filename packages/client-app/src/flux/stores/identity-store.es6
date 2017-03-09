@@ -184,7 +184,7 @@ class IdentityStore extends NylasStore {
     const json = await this.fetchPath('/n1/user');
     if (!json || !json.id || json.id !== this._identity.id) {
       console.error(json)
-      NylasEnv.reportError(new Error("Remote Identity returned invalid json"), json)
+      NylasEnv.reportError(new Error("Remote Identity returned invalid json"), json || {})
       return Promise.resolve(this._identity)
     }
     const nextIdentity = Object.assign({}, this._identity, json);
