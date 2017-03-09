@@ -2,6 +2,7 @@
 
 ### 1.0.34 (3/8/2017)
 
+  + [client-sync] Bump sequelize version - Ensure it doesn't halt sync
   + [none] (dev) Fix paths in scripts/daily
   + [client-sync] Refactor message processing throttling
   + [client-app] (deltas P6) Split local and cloud deltas
