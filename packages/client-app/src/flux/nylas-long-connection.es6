@@ -98,6 +98,7 @@ class NylasLongConnection {
 
   onError(error) {
     this._onError(error)
+    this.close()
   }
 
   canStart() {
@@ -108,82 +109,85 @@ class NylasLongConnection {
     if (!this.canStart()) { return this }
     if (this._req != null) { return this }
 
-    const accountToken = this._api.accessTokenForAccountId(this._accountId)
-    const identityToken = (IdentityStore.identity() || {}).token || ''
-    if (!accountToken) {
-      throw new APIError({
-        statusCode: 401,
-        message: `Can't establish NylasLongConnection: No account token available for account ${this._accountId}`,
-      })
-    }
-
-    const options = url.parse(`${this._api.APIRoot}${this._path}`)
-    options.auth = `${accountToken}:${identityToken}`
-
-    let lib;
-    if (this._api.APIRoot.indexOf('https') === -1) {
-      lib = require('http')
-    } else {
-      lib = require('https')
-    }
-
-    this._req = lib.request(options, (responseStream) => {
-      this._req.responseStream = responseStream
-      this._httpStatusCode = responseStream.statusCode
-      if (responseStream.statusCode !== 200) {
-        responseStream.on('data', (chunk) => {
-          const error = new APIError({
-            response: responseStream,
-            message: chunk.toString('utf8'),
-            statusCode: responseStream.statusCode,
-          })
-          this.onError(error)
-          this.close()
+    try {
+      const accountToken = this._api.accessTokenForAccountId(this._accountId)
+      const identityToken = (IdentityStore.identity() || {}).token || ''
+      if (!accountToken) {
+        throw new APIError({
+          statusCode: 401,
+          message: `Can't establish NylasLongConnection: No account token available for account ${this._accountId}`,
         })
-        return
       }
 
-      responseStream.setEncoding('utf8')
-      responseStream.on('error', (error) => {
-        this.onError(new APIError({error}))
-        this.close()
-      })
-      responseStream.on('close', () => this.close())
-      responseStream.on('end', () => this.close())
-      responseStream.on('data', (chunk) => {
-        this.closeIfDataStops()
-        // Ignore redundant newlines sent as pings. Want to avoid
-        // calls to this.onProcessBuffer that contain no actual updates
-        if (chunk === '\n' && (this._buffer.length === 0 || _.last(this._buffer) === '\n')) {
+      const options = url.parse(`${this._api.APIRoot}${this._path}`)
+      options.auth = `${accountToken}:${identityToken}`
+
+      let lib;
+      if (this._api.APIRoot.indexOf('https') === -1) {
+        lib = require('http')
+      } else {
+        lib = require('https')
+      }
+
+      this._req = lib.request(options, (responseStream) => {
+        this._req.responseStream = responseStream
+        this._httpStatusCode = responseStream.statusCode
+        if (responseStream.statusCode !== 200) {
+          responseStream.on('data', (chunk) => {
+            const error = new APIError({
+              response: responseStream,
+              message: chunk.toString('utf8'),
+              statusCode: responseStream.statusCode,
+            })
+            this.onError(error)
+          })
           return
         }
-        this._buffer += chunk
-        this._processBufferThrottled()
+
+        responseStream.setEncoding('utf8')
+        responseStream.on('error', (error) => {
+          this.onError(new APIError({error}))
+        })
+        responseStream.on('close', () => this.close())
+        responseStream.on('end', () => this.close())
+        responseStream.on('data', (chunk) => {
+          this.closeIfDataStops()
+          // Ignore redundant newlines sent as pings. Want to avoid
+          // calls to this.onProcessBuffer that contain no actual updates
+          if (chunk === '\n' && (this._buffer.length === 0 || _.last(this._buffer) === '\n')) {
+            return
+          }
+          this._buffer += chunk
+          this._processBufferThrottled()
+        })
       })
-    })
-    this._req.setTimeout(60 * 60 * 1000)
-    this._req.setSocketKeepAlive(true)
-    this._req.on('error', (error) => {
-      this.onError(new APIError({error}))
-      this.close()
-    })
-    this._req.on('socket', (socket) => {
-      this.setStatus(Status.Connecting)
-      socket.on('connect', () => {
-        this.setStatus(Status.Connected)
-        this.closeIfDataStops()
-      })
-      socket.on('error', (error) => {
+      this._req.setTimeout(60 * 60 * 1000)
+      this._req.setSocketKeepAlive(true)
+      this._req.on('error', (error) => {
         this.onError(new APIError({error}))
-        this.close()
       })
-      socket.on('close', () => this.close())
-      socket.on('end', () => this.close())
-    })
-    // We `end` the request to start it.
-    // See https://github.com/nylas/nylas-mail/pull/2004
-    this._req.end()
-    return this
+      this._req.on('socket', (socket) => {
+        this.setStatus(Status.Connecting)
+        socket.on('connect', () => {
+          this.setStatus(Status.Connected)
+          this.closeIfDataStops()
+        })
+        socket.on('error', (error) => {
+          this.onError(new APIError({error}))
+        })
+        socket.on('close', () => this.close())
+        socket.on('end', () => this.close())
+      })
+      // We `end` the request to start it.
+      // See https://github.com/nylas/nylas-mail/pull/2004
+      this._req.end()
+      return this
+    } catch (err) {
+      // start() should not throw any errors synchronously. Any errors should be
+      // asynchronously transmitted to the caller via `onError`
+      setTimeout(() => this.onError(err), 0)
+      return this
+    }
   }
 
   closeIfDataStops() {
