@@ -245,7 +245,7 @@ export default class NylasEnvConstructor {
 
     process.title = `Nylas Mail ${this.getWindowType()}`;
     return this.onWindowPropsReceived(() => {
-      process.title = `Nylas Mail ${this.getWindowType}`;
+      process.title = `Nylas Mail ${this.getWindowType()}`;
       return process.title;
     });
   }
