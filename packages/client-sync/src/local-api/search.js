@@ -138,7 +138,7 @@ class ImapSearchClient {
       {
         where: {
           type: "SyncUnknownUIDs",
-          status: {$in: ["NEW", "INPROGRESS-RETRYABLE", "INPROGRESS-NONRETRYABLE"]},
+          status: {$in: ["NEW", "INPROGRESS-RETRYABLE", "INPROGRESS-NOTRETRYABLE"]},
           accountId: this.account.id,
         },
       });
