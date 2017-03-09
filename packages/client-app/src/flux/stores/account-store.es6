@@ -267,6 +267,8 @@ class AccountStore extends NylasStore {
       const account = this._accounts[existingIdx]
       account.syncState = Account.SYNC_STATE_RUNNING
       account.fromJSON(json)
+      // Restart the connection in case account credentials have changed
+      Actions.retryDeltaConnection()
     }
 
     this._save()
