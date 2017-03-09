@@ -1,8 +1,15 @@
 const IMAPConnection = require('./imap-connection');
 const IMAPErrors = require('./imap-errors');
 const {ExponentialBackoffScheduler} = require('./backoff-schedulers');
+const {inDevMode} = require('./env-helpers')
 
 const MAX_IMAP_CONNECTIONS_PER_ACCOUNT = 3;
+const MAX_DEV_MODE_CONNECTIONS = 3
+const MAX_GMAIL_CONNECTIONS = 7;
+const MAX_O365_CONNECTIONS = 5;
+const MAX_ICLOUD_CONNECTIONS = 5;
+const MAX_IMAP_CONNECTIONS = 5;
+
 const INITIAL_SOCKET_TIMEOUT_MS = 30 * 1000;  // 30 sec
 const MAX_SOCKET_TIMEOUT_MS = 10 * 60 * 1000  // 10 min
 
@@ -108,9 +115,23 @@ class IMAPConnectionPool {
     this._poolMap = {};
   }
 
+  _maxConnectionsForAccount(account) {
+    if (inDevMode()) {
+      return MAX_DEV_MODE_CONNECTIONS;
+    }
+
+    switch (account.provider) {
+      case 'gmail': return MAX_GMAIL_CONNECTIONS;
+      case 'office365': return MAX_O365_CONNECTIONS;
+      case 'icloud': return MAX_ICLOUD_CONNECTIONS;
+      case 'imap': return MAX_IMAP_CONNECTIONS;
+      default: return MAX_DEV_MODE_CONNECTIONS;
+    }
+  }
+
   async withConnectionsForAccount(account, {desiredCount, logger, onConnected, onTimeout}) {
     if (!this._poolMap[account.id]) {
-      this._poolMap[account.id] = new AccountConnectionPool(account, this._maxConnectionsPerAccount);
+      this._poolMap[account.id] = new AccountConnectionPool(account, this._maxConnectionsForAccount(account));
     }
 
     const pool = this._poolMap[account.id];
