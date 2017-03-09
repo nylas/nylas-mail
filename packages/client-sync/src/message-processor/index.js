@@ -153,7 +153,12 @@ class MessageProcessor {
         desiredParts,
       })
       const fingerprint = ["{{ default }}", "message processor", err.message];
-      NylasEnv.reportError(err, {fingerprint: fingerprint})
+      NylasEnv.reportError(err, {fingerprint,
+        rateLimit: {
+          ratePerHour: 30,
+          key: `MessageProcessorError:${err.message}`,
+        },
+      })
 
       // Keep track of uids we failed to fetch
       const {failedUIDs = []} = folder.syncState
