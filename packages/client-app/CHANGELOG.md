@@ -1,5 +1,19 @@
 # Nylas Mail Changelog
 
+### 1.0.34 (3/8/2017)
+
+  + [none] (dev) Fix paths in scripts/daily
+  + [client-sync] Refactor message processing throttling
+  + [client-app] (deltas P6) Split local and cloud deltas
+  + [client-app] (deltas P5) Move DeltaProcessor to nylas-exports
+  + [client-app] (deltas P4) Fixup DeltaStramingConnection + retry on close
+  + [client-app] (deltas P3) Change  interface in NylasLongConnection
+  + [client-app] (deltas P2) :art: Split up NylasSyncStatusStore
+  + [client-app] (deltas P1) :art: Fixup AccountDeltaConnectionPool
+  + [none] (dev) Add script/daily
+  + [client-app] Handle errors when opening imap box correctly
+  + [iso-core] Provide better info to Sentry on send errors
+
 ### 1.0.33 (3/8/2017)
 
 - Features:
