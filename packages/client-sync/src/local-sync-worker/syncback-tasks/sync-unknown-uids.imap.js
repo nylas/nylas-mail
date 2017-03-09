@@ -23,6 +23,8 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
       throw new APIError('folderId is required');
     }
 
+    await this.syncbackRequestObject().update({status: "INPROGRESS-NOTRETRYABLE"});
+
     const folder = await Folder.findById(folderId);
     if (!folder) {
       throw new APIError('folder not found', 404);
