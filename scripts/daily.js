@@ -164,7 +164,7 @@ async function main(args) {
 
   // Commit changes
   try {
-    await git('add ./CHANGELOG.md ./package.json')
+    await git('add .')
     await git(`commit -m 'bump(version): ${nextVersion}'`)
   } catch (err) {
     console.error('Could not commit changes')
