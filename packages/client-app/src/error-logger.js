@@ -65,7 +65,22 @@ module.exports = ErrorLogger = (function() {
     this._appendLog(error.stack)
     if (extra) { this._appendLog(extra) }
     if (process.type === "renderer") {
-      var errorJSON = JSON.stringify(error);
+      var errorJSON = "{}";
+      try {
+        errorJSON = JSON.stringify(error);
+      } catch (err) {
+        var recoveredError = new Error();
+        recoveredError.stack = error.stack;
+        recoveredError.message = `Recovered Error: ${error.message}`;
+        errorJSON = JSON.stringify(recoveredError)
+      }
+
+      var extraJSON;
+      try {
+        extraJSON = JSON.stringify(extra);
+      } catch (err) {
+        extraJSON = "{}";
+      }
 
       /**
        * We synchronously send all errors to the backend main process.
@@ -78,14 +93,12 @@ module.exports = ErrorLogger = (function() {
        * This is a rare use of `sendSync` to ensure the command has made
        * it before the window closes.
        */
-      ipcRenderer.sendSync("report-error", {errorJSON: errorJSON, extra: JSON.stringify(extra)})
+      ipcRenderer.sendSync("report-error", {errorJSON: errorJSON, extra: extraJSON})
 
     } else {
-      var nslog = require('nslog');
-
       this._notifyExtensions("reportError", error, extra)
-      nslog(error.stack)
     }
+    console.error(error, extra);
   }
 
   ErrorLogger.prototype.openLogs = function() {
