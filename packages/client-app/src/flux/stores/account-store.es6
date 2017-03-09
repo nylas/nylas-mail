@@ -72,11 +72,13 @@ class AccountStore extends NylasStore {
     })
 
     if (account) {
-      let syncState = Account.SYNC_STATE_AUTH_FAILED
       if (apiName === "N1CloudAPI") {
-        syncState = Account.SYNC_STATE_N1_CLOUD_AUTH_FAILED
+        const n1CloudState = Account.N1_CLOUD_STATE_AUTH_FAILED
+        this._onUpdateAccount(account.id, {n1CloudState})
+      } else {
+        const syncState = Account.SYNC_STATE_AUTH_FAILED
+        this._onUpdateAccount(account.id, {syncState})
       }
-      this._onUpdateAccount(account.id, {syncState})
     }
     return Promise.resolve()
   }
