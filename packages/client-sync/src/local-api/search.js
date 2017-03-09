@@ -90,24 +90,22 @@ class ImapSearchClient {
     const folders = await this._getFoldersForSearch(db);
     const criteria = this._getCriteriaForQuery(query);
     let numTimeoutErrors = 0;
-    let result = null;
-    await IMAPConnectionPool.withConnectionsForAccount(this.account, {
-      desiredCount: 1,
-      logger: this._logger,
-      onConnected: async ([conn], done) => {
-        result = Rx.Observable.create(async (observer) => {
-          for (const folder of folders) {
-            const uids = await this._searchFolder(conn, folder, criteria);
-            if (uids.length > 0) {
-              observer.onNext({uids, folder});
-            }
+    return Rx.Observable.create(async (observer) => {
+      const onConnected = async ([conn]) => {
+        // Remove folders as we process them so we don't re-search previously
+        // searched folders if there is an error later down the line.
+        while (folders.length > 0) {
+          const folder = folders[0];
+          const uids = await this._searchFolder(conn, folder, criteria);
+          folders.shift();
+          if (uids.length > 0) {
+            observer.onNext({uids, folder});
           }
-          observer.onCompleted();
-          done();
-        });
-        return true;
-      },
-      onTimeout: (socketTimeout) => {
+        }
+        observer.onCompleted();
+      };
+
+      const onTimeout = (socketTimeout) => {
         numTimeoutErrors += 1;
         Actions.recordUserEvent('Timeout error in IMAP search', {
           accountId: this.account.id,
@@ -115,9 +113,15 @@ class ImapSearchClient {
           socketTimeout,
           numTimeoutErrors,
         });
-      },
+      };
+
+      await IMAPConnectionPool.withConnectionsForAccount(this.account, {
+        desiredCount: 1,
+        logger: this._logger,
+        onConnected,
+        onTimeout,
+      });
     });
-    return result;
   }
 
   _searchFolder(conn, folder, criteria) {
@@ -158,7 +162,7 @@ class ImapSearchClient {
       let knownUids = new Set(messages.map(m => parseInt(m.folderImapUID, 10)));
       const unknownUids = uids.filter(uid => !knownUids.has(uid));
 
-      if (unknownUids.length === 0) {
+      if (unknownUids.length === 0 || this._cancelled) {
         return Rx.Observable.from([messages]);
       }
       // Sort into descending order so that we get the more recent messages sooner.
