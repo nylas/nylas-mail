@@ -6,6 +6,7 @@
   + Increase the IMAP connection pool size
   + Shim sequelize to timeout after 1 minute on every database operation. This
     is a safeguard to prevent unresolved db promises from halting the sync loop.
+  + Better error handling to prevent the message processor from halting sync
 
 - Development:
   + Measure and report inline composer open times
