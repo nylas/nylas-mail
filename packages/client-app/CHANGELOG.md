@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 1.0.36 (3/10/2017)
+
+  + [iso-core] Increase the IMAP connection pool size
+  + [client-sync] Refactor MessageProcessor to be more robust to errors
+  + [client-sync] Shim sequelize to timeout after 1 minute
+
 ### 1.0.35 (3/9/2017)
 
 - Fixes:
