@@ -1,28 +1,44 @@
-const {NylasError} = require('./errors')
-/**
- * An abstract base class that can be used to indicate IMAPErrors that may
- * fix themselves when retried
- */
-class RetryableError extends NylasError { }
+import {NylasError, RetryableError} from './errors'
+
+export class IMAPRetryableError extends RetryableError {
+  constructor(msg) {
+    super(msg)
+    this.userMessage = "We were unable to reach your IMAP provider. Please try again.";
+    this.statusCode = 408;
+  }
+}
 
 /**
  * IMAPErrors that originate from NodeIMAP. See `convertImapError` for
  * documentation on underlying causes
  */
-class IMAPSocketError extends RetryableError { }
-class IMAPConnectionTimeoutError extends RetryableError { }
-class IMAPAuthenticationTimeoutError extends RetryableError { }
-class IMAPProtocolError extends NylasError { }
-class IMAPAuthenticationError extends NylasError { }
-class IMAPTransientAuthenticationError extends RetryableError { }
+export class IMAPSocketError extends IMAPRetryableError { }
+export class IMAPConnectionTimeoutError extends IMAPRetryableError { }
+export class IMAPAuthenticationTimeoutError extends IMAPRetryableError { }
+export class IMAPTransientAuthenticationError extends IMAPRetryableError { }
 
-class IMAPConnectionNotReadyError extends RetryableError {
+export class IMAPProtocolError extends NylasError {
+  constructor(msg) {
+    super(msg)
+    this.userMessage = "IMAP protocol error. Please contact support@nylas.com."
+    this.statusCode = 401
+  }
+}
+export class IMAPAuthenticationError extends NylasError {
+  constructor(msg) {
+    super(msg)
+    this.userMessage = "Incorrect IMAP username or password.";
+    this.statusCode = 401;
+  }
+}
+
+export class IMAPConnectionNotReadyError extends IMAPRetryableError {
   constructor(funcName) {
     super(`${funcName} - You must call connect() first.`);
   }
 }
 
-class IMAPConnectionEndedError extends RetryableError {
+export class IMAPConnectionEndedError extends IMAPRetryableError {
   constructor(msg = "The IMAP Connection was ended.") {
     super(msg);
   }
@@ -33,7 +49,13 @@ class IMAPConnectionEndedError extends RetryableError {
  * of time, but not over the short spans of time in which it'd make sense
  * for us to retry.
  */
-class IMAPCertificateError extends NylasError { }
+export class IMAPCertificateError extends NylasError {
+  constructor(msg) {
+    super(msg)
+    this.userMessage = "We couldn't make a secure connection to your SMTP server. Please contact support@nylas.com."
+    this.statusCode = 401
+  }
+}
 
 /**
  * IMAPErrors may come from:
@@ -74,7 +96,7 @@ class IMAPCertificateError extends NylasError { }
  *     Message: 'Timed out while authenticating with server'
  *
  */
-function convertImapError(imapError) {
+export function convertImapError(imapError) {
   let error = imapError;
 
   if (/try again/i.test(imapError.message)) {
@@ -126,17 +148,3 @@ function convertImapError(imapError) {
   error.source = imapError.source
   return error
 }
-
-module.exports = {
-  convertImapError,
-  RetryableError,
-  IMAPSocketError,
-  IMAPConnectionTimeoutError,
-  IMAPAuthenticationTimeoutError,
-  IMAPProtocolError,
-  IMAPAuthenticationError,
-  IMAPTransientAuthenticationError,
-  IMAPConnectionNotReadyError,
-  IMAPConnectionEndedError,
-  IMAPCertificateError,
-};

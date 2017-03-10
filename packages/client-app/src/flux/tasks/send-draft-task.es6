@@ -242,10 +242,12 @@ export default class SendDraftTask extends BaseDraftTask {
       const errorMessage = (err.body && err.body.message) || ''
       message = `Sorry, this message could not be sent, please try again.`;
       message += `\n\nReason: ${err.message}`
-      if (errorMessage.includes('Network Error')) {
+      if (errorMessage.includes('unable to reach your SMTP server')) {
         message = `Sorry, this message could not be sent. There was a network error, please make sure you are online.`
       }
-      if (errorMessage.includes('Invalid login')) {
+      if (errorMessage.includes('Incorrect SMTP username or password') ||
+          errorMessage.includes('SMTP protocol error') ||
+          errorMessage.includes('unable to look up your SMTP host')) {
         Actions.updateAccount(this.draft.accountId, {syncState: Account.SYNC_STATE_AUTH_FAILED})
         message = `Sorry, this message could not be sent due to an authentication error. Please re-authenticate your account and try again.`
       }

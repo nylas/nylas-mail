@@ -1,4 +1,4 @@
-const IMAPConnection = require('./imap-connection');
+const IMAPConnection = require('./imap-connection').default;
 const IMAPErrors = require('./imap-errors');
 const {inDevMode} = require('./env-helpers')
 

@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import {
+  Errors,
   IMAPErrors,
   SendmailClient,
   MetricsReporter,
@@ -352,7 +353,7 @@ class SyncWorker {
       // Check if we've encountered a retryable/network error.
       // If so, we don't want to save the error to the account, which will cause
       // a red box to show up.
-      if (error instanceof IMAPErrors.RetryableError) {
+      if (error instanceof Errors.RetryableError) {
         this._retryScheduler.nextDelay()
         return
       }
@@ -421,7 +422,7 @@ class SyncWorker {
       const moreToSync = folders.some((f) => !f.isSyncComplete())
 
       if (error != null) {
-        if (error instanceof IMAPErrors.RetryableError) {
+        if (error instanceof Errors.RetryableError) {
           interval = this._retryScheduler.currentDelay();
         } else {
           interval = AC_SYNC_LOOP_INTERVAL_MS;

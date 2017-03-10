@@ -4,7 +4,6 @@ import google from 'googleapis';
 import {GmailOAuthHelpers as GAuth, DatabaseConnector} from 'cloud-core';
 import {
   AuthHelpers,
-  IMAPConnection,
   IMAPErrors,
 } from 'isomorphic-core';
 
