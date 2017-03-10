@@ -239,7 +239,7 @@ export default class SendDraftTask extends BaseDraftTask {
 
     // TODO Handle errors in a cleaner way
     if (err instanceof APIError) {
-      const errorMessage = err.body.message || ''
+      const errorMessage = (err.body && err.body.message) || ''
       message = `Sorry, this message could not be sent, please try again.`;
       message += `\n\nReason: ${err.message}`
       if (errorMessage.includes('Network Error')) {
@@ -282,6 +282,7 @@ export default class SendDraftTask extends BaseDraftTask {
       error: err.message,
       errorClass: err.constructor.name,
     })
+    err.message = `Send failed (client): ${err.message}`
     NylasEnv.reportError(err);
 
     return Promise.resolve([Task.Status.Failed, err]);
