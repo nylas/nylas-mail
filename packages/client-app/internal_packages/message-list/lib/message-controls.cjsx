@@ -74,7 +74,8 @@ class MessageControls extends React.Component
     Actions.composeReply({thread, message, type: 'reply-all', behavior: 'prefer-existing-if-pristine'})
 
   _onForward: =>
-    Actions.composeForward(thread: @props.thread, message: @props.message)
+    {thread, message} = @props
+    Actions.composeForward({thread, message})
 
   _onShowActionsMenu: =>
     SystemMenu = remote.Menu

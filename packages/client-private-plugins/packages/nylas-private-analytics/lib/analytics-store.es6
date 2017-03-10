@@ -37,6 +37,7 @@ const PERF_ACTIONS_TO_MIXPANEL_EVENTS = {
   'send-draft': 'Perf: Draft Sent',
   'perform-local-task': 'Perf: Task Performed Database Operation',
   'open-composer-window': 'Perf: Composer Window Opened',
+  'open-inline-composer': 'Perf: Inline Composer Opened',
   'open-add-account-window': 'Perf: Add Account Window Opened',
   'app-boot': 'Perf: App Booted',
   'search-performed': 'Perf: Search Performed',
