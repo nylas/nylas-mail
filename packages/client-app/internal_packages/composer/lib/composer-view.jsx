@@ -52,6 +52,7 @@ export default class ComposerView extends React.Component {
   }
 
   componentDidMount() {
+    this._recordComposerOpenTime()
     if (this.props.session) {
       this._setupForProps(this.props);
     }
@@ -80,6 +81,31 @@ export default class ComposerView extends React.Component {
       this.refs.header.focus();
     } else {
       this.refs[Fields.Body].focus();
+    }
+  }
+
+  _recordComposerOpenTime() {
+    const {draft: {threadId, replyToMessageId}} = this.props
+    if (NylasEnv.isComposerWindow()) { return }
+
+    // This method only records inline composer opening times. Composer window
+    // opening times are recorded in ComposerWithWindowPros
+    const replyTimerKey = `compose-reply-${replyToMessageId}`
+    const forwardTimerKey = `compose-forward-${threadId}`
+    let actionTimeMs;
+    if (NylasEnv.timer.isPending(replyTimerKey)) {
+      actionTimeMs = NylasEnv.timer.stop(replyTimerKey)
+    }
+    if (NylasEnv.timer.isPending(forwardTimerKey)) {
+      actionTimeMs = NylasEnv.timer.stop(forwardTimerKey)
+    }
+    if (actionTimeMs != null) {
+      Actions.recordPerfMetric({
+        action: 'open-inline-composer',
+        actionTimeMs,
+        maxValue: 4000,
+        sample: 0.9,
+      })
     }
   }
 

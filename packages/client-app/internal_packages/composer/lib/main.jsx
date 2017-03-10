@@ -48,20 +48,8 @@ class ComposerWithWindowProps extends React.Component {
 
   _onDraftReady = () => {
     this.refs.composer.focus().then(() => {
-      if (NylasEnv.timer.isPending('open-composer-window')) {
-        const actionTimeMs = NylasEnv.timer.stop('open-composer-window');
-        if (actionTimeMs && actionTimeMs <= 4000) {
-          Actions.recordUserEvent("Composer Popout Timed", {timeInMs: actionTimeMs})
-        }
-        // TODO time when plugins actually get loaded in
-        Actions.recordPerfMetric({
-          action: 'open-composer-window',
-          actionTimeMs,
-          maxValue: 4000,
-          sample: 0.9,
-        })
-      }
       NylasEnv.displayWindow();
+      this._recordComposerOpenTime()
 
       if (this.state.errorMessage) {
         this._showInitialErrorDialog(this.state.errorMessage, this.state.errorDetail);
@@ -80,6 +68,24 @@ class ComposerWithWindowProps extends React.Component {
         })
       })
     });
+  }
+
+  _recordComposerOpenTime() {
+    const {timerId} = NylasEnv.getWindowProps()
+    const timerKey = `open-composer-window-${timerId}`
+    if (NylasEnv.timer.isPending(timerKey)) {
+      const actionTimeMs = NylasEnv.timer.stop(timerKey);
+      if (actionTimeMs && actionTimeMs <= 4000) {
+        // TODO do we still need to record this legacy event?
+        Actions.recordUserEvent("Composer Popout Timed", {timeInMs: actionTimeMs})
+      }
+      Actions.recordPerfMetric({
+        action: 'open-composer-window',
+        actionTimeMs,
+        maxValue: 4000,
+        sample: 0.9,
+      })
+    }
   }
 
   render() {
