@@ -1,8 +1,7 @@
-const atob = require('atob')
 const crypto = require('crypto');
 
 const {JSONColumn, JSONArrayColumn} = require('../database-types');
-const {SUPPORTED_PROVIDERS, credentialsForProvider} = require('../auth-helpers');
+const {credentialsForProvider, smtpConfigFromSettings} = require('../auth-helpers');
 
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
@@ -108,16 +107,6 @@ module.exports = (sequelize, Sequelize) => {
         }
       },
 
-      bearerToken(xoauth2) {
-        // We have to unpack the access token from the entire XOAuth2
-        // token because it is re-packed during the SMTP connection login.
-        // https://github.com/nodemailer/smtp-connection/blob/master/lib/smtp-connection.js#L1418
-        const bearer = "Bearer ";
-        const decoded = atob(xoauth2);
-        const tokenIndex = decoded.indexOf(bearer) + bearer.length;
-        return decoded.substring(tokenIndex, decoded.length - 2);
-      },
-
       smtpConfig() {
         // We always call credentialsForProvider() here because n1Cloud
         // sometimes needs to send emails for accounts which did not have their
@@ -127,34 +116,7 @@ module.exports = (sequelize, Sequelize) => {
           settings: Object.assign({}, this.decryptedCredentials(), this.connectionSettings),
           email: this.emailAddress,
         });
-        let config;
-        const {smtp_host, smtp_port, ssl_required} = connectionSettings;
-        if (connectionSettings.smtp_custom_config) {
-          config = connectionSettings.smtp_custom_config;
-        } else {
-          config = {
-            host: smtp_host,
-            port: smtp_port,
-            secure: ssl_required,
-          };
-        }
-
-        if (this.provider === 'gmail') {
-          const {xoauth2} = connectionCredentials;
-          if (!xoauth2) {
-            throw new Error("Missing XOAuth2 Token")
-          }
-
-          const token = this.bearerToken(xoauth2);
-          config.auth = { user: connectionSettings.smtp_username, xoauth2: token }
-        } else if (SUPPORTED_PROVIDERS.has(this.provider)) {
-          const {smtp_username, smtp_password} = connectionCredentials
-          config.auth = { user: smtp_username, pass: smtp_password}
-        } else {
-          throw new Error(`${this.provider} not yet supported`)
-        }
-
-        return config;
+        return smtpConfigFromSettings(this.provider, connectionSettings, connectionCredentials);
       },
     },
   });

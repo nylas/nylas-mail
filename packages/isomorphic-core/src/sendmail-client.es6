@@ -1,8 +1,9 @@
 /* eslint no-useless-escape: 0 */
-const fs = require('fs');
-const nodemailer = require('nodemailer');
-const mailcomposer = require('mailcomposer');
-const {APIError} = require('./errors')
+import fs from 'fs'
+import nodemailer from 'nodemailer'
+import mailcomposer from 'mailcomposer'
+import {APIError} from './errors'
+import {convertSmtpError} from './smtp-errors'
 
 const MAX_RETRIES = 1;
 
@@ -27,10 +28,8 @@ class SendmailClient {
       try {
         results = await this._transporter.sendMail(msgData);
       } catch (err) {
-        // TODO: shouldn't retry on permanent errors like Invalid login
-        // TODO: should also wait between retries :(
         // Keep retrying for MAX_RETRIES
-        error = err;
+        error = convertSmtpError(err);
         this._logger.error(err);
       }
       if (!results) {
@@ -47,22 +46,15 @@ class SendmailClient {
     }
     this._logger.error('Max sending retries reached');
 
-    // TODO: figure out how to parse different errors, like in cloud-core
-    // https://github.com/nylas/cloud-core/blob/production/sync-engine/inbox/sendmail/smtp/postel.py#L354
-    if (/invalid login/i.test(error.message)) {
-      throw new APIError(`Sending failed - Invalid login`, 401, {originalError: error})
+    let userMessage = 'Sending failed';
+    let statusCode = 500;
+    if (error && error.userMessage && error.statusCode) {
+      userMessage = `Sending failed - ${error.userMessage}`;
+      statusCode = error.statusCode;
     }
 
-    if (error.message.includes("getaddrinfo ENOTFOUND")) {
-      throw new APIError(`Sending failed - Network Error`, 401, {originalError: error})
-    }
-
-    if (error.message.includes("connect ETIMEDOUT")) {
-      throw new APIError('Sending failed - Network Error', 401, {originalError: error})
-    }
-
-    const {host, port, secure} = this._transporter.options;
-    throw new APIError('Sending failed', 500, {
+    const {host, port, secure} = this._transporter.transporter.options;
+    throw new APIError(userMessage, statusCode, {
       originalError: error,
       smtp_host: host,
       smtp_port: port,

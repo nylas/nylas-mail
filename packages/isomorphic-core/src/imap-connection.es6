@@ -31,7 +31,7 @@ const ONE_HOUR_SECS = 60 * 60;
 const AUTH_TIMEOUT_MS = 30 * 1000;
 const DEFAULT_SOCKET_TIMEOUT_MS = 30 * 1000;
 
-class IMAPConnection extends EventEmitter {
+export default class IMAPConnection extends EventEmitter {
 
   static DefaultSocketTimeout = DEFAULT_SOCKET_TIMEOUT_MS;
 
@@ -393,4 +393,3 @@ class IMAPConnection extends EventEmitter {
 }
 
 IMAPConnection.Capabilities = Capabilities;
-module.exports = IMAPConnection

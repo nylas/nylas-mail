@@ -1,5 +1,4 @@
-
-class NylasError extends Error {
+export class NylasError extends Error {
   toJSON() {
     let json = {}
     if (super.toJSON) {
@@ -13,7 +12,7 @@ class NylasError extends Error {
   }
 }
 
-class APIError extends NylasError {
+export class APIError extends NylasError {
   constructor(message, statusCode, data) {
     super(message);
     this.statusCode = statusCode;
@@ -21,7 +20,8 @@ class APIError extends NylasError {
   }
 }
 
-module.exports = {
-  NylasError,
-  APIError,
-}
+/**
+ * An abstract base class that can be used to indicate Errors that may fix
+ * themselves when retried
+ */
+export class RetryableError extends NylasError { }

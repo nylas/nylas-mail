@@ -1,5 +1,5 @@
 import {Actions} from 'nylas-exports'
-import {IMAPErrors} from 'isomorphic-core'
+import {Errors} from 'isomorphic-core'
 import SyncbackTask from './syncback-tasks/syncback-task'
 import SyncbackTaskFactory from './syncback-task-factory';
 
@@ -184,7 +184,7 @@ class SyncbackTaskRunner {
     } catch (error) {
       const after = new Date();
 
-      if (error instanceof IMAPErrors.RetryableError) {
+      if (error instanceof Errors.RetryableError) {
         Actions.recordUserEvent('Retrying syncback task', {
           accountId: this._account.id,
           provider: this._account.provider,
