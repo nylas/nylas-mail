@@ -2,26 +2,26 @@
 
 ### 1.0.35 (3/9/2017)
 
-  + [client-app] Make sure we retry delta connection when reauthing account
-  + [client-app] More defensive error handling to prevent sync from halting
-  + [client-app] Prevent delta streaming connection from retrying too much
-  + [client-app] Consolidate delta connection stores, rm deltas internal_pkg
-  + [client-app] :art: Rename NylasSyncStatusStore to FolderSyncProgressStore
-  + [client-app] Consolidate apierror status code that we should not report
-  + [client-app] Fix error when attempting to report a fetch id error
-  + [client-app] Rate limit error reporting for message processing errors
-  + [client-app] Prevent  error restart loop
-  + [client-sync] Refactor file download IMAP pool use
-  + [client-sync] Refactor raw message IMAP connection pool use
-  + [client-sync] Refactor _search Observable
-  + [client-app] Don't report incorrect username or password to Sentry
-  + [client-sync] Make cancelling SyncUnknownUIDs actually work
-  + [client-app] don't re-close dev tools
-  + [client-app] fix circular errors and logging
-  + [client-sync] Gracefully handle large amounts of unknown UIDs from search
-  + [client-sync] Make SyncUnknownUIDs NOTRETRYABLE
-  + [client-app] Correctly set process title
+- Fixes:
+  + Make sure delta connection is restarted when an account is re-authed
+  + More defensive error handling to prevent sync from halting
+  + Prevent delta streaming connection from retrying too much
+  + Fix error when attempting to report a fetch id error
+  + Prevent  error restart loop when database is malformed
+  + Correctly cancel search when the search perspective is cleared
+  + When many search results are returned from the server, don't try to sync them all at once, otherwise would slow down the main sync process.
+  + When restarting the app, don't try to continue syncing search results from an old search
 
+- Development:
+  + Consolidate delta connection stores, remove `internal_package/deltas`
+  + Rename NylasSyncStatusStore to FolderSyncProgressStore
+  + Consolidate APIError status code that we should not report
+  + Don't report incorrect username or password to Sentry
+  + Rate limit error reporting for message processing errors
+  + Fix circular reference error when reporting errors
+  + Refactor file download IMAPConnectionPool usage
+  + Don't focus the Console tab in dev tools every time an error is logged
+  + Correctly set process title
 
 ### 1.0.34 (3/8/2017)
 
