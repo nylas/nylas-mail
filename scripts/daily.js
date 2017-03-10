@@ -141,7 +141,7 @@ async function main(args) {
   // Allow editing
   if (args.editChangelog) {
     try {
-      await spawn(process.env.EDITOR, ['./CHANGELOG.md'], {stdio: 'inherit'})
+      await spawn(process.env.EDITOR, ['./packages/client-app/CHANGELOG.md'], {stdio: 'inherit'})
     } catch (err) {
       console.error('Error editing CHANGELOG.md')
       console.error(err)
