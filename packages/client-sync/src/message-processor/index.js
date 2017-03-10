@@ -47,52 +47,61 @@ class MessageProcessor {
   }
 
   /**
-   * @returns Promise that resolves when message has been processed
-   * This promise will never reject, given that this function is meant to be
-   * called as a fire and forget operation
-   * If message processing fails, we will register the failure in the folder
-   * syncState
+   * @returns Promise that resolves when message has been processed. This
+   * promise will never reject. If message processing fails, we will register
+   * the failure in the folder syncState.
    */
   queueMessageForProcessing({accountId, folderId, imapMessage, struct, desiredParts, throttle = true} = {}) {
-    return new Promise((resolve) => {
-      this._queueLength++
-      this._queue = this._queue.then(async () => {
-        if (this._currentChunkSize === 0) {
-          this._currentChunkStart = Date.now();
-        }
-        this._currentChunkSize++;
+    return new Promise(async (resolve) => {
+      let logger;
+      let folder;
+      try {
+        const accountDb = await LocalDatabaseConnector.forShared()
+        const account = await accountDb.Account.findById(accountId)
+        const db = await LocalDatabaseConnector.forAccount(accountId);
+        const {Folder} = db
+        folder = await Folder.findById(folderId)
+        logger = global.Logger.forAccount(account)
 
-        await this._processMessage({accountId, folderId, imapMessage, struct, desiredParts})
-        this._queueLength--
-
-        // Throttle message processing to meter cpu usage
-        if (this._currentChunkSize === MAX_CHUNK_SIZE) {
-          if (throttle) {
-            await new Promise(r => setTimeout(r, this._computeThrottlingTimeout()));
+        this._queueLength++
+        this._queue = this._queue.then(async () => {
+          if (this._currentChunkSize === 0) {
+            this._currentChunkStart = Date.now();
           }
-          this._currentChunkSize = 0;
-        }
+          this._currentChunkSize++;
 
-        // To save memory, we reset the Promise chain if the queue reaches a
-        // length of 0, otherwise we will continue referencing the entire chain
-        // of promises that came before
-        if (this._queueLength === 0) {
-          this._queue = Promise.resolve()
+          await this._processMessage({db, accountId, folder, imapMessage, struct, desiredParts, logger})
+          this._queueLength--
+
+          // Throttle message processing to meter cpu usage
+          if (this._currentChunkSize === MAX_CHUNK_SIZE) {
+            if (throttle) {
+              await new Promise(r => setTimeout(r, this._computeThrottlingTimeout()));
+            }
+            this._currentChunkSize = 0;
+          }
+
+          // To save memory, we reset the Promise chain if the queue reaches a
+          // length of 0, otherwise we will continue referencing the entire chain
+          // of promises that came before
+          if (this._queueLength === 0) {
+            this._queue = Promise.resolve()
+          }
+        });
+      } catch (err) {
+        if (logger && folder) {
+          await this._onError({imapMessage, desiredParts, folder, err, logger});
+        } else {
+          NylasEnv.reportError(err);
         }
-        resolve()
-      })
+      }
+      resolve();
     })
   }
 
-  async _processMessage({accountId, folderId, imapMessage, struct, desiredParts}) {
-    const db = await LocalDatabaseConnector.forAccount(accountId);
-    const {Message, Folder, Label} = db
-    const folder = await Folder.findById(folderId)
-    const accountDb = await LocalDatabaseConnector.forShared()
-    const account = await accountDb.Account.findById(accountId)
-    const logger = global.Logger.forAccount(account)
-
+  async _processMessage({db, accountId, folder, imapMessage, struct, desiredParts, logger}) {
     try {
+      const {Message, Folder, Label} = db;
       const messageValues = await MessageFactory.parseFromImap(imapMessage, desiredParts, {
         db,
         folder,
@@ -147,35 +156,39 @@ class MessageProcessor {
       logger.log(`🔃 ✉️ (${folder.name}) "${messageValues.subject}" - ${messageValues.date}`)
       return processedMessage
     } catch (err) {
-      logger.error(`MessageProcessor: Could not build message`, {
-        err,
-        imapMessage,
-        desiredParts,
-      })
-      const fingerprint = ["{{ default }}", "message processor", err.message];
-      NylasEnv.reportError(err, {fingerprint,
-        rateLimit: {
-          ratePerHour: 30,
-          key: `MessageProcessorError:${err.message}`,
-        },
-      })
-
-      // Keep track of uids we failed to fetch
-      const {failedUIDs = []} = folder.syncState
-      const {uid} = imapMessage.attributes
-      if (uid) {
-        await folder.updateSyncState({failedUIDs: _.uniq(failedUIDs.concat([uid]))})
-      }
-
-      // Save parse errors for future debugging
-      if (process.env.NYLAS_DEBUG) {
-        const outJSON = JSON.stringify({imapMessage, desiredParts, result: {}});
-        const outDir = path.join(os.tmpdir(), "k2-parse-errors", folder.name)
-        const outFile = path.join(outDir, imapMessage.attributes.uid.toString());
-        mkdirp.sync(outDir);
-        fs.writeFileSync(outFile, outJSON);
-      }
+      await this._onError({imapMessage, desiredParts, folder, err, logger});
       return null
+    }
+  }
+
+  async _onError({imapMessage, desiredParts, folder, err, logger}) {
+    logger.error(`MessageProcessor: Could not build message`, {
+      err,
+      imapMessage,
+      desiredParts,
+    })
+    const fingerprint = ["{{ default }}", "message processor", err.message];
+    NylasEnv.reportError(err, {fingerprint,
+      rateLimit: {
+        ratePerHour: 30,
+        key: `MessageProcessorError:${err.message}`,
+      },
+    })
+
+    // Keep track of uids we failed to fetch
+    const {failedUIDs = []} = folder.syncState
+    const {uid} = imapMessage.attributes
+    if (uid) {
+      await folder.updateSyncState({failedUIDs: _.uniq(failedUIDs.concat([uid]))})
+    }
+
+    // Save parse errors for future debugging
+    if (process.env.NYLAS_DEBUG) {
+      const outJSON = JSON.stringify({imapMessage, desiredParts, result: {}});
+      const outDir = path.join(os.tmpdir(), "k2-parse-errors", folder.name)
+      const outFile = path.join(outDir, imapMessage.attributes.uid.toString());
+      mkdirp.sync(outDir);
+      fs.writeFileSync(outFile, outJSON);
     }
   }
 
