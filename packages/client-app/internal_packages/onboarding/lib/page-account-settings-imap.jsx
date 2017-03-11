@@ -20,7 +20,7 @@ class AccountIMAPSettingsForm extends React.Component {
   }
 
   static titleLabel = () => {
-    return 'Setup your account';
+    return 'Set up your account';
   }
 
   static subtitleLabel = () => {

@@ -51,7 +51,7 @@ const AccountTypes = [
   {
     type: 'fastmail',
     displayName: 'FastMail',
-    title: 'Setup your account',
+    title: 'Set up your account',
     icon: 'ic-settings-account-fastmail.png',
     headerIcon: 'setup-icon-provider-fastmail.png',
     color: '#24345a',
@@ -59,8 +59,8 @@ const AccountTypes = [
   },
   {
     type: 'imap',
-    displayName: 'IMAP / SMTP Setup',
-    title: 'Setup your IMAP account',
+    displayName: 'IMAP / SMTP',
+    title: 'Set up your IMAP account',
     icon: 'ic-settings-account-imap.png',
     headerIcon: 'setup-icon-provider-imap.png',
     color: '#aaa',
