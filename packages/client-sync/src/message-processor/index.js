@@ -87,6 +87,7 @@ class MessageProcessor {
           if (this._queueLength === 0) {
             this._queue = Promise.resolve()
           }
+          resolve();
         });
       } catch (err) {
         if (logger && folder) {
@@ -94,8 +95,8 @@ class MessageProcessor {
         } else {
           NylasEnv.reportError(err);
         }
+        resolve();
       }
-      resolve();
     })
   }
 
