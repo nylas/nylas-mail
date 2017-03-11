@@ -35,8 +35,6 @@ export async function apiAuthenticate(req, username, password, cb) {
     identPath = "http://billing.lvh.me:5555"
   }
 
-  identPath = "https://billing-staging.nylas.com"
-
   try {
     const identity = await request(`${identPath}/n1/user`, {
       auth: {username: n1IdentityToken, password: ''},
