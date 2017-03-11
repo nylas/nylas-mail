@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 1.0.37 (3/10/2017)
+
+  + [client-sync] Fix queueMessageForProcessing
+  + [client-app] Correctly show auth error when we can't connect to n1cloud
+  + [client-app] Fix runtime error during send error handler
+
 ### 1.0.36 (3/10/2017)
 
 - Fixes:
