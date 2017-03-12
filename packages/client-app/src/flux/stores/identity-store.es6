@@ -120,7 +120,11 @@ class IdentityStore extends NylasStore {
   _onEnvChanged = () => {
     const env = NylasEnv.config.get('env')
     if (['development', 'local'].includes(env)) {
-      this.URLRoot = "http://billing.lvh.me:5555";
+      if (process.env.BILLING_URL) {
+        this.URLRoot = process.env.BILLING_URL;
+      } else {
+        this.URLRoot = "https://billing-staging.nylas.com";
+      }
     } else if (env === 'experimental') {
       this.URLRoot = "https://billing-experimental.nylas.com";
     } else if (env === 'staging') {
