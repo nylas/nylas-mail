@@ -3,8 +3,6 @@
   "application:hide": "command+h",
   "application:hide-other-applications": "command+alt+h",
   "application:zoom": "alt+command+ctrl+m",
-  "application:run-all-specs": "mod+alt+s",
-  "application:run-package-specs": "mod+alt+p",
 
   "window:toggle-full-screen": "command+ctrl+f",
   "window:reload": "mod+alt+l",
