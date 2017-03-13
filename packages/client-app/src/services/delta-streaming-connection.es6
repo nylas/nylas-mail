@@ -6,6 +6,7 @@ import {APIError} from '../flux/errors'
 import Account from '../flux/models/account'
 import DeltaProcessor from './delta-processor'
 import DatabaseStore from '../flux/stores/database-store'
+import IdentityStore from '../flux/stores/identity-store'
 import OnlineStatusStore from '../flux/stores/online-status-store'
 import NylasAPIRequest from '../flux/nylas-api-request'
 import NylasLongConnection from '../flux/nylas-long-connection'
@@ -35,6 +36,10 @@ class DeltaStreamingConnection {
 
   async start() {
     try {
+      if (!IdentityStore.identity()) {
+        console.warn(`Can't start DeltaStreamingConnection without a Nylas Identity`)
+        return
+      }
       if (!this._state) {
         this._state = await this._loadState()
       }
@@ -71,19 +76,24 @@ class DeltaStreamingConnection {
   close() {
     this._clearRetryTimeout()
     this._disposeListeners()
-    this._longConnection.close()
+    if (this._longConnection) {
+      this._longConnection.close()
+    }
   }
 
   end() {
     this._clearRetryTimeout()
     this._disposeListeners()
-    this._longConnection.end()
+    if (this._longConnection) {
+      this._longConnection.end()
+    }
   }
 
   _setupListeners() {
     this._unsubscribers = [
       Actions.retryDeltaConnection.listen(this.restart, this),
       OnlineStatusStore.listen(this._onOnlineStatusChanged, this),
+      IdentityStore.listen(this._onIdentityChanged, this),
     ]
   }
 
@@ -99,6 +109,12 @@ class DeltaStreamingConnection {
 
   _onOnlineStatusChanged = () => {
     if (OnlineStatusStore.isOnline()) {
+      this.restart()
+    }
+  }
+
+  _onIdentityChanged = () => {
+    if (IdentityStore.identity()) {
       this.restart()
     }
   }
