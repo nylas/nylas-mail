@@ -11,8 +11,8 @@ class SyncProcessManager {
   constructor() {
     this._exiting = false;
     this._resettingEmailCache = false
-    this._workers = {};
-    this._localSyncDeltaEmitters = new Map()
+    this._workersByAccountId = {};
+    this._localSyncDeltaEmittersByAccountId = new Map()
 
     OnlineStatusStore.listen(this._onOnlineStatusChanged, this)
     Actions.resetEmailCache.listen(this._resetEmailCache, this)
@@ -24,7 +24,7 @@ class SyncProcessManager {
 
   _onOnlineStatusChanged() {
     if (OnlineStatusStore.isOnline()) {
-      Object.keys(this._workers).forEach((id) => {
+      Object.keys(this._workersByAccountId).forEach((id) => {
         this.wakeWorkerForAccount(id, {reason: 'Came back online'})
       })
     }
@@ -37,7 +37,7 @@ class SyncProcessManager {
     win.openDevTools()
   }
 
-  _resetEmailCache() {
+  async _resetEmailCache() {
     if (this._resettingEmailCache) return;
     this._resettingEmailCache = true
     try {
@@ -48,8 +48,8 @@ class SyncProcessManager {
         // Give the sync a chance to stop first before killing the whole
         // DB
         fs.unlinkSync(`${NylasEnv.getConfigDirPath()}/edgehill.db`)
-        for (const account of this.accounts()) {
-          await LocalDatabaseConnector.destroyAccountDatabase(account.id)
+        for (const accountId of Object.keys(this._workersByAccountId)) {
+          await LocalDatabaseConnector.destroyAccountDatabase(accountId)
         }
         remote.app.relaunch()
         remote.app.quit()
@@ -73,12 +73,8 @@ class SyncProcessManager {
     }
   }
 
-  accounts() {
-    return this._accounts
-  }
-
   workers() {
-    return _.values(this._workers)
+    return _.values(this._workersByAccountId)
   }
 
   dbs() {
@@ -86,7 +82,7 @@ class SyncProcessManager {
   }
 
   wakeWorkerForAccount(accountId, {reason = 'Waking sync', interrupt} = {}) {
-    const worker = this._workers[accountId]
+    const worker = this._workersByAccountId[accountId]
     if (worker) {
       worker.syncNow({reason, interrupt});
     }
@@ -97,16 +93,16 @@ class SyncProcessManager {
     const logger = global.Logger.forAccount(account)
 
     try {
-      if (this._workers[account.id]) {
+      if (this._workersByAccountId[account.id]) {
         logger.warn(`SyncProcessManager.addWorkerForAccount: Worker for account already exists - skipping`)
         return
       }
       const db = await LocalDatabaseConnector.forAccount(account.id);
-      this._workers[account.id] = new SyncWorker(account, db, this);
+      this._workersByAccountId[account.id] = new SyncWorker(account, db, this);
 
       const localSyncDeltaEmitter = new LocalSyncDeltaEmitter(account, db)
       await localSyncDeltaEmitter.activate()
-      this._localSyncDeltaEmitters.set(account.id, localSyncDeltaEmitter)
+      this._localSyncDeltaEmittersByAccountId.set(account.id, localSyncDeltaEmitter)
       logger.log(`SyncProcessManager: Claiming Account Succeeded`)
     } catch (err) {
       logger.error(`SyncProcessManager: Claiming Account Failed`, err)
@@ -114,14 +110,14 @@ class SyncProcessManager {
   }
 
   async removeWorkerForAccountId(accountId) {
-    if (this._workers[accountId]) {
-      await this._workers[accountId].cleanup();
-      this._workers[accountId] = null;
+    if (this._workersByAccountId[accountId]) {
+      await this._workersByAccountId[accountId].cleanup();
+      this._workersByAccountId[accountId] = null;
     }
 
-    if (this._localSyncDeltaEmitters.has(accountId)) {
-      this._localSyncDeltaEmitters.get(accountId).deactivate();
-      this._localSyncDeltaEmitters.delete(accountId)
+    if (this._localSyncDeltaEmittersByAccountId.has(accountId)) {
+      this._localSyncDeltaEmittersByAccountId.get(accountId).deactivate();
+      this._localSyncDeltaEmittersByAccountId.delete(accountId)
     }
   }
 }
