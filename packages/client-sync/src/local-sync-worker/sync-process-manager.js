@@ -20,13 +20,14 @@ class SyncProcessManager {
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
       this.wakeWorkerForAccount(accountId, {interrupt: true})
     );
+    ipcRenderer.on('app-resumed-from-sleep', () => {
+      this._wakeAllWorkers({reason: 'Computer resumed from sleep', interrupt: true})
+    })
   }
 
   _onOnlineStatusChanged() {
     if (OnlineStatusStore.isOnline()) {
-      Object.keys(this._workersByAccountId).forEach((id) => {
-        this.wakeWorkerForAccount(id, {reason: 'Came back online'})
-      })
+      this._wakeAllWorkers({reason: 'Came back online', interrupt: true})
     }
   }
 
@@ -41,6 +42,12 @@ class SyncProcessManager {
     win.show()
     win.maximize()
     win.openDevTools()
+  }
+
+  _wakeAllWorkers({reason, interrupt} = {}) {
+    Object.keys(this._workersByAccountId).forEach((id) => {
+      this.wakeWorkerForAccount(id, {reason, interrupt})
+    })
   }
 
   async _resetEmailCache() {
