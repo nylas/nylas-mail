@@ -2,9 +2,10 @@
 
 ### 1.0.37 (3/10/2017)
 
-  + [client-sync] Fix queueMessageForProcessing
-  + [client-app] Correctly show auth error when we can't connect to n1cloud
-  + [client-app] Fix runtime error during send error handler
+- Fixes:
+  + Fix regression introduced in 1.0.36 in the message processor
+  + Correctly show auth error when we can't connect to n1cloud
+  + Fix error thrown sometimes when handling send errors
 
 ### 1.0.36 (3/10/2017)
 
