@@ -41,19 +41,20 @@ class SyncProcessManager {
     if (this._resettingEmailCache) return;
     this._resettingEmailCache = true
     try {
-      for (const worker of this.workers()) {
-        worker.stopSync()
+      try {
+        await Promise.all(
+          this.workers().map(w => w.stopSync())
+        )
+        .timeout(500, 'Timed out while trying to stop sync')
+      } catch (err) {
+        console.warn('SyncProcessManager._resetEmailCache: Error while stopping sync', err)
       }
-      setTimeout(async () => {
-        // Give the sync a chance to stop first before killing the whole
-        // DB
-        fs.unlinkSync(`${NylasEnv.getConfigDirPath()}/edgehill.db`)
-        for (const accountId of Object.keys(this._workersByAccountId)) {
-          await LocalDatabaseConnector.destroyAccountDatabase(accountId)
-        }
-        remote.app.relaunch()
-        remote.app.quit()
-      }, 100)
+      fs.unlinkSync(`${NylasEnv.getConfigDirPath()}/edgehill.db`)
+      for (const accountId of Object.keys(this._workersByAccountId)) {
+        await LocalDatabaseConnector.destroyAccountDatabase(accountId)
+      }
+      remote.app.relaunch()
+      remote.app.quit()
     } catch (err) {
       global.Logger.error('Error resetting email cache', err)
       this._resettingEmailCache = false
