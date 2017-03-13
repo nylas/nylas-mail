@@ -25,7 +25,7 @@ const fs = require('fs-plus');
 // Which should return "accepted"
 module.exports = (grunt) => {
   let getCertData;
-  const {spawnP, shouldPublishBuild} = grunt.config('taskHelpers')
+  const {spawnP} = grunt.config('taskHelpers')
   const tmpKeychain = "n1-build.keychain";
 
   const unlockKeychain = (keychain, keychainPass) => {
@@ -40,7 +40,7 @@ module.exports = (grunt) => {
     return Promise.resolve()
   };
 
-  const buildTravisKeychain = () => {
+  const buildMacKeychain = () => {
     const crypto = require('crypto');
     const tmpPass = crypto.randomBytes(32).toString('hex');
     const {appleCert, nylasCert, nylasPrivateKey, keyPass} = getCertData();
@@ -101,17 +101,13 @@ module.exports = (grunt) => {
       grunt.log.writeln(`Skipping keychain setup since ${process.platform} is not darwin`);
       return false
     }
-    if (!shouldPublishBuild()) {
-      grunt.log.writeln(`Skipping keychain setup since PUBLISH_BUILD is false`);
-      return false
-    }
-    return true
+    return !!process.env.SIGN_BUILD
   }
 
-  grunt.registerTask('setup-travis-keychain', 'Setup Travis Keychain to sign the app', function setupTravisKeychain() {
+  grunt.registerTask('setup-mac-keychain', 'Setup Mac Keychain to sign the app', function setupMacKeychain() {
     const done = this.async();
     if (!shouldRun()) return done();
 
-    return buildTravisKeychain().then(done).catch(grunt.fail.fatal);
+    return buildMacKeychain().then(done).catch(grunt.fail.fatal);
   });
 }

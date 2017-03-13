@@ -244,11 +244,10 @@ module.exports = (grunt) => {
       'prune': true,
       /**
        * This will automatically look for the identity in the keychain. It
-       * runs the `security find-identity` command. Note that TRAVIS needs
-       * us to setup the keychain first and install the identity. We do
-       * this in the setup-travis-keychain-task
+       * runs the `security find-identity` command. Note that
+       * setup-mac-keychain-task needs to be run first
        */
-      'osx-sign': grunt.config('taskHelpers').shouldPublishBuild(),
+      'osx-sign': !!process.env.SIGN_BUILD,
       'win32metadata': {
         CompanyName: 'Nylas, Inc.',
         FileDescription: 'The best email app for people and teams at work',
@@ -281,11 +280,11 @@ module.exports = (grunt) => {
     },
   })
 
-  grunt.registerTask('packager', 'Package build of Nylas Mail', function pack() {
+  grunt.registerTask('package', 'Package Nylas Mail', function pack() {
     const done = this.async();
     const start = Date.now();
 
-    console.log('---> Running build with options:');
+    console.log('---> Running packager with options:');
     console.log(util.inspect(grunt.config.get('packager'), true, 7, true));
 
     const ongoing = setInterval(() => {

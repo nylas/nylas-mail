@@ -92,20 +92,20 @@ module.exports = (grunt) => {
     });
   }
 
-  grunt.registerTask("publish", "Publish Nylas build", function publish() {
+  grunt.registerTask("upload", "Upload Nylas build", function upload() {
     const done = this.async();
 
     populateVersion()
     .then(() => {
-      // find files to publish
-      const {shouldPublishBuild} = grunt.config('taskHelpers');
+      // find files to upload
       const outputDir = grunt.config.get('outputDir');
       const uploads = [];
 
       // We increment the version so we have an autoupdate target to test
-      const versionParts = fullVersion.split('.')
+      const [version, hash] = fullVersion.split('-');
+      const versionParts = version.split('.')
       versionParts[2] = +versionParts[2] + 1
-      const nextVersion = versionParts.join('.')
+      const nextVersion = `${versionParts.join('.')}-${hash}`
 
       if (process.platform === 'darwin') {
         uploads.push({
@@ -122,20 +122,16 @@ module.exports = (grunt) => {
         });
       } else if (process.platform === 'win32') {
         uploads.push({
-          source: `${outputDir}/RELEASES`,
+          source: path.join(outputDir, "RELEASES"),
           key: `${fullVersion}/${process.platform}/${process.arch}/RELEASES`,
         });
         uploads.push({
-          source: `${outputDir}/NylasMailSetup.exe`,
+          source: path.join(outputDir, "NylasMailSetup.exe"),
           key: `${fullVersion}/${process.platform}/${process.arch}/NylasMailSetup.exe`,
         });
         uploads.push({
-          source: `${outputDir}/NylasMailSetup.exe`,
+          source: path.join(outputDir, "NylasMailSetup.exe"),
           key: `${nextVersion}/${process.platform}/${process.arch}/NylasMailSetup.exe`,
-        });
-        uploads.push({
-          source: `${outputDir}/Nylas-${packageVersion}-full.nupkg`,
-          key: `${fullVersion}/${process.platform}/${process.arch}/nylas-${packageVersion}-full.nupkg`,
         });
       } else if (process.platform === 'linux') {
         const files = fs.readdirSync(outputDir);
@@ -159,12 +155,6 @@ module.exports = (grunt) => {
         grunt.fail.fatal(`Unsupported platform: '${process.platform}'`);
       }
 
-      // configure environment
-      if (!shouldPublishBuild()) {
-        grunt.log.writeln(`>> Not publishing builds…`);
-        grunt.log.writeln(`>> Would have uploaded the following assets: ${JSON.stringify(uploads, null, 2)}`);
-        return Promise.resolve();
-      }
       const awsKey = process.env.AWS_ACCESS_KEY_ID != null ? process.env.AWS_ACCESS_KEY_ID : "";
       const awsSecret = process.env.AWS_SECRET_ACCESS_KEY != null ? process.env.AWS_SECRET_ACCESS_KEY : "";
 
