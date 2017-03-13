@@ -2,7 +2,7 @@
   "linters": {
     "coffeescript-linter": {
       "type": "script-and-regex",
-      "script-and-regex.script": "./node_modules/.bin/coffeelint",
+      "script-and-regex.script": "./node_modules/.bin/coffeelint -f .coffeelint.json",
       "script-and-regex.regex": "/^  ((?P<error>✖)|(?P<warning>⚠)) *line (?P<line>\\d+) +(?P<message>.*)$/m",
       "include": "{\\.(e?coffee|cjsx)}"
     },
