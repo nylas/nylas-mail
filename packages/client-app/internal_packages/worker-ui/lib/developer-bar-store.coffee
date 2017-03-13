@@ -30,6 +30,7 @@ class DeveloperBarCurlRequest
     # processed by node-request yet. Therefore, it will not have Content-Type
     # set in the request headers.
     if (request.json and not request._json and
+        request.headers and
         'content-type' not in request.headers and
         'Content-Type' not in request.headers)
       headers += '-H "Content-Type: application\/json" '
