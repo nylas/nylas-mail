@@ -1,6 +1,5 @@
 const _ = require('underscore')
-const fs = require('fs')
-const {remote} = require('electron')
+const {ipcRenderer} = require('electron')
 const {Actions, OnlineStatusStore, IdentityStore} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
@@ -56,14 +55,17 @@ class SyncProcessManager {
       } catch (err) {
         console.warn('SyncProcessManager._resetEmailCache: Error while stopping sync', err)
       }
-      fs.unlinkSync(`${NylasEnv.getConfigDirPath()}/edgehill.db`)
-      for (const accountId of Object.keys(this._workersByAccountId)) {
+      const accountIds = Object.keys(this._workersByAccountId)
+      for (const accountId of accountIds) {
         await LocalDatabaseConnector.destroyAccountDatabase(accountId)
       }
-      remote.app.relaunch()
-      remote.app.quit()
+
+      ipcRenderer.send('command', 'application:relaunch-to-initial-windows', {
+        resetDatabase: true,
+      })
     } catch (err) {
       global.Logger.error('Error resetting email cache', err)
+    } finally {
       this._resettingEmailCache = false
     }
   }
