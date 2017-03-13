@@ -1,6 +1,6 @@
 /* eslint global-require: "off" */
 
-import {BrowserWindow, Menu, app, ipcMain, dialog} from 'electron';
+import {BrowserWindow, Menu, app, ipcMain, dialog, powerMonitor} from 'electron';
 
 import fs from 'fs-plus';
 import url from 'url';
@@ -394,6 +394,10 @@ export default class Application extends EventEmitter {
         if (win) { win.maximize() }
       });
     }
+
+    powerMonitor.on('resume', () => {
+      this.windowManager.sendToAllWindows('app-resumed-from-sleep', {})
+    })
 
     app.on('window-all-closed', () => {
       this.windowManager.quitWinLinuxIfNoWindows()
