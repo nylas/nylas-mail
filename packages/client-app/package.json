@@ -51,7 +51,6 @@
     "hapi-swagger": "7.6.0",
     "he": "1.1.0",
     "iconv": "2.2.1",
-    "imap-provider-settings": "nylas/imap-provider-settings",
     "immutable": "3.7.5",
     "inert": "4.0.0",
     "is-online": "6.1.0",
