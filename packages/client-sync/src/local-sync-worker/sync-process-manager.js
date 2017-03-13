@@ -1,7 +1,7 @@
 const _ = require('underscore')
 const fs = require('fs')
 const {remote} = require('electron')
-const {Actions, OnlineStatusStore} = require('nylas-exports')
+const {Actions, OnlineStatusStore, IdentityStore} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 const LocalDatabaseConnector = require('../shared/local-database-connector')
@@ -15,6 +15,7 @@ class SyncProcessManager {
     this._localSyncDeltaEmittersByAccountId = new Map()
 
     OnlineStatusStore.listen(this._onOnlineStatusChanged, this)
+    IdentityStore.listen(this._onIdentityChanged, this)
     Actions.resetEmailCache.listen(this._resetEmailCache, this)
     Actions.debugSync.listen(this._onDebugSync, this)
     Actions.wakeLocalSyncWorkerForAccount.listen((accountId) =>
@@ -27,6 +28,12 @@ class SyncProcessManager {
       Object.keys(this._workersByAccountId).forEach((id) => {
         this.wakeWorkerForAccount(id, {reason: 'Came back online'})
       })
+    }
+  }
+
+  _onIdentityChanged() {
+    if (IdentityStore.identity()) {
+      this.start()
     }
   }
 
@@ -65,6 +72,10 @@ class SyncProcessManager {
    * Useful for debugging.
    */
   async start() {
+    if (!IdentityStore.identity()) {
+      global.Logger.log(`SyncProcessManager: Can't start sync; no Nylas Identity present`)
+      return
+    }
     global.Logger.log(`SyncProcessManager: Starting sync`)
 
     const {Account} = await LocalDatabaseConnector.forShared();
