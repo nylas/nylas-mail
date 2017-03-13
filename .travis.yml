@@ -25,12 +25,16 @@ branches:
   - /ci-.*/
   - /stable.*/
 
+env:
+- NODE_VERSION=6.9
+- DEBUG="electron-windows-installer:*,electron-packager:*"
+
 matrix:
   include:
   - os: linux
-    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 PUBLISH_BUILD=true
+    env: CC=gcc-4.8 CXX=g++-4.8
   - os: osx
-    env: NODE_VERSION=6.9 CC=clang CXX=clang++ PUBLISH_BUILD=true
+    env: CC=clang CXX=clang++ SIGN_BUILD=true
 
 before_install:
 - openssl aes-256-cbc
@@ -51,7 +55,7 @@ install:
 - nvm use --delete-prefix $NODE_VERSION
 
 script:
-- npm install && npm run build-client
+- npm install && npm run build-client && npm run upload-client
 
 cache:
   directories:

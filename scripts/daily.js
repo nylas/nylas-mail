@@ -205,8 +205,9 @@ async function main(args) {
       await spawn('git', ['clean', '-xdf'])
       await spawn('cp', ['-r', '../n1-keys-and-certificates', 'packages/client-app/build/resources/certs'])
       await spawn('npm', ['install'])
-      await spawn('npm', ['run', 'build-client'], {env: {PUBLISH_BUILD: true}})
+      await spawn('npm', ['run', 'build-client'], {env: {SIGN_BUILD: true}})
       await spawn('codesign', ['--verify', '--deep', '--verbose=2', '"packages/client-app/dist/Nylas Mail-darwin-x64/Nylas Mail.app"'])
+      await spawn('npm', ['run', 'upload-client'])
     } catch (err) {
       console.error('Errored while running build')
       console.error(err)

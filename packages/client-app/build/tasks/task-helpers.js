@@ -19,14 +19,6 @@ module.exports = (grunt) => {
     });
   }
 
-  function shouldPublishBuild() {
-    if (!process.env.PUBLISH_BUILD) {
-      grunt.log.writeln("Skipping because PUBLISH_BUILD env is not set");
-      return false;
-    }
-    return true;
-  }
-
   function spawnP(options) {
     return new Promise((resolve, reject) => {
       spawn(options, (error) => {
@@ -36,5 +28,5 @@ module.exports = (grunt) => {
     })
   }
 
-  return {spawn, spawnP, shouldPublishBuild};
+  return {spawn, spawnP};
 }

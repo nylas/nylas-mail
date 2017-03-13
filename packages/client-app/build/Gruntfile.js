@@ -1,4 +1,5 @@
 /* eslint global-require: 0 */
+/* eslint import/no-dynamic-require: 0 */
 const path = require('path');
 
 module.exports = (grunt) => {
@@ -15,7 +16,7 @@ module.exports = (grunt) => {
   const buildDir = path.join(appDir, 'build');
   const tasksDir = path.join(buildDir, 'tasks');
   const taskHelpers = require(path.join(tasksDir, 'task-helpers'))(grunt)
-  
+
   // This allows all subsequent paths to the relative to the root of the repo
   grunt.config.init({
     'taskHelpers': taskHelpers,
@@ -58,26 +59,34 @@ module.exports = (grunt) => {
   grunt.loadTasks(tasksDir);
   grunt.file.setBase(appDir);
 
-  // Register CI Tasks
-  const postBuildSteps = [];
-  if (grunt.option('platform') === 'win32') {
-    postBuildSteps.push('create-windows-installer')
-  } else if (grunt.option('platform') === 'darwin') {
-    postBuildSteps.push('create-mac-zip')
-    postBuildSteps.push('create-mac-dmg')
-  } else if (grunt.option('platform') === 'linux') {
-    postBuildSteps.push('create-deb-installer');
-    postBuildSteps.push('create-rpm-installer');
-  }
-
-  if (taskHelpers.shouldPublishBuild()) {
-    postBuildSteps.push('publish');
-  }
-
-  grunt.registerTask('build', ['setup-travis-keychain', 'packager']);
-  grunt.registerTask('lint', ['eslint', 'lesslint', 'nylaslint', 'coffeelint', 'csslint']);
-  grunt.registerTask('ci', ['build'].concat(postBuildSteps));
-
   grunt.registerTask('docs', ['docs-build', 'docs-render']);
+  grunt.registerTask('lint', [
+    'eslint',
+    'lesslint',
+    'nylaslint',
+    'coffeelint',
+    'csslint',
+  ]);
 
+  if (grunt.option('platform') === 'win32') {
+    grunt.registerTask("build-client", [
+      "package",
+      // The Windows electron-winstaller task must be run outside of grunt
+    ]);
+  } else if (grunt.option('platform') === 'darwin') {
+    const subTasks = process.env.SIGN_BUILD ? ["setup-mac-keychain"] : []
+    grunt.registerTask("build-client", subTasks.concat([
+      "package",
+      "create-mac-zip",
+      "create-mac-dmg",
+    ]));
+  } else if (grunt.option('platform') === 'linux') {
+    grunt.registerTask("build-client", [
+      "package",
+      "create-deb-installer",
+      "create-rpm-installer",
+    ]);
+  }
+
+  grunt.registerTask("upload-client", ["upload"])
 }
