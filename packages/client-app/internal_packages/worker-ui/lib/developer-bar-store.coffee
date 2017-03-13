@@ -26,6 +26,14 @@ class DeveloperBarCurlRequest
       for k,v of request.headers
         headers += "-H \"#{k}: #{v}\" "
 
+    # When constructed during _onWillMakeAPIRequest(), `request` has not been
+    # processed by node-request yet. Therefore, it will not have Content-Type
+    # set in the request headers.
+    if (request.json and not request._json and
+        'content-type' not in request.headers and
+        'Content-Type' not in request.headers)
+      headers += '-H "Content-Type: application\/json" '
+
     if request.auth?.bearer
       tok = request.auth.bearer.replace("!", "\\!")
       headers += "-H \"Authorization: Bearer #{tok}\" "
