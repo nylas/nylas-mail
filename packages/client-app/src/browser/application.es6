@@ -200,6 +200,7 @@ export default class Application extends EventEmitter {
     }
 
     fn(() => {
+      this.databaseReader = new DatabaseReader({configDirPath: this.configDirPath, specMode: this.specMode});
       if (resetConfig) {
         this.config.set('nylas', null);
         this.config.set('edgehill', null);
@@ -245,6 +246,7 @@ export default class Application extends EventEmitter {
       this.setDatabasePhase('close');
       this.windowManager.destroyAllWindows();
       this._deleteDatabase(() => {
+        this.databaseReader = new DatabaseReader({configDirPath: this.configDirPath, specMode: this.specMode});
         this.setDatabasePhase('setup');
         this.openWindowsForTokenState();
       });
