@@ -195,6 +195,7 @@ module.exports = (grunt) => {
         '^[\\/]+electron',
         '^[\\/]+flow-typed',
         '^[\\/]+spec_integration',
+        '^[\\/]+spec',
 
         // general dirs we never want
         '[\\/]+gh-pages$',

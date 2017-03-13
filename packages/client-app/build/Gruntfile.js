@@ -31,8 +31,6 @@ module.exports = (grunt) => {
       'dot-nylas/**/*.coffee',
       'src/**/*.coffee',
       'src/**/*.cjsx',
-      'spec/**/*.cjsx',
-      'spec/**/*.coffee',
       '!src/**/node_modules/**/*.coffee',
       '!internal_packages/**/node_modules/**/*.coffee',
     ],
@@ -46,9 +44,6 @@ module.exports = (grunt) => {
       'src/**/*.es',
       'src/**/*.jsx',
       'src/K2/**/*.js', // K2 doesn't use ES6 extension, lint it anyway!
-      'spec/**/*.es6',
-      'spec/**/*.es',
-      'spec/**/*.jsx',
       '!src/K2/packages/local-private/src/error-logger-extensions/*.js',
       '!src/**/node_modules/**/*.es6',
       '!src/**/node_modules/**/*.es',
