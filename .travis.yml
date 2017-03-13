@@ -25,16 +25,12 @@ branches:
   - /ci-.*/
   - /stable.*/
 
-env:
-- NODE_VERSION=6.9
-- DEBUG="electron-windows-installer:*,electron-packager:*"
-
 matrix:
   include:
   - os: linux
-    env: CC=gcc-4.8 CXX=g++-4.8
+    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 DEBUG="electron-packager:*"
   - os: osx
-    env: CC=clang CXX=clang++ SIGN_BUILD=true
+    env: NODE_VERSION=6.9 CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*"
 
 before_install:
 - openssl aes-256-cbc
