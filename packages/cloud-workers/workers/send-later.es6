@@ -1,7 +1,29 @@
+import fs from 'fs';
+import AWS from 'aws-sdk';
+import path from 'path';
+import {Promise} from 'bluebird';
 import {DatabaseConnector} from 'cloud-core'
 import ExpiredDataWorker from './expired-data-worker'
 import {SendmailClient, MessageFactory, SendUtils} from '../../isomorphic-core'
 import {asyncGetImapConnection} from './utils'
+
+Promise.promisifyAll(fs);
+
+const NODE_ENV = process.env.NODE_ENV || 'production'
+const BUCKET_NAME = process.env.BUCKET_NAME
+const AWS_ACCESS_KEY_ID = process.env.BUCKET_AWS_ACCESS_KEY_ID
+const AWS_SECRET_ACCESS_KEY = process.env.BUCKET_AWS_SECRET_ACCESS_KEY
+
+if (NODE_ENV !== 'development' &&
+  (!BUCKET_NAME || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY)) {
+  throw new Error("You need to define S3 access credentials.")
+}
+
+AWS.config.update({
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY })
+
+const s3 = new AWS.S3({apiVersion: '2006-03-01'});
 
 
 export default class SendLaterWorker extends ExpiredDataWorker {
@@ -46,6 +68,44 @@ export default class SendLaterWorker extends ExpiredDataWorker {
 
   identifyTrashFolder(folderTable) {
     return this._identifyFolderRole(folderTable, '\\Trash', '');
+  }
+
+  async fetchLocalAttachment(accountId, objectId) {
+    const uploadId = `${accountId}-${objectId}`;
+    const filepath = path.join("/tmp", "uploads", uploadId);
+    const contents = await fs.readFileAsync(filepath)
+    return contents;
+  }
+
+  async deleteLocalAttachment(accountId, objectId) {
+    const uploadId = `${accountId}-${objectId}`;
+    const filepath = path.join("/tmp", "uploads", uploadId);
+    await fs.unlinkAsync(filepath);
+  }
+
+  async fetchS3Attachment(accountId, objectId) {
+    const uploadId = `${accountId}-${objectId}`;
+
+    const getObject = Promise.promisify(s3.getObject);
+    const data = await getObject({ Bucket: BUCKET_NAME, Key: uploadId });
+    return data;
+  }
+
+  async deleteS3Attachment(accountId, objectId) {
+    const uploadId = `${accountId}-${objectId}`;
+
+    return new Promise((resolve, reject) => {
+      s3.deleteObject({
+        Bucket: BUCKET_NAME,
+        Key: uploadId,
+      }, (err, data) => {
+        if (err) {
+          reject(err);
+        }
+
+        resolve(data);
+      })
+    });
   }
 
   async sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking, logger = console} = {}) {
@@ -127,6 +187,42 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     await trashBox.closeBox({expunge: true});
   }
 
+  async hydrateAttachments(baseMessage, accountId) {
+    // We get a basic JSON message from the metadata database. We need to set
+    // some fields (e.g: the `attachments` field) for it to be ready to send.
+    // We call this "hydrating" it.
+    baseMessage.attachments = [];
+    for (const upload of baseMessage.uploads) {
+      const attach = {};
+      attach.filename = upload.filename;
+
+      if (NODE_ENV === 'development') {
+        attach.contents = this.fetchLocalAttachment(accountId, upload.id);
+      } else {
+        attach.contents = this.fetchS3Attachment(accountId, upload.id);
+      }
+
+      if (upload.cid) {
+        attach.cid = upload.cid;
+      }
+
+      baseMessage.attachments.push(attach);
+    }
+
+    return baseMessage;
+  }
+
+  async cleanupAttachments(logger, baseMessage, accountId) {
+    // Remove all attachments after sending a message.
+    for (const upload of baseMessage.uploads) {
+      if (NODE_ENV === 'development') {
+        await this.deleteLocalAttachment(accountId, upload.id);
+      } else {
+        await this.deleteS3Attachment(accountId, upload.id);
+      }
+    }
+  }
+
   async performAction(metadatum) {
     const db = await DatabaseConnector.forShared();
     const account = await db.Account.find({where: {id: metadatum.accountId}})
@@ -139,10 +235,12 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     const sender = new SendmailClient(account, logger);
     const usesOpenTracking = metadatum.value.usesOpenTracking || false;
     const usesLinkTracking = metadatum.value.usesLinkTracking || false;
+    const baseMessage = await this.hydrateAttachments(metadatum.value, account.id);
+
     await this.sendPerRecipient({
       db,
       account,
-      baseMessage: metadatum.value,
+      baseMessage,
       usesOpenTracking,
       usesLinkTracking,
       logger});
@@ -156,7 +254,8 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     // block in a pokemon exception handler because we don't want to send messages
     // again if it fails.
     try {
-      await this.cleanupSentMessages(conn, sender, logger, metadatum.value);
+      await this.cleanupSentMessages(conn, sender, logger, baseMessage);
+      await this.cleanupAttachments(logger, baseMessage, account.id);
     } catch (err) {
       this.logger.error(`Error while trying to process metadatum ${metadatum.id}`, err);
     }

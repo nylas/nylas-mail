@@ -41,6 +41,7 @@ import registerAuthRoutes from './src/routes/auth'
 import registerPingRoutes from './src/routes/ping'
 import registerDeltaRoutes from './src/routes/delta'
 import registerMetadataRoutes from './src/routes/metadata'
+import registerBlobsRoutes from './src/routes/blobs'
 import registerHoneycombRoutes from './src/routes/honeycomb'
 import registerLinkTrackingRoutes from './src/routes/link-tracking'
 import registerOpenTrackingRoutes from './src/routes/open-tracking'
@@ -51,6 +52,10 @@ import registerStaticRoutes from './src/routes/static'
  */
 import registerLoggerDecorator from './src/decorators/logger'
 import registerErrorFormatDecorator from './src/decorators/error-format'
+
+// Swap out Node's native Promise for Bluebird, which allows us to
+// do fancy things like handle exceptions inside promise blocks
+global.Promise = require('bluebird');
 
 Metrics.startCapturing('n1cloud-api')
 
@@ -72,7 +77,7 @@ process.on('uncaughtException', onUnhandledError)
 process.on('unhandledRejection', onUnhandledError)
 
 const server = new Hapi.Server({
-  debug: false,
+  debug: { request: ['error'] },
   connections: {
     router: {
       stripTrailingSlash: true,
@@ -128,6 +133,7 @@ server.register(plugins, (err) => {
   registerPingRoutes(server)
   registerDeltaRoutes(server)
   registerMetadataRoutes(server)
+  registerBlobsRoutes(server)
   registerHoneycombRoutes(server)
   registerLinkTrackingRoutes(server)
   registerOpenTrackingRoutes(server)

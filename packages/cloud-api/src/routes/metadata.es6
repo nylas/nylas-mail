@@ -3,6 +3,7 @@ const {DatabaseConnector} = require('cloud-core');
 const Serialization = require('../serialization');
 const Sentry = require('../sentry')
 
+
 function upsertMetadata({account, objectId, objectType, pluginId, version, value, expiration}) {
   return DatabaseConnector.forShared().then(({Metadata}) => {
     return Metadata.find({

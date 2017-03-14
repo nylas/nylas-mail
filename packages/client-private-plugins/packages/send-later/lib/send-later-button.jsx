@@ -1,14 +1,16 @@
+import fs from 'fs';
 import React, {Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
 import {Actions, DateUtils, NylasAPIHelpers, DraftHelpers} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import SendLaterPopover from './send-later-popover'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
-const {NylasAPIRequest, NylasAPI} = require('nylas-exports')
+const {NylasAPIRequest, NylasAPI, N1CloudAPI} = require('nylas-exports')
 
 const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
 const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
+Promise.promisifyAll(fs);
 
 class SendLaterButton extends Component {
   static displayName = 'SendLaterButton';
@@ -87,10 +89,32 @@ class SendLaterButton extends Component {
       });
 
       const results = await req.run();
+      const uploads = [];
+
+      // Now, upload attachments to our blob service.
+      for (const attachment of draftContents.uploads) {
+        const uploadReq = new NylasAPIRequest({
+          api: N1CloudAPI,
+          options: {
+            path: `/blobs`,
+            method: 'PUT',
+            blob: true,
+            accountId: draft.accountId,
+            returnsModel: false,
+            formData: {
+              id: attachment.id,
+              file: fs.createReadStream(attachment.originPath),
+            },
+          },
+        });
+        await uploadReq.run();
+        attachment.serverId = `${draftContents.accountId}-${attachment.id}`;
+        uploads.push(attachment);
+      }
       results.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
       results.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
       session.changes.addPluginMetadata(PLUGIN_ID,
-        Object.assign({expiration: sendLaterDate}, results));
+        Object.assign({expiration: sendLaterDate}, results, {uploads}));
 
       Actions.ensureDraftSynced(draft.clientId);
 

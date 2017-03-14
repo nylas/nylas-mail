@@ -13,6 +13,7 @@
     "jasmine": "2.x.x"
   },
   "dependencies": {
+    "bluebird": "3.4.x",
     "boom": "4.2.0",
     "cloud-core": "0.x.x",
     "googleapis": "9.0.0",

@@ -6,6 +6,10 @@ import {setupMonitoring} from './monitoring'
 import Sentry from './sentry'
 const {DatabaseConnector, Logger, Metrics} = require('cloud-core')
 
+// Swap out Node's native Promise for Bluebird, which allows us to
+// do fancy things like handle exceptions inside promise blocks
+global.Promise = require('bluebird');
+
 Metrics.startCapturing('n1-cloud-workers')
 
 global.Metrics = Metrics

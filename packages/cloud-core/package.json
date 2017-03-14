@@ -4,6 +4,7 @@
   "description": "Core shared packages",
   "main": "index.js",
   "dependencies": {
+    "aws-sdk": "2.25.0",
     "bunyan": "1.8.0",
     "bunyan-prettystream": "github:emorikawa/node-bunyan-prettystream",
     "googleapis": "9.0.0",
