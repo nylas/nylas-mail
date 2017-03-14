@@ -19,6 +19,7 @@ module.exports = {
   HookIncrementVersionOnSave: require('./src/hook-increment-version-on-save'),
   BackoffScheduler: require('./src/backoff-schedulers').BackoffScheduler,
   ExponentialBackoffScheduler: require('./src/backoff-schedulers').ExponentialBackoffScheduler,
+  CommonProviderSettings: require('imap-provider-settings').CommonProviderSettings,
   MetricsReporter: require('./src/metrics-reporter').default,
   MessageFactory: require('./src/message-factory'),
   SendUtils: require('./src/send-utils'),

@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 
 import crypto from 'crypto';
-import {CommonProviderSettings} from 'imap-provider-settings'
+import {CommonProviderSettings} from 'isomorphic-core'
 import {
   N1CloudAPI,
   NylasAPI,
