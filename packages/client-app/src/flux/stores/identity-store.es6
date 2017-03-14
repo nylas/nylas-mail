@@ -1,6 +1,6 @@
 import Rx from 'rx-lite'
 import NylasStore from 'nylas-store';
-import {ipcRenderer} from 'electron';
+import {ipcRenderer, remote} from 'electron';
 import request from 'request';
 import url from 'url'
 
@@ -111,7 +111,10 @@ class IdentityStore extends NylasStore {
 
   _onLogoutNylasIdentity = async () => {
     await this.saveIdentity(null)
-    ipcRenderer.send('command', 'application:relaunch-to-initial-windows');
+    // We need to relaunch the app to clear the webview session and allow the
+    // and prevent the webview from re signing in with the same NylasID
+    remote.app.relaunch()
+    remote.app.quit()
   }
 
   _onEnvChanged = () => {
