@@ -88,16 +88,22 @@ module.exports = (sequelize, Sequelize) => {
           this.firstMessageDate = message.date;
         }
 
-        // Figure out if the message is sent or received and update more dates
+        // Figure out if the message is sent and/or received and update more dates
+        // Note that `isReceived` is not mutually exclusive of `isSent` when
+        // labels are involved, because users can send emails to themselves.
         const isSent = (
           message.folder.role === 'sent' ||
           !!message.labels.find(l => l.role === 'sent')
         );
+        const isReceived = (
+          message.folder.role !== 'sent' ||
+          !!message.labels.find(l => l.role !== 'sent')
+        )
 
-        if (isSent && ((message.date > this.lastMessageSentDate) || !this.lastMessageSentDate)) {
+        if (isSent && (!this.lastMessageSentDate || (message.date > this.lastMessageSentDate))) {
           this.lastMessageSentDate = message.date;
         }
-        if (((message.date > this.lastMessageReceivedDate) || !this.lastMessageReceivedDate)) {
+        if (isReceived && (!this.lastMessageReceivedDate || (message.date > this.lastMessageReceivedDate))) {
           this.lastMessageReceivedDate = message.date;
         }
       },
