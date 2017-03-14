@@ -1,5 +1,10 @@
 # Nylas Mail Changelog
 
+### 1.0.39 (3/14/2017)
+
+  + [client-app] Fix missing depedency for imap-provider-settings
+  + [client-app] only upload 7 characters of the commit hash
+
 ### 1.0.38 (3/13/2017)
 
 - Fixes:
