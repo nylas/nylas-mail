@@ -50,14 +50,14 @@ class WorkspaceStore extends NylasStore
         "label": "View",
         "submenu": [
           {
-            "label": "Single Panel Mode",
+            "label": "Reading Pane Off",
             "type": "radio",
             "command": "application:select-list-mode",
             "checked": @_preferredLayoutMode is 'list',
             "position": "before=mailbox-navigation"
           },
           {
-            "label": "Two Panel Mode",
+            "label": "Reading Pane On",
             "type": "radio",
             "command": "application:select-split-mode",
             "checked": @_preferredLayoutMode is 'split'
