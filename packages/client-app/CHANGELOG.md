@@ -2,22 +2,16 @@
 
 ### 1.0.38 (3/13/2017)
 
-  + [client-app] Restart sync when computer awakes from sleep
-  + [client-app] Make resetEmailCache work without forcing re sign-in
-  + [client-app] Don't start sync or delta connections without an identity
-  + [client-sync] Correctly wait for sync to stop before resetting email cache
-  + [client-sync]: Fix error in SyncProcessManager._resetEmailCache
-  + [client-app] fix travis env variables
-  + [client-app] run windows build separately
-  + [client-app] remove ability to run specs
-  + [iso-core] Pin imap-provider-settings package version
-  + [client-app] Don't check for key membership on null
-  + [client-app] Some wording improvements in IMAP onboarding
-  + [dev] On Linux, don't run redis if already running
-  + [dev] Make 'arc lint' shut up about long lines
-  + [client-app] Specify Content-Type in developer bar curl commands
-  + [dev] Fix 'arc lint'
-  + [cloud-api] Remove global override of billing identity URL
+- Fixes:
+ + Restart sync when computer awakes from sleep
+ + Fix issue that made users log out of NylasID, restart, and then force them to log out and restart again in a loop (#3325)
+ + Don't start sync or delta connections without an identity
+
+- Development:
+ + Restore windows build
+ + Remove specs from production build
+ + Fix arc lint
+ + Specify Content-Type in developer bar curl commands
 
 ### 1.0.37 (3/10/2017)
 
