@@ -1,0 +1,25 @@
+.arc*
+.git*
+arclib
+**/node_modules
+packages/client-*
+!packages/client-app/.babelrc
+
+*.swp
+*~
+.DS_Store
+**/npm-debug.log
+**/lerna-debug.log
+
+# Vim temp files
+*.swp
+*.swo
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+/packages/client-sync/spec-saved-state.json
+
+# Built cloud files
+n1_cloud_dist

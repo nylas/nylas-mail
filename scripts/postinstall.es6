@@ -141,12 +141,17 @@ async function main() {
     // `node-mac-notifier` get's correctly installed and included in the build
     // See https://github.com/lerna/lerna/issues/121
     console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
-    await npm('install', {cwd: 'packages/client-app'})
+
+    if (process.env.ONLY_CLIENT === 'true') {
+      await npm('install', {cwd: 'packages/client-app'})
+    }
 
     await electronRebuild();
 
-    linkJasmineConfigs();
-    linkIsomorphicCoreSpecs();
+    if (process.env.ONLY_CLIENT === 'true') {
+      linkJasmineConfigs();
+      linkIsomorphicCoreSpecs();
+    }
   } catch (err) {
     console.error(err);
     process.exit(1);

@@ -64,13 +64,21 @@ export default class NylasAPIRequest {
     return new Promise((resolve, reject) => {
       const requestId = Utils.generateTempId();
       const reqTrackingArgs = {request: options, requestId}
-      Actions.willMakeAPIRequest(reqTrackingArgs);
+
+      // Blob requests can potentially contain megabytes of binary data.
+      // it doesn't make sense to send them through the action bridge.
+      if (!options.blob) {
+        Actions.willMakeAPIRequest(reqTrackingArgs);
+      }
+
       const req = request(options, (error, response, body) => {
         this.response = response;
         let statusCode = (response || {}).statusCode;
 
         if (statusCode >= 200 && statusCode <= 299) {
-          Actions.didMakeAPIRequest({statusCode, ...reqTrackingArgs});
+          if (!options.blob) {
+            Actions.didMakeAPIRequest({statusCode, ...reqTrackingArgs});
+          }
           return resolve(body)
         }
 
