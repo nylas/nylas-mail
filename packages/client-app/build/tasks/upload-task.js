@@ -23,7 +23,7 @@ module.exports = (grunt) => {
         if (error) {
           return reject();
         }
-        const commitHash = stdout ? stdout.trim() : null;
+        const commitHash = (stdout ? stdout.trim() : "").slice(0, 7);
         packageVersion = json.version;
         if (packageVersion.indexOf('-') > 0) {
           fullVersion = packageVersion;
