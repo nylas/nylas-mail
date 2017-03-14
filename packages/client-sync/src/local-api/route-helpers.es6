@@ -1,14 +1,15 @@
-const _ = require('underscore')
-const Serialization = require('./serialization');
-const SyncProcessManager = require('../local-sync-worker/sync-process-manager')
+import _ from 'underscore'
+import Boom from 'boom';
+import Serialization from './serialization';
+import SyncProcessManager from '../local-sync-worker/sync-process-manager'
 
 
 const wakeSyncWorker = _.debounce((accountId, reason) => {
   SyncProcessManager.wakeWorkerForAccount(accountId, {interrupt: true, reason})
 }, 500)
 
-module.exports = {
-  async createAndReplyWithSyncbackRequest(request, reply, syncRequestArgs = {}) {
+export async function createAndReplyWithSyncbackRequest(request, reply, syncRequestArgs = {}) {
+  try {
     const account = request.auth.credentials
     const {wakeSync = true} = syncRequestArgs
     syncRequestArgs.accountId = account.id
@@ -21,5 +22,8 @@ module.exports = {
     }
     reply(Serialization.jsonStringify(syncbackRequest))
     return syncbackRequest
-  },
+  } catch (err) {
+    reply(Boom.wrap(err))
+    return null
+  }
 }
