@@ -28,9 +28,9 @@ branches:
 matrix:
   include:
   - os: linux
-    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 DEBUG="electron-packager:*"
+    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 DEBUG="electron-packager:*" ONLY_CLIENT=true
   - os: osx
-    env: NODE_VERSION=6.9 CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*"
+    env: NODE_VERSION=6.9 CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*" ONLY_CLIENT=true
 
 before_install:
 - openssl aes-256-cbc
