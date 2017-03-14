@@ -18,8 +18,8 @@ class AppearanceModeOption extends React.Component
     classname += " active" if @props.active
 
     label = {
-      'list': 'Single Panel'
-      'split': 'Two Panel'
+      'list': 'Reading Pane Off'
+      'split': 'Reading Pane On'
     }[@props.mode]
 
     <div className={classname} onClick={@props.onClick}>
