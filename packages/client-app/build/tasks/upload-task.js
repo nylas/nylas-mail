@@ -107,31 +107,46 @@ module.exports = (grunt) => {
       versionParts[2] = +versionParts[2] + 1
       const nextVersion = `${versionParts.join('.')}-${hash}`
 
+      const s3PathCurrentVersion = `${fullVersion}/${process.platform}/${process.arch}`
+      const s3PathNextVersion = `${nextVersion}/${process.platform}/${process.arch}`
+
       if (process.platform === 'darwin') {
         uploads.push({
           source: `${outputDir}/NylasMail.zip`,
-          key: `${fullVersion}/${process.platform}/${process.arch}/NylasMail.zip`,
+          key: `${s3PathCurrentVersion}/NylasMail.zip`,
         });
         uploads.push({
           source: `${outputDir}/NylasMail.zip`,
-          key: `${nextVersion}/${process.platform}/${process.arch}/NylasMail.zip`,
+          key: `${s3PathNextVersion}/NylasMail.zip`,
         });
         uploads.push({
           source: `${outputDir}/NylasMail.dmg`,
-          key: `${fullVersion}/${process.platform}/${process.arch}/NylasMail.dmg`,
+          key: `${s3PathCurrentVersion}/NylasMail.dmg`,
         });
       } else if (process.platform === 'win32') {
         uploads.push({
           source: path.join(outputDir, "RELEASES"),
-          key: `${fullVersion}/${process.platform}/${process.arch}/RELEASES`,
+          key: `${s3PathCurrentVersion}/RELEASES`,
         });
         uploads.push({
           source: path.join(outputDir, "NylasMailSetup.exe"),
-          key: `${fullVersion}/${process.platform}/${process.arch}/NylasMailSetup.exe`,
+          key: `${s3PathCurrentVersion}/NylasMailSetup.exe`,
+        });
+        uploads.push({
+          source: path.join(outputDir, `Nylas-${packageVersion}-full.nupkg`),
+          key: `${s3PathCurrentVersion}/nylas-${packageVersion}-full.nupkg`,
+        });
+        uploads.push({
+          source: path.join(outputDir, "RELEASES"),
+          key: `${s3PathNextVersion}/RELEASES`,
         });
         uploads.push({
           source: path.join(outputDir, "NylasMailSetup.exe"),
-          key: `${nextVersion}/${process.platform}/${process.arch}/NylasMailSetup.exe`,
+          key: `${s3PathNextVersion}/NylasMailSetup.exe`,
+        });
+        uploads.push({
+          source: path.join(outputDir, `Nylas-${packageVersion}-full.nupkg`),
+          key: `${s3PathNextVersion}/nylas-${packageVersion}-full.nupkg`,
         });
       } else if (process.platform === 'linux') {
         const files = fs.readdirSync(outputDir);

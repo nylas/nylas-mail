@@ -277,6 +277,7 @@ export default class NylasEnvConstructor {
       originalError.stack = convertStackTrace(originalError.stack, sourceMapCache);
       return this.reportError(originalError, {url, line: newLine, column: newColumn});
     };
+    window.addEventListener("unhandledrejection", e => this.reportError(e));
 
     process.on('uncaughtException', e => this.reportError(e));
 
