@@ -153,4 +153,65 @@ describe("MutableQueryResultSet", function MutableQueryResultSetSpecs() {
       });
     });
   });
+
+  describe('updateModel', () => {
+    beforeEach(() => {
+      this.mockModel = (clientId, serverId) => {
+        return {
+          id: serverId || clientId,
+          clientId: clientId,
+          serverId: serverId,
+          constructor: {
+            attributes: [],
+          },
+        }
+      }
+    })
+
+    /*
+      Previously, after creating a new folder, the UI would indicate that the new
+      folder had children, even though it didn't. This was caused by duplicate models
+      in our MutableQueryResultSet for the user's categories. Basically, we would
+      sync the server version of the folder before the SyncbackTask for the new
+      folder returned its serverId. Without the serverId, the synced version of
+      the folder couldn't yet be tied to the optimistic folder, so a second row was
+      created in the database. This second row is removed when the syncbackTask
+      does return the serverId, because we persist the optimistic folder with a
+      'REPLACE INTO' query. (This deletes other rows with the same id.) However,
+      since this was done inside a 'persist' change with the serverId and no
+      'unpersist' was ever recorded for the clientId, our MutableQueryResultSet
+      never removed the clientId model. We now detect this case within
+      updateModel and remove the clientId when necessary.
+    */
+    describe('when the model is an optimistic copy receiving its serverId', () => {
+      it('removes the clientId if both the clientId and serverId are listed', () => {
+        const set = new MutableQueryResultSet({
+          _ids: ['clientId1', 'serverId1', 'serverId2', 'serverId3'],
+          _modelsHash: {
+            'clientId1': this.mockModel('clientId1'),
+            'serverId2': this.mockModel('clientId2', 'serverId2'),
+            'serverId3': this.mockModel('clientId3', 'serverId3'),
+            'serverId1': this.mockModel('clientId4', 'serverId1'),
+          },
+        });
+
+        set.updateModel(this.mockModel('clientId1', 'serverId1'))
+        expect(set.ids().includes('clientId1')).toEqual(false)
+      })
+
+      it('does not remove the clientId if the serverId is not listed', () => {
+        const set = new MutableQueryResultSet({
+          _ids: ['clientId1', 'serverId2', 'serverId3'],
+          _modelsHash: {
+            'clientId1': this.mockModel('clientId1'),
+            'serverId2': this.mockModel('clientId2', 'serverId2'),
+            'serverId3': this.mockModel('clientId3', 'serverId3'),
+          },
+        });
+
+        set.updateModel(this.mockModel('clientId1', 'serverId1'))
+        expect(set.ids().includes('clientId1')).toEqual(true)
+      })
+    })
+  });
 });
