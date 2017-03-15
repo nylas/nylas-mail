@@ -1,5 +1,13 @@
 # Nylas Mail Changelog
 
+### 1.0.40 (3/15/2017)
+
+  + [client-app] don't bootsrap cloud stuff when building the client
+  + [client-app] update files ignored in build
+  + [client-app] upload nupkg for Windows autoupdater
+  + [send-later] Add support for attachments
+  + [client-app] two panel -> Reading Pane On
+
 ### 1.0.39 (3/14/2017)
 
   + [client-app] Fix missing depedency for imap-provider-settings
