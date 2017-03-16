@@ -8,7 +8,6 @@ import DeltaProcessor from './delta-processor'
 import DatabaseStore from '../flux/stores/database-store'
 import IdentityStore from '../flux/stores/identity-store'
 import OnlineStatusStore from '../flux/stores/online-status-store'
-import NylasAPIRequest from '../flux/nylas-api-request'
 import NylasLongConnection from '../flux/nylas-long-connection'
 
 
@@ -158,11 +157,17 @@ class DeltaStreamingConnection {
     }
 
     err.message = `Error connecting to delta stream: ${err.message}`
-    if (!NylasAPIRequest.NonReportableStatusCodes.includes(err.statusCode)) {
+    if (!(err instanceof APIError)) {
+      NylasEnv.reportError(err)
+      return
+    }
+
+    if (err.shouldReportError()) {
+      // TODO move this check into NylasEnv.reportError()?
       NylasEnv.reportError(err)
     }
 
-    if (err instanceof APIError && err.statusCode === 401) {
+    if (err.statusCode === 401) {
       Actions.updateAccount(this._account.id, {
         n1CloudState: Account.N1_CLOUD_STATE_AUTH_FAILED,
       })

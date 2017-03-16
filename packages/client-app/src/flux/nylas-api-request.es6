@@ -7,17 +7,7 @@ import {APIError} from './errors'
 import IdentityStore from './stores/identity-store'
 
 
-const NonReportableStatusCodes = [
-  0,   // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
-  401, // Don't report `Incorrect username or password`
-  404, // Don't report not-founds
-  408, // Timeout error code
-  429, // Too many requests
-]
-
 export default class NylasAPIRequest {
-
-  static NonReportableStatusCodes = NonReportableStatusCodes
 
   constructor({api, options}) {
     const defaults = {
@@ -73,7 +63,7 @@ export default class NylasAPIRequest {
 
       const req = request(options, (error, response, body) => {
         this.response = response;
-        let statusCode = (response || {}).statusCode;
+        const statusCode = (response || {}).statusCode;
 
         if (statusCode >= 200 && statusCode <= 299) {
           if (!options.blob) {
@@ -82,23 +72,6 @@ export default class NylasAPIRequest {
           return resolve(body)
         }
 
-        if (error) {
-          // If the server returns anything (including 500s and other bad
-          // responses, the `error` object for the `request` will be null)
-          //
-          // The Node `request` library emits a special type of timeout
-          // error for ESOCKETTIMEDOUT and ETIMEDOUT. When it does this it
-          // sets the `cod` param on the error object. These errors are
-          // retryable and we use out special `0` status code.
-          //
-          // It may also emit normal `Error` objects for other unforseen
-          // issues. In this case we set a `500` status code.
-          if (error.code) {
-            statusCode = 0;
-          } else {
-            statusCode = 500;
-          }
-        }
         const apiError = new APIError({
           body: body,
           error: error,
@@ -137,7 +110,8 @@ export default class NylasAPIRequest {
 
   async _notifyOfAPIError(apiError) {
     const {statusCode} = apiError
-    if (!NonReportableStatusCodes.includes(statusCode)) {
+    // TODO move this check into NylasEnv.reportError()?
+    if (apiError.shouldReportError()) {
       const msg = apiError.message || `Unknown Error: ${apiError}`
       const fingerprint = ["{{ default }}", "api error", this.options.url, apiError.statusCode, msg];
       NylasEnv.reportError(apiError, {fingerprint,
