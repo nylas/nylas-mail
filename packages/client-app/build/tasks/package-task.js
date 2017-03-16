@@ -214,7 +214,6 @@ module.exports = (grunt) => {
         /\.pdb$/,
         /\.h$/,
         /\.cc$/,
-        /\.map$/,
         /\.ts$/,
         /\.flow$/,
         /\.gyp/,
