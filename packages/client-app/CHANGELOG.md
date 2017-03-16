@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 1.0.42 (3/16/2017)
+
+  + [client-app] don't exclude source maps
+
 ### 1.0.41 (3/16/2017)
 
   + [iso-core] Upgrade nodemailer
