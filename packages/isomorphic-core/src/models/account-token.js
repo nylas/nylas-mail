@@ -5,6 +5,9 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: Sequelize.UUIDV4,
     },
   }, {
+    indexes: [
+      { fields: ['value'] },
+    ],
     classMethods: {
       associate: ({Account}) => {
         AccountToken.belongsTo(Account, {
