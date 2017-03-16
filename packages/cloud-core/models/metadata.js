@@ -10,6 +10,9 @@ module.exports = (sequelize, Sequelize) => {
     objectType: Sequelize.STRING,
     expiration: Sequelize.DATE,
   }, {
+    indexes: [
+      { fields: ['objectId', 'objectType'] },
+    ],
     instanceMethods: {
       toJSON() {
         return {
