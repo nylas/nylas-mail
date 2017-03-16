@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 1.0.41 (3/16/2017)
+
+  + [iso-core] Upgrade nodemailer
+
 ### 1.0.40 (3/15/2017)
 
   + [client-app] don't bootsrap cloud stuff when building the client
