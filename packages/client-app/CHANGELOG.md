@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 1.0.43 (3/17/2017)
+
+  + Revert [iso-core] Upgrade nodemailer
+  + [client-app] Don't show non-existent children on folder creation
+  + [client-sync] Only update lastReceivedDate if the message was actually received
+
 ### 1.0.42 (3/16/2017)
 
   + [client-app] don't exclude source maps
