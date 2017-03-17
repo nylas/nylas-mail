@@ -5,7 +5,7 @@
 - Fixes:
 
  + Revert nodemailer to previous version
- + Fix folder creation: don't show non-existent children on folder creation
+ + Creating a folder no longer creates a non-existent duplicate subfolder
  + Don't bump threads to the top of list when a message is sent: only update lastReceivedDate if the message was actually received
 
 ### 1.0.42 (3/16/2017)
