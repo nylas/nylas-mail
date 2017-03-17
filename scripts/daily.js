@@ -1,5 +1,6 @@
 #!/usr/bin/env babel-node
 const childProcess = require('child_process')
+const path = require('path')
 const mkdirp = require('mkdirp')
 const semver = require('semver')
 const program = require('commander')
@@ -40,7 +41,7 @@ function git(subCmd, opts = {}) {
 }
 
 async function prependToFile(filepath, string) {
-  mkdirp.sync('./tmp')
+  mkdirp.sync(path.join(__dirname, '..', 'tmp'))
   await exec(`echo "${string}" > ./tmp/tmpfile`)
   await exec(`cat ${filepath} >> ./tmp/tmpfile`)
   await exec(`mv ./tmp/tmpfile ${filepath}`)
