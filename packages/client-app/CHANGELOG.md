@@ -2,30 +2,38 @@
 
 ### 1.0.43 (3/17/2017)
 
-  + Revert [iso-core] Upgrade nodemailer
-  + [client-app] Don't show non-existent children on folder creation
-  + [client-sync] Only update lastReceivedDate if the message was actually received
+- Fixes:
+
+ + Revert nodemailer to previous version
+ + Fix folder creation: don't show non-existent children on folder creation
+ + Don't bump threads to the top of list when a message is sent: only update lastReceivedDate if the message was actually received
 
 ### 1.0.42 (3/16/2017)
 
-  + [client-app] don't exclude source maps
+- Fixes:
+ + Fix spellchecker regression (Don't exclude source maps in build)
 
 ### 1.0.41 (3/16/2017)
 
-  + [iso-core] Upgrade nodemailer
+- Development:
+  + Upgrade nodemailer to latest version
 
 ### 1.0.40 (3/15/2017)
 
-  + [client-app] don't bootsrap cloud stuff when building the client
-  + [client-app] update files ignored in build
-  + [client-app] upload nupkg for Windows autoupdater
-  + [send-later] Add support for attachments
-  + [client-app] two panel -> Reading Pane On
+- Features:
+  + Add support for attachments in send later
+
+- Development:
+  + Improve build time
+  + Windows Autoupdater fixes
 
 ### 1.0.39 (3/14/2017)
 
-  + [client-app] Fix missing depedency for imap-provider-settings
-  + [client-app] only upload 7 characters of the commit hash
+- Fixes:
+  + Fix missing depedency for imap-provider-settings
+
+- Development:
+  + Only upload 7 characters of the commit hash for Windows build
 
 ### 1.0.38 (3/13/2017)
 
