@@ -14,7 +14,7 @@ if len(sys.argv) != 2 or sys.argv[1] in ('-h', '--help'):
 
 environment = sys.argv[1]
 level = 'prod'
-if 'staging' in environment:
+if 'staging' in environment or 'ei-prod' in environment:
     level = 'staging'
 elif 'dev' in environment:
     level = 'dev'
