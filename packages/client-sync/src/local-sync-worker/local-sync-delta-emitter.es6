@@ -20,7 +20,7 @@ export default class LocalSyncDeltaEmitter {
     if (!this._state) {
       this._state = await this._loadState()
     }
-    const {cursor = 0} = this._state
+    const cursor = this._state.cursor || 0
     this._disposable = DeltaStreamBuilder.buildDeltaObservable({
       cursor,
       db: this._db,
@@ -52,7 +52,7 @@ export default class LocalSyncDeltaEmitter {
     const json = await DatabaseStore.findJSONBlob(`LocalSyncStatus:${this._account.id}`)
     if (json) {
       return {
-        cursor: json.cursor || null,
+        cursor: json.cursor || undefined,
       }
     }
 
@@ -60,7 +60,7 @@ export default class LocalSyncDeltaEmitter {
     const oldState = await DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`)
     if (!oldState) {
       return {
-        cursor: null,
+        cursor: undefined,
       }
     }
 
