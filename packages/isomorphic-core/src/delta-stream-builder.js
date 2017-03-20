@@ -57,7 +57,7 @@ function stringifyTransactions(db, accountId, transactions = [], sourceName) {
 }
 
 function transactionsSinceCursor(db, cursor, accountId) {
-  return db.Transaction.streamAll({where: { id: {$gt: cursor}, accountId }});
+  return db.Transaction.streamAll({where: { id: {$gt: cursor || 0}, accountId }});
 }
 
 module.exports = {
