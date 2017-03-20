@@ -43,7 +43,7 @@ class DeltaStreamingConnection {
       if (!this._state) {
         this._state = await this._loadState()
       }
-      const {cursor = 0} = this._state
+      const cursor = this._state.cursor || 0
       this._clearRetryTimeout()
       this._longConnection = new NylasLongConnection({
         api: N1CloudAPI,
@@ -178,8 +178,8 @@ class DeltaStreamingConnection {
     const json = await DatabaseStore.findJSONBlob(`DeltaStreamingConnectionStatus:${this._account.id}`)
     if (json) {
       return {
-        cursor: json.cursor || null,
-        status: json.status || null,
+        cursor: json.cursor || undefined,
+        status: json.status || undefined,
       }
     }
 
@@ -187,8 +187,8 @@ class DeltaStreamingConnection {
     const oldState = await DatabaseStore.findJSONBlob(`NylasSyncWorker:${this._account.id}`)
     if (!oldState) {
       return {
-        cursor: null,
-        status: null,
+        cursor: undefined,
+        status: undefined,
       };
     }
 
