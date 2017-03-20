@@ -1,6 +1,7 @@
 import fs from 'fs';
 import AWS from 'aws-sdk';
 import path from 'path';
+import tmp from 'tmp';
 import {Promise} from 'bluebird';
 import {DatabaseConnector} from 'cloud-core'
 import ExpiredDataWorker from './expired-data-worker'
@@ -73,8 +74,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
   async fetchLocalAttachment(accountId, objectId) {
     const uploadId = `${accountId}-${objectId}`;
     const filepath = path.join("/tmp", "uploads", uploadId);
-    const contents = await fs.readFileAsync(filepath)
-    return contents;
+    return fs.readFileAsync(filepath)
   }
 
   async deleteLocalAttachment(accountId, objectId) {
@@ -86,9 +86,19 @@ export default class SendLaterWorker extends ExpiredDataWorker {
   async fetchS3Attachment(accountId, objectId) {
     const uploadId = `${accountId}-${objectId}`;
 
-    const getObject = Promise.promisify(s3.getObject);
-    const data = await getObject({ Bucket: BUCKET_NAME, Key: uploadId });
-    return data;
+    return new Promise((resolve, reject) => {
+      s3.getObject({
+        Bucket: BUCKET_NAME,
+        Key: uploadId,
+      }, (err, data) => {
+        if (err) {
+          reject(err);
+        }
+
+        const body = data.Body;
+        resolve(body);
+      })
+    });
   }
 
   async deleteS3Attachment(accountId, objectId) {
@@ -191,24 +201,41 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     // We get a basic JSON message from the metadata database. We need to set
     // some fields (e.g: the `attachments` field) for it to be ready to send.
     // We call this "hydrating" it.
-    baseMessage.attachments = [];
+    const attachments = [];
     for (const upload of baseMessage.uploads) {
       const attach = {};
       attach.filename = upload.filename;
 
+      let attachmentContents;
       if (NODE_ENV === 'development') {
-        attach.contents = this.fetchLocalAttachment(accountId, upload.id);
+        attachmentContents = await this.fetchLocalAttachment(accountId, upload.id);
       } else {
-        attach.contents = this.fetchS3Attachment(accountId, upload.id);
+        attachmentContents = await this.fetchS3Attachment(accountId, upload.id);
       }
 
-      if (upload.cid) {
-        attach.cid = upload.cid;
+      // This is very cumbersome. There is a bug in the npm module we use to
+      // generate MIME messages – we can't pass it the buffer we get form S3
+      // because it will fail in mysterious ways 5 functions down the stack.
+      // To make things more complicated, the original author of the module
+      // took it offline. After wrestling with this for a couple day, I decided
+      // to simply write the file to a temporary directory before attaching it.
+      // It's not pretty but it does the job.
+      const tmpFile = Promise.promisify(tmp.file, {multiArgs: true});
+      const writeFile = Promise.promisify(fs.writeFile);
+
+      const [filePath, fd, cleanupCallback] = await tmpFile();
+      await writeFile(filePath, attachmentContents);
+      attach.targetPath = filePath;
+      attach.cleanupCallback = cleanupCallback;
+
+      if (upload.inline) {
+        attach.inline = upload.inline;
       }
 
-      baseMessage.attachments.push(attach);
+      attachments.push(attach);
     }
 
+    baseMessage.uploads = attachments;
     return baseMessage;
   }
 
@@ -219,6 +246,10 @@ export default class SendLaterWorker extends ExpiredDataWorker {
         await this.deleteLocalAttachment(accountId, upload.id);
       } else {
         await this.deleteS3Attachment(accountId, upload.id);
+      }
+
+      if (upload.cleanupCallback) {
+        await upload.cleanupCallback();
       }
     }
   }

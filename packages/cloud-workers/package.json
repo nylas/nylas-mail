@@ -34,6 +34,7 @@
     "sequelize": "github:nylas/sequelize#nylas-3.30.1",
     "umzug": "1.11.0",
     "underscore": "1.8.3",
-    "vision": "4.1.0"
+    "vision": "4.1.0",
+    "tmp": "0.0.31"
   }
 }
