@@ -1,5 +1,12 @@
 # Nylas Mail Changelog
 
+### 1.0.44 (3/20/2017)
+
+  + [deploy-it] temp override for deploy branch rules
+  + [n1cloud][executiveintro][docker] updating docker
+  + [client-sync] Add error handling when creating syncback requests
+  + [dev] Fix path for tmp dir in daily script
+
 ### 1.0.43 (3/17/2017)
 
 - Fixes:
