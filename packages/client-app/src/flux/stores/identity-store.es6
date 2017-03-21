@@ -111,7 +111,7 @@ class IdentityStore extends NylasStore {
 
   _onLogoutNylasIdentity = async () => {
     await this.saveIdentity(null)
-    // We need to relaunch the app to clear the webview session and allow the
+    // We need to relaunch the app to clear the webview session
     // and prevent the webview from re signing in with the same NylasID
     remote.app.relaunch()
     remote.app.quit()
