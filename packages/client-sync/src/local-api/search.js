@@ -1,13 +1,19 @@
 const request = require('request');
 const _ = require('underscore');
 const Rx = require('rx-lite');
-const {IMAPConnectionPool} = require('isomorphic-core')
+const {
+  ExponentialBackoffScheduler,
+  IMAPErrors,
+  IMAPConnectionPool,
+} = require('isomorphic-core')
 const SyncProcessManager = require('../local-sync-worker/sync-process-manager')
 const {
   Actions,
   SearchQueryParser,
   IMAPSearchQueryBackend,
 } = require('nylas-exports')
+
+const MAX_IMAP_TIMEOUT_ERRORS = 5;
 
 const getThreadsForMessages = (db, messages, limit) => {
   if (messages.length === 0) {
@@ -105,22 +111,39 @@ class ImapSearchClient {
         observer.onCompleted();
       };
 
-      const onTimeout = (socketTimeout) => {
+      const timeoutScheduler = new ExponentialBackoffScheduler({
+        baseDelay: 15 * 1000,
+        maxDelay: 5 * 60 * 1000,
+      });
+
+      const onTimeout = () => {
         numTimeoutErrors += 1;
         Actions.recordUserEvent('Timeout error in IMAP search', {
           accountId: this.account.id,
           provider: this.account.provider,
-          socketTimeout,
+          socketTimeout: timeoutScheduler.currentDelay(),
           numTimeoutErrors,
         });
+        timeoutScheduler.nextDelay();
       };
 
-      await IMAPConnectionPool.withConnectionsForAccount(this.account, {
-        desiredCount: 1,
-        logger: this._logger,
-        onConnected,
-        onTimeout,
-      });
+      while (numTimeoutErrors < MAX_IMAP_TIMEOUT_ERRORS) {
+        try {
+          await IMAPConnectionPool.withConnectionsForAccount(this.account, {
+            desiredCount: 1,
+            logger: this._logger,
+            socketTimeout: timeoutScheduler.currentDelay(),
+            onConnected,
+          });
+          break;
+        } catch (err) {
+          if (err instanceof IMAPErrors.IMAPConnectionTimeoutError) {
+            onTimeout();
+            continue;
+          }
+          throw err;
+        }
+      }
     });
   }
 

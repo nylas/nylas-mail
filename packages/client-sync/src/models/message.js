@@ -1,8 +1,14 @@
 const crypto = require('crypto')
-const {IMAPConnectionPool} = require('isomorphic-core')
+const {
+  ExponentialBackoffScheduler,
+  IMAPErrors,
+  IMAPConnectionPool,
+} = require('isomorphic-core')
 const {DatabaseTypes: {JSONArrayColumn}} = require('isomorphic-core');
 const {Errors: {APIError}} = require('isomorphic-core')
 const {Actions} = require('nylas-exports')
+
+const MAX_IMAP_TIMEOUT_ERRORS = 5;
 
 
 function validateRecipientsPresent(message) {
@@ -155,22 +161,39 @@ module.exports = (sequelize, Sequelize) => {
           result = `${message.headers}${message.parts.TEXT}`;
         };
 
-        const onTimeout = (socketTimeout) => {
+        const timeoutScheduler = new ExponentialBackoffScheduler({
+          baseDelay: 15 * 1000,
+          maxDelay: 5 * 60 * 1000,
+        });
+
+        const onTimeout = () => {
           numTimeoutErrors += 1;
           Actions.recordUserEvent('Timeout error downloading raw message', {
             accountId: account.id,
             provider: account.provider,
-            socketTimeout,
+            socketTimeout: timeoutScheduler.currentDelay(),
             numTimeoutErrors,
           });
+          timeoutScheduler.nextDelay();
         };
 
-        await IMAPConnectionPool.withConnectionsForAccount(account, {
-          desiredCount: 1,
-          logger,
-          onConnected,
-          onTimeout,
-        });
+        while (numTimeoutErrors < MAX_IMAP_TIMEOUT_ERRORS) {
+          try {
+            await IMAPConnectionPool.withConnectionsForAccount(account, {
+              desiredCount: 1,
+              logger,
+              socketTimeout: timeoutScheduler.currentDelay(),
+              onConnected,
+            });
+            break;
+          } catch (err) {
+            if (err instanceof IMAPErrors.IMAPConnectionTimeoutError) {
+              onTimeout();
+              continue;
+            }
+            throw err;
+          }
+        }
 
         return result;
       },
