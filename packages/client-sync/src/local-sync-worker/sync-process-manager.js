@@ -10,6 +10,7 @@ class SyncProcessManager {
   constructor() {
     this._exiting = false;
     this._resettingEmailCache = false
+    this._identityId = null;
     this._workersByAccountId = {};
     this._localSyncDeltaEmittersByAccountId = new Map()
 
@@ -32,7 +33,12 @@ class SyncProcessManager {
   }
 
   _onIdentityChanged() {
-    if (IdentityStore.identity()) {
+    this._identityId = IdentityStore.identity()
+    const newIdentityId = IdentityStore.identityId()
+    if (newIdentityId !== this._identityId) {
+      // The IdentityStore can trigger any number of times, but we only want to
+      // start sync if we previously didn't have an identity available
+      this._identityId = newIdentityId
       this.start()
     }
   }
