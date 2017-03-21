@@ -25,7 +25,7 @@ let msgWithReplyToDuplicates = null;
 let msgWithReplyToFromMe = null;
 let account = null;
 
-xdescribe('DraftFactory', function draftFactory() {
+describe('DraftFactory', function draftFactory() {
   beforeEach(() => {
     // Out of the scope of these specs
     spyOn(InlineStyleTransformer, 'run').andCallFake((input) => Promise.resolve(input));
@@ -429,55 +429,60 @@ xdescribe('DraftFactory', function draftFactory() {
       });
 
       describe("when reply-all is passed", () => {
-        it("should add missing participants", () => {
+        it("should add missing participants", async () => {
           this.existingDraft.to = fakeMessage1.participantsForReply().to;
           this.existingDraft.cc = fakeMessage1.participantsForReply().cc;
-          DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply-all', behavior: 'prefer-existing'})
-          advanceClock();
-          advanceClock();
-
-          const {to, cc} = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0];
+          const {to, cc} = await DraftFactory.createOrUpdateDraftForReply({
+            thread: fakeThread,
+            message: fakeMessage1,
+            type: 'reply-all',
+            behavior: 'prefer-existing',
+          })
           this.expectContactsEqual(to, fakeMessage1.participantsForReplyAll().to);
           this.expectContactsEqual(cc, fakeMessage1.participantsForReplyAll().cc);
         });
 
-        it("should not blow away other participants who have been added to the draft", () => {
+        it("should not blow away other participants who have been added to the draft", async () => {
           const randomA = new Contact({email: 'other-guy-a@gmail.com'});
           const randomB = new Contact({email: 'other-guy-b@gmail.com'});
           this.existingDraft.to = fakeMessage1.participantsForReply().to.concat([randomA]);
           this.existingDraft.cc = fakeMessage1.participantsForReply().cc.concat([randomB]);
-          DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply-all', behavior: 'prefer-existing'})
-          advanceClock();
-          advanceClock();
-
-          const {to, cc} = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0];
+          const {to, cc} = await DraftFactory.createOrUpdateDraftForReply({
+            thread: fakeThread,
+            message: fakeMessage1,
+            type: 'reply-all',
+            behavior: 'prefer-existing',
+          })
           this.expectContactsEqual(to, fakeMessage1.participantsForReplyAll().to.concat([randomA]));
           this.expectContactsEqual(cc, fakeMessage1.participantsForReplyAll().cc.concat([randomB]));
         });
       });
 
       describe("when reply is passed", () => {
-        it("should remove participants present in the reply-all participant set and not in the reply set", () => {
+        it("should remove participants present in the reply-all participant set and not in the reply set", async () => {
           this.existingDraft.to = fakeMessage1.participantsForReplyAll().to;
           this.existingDraft.cc = fakeMessage1.participantsForReplyAll().cc;
-          DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply', behavior: 'prefer-existing'})
-          advanceClock();
-          advanceClock();
-
-          const {to, cc} = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0];
+          const {to, cc} = await DraftFactory.createOrUpdateDraftForReply({
+            thread: fakeThread,
+            message: fakeMessage1,
+            type: 'reply',
+            behavior: 'prefer-existing',
+          })
           this.expectContactsEqual(to, fakeMessage1.participantsForReply().to);
           this.expectContactsEqual(cc, fakeMessage1.participantsForReply().cc);
         });
 
-        it("should not blow away other participants who have been added to the draft", () => {
+        it("should not blow away other participants who have been added to the draft", async () => {
           const randomA = new Contact({email: 'other-guy-a@gmail.com'});
           const randomB = new Contact({email: 'other-guy-b@gmail.com'});
           this.existingDraft.to = fakeMessage1.participantsForReplyAll().to.concat([randomA]);
           this.existingDraft.cc = fakeMessage1.participantsForReplyAll().cc.concat([randomB]);
-          DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply', behavior: 'prefer-existing'})
-          advanceClock();
-          advanceClock();
-          const {to, cc} = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0];
+          const {to, cc} = await DraftFactory.createOrUpdateDraftForReply({
+            thread: fakeThread,
+            message: fakeMessage1,
+            type: 'reply',
+            behavior: 'prefer-existing',
+          })
           this.expectContactsEqual(to, fakeMessage1.participantsForReply().to.concat([randomA]));
           this.expectContactsEqual(cc, fakeMessage1.participantsForReply().cc.concat([randomB]));
         });
@@ -491,15 +496,11 @@ xdescribe('DraftFactory', function draftFactory() {
         spyOn(DraftFactory, 'createDraftForReply');
       });
 
-      it("should call through to createDraftForReply", () => {
-        DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply-all'})
-        advanceClock();
-        advanceClock();
+      it("should call through to createDraftForReply", async () => {
+        await DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply-all'})
         expect(DraftFactory.createDraftForReply).toHaveBeenCalledWith({thread: fakeThread, message: fakeMessage1, type: 'reply-all'})
 
-        DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'})
-        advanceClock();
-        advanceClock();
+        await DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'})
         expect(DraftFactory.createDraftForReply).toHaveBeenCalledWith({thread: fakeThread, message: fakeMessage1, type: 'reply'})
       });
     });
