@@ -6,6 +6,7 @@ const semver = require('semver')
 const program = require('commander')
 const pkg = require('../packages/client-app/package.json')
 
+const TMP_DIR = path.join(__dirname, '..', 'tmp')
 
 async function spawn(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
@@ -41,19 +42,18 @@ function git(subCmd, opts = {}) {
 }
 
 async function prependToFile(filepath, string) {
-  const tmpDir = path.join(__dirname, '..', 'tmp')
-  mkdirp.sync(tmpDir)
-  await exec(`echo "${string}" > ${tmpDir}/tmpfile`)
-  await exec(`cat ${filepath} >> ${tmpDir}/tmpfile`)
-  await exec(`mv ${tmpDir}/tmpfile ${filepath}`)
+  await exec(`echo "${string}" > ${TMP_DIR}/tmpfile`)
+  await exec(`cat ${filepath} >> ${TMP_DIR}/tmpfile`)
+  await exec(`mv ${TMP_DIR}/tmpfile ${filepath}`)
 }
 
 async function sliceFileLines(filepath, idx) {
-  await exec(`tail -n +${1 + idx} ${filepath} > ./tmp/tmpfile`)
-  await exec(`mv ./tmp/tmpfile ${filepath}`)
+  await exec(`tail -n +${1 + idx} ${filepath} > ${TMP_DIR}/tmpfile`)
+  await exec(`mv ${TMP_DIR}/tmpfile ${filepath}`)
 }
 
 async function updateChangelogFile(changelogString) {
+  mkdirp.sync(TMP_DIR)
   await sliceFileLines('./packages/client-app/CHANGELOG.md', 2)
   await prependToFile('./packages/client-app/CHANGELOG.md', changelogString)
 }
