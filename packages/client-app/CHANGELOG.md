@@ -1,5 +1,12 @@
 # Nylas Mail Changelog
 
+### 1.0.45 (3/21/2017)
+
+  + [dev] Actually fix tmp dir path in daily
+  + [dev] Fix temp dir path in daily
+  + [client-app] Fix passing cursor to delta streams
+  + [cloud-api] Fix query for delta stream transactions
+
 ### 1.0.44 (3/20/2017)
 
   + [deploy-it] temp override for deploy branch rules
