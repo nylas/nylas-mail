@@ -41,10 +41,11 @@ function git(subCmd, opts = {}) {
 }
 
 async function prependToFile(filepath, string) {
-  mkdirp.sync(path.join(__dirname, '..', 'tmp'))
-  await exec(`echo "${string}" > ./tmp/tmpfile`)
-  await exec(`cat ${filepath} >> ./tmp/tmpfile`)
-  await exec(`mv ./tmp/tmpfile ${filepath}`)
+  const tmpDir = path.join(__dirname, '..', 'tmp')
+  mkdirp.sync(tmpDir)
+  await exec(`echo "${string}" > ${tmpDir}/tmpfile`)
+  await exec(`cat ${filepath} >> ${tmpDir}/tmpfile`)
+  await exec(`mv ${tmpDir}/tmpfile ${filepath}`)
 }
 
 async function sliceFileLines(filepath, idx) {
