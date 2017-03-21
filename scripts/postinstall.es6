@@ -58,7 +58,7 @@ async function lernaBootstrap() {
   let lernaCmd = "lerna"
   if (process.platform === "win32") { lernaCmd = "lerna.cmd" }
   const args = ["bootstrap"]
-  if (process.env.ONLY_CLIENT) {
+  if (process.env.ONLY_CLIENT === 'true') {
     args.push("--ignore='cloud-*'")
   }
   await spawn(path.join('node_modules', '.bin', lernaCmd), ["bootstrap"])
