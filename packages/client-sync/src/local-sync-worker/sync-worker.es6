@@ -315,6 +315,16 @@ class SyncWorker {
         return
       }
 
+      if (error instanceof IMAPErrors.IMAPConnectionTimeoutError) {
+        this._numTimeoutErrors += 1;
+        Actions.recordUserEvent('Timeout error in sync loop', {
+          accountId: this._account.id,
+          provider: this._account.provider,
+          socketTimeout: this._retryScheduler.currentDelay(),
+          numTimeoutErrors: this._numTimeoutErrors,
+        });
+      }
+
       // Check if we've encountered a retryable/network error.
       // If so, we don't want to save the error to the account, which will cause
       // a red box to show up.
@@ -513,22 +523,6 @@ class SyncWorker {
     this._interrupted = false
     this._syncInProgress = true
 
-    const onConnected = async ([mainConn, listenerConn]) => {
-      await this._ensureIMAPConnection(mainConn);
-      await this._ensureIMAPMailListenerConnection(listenerConn);
-      await this._interruptible.run(this._performSync, this)
-    };
-
-    const onTimeout = (socketTimeout) => {
-      this._numTimeoutErrors += 1;
-      Actions.recordUserEvent('Timeout error in sync loop', {
-        accountId: this._account.id,
-        provider: this._account.provider,
-        socketTimeout,
-        numTimeoutErrors: this._numTimeoutErrors,
-      })
-    };
-
     try {
       await this._account.reload();
     } catch (err) {
@@ -544,8 +538,12 @@ class SyncWorker {
       await IMAPConnectionPool.withConnectionsForAccount(this._account, {
         desiredCount: 2,
         logger: this._logger,
-        onConnected,
-        onTimeout,
+        socketTimeout: this._retryScheduler.currentDelay(),
+        onConnected: async ([mainConn, listenerConn]) => {
+          await this._ensureIMAPConnection(mainConn);
+          await this._ensureIMAPMailListenerConnection(listenerConn);
+          await this._interruptible.run(this._performSync, this)
+        },
       });
 
       await this._cleanupOrphanMessages();

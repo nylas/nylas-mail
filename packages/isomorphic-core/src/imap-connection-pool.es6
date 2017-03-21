@@ -1,6 +1,5 @@
 const IMAPConnection = require('./imap-connection');
 const IMAPErrors = require('./imap-errors');
-const {ExponentialBackoffScheduler} = require('./backoff-schedulers');
 const {inDevMode} = require('./env-helpers')
 
 const MAX_IMAP_CONNECTIONS_PER_ACCOUNT = 3;
@@ -18,10 +17,6 @@ class AccountConnectionPool {
     this._account = account;
     this._availableConns = new Array(maxConnections).fill(null);
     this._queue = [];
-    this._backoffScheduler = new ExponentialBackoffScheduler({
-      baseDelay: INITIAL_SOCKET_TIMEOUT_MS,
-      maxDelay: MAX_SOCKET_TIMEOUT_MS,
-    });
   }
 
   async _genConnection(socketTimeout, logger) {
@@ -45,7 +40,7 @@ class AccountConnectionPool {
     return conn.connect();
   }
 
-  async withConnections({desiredCount, logger, onConnected, onTimeout}) {
+  async withConnections({desiredCount, logger, socketTimeout, onConnected}) {
     // If we wake up from the first await but don't have enough connections in
     // the pool then we need to prepend ourselves to the queue until there are
     // enough. This guarantees that the queue is fair.
@@ -61,49 +56,35 @@ class AccountConnectionPool {
       prependToQueue = true;
     }
 
-    this._backoffScheduler.reset();
-    while (true) {
-      const socketTimeout = this._backoffScheduler.nextDelay();
-      let conns = [];
-      let keepOpen = false;
+    let conns = [];
+    let keepOpen = false;
 
-      const done = () => {
-        conns.filter(Boolean).forEach((conn) => conn.removeAllListeners());
-        this._availableConns = conns.concat(this._availableConns);
-        if (this._queue.length > 0) {
-          const resolveWaitForConnection = this._queue.shift();
-          resolveWaitForConnection();
-        }
-      };
+    const done = () => {
+      conns.filter(Boolean).forEach((conn) => conn.removeAllListeners());
+      this._availableConns = conns.concat(this._availableConns);
+      if (this._queue.length > 0) {
+        const resolveWaitForConnection = this._queue.shift();
+        resolveWaitForConnection();
+      }
+    };
 
-      try {
-        for (let i = 0; i < desiredCount; ++i) {
-          conns.push(this._availableConns.shift());
-        }
-        conns = await Promise.all(conns.map((c) => (c || this._genConnection(socketTimeout, logger))));
+    try {
+      for (let i = 0; i < desiredCount; ++i) {
+        conns.push(this._availableConns.shift());
+      }
+      conns = await Promise.all(conns.map((c) => (c || this._genConnection(socketTimeout, logger))));
 
-        // TODO: Indicate which connections had errors so that we can selectively
-        // refresh them.
-        keepOpen = await onConnected(conns, done);
-        break;
-      } catch (err) {
-        keepOpen = false;
-        conns.filter(Boolean).forEach(conn => conn.end());
-        conns.fill(null);
-
-        if (err instanceof IMAPErrors.IMAPConnectionTimeoutError) {
-          if (onTimeout) onTimeout(socketTimeout);
-          // Put an empty callback at the beginning of the queue so that we
-          // don't wake another waiting Promise in the finally clause.
-          this._queue.unshift(() => {});
-          continue;
-        }
-
-        throw err;
-      } finally {
-        if (!keepOpen) {
-          done();
-        }
+      // TODO: Indicate which connections had errors so that we can selectively
+      // refresh them.
+      keepOpen = await onConnected(conns, done);
+    } catch (err) {
+      keepOpen = false;
+      conns.filter(Boolean).forEach(conn => conn.end());
+      conns.fill(null);
+      throw err;
+    } finally {
+      if (!keepOpen) {
+        done();
       }
     }
   }
@@ -129,13 +110,13 @@ class IMAPConnectionPool {
     }
   }
 
-  async withConnectionsForAccount(account, {desiredCount, logger, onConnected, onTimeout}) {
+  async withConnectionsForAccount(account, {desiredCount, logger, socketTimeout, onConnected}) {
     if (!this._poolMap[account.id]) {
       this._poolMap[account.id] = new AccountConnectionPool(account, this._maxConnectionsForAccount(account));
     }
 
     const pool = this._poolMap[account.id];
-    await pool.withConnections({desiredCount, logger, onConnected, onTimeout});
+    await pool.withConnections({desiredCount, logger, socketTimeout, onConnected});
   }
 }
 

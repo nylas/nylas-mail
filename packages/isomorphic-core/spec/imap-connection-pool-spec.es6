@@ -24,6 +24,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
       desiredCount: 1,
       logger: this.logger,
+      socketTimeout: 5 * 1000,
       onConnected: ([conn]) => {
         expect(conn instanceof IMAPConnection).toBe(true);
         invokedCallback = true;
@@ -40,6 +41,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
       desiredCount: 2,
       logger: this.logger,
+      socketTimeout: 5 * 1000,
       onConnected: ([conn, otherConn]) => {
         expect(conn instanceof IMAPConnection).toBe(true);
         expect(otherConn instanceof IMAPConnection).toBe(true);
@@ -58,6 +60,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
       desiredCount: 1,
       logger: this.logger,
+      socketTimeout: 5 * 1000,
       onConnected: ([conn], done) => {
         expect(conn instanceof IMAPConnection).toBe(true);
         invokedCallback = true;
@@ -78,6 +81,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
       desiredCount: 1,
       logger: this.logger,
+      socketTimeout: 5 * 1000,
       onConnected: ([conn]) => {
         expect(conn instanceof IMAPConnection).toBe(true);
         invokedCallback = true;
@@ -92,6 +96,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
       desiredCount: 1,
       logger: this.logger,
+      socketTimeout: 5 * 1000,
       onConnected: ([conn]) => {
         expect(conn instanceof IMAPConnection).toBe(true);
         invokedCallback = true;
@@ -110,6 +115,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     await IMAPConnectionPool.withConnectionsForAccount(this.account, {
       desiredCount: 3,
       logger: this.logger,
+      socketTimeout: 5 * 1000,
       onConnected: ([conn], done) => {
         expect(conn instanceof IMAPConnection).toBe(true);
         invokedCallback = true;
@@ -125,6 +131,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     const promise = IMAPConnectionPool.withConnectionsForAccount(this.account, {
       desiredCount: 1,
       logger: this.logger,
+      socketTimeout: 5 * 1000,
       onConnected: ([conn]) => {
         expect(conn instanceof IMAPConnection).toBe(true);
         invokedCallback = true;
@@ -141,24 +148,29 @@ describe('IMAPConnectionPool', function describeBlock() {
     expect(IMAPConnection.prototype.end.calls.length).toBe(0);
   });
 
-  it('retries on IMAP connection timeout', async () => {
+  it('does not retry on IMAP connection timeout', async () => {
     let invokeCount = 0;
-    await IMAPConnectionPool.withConnectionsForAccount(this.account, {
-      desiredCount: 1,
-      logger: this.logger,
-      onConnected: ([conn]) => {
-        expect(conn instanceof IMAPConnection).toBe(true);
-        if (invokeCount === 0) {
+    try {
+      await IMAPConnectionPool.withConnectionsForAccount(this.account, {
+        desiredCount: 1,
+        logger: this.logger,
+        socketTimeout: 5 * 1000,
+        onConnected: ([conn]) => {
+          expect(conn instanceof IMAPConnection).toBe(true);
+          if (invokeCount === 0) {
+            invokeCount += 1;
+            throw new IMAPErrors.IMAPConnectionTimeoutError();
+          }
           invokeCount += 1;
-          throw new IMAPErrors.IMAPConnectionTimeoutError();
-        }
-        invokeCount += 1;
-        return false;
-      },
-    });
+          return false;
+        },
+      });
+    } catch (err) {
+      expect(err instanceof IMAPErrors.IMAPConnectionTimeoutError).toBe(true);
+    }
 
-    expect(invokeCount).toBe(2);
-    expect(IMAPConnection.prototype.connect.calls.length).toBe(2);
+    expect(invokeCount).toBe(1);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
     expect(IMAPConnection.prototype.end.calls.length).toBe(1);
   });
 
@@ -169,6 +181,7 @@ describe('IMAPConnectionPool', function describeBlock() {
       await IMAPConnectionPool.withConnectionsForAccount(this.account, {
         desiredCount: 1,
         logger: this.logger,
+        socketTimeout: 5 * 1000,
         onConnected: ([conn]) => {
           expect(conn instanceof IMAPConnection).toBe(true);
           if (invokeCount === 0) {
