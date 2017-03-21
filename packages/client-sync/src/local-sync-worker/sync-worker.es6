@@ -513,6 +513,22 @@ class SyncWorker {
     this._interrupted = false
     this._syncInProgress = true
 
+    const onConnected = async ([mainConn, listenerConn]) => {
+      await this._ensureIMAPConnection(mainConn);
+      await this._ensureIMAPMailListenerConnection(listenerConn);
+      await this._interruptible.run(this._performSync, this)
+    };
+
+    const onTimeout = (socketTimeout) => {
+      this._numTimeoutErrors += 1;
+      Actions.recordUserEvent('Timeout error in sync loop', {
+        accountId: this._account.id,
+        provider: this._account.provider,
+        socketTimeout,
+        numTimeoutErrors: this._numTimeoutErrors,
+      })
+    };
+
     try {
       await this._account.reload();
     } catch (err) {
@@ -528,20 +544,8 @@ class SyncWorker {
       await IMAPConnectionPool.withConnectionsForAccount(this._account, {
         desiredCount: 2,
         logger: this._logger,
-        onConnected: async ([mainConn, listenerConn]) => {
-          await this._ensureIMAPConnection(mainConn);
-          await this._ensureIMAPMailListenerConnection(listenerConn);
-          await this._interruptible.run(this._performSync, this)
-        },
-        onTimeout: (socketTimeout) => {
-          this._numTimeoutErrors += 1;
-          Actions.recordUserEvent('Timeout error in sync loop', {
-            accountId: this._account.id,
-            provider: this._account.provider,
-            socketTimeout,
-            numTimeoutErrors: this._numTimeoutErrors,
-          })
-        },
+        onConnected,
+        onTimeout,
       });
 
       await this._cleanupOrphanMessages();
