@@ -9,6 +9,7 @@ import {
   DraftStore,
   AccountStore,
   DatabaseStore,
+  FileDownloadStore,
   DatabaseTransaction,
   SanitizeTransformer,
   InlineStyleTransformer,
@@ -24,14 +25,30 @@ let fakeMessageWithFiles = null;
 let msgWithReplyToDuplicates = null;
 let msgWithReplyToFromMe = null;
 let account = null;
+const downloadData = {}
 
 describe('DraftFactory', function draftFactory() {
   beforeEach(() => {
     // Out of the scope of these specs
     spyOn(InlineStyleTransformer, 'run').andCallFake((input) => Promise.resolve(input));
     spyOn(SanitizeTransformer, 'run').andCallFake((input) => Promise.resolve(input));
+    spyOn(FileDownloadStore, 'downloadDataForFile').andCallFake((fid) => {
+      return downloadData[fid]
+    });
 
     account = AccountStore.accounts()[0];
+    const files = [
+      new File({filename: "test.jpg", accountId: account.id}),
+      new File({filename: "test.pdj", accountId: account.id}),
+    ];
+    files.forEach((file) => {
+      downloadData[file.id] = {
+        fileId: file.id,
+        filename: file.filename,
+        targetPath: file.filename,
+      }
+    })
+
 
     fakeThread = new Thread({
       id: 'fake-thread-id',
@@ -59,7 +76,7 @@ describe('DraftFactory', function draftFactory() {
       cc: [new Contact({email: 'mg@nylas.com'}), account.me()],
       bcc: [new Contact({email: 'recruiting@nylas.com'})],
       from: [new Contact({email: 'customer@example.com', name: 'Customer'})],
-      files: [new File({filename: "test.jpg"}), new File({filename: "test.pdj"})],
+      files: files,
       threadId: 'fake-thread-id',
       body: 'Fake Message 1',
       subject: 'Fake Subject',
@@ -368,11 +385,12 @@ describe('DraftFactory', function draftFactory() {
         expect(SanitizeTransformer.run).toHaveBeenCalled();
       });
 
-      it("should include the attached files", () => {
+      it("should include the attached files as uploads", () => {
         waitsForPromise(() => {
           return DraftFactory.createDraftForForward({thread: fakeThread, message: fakeMessageWithFiles}).then((draft) => {
-            expect(draft.files.length).toBe(2);
-            expect(draft.files[0].filename).toBe("test.jpg");
+            expect(draft.uploads.length).toBe(2);
+            expect(draft.uploads[0].filename).toBe("test.jpg");
+            expect(draft.uploads[1].filename).toBe("test.pdj");
           });
         });
       });

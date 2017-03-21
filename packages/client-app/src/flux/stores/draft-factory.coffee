@@ -1,4 +1,7 @@
 _ = require 'underscore'
+path = require 'path'
+
+{FileDownloadStore} = require 'nylas-exports'
 
 Actions = require('../actions').default
 DatabaseStore = require('./database-store').default
@@ -119,6 +122,9 @@ class DraftFactory
     )
 
   createDraftForForward: ({thread, message}) =>
+    # Start downloading the attachments, if they haven't been already
+    message.files.forEach((f) => Actions.fetchFile(f))
+
     contactsAsHtml = (cs) ->
       DOMUtils.escapeHTMLCharacters(_.invoke(cs, "toString").join(", "))
     fields = []
@@ -131,7 +137,6 @@ class DraftFactory
     DraftHelpers.prepareBodyForQuoting(message.body).then (body) =>
       @createDraft(
         subject: subjectWithPrefix(message.subject, 'Fwd:')
-        files: [].concat(message.files),
         from: [@_fromContactForReply(message)],
         threadId: thread.id,
         accountId: message.accountId,
@@ -145,7 +150,21 @@ class DraftFactory
             <br><br>
             #{body}
           </div>"""
-      )
+      ).then (draft) =>
+        draft.uploads = message.files.map((f) =>
+          {fileId, filename, filesize, targetPath} = FileDownloadStore.downloadDataForFile(f.id)
+          # Return an object that can act as an Upload instance.
+          return (
+            messageClientId: draft.clientId,
+            id: fileId,
+            filename: filename,
+            size: filesize,
+            targetPath: targetPath,
+            targetDir: path.dirname(targetPath)
+          )
+        )
+        return draft
+
 
   candidateDraftForUpdating: (message, behavior) =>
     if behavior not in ['prefer-existing-if-pristine', 'prefer-existing']
