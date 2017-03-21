@@ -2,17 +2,15 @@
 
 ### 1.0.45 (3/21/2017)
 
-  + [dev] Actually fix tmp dir path in daily
-  + [dev] Fix temp dir path in daily
-  + [client-app] Fix passing cursor to delta streams
-  + [cloud-api] Fix query for delta stream transactions
+- Fixes:
+  + Correctly report unhandled errors caught in window.
+  + Fix passing cursor to delta streams
 
 ### 1.0.44 (3/20/2017)
 
-  + [deploy-it] temp override for deploy branch rules
-  + [n1cloud][executiveintro][docker] updating docker
-  + [client-sync] Add error handling when creating syncback requests
-  + [dev] Fix path for tmp dir in daily script
+- Fixes:
+  + Add error handling when creating syncback requests
+  + Fix path for tmp dir in daily script
 
 ### 1.0.43 (3/17/2017)
 
