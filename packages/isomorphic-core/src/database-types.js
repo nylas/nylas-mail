@@ -3,7 +3,7 @@ const Sequelize = require('sequelize');
 module.exports = {
   JSONColumn(fieldName, options = {}) {
     return Object.assign(options, {
-      type: Sequelize.TEXT,
+      type: options.columnType || Sequelize.TEXT,
       get() {
         const val = this.getDataValue(fieldName);
         if (!val) {
