@@ -1,9 +1,11 @@
+import _ from 'underscore'
+import moment from 'moment-timezone'
 import {
+  AccountStore,
   NylasAPI,
   NylasAPIRequest,
 } from 'nylas-exports'
 import RefreshingJSONCache from './refreshing-json-cache'
-
 
 // Stores contact rankings
 class ContactRankingsCache extends RefreshingJSONCache {
@@ -11,9 +13,21 @@ class ContactRankingsCache extends RefreshingJSONCache {
     super({
       key: `ContactRankingsFor${accountId}`,
       version: 1,
-      refreshInterval: 60 * 60 * 1000 * 24, // one day
+      refreshInterval: moment.duration(60, 'seconds').asMilliseconds(),
+      maxRefreshInterval: moment.duration(24, 'hours').asMilliseconds(),
     })
     this._accountId = accountId
+  }
+
+  _nextRefreshInterval() {
+    // For the first 15 minutes, refresh roughly once every minute so that the
+    // experience of composing drafts during initial is less annoying.
+    const initialLimit = (60 * 1000) + 15;
+    if (this.refreshInterval < initialLimit) {
+      return this.refreshInterval + 1;
+    }
+    // After the first 15 minutes, refresh twice as long each time up to the max.
+    return Math.min(this.refreshInterval * 2, this.maxRefreshInterval);
   }
 
   fetchData = (callback) => {
@@ -37,6 +51,8 @@ class ContactRankingsCache extends RefreshingJSONCache {
         rankings[email.toLowerCase()] = rank
       }
       callback(rankings)
+
+      this.refreshInterval = this._nextRefreshInterval();
     })
     .catch((err) => {
       console.warn(`Request for Contact Rankings failed for
@@ -45,4 +61,44 @@ class ContactRankingsCache extends RefreshingJSONCache {
   }
 }
 
-export default ContactRankingsCache
+class ContactRankingsCacheManager {
+  constructor() {
+    this.accountCaches = {};
+    this.unsubscribers = [];
+    this.onAccountsChanged = _.debounce(this.onAccountsChanged, 100);
+  }
+
+  activate() {
+    this.onAccountsChanged();
+    this.unsubscribers = [AccountStore.listen(this.onAccountsChanged)];
+  }
+
+  deactivate() {
+    this.unsubscribers.forEach(unsub => unsub());
+  }
+
+  onAccountsChanged = () => {
+    const previousIDs = Object.keys(this.accountCaches);
+    const latestIDs = AccountStore.accounts().map(a => a.id);
+    if (_.isEqual(previousIDs, latestIDs)) {
+      return;
+    }
+
+    const newIDs = _.difference(latestIDs, previousIDs);
+    const removedIDs = _.difference(previousIDs, latestIDs);
+
+    console.log(`ContactRankingsCache: Updating contact rankings; added = ${latestIDs}, removed = ${removedIDs}`);
+
+    for (const newID of newIDs) {
+      this.accountCaches[newID] = new ContactRankingsCache(newID);
+      this.accountCaches[newID].start();
+    }
+
+    for (const removedID of removedIDs) {
+      this.accountCaches[removedID].end();
+      this.accountCaches[removedID] = null;
+    }
+  }
+}
+
+export default new ContactRankingsCacheManager();

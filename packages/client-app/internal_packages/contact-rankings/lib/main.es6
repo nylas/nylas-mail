@@ -1,9 +1,10 @@
+import ContactRankingsCache from './contact-rankings-cache'
+
 
 export function activate() {
-  // TODO This package only contains ContactRankingsCache, which should be
-  // restored somewhere when we restore the contact rankings feature
+  ContactRankingsCache.activate();
 }
 
 export function deactivate() {
-
+  ContactRankingsCache.deactivate();
 }
