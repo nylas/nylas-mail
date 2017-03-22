@@ -207,7 +207,7 @@ class FileDownloadStore extends NylasStore {
     return path.join(this._downloadDirectory, file.id, file.safeDisplayName());
   }
 
-  downloadDataForFile(fileId) {
+  getDownloadDataForFile(fileId) {
     const download = this._downloads[fileId]
     if (!download) { return null; }
     return download.data()
@@ -215,10 +215,10 @@ class FileDownloadStore extends NylasStore {
 
   // Returns a hash of download objects keyed by fileId
   //
-  downloadDataForFiles(fileIds = []) {
+  getDownloadDataForFiles(fileIds = []) {
     const downloadData = {};
     fileIds.forEach((fileId) => {
-      downloadData[fileId] = this.downloadDataForFile(fileId);
+      downloadData[fileId] = this.getDownloadDataForFile(fileId);
     });
     return downloadData;
   }

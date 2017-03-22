@@ -96,7 +96,7 @@ xdescribe "MessageItem", ->
       return '/fake/path-inline.png' if f.id is file_inline.id
       return '/fake/path-downloading.png' if f.id is file_inline_downloading.id
       return null
-    spyOn(FileDownloadStore, 'downloadDataForFiles').andCallFake (ids) ->
+    spyOn(FileDownloadStore, 'getDownloadDataForFiles').andCallFake (ids) ->
       return {'file_1_id': download, 'file_inline_downloading_id': download_inline}
 
     spyOn(MessageBodyProcessor, '_addToCache').andCallFake ->
