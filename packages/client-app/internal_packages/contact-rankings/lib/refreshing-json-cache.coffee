@@ -4,7 +4,7 @@ _ = require 'underscore'
 
 class RefreshingJSONCache
 
-  constructor: ({@key, @version, @refreshInterval}) ->
+  constructor: ({@key, @version, @refreshInterval, @maxRefreshInterval}) ->
     @_timeoutId = null
 
   start: ->
@@ -13,6 +13,8 @@ class RefreshingJSONCache
 
     # Look up existing data from db
     DatabaseStore.findJSONBlob(@key).then (json) =>
+      if json? and json.refreshInterval
+        @refreshInterval = json.refreshInterval
 
       # Refresh immediately if json is missing or version is outdated. Otherwise,
       # compute next refresh time and schedule
@@ -44,6 +46,7 @@ class RefreshingJSONCache
           version: @version
           time: Date.now()
           value: newValue
+          refreshInterval: @refreshInterval
         })
 
   fetchData: (callback) =>
