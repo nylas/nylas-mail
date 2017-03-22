@@ -32,7 +32,7 @@ describe('DraftFactory', function draftFactory() {
     // Out of the scope of these specs
     spyOn(InlineStyleTransformer, 'run').andCallFake((input) => Promise.resolve(input));
     spyOn(SanitizeTransformer, 'run').andCallFake((input) => Promise.resolve(input));
-    spyOn(FileDownloadStore, 'downloadDataForFile').andCallFake((fid) => {
+    spyOn(FileDownloadStore, 'getDownloadDataForFile').andCallFake((fid) => {
       return downloadData[fid]
     });
 

@@ -35,7 +35,7 @@ class MessageItem extends React.Component
     @state =
       # Holds the downloadData (if any) for all of our files. It's a hash
       # keyed by a fileId. The value is the downloadData.
-      downloads: FileDownloadStore.downloadDataForFiles(fileIds)
+      downloads: FileDownloadStore.getDownloadDataForFiles(fileIds)
       filePreviewPaths: FileDownloadStore.previewPathsForFiles(fileIds)
       detailedHeaders: false
       detailedHeadersTogglePos: {top: 18}
@@ -273,7 +273,7 @@ class MessageItem extends React.Component
   _onDownloadStoreChange: =>
     fileIds = @props.message.fileIds()
     @setState
-      downloads: FileDownloadStore.downloadDataForFiles(fileIds)
+      downloads: FileDownloadStore.getDownloadDataForFiles(fileIds)
       filePreviewPaths: FileDownloadStore.previewPathsForFiles(fileIds)
 
 module.exports = MessageItem

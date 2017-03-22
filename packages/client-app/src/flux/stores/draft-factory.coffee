@@ -152,7 +152,7 @@ class DraftFactory
           </div>"""
       ).then (draft) =>
         draft.uploads = message.files.map((f) =>
-          {fileId, filename, filesize, targetPath} = FileDownloadStore.downloadDataForFile(f.id)
+          {fileId, filename, filesize, targetPath} = FileDownloadStore.getDownloadDataForFile(f.id)
           # Return an object that can act as an Upload instance.
           return (
             messageClientId: draft.clientId,

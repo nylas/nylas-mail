@@ -38,7 +38,8 @@ xdescribe 'FileDownloadStoreSpecs', ->
         @download.run()
         expect(NylasAPIRequest.prototype.run).toHaveBeenCalled()
 
-      it "should create a request with a null encoding to prevent the request library from attempting to parse the (potentially very large) response", ->
+      it "should create a request with a null encoding to prevent the request library" +
+         " from attempting to parse the (potentially very large) response", ->
         expect(NylasAPIRequest.prototype.run.mostRecentCall.object.options.json).toBe(false)
         expect(NylasAPIRequest.prototype.run.mostRecentCall.object.options.encoding).toBe(null)
 
@@ -167,7 +168,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
         it "should register the download with the right attributes", ->
           FileDownloadStore._runDownload(@testfile)
           advanceClock(0)
-          expect(FileDownloadStore.downloadDataForFile(@testfile.id)).toEqual({
+          expect(FileDownloadStore.getDownloadDataForFile(@testfile.id)).toEqual({
             state : 'unstarted',fileId : 'id',
             percent : 0,
             filename : '123.png',
