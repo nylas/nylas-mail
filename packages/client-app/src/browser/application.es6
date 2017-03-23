@@ -1,6 +1,7 @@
 /* eslint global-require: "off" */
 
-import {BrowserWindow, Menu, app, ipcMain, dialog, powerMonitor} from 'electron';
+import {BrowserWindow, Menu, app, ipcMain, dialog, powerMonitor,
+        crashReporter} from 'electron';
 
 import fs from 'fs-plus';
 import url from 'url';
@@ -398,6 +399,15 @@ export default class Application extends EventEmitter {
     powerMonitor.on('resume', () => {
       this.windowManager.sendToAllWindows('app-resumed-from-sleep', {})
     })
+
+    app.on('ready', () => {
+      crashReporter.start({
+        productName: 'Nylas Mail',
+        companyName: 'Nylas, Inc.',
+        submitURL: 'https://nylas-breakpad-sentry.herokuapp.com/crashreport',
+        autoSubmit: true,
+      });
+    });
 
     app.on('window-all-closed', () => {
       this.windowManager.quitWinLinuxIfNoWindows()
