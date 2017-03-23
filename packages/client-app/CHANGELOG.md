@@ -1,5 +1,18 @@
 # Nylas Mail Changelog
 
+### 1.0.46 (3/22/2017)
+
+  + [client-app] Rename downloadDataForFile(s) -> getDownloadDataForFile(s)
+  + [client-app] Ensure files get transferred in forwarded messages
+  + Switch type of Metadata value column
+  + Fix build condition
+  + [client-app] Fix DraftFactory specs
+  + [client-sync] Refactor sync worker IMAPConnectionPool callbacks
+  + [client-app] :art: comment
+  + [client-app] Correctly sign out of NylasID
+  + [client-app] Don't report non-reportable errors in delta connection
+  + [send-later][cloud-workers] Fix S3 attachment upload
+
 ### 1.0.45 (3/21/2017)
 
 - Fixes:
