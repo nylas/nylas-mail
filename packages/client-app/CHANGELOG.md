@@ -2,16 +2,18 @@
 
 ### 1.0.46 (3/22/2017)
 
-  + [client-app] Rename downloadDataForFile(s) -> getDownloadDataForFile(s)
-  + [client-app] Ensure files get transferred in forwarded messages
+- Fixes:
+  + Ensure files get transferred in forwarded messages
+  + Correctly sign out of NylasID
+  + Don't report non-reportable errors in delta connection
+  + Fix S3 attachment upload for send later
+
+- Development:
+  + Rename downloadDataForFile(s) -> getDownloadDataForFile(s)
   + Switch type of Metadata value column
   + Fix build condition
-  + [client-app] Fix DraftFactory specs
-  + [client-sync] Refactor sync worker IMAPConnectionPool callbacks
-  + [client-app] :art: comment
-  + [client-app] Correctly sign out of NylasID
-  + [client-app] Don't report non-reportable errors in delta connection
-  + [send-later][cloud-workers] Fix S3 attachment upload
+  + Fix DraftFactory specs
+  + Refactor sync worker IMAPConnectionPool callbacks
 
 ### 1.0.45 (3/21/2017)
 
