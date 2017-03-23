@@ -105,10 +105,11 @@ export class Download {
 
       const onFailed = (err) => {
         Actions.recordPerfMetric({
-          action: 'file-download-failed',
+          action: 'file-download',
           accountId: this.accountId,
           actionTimeMs: Date.now() - before,
           maxValue: 10 * 60 * 1000,
+          succeeded: false,
         })
         this.request = null;
         stream.end();
@@ -127,10 +128,11 @@ export class Download {
 
       const onSuccess = () => {
         Actions.recordPerfMetric({
-          action: 'file-download-succeeded',
+          action: 'file-download',
           accountId: this.accountId,
           actionTimeMs: Date.now() - before,
           maxValue: 10 * 60 * 1000,
+          succeeded: true,
         })
         this.request = null;
         stream.end();
