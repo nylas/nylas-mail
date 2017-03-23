@@ -2,7 +2,8 @@ import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import path from 'path';
-import {Actions, ImageAttachmentItem} from 'nylas-component-kit'
+import {Actions} from 'nylas-exports'
+import {ImageAttachmentItem} from 'nylas-component-kit'
 
 export default class InlineImageUploadContainer extends Component {
   static displayName = 'InlineImageUploadContainer';
