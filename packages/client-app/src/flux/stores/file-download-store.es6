@@ -101,7 +101,15 @@ export class Download {
 
       let startRequest = null;
 
+      const before = Date.now();
+
       const onFailed = (err) => {
+        Actions.recordPerfMetric({
+          action: 'file-download-failed',
+          accountId: this.accountId,
+          actionTimeMs: Date.now() - before,
+          maxValue: 10 * 60 * 1000,
+        })
         this.request = null;
         stream.end();
         if (!this.retryWithBackoff || this.attempts >= this.maxAttempts) {
@@ -118,6 +126,12 @@ export class Download {
       };
 
       const onSuccess = () => {
+        Actions.recordPerfMetric({
+          action: 'file-download-succeeded',
+          accountId: this.accountId,
+          actionTimeMs: Date.now() - before,
+          maxValue: 10 * 60 * 1000,
+        })
         this.request = null;
         stream.end();
         this.state = State.Finished;

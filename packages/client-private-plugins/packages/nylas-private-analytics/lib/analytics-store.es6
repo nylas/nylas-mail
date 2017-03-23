@@ -41,6 +41,8 @@ const PERF_ACTIONS_TO_MIXPANEL_EVENTS = {
   'open-add-account-window': 'Perf: Add Account Window Opened',
   'app-boot': 'Perf: App Booted',
   'search-performed': 'Perf: Search Performed',
+  'file-download-succeeded': 'Perf: File Download Succeeded',
+  'file-download-failed': 'Perf: File Download Failed',
 }
 
 class AnalyticsStore extends NylasStore {
