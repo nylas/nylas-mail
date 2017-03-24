@@ -2,10 +2,12 @@
 
 ### 1.0.47 (3/23/2017)
 
-  + [client-app] Report hard crashes using Electron's built-in crash reporter
-  + [client-app] Consolidate file download metric reporting
-  + [client-sync] Don't handle IMAP timeouts in the connection pool
-  + [client-app] Record file download times
+- Fixes:
+  + Report hard crashes using Electron's built-in crash reporter
+
+- Development:
+  + Don't handle IMAP timeouts in the connection pool
+  + Record file download times
 
 ### 1.0.46 (3/22/2017)
 
