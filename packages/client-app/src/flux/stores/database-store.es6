@@ -5,6 +5,7 @@ import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
 import {remote, ipcRenderer} from 'electron';
 import LRU from "lru-cache";
+import {ExponentialBackoffScheduler} from 'isomorphic-core';
 
 import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
@@ -24,6 +25,9 @@ const DatabasePhase = {
 
 const DEBUG_TO_LOG = false;
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
+
+const BASE_RETRY_LOCK_DELAY = 100;
+const MAX_RETRY_LOCK_DELAY = 3 * 1000;
 
 let JSONBlob = null;
 
@@ -291,7 +295,7 @@ class DatabaseStore extends NylasStore {
   // If a query is made before the database has been opened, the query will be
   // held in a queue and run / resolved when the database is ready.
   _query(query, values = [], background = false, logQueryPlanDebugOutput = true) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!this._open) {
         this._waiting.push(() => this._query(query, values).then(resolve, reject));
         return;
@@ -325,7 +329,7 @@ class DatabaseStore extends NylasStore {
       const start = Date.now();
 
       if (!background) {
-        const results = this._executeLocally(query, values);
+        const results = await this._executeLocally(query, values);
         const msec = Date.now() - start;
         if ((msec > 100) || DEBUG_TO_LOG) {
           this._prettyConsoleLog(`${msec}msec: ${query}`);
@@ -350,16 +354,31 @@ class DatabaseStore extends NylasStore {
     });
   }
 
-  _executeLocally(query, values) {
+  async _executeLocally(query, values) {
     const fn = query.startsWith('SELECT') ? 'all' : 'run';
-    let tries = 0;
     let results = null;
+    const scheduler = new ExponentialBackoffScheduler({
+      baseDelay: BASE_RETRY_LOCK_DELAY,
+      maxDelay: MAX_RETRY_LOCK_DELAY,
+    })
+
+    const malformedStr = 'database disk image is malformed'
+    const schemaChangedStr = 'database schema has changed'
+
+    const retryableRegexp = new RegExp(
+      `(database is locked)||` +
+      `(${malformedStr})||` +
+      `(${schemaChangedStr})`,
+    'i')
 
     // Because other processes may be writing to the database and modifying the
     // schema (running ANALYZE, etc.), we may `prepare` a statement and then be
     // unable to execute it. Handle this case silently unless it's persistent.
     while (!results) {
       try {
+        // wait for the currentDelay before continuing
+        await new Promise((resolve) => setTimeout(resolve, scheduler.currentDelay()))
+
         let stmt = this._preparedStatementCache.get(query);
         if (!stmt) {
           stmt = this._db.prepare(query);
@@ -368,18 +387,22 @@ class DatabaseStore extends NylasStore {
         results = stmt[fn](values);
       } catch (err) {
         const errString = err.toString()
-        if (/database disk image is malformed/gi.test(errString)) {
-          // This is unrecoverable. We have to do a full database reset
-          NylasEnv.reportError(err)
-          Actions.resetEmailCache()
-        } else if (tries < 3 && /database schema has changed/gi.test(errString)) {
-          this._preparedStatementCache.del(query);
-          tries += 1;
-        } else {
+
+        if (scheduler.numTries() > 5 || !retryableRegexp.test(errString)) {
           // note: this function may throw a promise, which causes our Promise to reject
           throw new Error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
         }
+
+        // Some errors require action before the query can be retried
+        if ((new RegExp(malformedStr, 'i')).test(errString)) {
+          // This is unrecoverable. We have to do a full database reset
+          NylasEnv.reportError(err)
+          Actions.resetEmailCache()
+        } else if ((new RegExp(schemaChangedStr, 'i')).test(errString)) {
+          this._preparedStatementCache.del(query);
+        }
       }
+      scheduler.nextDelay()
     }
 
     return results;
