@@ -33,7 +33,6 @@ class SyncProcessManager {
   }
 
   _onIdentityChanged() {
-    this._identityId = IdentityStore.identity()
     const newIdentityId = IdentityStore.identityId()
     if (newIdentityId !== this._identityId) {
       // The IdentityStore can trigger any number of times, but we only want to
