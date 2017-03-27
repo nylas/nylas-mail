@@ -1,7 +1,7 @@
 .arc*
 .git*
-arclib
-**/node_modules
+arclib/
+**/node_modules/
 packages/client-*
 !packages/client-app/.babelrc
 
@@ -22,4 +22,4 @@ packages/client-*
 /packages/client-sync/spec-saved-state.json
 
 # Built cloud files
-n1_cloud_dist
+n1_cloud_dist/
