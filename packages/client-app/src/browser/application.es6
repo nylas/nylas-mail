@@ -465,6 +465,10 @@ export default class Application extends EventEmitter {
       }
     });
 
+    ipcMain.on('ensure-worker-window', () => {
+      this.windowManager.ensureWindow(WindowManager.WORK_WINDOW)
+    })
+
     ipcMain.on('inline-style-parse', (event, {html, key}) => {
       const juice = require('juice');
       let out = null;

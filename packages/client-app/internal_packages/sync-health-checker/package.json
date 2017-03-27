@@ -1,0 +1,11 @@
+{
+  "name": "sync-health-checker",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Periodically ping the sync process to ensure it's running",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "nylas": "*"
+  }
+}
