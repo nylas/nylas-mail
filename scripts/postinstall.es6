@@ -53,15 +53,17 @@ async function installPrivateResources() {
   fs.symlinkSync(clientSyncDir, destination, 'dir');
 }
 
-async function lernaBootstrap() {
+async function lernaBootstrap(installFor) {
   console.log("\n---> Installing packages");
   let lernaCmd = "lerna"
   if (process.platform === "win32") { lernaCmd = "lerna.cmd" }
   const args = ["bootstrap"]
-  if (process.env.ONLY_CLIENT === 'true') {
+  if (installFor === "clientOnly") {
     args.push("--ignore='cloud-*'")
+  } else if (installFor === "cloudOnly") {
+    args.push("--ignore='client-*'")
   }
-  await spawn(path.join('node_modules', '.bin', lernaCmd), ["bootstrap"])
+  await spawn(path.join('node_modules', '.bin', lernaCmd), args)
 }
 
 const npmEnvs = {
@@ -137,22 +139,25 @@ function linkIsomorphicCoreSpecs() {
 
 async function main() {
   try {
-    await installPrivateResources()
-    await lernaBootstrap();
+    let installFor = "all";
+    if (process.env.ONLY_CLIENT === "true") installFor = "clientOnly"
+    if (process.env.ONLY_CLIENT === "false") installFor = "cloudOnly"
 
-    // Given that `lerna bootstrap` does not install optional dependencies, we
-    // need to manually run `npm install` inside `client-app` so
-    // `node-mac-notifier` get's correctly installed and included in the build
-    // See https://github.com/lerna/lerna/issues/121
-    console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
-
-    if (process.env.ONLY_CLIENT === 'true') {
-      await npm('install', {cwd: 'packages/client-app'})
+    if (installFor === "all" || installFor === "clientOnly") {
+      await installPrivateResources()
     }
 
-    await electronRebuild();
+    await lernaBootstrap(installFor);
 
-    if (process.env.ONLY_CLIENT === 'true') {
+    if (installFor === "all" || installFor === "clientOnly") {
+      // Given that `lerna bootstrap` does not install optional
+      // dependencies, we need to manually run `npm install` inside
+      // `client-app` so `node-mac-notifier` get's correctly installed and
+      // included in the build See
+      // https://github.com/lerna/lerna/issues/121
+      console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
+      await npm('install', {cwd: 'packages/client-app'})
+      await electronRebuild();
       linkJasmineConfigs();
       linkIsomorphicCoreSpecs();
     }
