@@ -155,8 +155,10 @@ async function main() {
       // `client-app` so `node-mac-notifier` get's correctly installed and
       // included in the build See
       // https://github.com/lerna/lerna/issues/121
-      console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
-      await npm('install', {cwd: 'packages/client-app'})
+      if (process.platform === "darwin") {
+        console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
+        await npm('install', {cwd: 'packages/client-app'})        
+      }
       await electronRebuild();
       linkJasmineConfigs();
       linkIsomorphicCoreSpecs();
