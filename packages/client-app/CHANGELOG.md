@@ -1,5 +1,12 @@
 # Nylas Mail Changelog
 
+### 1.0.48 (3/27/2017)
+
+  + [client-app] Reindex threads when they're updated
+  + [client-app] Fix in identity store
+  + [client-app] Don't try to restart sync on every IdentityStore change
+  + [client-app] Correctly remove inline images with x button
+
 ### 1.0.47 (3/23/2017)
 
 - Fixes:
