@@ -1,6 +1,7 @@
 const {Provider} = require('isomorphic-core');
 const SyncTask = require('./sync-task')
 const {localizedCategoryNames} = require('../sync-utils')
+const {reportSyncActivity} = require('../../shared/sync-activity')
 
 
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
@@ -131,18 +132,24 @@ class FetchFolderListIMAP extends SyncTask {
   // This operation is interruptible, see `SyncTask` for info on why we use
   // `yield`
   async * runTask(db, imap) {
+    const accountId = this._account.id
+    reportSyncActivity(accountId, `Fetching folder list`)
     this._logger.log(`🔜  Fetching folder list`)
     this._db = db;
 
     const boxes = yield imap.getBoxes();
     const {Folder, Label} = this._db;
 
+    reportSyncActivity(accountId, `Finding categories`)
     const folders = yield Folder.findAll()
     const labels = yield Label.findAll()
     const all = [].concat(folders, labels);
+
+    reportSyncActivity(accountId, `Updating categories`)
     await this._updateCategoriesWithBoxes(all, boxes);
 
     this._logger.log(`🔚  Fetching folder list done`)
+    reportSyncActivity(accountId, `Done fetching folder list`)
   }
 }
 
