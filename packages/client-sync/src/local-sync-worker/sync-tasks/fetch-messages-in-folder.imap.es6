@@ -10,7 +10,7 @@ const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
 const MIN_MESSAGE_BATCH_SIZE = 30;
 const MAX_MESSAGE_BATCH_SIZE = 300;
 const BATCH_SIZE_PER_SELECT_SEC = 60;
-const GMAIL_INBOX_PRIORITIZE_COUNT = 1000;
+const GMAIL_INITIAL_PRIORITIZE_COUNT = 1000;
 
 
 class FetchMessagesInFolderIMAP extends SyncTask {
@@ -381,29 +381,31 @@ class FetchMessagesInFolderIMAP extends SyncTask {
   async * _fetchFirstUnsyncedMessages(batchSize) {
     const {provider} = this._account;
     const folderRole = this._folder.role;
-    const gmailInboxUIDsRemaining = this._folder.syncState.gmailInboxUIDsRemaining;
-    const gmailInboxUIDsUnset = !gmailInboxUIDsRemaining;
-    const hasGmailInboxUIDsRemaining = gmailInboxUIDsRemaining && gmailInboxUIDsRemaining.length
+    // TODO: In a few releases, simplify this code to remove the
+    // gmailInboxUIDsRemaining after most people have been migrated.
+    const gmailInitialUIDsRemaining = this._folder.syncState.gmailInitialUIDsRemaining || this._folder.syncState.gmailInboxUIDsRemaining;
+    const gmailInitialUIDsUnset = !gmailInitialUIDsRemaining;
+    const hasGmailInboxUIDsRemaining = gmailInitialUIDsRemaining && gmailInitialUIDsRemaining.length
     let totalProcessedMessages = 0;
-    if (provider === "gmail" && folderRole === "all" && (gmailInboxUIDsUnset || hasGmailInboxUIDsRemaining)) {
+    if (provider === "gmail" && folderRole === "all" && (gmailInitialUIDsUnset || hasGmailInboxUIDsRemaining)) {
       // Track the first few UIDs in the inbox label & download these first.
       // If the user restarts the app before all these UIDs are downloaded & we
       // also pass the UID in the All Mail folder range downloads we will
       // redownload them, but that's OK.
-      let inboxUids;
-      if (!gmailInboxUIDsRemaining) {
+      let initialUids;
+      if (!gmailInitialUIDsRemaining) {
         // this._logger.log(`FetchMessagesInFolderIMAP: Fetching Gmail Inbox UIDs for prioritization`);
-        inboxUids = await this._box.search([['X-GM-RAW', 'in:inbox']]);
+        initialUids = await this._box.search([['X-GM-RAW', 'in:inbox OR in:sent']]);
         // Gmail always returns UIDs in order from smallest to largest, so this
         // gets us the most recent messages first.
-        inboxUids = inboxUids.slice(Math.max(inboxUids.length - GMAIL_INBOX_PRIORITIZE_COUNT, 0));
+        initialUids = initialUids.slice(Math.max(initialUids.length - GMAIL_INITIAL_PRIORITIZE_COUNT, 0));
         // Immediately persist to avoid issuing search again in case of interrupt
         await this._folder.updateSyncState({
-          gmailInboxUIDsRemaining: inboxUids,
+          gmailInitialUIDsRemaining: initialUids,
           fetchedmax: this._box.uidnext,
         });
       } else {
-        inboxUids = this._folder.syncState.gmailInboxUIDsRemaining;
+        initialUids = this._folder.syncState.gmailInitialUIDsRemaining;
       }
       // continue fetching new mail first in the case that inbox uid download
       // takes multiple batches
@@ -412,12 +414,12 @@ class FetchMessagesInFolderIMAP extends SyncTask {
         this._logger.log(`🔃 📂 ${this._folder.name} new messages present; fetching ${fetchedmax}:${this._box.uidnext}`);
         totalProcessedMessages += yield this._fetchAndProcessMessages({min: fetchedmax, max: this._box.uidnext, throttle: false});
       }
-      const batchSplitIndex = Math.max(inboxUids.length - batchSize, 0);
-      const uidsFetchNow = inboxUids.slice(batchSplitIndex);
-      const uidsFetchLater = inboxUids.slice(0, batchSplitIndex);
+      const batchSplitIndex = Math.max(initialUids.length - batchSize, 0);
+      const uidsFetchNow = initialUids.slice(batchSplitIndex);
+      const uidsFetchLater = initialUids.slice(0, batchSplitIndex);
       // this._logger.log(`FetchMessagesInFolderIMAP: Remaining Gmail Inbox UIDs to download: ${uidsFetchLater.length}`);
       totalProcessedMessages += yield this._fetchAndProcessMessages({uids: uidsFetchNow, throttle: false});
-      await this._folder.updateSyncState({ gmailInboxUIDsRemaining: uidsFetchLater });
+      await this._folder.updateSyncState({ gmailInitialUIDsRemaining: uidsFetchLater });
     } else {
       const lowerbound = Math.max(1, this._box.uidnext - batchSize);
       totalProcessedMessages += yield this._fetchAndProcessMessages({min: lowerbound, max: this._box.uidnext, throttle: false});
