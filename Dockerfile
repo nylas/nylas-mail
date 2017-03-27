@@ -5,7 +5,7 @@
 # Use the latest Node 6 base docker image
 # https://github.com/nodejs/docker-node
 FROM node:6
-ENV ONLY_CLIENT=false
+ENV INSTALL_TARGET=cloud
 
 # Copy everything (excluding what's in .dockerignore) into an empty dir
 COPY . /home

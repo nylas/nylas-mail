@@ -2,6 +2,10 @@ import fs from 'fs-plus'
 import path from 'path'
 import childProcess from 'child_process'
 
+const TARGET_ALL = 'all'
+const TARGET_CLOUD = 'cloud'
+const TARGET_CLIENT = 'client'
+
 async function spawn(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
     const options = Object.assign({stdio: 'inherit'}, opts);
@@ -53,15 +57,19 @@ async function installPrivateResources() {
   fs.symlinkSync(clientSyncDir, destination, 'dir');
 }
 
-async function lernaBootstrap(installFor) {
+async function lernaBootstrap(installTarget) {
   console.log("\n---> Installing packages");
-  let lernaCmd = "lerna"
-  if (process.platform === "win32") { lernaCmd = "lerna.cmd" }
+  const lernaCmd = process.platform === 'win32' ? 'lerna.cmd' : 'lerna';
   const args = ["bootstrap"]
-  if (installFor === "clientOnly") {
-    args.push("--ignore='cloud-*'")
-  } else if (installFor === "cloudOnly") {
-    args.push("--ignore='client-*'")
+  switch (installTarget) {
+    case TARGET_CLIENT:
+      args.push(`--ignore='cloud-*'`)
+      break
+    case TARGET_CLOUD:
+      args.push(`--ignore='client-*'`)
+      break
+    default:
+      break
   }
   await spawn(path.join('node_modules', '.bin', lernaCmd), args)
 }
@@ -83,8 +91,7 @@ const npmEnvs = {
 
 async function npm(cmd, options) {
   const {cwd, env} = Object.assign({cwd: '.', env: 'system'}, options);
-  let npmCmd = "npm"
-  if (process.platform === "win32") { npmCmd = "npm.cmd" }
+  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
   await spawn(npmCmd, [cmd], {
     cwd: path.resolve(__dirname, '..', cwd),
     env: npmEnvs[env],
@@ -137,27 +144,36 @@ function linkIsomorphicCoreSpecs() {
   fs.symlinkSync(from, to, 'dir')
 }
 
+function getInstallTarget() {
+  const {INSTALL_TARGET} = process.env
+  if (!INSTALL_TARGET) {
+    return TARGET_ALL
+  }
+  if (![TARGET_ALL, TARGET_CLIENT, TARGET_CLOUD].includes(INSTALL_TARGET)) {
+    throw new Error(`postinstall: INSTALL_TARGET must be one of client, cloud, or all. It was set to ${INSTALL_TARGET}`)
+  }
+  return INSTALL_TARGET
+}
+
 async function main() {
   try {
-    let installFor = "all";
-    if (process.env.ONLY_CLIENT === "true") installFor = "clientOnly"
-    if (process.env.ONLY_CLIENT === "false") installFor = "cloudOnly"
+    const installTarget = getInstallTarget()
+    console.log(`\n---> Installing for target ${installTarget}`);
 
-    if (installFor === "all" || installFor === "clientOnly") {
+    if ([TARGET_ALL, TARGET_CLIENT].includes(installTarget)) {
       await installPrivateResources()
     }
 
-    await lernaBootstrap(installFor);
+    await lernaBootstrap(installTarget);
 
-    if (installFor === "all" || installFor === "clientOnly") {
-      // Given that `lerna bootstrap` does not install optional
-      // dependencies, we need to manually run `npm install` inside
-      // `client-app` so `node-mac-notifier` get's correctly installed and
-      // included in the build See
-      // https://github.com/lerna/lerna/issues/121
+    if ([TARGET_ALL, TARGET_CLIENT].includes(installTarget)) {
       if (process.platform === "darwin") {
+        // Given that `lerna bootstrap` does not install optional dependencies, we
+        // need to manually run `npm install` inside `client-app` so
+        // `node-mac-notifier` get's correctly installed and included in the build
+        // See https://github.com/lerna/lerna/issues/121
         console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
-        await npm('install', {cwd: 'packages/client-app'})        
+        await npm('install', {cwd: 'packages/client-app'})
       }
       await electronRebuild();
       linkJasmineConfigs();

@@ -206,7 +206,7 @@ async function main(args) {
     try {
       await spawn('git', ['clean', '-xdf'])
       await spawn('cp', ['-r', '../n1-keys-and-certificates', 'packages/client-app/build/resources/certs'])
-      await spawn('npm', ['install'], {env: {ONLY_CLIENT: true}})
+      await spawn('npm', ['install'], {env: {INSTALL_TARGET: 'client'}})
       await spawn('npm', ['run', 'build-client'], {env: {SIGN_BUILD: true}})
       await spawn('codesign', ['--verify', '--deep', '--verbose=2', '"packages/client-app/dist/Nylas Mail-darwin-x64/Nylas Mail.app"'])
       await spawn('npm', ['run', 'upload-client'])
