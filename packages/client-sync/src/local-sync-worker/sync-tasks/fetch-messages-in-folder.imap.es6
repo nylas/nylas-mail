@@ -687,6 +687,9 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * `Interruptible`
    */
   async * runTask(db, imap, syncWorker) {
+    const accountId = this._db.accountId
+    const folderName = this._folder.name
+    reportSyncActivity(accountId, `Starting folder: ${folderName}`)
     this._logger.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
@@ -710,12 +713,17 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       })
     }
 
+    reportSyncActivity(accountId, `Checking if folder needs sync: ${folderName}`)
+
     if (!this._shouldSyncFolder(latestBoxStatus)) {
       // Don't even attempt to issue an IMAP SELECT if there are absolutely no
       // updates
       this._logger.log(`🔚 📂 ${this._folder.name} has no updates at all - skipping sync`)
+      reportSyncActivity(accountId, `Done with folder: ${folderName}`)
       return;
     }
+
+    reportSyncActivity(accountId, `Checking what to fetch for folder: ${folderName}`)
 
     this._box = yield this._openMailboxAndEnsureValidity();
     const shouldFetchMessages = this._shouldFetchMessages(this._box)
@@ -723,18 +731,19 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
     // Do as little work as possible
     if (shouldFetchMessages) {
+      reportSyncActivity(accountId, `Fetching messages: ${folderName}`)
       yield this._fetchNextMessageBatch()
     } else {
-      const activity = `🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`
-      this._logger.log(activity)
-      reportSyncActivity(this._db.accountId, activity)
+      this._logger.log(`🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`)
     }
     if (shouldFetchAttributes) {
+      reportSyncActivity(accountId, `Fetching attributes: ${folderName}`)
       yield this._fetchMessageAttributeChanges();
     } else {
       this._logger.log(`🔚 📂 ${this._folder.name} has no attribute changes - skipping fetch attributes`)
     }
     this._logger.log(`🔚 📂 ${this._folder.name} done`)
+    reportSyncActivity(accountId, `Done with folder: ${folderName}`)
   }
 }
 
