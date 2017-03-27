@@ -4,7 +4,14 @@ const {Actions, OnlineStatusStore, IdentityStore} = require('nylas-exports')
 const SyncWorker = require('./sync-worker');
 const LocalSyncDeltaEmitter = require('./local-sync-delta-emitter').default
 const LocalDatabaseConnector = require('../shared/local-database-connector')
+const SyncActivity = require('../shared/sync-activity').default
 
+const MAX_WORKER_SILENCE_MS = Math.max(
+  SyncWorker.AC_SYNC_LOOP_INTERVAL_MS,
+  SyncWorker.BATTERY_SYNC_LOOP_INTERVAL_MS,
+  SyncWorker.MAX_SYNC_BACKOFF_MS,
+)
+const CHECK_HEALTH_TIME_INTERVAL = 1 * 60 * 1000
 
 class SyncProcessManager {
   constructor() {
@@ -24,6 +31,8 @@ class SyncProcessManager {
     ipcRenderer.on('app-resumed-from-sleep', () => {
       this._wakeAllWorkers({reason: 'Computer resumed from sleep', interrupt: true})
     })
+
+    this._checkHealthInterval = null;
   }
 
   _onOnlineStatusChanged() {
@@ -65,7 +74,7 @@ class SyncProcessManager {
         )
         .timeout(500, 'Timed out while trying to stop sync')
       } catch (err) {
-        console.warn('SyncProcessManager._resetEmailCache: Error while stopping sync', err)
+        global.Logger.warn('SyncProcessManager._resetEmailCache: Error while stopping sync', err)
       }
       const accountIds = Object.keys(this._workersByAccountId)
       for (const accountId of accountIds) {
@@ -82,6 +91,35 @@ class SyncProcessManager {
     }
   }
 
+  _checkHealthByAccountId = async (accountId) => {
+    const {time, activity} = SyncActivity.getLastSyncActivityForAccount(accountId);
+    if (time < Date.now() - this.MAX_WORKER_SILENCE_MS) {
+      const duration = Date.now() - time;
+      NylasEnv.reportError(new Error("SyncProcessManager: Detected stuck sync process"), {
+        rateLimit: {
+          ratePerHour: 30,
+          key: `SyncProcessManager:StuckProcess`,
+        },
+      })
+      Actions.recordUserEvent('Stuck Sync Process', {
+        accountId: accountId,
+        lastActivityTime: time,
+        lastActivity: activity,
+        duration,
+      })
+      global.Logger.log(`SyncProcessManager: Detected stuck worker for account ${accountId}`, activity, time)
+
+      await this.removeWorkerForAccountId(accountId)
+      const {Account} = await LocalDatabaseConnector.forShared();
+      const account = await Account.findById(accountId)
+      await this.addWorkerForAccount(account)
+    }
+  }
+
+  _checkHealth = async () => {
+    return Promise.all(Object.keys(this._workersByAccountId).map(this._checkHealthByAccountId))
+  }
+
   /**
    * Useful for debugging.
    */
@@ -94,8 +132,10 @@ class SyncProcessManager {
 
     const {Account} = await LocalDatabaseConnector.forShared();
     const accounts = await Account.findAll();
-    for (const account of accounts) {
-      this.addWorkerForAccount(account);
+    await Promise.all(accounts.map(this.addWorkerForAccount));
+
+    if (!this._checkHealthInterval) {
+      this._checkHealthInterval = setInterval(this._checkHealth, this.CHECK_HEALTH_TIME_INTERVAL)
     }
   }
 
@@ -114,7 +154,7 @@ class SyncProcessManager {
     }
   }
 
-  async addWorkerForAccount(account) {
+  addWorkerForAccount = async (account) => {
     await LocalDatabaseConnector.ensureAccountDatabase(account.id);
     const logger = global.Logger.forAccount(account)
 
@@ -137,7 +177,13 @@ class SyncProcessManager {
 
   async removeWorkerForAccountId(accountId) {
     if (this._workersByAccountId[accountId]) {
-      await this._workersByAccountId[accountId].cleanup();
+      try {
+        await this._workersByAccountId[accountId].cleanup().timeout(500)
+      } catch (err) {
+        err.message = `Error while cleaning up sync worker: ${err.message}`
+        NylasEnv.reportError(err)
+        // Continue with local cleanup
+      }
       this._workersByAccountId[accountId] = null;
     }
 
@@ -149,4 +195,7 @@ class SyncProcessManager {
 }
 
 window.$n.SyncProcessManager = new SyncProcessManager();
+window.$n.SyncProcessManager.MAX_WORKER_SILENCE_MS = MAX_WORKER_SILENCE_MS
+window.$n.SyncProcessManager.CHECK_HEALTH_TIME_INTERVAL = CHECK_HEALTH_TIME_INTERVAL
+
 module.exports = window.$n.SyncProcessManager
