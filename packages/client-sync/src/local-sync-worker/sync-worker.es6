@@ -43,6 +43,7 @@ class SyncWorker {
     this._lastSyncTime = null
     this._interrupted = false
     this._syncInProgress = false
+    this._throttlingEnabled = false
     this._stopped = false
     this._destroyed = false
     this._shouldIgnoreInboxFlagUpdates = false
@@ -82,6 +83,7 @@ class SyncWorker {
           })
         }
         if (seen === 500) {
+          this._throttlingEnabled = true
           MetricsReporter.reportEvent({
             nylasId,
             type: 'imap',
@@ -97,6 +99,10 @@ class SyncWorker {
         seen += 1;
       });
     }
+  }
+
+  throttlingEnabled() {
+    return this._throttlingEnabled;
   }
 
   _getInboxFolder() {

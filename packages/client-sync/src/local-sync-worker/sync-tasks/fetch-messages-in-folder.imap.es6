@@ -471,7 +471,11 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     if (savedSyncState.fetchedmin > savedSyncState.minUID) {
       const lowerbound = Math.max(savedSyncState.minUID, savedSyncState.fetchedmin - batchSize);
       // this._logger.log(`FetchMessagesInFolderIMAP: fetching ${lowerbound}:${savedSyncState.fetchedmin}`);
-      totalProcessedMessages += yield this._fetchAndProcessMessages({min: lowerbound, max: savedSyncState.fetchedmin});
+      totalProcessedMessages += yield this._fetchAndProcessMessages({
+        min: lowerbound,
+        max: savedSyncState.fetchedmin,
+        throttle: this._syncWorker.throttlingEnabled(),
+      });
     } else {
       // this._logger.log("FetchMessagesInFolderIMAP: fetchedmin == minUID, nothing older to fetch.")
     }
