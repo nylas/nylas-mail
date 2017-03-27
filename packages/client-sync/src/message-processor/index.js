@@ -9,6 +9,7 @@ const extractContacts = require('./extract-contacts');
 const {MessageFactory} = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector');
 const {BatteryStatusManager} = require('nylas-exports');
+const {reportSyncActivity} = require('../shared/sync-activity');
 
 const MAX_QUEUE_LENGTH = 500
 const MAX_CPU_USE_ON_AC = 1.0;
@@ -153,8 +154,9 @@ class MessageProcessor {
         await folder.updateSyncState({oldestProcessedDate: justProcessedDate})
       }
 
-
-      logger.log(`🔃 ✉️ (${folder.name}) "${messageValues.subject}" - ${messageValues.date}`)
+      const activity = `🔃 ✉️ (${folder.name}) "${messageValues.subject}" - ${messageValues.date}`
+      logger.log(activity)
+      reportSyncActivity(accountId, activity)
       return processedMessage
     } catch (err) {
       await this._onError({imapMessage, desiredParts, folder, err, logger});

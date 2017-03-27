@@ -3,6 +3,7 @@ const {IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
 const SyncTask = require('./sync-task')
 const MessageProcessor = require('../../message-processor')
+const {reportSyncActivity} = require('../../shared/sync-activity').default
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
@@ -724,7 +725,9 @@ class FetchMessagesInFolderIMAP extends SyncTask {
     if (shouldFetchMessages) {
       yield this._fetchNextMessageBatch()
     } else {
-      this._logger.log(`🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`)
+      const activity = `🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`
+      this._logger.log(activity)
+      reportSyncActivity(this._db.accountId, activity)
     }
     if (shouldFetchAttributes) {
       yield this._fetchMessageAttributeChanges();
