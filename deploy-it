@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# deploy-it is the script we use to deploy changes to our N1 backend systems.
+# deploy-it is the script we use to deploy changes to our Nylas Mail backend systems.
 # it tags releases automatically and helps prevent obvious mistakes like
 # deploying a non-production branch to our prod infra.
 import sys
 import subprocess
 
 if len(sys.argv) != 2 or sys.argv[1] in ('-h', '--help'):
-    print "deploy-it is the script we use to deploy changes to our N1 backend systems."
-    print "usage: deploy-it environment"
+    print "deploy-it is the script we use to deploy changes to our Nylas Mail backend systems."
+    print
+    print "usage: ./deploy-it environment"
+    print
+    print "The currently checked out commit will be deployed!"
     sys.exit(-1)
 
 environment = sys.argv[1]
