@@ -71,7 +71,7 @@ const validate = (request, username, password, callback) => {
 const attach = (directory) => {
   const routesDir = path.join(__dirname, directory)
   fs.readdirSync(routesDir).forEach((filename) => {
-    if (filename.endsWith('.js')) {
+    if (filename.endsWith('.js') || filename.endsWith('.es6')) {
       const routeFactory = require(path.join(routesDir, filename));
       routeFactory(server);
     }
