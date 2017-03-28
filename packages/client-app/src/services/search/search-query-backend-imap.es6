@@ -1,9 +1,84 @@
+import _ from 'underscore'
 import {
   AndQueryExpression,
   SearchQueryExpressionVisitor,
 } from './search-query-ast';
 
+const TOP = 'top';
+
+class IMAPSearchQueryFolderFinderVisitor extends SearchQueryExpressionVisitor {
+  visit(root) {
+    const result = this.visitAndGetResult(root);
+    if (result === TOP) {
+      return 'all';
+    }
+    return result;
+  }
+
+  visitAnd(node) {
+    const lhs = this.visitAndGetResult(node.e1);
+    const rhs = this.visitAndGetResult(node.e2);
+    if (lhs === TOP) {
+      this._result = rhs;
+      return;
+    }
+    if (rhs === TOP) {
+      this._result = lhs;
+      return;
+    }
+    this._result = _.intersection(lhs, rhs);
+  }
+
+  visitOr(node) {
+    const lhs = this.visitAndGetResult(node.e1);
+    const rhs = this.visitAndGetResult(node.e2);
+    if (lhs === TOP || rhs === TOP) {
+      this._result = TOP;
+      return;
+    }
+    this._result = _.union(lhs, rhs);
+  }
+
+  visitIn(node) {
+    const folderName = this.visitAndGetResult(node.text);
+    this._result = [folderName];
+  }
+
+  visitFrom(/* node */) {
+    this._result = TOP;
+  }
+
+  visitTo(/* node */) {
+    this._result = TOP;
+  }
+
+  visitSubject(/* node */) {
+    this._result = TOP;
+  }
+
+  visitGeneric(/* node */) {
+    this._result = TOP;
+  }
+
+  visitText(node) {
+    this._result = node.token.s;
+  }
+
+  visitUnread(/* node */) {
+    this._result = TOP;
+  }
+
+  visitStarred(/* node */) {
+    this._result = TOP;
+  }
+}
+
 class IMAPSearchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
+  constructor(folder) {
+    super();
+    this._folder = folder;
+  }
+
   visit(root) {
     const result = this.visitAndGetResult(root);
     if (root instanceof AndQueryExpression) {
@@ -67,22 +142,27 @@ class IMAPSearchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
     this._result = node.status ? 'FLAGGED' : 'UNFLAGGED';
   }
 
-  visitIn(/* node */) {
-    // TODO: Somehow make the search switch folders. To make this work correctly
-    // with nested expressions we would probably end up generating a mini
-    // program that would instruct the connection to switch to a folder and issue
-    // the proper search command for that subquery. At the end we would combine
-    // the results according to the query.
-    this._result = 'ALL';
+  visitIn(node) {
+    const text = this.visitAndGetResult(node.text);
+    this._result = text === this._folder.name ? 'ALL' : '!ALL';
   }
 }
 
+
 export default class IMAPSearchQueryBackend {
-  static compile(ast) {
-    return (new IMAPSearchQueryBackend()).compile(ast);
+  static ALL_FOLDERS() {
+    return 'all';
   }
 
-  compile(ast) {
-    return (new IMAPSearchQueryExpressionVisitor()).visit(ast);
+  static compile(ast, folder) {
+    return (new IMAPSearchQueryBackend()).compile(ast, folder);
+  }
+
+  static folderNamesForQuery(ast) {
+    return (new IMAPSearchQueryFolderFinderVisitor()).visit(ast);
+  }
+
+  compile(ast, folder) {
+    return (new IMAPSearchQueryExpressionVisitor(folder)).visit(ast);
   }
 }
