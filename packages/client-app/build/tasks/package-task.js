@@ -239,7 +239,7 @@ module.exports = (grunt) => {
       'osx-sign': !!process.env.SIGN_BUILD,
       'win32metadata': {
         CompanyName: 'Nylas, Inc.',
-        FileDescription: 'The best email app for people and teams at work',
+        FileDescription: 'Nylas Mail',
         LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Nylas, Inc. All rights reserved.`,
         ProductName: 'Nylas Mail',
       },
