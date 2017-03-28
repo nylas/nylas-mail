@@ -1,6 +1,6 @@
 import NylasWindow from './nylas-window'
 
-const DEBUG_SHOW_HOT_WINDOW = false;
+const DEBUG_SHOW_HOT_WINDOW = process.env.SHOW_HOT_WINDOW || false;
 let winNum = 0;
 
 /**
