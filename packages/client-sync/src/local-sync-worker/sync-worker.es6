@@ -501,7 +501,7 @@ class SyncWorker {
     // Step 4: Listen to new mail. We need to do this after we've fetched the
     // folder list so we can correctly find the inbox folder on the very first
     // sync loop
-    SyncActivity.reportSyncActivity(accountId, "Lisening for new mail")
+    SyncActivity.reportSyncActivity(accountId, "Listening for new mail")
     await this._listenForNewMail()
     yield  // Yield to allow interruption
 
