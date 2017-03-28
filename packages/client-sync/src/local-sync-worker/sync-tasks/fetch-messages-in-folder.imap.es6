@@ -686,9 +686,6 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * `Interruptible`
    */
   async * runTask(db, imap, syncWorker) {
-    const accountId = this._db.accountId
-    const folderName = this._folder.name
-    SyncActivity.reportSyncActivity(accountId, `Starting folder: ${folderName}`)
     this._logger.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
@@ -696,6 +693,10 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       throw new Error(`SyncWorker not passed to runTask`);
     }
     this._syncWorker = syncWorker;
+
+    const accountId = this._db.accountId
+    const folderName = this._folder.name
+    SyncActivity.reportSyncActivity(accountId, `Starting folder: ${folderName}`)
 
     const latestBoxStatus = yield this._imap.getLatestBoxStatus(this._folder.name)
 
