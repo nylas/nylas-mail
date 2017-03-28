@@ -66,10 +66,26 @@ class ImapSearchClient {
     this._cancelled = false;
   }
 
-  async _getFoldersForSearch(db) {
+  async _getFoldersForSearch(db, query) {
+    const {Folder} = db;
+
+    const folderNames = IMAPSearchQueryBackend.folderNamesForQuery(query);
+    if (folderNames !== IMAPSearchQueryBackend.ALL_FOLDERS()) {
+      if (folderNames.length === 0) {
+        return [];
+      }
+
+      const result = await Folder.findAll({
+        where: {
+          accountId: this.account.id,
+          name: folderNames,
+        },
+      });
+      return result;
+    }
+
     // We want to start the search with the 'inbox', 'sent' and 'archive'
     // folders, if they exist.
-    const {Folder} = db;
     const folders = await Folder.findAll({
       where: {
         accountId: this.account.id,
@@ -87,14 +103,13 @@ class ImapSearchClient {
     return folders.concat(accountFolders);
   }
 
-  _getCriteriaForQuery(query) {
-    const parsedQuery = SearchQueryParser.parse(query);
-    return IMAPSearchQueryBackend.compile(parsedQuery);
+  _getCriteriaForQuery(query, folder) {
+    return IMAPSearchQueryBackend.compile(query, folder);
   }
 
   async _search(db, query) {
-    const folders = await this._getFoldersForSearch(db);
-    const criteria = this._getCriteriaForQuery(query);
+    const parsedQuery = SearchQueryParser.parse(query);
+    const folders = await this._getFoldersForSearch(db, parsedQuery);
     let numTimeoutErrors = 0;
     return Rx.Observable.create(async (observer) => {
       const onConnected = async ([conn]) => {
@@ -102,6 +117,7 @@ class ImapSearchClient {
         // searched folders if there is an error later down the line.
         while (folders.length > 0) {
           const folder = folders[0];
+          const criteria = this._getCriteriaForQuery(parsedQuery, folder);
           const uids = await this._searchFolder(conn, folder, criteria);
           folders.shift();
           if (uids.length > 0) {
@@ -242,12 +258,12 @@ class ImapSearchClient {
 }
 
 class GmailSearchClient extends ImapSearchClient {
-  async _getFoldersForSearch(db) {
+  async _getFoldersForSearch(db/* , query*/) {
     const allMail = await db.Folder.findOne({where: {role: 'all'}});
     return [allMail];
   }
 
-  _getCriteriaForQuery(query) {
+  _getCriteriaForQuery(query/* , folder*/) {
     return [['X-GM-RAW', query]];
   }
 }
