@@ -19,7 +19,7 @@ import {
 import Interruptible from '../shared/interruptible'
 import SyncTaskFactory from './sync-task-factory';
 import SyncbackTaskRunner from './syncback-task-runner'
-import {reportSyncActivity} from '../shared/sync-activity'
+import SyncActivity from '../shared/sync-activity'
 
 
 const {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR} = Account
@@ -451,7 +451,7 @@ class SyncWorker {
   // This function is interruptible. See Interruptible
   async * _performSync() {
     const accountId = this._account.id
-    reportSyncActivity(accountId, "Starting worker sync")
+    SyncActivity.reportSyncActivity(accountId, "Starting worker sync")
     yield this._account.update({syncError: null});
 
     const syncbackTaskRunner = new SyncbackTaskRunner({
@@ -463,7 +463,7 @@ class SyncWorker {
       syncWorker: this,
     })
 
-    reportSyncActivity(accountId, "Updating lingering tasks in progress")
+    SyncActivity.reportSyncActivity(accountId, "Updating lingering tasks in progress")
     // Step 1: Mark all "INPROGRESS-NOTRETRYABLE" tasks as failed, and all
     // "INPROGRESS-RETRYABLE tasks as new
     await syncbackTaskRunner.updateLingeringTasksInProgress()
@@ -476,11 +476,11 @@ class SyncWorker {
     // (e.g. marking as unread or starred). We need to listen to that event for
     // when updates are performed from another mail client, but ignore
     // them when they are caused from within N1 to prevent unecessary interrupts
-    reportSyncActivity(accountId, "Getting new syncback tasks")
+    SyncActivity.reportSyncActivity(accountId, "Getting new syncback tasks")
     const tasks = yield syncbackTaskRunner.getNewSyncbackTasks()
     this._shouldIgnoreInboxFlagUpdates = true
     for (const task of tasks) {
-      reportSyncActivity(accountId, `Running syncback task: ${task.description()}`)
+      SyncActivity.reportSyncActivity(accountId, `Running syncback task: ${task.description()}`)
       await syncbackTaskRunner.runSyncbackTask(task)
       yield  // Yield to allow interruption
     }
@@ -488,14 +488,14 @@ class SyncWorker {
 
     // Step 3: Fetch the folder list. We need to run this before syncing folders
     // because we need folders to sync!
-    reportSyncActivity(accountId, "Running FetchFolderList task")
+    SyncActivity.reportSyncActivity(accountId, "Running FetchFolderList task")
     await this._runTask(SyncTaskFactory.create('FetchFolderList', {account: this._account}))
     yield  // Yield to allow interruption
 
     // Step 4: Listen to new mail. We need to do this after we've fetched the
     // folder list so we can correctly find the inbox folder on the very first
     // sync loop
-    reportSyncActivity(accountId, "Lisening for new mail")
+    SyncActivity.reportSyncActivity(accountId, "Lisening for new mail")
     await this._listenForNewMail()
     yield  // Yield to allow interruption
 
@@ -507,14 +507,14 @@ class SyncWorker {
     // syncing slowly. This should only be done during initial sync.
     // TODO Also consider using multiple imap connections, 1 for inbox, one for the
     // rest
-    reportSyncActivity(accountId, "Getting folders to sync")
+    SyncActivity.reportSyncActivity(accountId, "Getting folders to sync")
     const sortedFolders = yield this._getFoldersToSync()
     for (const folder of sortedFolders) {
-      reportSyncActivity(accountId, `Running FetchMessagesInFolder task: ${folder.name}`)
+      SyncActivity.reportSyncActivity(accountId, `Running FetchMessagesInFolder task: ${folder.name}`)
       await this._runTask(SyncTaskFactory.create('FetchMessagesInFolder', {account: this._account, folder}))
       yield  // Yield to allow interruption
     }
-    reportSyncActivity(accountId, "Done with worker sync")
+    SyncActivity.reportSyncActivity(accountId, "Done with worker sync")
   }
 
   // Public API:

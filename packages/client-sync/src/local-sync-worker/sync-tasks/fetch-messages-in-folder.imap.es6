@@ -3,11 +3,10 @@ const {IMAPConnection} = require('isomorphic-core');
 const {Capabilities} = IMAPConnection;
 const SyncTask = require('./sync-task')
 const MessageProcessor = require('../../message-processor')
-const {reportSyncActivity} = require('../../shared/sync-activity').default
+const SyncActivity = require('../../shared/sync-activity').default
 
 const MessageFlagAttributes = ['id', 'threadId', 'folderImapUID', 'unread', 'starred', 'folderImapXGMLabels']
 const FETCH_ATTRIBUTES_BATCH_SIZE = 1000;
-const FETCH_MESSAGE_BATCH_SIZE = 30;
 const MIN_MESSAGE_BATCH_SIZE = 30;
 const MAX_MESSAGE_BATCH_SIZE = 300;
 const BATCH_SIZE_PER_SELECT_SEC = 60;
@@ -689,7 +688,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
   async * runTask(db, imap, syncWorker) {
     const accountId = this._db.accountId
     const folderName = this._folder.name
-    reportSyncActivity(accountId, `Starting folder: ${folderName}`)
+    SyncActivity.reportSyncActivity(accountId, `Starting folder: ${folderName}`)
     this._logger.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;
@@ -713,17 +712,17 @@ class FetchMessagesInFolderIMAP extends SyncTask {
       })
     }
 
-    reportSyncActivity(accountId, `Checking if folder needs sync: ${folderName}`)
+    SyncActivity.reportSyncActivity(accountId, `Checking if folder needs sync: ${folderName}`)
 
     if (!this._shouldSyncFolder(latestBoxStatus)) {
       // Don't even attempt to issue an IMAP SELECT if there are absolutely no
       // updates
       this._logger.log(`🔚 📂 ${this._folder.name} has no updates at all - skipping sync`)
-      reportSyncActivity(accountId, `Done with folder: ${folderName}`)
+      SyncActivity.reportSyncActivity(accountId, `Done with folder: ${folderName}`)
       return;
     }
 
-    reportSyncActivity(accountId, `Checking what to fetch for folder: ${folderName}`)
+    SyncActivity.reportSyncActivity(accountId, `Checking what to fetch for folder: ${folderName}`)
 
     this._box = yield this._openMailboxAndEnsureValidity();
     const shouldFetchMessages = this._shouldFetchMessages(this._box)
@@ -731,19 +730,19 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
     // Do as little work as possible
     if (shouldFetchMessages) {
-      reportSyncActivity(accountId, `Fetching messages: ${folderName}`)
+      SyncActivity.reportSyncActivity(accountId, `Fetching messages: ${folderName}`)
       yield this._fetchNextMessageBatch()
     } else {
       this._logger.log(`🔚 📂 ${this._folder.name} has no new messages - skipping fetch messages`)
     }
     if (shouldFetchAttributes) {
-      reportSyncActivity(accountId, `Fetching attributes: ${folderName}`)
+      SyncActivity.reportSyncActivity(accountId, `Fetching attributes: ${folderName}`)
       yield this._fetchMessageAttributeChanges();
     } else {
       this._logger.log(`🔚 📂 ${this._folder.name} has no attribute changes - skipping fetch attributes`)
     }
     this._logger.log(`🔚 📂 ${this._folder.name} done`)
-    reportSyncActivity(accountId, `Done with folder: ${folderName}`)
+    SyncActivity.reportSyncActivity(accountId, `Done with folder: ${folderName}`)
   }
 }
 

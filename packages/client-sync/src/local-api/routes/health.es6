@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const {getLastSyncActivityForAccount, getLastSyncActivity} = require('../../shared/sync-activity').default
+const SyncActivity = require('../../shared/sync-activity').default
 
 module.exports = (server) => {
   server.route({
@@ -12,7 +12,7 @@ module.exports = (server) => {
     handler: (request, reply) => {
       let response;
       try {
-        response = getLastSyncActivity()
+        response = SyncActivity.getLastSyncActivity()
         response = JSON.stringify(response)
         reply(response)
       } catch (err) {
@@ -39,7 +39,7 @@ module.exports = (server) => {
       let response;
       try {
         const {accountId} = request.params
-        response = getLastSyncActivityForAccount(accountId)
+        response = SyncActivity.getLastSyncActivityForAccount(accountId)
         response = JSON.stringify(response)
         reply(response)
       } catch (err) {
