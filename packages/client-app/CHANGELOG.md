@@ -1,5 +1,21 @@
 # Nylas Mail Changelog
 
+### 1.0.49 (3/27/2017)
+
+  + [client-sync] Change where we report sync activity
+  + [client-app] add better documentation to windows update
+  + [client-app] directly call windows relaunch on squirrel update
+  + [client-app] remap windows dev shortcuts
+  + [client-app] only re-install for optional deps on mac
+  + [client-app, client-sync] Add specs for detecting stuck sync/worker window
+  + [client-app] Detect when the worker window is unavailable
+  + [client-sync] Detect when sync workers are stuck
+  + [client-sync] Report latest sync activity
+  + [client-app] Retry queries when database is locked
+  + [\*] add ONLY_CLIENT=false support for cloud & regular install
+  + [cloud-api] Timeout streaming API connections every 15 minutes
+  + [iso-core] Add indexes from SQL review
+
 ### 1.0.48 (3/27/2017)
 
 - Fixes:
