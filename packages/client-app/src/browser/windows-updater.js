@@ -1,11 +1,41 @@
+/*
+ * "Squirrel will spawn your app with command line flags on first run, updates,]
+ * and uninstalls."
+ *
+ * Read: https://github.com/electron-archive/grunt-electron-installer#handling-squirrel-events
+ * Read: https://github.com/electron/electron/blob/master/docs/api/auto-updater.md#windows
+ *
+ * When Nylas Mail gets installed on a Windows machine it gets put in:
+ * C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x
+ *
+ * The `process.execPath` is:
+ * C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x\nylas.exe
+ *
+ * We manually copy everything in build/resources/win into a 'resources' folder
+ * located inside the main app directory. See runCopyPlatformSpecificResources
+ * in package-task.js
+ *
+ * This means `__dirname` should be:
+ * C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x\resources
+ *
+ * We also expect Squirrel Windows to have a file called `nylas.exe` at:
+ * C:\Users\<USERNAME>\AppData\Local\Nylas\nylas.exe
+ */
 const ChildProcess = require('child_process');
 const fs = require('fs-plus');
 const path = require('path');
 const os = require('os');
 
+// C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x
 const appFolder = path.resolve(process.execPath, '..');
+
+// C:\Users\<USERNAME>\AppData\Local\Nylas\
 const rootN1Folder = path.resolve(appFolder, '..');
+
+// C:\Users\<USERNAME>\AppData\Local\Nylas\Update.exe
 const updateDotExe = path.join(rootN1Folder, 'Update.exe');
+
+// "nylas.exe"
 const exeName = path.basename(process.execPath);
 
 // Spawn a command and invoke the callback when it completes with an error
@@ -118,29 +148,6 @@ function createRegistryEntries({allowEscalation, registerDefaultIfPossible}, cal
   });
 }
 
-// Update the desktop and start menu shortcuts by using the command line API
-// provided by Squirrel's Update.exe
-function updateShortcuts(callback) {
-  const homeDirectory = fs.getHomeDirectory();
-  if (homeDirectory) {
-    const desktopShortcutPath = path.join(homeDirectory, 'Desktop', 'N1.lnk')
-    // Check if the desktop shortcut has been previously deleted and
-    // and keep it deleted if it was
-    fs.exists(desktopShortcutPath, (desktopShortcutExists) => {
-      createShortcuts(() => {
-        if (desktopShortcutExists) {
-          callback()
-        } else {
-          // Remove the unwanted desktop shortcut that was recreated
-          fs.unlink(desktopShortcutPath, callback);
-        }
-      });
-    });
-  } else {
-    createShortcuts(callback);
-  }
-}
-
 // Remove the desktop and start menu shortcuts by using the command line API
 // provided by Squirrel's Update.exe
 function removeShortcuts(callback) {
@@ -149,7 +156,6 @@ function removeShortcuts(callback) {
 
 exports.spawn = spawnUpdate;
 exports.createShortcuts = createShortcuts;
-exports.updateShortcuts = updateShortcuts;
 exports.removeShortcuts = removeShortcuts;
 exports.createRegistryEntries = createRegistryEntries;
 
