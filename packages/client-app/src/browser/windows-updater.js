@@ -40,12 +40,12 @@ const exeName = path.basename(process.execPath);
 
 // Spawn a command and invoke the callback when it completes with an error
 // and the output from standard out.
-function spawn(command, args, callback) {
+function spawn(command, args, callback, options = {}) {
   let stdout = ''
   let spawnedProcess = null;
 
   try {
-    spawnedProcess = ChildProcess.spawn(command, args);
+    spawnedProcess = ChildProcess.spawn(command, args, options);
   } catch (error) {
     // Spawn can throw an error
     setTimeout(() => callback && callback(error, stdout), 0)
@@ -77,8 +77,8 @@ function spawn(command, args, callback) {
 
 // Spawn the Update.exe with the given arguments and invoke the callback when
 // the command completes.
-function spawnUpdate(args, callback) {
-  spawn(updateDotExe, args, callback);
+function spawnUpdate(args, callback, options = {}) {
+  spawn(updateDotExe, args, callback, options);
 }
 
 // Create a desktop and start menu shortcut by using the command line API
@@ -165,7 +165,7 @@ exports.existsSync = () => fs.existsSync(updateDotExe)
 // Restart N1 using the version pointed to by the N1.cmd shim
 exports.restartN1 = (app) => {
   app.once('will-quit', () => {
-    spawnUpdate(['--processStart', exeName]);
+    spawnUpdate(['--processStart', exeName], (() => {}), {detached: true});
   });
   app.quit();
 }
