@@ -122,21 +122,12 @@ class ThreadSearchIndexStore {
     if (change.objectClass !== Thread.name) {
       return;
     }
-    _.defer(async () => {
+    _.defer(() => {
       const {objects, type} = change
       const threads = objects;
 
       let promises = []
       if (type === 'persist') {
-        const alreadyIndexedThreads = threads.filter(t => t.isSearchIndexed)
-        if (alreadyIndexedThreads.length > 0) {
-          alreadyIndexedThreads.forEach(thread => {
-            // Mark already indexed threads as unindexed so that we re-index them
-            // with updates
-            thread.isSearchIndexed = false
-          })
-          await DatabaseStore.inTransaction(t => t.persistModels(alreadyIndexedThreads))
-        }
         this.indexer.notifyHasIndexingToDo();
       } else if (type === 'unpersist') {
         promises = threads.map(thread => this.unindexThread(thread,
