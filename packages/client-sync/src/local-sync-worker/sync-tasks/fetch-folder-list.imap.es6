@@ -3,8 +3,9 @@ const SyncTask = require('./sync-task')
 const {localizedCategoryNames} = require('../sync-utils')
 const SyncActivity = require('../../shared/sync-activity').default
 
-
 const GMAIL_ROLES_WITH_FOLDERS = ['all', 'trash', 'spam'];
+
+const assignedRolesCache = new Set();
 
 class FetchFolderListIMAP extends SyncTask {
   constructor(...args) {
@@ -21,6 +22,19 @@ class FetchFolderListIMAP extends SyncTask {
       return GMAIL_ROLES_WITH_FOLDERS.includes(role) ? Folder : Label;
     }
     return Folder;
+  }
+
+  async _roleAlreadyAssigned(role) {
+    if (assignedRolesCache.has(role)) {
+      return true
+    }
+    const Klass = this._classForMailboxWithRole(role, this._db);
+    const existing = await Klass.findAll({where: {role: role}})
+    if (existing.length > 0) {
+      this.assignedRolesCache.add(role)
+      return true
+    }
+    return false
   }
 
   _detectRole(boxName, box) {
@@ -95,7 +109,10 @@ class FetchFolderListIMAP extends SyncTask {
 
       let category = categories.find((cat) => cat.name === boxName);
       if (!category) {
-        const role = this._detectRole(boxName, box);
+        let role = this._detectRole(boxName, box);
+        if (await this._roleAlreadyAssigned(role)) {
+          role = null;
+        }
         const Klass = this._classForMailboxWithRole(role, this._db);
         const {accountId} = this._db
         category = Klass.build({
@@ -109,7 +126,7 @@ class FetchFolderListIMAP extends SyncTask {
         // if we update the category->role mapping to include more names, we
         // need to be able to detect newly added roles on existing categories
         const role = this._roleByName(boxName);
-        if (role) {
+        if (role && !(await this._roleAlreadyAssigned(role))) {
           category.role = role;
           await category.save();
         }
