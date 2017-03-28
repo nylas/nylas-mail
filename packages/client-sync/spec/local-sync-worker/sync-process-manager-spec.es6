@@ -4,7 +4,7 @@ import LocalDatabaseConnector from '../../src/shared/local-database-connector'
 import SyncProcessManager from '../../src/local-sync-worker/sync-process-manager'
 import SyncActivity from '../../src/shared/sync-activity'
 
-describe("SynccProcessManager", () => {
+describe("SyncProcessManager", () => {
   beforeEach(async () => {
     global.Logger = createLogger()
     spyOn(IdentityStore, 'identity').andReturn(true)
