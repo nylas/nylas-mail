@@ -109,7 +109,7 @@ class ApplicationMenu
 
     workShortcut = "CmdOrCtrl+alt+w"
     if process.platform is "win32"
-      workShortcut = "ctrl+shift+f10"
+      workShortcut = "ctrl+shift+w"
 
     accelerators = {
       'default': 'CmdOrCtrl+0',
