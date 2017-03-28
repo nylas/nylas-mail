@@ -46,6 +46,7 @@ tag_name = "{}-{}-{}".format(short_commit, environment, username)
 if subprocess.call(['git', 'rev-parse', '-q', '--verify', tag_name]) != 0:
     # If not create it.
     try:
+        print "Tagging deploy..."
         subprocess.check_call(['git', 'tag', '-a', tag_name, '-m', "'{}'".format(tag_name)])
         subprocess.check_call(['git', 'push', 'origin', tag_name])
     except:
@@ -53,6 +54,7 @@ if subprocess.call(['git', 'rev-parse', '-q', '--verify', tag_name]) != 0:
 
 # Hand things off to `eb deploy`. It will push a tagged release to EB.
 try:
+    print "Handing off to `eb deploy`... (this may take some time!)"
     subprocess.check_call(['eb', 'deploy', environment])
 except:
     sys.exit("eb deploy failed!")
