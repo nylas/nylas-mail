@@ -2,8 +2,8 @@
 
 ### 1.0.50 (3/28/2017)
 
-  + [client-app] Fix runtime error in FetchMessagesInFolderTask
-  + [client-app] Fix importing SyncActivity
+- Fixes:
+  + Fix SyncActivity errors introduced in 1.0.49
 
 ### 1.0.49 (3/27/2017)
 
