@@ -11,7 +11,7 @@ class WindowsUpdaterSquirrelAdapter
     if WindowsUpdater.existsSync()
       WindowsUpdater.restartN1(require('electron').app)
     else
-      NylasEnv.reportError(new Error("SquirrelUpdate does not exist"))
+      console.error("SquirrelUpdate does not exist")
 
   downloadUpdate: (callback) ->
     WindowsUpdater.spawn ['--download', @updateUrl], (error, stdout) ->
