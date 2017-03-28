@@ -164,11 +164,7 @@ const handleStartupEventWithSquirrel = () => {
       )
       return true
     case '--squirrel-updated':
-      WindowsUpdater.createRegistryEntries(options, () =>
-        WindowsUpdater.updateShortcuts(() =>
-          app.quit()
-        )
-      )
+      WindowsUpdater.restartN1(app)
       return true
     case '--squirrel-uninstall':
       WindowsUpdater.removeShortcuts(() =>
