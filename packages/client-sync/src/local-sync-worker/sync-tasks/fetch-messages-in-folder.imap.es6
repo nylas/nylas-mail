@@ -405,7 +405,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
           fetchedmax: this._box.uidnext,
         });
       } else {
-        initialUids = this._folder.syncState.gmailInitialUIDsRemaining;
+        initialUids = gmailInitialUIDsRemaining
       }
       // continue fetching new mail first in the case that inbox uid download
       // takes multiple batches
