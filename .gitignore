@@ -60,3 +60,6 @@ packages/client-app/spec/isomorphic-core
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Sqlite amalgamation for scripts
+scripts/sqlite
