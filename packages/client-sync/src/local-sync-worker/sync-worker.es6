@@ -51,6 +51,7 @@ class SyncWorker {
     this._requireTokenRefresh = false
     this._batchProcessedUids = new Map();
     this._latestOpenTimesByFolder = new Map();
+    this._disposeMailListenerConnection = null
 
     this._retryScheduler = new ExponentialBackoffScheduler({
       baseDelay: 15 * 1000,
@@ -244,28 +245,44 @@ class SyncWorker {
     this._conn._db = this._db;
   }
 
-  async _ensureIMAPMailListenerConnection(conn) {
-    if (this._mailListenerConn === conn) {
+  async _ensureIMAPMailListenerConnection() {
+    if (this._mailListenerConn) {
       return;
     }
 
-    this._mailListenerConn = conn;
-    this._mailListenerConn._db = this._db;
+    await IMAPConnectionPool.withConnectionsForAccount(this._account, {
+      desiredCount: 1,
+      logger: this._logger,
+      socketTimeout: this._retryScheduler.currentDelay(),
+      onConnected: async ([listenerConn], done) => {
+        this._mailListenerConn = listenerConn;
+        this._mailListenerConn._db = this._db;
 
-    conn.on('mail', () => {
-      this._onInboxUpdates(`You've got mail`);
-    })
-    conn.on('update', () => {
-      // `update` events happen when messages receive flag updates on the inbox
-      // (e.g. marking as unread or starred). We need to listen to that event for
-      // when those updates are performed from another mail client, but ignore
-      // them when they are caused from within N1.
-      if (this._shouldIgnoreInboxFlagUpdates) { return; }
-      this._onInboxUpdates(`There are flag updates on the inbox`);
+        this._mailListenerConn.on('mail', () => {
+          this._onInboxUpdates(`You've got mail`);
+        })
+        this._mailListenerConn.on('update', () => {
+          // `update` events happen when messages receive flag updates on the inbox
+          // (e.g. marking as unread or starred). We need to listen to that event for
+          // when those updates are performed from another mail client, but ignore
+          // them when they are caused from within N1.
+          if (this._shouldIgnoreInboxFlagUpdates) { return; }
+          this._onInboxUpdates(`There are flag updates on the inbox`);
+        })
+
+        this._disposeMailListenerConnection = done
+        // Return true to keep connection open
+        return true
+      },
     })
   }
 
+  _onInboxUpdates = _.debounce((reason) => {
+    this.syncNow({reason, interrupt: true});
+  }, 100)
+
   async _listenForNewMail() {
+    this._logger.log('🔃  Listening for new mail...')
     // Open the inbox folder on our dedicated mail listener connection to listen
     // to new mail events
     const inbox = await this._getInboxFolder();
@@ -274,13 +291,13 @@ class SyncWorker {
     }
   }
 
-  _onInboxUpdates = _.debounce((reason) => {
-    this.syncNow({reason, interrupt: true});
-  }, 100)
-
-  _clearConnections() {
+  _disposeConnections() {
     this._conn = null;
     this._mailListenerConn = null;
+    if (this._disposeMailListenerConnection) {
+      this._disposeMailListenerConnection()
+      this._disposeMailListenerConnection = null
+    }
   }
 
   async _getFoldersToSync() {
@@ -301,7 +318,7 @@ class SyncWorker {
 
   async _onSyncError(error) {
     try {
-      this._clearConnections();
+      this._disposeConnections();
       this._logger.error(`🔃  SyncWorker: Errored while syncing account`, error)
 
       // Check if we encountered an expired token error.
@@ -552,13 +569,13 @@ class SyncWorker {
     let error;
     try {
       await this._ensureSMTPConnection();
+      await this._ensureIMAPMailListenerConnection();
       await IMAPConnectionPool.withConnectionsForAccount(this._account, {
-        desiredCount: 2,
+        desiredCount: 1,
         logger: this._logger,
         socketTimeout: this._retryScheduler.currentDelay(),
-        onConnected: async ([mainConn, listenerConn]) => {
+        onConnected: async ([mainConn]) => {
           await this._ensureIMAPConnection(mainConn);
-          await this._ensureIMAPMailListenerConnection(listenerConn);
           await this._interruptible.run(this._performSync, this)
         },
       });
@@ -573,7 +590,7 @@ class SyncWorker {
     } finally {
       this._lastSyncTime = Date.now()
       this._syncInProgress = false
-      this._clearConnections();
+      this._conn = null;
       await this._scheduleNextSync(error)
     }
   }
@@ -601,7 +618,7 @@ class SyncWorker {
   async cleanup() {
     await this.stopSync()
     this._destroyed = true;
-    this._clearConnections()
+    this._disposeConnections()
   }
 }
 
