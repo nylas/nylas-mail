@@ -1,5 +1,10 @@
 # Nylas Mail Changelog
 
+### 1.0.50 (3/28/2017)
+
+  + [client-app] Fix runtime error in FetchMessagesInFolderTask
+  + [client-app] Fix importing SyncActivity
+
 ### 1.0.49 (3/27/2017)
 
 - Fixes:
