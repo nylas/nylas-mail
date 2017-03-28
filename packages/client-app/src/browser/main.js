@@ -143,6 +143,13 @@ const parseCommandLine = (argv) => {
   };
 };
 
+/*
+ * "Squirrel will spawn your app with command line flags on first run, updates,]
+ * and uninstalls."
+ *
+ * Read: https://github.com/electron-archive/grunt-electron-installer#handling-squirrel-events
+ * Read: https://github.com/electron/electron/blob/master/docs/api/auto-updater.md#windows
+ */
 const handleStartupEventWithSquirrel = () => {
   if (process.platform !== 'win32') {
     return false;
