@@ -71,6 +71,10 @@ class IMAPSearchQueryFolderFinderVisitor extends SearchQueryExpressionVisitor {
   visitStarred(/* node */) {
     this._result = TOP;
   }
+
+  visitHasAttachment(/* node */) {
+    this._result = TOP;
+  }
 }
 
 class IMAPSearchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
@@ -145,6 +149,13 @@ class IMAPSearchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
   visitIn(node) {
     const text = this.visitAndGetResult(node.text);
     this._result = text === this._folder.name ? 'ALL' : '!ALL';
+  }
+
+  visitHasAttachment(/* node */) {
+    this._result = ['OR',
+      ['HEADER', 'Content-Type', 'multipart/mixed'],
+      ['HEADER', 'Content-Type', 'multipart/related'],
+    ];
   }
 }
 

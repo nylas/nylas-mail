@@ -22,6 +22,7 @@ class SearchQueryExpressionVisitor {
   visitStarred(node) { throw new Error('Abstract function not implemented!', node); }
   visitMatch(node) { throw new Error('Abstract function not implemented!', node); }
   visitIn(node) { throw new Error('Abstract function not implemented!', node); }
+  visitHasAttachment(node) { throw new Error('Abstract function not implemented!', node); }
 }
 
 class QueryExpression {
@@ -272,6 +273,16 @@ class InQueryExpression extends QueryExpression {
   }
 }
 
+class HasAttachmentQueryExpression extends QueryExpression {
+  accept(visitor) {
+    visitor.visitHasAttachment(this);
+  }
+
+  equals(other) {
+    return (other instanceof HasAttachmentQueryExpression);
+  }
+}
+
 /*
  * Intermediate representation for multiple match-compatible nodes. Used when
  * translating the initial query AST into the proper SQL-compatible query.
@@ -329,4 +340,5 @@ module.exports = {
   StarredStatusQueryExpression,
   MatchQueryExpression,
   InQueryExpression,
+  HasAttachmentQueryExpression,
 };

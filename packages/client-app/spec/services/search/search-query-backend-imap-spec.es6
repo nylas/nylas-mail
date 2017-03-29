@@ -68,6 +68,12 @@ describe('IMAPSearchQueryBackend', () => {
     const result4 = IMAPSearchQueryBackend.compile(ast2, {name: 'INBOX'});
     expect(result4).toEqual(['!ALL']);
   });
+  it('correctly codegens has:attachment', () => {
+    const ast = SearchQueryParser.parse('has:attachment');
+    const result = IMAPSearchQueryBackend.compile(ast, {name: 'INBOX'});
+    expect(result).toEqual([['OR', ['HEADER', 'Content-Type', 'multipart/mixed'],
+                                   ['HEADER', 'Content-Type', 'multipart/related']]]);
+  });
   it('correctly joins adjacent AND queries', () => {
     const ast = SearchQueryParser.parse('is:starred AND is:unread AND foo');
     const result = IMAPSearchQueryBackend.compile(ast, {name: 'INBOX'});
