@@ -28,6 +28,7 @@ describe "AccountStore", ->
           "email_address":"bengotow@gmail.com",
           "object":"account"
           "organization_unit": "label"
+          "aliases": ["Alias <alias@nylas.com>"]
         },{
           "id": "B",
           "client_id" : 'local-4f9d476a-c175',
@@ -188,3 +189,32 @@ describe "AccountStore", ->
       @instance._onAPIAuthError(new Error(), auth: user: 'not found')
       expect(@instance._onUpdateAccount).not.toHaveBeenCalled()
 
+  describe "isMyEmail", ->
+    beforeEach ->
+      spyOn(NylasEnv.config, 'set')
+      @spyOnConfig()
+      @instance = new @constructor
+
+    it "works with account emails", ->
+      expect(@instance.isMyEmail("bengotow@gmail.com")).toBe(true)
+      expect(@instance.isMyEmail("ben@nylas.com")).toBe(true)
+      expect(@instance.isMyEmail("foo@bar.com")).toBe(false)
+      expect(@instance.isMyEmail("ben@gmail.com")).toBe(false)
+
+    it "works with multiple emails", ->
+      expect(@instance.isMyEmail(["bengotow@gmail.com", "ben@nylas.com"])).toBe(true)
+      expect(@instance.isMyEmail(["bengotow@gmail.com", "foo@bar.com"])).toBe(true)
+      expect(@instance.isMyEmail(["blah@gmail.com", "foo@bar.com"])).toBe(false)
+
+    it "works with aliases", ->
+      expect(@instance.isMyEmail("alias@nylas.com")).toBe(true)
+      expect(@instance.isMyEmail("foo@bar.com")).toBe(false)
+
+    it "works with miscased emails", ->
+      expect(@instance.isMyEmail("Bengotow@Gmail.com")).toBe(true)
+      expect(@instance.isMyEmail("Ben@Nylas.com  ")).toBe(true)
+
+    it "works with plus aliases", ->
+      expect(@instance.isMyEmail("bengotow+stuff@gmail.com")).toBe(true)
+      expect(@instance.isMyEmail("ben+bar+baz@nylas.com")).toBe(true)
+      expect(@instance.isMyEmail("ben=stuff@nylas.com")).toBe(false)

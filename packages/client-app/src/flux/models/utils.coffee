@@ -233,8 +233,9 @@ Utils =
     [ignored, user, domain] = /^([^+]+).*@(.+)$/gi.exec(email) || [null, "", ""]
     "#{user}@#{domain}".trim().toLowerCase()
 
-
   emailIsEquivalent: (email1="", email2="") ->
+    email1 = email1.toLowerCase().trim()
+    email2 = email2.toLowerCase().trim()
     return true if email1 is email2
     email1 = Utils.toEquivalentEmailForm(email1)
     email2 = Utils.toEquivalentEmailForm(email2)
