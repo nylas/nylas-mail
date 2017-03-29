@@ -109,7 +109,7 @@ export default class MenuManager {
         if (binding.includes(' ')) {
           continue;
         }
-        if (!/(cmd|ctrl|shift|alt|mod)/.test(binding) && !/f\d+/.test(binding)) {
+        if (!/(command|ctrl|shift|alt|mod)/.test(binding) && !/f\d+/.test(binding)) {
           continue;
         }
         if (!filtered[key]) {
