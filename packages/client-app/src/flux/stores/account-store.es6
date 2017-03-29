@@ -56,6 +56,20 @@ class AccountStore extends NylasStore {
     })
   }
 
+  isMyEmail(emailOrEmails = []) {
+    const myEmails = this.emailAddresses()
+    let emails = emailOrEmails;
+    if (typeof emails === 'string') {
+      emails = [emailOrEmails];
+    }
+    for (const email of emails) {
+      if (_.any(myEmails, (myEmail) => Utils.emailIsEquivalent(myEmail, email))) {
+        return true;
+      }
+    }
+    return false
+  }
+
   _onAPIAuthError = (apiError, apiOptions, apiName) => {
     // Prevent /auth errors from presenting auth failure notices
     const apiToken = apiOptions.auth.user

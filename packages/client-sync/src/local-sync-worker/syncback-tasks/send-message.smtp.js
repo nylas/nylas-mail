@@ -26,6 +26,7 @@ class SendMessageSMTP extends SyncbackSMTPTask {
     await smtp.send(message);
 
     try {
+      message.body = MessageFactory.stripTrackingLinksFromBody(message.body)
       message.setIsSent(true)
       await message.save();
       return {message: message.toJSON()}

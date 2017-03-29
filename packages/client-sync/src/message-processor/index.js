@@ -8,7 +8,7 @@ const extractFiles = require('./extract-files');
 const extractContacts = require('./extract-contacts');
 const {MessageFactory} = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector');
-const {BatteryStatusManager} = require('nylas-exports');
+const {AccountStore, BatteryStatusManager} = require('nylas-exports');
 const SyncActivity = require('../shared/sync-activity').default;
 
 const MAX_QUEUE_LENGTH = 500
@@ -109,6 +109,9 @@ class MessageProcessor {
         folder,
         accountId,
       });
+      if (AccountStore.isMyEmail(messageValues.from.map(f => f.email))) {
+        messageValues.body = MessageFactory.stripTrackingLinksFromBody(messageValues.body)
+      }
       const existingMessage = await Message.findById(messageValues.id, {
         include: [{model: Folder, as: 'folder'}, {model: Label, as: 'labels'}],
       });
