@@ -11,7 +11,7 @@ class SetThreadLabelsIMAP extends SyncbackIMAPTask {
     return false
   }
 
-  async run(db, imap) {
+  async * _run(db, imap) {
     const {sequelize, Thread} = db
     const threadId = this.syncbackRequestObject().props.threadId
     const labelIds = this.syncbackRequestObject().props.labelIds
@@ -19,13 +19,13 @@ class SetThreadLabelsIMAP extends SyncbackIMAPTask {
       throw new APIError('threadId is required')
     }
 
-    const thread = await Thread.findById(threadId)
+    const thread = yield Thread.findById(threadId)
     if (!thread) {
       throw new APIError(`Can't find thread`, 404)
     }
 
-    const threadMessages = await thread.getMessages()
-    await IMAPHelpers.forEachFolderOfThread({
+    const threadMessages = yield thread.getMessages()
+    yield IMAPHelpers.forEachFolderOfThread({
       db,
       imap,
       threadMessages,
@@ -35,7 +35,7 @@ class SetThreadLabelsIMAP extends SyncbackIMAPTask {
     })
 
     // If IMAP succeeds, save the model updates
-    await sequelize.transaction(async (transaction) => {
+    yield sequelize.transaction(async (transaction) => {
       await Promise.all(threadMessages.map(async (m) => m.setLabels(labelIds, {transaction})))
       await thread.setLabels(labelIds, {transaction})
     })

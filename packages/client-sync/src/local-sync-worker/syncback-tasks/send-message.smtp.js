@@ -15,10 +15,10 @@ class SendMessageSMTP extends SyncbackSMTPTask {
     return `SendMessage`;
   }
 
-  async run(db, smtp) {
+  async * _run(db, smtp) {
     const syncbackRequest = this.syncbackRequestObject()
     const {messagePayload} = syncbackRequest.props
-    const message = await MessageFactory.buildForSend(db, messagePayload);
+    const message = yield MessageFactory.buildForSend(db, messagePayload);
 
     await syncbackRequest.update({
       status: 'INPROGRESS-NOTRETRYABLE',

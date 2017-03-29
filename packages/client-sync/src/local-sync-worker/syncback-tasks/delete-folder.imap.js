@@ -9,17 +9,17 @@ class DeleteFolderIMAP extends SyncbackIMAPTask {
     return true
   }
 
-  async run(db, imap) {
+  async * _run(db, imap) {
     const {folderId} = this.syncbackRequestObject().props
-    const folder = await db.Folder.findById(folderId)
+    const folder = yield db.Folder.findById(folderId)
     if (!folder) {
       // Nothing to delete!
       return
     }
-    await imap.delBox(folder.name);
+    yield imap.delBox(folder.name);
 
     // If IMAP succeeds, save updates to the db
-    await folder.destroy()
+    yield folder.destroy()
   }
 }
 module.exports = DeleteFolderIMAP

@@ -10,16 +10,16 @@ class RenameFolderIMAP extends SyncbackIMAPTask {
     return true
   }
 
-  async run(db, imap) {
+  async * _run(db, imap) {
     const {sequelize, accountId, Folder} = db
     const {folderId, newFolderName} = this.syncbackRequestObject().props.folderId
-    const oldFolder = await Folder.findById(folderId)
-    await imap.renameBox(oldFolder.name, newFolderName);
+    const oldFolder = yield Folder.findById(folderId)
+    yield imap.renameBox(oldFolder.name, newFolderName);
 
     // After IMAP succeeds, update the db
     const newId = Folder.hash({boxName: newFolderName, accountId})
     let newFolder;
-    await sequelize.transaction(async (transaction) => {
+    yield sequelize.transaction(async (transaction) => {
       newFolder = await Folder.create({
         id: newId,
         accountId,

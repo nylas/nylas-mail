@@ -11,19 +11,19 @@ class UnstarThread extends SyncbackIMAPTask {
     return false
   }
 
-  async run(db, imap) {
+  async * _run(db, imap) {
     const {sequelize, Thread} = db
     const threadId = this.syncbackRequestObject().props.threadId
     if (!threadId) {
       throw new APIError('threadId is required')
     }
 
-    const thread = await Thread.findById(threadId)
+    const thread = yield Thread.findById(threadId)
     if (!thread) {
       throw new APIError(`Can't find thread`, 404)
     }
-    const threadMessages = await thread.getMessages()
-    await IMAPHelpers.forEachFolderOfThread({
+    const threadMessages = yield thread.getMessages()
+    yield IMAPHelpers.forEachFolderOfThread({
       db,
       imap,
       threadMessages,
@@ -32,7 +32,7 @@ class UnstarThread extends SyncbackIMAPTask {
       },
     })
     // If IMAP succeeds, save the model updates
-    await sequelize.transaction(async (transaction) => {
+    yield sequelize.transaction(async (transaction) => {
       await Promise.all(threadMessages.map((m) => m.update({starred: false}, {transaction})))
       await thread.update({starredCount: 0}, {transaction})
     })

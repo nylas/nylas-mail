@@ -14,7 +14,7 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackIMAPTask {
   }
 
 
-  async run(db, imap, syncWorker) {
+  async * _run(db, imap, syncWorker) {
     const {Thread, Folder} = db
     const threadId = this.syncbackRequestObject().props.threadId
     const labelIds = this.syncbackRequestObject().props.labelIds
@@ -27,18 +27,18 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackIMAPTask {
       throw new APIError('targetFolderId is required')
     }
 
-    const targetFolder = await Folder.findById(targetFolderId)
+    const targetFolder = yield Folder.findById(targetFolderId)
     if (!targetFolder) {
       throw new APIError('targetFolder not found', 404)
     }
 
-    const thread = await Thread.findById(threadId)
+    const thread = yield Thread.findById(threadId)
     if (!thread) {
       throw new APIError(`Can't find thread`, 404)
     }
 
-    const threadMessages = await thread.getMessages()
-    await IMAPHelpers.forEachFolderOfThread({
+    const threadMessages = yield thread.getMessages()
+    yield IMAPHelpers.forEachFolderOfThread({
       db,
       imap,
       threadMessages,
@@ -60,8 +60,7 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackIMAPTask {
       account: this._account,
       folder: targetFolder,
     })
-    await syncOperation.run(db, imap, syncWorker)
+    yield syncOperation.run(db, imap, syncWorker)
   }
 }
 module.exports = SetThreadFolderAndLabelsIMAP
-
