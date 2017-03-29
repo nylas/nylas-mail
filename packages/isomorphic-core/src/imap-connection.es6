@@ -5,9 +5,9 @@ import EventEmitter from 'events';
 import CommonProviderSettings from 'imap-provider-settings';
 import PromiseUtils from './promise-utils';
 import IMAPBox from './imap-box';
+import {RetryableError} from './errors'
 import {
   convertImapError,
-  RetryableError,
   IMAPConnectionTimeoutError,
   IMAPConnectionNotReadyError,
   IMAPConnectionEndedError,
