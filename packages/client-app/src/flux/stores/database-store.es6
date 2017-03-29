@@ -227,7 +227,7 @@ class DatabaseStore extends NylasStore {
       const query = queries.shift();
       if (query) {
         console.debug(DEBUG_TO_LOG, `DatabaseStore: ${query}`);
-        this._executeInAgent(query, []).then(step);
+        this._executeInBackground(query, []).then(step);
       } else {
         console.log(`Completed ANALYZE of database`);
       }
@@ -339,14 +339,14 @@ class DatabaseStore extends NylasStore {
         const forbidden = ['INSERT ', 'UPDATE ', 'DELETE ', 'DROP ', 'ALTER ', 'CREATE '];
         for (const key of forbidden) {
           if (query.startsWith(key)) {
-            throw new Error("Transactional queries cannot be made in the database agent because they would not execute in the current transaction.")
+            throw new Error("Transactional queries cannot be made in the background because they would not execute in the current transaction.")
           }
         }
-        this._executeInAgent(query, values).then(({results, agentTime}) => {
+        this._executeInBackground(query, values).then(({results, backgroundTime}) => {
           const msec = Date.now() - start;
-          const overhead = msec - agentTime;
-          if ((msec > 100) || (overhead > 0) || DEBUG_TO_LOG) {
-            this._prettyConsoleLog(`${msec}msec (${agentTime}msec in agent): ${query}`);
+          if ((msec > 100) || DEBUG_TO_LOG) {
+            const msgPrefix = msec > 100 ? 'DatabaseStore._executeInBackground took more than 100ms - ' : ''
+            this._prettyConsoleLog(`${msgPrefix}${msec}msec (${backgroundTime}msec in background): ${query}`);
           }
           resolve(results);
         });
@@ -414,10 +414,8 @@ class DatabaseStore extends NylasStore {
     return results;
   }
 
-  _executeInAgent(query, values) {
+  _executeInBackground(query, values) {
     if (!this._agent) {
-      console.log("DatabaseAgent: Starting...");
-
       this._agentOpenQueries = {};
       this._agent = childProcess.fork(path.join(path.dirname(__filename), 'database-agent.js'), [], {
         silent: true,
@@ -439,7 +437,7 @@ class DatabaseStore extends NylasStore {
       });
       this._agent.on('message', ({type, id, results, agentTime}) => {
         if (type === 'results') {
-          this._agentOpenQueries[id]({results, agentTime});
+          this._agentOpenQueries[id]({results, backgroundTime: agentTime});
           delete this._agentOpenQueries[id];
         }
       });
