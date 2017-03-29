@@ -1,4 +1,5 @@
 const {EventEmitter} = require('events')
+const {Errors} = require('isomorphic-core')
 
 /**
  * Interruptible objects allow you to run and interrupt functions by using
@@ -37,14 +38,22 @@ class Interruptible extends EventEmitter {
     super()
     this._interrupt = false
     this._running = false
+    this._rejectWithinRun = null
   }
 
-  interrupt() {
+  interrupt({forceReject = false} = {}) {
     if (!this._running) { return Promise.resolve() }
 
     // Start listening before the interrupt, so we don't miss the 'interrupted' event
     const promise = new Promise((resolve) => this.once('interrupted', resolve))
     this._interrupt = true
+
+    if (forceReject && this._rejectWithinRun) {
+      // This will reject the `interruptible.run()` call and immediately return
+      // control to the code path that is awaiting it.
+      this._rejectWithinRun(new Errors.RetryableError('Forcefully interrupted'))
+    }
+
     return promise
   }
 
@@ -115,7 +124,18 @@ class Interruptible extends EventEmitter {
   async run(generatorFunc, ctx, ...fnArgs) {
     this._running = true
     const generatorObj = generatorFunc.call(ctx, ...fnArgs)
-    await this._runGenerator(generatorObj)
+    await new Promise(async (resolve, reject) => {
+      this._rejectWithinRun = (rejectValue) => {
+        reject(rejectValue)
+      }
+      try {
+        await this._runGenerator(generatorObj)
+      } catch (err) {
+        reject(err)
+        return;
+      }
+      resolve()
+    })
     this._interrupt = false
     this._running = false
   }
