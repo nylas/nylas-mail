@@ -223,13 +223,15 @@ class DatabaseStore extends NylasStore {
   _runDatabaseAnalyze() {
     const builder = new DatabaseSetupQueryBuilder();
     const queries = builder.analyzeQueries();
+    const start = Date.now()
     const step = () => {
       const query = queries.shift();
       if (query) {
         console.debug(DEBUG_TO_LOG, `DatabaseStore: ${query}`);
         this._executeInBackground(query, []).then(step);
       } else {
-        console.log(`Completed ANALYZE of database`);
+        const msec = Date.now() - start
+        console.log(`Completed ANALYZE of database - took ${msec}msec`);
       }
     }
     step();
