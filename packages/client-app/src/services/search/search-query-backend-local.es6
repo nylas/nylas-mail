@@ -4,6 +4,7 @@ import {
   AndQueryExpression,
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
+  HasAttachmentQueryExpression,
   MatchQueryExpression,
 } from './search-query-ast'
 
@@ -72,6 +73,10 @@ class MatchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
   visitIn(node) {
     const text = this.visitAndGetResult(node.text);
     this._result = `(categories : "${text}*")`;
+  }
+
+  visitHasAttachment(node) {
+    this._assertIsMatchCompatible(node);
   }
 }
 
@@ -142,6 +147,10 @@ class MatchCompatibleQueryCondenser extends SearchQueryExpressionVisitor {
   visitStarred(node) {
     this._result = new StarredStatusQueryExpression(node.status);
   }
+
+  visitHasAttachment(/* node */) {
+    this._result = new HasAttachmentQueryExpression();
+  }
 }
 
 /*
@@ -203,6 +212,10 @@ class StructuredSearchQueryVisitor extends SearchQueryExpressionVisitor {
   visitStarred(node) {
     const starred = node.status ? 1 : 0;
     this._result = `(\`${this._className}\`.\`starred\` = ${starred})`;
+  }
+
+  visitHasAttachment(/* node */) {
+    this._result = `(\`${this._className}\`.\`data\` LIKE '%"has_attachments":true%')`;
   }
 
   visitMatch(node) {

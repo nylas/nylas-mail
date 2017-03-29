@@ -10,6 +10,7 @@ import {
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
   InQueryExpression,
+  HasAttachmentQueryExpression,
 } from './search-query-ast';
 
 const nextStringToken = (text) => {
@@ -61,6 +62,8 @@ const reserved = [
   'to',
   'subject',
   'in',
+  'has',
+  'attachment',
 ];
 
 const mightBeReserved = (text) => {
@@ -148,6 +151,7 @@ const nextToken = (text) => {
  *             | subject_query
  *             | paren_query
  *             | is_query
+ *             | has_query
  *
  * from_query: FROM COLON TEXT
  * to_query: TO COLON TEXT
@@ -156,6 +160,7 @@ const nextToken = (text) => {
  * is_query: IS COLON is_query_rest
  * is_query_rest: read_cond
  *              | starred_cond
+ * has_query: HAS COLON ATTACHMENT
  * read_cond: READ | UNREAD
  * starred_cond: STARRED | UNSTARRED
  * in_query: IN COLON TEXT
@@ -201,6 +206,22 @@ const parseIsQuery = (text) => {
   return null;
 };
 
+const parseHasQuery = (text) => {
+  const afterColon = consumeExpectedToken(text, ':');
+  const [tok, afterTok] = nextToken(afterColon);
+  if (tok === null) {
+    return null;
+  }
+  const tokText = tok.s.toUpperCase();
+  switch (tokText) {
+    case 'ATTACHMENT': {
+      return [new HasAttachmentQueryExpression(), afterTok];
+    }
+    default: break;
+  }
+  return null;
+};
+
 let parseQuery = null; // Satisfy our robot overlords.
 const parseSimpleQuery = (text) => {
   const [tok, afterTok] = nextToken(text);
@@ -233,6 +254,13 @@ const parseSimpleQuery = (text) => {
 
   if (tok.s.toUpperCase() === 'IS') {
     const result = parseIsQuery(afterTok);
+    if (result !== null) {
+      return result;
+    }
+  }
+
+  if (tok.s.toUpperCase() === 'HAS') {
+    const result = parseHasQuery(afterTok);
     if (result !== null) {
       return result;
     }

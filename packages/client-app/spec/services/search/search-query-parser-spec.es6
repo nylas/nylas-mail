@@ -15,6 +15,7 @@ const {
   UnreadStatusQueryExpression,
   StarredStatusQueryExpression,
   InQueryExpression,
+  HasAttachmentQueryExpression,
 } = SearchQueryAST;
 
 const token = (text) => { return new SearchQueryToken(text); }
@@ -28,6 +29,7 @@ const in_ = (text) => { return new InQueryExpression(text); }
 const text = (tok) => { return new TextQueryExpression(tok); }
 const unread = (status) => { return new UnreadStatusQueryExpression(status); }
 const starred = (status) => { return new StarredStatusQueryExpression(status); }
+const has = () => { return new HasAttachmentQueryExpression(); }
 
 
 describe('SearchQueryParser.parse', () => {
@@ -71,6 +73,7 @@ describe('SearchQueryParser.parse', () => {
     expect(SearchQueryParser.parse('in:foo').equals(
       in_(text(token('foo')))
     )).toBe(true)
+    expect(SearchQueryParser.parse('has:attachment').equals(has())).toBe(true)
   });
 
   it('correctly parses reserved words as normal text in certain places', () => {
