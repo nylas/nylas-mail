@@ -26,8 +26,8 @@ const DatabasePhase = {
 const DEBUG_TO_LOG = false;
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
 
-const BASE_RETRY_LOCK_DELAY = 100;
-const MAX_RETRY_LOCK_DELAY = 3 * 1000;
+const BASE_RETRY_LOCK_DELAY = 50;
+const MAX_RETRY_LOCK_DELAY = 500;
 
 let JSONBlob = null;
 
