@@ -12,6 +12,7 @@ module.exports = (sequelize, Sequelize) => {
   }, {
     indexes: [
       { fields: ['objectId', 'objectType'] },
+      { fields: ['expiration'] },
     ],
     instanceMethods: {
       toJSON() {
