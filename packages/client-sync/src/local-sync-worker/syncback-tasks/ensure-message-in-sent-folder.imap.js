@@ -29,7 +29,7 @@ async function deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
   }
 }
 
-async function saveSentMessage({db, account, syncWorker, logger, imap, provider, sentPerRecipient, baseMessage}) {
+async function saveSentMessage({db, account, syncWorker, logger, imap, provider, customSentMessage, baseMessage}) {
   const {Folder, Label} = db
 
   // Case 1. If non gmail, save the message to the `sent` folder using IMAP
@@ -67,10 +67,10 @@ async function saveSentMessage({db, account, syncWorker, logger, imap, provider,
 
 
   // Case 2. If gmail, even though gmail saves sent messages automatically,
-  // if `sentPerRecipient` is true, it means we want to save the `baseMessage`
+  // if `customSentMessage` is true, it means we want to save the `baseMessage`
   // as sent. This is because that means that we sent a message per recipient for
   // tracking, but we actually /just/ want to show the baseMessage as sent
-  if (sentPerRecipient) {
+  if (customSentMessage) {
     const sender = new SendmailClient(account, logger);
     const rawMime = await sender.buildMime(baseMessage);
     const box = await imap.openBox(allMailFolder.name);
@@ -119,12 +119,13 @@ async function setThreadingReferences(db, baseMessage) {
  *
  * Gmail does this automatically. IMAP needs to do this manually.
  *
- * If we've `sentPerRecipient` that means we've actually sent many
- * messages (on per recipient). Gmail will have automatically created tons
- * of messages in the sent folder. We need to make it look like you only
- * sent 1 message. To do this we, delete all of the messages Gmail
- * automatically created (keyed by the same Meassage-Id header we set),
- * then stuff a copy of the original message in the sent folder.
+ * We sometimes request a  `customSentMessage` because we may have
+ * individualized a bunch of messages via multi-send, or have link & open
+ * tracking data that we don't want to see in our sent folder. Regardless
+ * we need to make it look like you only sent 1 message. To do this we,
+ * delete all of the messages Gmail automatically created (keyed by the
+ * same Meassage-Id header we set), then stuff a copy of the original
+ * message in the sent folder.
  */
 class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
   description() {
@@ -137,7 +138,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
 
   async run(db, imap, syncWorker) {
     const {Message} = db
-    const {messageId, sentPerRecipient} = this.syncbackRequestObject().props
+    const {messageId, customSentMessage} = this.syncbackRequestObject().props
 
     const baseMessage = await Message.findById(messageId, {
       include: [{model: db.Folder}, {model: db.Label}, {model: db.File}],
@@ -159,7 +160,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
     // Each participant gets a message, but all of those messages have the
     // same Message-ID header in them. This allows us to find all of the
     // sent messages and clean them up
-    if (sentPerRecipient && provider === Provider.Gmail) {
+    if (customSentMessage && provider === Provider.Gmail) {
       try {
         await deleteGmailSentMessages({db, imap, provider, headerMessageId})
       } catch (err) {
@@ -169,7 +170,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
       }
     }
 
-    await saveSentMessage({db, account: this._account, syncWorker, logger: this._logger, imap, provider, sentPerRecipient, baseMessage})
+    await saveSentMessage({db, account: this._account, syncWorker, logger: this._logger, imap, provider, customSentMessage, baseMessage})
     return baseMessage.toJSON()
   }
 }

@@ -10,7 +10,7 @@ export default class EnsureMessageInSentFolderTask extends Task {
   constructor(opts = {}) {
     super(opts);
     this.message = opts.message;
-    this.sentPerRecipient = opts.sentPerRecipient;
+    this.customSentMessage = opts.customSentMessage;
   }
 
   label() {
@@ -40,7 +40,7 @@ export default class EnsureMessageInSentFolderTask extends Task {
           path: `/ensure-message-in-sent-folder/${this.message.id}`,
           method: "POST",
           body: {
-            sentPerRecipient: this.sentPerRecipient,
+            customSentMessage: this.customSentMessage,
           },
           accountId: this.message.accountId,
           onSyncbackRequestCreated: (syncbackRequest) => {

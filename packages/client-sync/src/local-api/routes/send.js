@@ -59,7 +59,7 @@ module.exports = (server) => {
     config: {
       validate: {
         payload: {
-          sentPerRecipient: Joi.boolean(),
+          customSentMessage: Joi.boolean(),
         },
         params: {
           messageId: Joi.string(),
@@ -68,7 +68,7 @@ module.exports = (server) => {
     },
     async handler(request, reply) {
       const {messageId} = request.params;
-      const {sentPerRecipient} = request.payload;
+      const {customSentMessage} = request.payload;
 
       if (!SendUtils.isValidId(messageId)) {
         reply.badRequest(`messageId is not a base-36 integer`)
@@ -76,7 +76,7 @@ module.exports = (server) => {
       }
       createAndReplyWithSyncbackRequest(request, reply, {
         type: "EnsureMessageInSentFolder",
-        props: { messageId, sentPerRecipient },
+        props: { messageId, customSentMessage },
       })
     },
   });
