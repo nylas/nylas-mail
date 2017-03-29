@@ -1,5 +1,26 @@
 # Nylas Mail Changelog
 
+### 1.0.51 (3/28/2017)
+
+  + [client-sync] Make sure to attach route files ending in .es6 to local-api
+  + [dev] One more newline in deploy-it output
+  + [dev] Make deploy-it print link to the EB console
+  + [dev] Make deploy-it say what it's doing instead of hanging silently
+  + [dev] Make help message better on deploy-it
+  + [client-app] add SHOW_HOT_WINDOW env for prod debugging of window launches
+  + [client-app] properly relaunch windows on autoupdate
+  + [client-sync] Fix runtime error introduced in 08975c0
+  + [cloud-api] Verify SMTP credentials in /auth endpoint
+  + [client-app] Correctly listen for new mail in between sync loops
+  + [client-sync] :art: typo
+  + [dev] Correctly ignore node_modules in .ebignore for faster deploys
+  + [dev] Only bootstrap specific pkgs in postinstall for faster installs
+  + [client-sync] Also prioritize sent label for initial Gmail sync
+  + [client-app] Report battery state changes to Mixpanel
+  + [client-sync] Don't throttle while syncing first 500 threads
+  + [client-sync] Implement the /contacts/rankings endpoint
+  + [client-app] change file description on Windows
+
 ### 1.0.50 (3/28/2017)
 
 - Fixes:
