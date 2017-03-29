@@ -16,6 +16,7 @@ class ThreadSearchIndexStore {
   constructor() {
     this.unsubscribers = []
     this.indexer = SearchIndexScheduler;
+    this.threadsWaitingToBeIndexed = new Set();
   }
 
   activate() {
@@ -128,16 +129,23 @@ class ThreadSearchIndexStore {
 
       let promises = []
       if (type === 'persist') {
-        const alreadyIndexedThreads = threads.filter(t => t.isSearchIndexed)
-        if (alreadyIndexedThreads.length > 0) {
-          alreadyIndexedThreads.forEach(thread => {
+        const threadsToIndex = _.uniq(threads.filter(t => !this.threadsWaitingToBeIndexed.has(t.id)), false /* isSorted */, t => t.id);
+        const threadsIndexed = threads.filter(t => t.isSearchIndexed && this.threadsWaitingToBeIndexed.has(t.id));
+
+        for (const thread of threadsIndexed) {
+          this.threadsWaitingToBeIndexed.delete(thread.id);
+        }
+
+        if (threadsToIndex.length > 0) {
+          threadsToIndex.forEach(thread => {
             // Mark already indexed threads as unindexed so that we re-index them
             // with updates
-            thread.isSearchIndexed = false
+            thread.isSearchIndexed = false;
+            this.threadsWaitingToBeIndexed.add(thread.id);
           })
-          await DatabaseStore.inTransaction(t => t.persistModels(alreadyIndexedThreads))
+          await DatabaseStore.inTransaction(t => t.persistModels(threadsToIndex));
+          this.indexer.notifyHasIndexingToDo();
         }
-        this.indexer.notifyHasIndexingToDo();
       } else if (type === 'unpersist') {
         promises = threads.map(thread => this.unindexThread(thread,
                                                   {isBeingUnpersisted: true}))
