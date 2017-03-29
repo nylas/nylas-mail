@@ -55,6 +55,9 @@ if subprocess.call(['git', 'rev-parse', '-q', '--verify', tag_name]) != 0:
 # Hand things off to `eb deploy`. It will push a tagged release to EB.
 try:
     print "Handing off to `eb deploy`... (this may take some time!)"
+    print
+    print "You can monitor your deploy using the Elastic Beanstalk console:"
+    print "https://us-west-2.console.aws.amazon.com/elasticbeanstalk/home?region=us-west-2#/applications"
     subprocess.check_call(['eb', 'deploy', environment])
 except:
     sys.exit("eb deploy failed!")
