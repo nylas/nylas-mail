@@ -14,7 +14,7 @@ const {MessageFactory} = require('isomorphic-core')
  * to notify the user.
  *
  * We later get EnsureMessageInSentFolder queued with the
- * `sentPerRecipient` flag set to ensure the newly delivered message shows
+ * `customSentMessage` flag set to ensure the newly delivered message shows
  * up in the sent folder and only a single message shows up in the sent
  * folder.
  */

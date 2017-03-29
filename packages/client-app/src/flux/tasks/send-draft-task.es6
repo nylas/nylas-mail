@@ -65,6 +65,14 @@ export default class SendDraftTask extends BaseDraftTask {
     return Promise.resolve();
   }
 
+  _trackingPluginsInUse() {
+    const pluginsAvailable = (OPEN_TRACKING_ID && LINK_TRACKING_ID);
+    if (!pluginsAvailable) {
+      return false;
+    }
+    return (!!this.draft.metadataForPluginId(OPEN_TRACKING_ID) || !!this.draft.metadataForPluginId(LINK_TRACKING_ID)) || false;
+  }
+
   hasCustomBodyPerRecipient = () => {
     if (!this.allowMultiSend) {
       return false;
@@ -77,13 +85,8 @@ export default class SendDraftTask extends BaseDraftTask {
       return false;
     }
 
-    const pluginsAvailable = (OPEN_TRACKING_ID && LINK_TRACKING_ID);
-    if (!pluginsAvailable) {
-      return false;
-    }
-    const pluginsInUse = (this.draft.metadataForPluginId(OPEN_TRACKING_ID) || this.draft.metadataForPluginId(LINK_TRACKING_ID)) || false;
     const providerCompatible = (AccountStore.accountForId(this.draft.accountId).provider !== "eas");
-    return pluginsInUse && providerCompatible;
+    return this._trackingPluginsInUse() && providerCompatible;
   }
 
   sendMessage = async () => {
@@ -97,7 +100,7 @@ export default class SendDraftTask extends BaseDraftTask {
   ensureInSentFolder = () => {
     const t = new EnsureMessageInSentFolderTask({
       message: this.message,
-      sentPerRecipient: this.hasCustomBodyPerRecipient(),
+      customSentMessage: this.hasCustomBodyPerRecipient() || this._trackingPluginsInUse(),
     })
     Actions.queueTask(t)
   }
