@@ -1,7 +1,13 @@
+import Interruptible from '../../shared/interruptible'
+
+// TODO: Choose a more appropriate timeout once we've gathered some metrics
+const TIMEOUT_DELAY = 5 * 60 * 1000;
+
 class SyncbackTask {
   constructor(account, syncbackRequest) {
     this._account = account;
     this._syncbackRequest = syncbackRequest;
+    this._interruptible = new Interruptible()
     if (!this._account) {
       throw new Error("SyncbackTask requires an account")
     }
@@ -27,8 +33,21 @@ class SyncbackTask {
     throw new Error("Must implement `affectsImapMessageUIDs`")
   }
 
-  run() {
-    throw new Error("Must implement a run method")
+  stop = () => {
+    // If we can't retry the task, we don't want to interrupt it.
+    if (this._syncbackRequest.status !== "INPROGRESS-NOTRETRYABLE") {
+      this._interruptible.interrupt({forceReject: true})
+    }
+  }
+
+  async * _run() { // eslint-disable-line
+    throw new Error("Must implement a _run method")
+  }
+
+  async run({timeoutDelay = TIMEOUT_DELAY} = {}) {
+    const timeout = setTimeout(this.stop, timeoutDelay)
+    await this._interruptible.run(this._run)
+    clearTimeout(timeout)
   }
 }
 
