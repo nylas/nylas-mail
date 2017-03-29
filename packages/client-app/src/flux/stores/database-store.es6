@@ -376,8 +376,14 @@ class DatabaseStore extends NylasStore {
     // unable to execute it. Handle this case silently unless it's persistent.
     while (!results) {
       try {
-        // wait for the currentDelay before continuing
-        await new Promise((resolve) => setTimeout(resolve, scheduler.currentDelay()))
+        if (scheduler.currentDelay() > 0) {
+          // Setting a tiemout for 0 will still defer execution of this function
+          // to the next tick of the event loop.
+          // We don't want to unnecessarily defer and delay every single query,
+          // so we only set the timer when we are actually backing off for a
+          // retry.
+          await new Promise((resolve) => setTimeout(resolve, scheduler.currentDelay()))
+        }
 
         let stmt = this._preparedStatementCache.get(query);
         if (!stmt) {
