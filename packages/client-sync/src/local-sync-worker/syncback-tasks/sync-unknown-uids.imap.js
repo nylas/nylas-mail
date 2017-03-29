@@ -14,7 +14,7 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
     return false;
   }
 
-  async run(db, imap, syncWorker) {
+  async * _run(db, imap, syncWorker) {
     this._db = db;
     const {Folder} = db
     const {uids, folderId} = this.syncbackRequestObject().props;
@@ -26,14 +26,14 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
       throw new APIError('folderId is required');
     }
 
-    await this.syncbackRequestObject().update({status: "INPROGRESS-NOTRETRYABLE"});
+    yield this.syncbackRequestObject().update({status: "INPROGRESS-NOTRETRYABLE"});
 
-    const folder = await Folder.findById(folderId);
+    const folder = yield Folder.findById(folderId);
     if (!folder) {
       throw new APIError('folder not found', 404);
     }
 
-    if (await this._isCancelled()) {
+    if (yield this._isCancelled()) {
       return;
     }
 
@@ -47,10 +47,10 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
         uids: uidsToSync,
       });
       this._syncOperation.on('message-processed', () => this.onMessageProcessed());
-      await this._syncOperation.run(db, imap, syncWorker)
+      yield this._syncOperation.run(db, imap, syncWorker)
       this._syncOperation.removeAllListeners('message-processed');
 
-      if (await this._isCancelled()) {
+      if (yield this._isCancelled()) {
         return;
       }
 
@@ -64,7 +64,7 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
     // We do this style of chained syncback tasks so that we don't block the
     // sync loop for too long.
     if (remainingUids.length > 0) {
-      await db.SyncbackRequest.create({
+      yield db.SyncbackRequest.create({
         type: "SyncUnknownUIDs",
         props: {folderId, uids: remainingUids},
         accountId: this.syncbackRequestObject().accountId,

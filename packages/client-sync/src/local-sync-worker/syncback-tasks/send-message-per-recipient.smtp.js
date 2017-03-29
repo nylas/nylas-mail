@@ -23,22 +23,22 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     return `SendMessagePerRecipient`;
   }
 
-  async run(db, smtp) {
+  async * _run(db, smtp) {
     const syncbackRequest = this.syncbackRequestObject()
     const {
       messagePayload,
       usesOpenTracking,
       usesLinkTracking,
     } = syncbackRequest.props;
-    const baseMessage = await MessageFactory.buildForSend(db, messagePayload)
+    const baseMessage = yield MessageFactory.buildForSend(db, messagePayload)
 
-    await syncbackRequest.update({
+    yield syncbackRequest.update({
       status: 'INPROGRESS-NOTRETRYABLE',
     })
 
     let sendResult;
     try {
-      sendResult = await this._sendPerRecipient({
+      sendResult = yield this._sendPerRecipient({
         db, smtp, baseMessage, logger: this._logger, usesOpenTracking, usesLinkTracking})
     } catch (err) {
       throw new APIError('SendMessagePerRecipient: Sending failed for all recipients', 500);
@@ -60,7 +60,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
       // be updated, and we can guarantee this because we control message
       // id generation. The thread will be created or updated when we
       // detect this message in the sync loop
-      await baseMessage.save()
+      yield baseMessage.save()
 
       return {
         message: baseMessage.toJSON(),

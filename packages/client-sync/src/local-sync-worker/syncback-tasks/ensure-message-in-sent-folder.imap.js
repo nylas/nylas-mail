@@ -4,13 +4,13 @@ const {SyncbackIMAPTask} = require('./syncback-task')
 const SyncTaskFactory = require('../sync-task-factory');
 
 
-async function deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
+async function* deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
   if (provider !== 'gmail') { return }
 
-  const trash = await db.Folder.find({where: {role: 'trash'}});
+  const trash = yield db.Folder.find({where: {role: 'trash'}});
   if (!trash) { throw new APIError(`Could not find folder with role 'trash'.`) }
 
-  const allMail = await db.Folder.find({where: {role: 'all'}});
+  const allMail = yield db.Folder.find({where: {role: 'all'}});
   if (!allMail) { throw new APIError(`Could not find folder with role 'all'.`) }
 
   // Move the message from all mail to trash and then delete it from there
@@ -20,29 +20,29 @@ async function deleteGmailSentMessages({db, imap, provider, headerMessageId}) {
   ]
 
   for (const {folder, deleteFn} of steps) {
-    const box = await imap.openBox(folder.name);
-    const uids = await box.search([['HEADER', 'Message-ID', headerMessageId]])
+    const box = yield imap.openBox(folder.name);
+    const uids = yield box.search([['HEADER', 'Message-ID', headerMessageId]])
     for (const uid of uids) {
-      await deleteFn(box, uid);
+      yield deleteFn(box, uid);
     }
-    await box.closeBox();
+    yield box.closeBox();
   }
 }
 
-async function saveSentMessage({db, account, syncWorker, logger, imap, provider, customSentMessage, baseMessage}) {
+async function* saveSentMessage({db, account, syncWorker, logger, imap, provider, customSentMessage, baseMessage}) {
   const {Folder, Label} = db
 
   // Case 1. If non gmail, save the message to the `sent` folder using IMAP
   // Only gmail creates a sent message for us, so if we are using any other provider
   // we need to save it manually ourselves.
   if (provider !== 'gmail') {
-    const sentFolder = await Folder.find({where: {role: 'sent'}});
+    const sentFolder = yield Folder.find({where: {role: 'sent'}});
     if (!sentFolder) { throw new APIError(`Can't find sent folder - could not save message to sent folder.`) }
 
     const sender = new SendmailClient(account, logger);
-    const rawMime = await sender.buildMime(baseMessage);
-    const box = await imap.openBox(sentFolder.name);
-    await box.append(rawMime, {flags: 'SEEN'});
+    const rawMime = yield sender.buildMime(baseMessage);
+    const box = yield imap.openBox(sentFolder.name);
+    yield box.append(rawMime, {flags: 'SEEN'});
 
     // If IMAP succeeds, fetch any new messages in the sent folder which
     // should include the messages we just created there
@@ -52,15 +52,15 @@ async function saveSentMessage({db, account, syncWorker, logger, imap, provider,
       account,
       folder: sentFolder,
     })
-    await syncOperation.run(db, imap, syncWorker)
+    yield syncOperation.run(db, imap, syncWorker)
     return
   }
 
 
   // Showing as sent in gmail means adding the message to all mail and
   // adding the sent label
-  const sentLabel = await Label.find({where: {role: 'sent'}});
-  const allMailFolder = await Folder.find({where: {role: 'all'}});
+  const sentLabel = yield Label.find({where: {role: 'sent'}});
+  const allMailFolder = yield Folder.find({where: {role: 'all'}});
   if (!sentLabel || !allMailFolder) {
     throw new APIError('Could not save message to sent folder.')
   }
@@ -72,15 +72,15 @@ async function saveSentMessage({db, account, syncWorker, logger, imap, provider,
   // tracking, but we actually /just/ want to show the baseMessage as sent
   if (customSentMessage) {
     const sender = new SendmailClient(account, logger);
-    const rawMime = await sender.buildMime(baseMessage);
-    const box = await imap.openBox(allMailFolder.name);
+    const rawMime = yield sender.buildMime(baseMessage);
+    const box = yield imap.openBox(allMailFolder.name);
 
-    await box.append(rawMime, {flags: 'SEEN'})
+    yield box.append(rawMime, {flags: 'SEEN'})
 
     const {headerMessageId} = baseMessage
-    const uids = await box.search([['HEADER', 'Message-ID', headerMessageId]])
+    const uids = yield box.search([['HEADER', 'Message-ID', headerMessageId]])
     // There should only be one uid in the array
-    await box.setLabels(uids[0], sentLabel.imapLabelIdentifier());
+    yield box.setLabels(uids[0], sentLabel.imapLabelIdentifier());
   }
 
   // If IMAP succeeds, fetch any new messages in the sent folder which
@@ -91,10 +91,10 @@ async function saveSentMessage({db, account, syncWorker, logger, imap, provider,
     account,
     folder: allMailFolder,
   })
-  await syncOperation.run(db, imap, syncWorker)
+  yield syncOperation.run(db, imap, syncWorker)
 }
 
-async function setThreadingReferences(db, baseMessage) {
+async function* setThreadingReferences(db, baseMessage) {
   const {Message, Reference} = db
   // TODO When the message was created for sending, we set the
   // `inReplyToLocalMessageId` if it exists, and we set the temporary properties
@@ -103,7 +103,7 @@ async function setThreadingReferences(db, baseMessage) {
   // them again because they are necessary for building the correct raw mime
   // message to add to the sent folder
   // We should clean this up
-  const replyToMessage = await Message.findById(
+  const replyToMessage = yield Message.findById(
     baseMessage.inReplyToLocalMessageId,
     { include: [{model: Reference, as: 'references', attributes: ['id', 'rfc2822MessageId']}] }
   )
@@ -136,11 +136,11 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
     return false
   }
 
-  async run(db, imap, syncWorker) {
+  async * _run(db, imap, syncWorker) {
     const {Message} = db
     const {messageId, customSentMessage} = this.syncbackRequestObject().props
 
-    const baseMessage = await Message.findById(messageId, {
+    const baseMessage = yield Message.findById(messageId, {
       include: [{model: db.Folder}, {model: db.Label}, {model: db.File}],
     });
 
@@ -148,7 +148,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
       throw new APIError(`Couldn't find message ${messageId} to stuff in sent folder`, 500)
     }
 
-    await setThreadingReferences(db, baseMessage)
+    yield setThreadingReferences(db, baseMessage)
 
     const {provider} = this._account
     const {headerMessageId} = baseMessage
@@ -162,7 +162,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
     // sent messages and clean them up
     if (customSentMessage && provider === Provider.Gmail) {
       try {
-        await deleteGmailSentMessages({db, imap, provider, headerMessageId})
+        yield deleteGmailSentMessages({db, imap, provider, headerMessageId})
       } catch (err) {
         // Even if this fails, we need to finish attempting to save the
         // baseMessage to the sent folder
@@ -170,7 +170,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
       }
     }
 
-    await saveSentMessage({db, account: this._account, syncWorker, logger: this._logger, imap, provider, customSentMessage, baseMessage})
+    yield saveSentMessage({db, account: this._account, syncWorker, logger: this._logger, imap, provider, customSentMessage, baseMessage})
     return baseMessage.toJSON()
   }
 }

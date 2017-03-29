@@ -10,16 +10,16 @@ class RenameLabelIMAP extends SyncbackIMAPTask {
     return false
   }
 
-  async run(db, imap) {
+  async * _run(db, imap) {
     const {sequelize, accountId, Label} = db
     const {labelId, newLabelName} = this.syncbackRequestObject().props
-    const oldLabel = await Label.findById(labelId)
-    await imap.renameBox(oldLabel.name, newLabelName);
+    const oldLabel = yield Label.findById(labelId)
+    yield imap.renameBox(oldLabel.name, newLabelName);
 
     // After IMAP succeeds, update the db
     const newId = Label.hash({boxName: newLabelName, accountId})
     let newLabel;
-    await sequelize.transaction(async (transaction) => {
+    yield sequelize.transaction(async (transaction) => {
       newLabel = await Label.create({
         id: newId,
         accountId,
