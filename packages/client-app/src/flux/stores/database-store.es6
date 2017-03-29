@@ -294,7 +294,7 @@ class DatabaseStore extends NylasStore {
   //
   // If a query is made before the database has been opened, the query will be
   // held in a queue and run / resolved when the database is ready.
-  _query(query, values = [], background = false, logQueryPlanDebugOutput = true) {
+  _query(query, values = [], background = false) {
     return new Promise(async (resolve, reject) => {
       if (!this._open) {
         this._waiting.push(() => this._query(query, values).then(resolve, reject));
@@ -313,26 +313,13 @@ class DatabaseStore extends NylasStore {
         }
       });
 
-      if (query.startsWith(`SELECT `) && DEBUG_QUERY_PLANS) {
-        const plan = this._db.prepare(`EXPLAIN QUERY PLAN ${query}`).all(values);
-        const planString = `${plan.map(row => row.detail).join('\n')} for ${query}`;
-        const quiet = ['ThreadCounts', 'ThreadSearch', 'ContactSearch', 'COVERING INDEX'];
-
-        if (planString.includes('SCAN') &&
-            !quiet.find(str => planString.includes(str)) &&
-            logQueryPlanDebugOutput) {
-          console.log("Consider setting the .background() flag on this query to avoid blocking the event loop:")
-          this._prettyConsoleLog(planString);
-        }
-      }
-
       const start = Date.now();
 
       if (!background) {
         const results = await this._executeLocally(query, values);
         const msec = Date.now() - start;
-        if ((msec > 100) || DEBUG_TO_LOG) {
-          this._prettyConsoleLog(`${msec}msec: ${query}`);
+        if (msec > 100) {
+          this._prettyConsoleLog(`DatabaseStore._executeLocally took more than 100ms - ${msec}msec: ${query}`);
         }
         resolve(results);
       } else {
@@ -344,7 +331,7 @@ class DatabaseStore extends NylasStore {
         }
         this._executeInBackground(query, values).then(({results, backgroundTime}) => {
           const msec = Date.now() - start;
-          if ((msec > 100) || DEBUG_TO_LOG) {
+          if (msec > 100 || DEBUG_TO_LOG) {
             const msgPrefix = msec > 100 ? 'DatabaseStore._executeInBackground took more than 100ms - ' : ''
             this._prettyConsoleLog(`${msgPrefix}${msec}msec (${backgroundTime}msec in background): ${query}`);
           }
@@ -390,7 +377,25 @@ class DatabaseStore extends NylasStore {
           stmt = this._db.prepare(query);
           this._preparedStatementCache.set(query, stmt)
         }
+
+        const start = Date.now();
         results = stmt[fn](values);
+        const msec = Date.now() - start
+
+        if (msec > 100 || DEBUG_TO_LOG) {
+          const msgPrefix = msec > 100 ? 'DatabaseStore: query took more than 100ms - ' : ''
+          if (query.startsWith(`SELECT `) && DEBUG_QUERY_PLANS) {
+            const plan = this._db.prepare(`EXPLAIN QUERY PLAN ${query}`).all(values);
+            const planString = `${plan.map(row => row.detail).join('\n')} for ${query}`;
+            const quiet = ['ThreadCounts', 'ThreadSearch', 'ContactSearch', 'COVERING INDEX'];
+
+            if (!quiet.find(str => planString.includes(str))) {
+              this._prettyConsoleLog(`${msgPrefix}${msec}msec: ${planString}`);
+            }
+          } else {
+            this._prettyConsoleLog(`${msgPrefix}${msec}msec: ${query}`);
+          }
+        }
       } catch (err) {
         const errString = err.toString()
 
