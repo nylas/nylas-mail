@@ -1,3 +1,4 @@
+import {Actions} from 'nylas-exports'
 import Interruptible from '../../shared/interruptible'
 
 // TODO: Choose a more appropriate timeout once we've gathered some metrics
@@ -37,6 +38,10 @@ class SyncbackTask {
     // If we can't retry the task, we don't want to interrupt it.
     if (this._syncbackRequest.status !== "INPROGRESS-NOTRETRYABLE") {
       this._interruptible.interrupt({forceReject: true})
+      Actions.recordUserEvent("SyncbackTask Stopped", {
+        accountId: this._account.id,
+        type: this._syncbackRequest.type,
+      })
     }
   }
 
@@ -46,7 +51,15 @@ class SyncbackTask {
 
   async run({timeoutDelay = TIMEOUT_DELAY} = {}) {
     const timeout = setTimeout(this.stop, timeoutDelay)
+    const startTime = Date.now()
     await this._interruptible.run(this._run)
+    Actions.recordPerfMetric({
+      action: 'syncback-task-run',
+      accountId: this._account.id,
+      actionTimeMs: Date.now() - startTime,
+      maxValue: 10 * 60 * 1000,
+      type: this._syncbackRequest.type,
+    })
     clearTimeout(timeout)
   }
 }
