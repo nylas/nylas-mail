@@ -1,5 +1,22 @@
 # Nylas Mail Changelog
 
+### 1.0.52 (3/29/2017)
+
+  + [client-app] Fix thread reindexing loop
+  + [client-app] Add initial sync benchmarking script
+  + [client-app] Fix references to RetryableError imports
+  + [client-app] Log duration of db ANALYZE query
+  + [client-app] Improve logging for queries
+  + [client-app] Improve logging for background database queries
+  + [client-app] Reduce max retry delay for db queries
+  + [client-app] Don't delay db queries unless we are retrying
+  + [client-app] ensure gmail msg to 1 person get tracking stripped
+  + [client-app] don't trigger your own opens & link clicks
+  + [client-app] index expiration field on Metadata
+  + [client-sync] Fix in: for IMAP search
+  + [client-app] Reindex threads when they're updated
+  + [dev] Default billing server URL to staging for development, allow override
+
 ### 1.0.51 (3/28/2017)
 
 - Features:
