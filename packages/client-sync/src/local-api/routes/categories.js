@@ -78,23 +78,51 @@ module.exports = (server) => {
           params: {
             id: Joi.string().required(),
           },
-          payload: {
-            display_name: Joi.string().required(),
-          },
+          payload: Joi.object().keys({
+            display_name: Joi.string(),
+            role: Joi.string(),
+          }).or('display_name', 'role'), // Require at least one of these fields
         },
         response: {
           schema: Serialization.jsonSchema('SyncbackRequest'),
         },
       },
       async handler(request, reply) {
-        const {payload} = request
-        if (payload.display_name) {
+        const {display_name: displayName, role} = request.payload
+        if (role) {
+          const db = await request.getAccountDatabase()
+          const Klass = db[klass];
+
+          // Only one folder/label should have any given role
+          // Remove this role from any items that it currently belongs to
+          const labelsWithRole = await db.Label.findAll({
+            where: {role: role},
+          })
+          const foldersWithRole = await db.Folder.findAll({
+            where: {role: role},
+          })
+          const itemsWithRole = labelsWithRole.concat(foldersWithRole)
+          await Promise.all(itemsWithRole.map((item) => {
+            item.role = null;
+            return item.save();
+          }))
+
+          // Add the role to the target item
+          const targetItem = await Klass.findById(request.params.id)
+          targetItem.role = role;
+          await targetItem.save()
+
+          if (!displayName) {
+            reply(Serialization.jsonStringify(targetItem));
+          }
+        }
+        if (displayName) {
           if (klass === 'Label') {
             createAndReplyWithSyncbackRequest(request, reply, {
               type: "RenameLabel",
               props: {
                 labelId: request.params.id,
-                newLabelName: payload.display_name,
+                newLabelName: displayName,
               },
             })
           } else {
@@ -102,7 +130,7 @@ module.exports = (server) => {
               type: "RenameFolder",
               props: {
                 folderId: request.params.id,
-                newFolderName: payload.display_name,
+                newFolderName: displayName,
               },
             })
           }
