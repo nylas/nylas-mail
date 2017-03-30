@@ -25,4 +25,5 @@ module.exports = {
   MessageFactory: require('./src/message-factory'),
   SendUtils: require('./src/send-utils'),
   executeJasmine: require('./spec/jasmine/execute').default,
+  StringUtils: require('./src/string-utils'),
 }

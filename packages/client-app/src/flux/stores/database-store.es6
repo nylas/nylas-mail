@@ -5,7 +5,7 @@ import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
 import {remote, ipcRenderer} from 'electron';
 import LRU from "lru-cache";
-import {ExponentialBackoffScheduler} from 'isomorphic-core';
+import {StringUtils, ExponentialBackoffScheduler} from 'isomorphic-core';
 
 import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
@@ -333,6 +333,10 @@ class DatabaseStore extends NylasStore {
         }
         this._executeInBackground(query, values).then(({results, backgroundTime}) => {
           const msec = Date.now() - start;
+          if (process.env.ENABLE_RXDB_DEBUG_LOGGING) {
+            const q = `🔶 N1: (${msec}ms) Background: ${query}`;
+            StringUtils.logTrim(q)
+          }
           if (msec > 100 || DEBUG_TO_LOG) {
             const msgPrefix = msec > 100 ? 'DatabaseStore._executeInBackground took more than 100ms - ' : ''
             this._prettyConsoleLog(`${msgPrefix}${msec}msec (${backgroundTime}msec in background): ${query}`);
@@ -383,6 +387,11 @@ class DatabaseStore extends NylasStore {
         const start = Date.now();
         results = stmt[fn](values);
         const msec = Date.now() - start
+
+        if (process.env.ENABLE_RXDB_DEBUG_LOGGING) {
+          const q = `🔶 N1: (${msec}ms) ${query}`;
+          StringUtils.logTrim(q)
+        }
 
         if (msec > 100 || DEBUG_TO_LOG) {
           const msgPrefix = msec > 100 ? 'DatabaseStore: query took more than 100ms - ' : ''

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
-const {loadModels, HookIncrementVersionOnSave, HookTransactionLog} = require('isomorphic-core');
+const {StringUtils, loadModels, HookIncrementVersionOnSave, HookTransactionLog} = require('isomorphic-core');
 const TransactionConnector = require('./transaction-connector')
 
 require('./database-extensions'); // Extends Sequelize on require
@@ -15,10 +15,14 @@ class LocalDatabaseConnector {
 
   _sequelizePoolForDatabase(dbname) {
     const storage = NylasEnv.inSpecMode() ? ':memory:' : path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`);
+    const dbLog = (q, time) => {
+      StringUtils.logTrim(`🔷 K2: (${time}ms) ${q}`)
+    }
     return new Sequelize(dbname, '', '', {
       storage: storage,
       dialect: "sqlite",
-      logging: ENABLE_SEQUELIZE_DEBUG_LOGGING ? console.log : false,
+      benchmark: !!ENABLE_SEQUELIZE_DEBUG_LOGGING,
+      logging: ENABLE_SEQUELIZE_DEBUG_LOGGING ? dbLog : false,
     })
   }
 
