@@ -59,6 +59,7 @@ class SyncbackTask {
       actionTimeMs: Date.now() - startTime,
       maxValue: 10 * 60 * 1000,
       type: this._syncbackRequest.type,
+      provider: this._account.provider,
     })
     clearTimeout(timeout)
   }
