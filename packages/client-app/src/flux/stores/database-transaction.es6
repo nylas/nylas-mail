@@ -64,11 +64,11 @@ export default class DatabaseTransaction {
   //     database callbacks have finished
   //   - rejects if any databse query fails or one of the triggering
   //     callbacks failed
-  persistModel(model) {
+  persistModel(model, opts = {}) {
     if (!model || !(model instanceof Model)) {
       throw new Error("DatabaseTransaction::persistModel - You must pass an instance of the Model class.");
     }
-    return this.persistModels([model]);
+    return this.persistModels([model], opts);
   }
 
   // Public: Asynchronously writes `models` to the cache and triggers a single change
@@ -76,12 +76,23 @@ export default class DatabaseTransaction {
   //
   // - `models` An {Array} of {Model} objects to write to the database.
   //
+  // - options:
+  //  - `silent`: default false. Will notify hooks and downstream
+  //    listeners that the models have changed. Always have it set to
+  //    false unless you're VERY sure no one needs to know about the
+  //    changes that happen. This could cause DBs to become out of sync if
+  //    careless.
+  //  - `affectsJoins`: defaults to true. Any model that has joined
+  //    properties via Attributes.Collections almost always needs to get
+  //    updated. If you're VERY sure the change does not affect any join
+  //    tables, you can set this to `false` to save some DB queries.
+  //
   // Returns a {Promise} that
   //   - resolves after the database queries are complete and any listening
   //     database callbacks have finished
   //   - rejects if any databse query fails or one of the triggering
   //     callbacks failed
-  persistModels(models = []) {
+  persistModels(models = [], {silent = false, affectsJoins = true} = {}) {
     if (models.length === 0) {
       return Promise.resolve();
     }
@@ -115,8 +126,11 @@ export default class DatabaseTransaction {
       type: 'persist',
     }
 
+    if (silent) {
+      return this._writeModels(clones, {affectsJoins})
+    }
     return this._runMutationHooks('beforeDatabaseChange', metadata).then((data) => {
-      return this._writeModels(clones).then(() => {
+      return this._writeModels(clones, {affectsJoins}).then(() => {
         this._runMutationHooks('afterDatabaseChange', metadata, data);
         return this._changeRecords.push(metadata);
       });
@@ -132,7 +146,7 @@ export default class DatabaseTransaction {
   //     database callbacks have finished
   //   - rejects if any databse query fails or one of the triggering
   //     callbacks failed
-  unpersistModel(model) {
+  unpersistModel(model, {silent = false} = {}) {
     const clone = model.clone();
     const metadata = {
       objectClass: clone.constructor.name,
@@ -141,6 +155,9 @@ export default class DatabaseTransaction {
       type: 'unpersist',
     }
 
+    if (silent) {
+      return this._deleteModel(clone)
+    }
     return this._runMutationHooks('beforeDatabaseChange', metadata).then((data) => {
       return this._deleteModel(clone).then(() => {
         this._runMutationHooks('afterDatabaseChange', metadata, data);
@@ -177,7 +194,7 @@ export default class DatabaseTransaction {
   // Returns a promise that:
   //   - resolves when all write queries are complete
   //   - rejects if any query fails
-  _writeModels(models) {
+  _writeModels(models, {affectsJoins = true} = {}) {
     const promises = [];
 
     // IMPORTANT: This method assumes that all the models you
@@ -188,8 +205,8 @@ export default class DatabaseTransaction {
     // and we don't know ahead of time whether we'll hit that or not.
     if (models.length > 50) {
       return Promise.all([
-        this._writeModels(models.slice(0, 50)),
-        this._writeModels(models.slice(50)),
+        this._writeModels(models.slice(0, 50), {affectsJoins}),
+        this._writeModels(models.slice(50), {affectsJoins}),
       ]);
     }
 
@@ -230,6 +247,10 @@ export default class DatabaseTransaction {
     const marksSQL = marks.join(',');
 
     promises.push(this._query(`REPLACE INTO \`${klass.name}\` (${columnsSQL}) VALUES ${marksSQL}`, values));
+
+    if (!affectsJoins) {
+      return Promise.all(promises);
+    }
 
     // For each join table property, find all the items in the join table for this
     // model and delete them. Insert each new value back into the table.

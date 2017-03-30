@@ -143,7 +143,7 @@ class ThreadSearchIndexStore {
             thread.isSearchIndexed = false;
             this.threadsWaitingToBeIndexed.add(thread.id);
           })
-          await DatabaseStore.inTransaction(t => t.persistModels(threadsToIndex));
+          await DatabaseStore.inTransaction(t => t.persistModels(threadsToIndex, {silent: true, affectsJoins: false}));
           this.indexer.notifyHasIndexingToDo();
         }
       } else if (type === 'unpersist') {
