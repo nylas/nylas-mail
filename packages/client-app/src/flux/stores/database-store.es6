@@ -818,7 +818,7 @@ class DatabaseStore extends NylasStore {
       return this._query(sql, values).then(({lastInsertROWID}) => {
         model.isSearchIndexed = true;
         model.searchIndexId = lastInsertROWID;
-        return this.inTransaction((t) => t.persistModel(model))
+        return this.inTransaction((t) => t.persistModel(model, {silent: true, affectsJoins: false}))
       });
     });
   }
@@ -858,7 +858,7 @@ class DatabaseStore extends NylasStore {
     return query.then(() => {
       model.isSearchIndexed = false;
       model.searchIndexId = 0;
-      return this.inTransaction((t) => t.persistModel(model))
+      return this.inTransaction((t) => t.persistModel(model, {silent: true, affectsJoins: false}))
     });
   }
 
