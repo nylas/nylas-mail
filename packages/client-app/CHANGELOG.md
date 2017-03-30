@@ -2,20 +2,27 @@
 
 ### 1.0.52 (3/29/2017)
 
-  + [client-app] Fix thread reindexing loop
-  + [client-app] Add initial sync benchmarking script
-  + [client-app] Fix references to RetryableError imports
-  + [client-app] Log duration of db ANALYZE query
-  + [client-app] Improve logging for queries
-  + [client-app] Improve logging for background database queries
-  + [client-app] Reduce max retry delay for db queries
-  + [client-app] Don't delay db queries unless we are retrying
-  + [client-app] ensure gmail msg to 1 person get tracking stripped
-  + [client-app] don't trigger your own opens & link clicks
-  + [client-app] index expiration field on Metadata
-  + [client-sync] Fix in: for IMAP search
-  + [client-app] Reindex threads when they're updated
-  + [dev] Default billing server URL to staging for development, allow override
+- Fixes:
+  + Fix open and link tracking:
+    + No longer triggers your own opens & link clicks
+    + Link tracking indicator is now always present in sent messages
+  + Fix regression in DB query execution which would delay all queries in the
+    system.
+  + Reduce max retry backoff for DB queries, which could hold a query open for
+    too long
+  + Fix thread reindexing issues, which should help performance and correctly
+    index threads for search
+  + Fix `in:` search syntax for non-gmail search
+  + Fix references to RetryableError imports
+
+- Development:
+  + Add initial sync benchmarking script
+  + Clean up logging in DatabaseStore: differentiate background queries from
+    regular queries in the logs, only log queries that actually take more than
+    100ms.
+  + Point the billing server URL to staging by default for easier development,
+    and allow it to be overriden
+  + Add index to expiration field on Metadata
 
 ### 1.0.51 (3/28/2017)
 
