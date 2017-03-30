@@ -102,6 +102,7 @@ class NylasComponentKit
   @requireFrom "AttachmentItem", "attachment-items"
   @requireFrom "ImageAttachmentItem", "attachment-items"
   @load "CodeSnippet", "code-snippet"
+  @load "DropdownMenu", "dropdown-menu"
 
   @load "ScrollRegion", 'scroll-region'
   @load "ResizableRegion", 'resizable-region'
