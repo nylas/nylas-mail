@@ -47,7 +47,7 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
         uids: uidsToSync,
       });
       this._syncOperation.on('message-processed', () => this.onMessageProcessed());
-      yield this._syncOperation.run(db, imap, syncWorker)
+      yield this._syncOperation.run(db, imap, {syncWorker})
       this._syncOperation.removeAllListeners('message-processed');
 
       if (yield this._isCancelled()) {
