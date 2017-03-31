@@ -212,17 +212,6 @@ class DatabaseStore extends NylasStore {
     }
 
     this._db.pragma(`user_version=${DatabaseVersion}`);
-
-    const exportPath = path.join(NylasEnv.getConfigDirPath(), 'mail-rules-export.json')
-    if (fs.existsSync(exportPath)) {
-      try {
-        const row = JSON.parse(fs.readFileSync(exportPath));
-        this.inTransaction(t => t.persistJSONBlob('MailRules-V2', row.json));
-        fs.unlink(exportPath);
-      } catch (mailRulesError) {
-        console.log(`Could not re-import mail rules: ${mailRulesError}`);
-      }
-    }
     return ready();
   }
 
