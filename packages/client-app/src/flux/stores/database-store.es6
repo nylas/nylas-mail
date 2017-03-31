@@ -679,8 +679,13 @@ class DatabaseStore extends NylasStore {
     const t = new DatabaseWriter(this);
     this._transactionQueue = this._transactionQueue || new PromiseQueue(1, Infinity);
     return this._transactionQueue.add(() =>
-      t.execute(fn)
+      t.executeInTransaction(fn)
     );
+  }
+
+  async write(fn) {
+    const t = new DatabaseWriter(this);
+    await t.execute(fn)
   }
 
   // _accumulateAndTrigger is a guarded version of trigger that can accumulate changes.
