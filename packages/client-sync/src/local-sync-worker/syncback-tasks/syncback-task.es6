@@ -54,6 +54,10 @@ class SyncbackTask {
     const timeout = setTimeout(this.stop, timeoutDelay)
     const startTime = Date.now()
     const response = await this._interruptible.run(() => this._run(db, imapOrSmtp, ctx))
+
+    // Since we've already completed the task, we don't want to fail before
+    // we return the response. Wrap everything else in a try/catch and still
+    // return the response if an error is thrown.
     try {
       Actions.recordPerfMetric({
         action: 'syncback-task-run',
@@ -65,7 +69,7 @@ class SyncbackTask {
       })
       clearTimeout(timeout)
     } catch (err) {
-      // Do nothing
+      // Don't throw
     }
     return response
   }
