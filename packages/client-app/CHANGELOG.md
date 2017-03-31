@@ -1,5 +1,16 @@
 # Nylas Mail Changelog
 
+### 1.0.54 (3/31/2017)
+
+  + [client-sync] Simplify Contact ranking query
+  + [client-app] delay building new hot window to improve win perf
+  + [client-app] Don't imeout removing sync worker when removing an account
+  + [client-app] Ensure sync worker can never continue running after being destroyed
+  + [client-app] Don't hit contact rankings endpoint until account is ready
+  + [client-sync] Wrap more syncWorker args
+  + [client-sync] Properly wrap the SyncWorker arg in an object
+  + [client-sync] Fix the new syncback-task structure
+
 ### 1.0.53 (3/31/2017)
 
   + [client-app] add  which doesn't use Transactions
