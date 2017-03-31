@@ -109,7 +109,7 @@ class SyncProcessManager {
       })
       global.Logger.log(`SyncProcessManager: Detected stuck worker for account ${accountId}`, activity, time)
 
-      await this.removeWorkerForAccountId(accountId)
+      await this.removeWorkerForAccountId(accountId, {timeout: 5 * 1000})
       const {Account} = await LocalDatabaseConnector.forShared();
       const account = await Account.findById(accountId)
       await this.addWorkerForAccount(account)
@@ -175,14 +175,9 @@ class SyncProcessManager {
     }
   }
 
-  async removeWorkerForAccountId(accountId) {
+  async removeWorkerForAccountId(accountId, {timeout} = {}) {
     if (this._workersByAccountId[accountId]) {
-      try {
-        await this._workersByAccountId[accountId].destroy({timeout: 500})
-      } catch (err) {
-        err.message = `Error while cleaning up sync worker: ${err.message}`
-        NylasEnv.reportError(err)
-      }
+      await this._workersByAccountId[accountId].destroy({timeout})
       this._workersByAccountId[accountId] = null;
     }
 
