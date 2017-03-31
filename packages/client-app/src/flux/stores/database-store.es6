@@ -136,7 +136,6 @@ class DatabaseStore extends NylasStore {
       this._checkDatabaseVersion({allowUnset: true}, () => {
         this._runDatabaseSetup(() => {
           app.setDatabasePhase(DatabasePhase.Ready);
-          setTimeout(() => this._runDatabaseAnalyze(), 60 * 1000);
         });
       });
     } else if (phase === DatabasePhase.Ready) {
@@ -152,6 +151,10 @@ class DatabaseStore extends NylasStore {
     } else if (phase === DatabasePhase.Close) {
       this._open = false;
       if (this._db) {
+        // https://sqlite.org/pragma.html#pragma_optimize
+        // We do this instead of holding up initial booting by running
+        // potentially very expensive `ANALYZE` queries.
+        this._db.pragma('optimize');
         this._db.close();
         this._db = null;
       }
@@ -221,23 +224,6 @@ class DatabaseStore extends NylasStore {
       }
     }
     return ready();
-  }
-
-  _runDatabaseAnalyze() {
-    const builder = new DatabaseSetupQueryBuilder();
-    const queries = builder.analyzeQueries();
-    const start = Date.now()
-    const step = () => {
-      const query = queries.shift();
-      if (query) {
-        debug(`DatabaseStore: ${query}`);
-        this._executeInBackground(query, []).then(step);
-      } else {
-        const msec = Date.now() - start
-        console.log(`Completed ANALYZE of database - took ${msec}msec`);
-      }
-    }
-    step();
   }
 
   _handleSetupError(err = (new Error(`Manually called _handleSetupError`))) {
