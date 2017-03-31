@@ -48,7 +48,6 @@ export default class WindowLauncher {
         this.createHotWindow()
       }
       win = this.hotWindow;
-      this.createHotWindow();
 
       const newLoadSettings = Object.assign({}, win.loadSettings(), opts)
       if (newLoadSettings.windowType === WindowLauncher.EMPTY_WINDOW) {
@@ -70,6 +69,12 @@ export default class WindowLauncher {
       }
 
       win.setLoadSettings(newLoadSettings);
+
+      setTimeout(() => {
+        // We need to regen a hot window, but do it in the next event
+        // loop to not hang the opening of the current window.
+        this.createHotWindow();
+      }, 0)
     }
 
     if (!opts.hidden && !opts.initializeInBackground) {
