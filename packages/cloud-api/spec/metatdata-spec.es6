@@ -246,21 +246,21 @@ describe("Metadata route", () => {
     spyOn(Sentry, "captureException")
 
     const {Metadata} = await DatabaseConnector.forShared()
-    Metadata.create({
+    await Metadata.create({
       accountId: this.baseRequest.auth.credentials.account.id,
       pluginId: this.baseRequest.params.pluginId,
       objectId: 't:1',
       objectType: 'thread',
       value: {foo: "bar", some: 'thing'},
     })
-    Metadata.create({
+    await Metadata.create({
       accountId: this.baseRequest.auth.credentials.account.id,
       pluginId: this.baseRequest.params.pluginId,
       objectId: 't:4',
       objectType: 'thread',
       value: {foo: "baz", other: 'thing'},
     })
-    Metadata.create({
+    await Metadata.create({
       accountId: this.baseRequest.auth.credentials.account.id,
       pluginId: this.baseRequest.params.pluginId,
       objectId: 't:11',
