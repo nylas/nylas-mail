@@ -691,7 +691,7 @@ class FetchMessagesInFolderIMAP extends SyncTask {
    * we want to interrupt sync. This is enabled by `SyncOperation` and
    * `Interruptible`
    */
-  async * runTask(db, imap, syncWorker) {
+  async * runTask(db, imap, {syncWorker} = {}) {
     this._logger.log(`🔜 📂 ${this._folder.name}`)
     this._db = db;
     this._imap = imap;

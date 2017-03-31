@@ -49,19 +49,25 @@ class SyncbackTask {
     throw new Error("Must implement a _run method")
   }
 
-  async run({timeoutDelay = TIMEOUT_DELAY} = {}) {
+  async run(db, imapOrSmtp, ctx = {}) {
+    const {timeoutDelay = TIMEOUT_DELAY} = ctx
     const timeout = setTimeout(this.stop, timeoutDelay)
     const startTime = Date.now()
-    await this._interruptible.run(this._run)
-    Actions.recordPerfMetric({
-      action: 'syncback-task-run',
-      accountId: this._account.id,
-      actionTimeMs: Date.now() - startTime,
-      maxValue: 10 * 60 * 1000,
-      type: this._syncbackRequest.type,
-      provider: this._account.provider,
-    })
-    clearTimeout(timeout)
+    const response = await this._interruptible.run(() => this._run(db, imapOrSmtp, ctx))
+    try {
+      Actions.recordPerfMetric({
+        action: 'syncback-task-run',
+        accountId: this._account.id,
+        actionTimeMs: Date.now() - startTime,
+        maxValue: 10 * 60 * 1000,
+        type: this._syncbackRequest.type,
+        provider: this._account.provider,
+      })
+      clearTimeout(timeout)
+    } catch (err) {
+      // Do nothing
+    }
+    return response
   }
 }
 

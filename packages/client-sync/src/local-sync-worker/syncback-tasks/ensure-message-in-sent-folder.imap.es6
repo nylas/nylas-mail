@@ -136,7 +136,7 @@ class EnsureMessageInSentFolderIMAP extends SyncbackIMAPTask {
     return false
   }
 
-  async * _run(db, imap, syncWorker) {
+  async * _run(db, imap, {syncWorker} = {}) {
     const {Message} = db
     const {messageId, customSentMessage} = this.syncbackRequestObject().props
 

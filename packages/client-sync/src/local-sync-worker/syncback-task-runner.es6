@@ -168,7 +168,7 @@ class SyncbackTaskRunner {
       let responseJSON;
       switch (resource) {
         case 'imap':
-          responseJSON = await this._imap.runOperation(task, this._syncWorker)
+          responseJSON = await this._imap.runOperation(task, {syncWorker: this._syncWorker})
           break;
         case 'smtp':
           responseJSON = await task.run(this._db, this._smtp)

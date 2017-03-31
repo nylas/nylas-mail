@@ -14,7 +14,7 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
     return false;
   }
 
-  async * _run(db, imap, syncWorker) {
+  async * _run(db, imap, {syncWorker} = {}) {
     this._db = db;
     const {Folder} = db
     const {uids, folderId} = this.syncbackRequestObject().props;
