@@ -1,12 +1,9 @@
-export function logTrim(...args) {
+export function trimTo(str, size) {
   const g = window || global || {}
-  const LOG_TRIM_SIZE = process.env.LOG_TRIM_SIZE || g.LOG_TRIM_SIZE || 256;
-  for (let i = 0; i < args.length; i++) {
-    let str = args[i];
-    if (str.length >= LOG_TRIM_SIZE) {
-      str = `${str.slice(0, LOG_TRIM_SIZE / 2)}…${str.slice(str.length - LOG_TRIM_SIZE / 2, str.length)}`
-    }
-    args[i] = str;
+  const TRIM_SIZE = size || process.env.TRIM_SIZE || g.TRIM_SIZE || 256;
+  let trimed = str;
+  if (str.length >= TRIM_SIZE) {
+    trimed = `${str.slice(0, TRIM_SIZE / 2)}…${str.slice(str.length - TRIM_SIZE / 2, str.length)}`
   }
-  console.log(...args);
+  return trimed
 }

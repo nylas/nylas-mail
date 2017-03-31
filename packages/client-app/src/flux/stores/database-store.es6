@@ -1,6 +1,7 @@
 /* eslint global-require: 0 */
 import path from 'path';
 import fs from 'fs';
+import createDebug from 'debug'
 import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
 import {remote, ipcRenderer} from 'electron';
@@ -16,6 +17,9 @@ import DatabaseTransaction from './database-transaction';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
 import {setupDatabase, databasePath} from '../../database-helpers'
 
+const debug = createDebug('app:RxDB')
+const debugVerbose = createDebug('app:RxDB:all')
+
 const DatabaseVersion = "23";
 const DatabasePhase = {
   Setup: 'setup',
@@ -23,7 +27,6 @@ const DatabasePhase = {
   Close: 'close',
 }
 
-const DEBUG_TO_LOG = false;
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
 
 const BASE_RETRY_LOCK_DELAY = 50;
@@ -198,7 +201,7 @@ class DatabaseStore extends NylasStore {
 
     try {
       for (const query of builder.setupQueries()) {
-        console.debug(DEBUG_TO_LOG, `DatabaseStore: ${query}`);
+        debug(`DatabaseStore: ${query}`);
         this._db.prepare(query).run();
       }
     } catch (err) {
@@ -227,7 +230,7 @@ class DatabaseStore extends NylasStore {
     const step = () => {
       const query = queries.shift();
       if (query) {
-        console.debug(DEBUG_TO_LOG, `DatabaseStore: ${query}`);
+        debug(`DatabaseStore: ${query}`);
         this._executeInBackground(query, []).then(step);
       } else {
         const msec = Date.now() - start
@@ -333,11 +336,12 @@ class DatabaseStore extends NylasStore {
         }
         this._executeInBackground(query, values).then(({results, backgroundTime}) => {
           const msec = Date.now() - start;
-          if (process.env.ENABLE_RXDB_DEBUG_LOGGING) {
-            const q = `🔶 N1: (${msec}ms) Background: ${query}`;
-            StringUtils.logTrim(q)
+          if (debugVerbose.enabled) {
+            const q = `🔶 (${msec}ms) Background: ${query}`;
+            debugVerbose(StringUtils.trimTo(q))
           }
-          if (msec > 100 || DEBUG_TO_LOG) {
+
+          if (msec > 100) {
             const msgPrefix = msec > 100 ? 'DatabaseStore._executeInBackground took more than 100ms - ' : ''
             this._prettyConsoleLog(`${msgPrefix}${msec}msec (${backgroundTime}msec in background): ${query}`);
           }
@@ -386,14 +390,13 @@ class DatabaseStore extends NylasStore {
 
         const start = Date.now();
         results = stmt[fn](values);
-        const msec = Date.now() - start
-
-        if (process.env.ENABLE_RXDB_DEBUG_LOGGING) {
-          const q = `🔶 N1: (${msec}ms) ${query}`;
-          StringUtils.logTrim(q)
+        const msec = Date.now() - start;
+        if (debugVerbose.enabled) {
+          const q = `(${msec}ms) ${query}`;
+          debugVerbose(StringUtils.trimTo(q))
         }
 
-        if (msec > 100 || DEBUG_TO_LOG) {
+        if (msec > 100) {
           const msgPrefix = msec > 100 ? 'DatabaseStore: query took more than 100ms - ' : ''
           if (query.startsWith(`SELECT `) && DEBUG_QUERY_PLANS) {
             const plan = this._db.prepare(`EXPLAIN QUERY PLAN ${query}`).all(values);
@@ -443,11 +446,11 @@ class DatabaseStore extends NylasStore {
         console.error(data.toString())
       );
       this._agent.on('close', (code) => {
-        console.debug(DEBUG_TO_LOG, `Query Agent: exited with code ${code}`);
+        debug(`Query Agent: exited with code ${code}`);
         this._agent = null;
       });
       this._agent.on('error', (err) => {
-        console.error(DEBUG_TO_LOG, `Query Agent: failed to start or receive message: ${err.toString()}`);
+        console.error(`Query Agent: failed to start or receive message: ${err.toString()}`);
         this._agent.kill('SIGTERM');
         this._agent = null;
       });

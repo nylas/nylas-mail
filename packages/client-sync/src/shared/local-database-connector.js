@@ -1,3 +1,4 @@
+const createDebug = require('debug');
 const Sequelize = require('sequelize');
 const fs = require('fs');
 const path = require('path');
@@ -5,8 +6,7 @@ const {StringUtils, loadModels, HookIncrementVersionOnSave, HookTransactionLog} 
 const TransactionConnector = require('./transaction-connector')
 
 require('./database-extensions'); // Extends Sequelize on require
-
-const ENABLE_SEQUELIZE_DEBUG_LOGGING = process.env.ENABLE_SEQUELIZE_DEBUG_LOGGING;
+const debugVerbose = createDebug("sync:K2DB:all");
 
 class LocalDatabaseConnector {
   constructor() {
@@ -16,13 +16,13 @@ class LocalDatabaseConnector {
   _sequelizePoolForDatabase(dbname) {
     const storage = NylasEnv.inSpecMode() ? ':memory:' : path.join(process.env.NYLAS_HOME, `${dbname}.sqlite`);
     const dbLog = (q, time) => {
-      StringUtils.logTrim(`🔷 K2: (${time}ms) ${q}`)
+      debugVerbose(StringUtils.trimTo(`🔷 (${time}ms) ${q}`))
     }
     return new Sequelize(dbname, '', '', {
       storage: storage,
       dialect: "sqlite",
-      benchmark: !!ENABLE_SEQUELIZE_DEBUG_LOGGING,
-      logging: ENABLE_SEQUELIZE_DEBUG_LOGGING ? dbLog : false,
+      benchmark: debugVerbose.enabled,
+      logging: debugVerbose.enabled ? dbLog : false,
     })
   }
 
