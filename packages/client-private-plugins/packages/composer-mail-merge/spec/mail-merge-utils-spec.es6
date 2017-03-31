@@ -4,7 +4,7 @@ import {
   Contact,
   DraftHelpers,
   Actions,
-  DatabaseTransaction,
+  DatabaseWriter,
 } from 'nylas-exports';
 
 import {DataTransferTypes} from '../lib/mail-merge-constants'
@@ -121,7 +121,7 @@ xdescribe('MailMergeUtils', function describeBlock() {
         transformed.body = 'transformed'
         return Promise.resolve(transformed)
       })
-      spyOn(DatabaseTransaction.prototype, 'persistModels').andReturn(Promise.resolve())
+      spyOn(DatabaseWriter.prototype, 'persistModels').andReturn(Promise.resolve())
       spyOn(Actions, 'queueTask')
       spyOn(Actions, 'queueTasks')
       spyOn(NylasEnv.config, 'get').andReturn(false)
@@ -141,7 +141,7 @@ xdescribe('MailMergeUtils', function describeBlock() {
       waitsForPromise(() => {
         return sendManyDrafts(this.session, this.drafts)
         .then(() => {
-          const transformedDrafts = DatabaseTransaction.prototype.persistModels.calls[0].args[0]
+          const transformedDrafts = DatabaseWriter.prototype.persistModels.calls[0].args[0]
           expect(transformedDrafts.length).toBe(3)
           transformedDrafts.forEach((d) => {
             expect(d.body).toBe('transformed')

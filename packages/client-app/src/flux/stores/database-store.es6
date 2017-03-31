@@ -13,7 +13,7 @@ import Utils from '../models/utils';
 import Query from '../models/query';
 import Actions from '../actions'
 import DatabaseChangeRecord from './database-change-record';
-import DatabaseTransaction from './database-transaction';
+import DatabaseWriter from './database-writer';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
 import {setupDatabase, databasePath} from '../../database-helpers'
 
@@ -676,7 +676,7 @@ class DatabaseStore extends NylasStore {
   // Returns a {Promise} that resolves when the transaction has successfully
   // completed.
   inTransaction(fn) {
-    const t = new DatabaseTransaction(this);
+    const t = new DatabaseWriter(this);
     this._transactionQueue = this._transactionQueue || new PromiseQueue(1, Infinity);
     return this._transactionQueue.add(() =>
       t.execute(fn)

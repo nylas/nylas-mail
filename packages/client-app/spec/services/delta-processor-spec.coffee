@@ -3,7 +3,7 @@ fs = require 'fs'
 path = require 'path'
 {NylasAPIHelpers,
  Thread,
- DatabaseTransaction,
+ DatabaseWriter,
  Actions,
  Message,
  Thread} = require 'nylas-exports'
@@ -104,25 +104,25 @@ describe "DeltaProcessor", ->
         "objectId": @thread.id,
         "timestamp": "2015-08-26T17:36:45.297Z"
 
-      spyOn(DatabaseTransaction.prototype, 'unpersistModel')
+      spyOn(DatabaseWriter.prototype, 'unpersistModel')
 
     it "should resolve if the object cannot be found", ->
-      spyOn(DatabaseTransaction.prototype, 'find').andCallFake (klass, id) =>
+      spyOn(DatabaseWriter.prototype, 'find').andCallFake (klass, id) =>
         return Promise.resolve(null)
       waitsForPromise =>
         DeltaProcessor._handleDestroyDelta(@delta)
       runs =>
-        expect(DatabaseTransaction.prototype.find).toHaveBeenCalledWith(Thread, 'idhere')
-        expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
+        expect(DatabaseWriter.prototype.find).toHaveBeenCalledWith(Thread, 'idhere')
+        expect(DatabaseWriter.prototype.unpersistModel).not.toHaveBeenCalled()
 
     it "should call unpersistModel if the object exists", ->
-      spyOn(DatabaseTransaction.prototype, 'find').andCallFake (klass, id) =>
+      spyOn(DatabaseWriter.prototype, 'find').andCallFake (klass, id) =>
         return Promise.resolve(@thread)
       waitsForPromise =>
         DeltaProcessor._handleDestroyDelta(@delta)
       runs =>
-        expect(DatabaseTransaction.prototype.find).toHaveBeenCalledWith(Thread, 'idhere')
-        expect(DatabaseTransaction.prototype.unpersistModel).toHaveBeenCalledWith(@thread)
+        expect(DatabaseWriter.prototype.find).toHaveBeenCalledWith(Thread, 'idhere')
+        expect(DatabaseWriter.prototype.unpersistModel).toHaveBeenCalledWith(@thread)
 
   describe "handleModelResponse", ->
     # SEE spec/nylas-api-spec.coffee
@@ -130,9 +130,9 @@ describe "DeltaProcessor", ->
   describe "receives metadata deltas", ->
     beforeEach ->
       @stubDB = {}
-      spyOn(DatabaseTransaction.prototype, 'find').andCallFake (klass, id) =>
+      spyOn(DatabaseWriter.prototype, 'find').andCallFake (klass, id) =>
         return @stubDB[id]
-      spyOn(DatabaseTransaction.prototype, 'findAll').andCallFake (klass, where) =>
+      spyOn(DatabaseWriter.prototype, 'findAll').andCallFake (klass, where) =>
         ids = where.id
         models = []
         ids.forEach (id) =>
@@ -140,7 +140,7 @@ describe "DeltaProcessor", ->
           if model
             models.push(model)
         return models
-      spyOn(DatabaseTransaction.prototype, 'persistModels').andCallFake (models) =>
+      spyOn(DatabaseWriter.prototype, 'persistModels').andCallFake (models) =>
         models.forEach (model) =>
           @stubDB[model.id] = model
         return Promise.resolve()

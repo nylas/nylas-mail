@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{NylasAPI, NylasAPIHelpers, NylasAPIRequest, Actions, DatabaseStore, DatabaseTransaction, Account, Thread} = require 'nylas-exports'
+{NylasAPI, NylasAPIHelpers, NylasAPIRequest, Actions, DatabaseStore, DatabaseWriter, Account, Thread} = require 'nylas-exports'
 DeltaStreamingConnection = require('../../src/services/delta-streaming-connection').default
 
 # TODO these are badly out of date, we need to rewrite them
@@ -11,7 +11,7 @@ xdescribe "DeltaStreamingConnection", ->
     @localSyncCursorStub = undefined
     @n1CloudCursorStub = undefined
     # spyOn(DeltaStreamingConnection.prototype, '_fetchMetadata').andReturn(Promise.resolve())
-    spyOn(DatabaseTransaction.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
+    spyOn(DatabaseWriter.prototype, 'persistJSONBlob').andReturn(Promise.resolve())
     spyOn(DatabaseStore, 'findJSONBlob').andCallFake (key) =>
       if key is "NylasSyncWorker:#{TEST_ACCOUNT_ID}"
         return Promise.resolve _.extend {}, {

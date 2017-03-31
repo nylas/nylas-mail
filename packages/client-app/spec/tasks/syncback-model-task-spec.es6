@@ -5,7 +5,7 @@ import {
   Model,
   DatabaseStore,
   SyncbackModelTask,
-  DatabaseTransaction } from 'nylas-exports'
+  DatabaseWriter } from 'nylas-exports'
 
 class TestTask extends SyncbackModelTask {
   getModelConstructor() {
@@ -16,7 +16,7 @@ class TestTask extends SyncbackModelTask {
 xdescribe('SyncbackModelTask', function syncbackModelTask() {
   beforeEach(() => {
     this.testModel = new Model({accountId: 'account-123'})
-    spyOn(DatabaseTransaction.prototype, "persistModel")
+    spyOn(DatabaseWriter.prototype, "persistModel")
     spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(this.testModel));
 
     spyOn(NylasEnv, "reportError")
@@ -158,8 +158,8 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
         const opts = this.task.updateLocalModel.calls[0].args[0]
         expect(opts.version).toBe(10)
         expect(opts.id).toBe("server-123")
-        expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
-        const model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+        expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
+        const model = DatabaseWriter.prototype.persistModel.calls[0].args[0]
         expect(model.serverId).toBe('server-123')
         expect(model.version).toBe(10)
       });

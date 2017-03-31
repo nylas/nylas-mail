@@ -4,7 +4,7 @@
  AccountStore,
  DatabaseStore,
  SyncbackCategoryTask,
- DatabaseTransaction} = require "nylas-exports"
+ DatabaseWriter} = require "nylas-exports"
 
 xdescribe "SyncbackCategoryTask", ->
   describe "performRemote", ->
@@ -34,7 +34,7 @@ xdescribe "SyncbackCategoryTask", ->
     beforeEach ->
       spyOn(NylasAPIRequest.prototype, "run").andCallFake ->
         Promise.resolve(id: "server-444")
-      spyOn(DatabaseTransaction.prototype, "persistModel")
+      spyOn(DatabaseWriter.prototype, "persistModel")
 
     it "sends API req to /labels if the account uses labels", ->
       makeAccount(usesLabels: true)
@@ -66,7 +66,7 @@ xdescribe "SyncbackCategoryTask", ->
         task = makeTask()
         task.performRemote({})
         .then ->
-          expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
-          model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+          expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
+          model = DatabaseWriter.prototype.persistModel.calls[0].args[0]
           expect(model.clientId).toBe "local-444"
           expect(model.serverId).toBe "server-444"

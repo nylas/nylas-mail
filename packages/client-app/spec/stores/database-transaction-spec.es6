@@ -1,7 +1,7 @@
 /* eslint dot-notation:0 */
 import Category from '../../src/flux/models/category';
 import TestModel from '../fixtures/db-test-model';
-import DatabaseTransaction from '../../src/flux/stores/database-transaction';
+import DatabaseWriter from '../../src/flux/stores/database-writer';
 
 const testModelInstance = new TestModel({id: "1234"});
 const testModelInstanceA = new TestModel({id: "AAA"});
@@ -18,7 +18,7 @@ function __range__(left, right, inclusive) {
   return range;
 }
 
-xdescribe("DatabaseTransaction", function DatabaseTransactionSpecs() {
+xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
   beforeEach(() => {
     this.databaseMutationHooks = [];
     this.performed = [];
@@ -31,7 +31,7 @@ xdescribe("DatabaseTransaction", function DatabaseTransactionSpecs() {
       mutationHooks: () => this.databaseMutationHooks,
     };
 
-    this.transaction = new DatabaseTransaction(this.database);
+    this.transaction = new DatabaseWriter(this.database);
   });
 
   describe("execute", () => {});

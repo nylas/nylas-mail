@@ -1,5 +1,5 @@
 import {ipcRenderer} from 'electron';
-import {Utils, KeyManager, DatabaseTransaction, SendFeatureUsageEventTask} from 'nylas-exports'
+import {Utils, KeyManager, DatabaseWriter, SendFeatureUsageEventTask} from 'nylas-exports'
 import IdentityStore from '../../src/flux/stores/identity-store'
 
 const TEST_NYLAS_ID = "icihsnqh4pwujyqihlrj70vh"
@@ -30,7 +30,7 @@ describe("IdentityStore", function identityStoreSpec() {
       IdentityStore._identity = this.identityJSON;
       spyOn(KeyManager, "deletePassword")
       spyOn(KeyManager, "replacePassword")
-      spyOn(DatabaseTransaction.prototype, "persistJSONBlob").andReturn(Promise.resolve())
+      spyOn(DatabaseWriter.prototype, "persistJSONBlob").andReturn(Promise.resolve())
       spyOn(ipcRenderer, "send")
       spyOn(IdentityStore, "trigger")
     });
@@ -44,8 +44,8 @@ describe("IdentityStore", function identityStoreSpec() {
         expect(KeyManager.replacePassword).not.toHaveBeenCalled()
         expect(ipcRenderer.send).toHaveBeenCalled()
         expect(ipcRenderer.send.calls[0].args[1]).toBe("onIdentityChanged")
-        expect(DatabaseTransaction.prototype.persistJSONBlob).toHaveBeenCalled()
-        const ident = DatabaseTransaction.prototype.persistJSONBlob.calls[0].args[1]
+        expect(DatabaseWriter.prototype.persistJSONBlob).toHaveBeenCalled()
+        const ident = DatabaseWriter.prototype.persistJSONBlob.calls[0].args[1]
         expect(ident).toBe(null)
         expect(IdentityStore.trigger).toHaveBeenCalled()
       })

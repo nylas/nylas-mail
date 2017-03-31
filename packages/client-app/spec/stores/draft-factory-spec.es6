@@ -10,7 +10,7 @@ import {
   AccountStore,
   DatabaseStore,
   FileDownloadStore,
-  DatabaseTransaction,
+  DatabaseWriter,
   SanitizeTransformer,
   InlineStyleTransformer,
 } from 'nylas-exports';
@@ -439,7 +439,7 @@ describe('DraftFactory', function draftFactory() {
         spyOn(Actions, 'focusDraft')
         spyOn(DatabaseStore, 'run').andReturn(Promise.resolve([fakeMessage1, this.existingDraft]));
         spyOn(DraftStore, 'sessionForClientId').andReturn(Promise.resolve(this.sessionStub));
-        spyOn(DatabaseTransaction.prototype, 'persistModel').andReturn(Promise.resolve());
+        spyOn(DatabaseWriter.prototype, 'persistModel').andReturn(Promise.resolve());
 
         this.expectContactsEqual = (a, b) => {
           expect(a.map(c => c.email).sort()).toEqual(b.map(c => c.email).sort());
