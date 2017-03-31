@@ -99,48 +99,30 @@ module.exports = (server) => {
     },
     handler: async (request, reply) => {
       const db = await request.getAccountDatabase()
+      const account = request.auth.credentials;
       const {Message, Label, Folder} = db;
 
       const result = {};
       let lastID = 0;
 
+      const useLabels = account.provider === 'gmail';
+
       while (true) {
+        const include = [{
+          model: (useLabels ? Label : Folder),
+          attributes: ['id', 'role'],
+          where: {role: 'sent'}},
+        ];
+
         const messages = await Message.findAll({
           attributes: ['rowid', 'id', 'to', 'cc', 'bcc', 'date'],
-          // We mark both Label and Folder as not required because we don't know
-          // whether the account uses folders or labels.
-          include: [
-            {
-              model: Label,
-              attributes: ['id', 'role'],
-              where: {role: 'sent'},
-              required: false,                // This triggers a left outer join.
-            },
-            {
-              model: Folder,
-              attributes: ['id', 'role'],
-              where: {role: 'sent'},
-              required: false,                // This triggers a left outer join.
-            },
-          ],
+          include,
           where: {
             'isDraft': false,                   // Don't include unsent things.
-
-            // Because we did a left outer join on the Folder and Label tables,
-            // we can get back records that have null for both the Folder and the
-            // Label (i.e. all things that aren't in the Sent folder). So we need
-            // to require that either the label ID or the folder ID is not null
-            // (i.e. that the message is in the Sent folder)
-            '$or': [
-              {'$labels.id$': {$ne: null}},
-              {'$folder.id$': {$ne: null}},
-            ],
             '$message.rowid$': {$gt: lastID},
           },
-          // We don't use the `limit` option here because it causes sequelize
-          // to generate a subquery that doesn't have access to the joined
-          // labels/folders, causing a SQLite error to be thrown.
-          order: 'message.rowid ASC LIMIT 500',
+          order: [['rowid', 'ASC']],
+          limit: 100,
         });
 
         if (messages.length === 0) {
