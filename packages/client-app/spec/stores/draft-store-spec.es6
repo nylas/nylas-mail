@@ -12,7 +12,7 @@ import {
   ComposerExtension,
   ExtensionRegistry,
   FocusedContentStore,
-  DatabaseTransaction,
+  DatabaseWriter,
 } from 'nylas-exports';
 
 import {remote} from 'electron';
@@ -30,7 +30,7 @@ xdescribe('DraftStore', function draftStore() {
     this.fakeMessage = new Message({id: 'fake-message', clientId: 'fake-message'});
 
     spyOn(NylasEnv, 'newWindow').andCallFake(() => {});
-    spyOn(DatabaseTransaction.prototype, "persistModel").andReturn(Promise.resolve());
+    spyOn(DatabaseWriter.prototype, "persistModel").andReturn(Promise.resolve());
     spyOn(DatabaseStore, 'run').andCallFake((query) => {
       if (query._klass === Thread) { return Promise.resolve(this.fakeThread); }
       if (query._klass === Message) { return Promise.resolve(this.fakeMessage); }
@@ -130,7 +130,7 @@ xdescribe('DraftStore', function draftStore() {
           );
         });
         waitsFor(() => {
-          return DatabaseTransaction.prototype.persistModel.callCount > 0;
+          return DatabaseWriter.prototype.persistModel.callCount > 0;
         });
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
@@ -152,7 +152,7 @@ xdescribe('DraftStore', function draftStore() {
           });
         });
         waitsFor(() => {
-          return DatabaseTransaction.prototype.persistModel.callCount > 0;
+          return DatabaseWriter.prototype.persistModel.callCount > 0;
         });
         runs(() => {
           expect(NylasEnv.newWindow).toHaveBeenCalledWith({
@@ -504,7 +504,7 @@ xdescribe('DraftStore', function draftStore() {
       it("should give extensions a chance to customize the draft via ext.prepareNewDraft", () => {
         waitsForPromise(() => {
           return DraftStore._onHandleMailtoLink({}, 'mailto:bengotow@gmail.com').then(() => {
-            const received = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0];
+            const received = DatabaseWriter.prototype.persistModel.mostRecentCall.args[0];
             expect(received.body.indexOf("Edited by TestExtension!")).toBe(0);
           });
         });
@@ -517,7 +517,7 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(DraftStore, '_onPopoutDraftClientId');
       waitsForPromise(() => {
         return DraftStore._onHandleMailtoLink({}, 'mailto:bengotow@gmail.com').then(() => {
-          const received = DatabaseTransaction.prototype.persistModel.mostRecentCall.args[0];
+          const received = DatabaseWriter.prototype.persistModel.mostRecentCall.args[0];
           expect(received).toEqual(draft);
           expect(DraftStore._onPopoutDraftClientId).toHaveBeenCalled();
         });
@@ -532,9 +532,9 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(Account.prototype, 'defaultMe').andReturn(defaultMe);
       spyOn(Actions, 'addAttachment').andCallFake(({onUploadCreated}) => onUploadCreated());
       DraftStore._onHandleMailFiles({}, ['/Users/ben/file1.png', '/Users/ben/file2.png']);
-      waitsFor(() => DatabaseTransaction.prototype.persistModel.callCount > 0);
+      waitsFor(() => DatabaseWriter.prototype.persistModel.callCount > 0);
       runs(() => {
-        const {body, subject, from} = DatabaseTransaction.prototype.persistModel.calls[0].args[0];
+        const {body, subject, from} = DatabaseWriter.prototype.persistModel.calls[0].args[0];
         expect({body, subject, from}).toEqual({body: '', subject: '', from: [defaultMe]});
         expect(DraftStore._onPopoutDraftClientId).toHaveBeenCalled();
       });

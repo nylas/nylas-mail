@@ -3,7 +3,7 @@ import {
   Actions,
   AccountStore,
   DatabaseStore,
-  DatabaseTransaction,
+  DatabaseWriter,
   Message,
   Contact,
   Task,
@@ -16,7 +16,7 @@ import {
 } from 'nylas-exports';
 
 
-const DBt = DatabaseTransaction.prototype;
+const DBt = DatabaseWriter.prototype;
 const withoutWhitespace = (s) => s.replace(/[\n\r\s]/g, '');
 
 xdescribe('SendDraftTask', function sendDraftTask() {

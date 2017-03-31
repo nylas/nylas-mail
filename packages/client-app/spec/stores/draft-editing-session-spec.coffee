@@ -1,7 +1,7 @@
 Message = require('../../src/flux/models/message').default
 Actions = require('../../src/flux/actions').default
 DatabaseStore = require('../../src/flux/stores/database-store').default
-DatabaseTransaction = require('../../src/flux/stores/database-transaction').default
+DatabaseWriter = require('../../src/flux/stores/database-writer').default
 DraftEditingSession = require '../../src/flux/stores/draft-editing-session'
 DraftChangeSet = DraftEditingSession.DraftChangeSet
 _ = require 'underscore'
@@ -178,7 +178,7 @@ xdescribe "DraftEditingSession Specs", ->
         @session = new DraftEditingSession('client-id', @draft)
         advanceClock()
 
-        spyOn(DatabaseTransaction.prototype, "persistModel").andReturn Promise.resolve()
+        spyOn(DatabaseWriter.prototype, "persistModel").andReturn Promise.resolve()
         spyOn(Actions, "queueTask").andReturn Promise.resolve()
 
       it "should ignore the update unless it applies to the current draft", ->
@@ -212,8 +212,8 @@ xdescribe "DraftEditingSession Specs", ->
         @session.changes.add({body: "123"})
         waitsForPromise =>
           @session.changes.commit().then =>
-            expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
-            updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+            expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
+            updated = DatabaseWriter.prototype.persistModel.calls[0].args[0]
             expect(updated.body).toBe "123"
 
       # Note: Syncback temporarily disabled
@@ -239,8 +239,8 @@ xdescribe "DraftEditingSession Specs", ->
           @session.changes.add({body: "123"})
           waitsForPromise =>
             @session.changes.commit().then =>
-              expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
-              updated = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+              expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
+              updated = DatabaseWriter.prototype.persistModel.calls[0].args[0]
               expect(updated.body).toBe "123"
 
       it "does nothing if the draft is marked as destroyed", ->

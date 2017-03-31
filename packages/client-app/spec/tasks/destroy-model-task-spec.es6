@@ -4,14 +4,14 @@ import {
   NylasAPIRequest,
   DatabaseStore,
   DestroyModelTask,
-  DatabaseTransaction} from 'nylas-exports'
+  DatabaseWriter} from 'nylas-exports'
 
 xdescribe('DestroyModelTask', function destroyModelTask() {
   beforeEach(() => {
     this.existingModel = new Model()
     this.existingModel.clientId = "local-123"
     this.existingModel.serverId = "server-123"
-    spyOn(DatabaseTransaction.prototype, "unpersistModel")
+    spyOn(DatabaseWriter.prototype, "unpersistModel")
     spyOn(DatabaseStore, "findBy").andCallFake(() => {
       return Promise.resolve(this.existingModel)
     })
@@ -67,7 +67,7 @@ xdescribe('DestroyModelTask', function destroyModelTask() {
     });
 
     it("unpersists the new existing model properly", () => {
-      const unpersistFn = DatabaseTransaction.prototype.unpersistModel
+      const unpersistFn = DatabaseWriter.prototype.unpersistModel
       const t = new DestroyModelTask(this.defaultArgs)
       window.waitsForPromise(() => {
         return t.performLocal().then(() => {

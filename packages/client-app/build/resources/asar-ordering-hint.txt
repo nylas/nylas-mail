@@ -983,7 +983,7 @@
 3583641: src/flux/stores/database-change-record.js
 3572560: node_modules/promise-queue/lib/index.js
 3146093: node_modules/underscore.string/toSentenceSerial.js
-3585323: src/flux/stores/database-transaction.js
+3585323: src/flux/stores/database-writer.js
 3146253: node_modules/underscore.string/slugify.js
 3577195: src/priority-ui-coordinator.js
 3146513: node_modules/underscore.string/surround.js
@@ -996,7 +996,7 @@
 3583641: src/flux/stores/database-change-record.js
 3149427: node_modules/underscore.string/toBoolean.js
 3150095: node_modules/underscore.string/exports.js
-3585323: src/flux/stores/database-transaction.js
+3585323: src/flux/stores/database-writer.js
 3150336: node_modules/underscore.string/wrap.js
 3152857: node_modules/underscore.string/map.js
 3568295: src/flux/coffee-helpers.js
@@ -1012,7 +1012,7 @@
 3583641: src/flux/stores/database-change-record.js
 3613961: src/buffered-process.js
 3622937: src/theme-manager.js
-3585323: src/flux/stores/database-transaction.js
+3585323: src/flux/stores/database-writer.js
 3621867: src/clipboard.js
 3642517: src/style-manager.js
 3648228: src/flux/action-bridge.js

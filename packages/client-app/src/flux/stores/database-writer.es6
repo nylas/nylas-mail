@@ -7,7 +7,7 @@ import Attributes from '../attributes';
 
 const {AttributeCollection, AttributeJoinedData} = Attributes;
 
-export default class DatabaseTransaction {
+export default class DatabaseWriter {
   constructor(database) {
     this.database = database;
     this._changeRecords = [];
@@ -23,7 +23,7 @@ export default class DatabaseTransaction {
 
   execute(fn) {
     if (this._opened) {
-      throw new Error("DatabaseTransaction:execute was already called");
+      throw new Error("DatabaseWriter:execute was already called");
     }
 
     return this._query("BEGIN IMMEDIATE TRANSACTION").then(() => {
@@ -66,7 +66,7 @@ export default class DatabaseTransaction {
   //     callbacks failed
   persistModel(model, opts = {}) {
     if (!model || !(model instanceof Model)) {
-      throw new Error("DatabaseTransaction::persistModel - You must pass an instance of the Model class.");
+      throw new Error("DatabaseWriter::persistModel - You must pass an instance of the Model class.");
     }
     return this.persistModels([model], opts);
   }
@@ -102,15 +102,15 @@ export default class DatabaseTransaction {
     const ids = {};
 
     if (!(models[0] instanceof Model)) {
-      throw new Error(`DatabaseTransaction::persistModels - You must pass an array of items which descend from the Model class.`);
+      throw new Error(`DatabaseWriter::persistModels - You must pass an array of items which descend from the Model class.`);
     }
 
     for (const model of models) {
       if (!model || (model.constructor !== klass)) {
-        throw new Error(`DatabaseTransaction::persistModels - When you batch persist objects, they must be of the same type`);
+        throw new Error(`DatabaseWriter::persistModels - When you batch persist objects, they must be of the same type`);
       }
       if (ids[model.id]) {
-        throw new Error(`DatabaseTransaction::persistModels - You must pass an array of models with different ids. ID ${model.id} is in the set multiple times.`)
+        throw new Error(`DatabaseWriter::persistModels - You must pass an array of models with different ids. ID ${model.id} is in the set multiple times.`)
       }
       clones.push(model.clone());
       ids[model.id] = true;
@@ -183,7 +183,7 @@ export default class DatabaseTransaction {
 
     return Promise.all(beforePromises).catch((e) => {
       if (!NylasEnv.inSpecMode()) {
-        console.warn(`DatabaseTransaction Hook: ${selectorName} failed`, e);
+        console.warn(`DatabaseWriter Hook: ${selectorName} failed`, e);
       }
       return Promise.resolve([]);
     });
@@ -365,7 +365,7 @@ export default class DatabaseTransaction {
       }
       return query
     } catch (error) {
-      throw new Error(`DatabaseTransaction: Error trying to perform ${operation} on database. Is it defined?`)
+      throw new Error(`DatabaseWriter: Error trying to perform ${operation} on database. Is it defined?`)
     }
   }
 }

@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import {
-  DatabaseTransaction,
+  DatabaseWriter,
   SyncbackDraftTask,
   SyncbackMetadataTask,
   DatabaseStore,
@@ -64,7 +64,7 @@ xdescribe('SyncbackDraftTask', function syncbackDraftTask() {
 
     spyOn(NylasAPI, 'incrementRemoteChangeLock');
     spyOn(NylasAPI, 'decrementRemoteChangeLock');
-    spyOn(DatabaseTransaction.prototype, "persistModel").andReturn(Promise.resolve());
+    spyOn(DatabaseWriter.prototype, "persistModel").andReturn(Promise.resolve());
   });
 
   describe("queueing multiple tasks", () => {
@@ -174,8 +174,8 @@ xdescribe('SyncbackDraftTask', function syncbackDraftTask() {
     it("should apply the server ID, thread ID and version to the draft", () => {
       const task = new SyncbackDraftTask("localDraftId");
       waitsForPromise(() => task.performRemote().then(() => {
-        expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled();
-        const saved = DatabaseTransaction.prototype.persistModel.calls[0].args[0];
+        expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled();
+        const saved = DatabaseWriter.prototype.persistModel.calls[0].args[0];
         const remote = remoteDraft();
         expect(saved.threadId).toEqual(remote.threadId);
         expect(saved.serverId).toEqual(remote.serverId);

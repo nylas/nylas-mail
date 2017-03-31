@@ -7,7 +7,7 @@
  APIError,
  Category,
  DatabaseStore,
- DatabaseTransaction} = require "nylas-exports"
+ DatabaseWriter} = require "nylas-exports"
 
 xdescribe "DestroyCategoryTask", ->
   pathOf = (fn) ->
@@ -36,8 +36,8 @@ xdescribe "DestroyCategoryTask", ->
       category: category
 
   beforeEach ->
-    spyOn(DatabaseTransaction.prototype, 'unpersistModel').andCallFake -> Promise.resolve()
-    spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
+    spyOn(DatabaseWriter.prototype, 'unpersistModel').andCallFake -> Promise.resolve()
+    spyOn(DatabaseWriter.prototype, 'persistModel').andCallFake -> Promise.resolve()
 
   describe "performLocal", ->
     it "sets an `isDeleted` flag and persists the category", ->
@@ -45,9 +45,9 @@ xdescribe "DestroyCategoryTask", ->
       runs =>
         task.performLocal()
       waitsFor =>
-        DatabaseTransaction.prototype.unpersistModel.callCount > 0
+        DatabaseWriter.prototype.unpersistModel.callCount > 0
       runs =>
-        model = DatabaseTransaction.prototype.unpersistModel.calls[0].args[0]
+        model = DatabaseWriter.prototype.unpersistModel.calls[0].args[0]
         expect(model.serverId).toEqual "server-444"
 
   describe "performRemote", ->
@@ -122,8 +122,8 @@ xdescribe "DestroyCategoryTask", ->
             expect(status).toEqual Task.Status.Failed
             expect(task._notifyUserOfError).toHaveBeenCalled()
             expect(NylasEnv.reportError).toHaveBeenCalled()
-            expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
-            model = DatabaseTransaction.prototype.persistModel.calls[0].args[0]
+            expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
+            model = DatabaseWriter.prototype.persistModel.calls[0].args[0]
             expect(model.serverId).toEqual "server-444"
             expect(NylasAPI.decrementRemoteChangeLock).toHaveBeenCalled
 

@@ -8,57 +8,57 @@ Thread = require('../src/flux/models/thread').default
 Message = require('../src/flux/models/message').default
 AccountStore = require('../src/flux/stores/account-store').default
 DatabaseStore = require('../src/flux/stores/database-store').default
-DatabaseTransaction = require('../src/flux/stores/database-transaction').default
+DatabaseWriter = require('../src/flux/stores/database-writer').default
 
 describe "NylasAPI", ->
 
   describe "handleModel404", ->
     it "should unpersist the model from the cache that was requested", ->
       model = new Thread(id: 'threadidhere')
-      spyOn(DatabaseTransaction.prototype, 'unpersistModel').andCallFake =>
+      spyOn(DatabaseWriter.prototype, 'unpersistModel').andCallFake =>
         return Promise.resolve()
-      spyOn(DatabaseTransaction.prototype, 'find').andCallFake (klass, id) =>
+      spyOn(DatabaseWriter.prototype, 'find').andCallFake (klass, id) =>
         return Promise.resolve(model)
       waitsForPromise ->
         NylasAPIHelpers.handleModel404("/threads/#{model.id}")
       runs ->
-        expect(DatabaseTransaction.prototype.find).toHaveBeenCalledWith(Thread, model.id)
-        expect(DatabaseTransaction.prototype.unpersistModel).toHaveBeenCalledWith(model)
+        expect(DatabaseWriter.prototype.find).toHaveBeenCalledWith(Thread, model.id)
+        expect(DatabaseWriter.prototype.unpersistModel).toHaveBeenCalledWith(model)
 
     it "should not do anything if the model is not in the cache", ->
-      spyOn(DatabaseTransaction.prototype, 'unpersistModel')
-      spyOn(DatabaseTransaction.prototype, 'find').andCallFake (klass, id) =>
+      spyOn(DatabaseWriter.prototype, 'unpersistModel')
+      spyOn(DatabaseWriter.prototype, 'find').andCallFake (klass, id) =>
         return Promise.resolve(null)
       waitsForPromise ->
         NylasAPIHelpers.handleModel404("/threads/1234")
       runs ->
-        expect(DatabaseTransaction.prototype.find).toHaveBeenCalledWith(Thread, '1234')
-        expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalledWith()
+        expect(DatabaseWriter.prototype.find).toHaveBeenCalledWith(Thread, '1234')
+        expect(DatabaseWriter.prototype.unpersistModel).not.toHaveBeenCalledWith()
 
     it "should not do anything bad if it doesn't recognize the class", ->
       spyOn(DatabaseStore, 'find')
-      spyOn(DatabaseTransaction.prototype, 'unpersistModel')
+      spyOn(DatabaseWriter.prototype, 'unpersistModel')
       waitsForPromise ->
         NylasAPIHelpers.handleModel404("/asdasdasd/1234")
       runs ->
         expect(DatabaseStore.find).not.toHaveBeenCalled()
-        expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
+        expect(DatabaseWriter.prototype.unpersistModel).not.toHaveBeenCalled()
 
     it "should not do anything bad if the endpoint only has a single segment", ->
       spyOn(DatabaseStore, 'find')
-      spyOn(DatabaseTransaction.prototype, 'unpersistModel')
+      spyOn(DatabaseWriter.prototype, 'unpersistModel')
       waitsForPromise ->
         NylasAPIHelpers.handleModel404("/account")
       runs ->
         expect(DatabaseStore.find).not.toHaveBeenCalled()
-        expect(DatabaseTransaction.prototype.unpersistModel).not.toHaveBeenCalled()
+        expect(DatabaseWriter.prototype.unpersistModel).not.toHaveBeenCalled()
 
   describe "handleModelResponse", ->
     beforeEach ->
       @stubDB = {}
       @stubDB.upsertModel = (model) =>
         @stubDB[model.id] = model
-      spyOn(DatabaseTransaction.prototype, "persistModels").andCallFake (models) =>
+      spyOn(DatabaseWriter.prototype, "persistModels").andCallFake (models) =>
         models.forEach(@stubDB.upsertModel)
         Promise.resolve(models)
       spyOn(DatabaseStore, "findAll").andCallFake (klass) =>
@@ -126,7 +126,7 @@ describe "NylasAPI", ->
         waitsForPromise =>
           NylasAPIHelpers.handleModelResponse(@dupes)
           .then ->
-            models = DatabaseTransaction.prototype.persistModels.calls[0].args[0]
+            models = DatabaseWriter.prototype.persistModels.calls[0].args[0]
             expect(models.length).toBe 2
             expect(models[0].id).toBe 't:a'
             expect(models[1].id).toBe 't:b'
@@ -148,7 +148,7 @@ describe "NylasAPI", ->
           NylasAPIHelpers.handleModelResponse(json)
           .then (models) ->
             expect(models.length).toBe 1
-            models = DatabaseTransaction.prototype.persistModels.calls[0].args[0]
+            models = DatabaseWriter.prototype.persistModels.calls[0].args[0]
             expect(models.length).toBe 1
             expect(models[0].id).toBe 't:b'
 
@@ -163,7 +163,7 @@ describe "NylasAPI", ->
         @stubDB.upsertModel(@existing)
 
       verifyUpdateHappened = (responseModels) ->
-        changedModels = DatabaseTransaction.prototype.persistModels.calls[0].args[0]
+        changedModels = DatabaseWriter.prototype.persistModels.calls[0].args[0]
         expect(changedModels.length).toBe 2
         expect(responseModels.length).toBe 2
         expect(responseModels[0].id).toBe 'a'
@@ -193,7 +193,7 @@ describe "NylasAPI", ->
             verifyUpdateHappened.call(@, responseModels)
 
       verifyUpdateStopped = (responseModels) ->
-        changedModels = DatabaseTransaction.prototype.persistModels.calls[0].args[0]
+        changedModels = DatabaseWriter.prototype.persistModels.calls[0].args[0]
         expect(changedModels.length).toBe 1
         expect(changedModels[0].id).toBe 'a'
         expect(changedModels[0].unread).toBe true
@@ -231,7 +231,7 @@ describe "NylasAPI", ->
         "calendar": require('../src/flux/models/calendar').default
 
       verifyUpdateHappened = (klass, responseModels) ->
-        changedModels = DatabaseTransaction.prototype.persistModels.calls[0].args[0]
+        changedModels = DatabaseWriter.prototype.persistModels.calls[0].args[0]
         expect(changedModels.length).toBe 2
         expect(changedModels[0].id).toBe 'a'
         expect(changedModels[1].id).toBe 'b'

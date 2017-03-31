@@ -9,7 +9,7 @@ _ = require 'underscore'
  NylasAPIRequest,
  Query,
  DatabaseStore,
- DatabaseTransaction,
+ DatabaseWriter,
  Task,
  Utils,
  ChangeMailTask,
@@ -51,7 +51,7 @@ xdescribe "ChangeMailTask", ->
         models = models[0]
       Promise.resolve(models)
 
-    @transaction = new DatabaseTransaction()
+    @transaction = new DatabaseWriter()
     spyOn(@transaction, 'persistModels').andReturn(Promise.resolve())
     spyOn(@transaction, 'persistModel').andReturn(Promise.resolve())
 

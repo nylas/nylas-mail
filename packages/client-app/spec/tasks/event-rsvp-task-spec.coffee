@@ -7,13 +7,13 @@ _ = require 'underscore'
  APIError,
  EventRSVPTask,
  DatabaseStore,
- DatabaseTransaction,
+ DatabaseWriter,
  AccountStore} = require 'nylas-exports'
 
 xdescribe "EventRSVPTask", ->
   beforeEach ->
     spyOn(DatabaseStore, 'find').andCallFake => Promise.resolve(@event)
-    spyOn(DatabaseTransaction.prototype, 'persistModel').andCallFake -> Promise.resolve()
+    spyOn(DatabaseWriter.prototype, 'persistModel').andCallFake -> Promise.resolve()
     @myName = "Ben Tester"
     @myEmail = "tester@nylas.com"
     @event = new Event
@@ -46,7 +46,7 @@ xdescribe "EventRSVPTask", ->
     it "should trigger an action to persist the change", ->
       @task.performLocal()
       advanceClock()
-      expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+      expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
 
   describe "performRemote", ->
     it "should make the POST request to the message endpoint", ->
@@ -92,4 +92,4 @@ xdescribe "EventRSVPTask", ->
       @task.performLocal()
       @task.performRemote()
       advanceClock()
-      expect(DatabaseTransaction.prototype.persistModel).toHaveBeenCalled()
+      expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
