@@ -21,9 +21,19 @@ export default class DatabaseWriter {
   count(...args) { return this._forwardOperationToDatabase('count', ...args) }
   findJSONBlob(...args) { return this._forwardOperationToDatabase('findJSONBlob', ...args) }
 
-  execute(fn) {
+  async execute(fn) {
+    try {
+      await fn(this);
+    } finally {
+      for (const record of this._changeRecords) {
+        this.database.accumulateAndTrigger(record);
+      }
+    }
+  }
+
+  executeInTransaction(fn) {
     if (this._opened) {
-      throw new Error("DatabaseWriter:execute was already called");
+      throw new Error("DatabaseWriter:executeInTransaction was already called");
     }
 
     return this._query("BEGIN IMMEDIATE TRANSACTION").then(() => {
