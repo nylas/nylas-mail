@@ -1,5 +1,13 @@
 # Nylas Mail Changelog
 
+### 1.0.55 (3/31/2017)
+
+  + [client-app] don't override existing bodies on K2
+  + [client-sync] Add comment about reason for try/catch block
+  + [client-sync] Split Contact ranking query
+  + [client-app] Remove getUnindexedAccounts
+  + [client-app] remove the  in favor of 
+
 ### 1.0.54 (3/31/2017)
 
 - Features:
