@@ -124,20 +124,22 @@ class Interruptible extends EventEmitter {
   async run(generatorFunc, ctx, ...fnArgs) {
     this._running = true
     const generatorObj = generatorFunc.call(ctx, ...fnArgs)
-    await new Promise(async (resolve, reject) => {
+    const response = await new Promise(async (resolve, reject) => {
       this._rejectWithinRun = (rejectValue) => {
         reject(rejectValue)
       }
+      let _response;
       try {
-        await this._runGenerator(generatorObj)
+        _response = await this._runGenerator(generatorObj)
       } catch (err) {
         reject(err)
         return;
       }
-      resolve()
+      resolve(_response)
     })
     this._interrupt = false
     this._running = false
+    return response
   }
 }
 

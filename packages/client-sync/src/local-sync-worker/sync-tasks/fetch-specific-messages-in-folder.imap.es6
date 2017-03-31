@@ -8,7 +8,7 @@ class FetchSpecificMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
     return `FetchSpecificMessagesInFolderIMAP (${this._folder.name} - ${this._folder.id})`;
   }
 
-  async * runTask(db, imap, syncWorker) {
+  async * runTask(db, imap, {syncWorker} = {}) {
     this._logger.log(`🔜 📂 🆕  ${this._folder.name} - Looking for ${this._uids.length} specific UIDs`);
     this._db = db;
     this._imap = imap;

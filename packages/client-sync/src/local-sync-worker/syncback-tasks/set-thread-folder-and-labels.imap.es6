@@ -14,7 +14,7 @@ class SetThreadFolderAndLabelsIMAP extends SyncbackIMAPTask {
   }
 
 
-  async * _run(db, imap, syncWorker) {
+  async * _run(db, imap, {syncWorker} = {}) {
     const {Thread, Folder} = db
     const threadId = this.syncbackRequestObject().props.threadId
     const labelIds = this.syncbackRequestObject().props.labelIds
