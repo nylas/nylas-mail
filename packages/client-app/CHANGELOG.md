@@ -2,29 +2,28 @@
 
 ### 1.0.54 (3/31/2017)
 
-  + [client-sync] Simplify Contact ranking query
-  + [client-app] delay building new hot window to improve win perf
-  + [client-app] Don't imeout removing sync worker when removing an account
-  + [client-app] Ensure sync worker can never continue running after being destroyed
-  + [client-app] Don't hit contact rankings endpoint until account is ready
-  + [client-sync] Wrap more syncWorker args
-  + [client-sync] Properly wrap the SyncWorker arg in an object
-  + [client-sync] Fix the new syncback-task structure
+- Features:
+  + Add search support for `has:attachment`
 
-### 1.0.53 (3/31/2017)
+- Fixes:
+  + Reduce database thrashing caused by thread search indexing
+  + Interrupt long-running syncback tasks
+  + Fix performance of contact rankings db query
+  + Don't hit contact rankings endpoint until account is ready
+  + Ensure sync worker is stopped correctly when removing accounts or when
+    restarting it
 
-  + [client-app] add  which doesn't use Transactions
-  + [client-app] rename DatabaseTransaction -> DatabaseWriter
-  + [client-app] use debug library for DB
-  + [cloud-api] Add awaits in thread metadata reconciliation test
-  + [client-sync] Add provider to syncbackTask perf metric
-  + [client-sync] Report metrics about SyncbackTask runs
-  + [client-app] Add script that benchmarks new commits
-  + [client-app] Add search support for has:attachment
-  + [client-sync] Convert syncback tasks to interruptible generators
-  + [client-sync] Interrupt long-running syncback tasks
-  + [client-app] Add silent flag to DB persists for thread indexing
-  + [client-app] Add better DB logging with ENABLE_SEQUELIZE_DEBUG_LOGGING
+- Metrics:
+  + Report metrics about SyncbackTask runs
+
+- Perf:
+  + Delay building new hot window to improve win perf
+
+- Development:
+  + Add script to benchmarks new commits
+  + Add DEBUG flag to be able to log all query activity for both databases
+  + Add `DatabaseStore.write` which doesn't use Transactions
+  + Metadata test fixes
 
 ### 1.0.52 (3/29/2017)
 
