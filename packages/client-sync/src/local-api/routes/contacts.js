@@ -107,16 +107,20 @@ module.exports = (server) => {
 
       const useLabels = account.provider === 'gmail';
 
-      while (true) {
-        const include = [{
-          model: (useLabels ? Label : Folder),
-          attributes: ['id', 'role'],
-          where: {role: 'sent'}},
-        ];
+      const model = (useLabels ? Label : Folder);
+      const category = await model.findOne({
+        attributes: ['id', 'role'],
+        where: {role: 'sent'},
+      });
 
-        const messages = await Message.findAll({
+      if (!category) {
+        reply('[]');
+        return;
+      }
+
+      while (true) {
+        const messages = await category.getMessages({
           attributes: ['rowid', 'id', 'to', 'cc', 'bcc', 'date'],
-          include,
           where: {
             'isDraft': false,                   // Don't include unsent things.
             '$message.rowid$': {$gt: lastID},
