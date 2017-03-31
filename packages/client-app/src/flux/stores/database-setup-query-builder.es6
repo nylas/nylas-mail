@@ -19,23 +19,6 @@ export default class DatabaseSetupQueryBuilder {
     return queries;
   }
 
-  analyzeQueries() {
-    const queries = [];
-
-    for (const klass of DatabaseObjectRegistry.getAllConstructors()) {
-      const attributes = Object.keys(klass.attributes).map(k => klass.attributes[k]);
-      const collectionAttributes = attributes.filter((attr) =>
-        attr.queryable && attr instanceof AttributeCollection
-      )
-
-      queries.push(`ANALYZE \`${klass.name}\``);
-      collectionAttributes.forEach((attribute) => {
-        queries.push(`ANALYZE \`${tableNameForJoin(klass, attribute.itemClass)}\``)
-      });
-    }
-    return queries;
-  }
-
   setupQueriesForTable(klass) {
     const attributes = Object.keys(klass.attributes).map(k => klass.attributes[k]);
     let queries = [];
