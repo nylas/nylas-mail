@@ -1,5 +1,20 @@
 # Nylas Mail Changelog
 
+### 1.0.53 (3/31/2017)
+
+  + [client-app] add  which doesn't use Transactions
+  + [client-app] rename DatabaseTransaction -> DatabaseWriter
+  + [client-app] use debug library for DB
+  + [cloud-api] Add awaits in thread metadata reconciliation test
+  + [client-sync] Add provider to syncbackTask perf metric
+  + [client-sync] Report metrics about SyncbackTask runs
+  + [client-app] Add script that benchmarks new commits
+  + [client-app] Add search support for has:attachment
+  + [client-sync] Convert syncback tasks to interruptible generators
+  + [client-sync] Interrupt long-running syncback tasks
+  + [client-app] Add silent flag to DB persists for thread indexing
+  + [client-app] Add better DB logging with ENABLE_SEQUELIZE_DEBUG_LOGGING
+
 ### 1.0.52 (3/29/2017)
 
 - Fixes:
