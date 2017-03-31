@@ -65,7 +65,7 @@ class ThreadSearchIndexStore {
       .then(() => this.buildIndex(this.accountIds))
     }
 
-    return this.getUnindexedAccounts().then((accountIds) => this.buildIndex(accountIds));
+    return this.buildIndex(this.accountIds);
   }
 
   /**
@@ -165,11 +165,6 @@ class ThreadSearchIndexStore {
       DatabaseStore.dropSearchIndex(Thread)
       .then(() => DatabaseStore.createSearchIndex(Thread))
     )
-  }
-
-  getUnindexedAccounts() {
-    return Promise.resolve(this.accountIds)
-    .filter((accId) => DatabaseStore.isIndexEmptyForAccount(accId, Thread))
   }
 
   indexThread = (thread) => {
