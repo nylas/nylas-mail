@@ -4,6 +4,7 @@ import {
   AccountStore,
   NylasAPI,
   NylasAPIRequest,
+  FolderSyncProgressStore,
 } from 'nylas-exports'
 import RefreshingJSONCache from './refreshing-json-cache'
 
@@ -77,7 +78,7 @@ class ContactRankingsCacheManager {
     this.unsubscribers.forEach(unsub => unsub());
   }
 
-  onAccountsChanged = () => {
+  onAccountsChanged = async () => {
     const previousIDs = Object.keys(this.accountCaches);
     const latestIDs = AccountStore.accounts().map(a => a.id);
     if (_.isEqual(previousIDs, latestIDs)) {
@@ -90,13 +91,18 @@ class ContactRankingsCacheManager {
     console.log(`ContactRankingsCache: Updating contact rankings; added = ${latestIDs}, removed = ${removedIDs}`);
 
     for (const newID of newIDs) {
+      // Wait until the account has started syncing before trying to fetch
+      // contact rankings
+      await FolderSyncProgressStore.whenCategoryListSynced(newID)
       this.accountCaches[newID] = new ContactRankingsCache(newID);
       this.accountCaches[newID].start();
     }
 
     for (const removedID of removedIDs) {
-      this.accountCaches[removedID].end();
-      this.accountCaches[removedID] = null;
+      if (this.accountCaches[removedID]) {
+        this.accountCaches[removedID].end();
+        this.accountCaches[removedID] = null;
+      }
     }
   }
 }
