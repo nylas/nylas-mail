@@ -468,7 +468,7 @@ class SyncWorker {
 
   async _runTask(task) {
     this._currentTask = task
-    await this._conn.runOperation(this._currentTask, this)
+    await this._conn.runOperation(this._currentTask, {syncWorker: this})
     this._currentTask = null
   }
 
