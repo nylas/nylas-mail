@@ -52,7 +52,7 @@ async function* saveSentMessage({db, account, syncWorker, logger, imap, provider
       account,
       folder: sentFolder,
     })
-    yield syncOperation.run(db, imap, syncWorker)
+    yield syncOperation.run(db, imap, {syncWorker})
     return
   }
 
@@ -91,7 +91,7 @@ async function* saveSentMessage({db, account, syncWorker, logger, imap, provider
     account,
     folder: allMailFolder,
   })
-  yield syncOperation.run(db, imap, syncWorker)
+  yield syncOperation.run(db, imap, {syncWorker})
 }
 
 async function* setThreadingReferences(db, baseMessage) {

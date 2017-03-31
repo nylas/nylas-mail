@@ -55,7 +55,7 @@ class MoveThreadToFolderIMAP extends SyncbackIMAPTask {
       account: this._account,
       folder: targetFolder,
     })
-    yield syncOperation.run(db, imap, syncWorker)
+    yield syncOperation.run(db, imap, {syncWorker})
   }
 }
 module.exports = MoveThreadToFolderIMAP
