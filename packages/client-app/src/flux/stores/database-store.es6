@@ -766,16 +766,6 @@ class DatabaseStore extends NylasStore {
     return this._query(sql);
   }
 
-  isIndexEmptyForAccount(accountId, modelKlass) {
-    const modelTable = modelKlass.name
-    const sql = (
-      `SELECT \`${modelTable}\`.\`id\` FROM \`${modelTable}\` WHERE
-      \`${modelTable}\`.is_search_indexed = 1 AND
-      \`${modelTable}\`.\`account_id\` = ? LIMIT 1`
-    );
-    return this._query(sql, [accountId]).then(result => result.length === 0);
-  }
-
   dropSearchIndex(klass) {
     if (!klass) {
       throw new Error(`DatabaseStore::createSearchIndex - You must provide a class`);
