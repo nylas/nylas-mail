@@ -5,6 +5,7 @@ React = require 'react'
  TaskQueue,
  Actions,
  Contact,
+ Utils,
  Message} = require 'nylas-exports'
 {InjectedComponentSet} = require 'nylas-component-kit'
 
@@ -153,7 +154,7 @@ class DeveloperBar extends React.Component
     @setState(section: section)
 
   _getStateFromStores: =>
-    queue: TaskQueue._queue
+    queue: Utils.deepClone(TaskQueue._queue)
     completed: TaskQueue._completed
     curlHistory: DeveloperBarStore.curlHistory()
     longPollHistory: DeveloperBarStore.longPollHistory()

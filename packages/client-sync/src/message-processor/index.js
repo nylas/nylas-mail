@@ -274,7 +274,21 @@ class MessageProcessor {
   async _processExistingMessage({existingMessage, messageValues, struct} = {}) {
     const {accountId} = messageValues;
     const db = await LocalDatabaseConnector.forAccount(accountId);
-    await existingMessage.update(messageValues);
+
+    /**
+     * There should never be a reason to update the body of a message
+     * already in the database.
+     *
+     * When we use link/open tracking on Gmail, we optimistically create a
+     * Message whose body is stripped of tracking pixels (so you don't
+     * self trigger). Since it takes time to delete the old draft on Gmail
+     * & restuff, it's possible to sync a message with a non-stripped body
+     * (which would cause you to self-trigger)). This prevents this from
+     * happening.
+     */
+    const newMessageWithoutBody = _.clone(messageValues)
+    delete newMessageWithoutBody.body;
+    await existingMessage.update(newMessageWithoutBody);
     if (messageValues.labels && messageValues.labels.length > 0) {
       await existingMessage.setLabels(messageValues.labels)
     }
