@@ -6,7 +6,7 @@
   "isHiddenOnPluginsPage": true,
   "icon": "./icon.png",
   "main": "lib/main",
-  "supportedEnvs": ["development", "staging", "production"],
+  "supportedEnvs": ["local", "development", "staging", "production"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

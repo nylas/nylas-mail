@@ -1,8 +1,8 @@
 import fs from 'fs';
 import React, {Component, PropTypes} from 'react'
 import ReactDOM from 'react-dom'
-import {Actions, DateUtils, NylasAPIHelpers, DraftHelpers} from 'nylas-exports'
-import {RetinaImg} from 'nylas-component-kit'
+import {Actions, DateUtils, NylasAPIHelpers, DraftHelpers, FeatureUsageStore} from 'nylas-exports'
+import {RetinaImg, FeatureUsedUpModal} from 'nylas-component-kit'
 import SendLaterPopover from './send-later-popover'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
 const {NylasAPIRequest, NylasAPI, N1CloudAPI} = require('nylas-exports')
@@ -48,9 +48,15 @@ class SendLaterButton extends Component {
     this.mounted = false;
   }
 
-  onSendLater = (sendLaterDate, dateLabel) => {
+  onSendLater = async (sendLaterDate, dateLabel) => {
     if (!this.props.isValidDraft()) { return }
     Actions.closePopover();
+    if (!FeatureUsageStore.isUsable("send-later")) {
+      this._showFeatureLimit()
+      return
+    }
+
+    await FeatureUsageStore.useFeature('send-later')
     const sendInSec = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000)
     Actions.recordUserEvent("Draft Sent Later", {
       timeInSec: sendInSec,
@@ -146,6 +152,36 @@ class SendLaterButton extends Component {
     const messageMetadata = draft.metadataForPluginId(PLUGIN_ID) || {};
     return messageMetadata.sendLaterDate;
   }
+
+  _showFeatureLimit() {
+    const featureData = FeatureUsageStore.featureData("send-later");
+
+    let headerText = "";
+    let rechargeText = ""
+    if (!featureData.quota) {
+      headerText = "Send later not yet enabled";
+      rechargeText = "Upgrade to Pro to start sending later"
+    } else {
+      headerText = "All delayed sends used";
+      const next = FeatureUsageStore.nextPeriodString(featureData.period)
+      rechargeText = `You’ll have ${featureData.quota} more chances to send later ${next}`
+    }
+
+    Actions.openModal({
+      component: (
+        <FeatureUsedUpModal
+          modalClass="send-later"
+          featureName="send later"
+          headerText={headerText}
+          iconUrl="nylas://send-later/assets/ic-send-later-modal@2x.png"
+          rechargeText={rechargeText}
+        />
+      ),
+      height: 575,
+      width: 412,
+    })
+  }
+
 
   render() {
     let className = 'btn btn-toolbar btn-send-later';

@@ -1,3 +1,4 @@
+import React from 'react'
 import moment from 'moment'
 import {
   Rx,
@@ -8,7 +9,9 @@ import {
   NylasAPIHelpers,
   DateUtils,
   DatabaseStore,
+  FeatureUsageStore,
 } from 'nylas-exports'
+import {FeatureUsedUpModal} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-reminders-constants'
 
 
@@ -85,7 +88,42 @@ export async function asyncUpdateFromSentMessage({messageClientId}) {
   Actions.setMetadata(message, PLUGIN_ID, newMetadata)
 }
 
+function _showFeatureLimit() {
+  const featureData = FeatureUsageStore.featureData("send-reminders");
+
+  let headerText = "";
+  let rechargeText = ""
+  if (!featureData.quota) {
+    headerText = "Reminders not yet enabled";
+    rechargeText = "Upgrade to Pro to start using reminders"
+  } else {
+    headerText = "All reminders used";
+    const next = FeatureUsageStore.nextPeriodString(featureData.period)
+    rechargeText = `You’ll have ${featureData.quota} more reminders ${next}`
+  }
+
+  Actions.openModal({
+    component: (
+      <FeatureUsedUpModal
+        modalClass="send-reminders"
+        featureName="reminders"
+        headerText={headerText}
+        iconUrl="nylas://send-reminders/assets/ic-send-reminders-modal@2x.png"
+        rechargeText={rechargeText}
+      />
+    ),
+    height: 575,
+    width: 412,
+  })
+}
+
 async function asyncSetReminder(accountId, reminderDate, dateLabel, {message, thread, isDraft, draftSession} = {}) {
+  if (!FeatureUsageStore.isUsable("send-reminders")) {
+    _showFeatureLimit();
+    return Promise.resolve()
+  }
+
+  await FeatureUsageStore.useFeature('send-reminders')
   if (reminderDate && dateLabel) {
     const remindInSec = Math.round(((new Date(reminderDate)).valueOf() - Date.now()) / 1000)
     Actions.recordUserEvent("Set Reminder", {
