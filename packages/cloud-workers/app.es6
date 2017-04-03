@@ -61,7 +61,7 @@ async function run() {
         case 'n1-send-later':
           workerTable[datum.id] = sendWorker.run(datum);
           break;
-        case 'snooze':
+        case 'thread-snooze':
           workerTable[datum.id] = snoozeWorker.run(datum);
           break;
         case 'send-reminders':
@@ -69,7 +69,7 @@ async function run() {
           break;
         default:
           logger.warn(`Unknown plugin type ${datum.pluginId}, skipping.`)
-          break;
+          continue;
       }
 
       workerTable[datum.id].then(() => {
