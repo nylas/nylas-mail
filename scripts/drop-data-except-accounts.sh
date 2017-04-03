@@ -34,7 +34,7 @@ then
   mkdir -p $SQLITE_DIR
   curl -s "https://www.sqlite.org/2017/sqlite-amalgamation-3170000.zip" > "$SQLITE_DIR/sqlite-amalgamation.zip"
   unzip -o -d $SQLITE_DIR "$SQLITE_DIR/sqlite-amalgamation.zip"
-  clang -DSQLITE_ENABLE_FTS5 "$SQLITE_SRC_DIR/sqlite3.c" "$SQLITE_SRC_DIR/shell.c" -o $SQLITE_BIN
+  clang -DSQLITE_DISABLE_INTRINSIC -DSQLITE_ENABLE_FTS5 "$SQLITE_SRC_DIR/sqlite3.c" "$SQLITE_SRC_DIR/shell.c" -o $SQLITE_BIN
 fi
 
 rm -f $NYLAS_DIR/a-*.sqlite
