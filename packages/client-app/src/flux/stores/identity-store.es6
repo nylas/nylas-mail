@@ -22,6 +22,14 @@ class IdentityStore extends NylasStore {
   }
 
   async activate() {
+    if (NylasEnv.isEmptyWindow()) {
+      NylasEnv.onWindowPropsReceived(() => {
+        this.deactivate();
+        this.activate();
+      })
+      return
+    }
+
     NylasEnv.config.onDidChange('env', this._onEnvChanged);
     this._onEnvChanged();
 
@@ -37,7 +45,7 @@ class IdentityStore extends NylasStore {
   }
 
   deactivate() {
-    this._disp.dispose();
+    if (this._disp) this._disp.dispose();
     this.stopListeningToAll()
   }
 
