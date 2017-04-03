@@ -20,6 +20,26 @@ const PACKAGE_MIGRATIONS = [
       "enabled-by-default": false,
     }],
   },
+  {
+    "version": "1.0.56",
+    "package-migrations": [
+      {
+        "new-name": "thread-snooze",
+        "old-name": "thread-snooze",
+        "enabled-by-default": true,
+      },
+      {
+        "new-name": "send-reminders",
+        "old-name": "send-reminders",
+        "enabled-by-default": true,
+      },
+      {
+        "new-name": "send-later",
+        "old-name": "send-later",
+        "enabled-by-default": true,
+      },
+    ],
+  },
 ]
 
 class PackageMigrationManager {
