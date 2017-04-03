@@ -71,6 +71,24 @@ class FeatureUsageStore extends NylasStore {
     return usage[feature]
   }
 
+  nextPeriodString(period) {
+    let time = "later";
+    if (period === "hourly") {
+      time = "next hour"
+    } else if (period === "daily") {
+      time = "tomorrow"
+    } else if (period === "weekly") {
+      time = "next week"
+    } else if (period === "monthly") {
+      time = "next month"
+    } else if (period === "yearly") {
+      time = "next year"
+    } else if (period === "unlimited") {
+      time = "if you upgrade to Pro"
+    }
+    return time
+  }
+
   isUsable(feature) {
     const usage = this._featureUsage()
     if (!usage[feature]) {

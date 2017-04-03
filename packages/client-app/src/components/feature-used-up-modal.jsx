@@ -19,13 +19,13 @@ export default function FeatureUsedUpModal(props = {}) {
         <p className="recharge-text">{props.rechargeText}</p>
       </div>
       <div className="feature-cta">
-        <h2>Want to <span className="feature-name">{props.featureName} more</span>?</h2>
+        <h2>Want to use <span className="feature-name">{props.featureName} more</span>?</h2>
         <div className="pro-description">
           <h3>Nylas Pro includes:</h3>
           <ul>
-            <li>Unlimited Snoozing</li>
-            <li>Unlimited Reminders</li>
-            <li>Unlimited Mail Merge</li>
+            <li>Unlimited snoozing</li>
+            <li>Unlimited reminders</li>
+            <li>Unlimited delayed sends</li>
           </ul>
           <p>&hellip; plus <a onClick={gotoFeatures}>dozens of other features</a></p>
         </div>
