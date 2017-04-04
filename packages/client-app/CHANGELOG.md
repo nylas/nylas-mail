@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.0 (4/4/2017)
+
+  + Introducing Nylas Mail Pro
+
 ### 1.0.56 (4/4/2017)
 
   + [client-app] Fix sqlite build for older versions of clang
