@@ -1,4 +1,5 @@
 import AccountStore from './stores/account-store'
+import IdentityStore from './stores/identity-store'
 import NylasAPIRequest from './nylas-api-request';
 
 // We're currently moving between services hosted on edgehill-api (written in
@@ -34,6 +35,9 @@ class _EdgehillAPI {
     }
 
     if (options.authWithNylasAPI) {
+      if (!IdentityStore.identity()) {
+        throw new Error('LegacyEdgehillAPI.makeRequest: Identity must be present to make a request that auths with Nylas API')
+      }
       // The account doesn't matter for Edgehill server. We just need to
       // ensure it's a valid account.
       options.accountId = AccountStore.accounts()[0].id;

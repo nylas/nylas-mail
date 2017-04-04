@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import moment from 'moment-timezone'
 import {
+  IdentityStore,
   AccountStore,
   NylasAPI,
   NylasAPIRequest,
@@ -32,7 +33,8 @@ class ContactRankingsCache extends RefreshingJSONCache {
   }
 
   fetchData = (callback) => {
-    if (NylasEnv.inSpecMode()) return
+    if (NylasEnv.inSpecMode()) { return }
+    if (!IdentityStore.identity()) { return }
 
     const request = new NylasAPIRequest({
       api: NylasAPI,

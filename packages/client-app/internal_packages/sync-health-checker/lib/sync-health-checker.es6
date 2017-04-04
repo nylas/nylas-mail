@@ -1,5 +1,5 @@
 import {ipcRenderer} from 'electron'
-import {AccountStore, Actions, NylasAPI, NylasAPIRequest} from 'nylas-exports'
+import {IdentityStore, AccountStore, Actions, NylasAPI, NylasAPIRequest} from 'nylas-exports'
 
 const CHECK_HEALTH_INTERVAL = 5 * 60 * 1000;
 
@@ -35,6 +35,9 @@ class SyncHealthChecker {
 
   _checkSyncHealth = async () => {
     try {
+      if (!IdentityStore.identity()) {
+        return
+      }
       const request = this._buildRequest()
       const response = await request.run()
       this._lastSyncActivity = response
