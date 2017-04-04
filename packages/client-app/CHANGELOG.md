@@ -1,5 +1,16 @@
 # Nylas Mail Changelog
 
+### 1.0.56 (4/4/2017)
+
+  + [client-app] Fix sqlite build for older versions of clang
+  + [client-sync] Don't assign duplicate roles in folder fetch
+  + [cloud-workers] fix worker exception
+  + [client-app] re-setup IdentityStore in new window
+  + [client-app] add feature limits to reminders and send later
+  + [client-app] enable snooze, send later, reminders on 1.0.56
+  + [client-app] Remove rogue scripts-tmp folder
+  + [client-app] Remove unecessary db setup for mail rules
+
 ### 1.0.55 (3/31/2017)
 
 - Fixes
