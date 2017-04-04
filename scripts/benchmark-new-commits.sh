@@ -12,11 +12,13 @@ BENCHMARK_RESULTS_DIR="$HOME/.benchmark_results"
 mkdir -p $BENCHMARK_RESULTS_DIR
 
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-LAST_COMMIT=$(cat $BENCHMARK_RESULTS_DIR/last_commit)
-NEXT_COMMIT=$(get_next_commit $LAST_COMMIT)
+cd $CWD/..
 
 git checkout -q master
 git pull -q --rebase
+
+LAST_COMMIT=$(cat $BENCHMARK_RESULTS_DIR/last_commit)
+NEXT_COMMIT=$(get_next_commit $LAST_COMMIT)
 
 while [[ $NEXT_COMMIT != '' ]]
 do
