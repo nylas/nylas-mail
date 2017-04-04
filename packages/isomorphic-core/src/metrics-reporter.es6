@@ -57,27 +57,30 @@ class MetricsReporter {
     })
 
     try {
-      if (isClientEnv()) {
-        if (NylasEnv.inDevMode()) { return }
-
-        if (!dataToReport.accountId) {
-          throw new Error("Metrics Reporter: You must include an accountId");
-        }
-
-        const {N1CloudAPI, NylasAPIRequest} = require('nylas-exports') // eslint-disable-line
-        const req = new NylasAPIRequest({
-          api: N1CloudAPI,
-          options: {
-            path: `/ingest-metrics`,
-            method: 'POST',
-            body: dataToReport,
-            accountId: dataToReport.accountId,
-          },
-        });
-        await req.run()
-      } else {
+      if (!isClientEnv()) {
         this.sendToHoneycomb(dataToReport)
+        return
       }
+      if (NylasEnv.inDevMode()) { return }
+
+      const {IdentityStore, N1CloudAPI, NylasAPIRequest} = require('nylas-exports') // eslint-disable-line
+      if (!IdentityStore.identity()) {
+        throw new Error("Metrics Reporter: Identity must be available");
+      }
+      if (!dataToReport.accountId) {
+        throw new Error("Metrics Reporter: You must include an accountId");
+      }
+
+      const req = new NylasAPIRequest({
+        api: N1CloudAPI,
+        options: {
+          path: `/ingest-metrics`,
+          method: 'POST',
+          body: dataToReport,
+          accountId: dataToReport.accountId,
+        },
+      });
+      await req.run()
       logger.log("Metrics Reporter: Submitted.", dataToReport);
     } catch (err) {
       logger.warn("Metrics Reporter: Submission Failed.", {error: err, ...dataToReport});
