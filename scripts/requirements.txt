@@ -1,0 +1,2 @@
+gspread==0.6.2
+dateutil==2.6.0

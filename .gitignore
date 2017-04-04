@@ -63,3 +63,12 @@ packages/client-app/spec/isomorphic-core
 
 # Sqlite amalgamation for scripts
 scripts/sqlite
+
+# Scripts for calculating statistics
+scripts/toolbox
+
+# Python
+*.pyc
+
+# OAuth client secret for talking to Google Sheets
+client_secret.json
