@@ -32,7 +32,7 @@ export default class OverlaidComposerExtension extends ComposerExtension {
     const overlayEls = Array.from(draftBodyRootNode.querySelectorAll('overlay[data-overlay-id]'));
     for (const overlayEl of overlayEls) {
       const {componentKey, componentProps, overlayId, style} = overlayEl.dataset;
-      const {anchorTag} = OverlaidComponents.buildAnchorTag(componentKey, componentProps, overlayId, style);
+      const {anchorTag} = OverlaidComponents.buildAnchorTag(componentKey, JSON.parse(componentProps), overlayId, style);
       const anchorFragment = document.createRange().createContextualFragment(anchorTag);
       overlayEl.parentNode.replaceChild(anchorFragment, overlayEl);
     }
