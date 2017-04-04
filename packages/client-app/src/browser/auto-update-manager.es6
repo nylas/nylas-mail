@@ -30,11 +30,6 @@ export default class AutoUpdateManager extends EventEmitter {
 
     this.updateFeedURL();
 
-    this.config.onDidChange(
-      'nylas.accounts',
-      this.updateFeedURL
-    );
-
     setTimeout(() => this.setupAutoUpdater(), 0);
   }
 
@@ -157,6 +152,7 @@ export default class AutoUpdateManager extends EventEmitter {
   }
 
   check({hidePopups} = {}) {
+    this.updateFeedURL();
     if (!hidePopups) {
       autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
       autoUpdater.once('error', this.onUpdateError);
