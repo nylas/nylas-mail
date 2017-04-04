@@ -15,7 +15,7 @@ const SendLaterOptions = {
 
 function SendLaterPopover(props) {
   let footer;
-  const {onSendLater, onCancelSendLater, sendLaterDate} = props
+  const {onAssignSendLaterDate, onCancelSendLater, sendLaterDate} = props
   const header = <span key="send-later-header">Send later:</span>
   if (sendLaterDate) {
     footer = [
@@ -34,14 +34,14 @@ function SendLaterPopover(props) {
       header={header}
       footer={footer}
       dateOptions={SendLaterOptions}
-      onSelectDate={onSendLater}
+      onSelectDate={onAssignSendLaterDate}
     />
   );
 }
 SendLaterPopover.displayName = 'SendLaterPopover';
 SendLaterPopover.propTypes = {
   sendLaterDate: PropTypes.string,
-  onSendLater: PropTypes.func.isRequired,
+  onAssignSendLaterDate: PropTypes.func.isRequired,
   onCancelSendLater: PropTypes.func.isRequired,
 };
 

@@ -48,7 +48,7 @@ class SendLaterButton extends Component {
     this.mounted = false;
   }
 
-  onSendLater = async (sendLaterDate, dateLabel) => {
+  onAssignSendLaterDate = async (sendLaterDate, dateLabel) => {
     if (!this.props.isValidDraft()) { return }
     Actions.closePopover();
 
@@ -156,7 +156,7 @@ class SendLaterButton extends Component {
     Actions.openPopover(
       <SendLaterPopover
         sendLaterDate={this._sendLaterDateForDraft(this.props.draft)}
-        onSendLater={this.onSendLater}
+        onAssignSendLaterDate={this.onAssignSendLaterDate}
         onCancelSendLater={this.onCancelSendLater}
       />,
       {originRect: buttonRect, direction: 'up'}
