@@ -21,9 +21,6 @@ then
   exit 0
 fi
 
-# Run sudo to prime root privileges
-sudo ls > /dev/null
-
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NYLAS_DIR="$HOME/.nylas-dev"
 EDGEHILL_DB="$NYLAS_DIR/edgehill.db"
@@ -39,7 +36,7 @@ do
   sleep $TIME_LIMIT
 
   ELECTRON_PID=`ps aux | grep "Electron packages/client-app" | grep -v grep | awk '{print $2}'`
-  sudo kill -9 $ELECTRON_PID
+  kill -9 $ELECTRON_PID
 
   MESSAGE_COUNT=`sqlite3 $EDGEHILL_DB 'SELECT COUNT(*) FROM Message'`
   echo "Synced Messages: $MESSAGE_COUNT"
