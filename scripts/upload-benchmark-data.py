@@ -45,12 +45,14 @@ def update_spreadsheet(datadir):
         print row
 
     # TODO: might want to use the batch upload api in order to not run into rate-limits
-    for i, row in enumerate(new_data):
+    for i, new_row in enumerate(new_data):
         row_num = i+2
-        for j, val in enumerate(row):
+        existing_row = worksheet.range('A{row_num}:C{row_num}'.format(row_num=row_num))
+        for j, cell in enumerate(existing_row):
             col_num = j+1
-            print "updating cell {row_num}:{col_num} with {val}".format(row_num=row_num, col_num=col_num, val=val)
-            worksheet.update_cell(row_num, col_num, val)
+            cell.value = new_row[j]
+            print "updating cell {row_num}:{col_num} with {val}".format(row_num=row_num, col_num=col_num, val=cell.value)
+        worksheet.update_cells(existing_row)
 
 
 def main():
