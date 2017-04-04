@@ -29,14 +29,14 @@ const BATTERY_SYNC_LOOP_INTERVAL_MS = 5 * 60 * 1000   //  5 min
 const MAX_SYNC_BACKOFF_MS = 5 * 60 * 1000 // 5 min
 
 class SyncWorker {
-  constructor(account, db, parentManager) {
+  constructor(account, db, syncProcessManager) {
     this._db = db;
-    this._manager = parentManager;
-    this._conn = null;
+    this._manager = syncProcessManager;
+    this._mainIMAPConn = null;
     this._smtp = null;
     this._account = account;
     this._currentTask = null
-    this._mailListenerConn = null
+    this._mailListenerIMAPConn = null
     this._interruptible = new Interruptible()
     this._logger = global.Logger.forAccount(account)
 
@@ -51,7 +51,7 @@ class SyncWorker {
     this._requireTokenRefresh = false
     this._batchProcessedUids = new Map();
     this._latestOpenTimesByFolder = new Map();
-    this._disposeMailListenerConnection = null
+    this._mailListenerIMAPConnDisposeFn = null
 
     this._retryScheduler = new ExponentialBackoffScheduler({
       baseDelay: 15 * 1000,
@@ -236,22 +236,22 @@ class SyncWorker {
     }
   }
 
-  async _ensureIMAPConnection(conn) {
+  async _ensureMainIMAPConnection(conn) {
     if (this._destroyed) { return }
-    if (this._conn === conn) {
+    if (this._mainIMAPConn === conn) {
       return;
     }
 
     conn.on('queue-empty', () => {});
 
-    this._conn = conn;
-    this._conn._db = this._db;
+    this._mainIMAPConn = conn;
+    this._mainIMAPConn._db = this._db;
   }
 
-  async _ensureIMAPMailListenerConnection(newCredentials) {
+  async _ensureMailListenerIMAPConnection(newCredentials) {
     if (this._destroyed) { return }
-    if (!newCredentials && this._mailListenerConn) {
-      await this._mailListenerConn.connect();
+    if (!newCredentials && this._mailListenerIMAPConn) {
+      await this._mailListenerIMAPConn.connect();
       return
     }
 
@@ -260,13 +260,13 @@ class SyncWorker {
       logger: this._logger,
       socketTimeout: this._retryScheduler.currentDelay(),
       onConnected: async ([listenerConn], done) => {
-        this._mailListenerConn = listenerConn;
-        this._mailListenerConn._db = this._db;
+        this._mailListenerIMAPConn = listenerConn;
+        this._mailListenerIMAPConn._db = this._db;
 
-        this._mailListenerConn.on('mail', () => {
+        this._mailListenerIMAPConn.on('mail', () => {
           this._onInboxUpdates(`You've got mail`);
         })
-        this._mailListenerConn.on('update', () => {
+        this._mailListenerIMAPConn.on('update', () => {
           // `update` events happen when messages receive flag updates on the inbox
           // (e.g. marking as unread or starred). We need to listen to that event for
           // when those updates are performed from another mail client, but ignore
@@ -275,7 +275,7 @@ class SyncWorker {
           this._onInboxUpdates(`There are flag updates on the inbox`);
         })
 
-        this._disposeMailListenerConnection = done
+        this._mailListenerIMAPConnDisposeFn = done
         // Return true to keep connection open
         return true
       },
@@ -292,17 +292,25 @@ class SyncWorker {
     // Open the inbox folder on our dedicated mail listener connection to listen
     // to new mail events
     const inbox = await this._getInboxFolder();
-    if (inbox && this._mailListenerConn) {
-      await this._mailListenerConn.openBox(inbox.name)
+    if (inbox && this._mailListenerIMAPConn) {
+      await this._mailListenerIMAPConn.openBox(inbox.name)
     }
   }
 
   _disposeConnections() {
-    this._conn = null;
-    this._mailListenerConn = null;
-    if (this._disposeMailListenerConnection) {
-      this._disposeMailListenerConnection()
-      this._disposeMailListenerConnection = null
+    this._disposeMainIMAPConnection()
+    this._disposeMailListenerIMAPConnection()
+  }
+
+  _disposeMainIMAPConnection() {
+    this._mainIMAPConn = null;
+  }
+
+  _disposeMailListenerIMAPConnection() {
+    this._mailListenerIMAPConn = null;
+    if (this._mailListenerIMAPConnDisposeFn) {
+      this._mailListenerIMAPConnDisposeFn()
+      this._mailListenerIMAPConnDisposeFn = null
     }
   }
 
@@ -476,7 +484,7 @@ class SyncWorker {
   async _runTask(task) {
     if (this._destroyed) { return }
     this._currentTask = task
-    await this._conn.runOperation(this._currentTask, {syncWorker: this})
+    await this._mainIMAPConn.runOperation(this._currentTask, {syncWorker: this})
     this._currentTask = null
   }
 
@@ -489,7 +497,7 @@ class SyncWorker {
 
     const syncbackTaskRunner = new SyncbackTaskRunner({
       db: this._db,
-      imap: this._conn,
+      imap: this._mainIMAPConn,
       smtp: this._smtp,
       logger: this._logger,
       account: this._account,
@@ -580,13 +588,13 @@ class SyncWorker {
     try {
       const newCredentials = await this._ensureAccessToken()
       await this._ensureSMTPConnection(newCredentials);
-      await this._ensureIMAPMailListenerConnection(newCredentials);
+      await this._ensureMailListenerIMAPConnection(newCredentials);
       await IMAPConnectionPool.withConnectionsForAccount(this._account, {
         desiredCount: 1,
         logger: this._logger,
         socketTimeout: this._retryScheduler.currentDelay(),
         onConnected: async ([mainConn]) => {
-          await this._ensureIMAPConnection(mainConn);
+          await this._ensureMainIMAPConnection(mainConn);
           await this._interruptible.run(this._performSync, this)
         },
       });
@@ -601,7 +609,7 @@ class SyncWorker {
     } finally {
       this._lastSyncTime = Date.now()
       this._syncInProgress = false
-      this._conn = null;
+      this._mainIMAPConn = null;
       await this._scheduleNextSync(error)
     }
   }
