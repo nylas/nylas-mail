@@ -252,7 +252,8 @@ class SyncWorker {
   async _ensureIMAPMailListenerConnection() {
     if (this._destroyed) { return }
     if (this._mailListenerConn) {
-      return;
+      await this._mailListenerConn.connect();
+      return
     }
 
     await IMAPConnectionPool.withConnectionsForAccount(this._account, {
