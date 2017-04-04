@@ -118,19 +118,23 @@ function _showFeatureLimit() {
 }
 
 async function asyncSetReminder(accountId, reminderDate, dateLabel, {message, thread, isDraft, draftSession} = {}) {
-  if (!FeatureUsageStore.isUsable("send-reminders")) {
-    _showFeatureLimit();
-    return Promise.resolve()
-  }
+  // Only check for feature usage and record metrics if this message doesn't
+  // already have a reminder set
+  if (!reminderDateForMessage(message)) {
+    if (!FeatureUsageStore.isUsable("send-reminders")) {
+      _showFeatureLimit();
+      return Promise.resolve()
+    }
 
-  await FeatureUsageStore.useFeature('send-reminders')
-  if (reminderDate && dateLabel) {
-    const remindInSec = Math.round(((new Date(reminderDate)).valueOf() - Date.now()) / 1000)
-    Actions.recordUserEvent("Set Reminder", {
-      timeInSec: remindInSec,
-      timeInLog10Sec: Math.log10(remindInSec),
-      label: dateLabel,
-    });
+    await FeatureUsageStore.useFeature('send-reminders')
+    if (reminderDate && dateLabel) {
+      const remindInSec = Math.round(((new Date(reminderDate)).valueOf() - Date.now()) / 1000)
+      Actions.recordUserEvent("Set Reminder", {
+        timeInSec: remindInSec,
+        timeInLog10Sec: Math.log10(remindInSec),
+        label: dateLabel,
+      });
+    }
   }
 
   let metadata = {}

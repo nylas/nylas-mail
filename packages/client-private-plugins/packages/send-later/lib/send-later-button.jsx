@@ -51,18 +51,24 @@ class SendLaterButton extends Component {
   onSendLater = async (sendLaterDate, dateLabel) => {
     if (!this.props.isValidDraft()) { return }
     Actions.closePopover();
-    if (!FeatureUsageStore.isUsable("send-later")) {
-      this._showFeatureLimit()
-      return
-    }
 
-    await FeatureUsageStore.useFeature('send-later')
     const sendInSec = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000)
-    Actions.recordUserEvent("Draft Sent Later", {
-      timeInSec: sendInSec,
-      timeInLog10Sec: Math.log10(sendInSec),
-      label: dateLabel,
-    });
+
+    // Only check for feature usage and record metrics if this draft is not
+    // already set to send later.
+    if (!this._sendLaterDateForDraft(this.props.draft)) {
+      if (!FeatureUsageStore.isUsable("send-later")) {
+        this._showFeatureLimit()
+        return
+      }
+
+      await FeatureUsageStore.useFeature('send-later')
+      Actions.recordUserEvent("Draft Send Later", {
+        timeInSec: sendInSec,
+        timeInLog10Sec: Math.log10(sendInSec),
+        label: dateLabel,
+      });
+    }
     this.onSetMetadata(sendLaterDate);
   };
 
@@ -150,7 +156,7 @@ class SendLaterButton extends Component {
       return null;
     }
     const messageMetadata = draft.metadataForPluginId(PLUGIN_ID) || {};
-    return messageMetadata.sendLaterDate;
+    return messageMetadata.expiration;
   }
 
   _showFeatureLimit() {
