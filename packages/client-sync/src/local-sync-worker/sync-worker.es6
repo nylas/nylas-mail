@@ -229,9 +229,8 @@ class SyncWorker {
     }
   }
 
-  async _ensureSMTPConnection() {
+  async _ensureSMTPConnection(newCredentials) {
     if (this._destroyed) { return }
-    const newCredentials = await this._ensureAccessToken();
     if (!this._smtp || newCredentials) {
       this._smtp = new SendmailClient(this._account, this._logger)
     }
@@ -249,9 +248,9 @@ class SyncWorker {
     this._conn._db = this._db;
   }
 
-  async _ensureIMAPMailListenerConnection() {
+  async _ensureIMAPMailListenerConnection(newCredentials) {
     if (this._destroyed) { return }
-    if (this._mailListenerConn) {
+    if (!newCredentials && this._mailListenerConn) {
       await this._mailListenerConn.connect();
       return
     }
@@ -579,8 +578,9 @@ class SyncWorker {
     this._logger.log(`🔃 🆕 Reason: ${reason}`)
     let error;
     try {
-      await this._ensureSMTPConnection();
-      await this._ensureIMAPMailListenerConnection();
+      const newCredentials = await this._ensureAccessToken()
+      await this._ensureSMTPConnection(newCredentials);
+      await this._ensureIMAPMailListenerConnection(newCredentials);
       await IMAPConnectionPool.withConnectionsForAccount(this._account, {
         desiredCount: 1,
         logger: this._logger,
