@@ -21,7 +21,7 @@ const PACKAGE_MIGRATIONS = [
     }],
   },
   {
-    "version": "1.0.56",
+    "version": "2.0.1",
     "package-migrations": [
       {
         "new-name": "thread-snooze",
@@ -98,7 +98,12 @@ class PackageMigrationManager {
       // If the old install was enabled, keep it that way
       if (oldEnabledPackNames.includes(migration['old-name'])) { return }
       // If we want to enable the package by default,
-      if (migration['enabled-by-default']) { return }
+      if (migration['enabled-by-default']) {
+        if (disabledPackNames.includes(migration['old-name'])) {
+          this.config.removeAtKeyPath('core.disabledPackages', migration['old-name'])
+        }
+        return
+      }
       const newName = migration['new-name']
       this.config.pushAtKeyPath('core.disabledPackages', newName);
     })
