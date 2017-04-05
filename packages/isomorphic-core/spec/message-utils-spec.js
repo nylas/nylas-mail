@@ -1,8 +1,8 @@
 /*
-const {parseFromImap, parseSnippet, parseContacts} = require('../src/message-factory');
+const {parseFromImap, parseSnippet, parseContacts} = require('../src/message-utils');
 const {forEachJSONFixture, forEachHTMLAndTXTFixture, ACCOUNT_ID, getTestDatabase} = require('./helpers');
 
-xdescribe('MessageFactory', function MessageFactorySpecs() {
+xdescribe('MessageUtils', function MessageUtilsSpecs() {
   beforeEach(() => {
     waitsForPromise(async () => {
       const db = await getTestDatabase()
@@ -18,7 +18,7 @@ xdescribe('MessageFactory', function MessageFactorySpecs() {
   })
 
   describe("parseFromImap", () => {
-    forEachJSONFixture('MessageFactory/parseFromImap', (filename, json) => {
+    forEachJSONFixture('MessageUtils/parseFromImap', (filename, json) => {
       it(`should correctly build message properties for ${filename}`, () => {
         const {imapMessage, desiredParts, result} = json;
         // requiring these to match makes it overly arduous to generate test
@@ -95,7 +95,7 @@ const contactsTestCases = [{
 },
 ]
 
-describe('MessageFactoryHelpers', function MessageFactoryHelperSpecs() {
+describe('MessageUtilsHelpers', function MessageUtilsHelperSpecs() {
   describe('parseSnippet (basic)', () => {
     snippetTestCases.forEach(({purpose, body, snippet}) => {
       it(`should ${purpose}`, () => {
@@ -105,7 +105,7 @@ describe('MessageFactoryHelpers', function MessageFactoryHelperSpecs() {
     });
   });
   describe('parseSnippet (real world)', () => {
-    forEachHTMLAndTXTFixture('MessageFactory/parseSnippet', (filename, html, txt) => {
+    forEachHTMLAndTXTFixture('MessageUtils/parseSnippet', (filename, html, txt) => {
       it(`should correctly extract the snippet from the html`, () => {
         const parsedSnippet = parseSnippet(html);
         expect(parsedSnippet).toEqual(txt);

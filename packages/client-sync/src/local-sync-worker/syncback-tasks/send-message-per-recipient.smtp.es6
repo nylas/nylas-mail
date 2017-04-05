@@ -1,6 +1,5 @@
-const {Errors: {APIError}, SendUtils} = require('isomorphic-core')
+const {Errors: {APIError}, MessageUtils, ModelUtils} = require('isomorphic-core')
 const {SyncbackSMTPTask} = require('./syncback-task')
-const {MessageFactory} = require('isomorphic-core')
 
 
 /**
@@ -30,7 +29,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
       usesOpenTracking,
       usesLinkTracking,
     } = syncbackRequest.props;
-    const baseMessage = yield MessageFactory.buildForSend(db, messagePayload)
+    const baseMessage = yield MessageUtils.buildForSend(db, messagePayload)
 
     yield syncbackRequest.update({
       status: 'INPROGRESS-NOTRETRYABLE',
@@ -52,7 +51,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     try {
       // We strip the tracking links because this is the message that we want to
       // show the user as sent, so it shouldn't contain the tracking links
-      baseMessage.body = MessageFactory.stripTrackingLinksFromBody(baseMessage.body)
+      baseMessage.body = MessageUtils.stripTrackingLinksFromBody(baseMessage.body)
       baseMessage.setIsSent(true)
 
       // We don't save the message until after successfully sending it.
@@ -78,14 +77,14 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     const failedRecipients = []
 
     for (const recipient of recipients) {
-      const customBody = MessageFactory.buildTrackingBodyForRecipient({
+      const customBody = MessageUtils.buildTrackingBodyForRecipient({
         recipient,
         baseMessage,
         usesOpenTracking,
         usesLinkTracking,
       })
 
-      const individualizedMessage = SendUtils.copyModel(Message, baseMessage, {
+      const individualizedMessage = ModelUtils.copyModel(Message, baseMessage, {
         body: customBody,
       })
       // TODO we set these temporary properties which aren't stored in the

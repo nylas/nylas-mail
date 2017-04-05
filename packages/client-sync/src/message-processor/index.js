@@ -6,7 +6,7 @@ const mkdirp = require('mkdirp');
 const detectThread = require('./detect-thread');
 const extractFiles = require('./extract-files');
 const extractContacts = require('./extract-contacts');
-const {MessageFactory} = require('isomorphic-core');
+const {MessageUtils} = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector');
 const {BatteryStatusManager} = require('nylas-exports');
 const SyncActivity = require('../shared/sync-activity').default;
@@ -104,7 +104,7 @@ class MessageProcessor {
   async _processMessage({db, accountId, folder, imapMessage, struct, desiredParts, logger}) {
     try {
       const {sequelize, Message, Folder, Label} = db;
-      const messageValues = await MessageFactory.parseFromImap(imapMessage, desiredParts, {
+      const messageValues = await MessageUtils.parseFromImap(imapMessage, desiredParts, {
         db,
         folder,
         accountId,

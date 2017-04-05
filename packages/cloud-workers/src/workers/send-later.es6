@@ -4,7 +4,7 @@ import path from 'path';
 import tmp from 'tmp';
 import {Promise} from 'bluebird';
 import {DatabaseConnector} from 'cloud-core'
-import {SendmailClient, MessageFactory, SendUtils} from 'isomorphic-core'
+import {SendmailClient, MessageUtils, ModelUtils} from 'isomorphic-core'
 import CloudWorker from '../cloud-worker'
 
 Promise.promisifyAll(fs);
@@ -122,14 +122,14 @@ export default class SendLaterWorker extends CloudWorker {
     const failedRecipients = []
 
     for (const recipient of recipients) {
-      const customBody = MessageFactory.buildTrackingBodyForRecipient({
+      const customBody = MessageUtils.buildTrackingBodyForRecipient({
         recipient,
         baseMessage,
         usesOpenTracking,
         usesLinkTracking,
       })
 
-      const individualizedMessage = SendUtils.deepClone(baseMessage);
+      const individualizedMessage = ModelUtils.deepClone(baseMessage);
       individualizedMessage.body = customBody;
       // TODO we set these temporary properties which aren't stored in the
       // database model because SendmailClient requires them to send the message
