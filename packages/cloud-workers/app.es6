@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import SnoozeWorker from './workers/snooze'
 import SendRemindersWorker from './workers/send-reminders'
 import SendLaterWorker from './workers/send-later'
@@ -16,7 +15,7 @@ global.Metrics = Metrics
 global.Logger = Logger.createLogger('n1-cloud-workers')
 
 const onUnhandledError = (err) => {
-  global.Logger.fatal(err, 'Unhandled error')
+  global.Logger.error(err)
   global.Metrics.reportError(err)
 }
 process.on('uncaughtException', onUnhandledError)

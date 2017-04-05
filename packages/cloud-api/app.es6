@@ -67,10 +67,7 @@ global.Logger = Logger.createLogger('n1cloud-api')
 // (this can only happen in request paths during async handlers---otherwise
 // hapi catches the error and transforms it into a 5xx error)
 const onUnhandledError = (err) => {
-  global.Logger.fatal({
-    error: err.name,
-    error_message: err.message,
-    error_tb: err.stack}, 'Unhandled error')
+  global.Logger.error(err)
   global.Metrics.reportError(err)
 }
 process.on('uncaughtException', onUnhandledError)
