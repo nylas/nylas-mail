@@ -128,7 +128,8 @@ class SendLaterButton extends Component {
       session.changes.addPluginMetadata(PLUGIN_ID,
         Object.assign({expiration: sendLaterDate}, results, {uploads}));
 
-      Actions.ensureDraftSynced(draft.clientId);
+      // TODO: This currently doesn't do anything. Uncomment once it's necessary
+      // Actions.ensureDraftSynced(draft.clientId);
 
       if (sendLaterDate && NylasEnv.isComposerWindow()) {
         NylasEnv.close();
