@@ -84,7 +84,7 @@ module.exports = {
       //
       // Hapi's disconnect event only fires on error or unexpected aborts: https://hapijs.com/api#response-events
       request.raw.req.on('error', (error) => {
-        request.logger.error({error}, 'Delta connection stream errored')
+        request.logger.error({err: error}, 'Delta connection stream errored')
         disposable.dispose()
       })
       request.raw.req.on('close', () => {
