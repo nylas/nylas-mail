@@ -1,4 +1,5 @@
 /* eslint no-useless-escape: 0 */
+import mailcomposer from 'mailcomposer'
 const mimelib = require('mimelib');
 const encoding = require('encoding');
 const he = require('he');
@@ -437,6 +438,65 @@ async function buildForSend(db, json) {
   return instance;
 }
 
+const formatParticipants = (participants) => {
+  // Something weird happens with the mime building when the participant name
+  // has an @ symbol in it (e.g. a name and email of hello@gmail.com turns into
+  // 'hello@ <gmail.com hello@gmail.com>'), so replace it with whitespace.
+  return participants.map(p => `${p.name.replace('@', ' ')} <${p.email}>`).join(',');
+}
+
+// Transforms the message into a json object with the properties formatted in
+// the way mailer libraries (e.g. nodemailer, mailcomposer) expect.
+function getMailerPayload(message) {
+  const msgData = {};
+  for (const field of ['from', 'to', 'cc', 'bcc']) {
+    if (message[field]) {
+      msgData[field] = formatParticipants(message[field])
+    }
+  }
+  msgData.date = message.date;
+  msgData.subject = message.subject;
+  msgData.html = message.body;
+  msgData.messageId = message.headerMessageId || message.message_id_header;
+
+  msgData.attachments = []
+  const uploads = message.uploads || []
+  for (const upload of uploads) {
+    msgData.attachments.push({
+      filename: upload.filename,
+      content: fs.createReadStream(upload.targetPath),
+      cid: upload.inline ? upload.id : null,
+    })
+  }
+
+  if (message.replyTo) {
+    msgData.replyTo = formatParticipants(message.replyTo);
+  }
+
+  msgData.inReplyTo = message.inReplyTo;
+  msgData.references = message.references;
+  // message.headers is usually unset, but in the case that we do add
+  // headers elsewhere, we don't want to override them here
+  msgData.headers = message.headers || {};
+  msgData.headers['User-Agent'] = `NylasMailer-K2`
+
+  return msgData;
+}
+
+async function buildMime(message, {includeBcc = false} = {}) {
+  const payload = getMailerPayload(message)
+  const builder = mailcomposer(payload)
+  const mimeNode = await (new Promise((resolve, reject) => {
+    builder.build((error, result) => (
+      error ? reject(error) : resolve(result)
+    ))
+  }));
+  if (!includeBcc || !message.bcc || message.bcc.length === 0) {
+    return mimeNode.toString('ascii')
+  }
+  return `Bcc: ${formatParticipants(message.bcc)}\n${mimeNode.toString('ascii')}`
+}
+
 module.exports = {
   buildForSend,
   getReplyHeaders,
@@ -446,4 +506,6 @@ module.exports = {
   stripTrackingLinksFromBody,
   buildTrackingBodyForRecipient,
   replaceMessageIdInBodyTrackingLinks,
+  getMailerPayload,
+  buildMime,
 }

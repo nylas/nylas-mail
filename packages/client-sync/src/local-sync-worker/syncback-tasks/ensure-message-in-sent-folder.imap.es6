@@ -1,5 +1,8 @@
-const {SendmailClient, Provider,
-       Errors: {APIError}, MessageUtils: {getReplyHeaders}} = require('isomorphic-core')
+const {
+  Provider,
+  Errors: {APIError},
+  MessageUtils: {getReplyHeaders, buildMime},
+} = require('isomorphic-core')
 const {SyncbackIMAPTask} = require('./syncback-task')
 const SyncTaskFactory = require('../sync-task-factory');
 
@@ -39,8 +42,7 @@ async function* saveSentMessage({db, account, syncWorker, logger, imap, provider
     const sentFolder = yield Folder.find({where: {role: 'sent'}});
     if (!sentFolder) { throw new APIError(`Can't find sent folder - could not save message to sent folder.`) }
 
-    const sender = new SendmailClient(account, logger);
-    const rawMime = yield sender.buildMime(baseMessage);
+    const rawMime = yield buildMime(baseMessage, {includeBcc: true});
     const box = yield imap.openBox(sentFolder.name);
     yield box.append(rawMime, {flags: 'SEEN'});
 
@@ -71,8 +73,7 @@ async function* saveSentMessage({db, account, syncWorker, logger, imap, provider
   // as sent. This is because that means that we sent a message per recipient for
   // tracking, but we actually /just/ want to show the baseMessage as sent
   if (customSentMessage) {
-    const sender = new SendmailClient(account, logger);
-    const rawMime = yield sender.buildMime(baseMessage);
+    const rawMime = yield buildMime(baseMessage, {includeBcc: true});
     const box = yield imap.openBox(allMailFolder.name);
 
     yield box.append(rawMime, {flags: 'SEEN'})
