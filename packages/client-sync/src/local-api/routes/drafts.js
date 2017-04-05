@@ -1,4 +1,4 @@
-const {MessageFactory, Errors: {APIError}} = require('isomorphic-core')
+const {MessageUtils, Errors: {APIError}} = require('isomorphic-core')
 const Joi = require('joi');
 const crypto = require('crypto');
 
@@ -91,7 +91,7 @@ module.exports = (server) => {
         throw new APIError(`Can't find trash folder name.`, 500);
       }
 
-      const message = await MessageFactory.buildForSend(db, request.payload);
+      const message = await MessageUtils.buildForSend(db, request.payload);
       const ret = Object.assign(message.toJSON(), { sentFolderName, trashFolderName });
       reply(JSON.stringify(ret));
     },

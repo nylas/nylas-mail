@@ -1,5 +1,4 @@
 /* eslint no-useless-escape: 0 */
-import _ from 'underscore';
 const mimelib = require('mimelib');
 const encoding = require('encoding');
 const he = require('he');
@@ -9,7 +8,7 @@ const path = require('path');
 const mkdirp = require('mkdirp');
 const btoa = require('btoa')
 const {APIError} = require('./errors');
-const {deepClone} = require('./send-utils');
+const {deepClone} = require('./model-utils').default;
 
 // Aiming for the former in length, but the latter is the hard db cutoff
 const SNIPPET_SIZE = 100;

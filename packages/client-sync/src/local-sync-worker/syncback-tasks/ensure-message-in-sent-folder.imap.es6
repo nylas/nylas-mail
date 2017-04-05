@@ -1,5 +1,5 @@
 const {SendmailClient, Provider,
-       Errors: {APIError}, MessageFactory: {getReplyHeaders}} = require('isomorphic-core')
+       Errors: {APIError}, MessageUtils: {getReplyHeaders}} = require('isomorphic-core')
 const {SyncbackIMAPTask} = require('./syncback-task')
 const SyncTaskFactory = require('../sync-task-factory');
 
