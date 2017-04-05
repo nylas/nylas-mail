@@ -274,7 +274,8 @@ export default class SendLaterWorker extends ExpiredDataWorker {
       baseMessage,
       usesOpenTracking,
       usesLinkTracking,
-      logger});
+      logger,
+    });
 
     // Sleep to avoid potential race conditions.
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
