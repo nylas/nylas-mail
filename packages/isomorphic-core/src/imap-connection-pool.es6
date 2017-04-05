@@ -53,9 +53,16 @@ class AccountConnectionPool {
 
     let conns = [];
     let keepOpen = false;
+    let calledOnDone = false;
 
-    const done = () => {
-      conns.filter(Boolean).forEach((conn) => conn.removeAllListeners());
+    const onDone = () => {
+      if (calledOnDone) { return }
+      calledOnDone = true
+      keepOpen = false;
+
+      conns.filter(Boolean).forEach(conn => conn.end());
+      conns.filter(Boolean).forEach(conn => conn.removeAllListeners());
+      conns.fill(null);
       this._availableConns = conns.concat(this._availableConns);
       if (this._queue.length > 0) {
         const resolveWaitForConnection = this._queue.shift();
@@ -67,20 +74,15 @@ class AccountConnectionPool {
       for (let i = 0; i < desiredCount; ++i) {
         conns.push(this._availableConns.shift());
       }
-      conns = await Promise.all(conns.map((c) => (c || this._genConnection(socketTimeout, logger))));
+      conns = await Promise.all(conns.map(() => this._genConnection(socketTimeout, logger)));
 
-      // TODO: Indicate which connections had errors so that we can selectively
-      // refresh them.
-      keepOpen = await onConnected(conns, done);
-    } catch (err) {
-      keepOpen = false;
-      conns.filter(Boolean).forEach(conn => conn.end());
-      conns.fill(null);
-      throw err;
-    } finally {
+      keepOpen = await onConnected(conns, onDone);
       if (!keepOpen) {
-        done();
+        onDone();
       }
+    } catch (err) {
+      onDone()
+      throw err;
     }
   }
 }
