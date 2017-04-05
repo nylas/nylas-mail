@@ -260,7 +260,7 @@ class SyncWorker {
       desiredCount: 1,
       logger: this._logger,
       socketTimeout: this._retryScheduler.currentDelay(),
-      onConnected: async ([listenerConn], done) => {
+      onConnected: async ([listenerConn], onDone) => {
         this._mailListenerIMAPConn = listenerConn;
         this._mailListenerIMAPConn._db = this._db;
 
@@ -276,7 +276,7 @@ class SyncWorker {
           this._onInboxUpdates(`There are flag updates on the inbox`);
         })
 
-        this._mailListenerIMAPConnDisposer = done
+        this._mailListenerIMAPConnDisposer = onDone
         // Return true to keep connection open
         return true
       },
@@ -616,7 +616,7 @@ class SyncWorker {
     } finally {
       this._lastSyncTime = Date.now()
       this._syncInProgress = false
-      this._disposeMainIMAPConnection({errored: false})
+      this._disposeMainIMAPConnection()
       await this._scheduleNextSync(error)
     }
   }
