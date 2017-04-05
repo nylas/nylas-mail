@@ -26,14 +26,14 @@ export default class ExpiredDataWorker {
         Sentry.captureException(err);
 
         if (/invalid metadata values/i.test(err.message)) {
-          this.logger.error("Cannot process metadatum, will not retry.", err)
+          this.logger.error(err, "Cannot process metadatum, will not retry.")
           count = MAX_RETRIES;
         } else {
           count++;
           const sleepPeriod = 60000 * (count + 1) + Math.floor((Math.random() * 100));
 
-          this.logger.error("Error when performing action", err);
-          this.logger.error(`Sleeping for ${sleepPeriod} ms`);
+          this.logger.error(err, "Error when performing action");
+          this.logger.log(`Sleeping for ${sleepPeriod} ms`);
           await sleep(sleepPeriod);
         }
       }

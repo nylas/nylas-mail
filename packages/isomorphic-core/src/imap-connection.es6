@@ -383,7 +383,7 @@ export default class IMAPConnection extends EventEmitter {
     .catch((err) => {
       this._currentOperation = null;
       this._logger.error({
-        error: err,
+        err: err,
         operation_type: operation.constructor.name,
         operation_description: operation.description(),
       }, `IMAPConnection - operation errored`)

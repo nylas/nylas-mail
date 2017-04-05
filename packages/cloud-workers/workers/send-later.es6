@@ -143,7 +143,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
         const sender = new SendmailClient(account, logger);
         await sender.sendCustom(individualizedMessage, {to: [recipient]})
       } catch (error) {
-        logger.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
+        logger.error({err: error, recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
         failedRecipients.push(recipient.email)
       }
     }

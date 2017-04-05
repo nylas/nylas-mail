@@ -79,7 +79,7 @@ async function run() {
     }
   } catch (e) {
     Sentry.captureException(e);
-    logger.error("Exception in main loop", e);
+    logger.error(e, "Exception in main loop");
   }
 
   global.lastRun = new Date();
