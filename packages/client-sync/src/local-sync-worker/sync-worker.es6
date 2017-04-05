@@ -32,10 +32,10 @@ class SyncWorker {
   constructor(account, db, syncProcessManager) {
     this._db = db;
     this._manager = syncProcessManager;
-    this._mainIMAPConn = null;
     this._smtp = null;
     this._account = account;
     this._currentTask = null
+    this._mainIMAPConn = null;
     this._mailListenerIMAPConn = null
     this._interruptible = new Interruptible()
     this._logger = global.Logger.forAccount(account)
@@ -51,7 +51,8 @@ class SyncWorker {
     this._requireTokenRefresh = false
     this._batchProcessedUids = new Map();
     this._latestOpenTimesByFolder = new Map();
-    this._mailListenerIMAPConnDisposeFn = null
+    this._mainIMAPConnDisposer = null
+    this._mailListenerIMAPConnDisposer = null
 
     this._retryScheduler = new ExponentialBackoffScheduler({
       baseDelay: 15 * 1000,
@@ -275,7 +276,7 @@ class SyncWorker {
           this._onInboxUpdates(`There are flag updates on the inbox`);
         })
 
-        this._mailListenerIMAPConnDisposeFn = done
+        this._mailListenerIMAPConnDisposer = done
         // Return true to keep connection open
         return true
       },
@@ -304,13 +305,17 @@ class SyncWorker {
 
   _disposeMainIMAPConnection() {
     this._mainIMAPConn = null;
+    if (this._mainIMAPConnDisposer) {
+      this._mainIMAPConnDisposer()
+      this._mainIMAPConnDisposer = null
+    }
   }
 
   _disposeMailListenerIMAPConnection() {
     this._mailListenerIMAPConn = null;
-    if (this._mailListenerIMAPConnDisposeFn) {
-      this._mailListenerIMAPConnDisposeFn()
-      this._mailListenerIMAPConnDisposeFn = null
+    if (this._mailListenerIMAPConnDisposer) {
+      this._mailListenerIMAPConnDisposer()
+      this._mailListenerIMAPConnDisposer = null
     }
   }
 
@@ -593,9 +598,11 @@ class SyncWorker {
         desiredCount: 1,
         logger: this._logger,
         socketTimeout: this._retryScheduler.currentDelay(),
-        onConnected: async ([mainConn]) => {
+        onConnected: async ([mainConn], done) => {
+          this._mainIMAPConnDisposer = done
           await this._ensureMainIMAPConnection(mainConn);
           await this._interruptible.run(this._performSync, this)
+          this._mainIMAPConnDisposer = null
         },
       });
 
@@ -609,7 +616,7 @@ class SyncWorker {
     } finally {
       this._lastSyncTime = Date.now()
       this._syncInProgress = false
-      this._mainIMAPConn = null;
+      this._disposeMainIMAPConnection({errored: false})
       await this._scheduleNextSync(error)
     }
   }
