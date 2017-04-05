@@ -638,7 +638,7 @@ class SyncWorker {
     this._syncTimer = null;
     try {
       if (this._syncInProgress) {
-        let promise = this.interrupt({reason: "Sync stopped"})
+        let promise = this.interrupt({reason: "Sync worker destroyed"})
         if (timeout) {
           promise = promise.timeout(timeout, 'Interrupt timed out while destroying worker')
         }
