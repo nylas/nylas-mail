@@ -208,7 +208,7 @@ export default class SendLaterWorker extends CloudWorker {
 
     // Add a single message without tracking information.
     box = await conn.openBox(sentFolder);
-    const rawMime = await sender.buildMime(message);
+    const rawMime = await MessageUtils.buildMime(message, {includeBcc: true});
     await box.append(rawMime, {flags: 'SEEN'});
 
     await box.closeBox();
