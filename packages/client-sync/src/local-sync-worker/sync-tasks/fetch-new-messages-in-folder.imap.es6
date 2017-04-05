@@ -30,7 +30,7 @@ class FetchNewMessagesInFolderIMAP extends FetchMessagesInFolderIMAP {
       // Can't use `super` in this scenario because babel can't compile it under
       // these conditions. User regular prototype instead
       this._logger.log(`🔚 📂 🆕  ${this._folder.name} has no fetchedmax - running regular fetch operation`)
-      yield FetchMessagesInFolderIMAP.prototype.runTask.call(this, db, imap, syncWorker)
+      yield FetchMessagesInFolderIMAP.prototype.runTask.call(this, db, imap, {syncWorker})
       return
     }
 
