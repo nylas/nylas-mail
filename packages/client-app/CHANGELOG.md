@@ -1,5 +1,35 @@
 # Nylas Mail Changelog
 
+### 2.0.1 (4/5/2017)
+
+  + [iso-core] IMAPConnectionPool now correctly disposes connections 
+  + [client-sync] Prevent IMAP connection leaking in sync worker
+  + [cloud-worker] worker refactor
+  + [cloud-\*] remove old SignalFX reporter & add docs
+  + [cloud-workers] make log an  not 
+  + [cloud-\*] log errors according to bunyan specs
+  + [client-private-plugins] Rename onSendLater to onAssignSendLaterDate
+  + [client-sync] :art: logging
+  + [client-app] Add better logging when restarting stuck sync worker
+  + [iso-core] Remove unused vars from IMAPConnectionPool
+  + [client-plugins] Fix send later button saving state and sending action
+  + [client-private-plugins] Don't syncback drafts for send later
+  + [cloud-workers] :art: linting
+  + [client-sync] :art: sync worker
+  + [client-app] Fix the unapply transformation for overlaid components
+  + [client-app] Allow the packageMigrationManager to re-enable packages
+  + [client-app] Make sure to fetch latest update url every time we check for updates
+  + [client-private-plugins] Don't record usage when changing feature time
+  + [client-app] Prevent from making any requests when NylasID isn't present
+  + [scripts] Batch upload each row
+  + [client-app] Add script to run benchmarks once per day at specified time
+  + [scripts] Add script to upload benchmark data to Google Sheets
+  + [client-app] Fix benchmark script
+  + [client-sync] Ensure we use refreshed access token for mail listener conn
+  + [client-sync] Fix mail listener imap connection
+  + [client-app] Remove sudo from benchmark-initial-sync.sh
+  + [client-app] Limit search to focused perspective
+
 ### 2.0.0 (4/4/2017)
 
   + Introducing Nylas Mail Pro
