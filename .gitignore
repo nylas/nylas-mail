@@ -66,6 +66,7 @@ scripts/sqlite
 
 # Scripts for calculating statistics
 scripts/toolbox
+scripts/venv
 
 # Python
 *.pyc

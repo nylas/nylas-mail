@@ -6,6 +6,8 @@
 
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BENCHMARK_SCRIPT=$CWD/benchmark-new-commits.sh
+UPLOAD_SCRIPT=$CWD/upload-benchmark-data.py
+BENCHMARK_RESULTS_DIR=$HOME/.benchmark_results
 TARGET_TIME="$1"
 
 if [[ $# != 1 ]]
@@ -21,6 +23,7 @@ do
     if [[ $CURRENT_TIME = $TARGET_TIME ]]
     then
         /bin/bash $BENCHMARK_SCRIPT
+        python $UPLOAD_SCRIPT $BENCHMARK_RESULTS_DIR
     fi
     sleep 60
 done

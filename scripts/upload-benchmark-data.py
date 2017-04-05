@@ -19,6 +19,8 @@ def usage():
 
 def anymean(filename):
     output = subprocess.check_output(['./scripts/toolbox/any_mean.py', filename])
+    if output == '':
+        return 0.0, 0.0
 
     # e.g. 'Synced Messages: 77.00 +-0.00'
     synced_messages, confidence_interval = re.match('^Synced Messages: ([0-9.]+) (\+-[0-9.]+)$', output).groups()
@@ -47,7 +49,7 @@ def update_spreadsheet(datadir):
     # TODO: might want to use the batch upload api in order to not run into rate-limits
     for i, new_row in enumerate(new_data):
         row_num = i+2
-        existing_row = worksheet.range('A{row_num}:C{row_num}'.format(row_num=row_num))
+        existing_row = worksheet.range('A{row_num}:D{row_num}'.format(row_num=row_num))
         for j, cell in enumerate(existing_row):
             col_num = j+1
             cell.value = new_row[j]
