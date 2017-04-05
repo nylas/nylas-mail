@@ -35,7 +35,7 @@ class SendLaterButton extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextState !== this.state) {
+    if (nextState.saving !== this.state.saving) {
       return true;
     }
     if (this._sendLaterDateForDraft(nextProps.draft) !== this._sendLaterDateForDraft(this.props.draft)) {
@@ -52,17 +52,20 @@ class SendLaterButton extends Component {
     if (!this.props.isValidDraft()) { return }
     Actions.closePopover();
 
-    const sendInSec = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000)
+    const currentSendLaterDate = this._sendLaterDateForDraft(this.props.draft)
+    if (currentSendLaterDate === sendLaterDate) { return }
 
     // Only check for feature usage and record metrics if this draft is not
     // already set to send later.
-    if (!this._sendLaterDateForDraft(this.props.draft)) {
+    if (!currentSendLaterDate) {
       if (!FeatureUsageStore.isUsable("send-later")) {
         this._showFeatureLimit()
         return
       }
 
+      this.setState({saving: true});
       await FeatureUsageStore.useFeature('send-later')
+      const sendInSec = Math.round(((new Date(sendLaterDate)).valueOf() - Date.now()) / 1000)
       Actions.recordUserEvent("Draft Send Later", {
         timeInSec: sendInSec,
         timeInLog10Sec: Math.log10(sendInSec),
@@ -78,55 +81,60 @@ class SendLaterButton extends Component {
   };
 
   onSetMetadata = async (sendLaterDate) => {
+    if (!this.mounted) { return; }
     const {draft, session} = this.props;
-
     this.setState({saving: true});
 
     try {
       await NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId);
       if (!this.mounted) { return; }
-      this.setState({saving: false});
 
-      session.changes.add({pristine: false})
-      const draftContents = await DraftHelpers.prepareDraftForSyncback(session);
-      const req = new NylasAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: `/drafts/build`,
-          method: 'POST',
-          body: draftContents,
-          accountId: draft.accountId,
-          returnsModel: false,
-        },
-      });
-
-      const results = await req.run();
-      const uploads = [];
-
-      // Now, upload attachments to our blob service.
-      for (const attachment of draftContents.uploads) {
-        const uploadReq = new NylasAPIRequest({
-          api: N1CloudAPI,
+      if (!sendLaterDate) {
+        session.changes.addPluginMetadata(PLUGIN_ID, {expiration: null});
+      } else {
+        session.changes.add({pristine: false})
+        const draftContents = await DraftHelpers.prepareDraftForSyncback(session);
+        const req = new NylasAPIRequest({
+          api: NylasAPI,
           options: {
-            path: `/blobs`,
-            method: 'PUT',
-            blob: true,
+            path: `/drafts/build`,
+            method: 'POST',
+            body: draftContents,
             accountId: draft.accountId,
             returnsModel: false,
-            formData: {
-              id: attachment.id,
-              file: fs.createReadStream(attachment.originPath),
-            },
           },
         });
-        await uploadReq.run();
-        attachment.serverId = `${draftContents.accountId}-${attachment.id}`;
-        uploads.push(attachment);
+
+        const results = await req.run();
+        const uploads = [];
+
+        // Now, upload attachments to our blob service.
+        for (const attachment of draftContents.uploads) {
+          const uploadReq = new NylasAPIRequest({
+            api: N1CloudAPI,
+            options: {
+              path: `/blobs`,
+              method: 'PUT',
+              blob: true,
+              accountId: draft.accountId,
+              returnsModel: false,
+              formData: {
+                id: attachment.id,
+                file: fs.createReadStream(attachment.originPath),
+              },
+            },
+          });
+          await uploadReq.run();
+          attachment.serverId = `${draftContents.accountId}-${attachment.id}`;
+          uploads.push(attachment);
+        }
+        results.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
+        results.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
+        session.changes.addPluginMetadata(
+          PLUGIN_ID,
+          Object.assign({expiration: sendLaterDate}, results, {uploads})
+        );
       }
-      results.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
-      results.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
-      session.changes.addPluginMetadata(PLUGIN_ID,
-        Object.assign({expiration: sendLaterDate}, results, {uploads}));
 
       // TODO: This currently doesn't do anything. Uncomment once it's necessary
       // Actions.ensureDraftSynced(draft.clientId);
@@ -138,6 +146,9 @@ class SendLaterButton extends Component {
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
     }
+
+    if (!this.mounted) { return }
+    this.setState({saving: false})
   }
 
   onClick = () => {
