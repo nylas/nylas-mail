@@ -8,7 +8,10 @@ import {convertSmtpError} from './smtp-errors'
 const MAX_RETRIES = 1;
 
 const formatParticipants = (participants) => {
-  return participants.map(p => `${p.name} <${p.email}>`).join(',');
+  // Something weird happens with the mime building when the participant name
+  // has an @ symbol in it (e.g. a name and email of hello@gmail.com turns into
+  // 'hello@ <gmail.com hello@gmail.com>'), so replace it with whitespace.
+  return participants.map(p => `${p.name.replace('@', ' ')} <${p.email}>`).join(',');
 }
 
 class SendmailClient {
