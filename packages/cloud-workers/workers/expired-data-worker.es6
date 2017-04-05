@@ -25,6 +25,10 @@ export default class ExpiredDataWorker {
 
     const metadatum = await this.db.Metadata.findById(this.job.metadataId);
     try {
+      if (!metadatum) {
+        this.logger.error(`Can't find metadata ${this.job.metadataId} for job: ${this.job.id}`)
+        throw new Error("Can't find metadata")
+      }
       await this.performAction(metadatum);
       await this.db.CloudJob.update(
         {status: "SUCCEEDED", statusUpdatedAt: new Date()},
@@ -46,7 +50,7 @@ export default class ExpiredDataWorker {
         }
         job.statusUpdatedAt = new Date()
         await job.save({transaction: t});
-        this.logger.error(err, `${this.constructor.name} Errored`)
+        this.logger.error(err)
       })
     }
   }

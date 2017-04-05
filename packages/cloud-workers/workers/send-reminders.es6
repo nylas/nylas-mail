@@ -62,7 +62,7 @@ export default class SendRemindersWorker extends ExpiredDataWorker {
   async performAction(metadatum) {
     const {messageIdHeaders, folderImapNames, replyTo, subject} = metadatum.value
     if (!messageIdHeaders || !folderImapNames || !replyTo) {
-      throw new Error("Invalid metadata values")
+      throw new Error("Can't send reminder, now metadata value")
     }
     const messageIdSet = new Set(messageIdHeaders)
     const db = await DatabaseConnector.forShared();

@@ -256,6 +256,11 @@ export default class SendLaterWorker extends ExpiredDataWorker {
 
   async performAction(metadatum) {
     const db = await DatabaseConnector.forShared();
+
+    if (Object.keys(metadatum.value || {}).length === 0) {
+      throw new Error("Can't send later, no metadata value")
+    }
+
     const account = await db.Account.find({where: {id: metadatum.accountId}})
 
     // asyncGetImapConnection refreshes the oauth token and returns us a fresh

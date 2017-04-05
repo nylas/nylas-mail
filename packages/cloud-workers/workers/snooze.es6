@@ -11,13 +11,18 @@ export default class SnoozeWorker extends ExpiredDataWorker {
   }
 
   async performAction(metadatum) {
-    this.logger.debug(`Snoozed message message-id-header: ${metadatum.value.header}`);
+    if (!metadatum.value.header) {
+      throw new Error("Can't unsnooze, no message-id-header")
+    }
 
     const db = await DatabaseConnector.forShared()
     const conn = await asyncGetImapConnection(db, metadatum.accountId, this.logger)
     await conn.connect();
     const box = await conn.openBox(SNOOZE_FOLDER_NAME)
     const results = await box.search([['HEADER', 'MESSAGE-ID', metadatum.value.header]])
+
+    this.logger.debug(`Found ${results.length} message with HEADER MESSAGE-ID: ${metadatum.value.header}. Moving back to Inbox.`);
+
     for (const result of results) {
       box.moveFromBox(result, "INBOX")
     }
