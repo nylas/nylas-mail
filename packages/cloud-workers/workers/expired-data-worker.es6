@@ -1,59 +1,61 @@
-import {sleep} from './utils'
-import Sentry from '../sentry'
-
-// How many times do we retry an action.
-const MAX_RETRIES = 30;
+import {Errors} from 'isomorphic-core'
 
 export default class ExpiredDataWorker {
-  constructor(logger) {
-    this.logger = logger.child({pluginId: this.pluginId()});
+  constructor(cloudJob, {db, logger}) {
+    this.job = cloudJob
+    this.db = db
+    this.logger = logger.child({
+      jobId: cloudJob.id,
+      contextClass: this.constructor.name,
+      contextType: "Worker",
+    }); // Should be a child of Foreman's logger
+  }
+
+  async run() {
+    this.logger.info(`Running ${this.constructor.name}. Initial status: ${this.job.status}. Attempt number: ${this.job.attemptNumber}`)
+
+    await this.db.sequelize.transaction(async (t) => {
+      const job = await this.db.CloudJob.findById(this.job.id, {transaction: t});
+      job.status = "INPROGRESS-RETRYABLE";
+      job.statusUpdatedAt = new Date();
+      const attemptNum = job.attemptNumber;
+      job.attemptNumber = attemptNum + 1; // beware magic setter method
+      await job.save({transaction: t})
+    })
+
+    const metadatum = await this.db.Metadata.findById(this.job.metadataId);
+    try {
+      await this.performAction(metadatum);
+      await this.db.CloudJob.update(
+        {status: "SUCCEEDED", statusUpdatedAt: new Date()},
+        {where: {id: this.job.id}}
+      );
+      this.logger.info(`${this.constructor.name} Succeeded`)
+    } catch (err) {
+      await this.db.sequelize.transaction(async (t) => {
+        const job = await this.db.CloudJob.findById(this.job.id, {transaction: t});
+        job.error = {
+          message: err.message,
+          name: err.constructor.name,
+          stack: err.stack,
+        }
+        if (err instanceof Errors.RetryableError) {
+          job.status = "FAILED-RETRYABLE"
+        } else {
+          job.status = "FAILED"
+        }
+        job.statusUpdatedAt = new Date()
+        await job.save({transaction: t});
+        this.logger.error(err, `${this.constructor.name} Errored`)
+      })
+    }
   }
 
   pluginId() {
     throw new Error("You should override this!");
   }
 
-  async run(metadatum) {
-    this.logger.info(`Processing metadatum w/ id ${metadatum.id}`);
-    let count = 0;
-    do {
-      try {
-        await this.performAction(metadatum);
-        await this.nullifyEntry(metadatum); // So we don't try to process it again
-        return;
-      } catch (err) {
-        // We only try to perform the action for
-        Sentry.captureException(err);
-
-        if (/invalid metadata values/i.test(err.message)) {
-          this.logger.error(err, "Cannot process metadatum, will not retry.")
-          count = MAX_RETRIES;
-        } else {
-          count++;
-          const sleepPeriod = 60000 * (count + 1) + Math.floor((Math.random() * 100));
-
-          this.logger.error(err, "Error when performing action");
-          this.logger.log(`Sleeping for ${sleepPeriod} ms`);
-          await sleep(sleepPeriod);
-        }
-      }
-    } while (count < MAX_RETRIES);
-
-    await this.removeEntry(metadatum);
-  }
-
-  async nullifyEntry(metadatum) {
-    // Nylas Mail can't properly process delete deltas for metadata, because
-    // the transactions don't store what the objectId and pluginId of the
-    // metadata were. Instead, we just nullify the value.
-    this.logger.info(`Nullifying metadata for ${metadatum.id}`);
-    metadatum.value = {};
-    metadatum.expiration = null;
-    await metadatum.save();
-  }
-
-  async performAction(metadatum) {
-    // You need to override this one.
+  async performAction() {
     throw new Error("You should override this!");
   }
 }

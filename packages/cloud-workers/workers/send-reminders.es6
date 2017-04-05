@@ -2,8 +2,6 @@ import {DatabaseConnector, GmailOAuthHelpers} from 'cloud-core'
 import {SendmailClient} from 'isomorphic-core'
 import ExpiredDataWorker from './expired-data-worker'
 import {asyncGetImapConnection} from './utils'
-import Sentry from '../sentry'
-
 // This assumes there can't be any whitespace in the Message-Id value.
 // (Couldn't just use .+ because that doesn't match < or >)
 // https://regex101.com/r/1C1WCl/1
@@ -38,7 +36,8 @@ const asyncHasNewReply = (imapBox, origMessageId, seenMessageIdSet) => {
               return;
             }
           } else {
-            Sentry.captureException(new Error("Couldn't find a Message-Id header"), {
+            this.logger.error({
+              err: new Error("Couldn't find a Message-Id header"),
               inReplyTo: origMessageId,
             })
           }

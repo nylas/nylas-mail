@@ -2,6 +2,7 @@ const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   const Metadata = sequelize.define('metadata', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     accountId: Sequelize.STRING,
     value: JSONColumn('value', { columnType: Sequelize.LONGTEXT }),
     version: Sequelize.INTEGER,
@@ -13,6 +14,7 @@ module.exports = (sequelize, Sequelize) => {
     indexes: [
       { fields: ['objectId', 'objectType'] },
       { fields: ['expiration'] },
+      { fields: ['pluginId'] },
     ],
     instanceMethods: {
       toJSON() {
