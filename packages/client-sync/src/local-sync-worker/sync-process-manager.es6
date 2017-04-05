@@ -110,7 +110,7 @@ class SyncProcessManager {
       const {Account} = await LocalDatabaseConnector.forShared();
       const account = await Account.findById(accountId)
       const logger = global.Logger.forAccount(account)
-      logger.warn(`SyncProcessManager: Detected stuck worker`, activity, time)
+      logger.warn(`SyncProcessManager: Detected stuck worker. Last recorded activity: ${activity} at ${new Date(time)}`)
 
       await this.removeWorkerForAccountId(accountId, {timeout: 5 * 1000})
       await this.addWorkerForAccount(account)
