@@ -28,7 +28,7 @@ import Hoek from 'hoek';
 
 import Handlebars from 'handlebars'
 
-import {Logger, Metrics} from 'cloud-core';
+import {Logger} from 'cloud-core';
 
 import Package from './package.json';
 import {apiAuthenticate} from './src/authentication'
@@ -57,9 +57,6 @@ import registerErrorFormatDecorator from './src/decorators/error-format'
 // do fancy things like handle exceptions inside promise blocks
 global.Promise = require('bluebird');
 
-Metrics.startCapturing('n1cloud-api')
-
-global.Metrics = Metrics
 global.Logger = Logger.createLogger('n1cloud-api')
 
 // TODO: would be really nice if we could log some request context when
@@ -68,7 +65,6 @@ global.Logger = Logger.createLogger('n1cloud-api')
 // hapi catches the error and transforms it into a 5xx error)
 const onUnhandledError = (err) => {
   global.Logger.error(err)
-  global.Metrics.reportError(err)
 }
 process.on('uncaughtException', onUnhandledError)
 process.on('unhandledRejection', onUnhandledError)

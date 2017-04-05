@@ -1,6 +1,17 @@
 import os from 'os'
 import {isClientEnv, isCloudEnv} from './env-helpers'
 
+/**
+ * NOTE: This is the Honeycomb performance metrics reporting for the Nylas
+ * Mail Client. It is NOT the logging data for cloud plugins. This is
+ * accessed via the /ingest-metrics endpoint of the cloud api. this can
+ * also be used from the cloud environment to report metrics to honeycomb,
+ * which is different from sending the logs to honeycomb
+ *
+ * Each AWS box automatically sends all log data to Honeycomb via
+ * honeytail. You can find the config by ssh-ing to a production cloud box
+ * and looking at /etc/sv/honeytail/run
+ */
 class MetricsReporter {
 
   constructor() {

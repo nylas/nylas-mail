@@ -3,20 +3,15 @@ import SendRemindersWorker from './workers/send-reminders'
 import SendLaterWorker from './workers/send-later'
 import {setupMonitoring} from './monitoring'
 import Sentry from './sentry'
-const {DatabaseConnector, Logger, Metrics} = require('cloud-core')
+const {DatabaseConnector, Logger} = require('cloud-core')
 
 // Swap out Node's native Promise for Bluebird, which allows us to
 // do fancy things like handle exceptions inside promise blocks
 global.Promise = require('bluebird');
-
-Metrics.startCapturing('n1-cloud-workers')
-
-global.Metrics = Metrics
 global.Logger = Logger.createLogger('n1-cloud-workers')
 
 const onUnhandledError = (err) => {
   global.Logger.error(err)
-  global.Metrics.reportError(err)
 }
 process.on('uncaughtException', onUnhandledError)
 process.on('unhandledRejection', onUnhandledError)
