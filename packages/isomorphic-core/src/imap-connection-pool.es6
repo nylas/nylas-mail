@@ -1,16 +1,11 @@
 const IMAPConnection = require('./imap-connection').default;
-const IMAPErrors = require('./imap-errors');
 const {inDevMode} = require('./env-helpers')
 
-const MAX_IMAP_CONNECTIONS_PER_ACCOUNT = 3;
 const MAX_DEV_MODE_CONNECTIONS = 3
 const MAX_GMAIL_CONNECTIONS = 7;
 const MAX_O365_CONNECTIONS = 5;
 const MAX_ICLOUD_CONNECTIONS = 5;
 const MAX_IMAP_CONNECTIONS = 5;
-
-const INITIAL_SOCKET_TIMEOUT_MS = 30 * 1000;  // 30 sec
-const MAX_SOCKET_TIMEOUT_MS = 10 * 60 * 1000  // 10 min
 
 class AccountConnectionPool {
   constructor(account, maxConnections) {
@@ -91,8 +86,7 @@ class AccountConnectionPool {
 }
 
 class IMAPConnectionPool {
-  constructor(maxConnectionsPerAccount) {
-    this._maxConnectionsPerAccount = maxConnectionsPerAccount;
+  constructor() {
     this._poolMap = {};
   }
 
@@ -120,4 +114,4 @@ class IMAPConnectionPool {
   }
 }
 
-module.exports = new IMAPConnectionPool(MAX_IMAP_CONNECTIONS_PER_ACCOUNT);
+module.exports = new IMAPConnectionPool();
