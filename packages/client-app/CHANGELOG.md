@@ -2,48 +2,45 @@
 
 ### 2.0.1 (4/5/2017)
 
-  + [iso-core] IMAPConnectionPool now correctly disposes connections 
-  + [client-sync] Prevent IMAP connection leaking in sync worker
-  + [cloud-worker] worker refactor
-  + [cloud-\*] remove old SignalFX reporter & add docs
-  + [cloud-workers] make log an  not 
-  + [cloud-\*] log errors according to bunyan specs
-  + [client-private-plugins] Rename onSendLater to onAssignSendLaterDate
-  + [client-sync] :art: logging
-  + [client-app] Add better logging when restarting stuck sync worker
-  + [iso-core] Remove unused vars from IMAPConnectionPool
-  + [client-plugins] Fix send later button saving state and sending action
-  + [client-private-plugins] Don't syncback drafts for send later
-  + [cloud-workers] :art: linting
-  + [client-sync] :art: sync worker
-  + [client-app] Fix the unapply transformation for overlaid components
-  + [client-app] Allow the packageMigrationManager to re-enable packages
-  + [client-app] Make sure to fetch latest update url every time we check for updates
-  + [client-private-plugins] Don't record usage when changing feature time
-  + [client-app] Prevent from making any requests when NylasID isn't present
-  + [scripts] Batch upload each row
-  + [client-app] Add script to run benchmarks once per day at specified time
-  + [scripts] Add script to upload benchmark data to Google Sheets
-  + [client-app] Fix benchmark script
-  + [client-sync] Ensure we use refreshed access token for mail listener conn
-  + [client-sync] Fix mail listener imap connection
-  + [client-app] Remove sudo from benchmark-initial-sync.sh
-  + [client-app] Limit search to focused perspective
+- Features:
+  + Limit search to focused perspective
+
+- Fixes:
+  + IMAPConnectionPool now correctly disposes connections
+  + Ensure we use refreshed access token for all imap connections during sync
+  + Prevent IMAP connection leaking in sync worker
+  + Fix send later button saving state and sending action
+  + Fix inline images for send later
+  + Correctly enable plugins on 2.0.1
+  + Make sure app can update even after signing out of NylasID
+  + Don't make any requests when NylasID isn't present
+
+- Cloud:
+  + Make cloud workers more robust
+  + Remove old SignalFX reporter & add docs
+  + Log errors according to bunyan specs
+
+- Development:
+  + Add script to run benchmarks once per day at specified time
+  + Add script to upload benchmark data to Google Sheets
+  + Add better logging when restarting stuck sync worker
 
 ### 2.0.0 (4/4/2017)
 
-  + Introducing Nylas Mail Pro
+Introducing Nylas Mail Pro
 
-### 1.0.56 (4/4/2017)
+- Features:
+  + Enable snooze, send later, and send reminders
+  + Add feature limits to reminders and send later
 
-  + [client-app] Fix sqlite build for older versions of clang
-  + [client-sync] Don't assign duplicate roles in folder fetch
-  + [cloud-workers] fix worker exception
-  + [client-app] re-setup IdentityStore in new window
-  + [client-app] add feature limits to reminders and send later
-  + [client-app] enable snooze, send later, reminders on 1.0.56
-  + [client-app] Remove rogue scripts-tmp folder
-  + [client-app] Remove unecessary db setup for mail rules
+- Fixes
+  + Don't assign duplicate folder roles
+  + Re-setup IdentityStore in new window
+
+- Development:
+  + Fix sqlite build for older versions of clang
+  + Remove rogue scripts-tmp folder
+  + Remove unecessary db setup for mail rules
 
 ### 1.0.55 (3/31/2017)
 
