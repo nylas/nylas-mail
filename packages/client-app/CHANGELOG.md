@@ -1,5 +1,14 @@
 # Nylas Mail Changelog
 
+### 2.0.2 (4/5/2017)
+
+  + [client-app] Updates to feature limiting
+  + [client-app] Some final benchmark fixes
+  + [cloud-api] basic view of CloudJobs
+  + [client-sync] Fix syncWorker arg
+  + [cloud-workers] fixes to metadata on workers
+  + [client-sync] Fix runtime error when getting sync activity for account
+
 ### 2.0.1 (4/5/2017)
 
 - Features:
