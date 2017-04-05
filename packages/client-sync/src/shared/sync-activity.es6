@@ -18,7 +18,7 @@ class SyncActivity {
   }
 
   getLastSyncActivityForAccount = (accountId) => {
-    return this._lastActivityByAccountId[accountId]
+    return this._lastActivityByAccountId[accountId] || {}
   }
 
   getLastSyncActivity = () => {
