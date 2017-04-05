@@ -38,6 +38,7 @@ import sentryPlugin from './src/sentry'
  * API Routes
  */
 import registerAuthRoutes from './src/routes/auth'
+import registerAdminRoutes from './src/routes/admin'
 import registerPingRoutes from './src/routes/ping'
 import registerDeltaRoutes from './src/routes/delta'
 import registerMetadataRoutes from './src/routes/metadata'
@@ -122,7 +123,21 @@ const plugins = [Inert, Vision, HapiBasicAuth, HapiBoom, {
 server.register(plugins, (err) => {
   if (err) { throw err; }
 
+  server.auth.strategy('api-consumer', 'basic', {
+    validateFunc: apiAuthenticate,
+  });
+  server.auth.strategy('static-password', 'basic', {
+    validateFunc: (req, user, pass, cb) => {
+      if (user === "nylas" && pass === "dressingontheside") {
+        return cb(null, true, {})
+      }
+      return cb(null, false)
+    },
+  })
+  server.auth.default('api-consumer');
+
   registerAuthRoutes(server)
+  registerAdminRoutes(server)
   registerPingRoutes(server)
   registerDeltaRoutes(server)
   registerMetadataRoutes(server)
@@ -142,11 +157,6 @@ server.register(plugins, (err) => {
         dsn: process.env.SENTRY_DSN,
       }});
   }
-
-  server.auth.strategy('api-consumer', 'basic', {
-    validateFunc: apiAuthenticate,
-  });
-  server.auth.default('api-consumer');
 
   server.views({
     engines: {
