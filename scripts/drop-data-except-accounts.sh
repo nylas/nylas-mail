@@ -3,7 +3,7 @@
 set -e
 
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-NYLAS_DIR="$HOME/.nylas-dev"
+NYLAS_DIR="$HOME/.nylas-bench"
 TRUNCATE_TABLES="
 Account 
 AccountPluginMetadata 

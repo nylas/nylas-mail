@@ -45,6 +45,7 @@
     "start": "npm run client",
     "test": "npm run test-client && npm run test-cloud",
     "client": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --dev",
+    "benchmark": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --dev --benchmark",
     "test-client": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test",
     "test-client-window": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test=window",
     "test-client-junit": "",
