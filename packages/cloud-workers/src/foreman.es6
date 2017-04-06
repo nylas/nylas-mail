@@ -158,7 +158,7 @@ export default class Foreman {
         transaction: t,
         where: {
           type: this.pluginId,
-          stauts: {$ne: "FAILED"},
+          status: {$ne: "FAILED"},
           attemptNumber: {$gte: this.MAX_RETRIES}, // Indexed
         }},
       );
