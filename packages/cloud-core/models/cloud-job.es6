@@ -3,7 +3,7 @@ const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
 module.exports = (sequelize, Sequelize) => {
   const CloudJob = sequelize.define('CloudJob', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    accountId: {type: Sequelize.STRING, alowNull: false},
+    accountId: {type: Sequelize.STRING, allowNull: false},
     metadataId: Sequelize.STRING,
     workerId: Sequelize.STRING,
     foremanId: Sequelize.STRING,

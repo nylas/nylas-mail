@@ -4,14 +4,22 @@ export default class ExpiredDataWorker {
   constructor(cloudJob, {db, logger}) {
     this.job = cloudJob
     this.db = db
-    this.logger = logger.child({
+    this.initLogger = logger.child({
       jobId: cloudJob.id,
+      accountId: cloudJob.accountId,
       contextClass: this.constructor.name,
       contextType: "Worker",
     }); // Should be a child of Foreman's logger
   }
 
   async run() {
+    const account = await this.db.Account.findById(this.job.accountId);
+    if (!this.logger) {
+      this.logger = this.initLogger.child({
+        email: account.emailAddress,
+        provider: account.provider,
+      })
+    }
     this.logger.info(`Running ${this.constructor.name}. Initial status: ${this.job.status}. Attempt number: ${this.job.attemptNumber}`)
 
     await this.db.sequelize.transaction(async (t) => {
@@ -29,7 +37,7 @@ export default class ExpiredDataWorker {
         this.logger.error(`Can't find metadata ${this.job.metadataId} for job: ${this.job.id}`)
         throw new Error("Can't find metadata")
       }
-      await this.performAction(metadatum);
+      await this.performAction(metadatum, account);
       await this.db.CloudJob.update(
         {status: "SUCCEEDED", statusUpdatedAt: new Date()},
         {where: {id: this.job.id}}

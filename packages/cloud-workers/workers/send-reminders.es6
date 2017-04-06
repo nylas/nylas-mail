@@ -1,4 +1,4 @@
-import {DatabaseConnector, GmailOAuthHelpers} from 'cloud-core'
+import {GmailOAuthHelpers} from 'cloud-core'
 import {SendmailClient} from 'isomorphic-core'
 import ExpiredDataWorker from './expired-data-worker'
 import {asyncGetImapConnection} from './utils'
@@ -59,14 +59,13 @@ export default class SendRemindersWorker extends ExpiredDataWorker {
     return 'send-reminders';
   }
 
-  async performAction(metadatum) {
+  async performAction(metadatum, account) {
     const {messageIdHeaders, folderImapNames, replyTo, subject} = metadatum.value
     if (!messageIdHeaders || !folderImapNames || !replyTo) {
       throw new Error("Can't send reminder, now metadata value")
     }
     const messageIdSet = new Set(messageIdHeaders)
-    const db = await DatabaseConnector.forShared();
-    const conn = await asyncGetImapConnection(db, metadatum.accountId, this.logger)
+    const conn = await asyncGetImapConnection(this.db, metadatum.accountId, this.logger)
     await conn.connect()
     for (const folderImapName of folderImapNames) {
       const box = await conn.openBox(folderImapName)
@@ -79,7 +78,6 @@ export default class SendRemindersWorker extends ExpiredDataWorker {
       }
     }
     const {accountId, objectId, pluginId} = metadatum
-    const account = await db.Account.findById(accountId)
     let sender;
     try {
       sender = new SendmailClient(account, this.logger)
@@ -102,7 +100,7 @@ export default class SendRemindersWorker extends ExpiredDataWorker {
       inReplyTo: replyTo,
     }
     await sender.send(message)
-    const threadMetadata = await db.Metadata.find({
+    const threadMetadata = await this.db.Metadata.find({
       where: {
         accountId: accountId,
         objectId: `t:${objectId}`,
@@ -118,7 +116,7 @@ export default class SendRemindersWorker extends ExpiredDataWorker {
     // If there are equivalent thread metadata with different ids,
     // the mail client should catch this and syncback the metadata
     // with all the message ids so the cloud can reconcile them.
-    return db.Metadata.create({
+    return this.db.Metadata.create({
       accountId: accountId,
       objectId: `t:${objectId}`,
       objectType: 'thread',
