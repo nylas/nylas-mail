@@ -11,6 +11,7 @@ module.exports = (sequelize, Sequelize) => {
     claimedAt: Sequelize.DATE,
     statusUpdatedAt: Sequelize.DATE,
     attemptNumber: {type: Sequelize.INTEGER, defaultValue: 0, allowNull: false},
+    retryAt: Sequelize.DATE,
     status: {
       type: Sequelize.ENUM(
         "NEW",
@@ -18,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
         "INPROGRESS-NOTRETRYABLE",
         "SUCCEEDED",
         "FAILED",
-        "FAILED-RETRYABLE",
+        "WAITING-TO-RETRY",
         "CANCELLED"
       ),
       defaultValue: "NEW",

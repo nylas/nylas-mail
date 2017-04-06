@@ -116,15 +116,16 @@ export default class Foreman {
             {type: this.pluginId, status: "NEW"}, // Indexed!
             // Failed, but retryable jobs.
             {
-              type: this.pluginId,
-              status: "FAILED-RETRYABLE",
-              attemptNumber: {$lt: this.MAX_RETRIES},
+              type: this.pluginId, // indexed
+              status: "WAITING-TO-RETRY", // indexed
+              attemptNumber: {$lt: this.MAX_RETRIES}, // indexed
+              retryAt: {$lte: new Date()}, // NOT indexed
             }, // Indexed!
             // Likely dead jobs
             {
-              type: this.pluginId,
-              status: "INPROGRESS-RETRYABLE",
-              attemptNumber: {$lt: this.MAX_RETRIES},
+              type: this.pluginId, // indexed
+              status: "INPROGRESS-RETRYABLE", // indexed
+              attemptNumber: {$lt: this.MAX_RETRIES}, // indexed
               statusUpdatedAt: {$lte: moment().subtract(this.DEAD_THRESHOLD_MIN, 'minutes').toDate()}, // Indexed!
             },
           ],
