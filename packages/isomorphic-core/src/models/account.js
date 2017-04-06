@@ -2,6 +2,7 @@ const crypto = require('crypto');
 
 const {JSONColumn, JSONArrayColumn} = require('../database-types');
 const {credentialsForProvider, smtpConfigFromSettings} = require('../auth-helpers');
+const {MAX_INDEXABLE_LENGTH} = require('../db-utils');
 
 
 const {DB_ENCRYPTION_ALGORITHM, DB_ENCRYPTION_PASSWORD} = process.env;
@@ -11,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
     id: { type: Sequelize.STRING(65), primaryKey: true },
     name: Sequelize.STRING,
     provider: Sequelize.STRING,
-    emailAddress: Sequelize.STRING,
+    emailAddress: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
     connectionSettings: JSONColumn('connectionSettings'),
     connectionCredentials: Sequelize.TEXT,
     syncPolicy: JSONColumn('syncPolicy'),

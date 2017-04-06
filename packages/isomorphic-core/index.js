@@ -27,4 +27,5 @@ module.exports = {
   executeJasmine: require('./spec/jasmine/execute').default,
   StringUtils: require('./src/string-utils'),
   TLSUtils: require('./src/tls-utils'),
+  DBUtils: require('./src/db-utils'),
 }
