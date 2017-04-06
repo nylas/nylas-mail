@@ -1,5 +1,5 @@
 import google from 'googleapis';
-import {Provider, IMAPConnection} from 'isomorphic-core'
+import {Provider, IMAPConnection, AuthHelpers} from 'isomorphic-core'
 import DatabaseConnector from './database-connector'
 
 const OAuth2 = google.auth.OAuth2;
@@ -8,13 +8,6 @@ const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL} = process.env;
 class GmailOAuthHelpers {
   newOAuthClient() {
     return new OAuth2(GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REDIRECT_URL);
-  }
-
-  generateXOAuth2Token(username, accessToken) {
-    // See https://developers.google.com/gmail/xoauth2_protocol
-    // for more details.
-    const s = `user=${username}\x01auth=Bearer ${accessToken}\x01\x01`
-    return new Buffer(s).toString('base64');
   }
 
   async exchangeCodeForGoogleToken(client, oAuthCode) {
@@ -77,7 +70,7 @@ class GmailOAuthHelpers {
         }
         const res = {}
         res.access_token = tokens.access_token;
-        res.xoauth2 = this.generateXOAuth2Token(account.emailAddress,
+        res.xoauth2 = AuthHelpers.generateXOAuth2Token(account.emailAddress,
                                                 tokens.access_token);
         res.expiry_date = Math.floor(tokens.expiry_date / 1000);
         const newCredentials = Object.assign(credentials, res);
