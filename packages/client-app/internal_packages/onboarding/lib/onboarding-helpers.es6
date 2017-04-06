@@ -14,12 +14,14 @@ const IMAP_FIELDS = new Set([
   "imap_port",
   "imap_username",
   "imap_password",
+  "imap_security",
+  "imap_allow_insecure_ssl",
   "smtp_host",
   "smtp_port",
   "smtp_username",
   "smtp_password",
-  "smtp_custom_config",
-  "ssl_required",
+  "smtp_security",
+  "smtp_allow_insecure_ssl",
 ]);
 
 function base64url(inBuffer) {
@@ -133,7 +135,7 @@ export function runAuthRequest(accountInfo) {
     options: {
       path: '/auth',
       method: 'POST',
-      timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
+      timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
       body: data,
       auth: noauth,
     },
@@ -144,7 +146,7 @@ export function runAuthRequest(accountInfo) {
       options: {
         path: `/auth`,
         method: 'POST',
-        timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
+        timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
         body: data,
         auth: noauth,
       },
@@ -165,7 +167,10 @@ export function isValidHost(value) {
 export function accountInfoWithIMAPAutocompletions(existingAccountInfo) {
   const {email, type} = existingAccountInfo;
   const domain = email.split('@').pop().toLowerCase();
-  const template = CommonProviderSettings[domain] || CommonProviderSettings[type] || {};
+  let template = CommonProviderSettings[domain] || CommonProviderSettings[type] || {};
+  if (template.alias) {
+    template = CommonProviderSettings[template.alias];
+  }
 
   const usernameWithFormat = (format) => {
     if (format === 'email') {
@@ -177,18 +182,19 @@ export function accountInfoWithIMAPAutocompletions(existingAccountInfo) {
     return undefined;
   }
 
-  // always pre-fill SMTP / IMAP username, password and port.
   const defaults = {
     imap_host: template.imap_host,
     imap_port: template.imap_port || 993,
     imap_username: usernameWithFormat(template.imap_user_format),
     imap_password: existingAccountInfo.password,
+    imap_security: template.imap_security || "SSL / TLS",
+    imap_allow_insecure_ssl: template.imap_allow_insecure_ssl || false,
     smtp_host: template.smtp_host,
     smtp_port: template.smtp_port || 587,
     smtp_username: usernameWithFormat(template.smtp_user_format),
     smtp_password: existingAccountInfo.password,
-    ssl_required: (template.ssl === '1'),
-    smtp_custom_config: template.smtp_custom_config,
+    smtp_security: template.smtp_security || "STARTTLS",
+    smtp_allow_insecure_ssl: template.smtp_allow_insecure_ssl || false,
   }
 
   return Object.assign({}, existingAccountInfo, defaults);

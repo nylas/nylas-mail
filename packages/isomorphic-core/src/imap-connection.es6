@@ -2,7 +2,7 @@ import Imap from 'imap';
 import _ from 'underscore';
 import xoauth2 from 'xoauth2';
 import EventEmitter from 'events';
-import CommonProviderSettings from 'imap-provider-settings';
+import {INSECURE_TLS_OPTIONS, SECURE_TLS_OPTIONS} from './tls-utils';
 import PromiseUtils from './promise-utils';
 import IMAPBox from './imap-box';
 import {RetryableError} from './errors'
@@ -14,11 +14,6 @@ import {
 } from './imap-errors';
 
 
-const MAJOR_IMAP_PROVIDER_HOSTS = Object.keys(CommonProviderSettings).reduce(
-  (hostnameSet, key) => {
-    hostnameSet.add(CommonProviderSettings[key].imap_host);
-    return hostnameSet;
-  }, new Set())
 const Capabilities = {
   Gmail: 'X-GM-EXT-1',
   Quota: 'QUOTA',
@@ -40,17 +35,41 @@ export default class IMAPConnection extends EventEmitter {
   }
 
   static asyncResolveIMAPSettings(baseSettings) {
+    let autotls;
+    // BACKCOMPAT ONLY - remove the if conditional on this eventually
+    if (baseSettings.imap_security) {
+      switch (baseSettings.imap_security) {
+        case 'STARTTLS':
+          autotls = 'required';
+          break;
+        case 'SSL / TLS':
+          autotls = 'never';
+          break;
+        default:
+          autotls = 'always';
+          break;
+      }
+    } else {
+      // old code used the default value
+      autotls = 'never';
+    }
     const settings = {
       host: baseSettings.imap_host,
       port: baseSettings.imap_port,
       user: baseSettings.imap_username,
       password: baseSettings.imap_password,
-      tls: baseSettings.ssl_required,
+      // TODO: ssl_required is a deprecated setting, remove eventually
+      tls: baseSettings.imap_security === 'SSL / TLS' || baseSettings.ssl_required,
+      autotls: autotls,
       socketTimeout: baseSettings.socketTimeout || DEFAULT_SOCKET_TIMEOUT_MS,
       authTimeout: baseSettings.authTimeout || AUTH_TIMEOUT_MS,
     }
-    if (!MAJOR_IMAP_PROVIDER_HOSTS.has(settings.host)) {
-      settings.tlsOptions = { rejectUnauthorized: false };
+    // TODO: second part of || is for backcompat only, remove eventually (old
+    // settings were insecure by default)
+    if (baseSettings.imap_allow_insecure_ssl || baseSettings.imap_allow_insecure_ssl === undefined) {
+      settings.tlsOptions = INSECURE_TLS_OPTIONS;
+    } else {
+      settings.tlsOptions = SECURE_TLS_OPTIONS;
     }
 
     if (process.env.NYLAS_DEBUG) {
