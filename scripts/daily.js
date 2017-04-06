@@ -4,7 +4,6 @@ const path = require('path')
 const mkdirp = require('mkdirp')
 const semver = require('semver')
 const program = require('commander')
-const pkg = require('../packages/client-app/package.json')
 
 const TMP_DIR = path.join(__dirname, '..', 'tmp')
 
@@ -92,9 +91,6 @@ function validateArgs(args) {
 // --notify
 // --quiet
 async function main(args) {
-  const currentVersion = pkg.version
-  const nextVersion = semver.inc(currentVersion, 'patch')
-
   validateArgs(args)
 
   // Pull latest changes
@@ -105,6 +101,10 @@ async function main(args) {
     console.error(err)
     process.exit(1)
   }
+
+  const pkg = require('../packages/client-app/package.json')  //eslint-disable-line
+  const currentVersion = pkg.version
+  const nextVersion = semver.inc(currentVersion, 'patch')
 
   // Make sure working directory is clean
   try {
