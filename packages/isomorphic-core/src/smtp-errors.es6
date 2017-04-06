@@ -44,8 +44,12 @@ export function convertSmtpError(err) {
   if (/(?:connection timeout)|(?:connect etimedout)/i.test(err.message)) {
     return new SMTPConnectionTimeoutError(err)
   }
-  if (/connection closed/i.test(err.message)) {
-    return new SMTPConnectionEndedError(err)
+  if (/(?:connection|socket) closed?/i.test(err.message)) {
+    const smtpErr = SMTPConnectionEndedError(err)
+    if (err.code) {
+      // e.g. https://github.com/nodemailer/nodemailer/blob/master/lib/smtp-transport/index.js#L184-L185
+      smtpErr.code = err.code;
+    }
   }
   if (/error initiating tls/i.test(err.message)) {
     return new SMTPConnectionTLSError(err);
@@ -56,7 +60,7 @@ export function convertSmtpError(err) {
   if (/unknown protocol/i.test(err.message)) {
     return new SMTPProtocolError(err);
   }
-  if (/(?:invalid login)|(?:username and password not accepted)|(?:incorrect username or password)/i.test(err.message)) {
+  if (/(?:invalid login)|(?:username and password not accepted)|(?:incorrect username or password)|(?:authentication failed)/i.test(err.message)) {
     return new SMTPAuthenticationError(err);
   }
 

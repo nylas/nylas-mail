@@ -122,13 +122,18 @@ const CreatePageForForm = (FormComponent) => {
           errorFieldNames.push('username');
         }
         if (err.statusCode === 401) {
+          if (/smtp/i.test(err.message)) {
+            errorFieldNames.push('smtp_username');
+            errorFieldNames.push('smtp_password');
+          }
+          if (/imap/i.test(err.message)) {
+            errorFieldNames.push('imap_username');
+            errorFieldNames.push('imap_password');
+          }
+          // not sure what these are for -- backcompat?
           errorFieldNames.push('password')
           errorFieldNames.push('email');
           errorFieldNames.push('username');
-          errorFieldNames.push('imap_username');
-          errorFieldNames.push('smtp_username');
-          errorFieldNames.push('imap_password');
-          errorFieldNames.push('smtp_password');
         }
         if (NylasAPI.TimeoutErrorCodes.includes(err.statusCode)) { // timeout
           errorMessage = "We were unable to reach your mail provider. Please try again."

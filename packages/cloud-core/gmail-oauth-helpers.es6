@@ -41,32 +41,12 @@ class GmailOAuthHelpers {
     })
   }
 
-  imapSettings(googleToken, googleProfile) {
-    return {
-      connection: {
-        imap_username: googleProfile.email,
-        imap_host: 'imap.gmail.com',
-        imap_port: 993,
-        smtp_username: googleProfile.email,
-        smtp_host: 'smtp.gmail.com',
-        smtp_port: 465,
-        ssl_required: true,
-      },
-      credentials: {
-        refresh_token: googleToken.refresh_token,
-        expiry_date: googleToken.expiry_date,
-        client_id: GMAIL_CLIENT_ID,
-        client_secret: GMAIL_CLIENT_SECRET,
-      },
-    }
-  }
-
   async resolveIMAPSettings(imapSettings, logger) {
     const imap = await IMAPConnection.connect({
       logger: logger,
       settings: Object.assign({},
-        imapSettings.connection,
-        imapSettings.credentials
+        imapSettings.connectionSettings,
+        imapSettings.connectionCredentials,
       ),
       db: {},
     })
@@ -80,8 +60,8 @@ class GmailOAuthHelpers {
       name: googleProfile.name,
       provider: Provider.Gmail,
       emailAddress: googleProfile.email,
-      connectionSettings: imapSettings.connection,
-    }, imapSettings.credentials)
+      connectionSettings: imapSettings.connectionSettings,
+    }, imapSettings.connectionCredentials)
   }
 
   async refreshAccessToken(account) {

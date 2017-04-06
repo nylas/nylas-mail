@@ -1,10 +1,15 @@
+/* eslint camelcase: 0 */
 import _ from 'underscore'
 import Joi from 'joi'
 import atob from 'atob';
 import nodemailer from 'nodemailer';
+import {CommonProviderSettings} from 'imap-provider-settings';
+import {INSECURE_TLS_OPTIONS, SECURE_TLS_OPTIONS} from './tls-utils';
 import IMAPConnection from './imap-connection'
 import {NylasError, RetryableError} from './errors'
 import {convertSmtpError} from './smtp-errors'
+
+const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET} = process.env;
 
 const imapSmtpSettings = Joi.object().keys({
   imap_host: [Joi.string().ip().required(), Joi.string().hostname().required()],
@@ -15,8 +20,14 @@ const imapSmtpSettings = Joi.object().keys({
   smtp_port: Joi.number().integer().required(),
   smtp_username: Joi.string().required(),
   smtp_password: Joi.string().required(),
+  // new options - not required() for backcompat
+  smtp_security: Joi.string(),
+  imap_security: Joi.string(),
+  imap_allow_insecure_ssl: Joi.boolean(),
+  smtp_allow_insecure_ssl: Joi.boolean(),
+  // TODO: deprecated options - eventually remove!
   smtp_custom_config: Joi.object(),
-  ssl_required: Joi.boolean().required(),
+  ssl_required: Joi.boolean(),
 }).required();
 
 const resolvedGmailSettings = Joi.object().keys({
@@ -36,34 +47,33 @@ export const SUPPORTED_PROVIDERS = new Set(
   ['gmail', 'office365', 'imap', 'icloud', 'yahoo', 'fastmail']
 );
 
+export function googleSettings(googleToken, email) {
+  const connectionSettings = Object.assign({
+    imap_username: email,
+    smtp_username: email,
+  }, CommonProviderSettings.gmail);
+  const connectionCredentials = {
+    expiry_date: googleToken.expiry_date,
+  };
+  if (GMAIL_CLIENT_ID && GMAIL_CLIENT_SECRET) {
+    // cloud-only credentials
+    connectionCredentials.client_id = GMAIL_CLIENT_ID;
+    connectionCredentials.client_secret = GMAIL_CLIENT_SECRET;
+    connectionCredentials.access_token = googleToken.access_token;
+    connectionCredentials.refresh_token = googleToken.refresh_token;
+  }
+  if (googleToken.xoauth2) {
+    connectionCredentials.xoauth2 = googleToken.xoauth2;
+  }
+  return {connectionSettings, connectionCredentials}
+}
+
 export function credentialsForProvider({provider, settings, email}) {
   if (provider === "gmail") {
-    const connectionSettings = {
-      imap_username: email,
-      imap_host: 'imap.gmail.com',
-      imap_port: 993,
-      smtp_username: email,
-      smtp_host: 'smtp.gmail.com',
-      smtp_port: 465,
-      ssl_required: true,
-    }
-    const connectionCredentials = {
-      xoauth2: settings.xoauth2,
-      expiry_date: settings.expiry_date,
-    }
+    const {connectionSettings, connectionCredentials} = googleSettings(settings, email)
     return {connectionSettings, connectionCredentials}
   } else if (provider === "office365") {
-    const connectionSettings = {
-      imap_host: 'outlook.office365.com',
-      imap_port: 993,
-      ssl_required: true,
-      smtp_custom_config: {
-        host: 'smtp.office365.com',
-        port: 587,
-        secure: false,
-        tls: {ciphers: 'SSLv3'},
-      },
-    }
+    const connectionSettings = CommonProviderSettings[provider];
 
     const connectionCredentials = {
       imap_username: email,
@@ -74,10 +84,33 @@ export function credentialsForProvider({provider, settings, email}) {
     return {connectionSettings, connectionCredentials}
   } else if (SUPPORTED_PROVIDERS.has(provider)) {
     const connectionSettings = _.pick(settings, [
-      'imap_host', 'imap_port',
-      'smtp_host', 'smtp_port',
-      'ssl_required', 'smtp_custom_config',
+      'imap_host', 'imap_port', 'imap_security',
+      'smtp_host', 'smtp_port', 'smtp_security',
+      'smtp_allow_insecure_ssl',
+      'imap_allow_insecure_ssl',
     ]);
+    // BACKCOMPAT ONLY - remove eventually & make _security params required!
+    if (!connectionSettings.imap_security) {
+      switch (connectionSettings.imap_port) {
+        case 993:
+          connectionSettings.imap_security = "SSL / TLS";
+          break;
+        default:
+          connectionSettings.imap_security = "none";
+          break;
+      }
+    }
+    if (!connectionSettings.smtp_security) {
+      switch (connectionSettings.smtp_security) {
+        case 465:
+          connectionSettings.smtp_security = "SSL / TLS";
+          break;
+        default:
+          connectionSettings.smtp_security = 'STARTTLS';
+          break;
+      }
+    }
+    // END BACKCOMPAT
     const connectionCredentials = _.pick(settings, [
       'imap_username', 'imap_password',
       'smtp_username', 'smtp_password',
@@ -98,16 +131,19 @@ function bearerToken(xoauth2) {
 }
 
 export function smtpConfigFromSettings(provider, connectionSettings, connectionCredentials) {
-  let config;
-  const {smtp_host, smtp_port, ssl_required} = connectionSettings;
-  if (connectionSettings.smtp_custom_config) {
-    config = connectionSettings.smtp_custom_config;
+  const {smtp_host, smtp_port, smtp_security, smtp_allow_insecure_ssl} = connectionSettings;
+  const config = {
+    host: smtp_host,
+    port: smtp_port,
+    secure: smtp_security === 'SSL / TLS',
+  };
+  if (smtp_security === 'STARTTLS') {
+    config.requireTLS = true;
+  }
+  if (smtp_allow_insecure_ssl) {
+    config.tls = INSECURE_TLS_OPTIONS;
   } else {
-    config = {
-      host: smtp_host,
-      port: smtp_port,
-      secure: ssl_required,
-    };
+    config.tls = SECURE_TLS_OPTIONS;
   }
 
   if (provider === 'gmail') {
@@ -117,6 +153,7 @@ export function smtpConfigFromSettings(provider, connectionSettings, connectionC
     }
 
     const token = bearerToken(xoauth2);
+
     config.auth = { user: connectionSettings.smtp_username, xoauth2: token }
   } else if (SUPPORTED_PROVIDERS.has(provider)) {
     const {smtp_username, smtp_password} = connectionCredentials
@@ -153,16 +190,17 @@ export function imapAuthHandler(upsertAccount) {
     const connectionChecks = [];
     const {connectionSettings, connectionCredentials} = credentialsForProvider(request.payload)
 
-    // All IMAP accounts require a valid SMTP server for sending, and we never
-    // want to allow folks to connect accounts and find out later that they
-    // entered the wrong SMTP credentials. So verify here also!
     const smtpConfig = smtpConfigFromSettings(provider, connectionSettings, connectionCredentials);
     const smtpTransport = nodemailer.createTransport(Object.assign({
       connectionTimeout: 30000,
     }, smtpConfig));
+
+    // All IMAP accounts require a valid SMTP server for sending, and we never
+    // want to allow folks to connect accounts and find out later that they
+    // entered the wrong SMTP credentials. So verify here also!
     const smtpVerifyPromise = smtpTransport.verify().catch((error) => {
       throw convertSmtpError(error);
-    })
+    });
 
     connectionChecks.push(smtpVerifyPromise);
     connectionChecks.push(IMAPConnection.connect({

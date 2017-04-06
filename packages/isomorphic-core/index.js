@@ -26,4 +26,5 @@ module.exports = {
   SendUtils: require('./src/send-utils'),
   executeJasmine: require('./spec/jasmine/execute').default,
   StringUtils: require('./src/string-utils'),
+  TLSUtils: require('./src/tls-utils'),
 }

@@ -129,7 +129,7 @@ export default function registerAuthRoutes(server) {
         const tok = await GAuth.exchangeCodeForGoogleToken(client, code);
 
         profile = await GAuth.fetchGoogleProfile(client);
-        const settings = GAuth.imapSettings(tok, profile)
+        const settings = AuthHelpers.googleSettings(tok, profile.email)
 
         request.logger.debug("Resolving IMAP connection")
 
