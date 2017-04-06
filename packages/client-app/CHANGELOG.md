@@ -1,5 +1,19 @@
 # Nylas Mail Changelog
 
+### 2.0.6 (4/6/2017)
+
+  + [client-plugins] Delete drafts after they are sent later
+  + [cloud-workers] fix connection typo
+  + [cloud-api] change worker admin color
+  + [cloud-workers][send-later] 🔪 with 🔥 duplicate sent messages
+  + [cloud-workers] add a retryAt field to do exponential backoffs
+  + [client-app] Fix version conflict with send-reminders
+  + [cloud-workers] implement IMAP connection pool
+  + [dev] Ensure daily script grabs current version after pulling latest changes
+  + [cloud-workers] Fix runtime error trying to iterate over undefined
+  + [cloud-workers] Properly generate metadata deltas when clearing expiration
+  + [client-app] Always fetch and update identity regardless of env
+
 ### 2.0.5 (4/6/2017)
 
   + [cloud-workers] Don't use bulk updates in foreman in order to generate deltas
