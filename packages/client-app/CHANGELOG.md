@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.4 (4/5/2017)
+
+  + [client-plugins] Correctly syncback metadata for send later
+
 ### 2.0.3 (4/5/2017)
 
   + [\*] Revamp SSL options (including user-facing)
