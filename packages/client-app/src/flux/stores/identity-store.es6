@@ -67,7 +67,6 @@ class IdentityStore extends NylasStore {
 
   _fetchAndPollRemoteIdentity() {
     if (!NylasEnv.isMainWindow()) return;
-    if (!['staging', 'production'].includes(NylasEnv.config.get('env'))) return;
     /**
      * We only need to re-fetch the identity to synchronize ourselves
      * with any changes a user did on a separate computer. Any updates
