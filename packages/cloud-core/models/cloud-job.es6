@@ -1,13 +1,14 @@
-const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
+const {DatabaseTypes: {JSONColumn},
+       DBUtils: {MAX_INDEXABLE_LENGTH}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   const CloudJob = sequelize.define('CloudJob', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    accountId: {type: Sequelize.STRING, allowNull: false},
-    metadataId: Sequelize.STRING,
-    workerId: Sequelize.STRING,
-    foremanId: Sequelize.STRING,
-    type: {type: Sequelize.STRING, allowNull: false},
+    accountId: {type: Sequelize.STRING(MAX_INDEXABLE_LENGTH), allowNull: false},
+    metadataId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    workerId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    foremanId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    type: {type: Sequelize.STRING(MAX_INDEXABLE_LENGTH), allowNull: false},
     claimedAt: Sequelize.DATE,
     statusUpdatedAt: Sequelize.DATE,
     attemptNumber: {type: Sequelize.INTEGER, defaultValue: 0, allowNull: false},

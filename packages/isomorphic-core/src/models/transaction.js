@@ -1,11 +1,12 @@
 const {JSONArrayColumn} = require('../database-types');
+const {MAX_INDEXABLE_LENGTH} = require('../db-utils');
 
 module.exports = (sequelize, Sequelize) => {
   return sequelize.define('transaction', {
-    event: Sequelize.STRING,
-    object: Sequelize.STRING,
-    objectId: Sequelize.STRING,
-    accountId: Sequelize.STRING,
+    event: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    object: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    objectId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    accountId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
     changedFields: JSONArrayColumn('changedFields'),
   }, {
     indexes: [

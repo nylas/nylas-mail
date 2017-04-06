@@ -1,15 +1,16 @@
 const _ = require('underscore')
-const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
+const {DatabaseTypes: {JSONColumn},
+       DBUtils: {MAX_INDEXABLE_LENGTH}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
   const Metadata = sequelize.define('metadata', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    accountId: Sequelize.STRING,
+    accountId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
     value: JSONColumn('value', { columnType: Sequelize.LONGTEXT }),
     version: Sequelize.INTEGER,
-    pluginId: Sequelize.STRING,
-    objectId: Sequelize.STRING,
-    objectType: Sequelize.STRING,
+    pluginId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    objectId: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
+    objectType: Sequelize.STRING(MAX_INDEXABLE_LENGTH),
     expiration: Sequelize.DATE,
   }, {
     indexes: [

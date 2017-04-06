@@ -31,7 +31,7 @@ class DatabaseConnector {
       return new Sequelize(dbname, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
         host: process.env.DB_HOSTNAME,
         dialect: "mysql",
-        charset: 'utf8',
+        charset: 'utf8mb4',
         logging: false,
         pool: {
           min: 1,
@@ -39,8 +39,8 @@ class DatabaseConnector {
           idle: 5000,
         },
         define: {
-          charset: 'utf8',
-          collate: 'utf8_general_ci',
+          charset: 'utf8mb4',
+          collate: 'utf8mb4_bin',
         },
       });
     }
