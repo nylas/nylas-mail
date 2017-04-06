@@ -8,15 +8,14 @@ const MAX_ICLOUD_CONNECTIONS = 5;
 const MAX_IMAP_CONNECTIONS = 5;
 
 class AccountConnectionPool {
-  constructor(account, maxConnections) {
-    this._account = account;
+  constructor(maxConnections) {
     this._availableConns = new Array(maxConnections).fill(null);
     this._queue = [];
   }
 
-  async _genConnection(socketTimeout, logger) {
-    const settings = this._account.connectionSettings;
-    const credentials = this._account.decryptedCredentials();
+  async _genConnection(account, socketTimeout, logger) {
+    const settings = account.connectionSettings;
+    const credentials = account.decryptedCredentials();
 
     if (!settings || !settings.imap_host) {
       throw new Error("_genConnection: There are no IMAP connection settings for this account.");
@@ -29,13 +28,13 @@ class AccountConnectionPool {
       db: null,
       settings: Object.assign({}, settings, credentials, {socketTimeout}),
       logger,
-      account: this._account,
+      account,
     });
 
     return conn.connect();
   }
 
-  async withConnections({desiredCount, logger, socketTimeout, onConnected}) {
+  async withConnections({account, desiredCount, logger, socketTimeout, onConnected}) {
     // If we wake up from the first await but don't have enough connections in
     // the pool then we need to prepend ourselves to the queue until there are
     // enough. This guarantees that the queue is fair.
@@ -74,7 +73,9 @@ class AccountConnectionPool {
       for (let i = 0; i < desiredCount; ++i) {
         conns.push(this._availableConns.shift());
       }
-      conns = await Promise.all(conns.map(() => this._genConnection(socketTimeout, logger)));
+      conns = await Promise.all(
+        conns.map(() => this._genConnection(account, socketTimeout, logger))
+      );
 
       keepOpen = await onConnected(conns, onDone);
       if (!keepOpen) {
@@ -108,11 +109,11 @@ class IMAPConnectionPool {
 
   async withConnectionsForAccount(account, {desiredCount, logger, socketTimeout, onConnected}) {
     if (!this._poolMap[account.id]) {
-      this._poolMap[account.id] = new AccountConnectionPool(account, this._maxConnectionsForAccount(account));
+      this._poolMap[account.id] = new AccountConnectionPool(this._maxConnectionsForAccount(account));
     }
 
     const pool = this._poolMap[account.id];
-    await pool.withConnections({desiredCount, logger, socketTimeout, onConnected});
+    await pool.withConnections({account, desiredCount, logger, socketTimeout, onConnected});
   }
 }
 
