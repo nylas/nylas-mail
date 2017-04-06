@@ -144,8 +144,9 @@ class SendLaterButton extends Component {
         );
       }
 
-      // TODO: This currently doesn't do anything. Uncomment once it's necessary
-      // Actions.ensureDraftSynced(draft.clientId);
+      // TODO: This currently is only useful for syncing the draft metadata,
+      // even though we don't actually syncback drafts
+      Actions.ensureDraftSynced(draft.clientId);
 
       if (sendLaterDate && NylasEnv.isComposerWindow()) {
         NylasEnv.close();
