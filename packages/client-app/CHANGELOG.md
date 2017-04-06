@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.3 (4/5/2017)
+
+  + [\*] Revamp SSL options (including user-facing)
+
 ### 2.0.2 (4/5/2017)
 
   + [client-app] Updates to feature limiting
