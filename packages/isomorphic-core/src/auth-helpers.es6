@@ -47,6 +47,13 @@ export const SUPPORTED_PROVIDERS = new Set(
   ['gmail', 'office365', 'imap', 'icloud', 'yahoo', 'fastmail']
 );
 
+export function generateXOAuth2Token(username, accessToken) {
+  // See https://developers.google.com/gmail/xoauth2_protocol
+  // for more details.
+  const s = `user=${username}\x01auth=Bearer ${accessToken}\x01\x01`
+  return new Buffer(s).toString('base64');
+}
+
 export function googleSettings(googleToken, email) {
   const connectionSettings = Object.assign({
     imap_username: email,
@@ -64,6 +71,8 @@ export function googleSettings(googleToken, email) {
   }
   if (googleToken.xoauth2) {
     connectionCredentials.xoauth2 = googleToken.xoauth2;
+  } else {
+    connectionCredentials.xoauth2 = generateXOAuth2Token(email, googleToken.access_token)
   }
   return {connectionSettings, connectionCredentials}
 }
