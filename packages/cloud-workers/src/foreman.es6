@@ -89,10 +89,11 @@ export default class Foreman {
       await this.db.CloudJob.bulkCreate(newJobData, {transaction: t})
       // Immediately mark Metadata as no longer expired now that we've created
       // jobs for them
-      await this.db.Metadata.update({expiration: null}, {
-        transaction: t,
-        where: {id: {$in: expiredMetadata.map(m => m.id)}}, // Indexed!
-      })
+      const writePromises = []
+      for (const expiredMetadatum of expiredMetadata) {
+        writePromises.push(expiredMetadatum.update({expiration: null}, {transaction: t}))
+      }
+      await Promise.all(writePromises)
     })
   }
 
