@@ -1,11 +1,13 @@
 import {GmailOAuthHelpers} from 'cloud-core'
 import {IMAPConnection} from 'isomorphic-core'
 
+const DEFAULT_SOCKET_TIMEOUT = 5 * 60 * 1000
+
 export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function asyncGetImapConnection(db, accountId, logger) {
+export async function asyncGetImapConnection(db, accountId, logger, {socketTimeout = DEFAULT_SOCKET_TIMEOUT} = {}) {
   const account = await db.Account.find({where: {id: accountId}})
   const settings = account.connectionSettings;
   const credentials = account.decryptedCredentials();
@@ -20,7 +22,12 @@ export async function asyncGetImapConnection(db, accountId, logger) {
 
   return new IMAPConnection({
     db: db,
-    settings: Object.assign({}, settings, credentials),
+    settings: Object.assign(
+      {},
+      settings,
+      credentials,
+      {socketTimeout}
+    ),
     logger: logger,
   });
 }
