@@ -1,7 +1,6 @@
 import {GmailOAuthHelpers} from 'cloud-core'
 import {SendmailClient} from 'isomorphic-core'
 import ExpiredDataWorker from './expired-data-worker'
-import {asyncGetImapConnection} from './utils'
 // This assumes there can't be any whitespace in the Message-Id value.
 // (Couldn't just use .+ because that doesn't match < or >)
 // https://regex101.com/r/1C1WCl/1
@@ -59,16 +58,14 @@ export default class SendRemindersWorker extends ExpiredDataWorker {
     return 'send-reminders';
   }
 
-  async performAction(metadatum, account) {
+  async performAction({metadatum, account, connection}) {
     const {messageIdHeaders, folderImapNames, replyTo, subject} = metadatum.value
     if (!messageIdHeaders || !folderImapNames || !replyTo) {
       throw new Error("Can't send reminder, now metadata value")
     }
     const messageIdSet = new Set(messageIdHeaders)
-    const conn = await asyncGetImapConnection(this.db, metadatum.accountId, this.logger)
-    await conn.connect()
     for (const folderImapName of folderImapNames) {
-      const box = await conn.openBox(folderImapName)
+      const box = await connection.openBox(folderImapName)
       for (const messageId of messageIdHeaders) {
         const hasNewReply = await asyncHasNewReply(box, messageId, messageIdSet)
         if (hasNewReply) {

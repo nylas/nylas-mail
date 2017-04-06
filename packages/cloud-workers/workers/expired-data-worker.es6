@@ -1,4 +1,7 @@
-import {Errors} from 'isomorphic-core'
+import {Errors, IMAPConnectionPool} from 'isomorphic-core'
+import {GmailOAuthHelpers} from 'cloud-core'
+
+const DEFAULT_SOCKET_TIMEOUT = +(process.env.DEFAULT_SOCKET_TIMEOUT || 5 * 60 * 1000)
 
 export default class ExpiredDataWorker {
   constructor(cloudJob, {db, logger}) {
@@ -20,6 +23,27 @@ export default class ExpiredDataWorker {
         provider: account.provider,
       })
     }
+
+    const currentUnixDate = Math.floor(Date.now() / 1000);
+    const credentials = account.decryptedCredentials()
+    if (account.provider === 'gmail') {
+      if (!credentials.xoauth2 || currentUnixDate > credentials.expiry_date) {
+        this.logger.info(`Refreshing access token for account id: ${account.id}`);
+        await GmailOAuthHelpers.refreshAccessToken(account);
+      }
+    }
+
+    await IMAPConnectionPool.withConnectionsForAccount(account, {
+      logger: this.logger,
+      desiredCount: 1,
+      socketTimeout: DEFAULT_SOCKET_TIMEOUT,
+      onConnected: async ([connection]) => {
+        await this.runWithConnection({connection, account})
+      },
+    })
+  }
+
+  async runWithConnection({connection, account}) {
     this.logger.info(`Running ${this.constructor.name}. Initial status: ${this.job.status}. Attempt number: ${this.job.attemptNumber}`)
 
     await this.db.sequelize.transaction(async (t) => {
@@ -37,7 +61,7 @@ export default class ExpiredDataWorker {
         this.logger.error(`Can't find metadata ${this.job.metadataId} for job: ${this.job.id}`)
         throw new Error("Can't find metadata")
       }
-      await this.performAction(metadatum, account);
+      await this.performAction({metadatum, account, connection});
       await this.db.CloudJob.update(
         {status: "SUCCEEDED", statusUpdatedAt: new Date()},
         {where: {id: this.job.id}}
@@ -62,6 +86,7 @@ export default class ExpiredDataWorker {
       })
     }
   }
+
 
   pluginId() {
     throw new Error("You should override this!");

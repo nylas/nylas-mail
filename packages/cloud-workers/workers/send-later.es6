@@ -6,7 +6,6 @@ import {Promise} from 'bluebird';
 import {DatabaseConnector} from 'cloud-core'
 import ExpiredDataWorker from './expired-data-worker'
 import {SendmailClient, MessageFactory, SendUtils} from '../../isomorphic-core'
-import {asyncGetImapConnection} from './utils'
 
 Promise.promisifyAll(fs);
 
@@ -227,7 +226,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
       const tmpFile = Promise.promisify(tmp.file, {multiArgs: true});
       const writeFile = Promise.promisify(fs.writeFile);
 
-      const [filePath, fd, cleanupCallback] = await tmpFile();
+      const [filePath, , cleanupCallback] = await tmpFile();
       await writeFile(filePath, attachmentContents);
       attach.targetPath = filePath;
       attach.cleanupCallback = cleanupCallback;
@@ -259,17 +258,13 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     }
   }
 
-  async performAction(metadatum, account) {
+  async performAction({metadatum, account, connection}) {
     const db = await DatabaseConnector.forShared();
 
     if (Object.keys(metadatum.value || {}).length === 0) {
       throw new Error("Can't send later, no metadata value")
     }
 
-    // asyncGetImapConnection refreshes the oauth token and returns us a fresh
-    // connection. This way, we don't have to worry about the access token being
-    // expired when trying to send messages.
-    const conn = await asyncGetImapConnection(db, metadatum.accountId, this.logger);
     const logger = global.Logger.forAccount(account);
     const sender = new SendmailClient(account, logger);
     const usesOpenTracking = metadatum.value.usesOpenTracking || false;
@@ -307,7 +302,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     // block in a pokemon exception handler because we don't want to send messages
     // again if it fails.
     try {
-      await this.cleanupSentMessages(conn, sender, logger, baseMessage);
+      await this.cleanupSentMessages(connection, sender, logger, baseMessage);
       await this.cleanupAttachments(logger, baseMessage, account.id);
       logger.info("Successfully put delayed message in sent folder");
     } catch (err) {
