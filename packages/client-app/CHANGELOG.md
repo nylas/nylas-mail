@@ -1,5 +1,16 @@
 # Nylas Mail Changelog
 
+### 2.0.5 (4/6/2017)
+
+  + [cloud-workers] Don't use bulk updates in foreman in order to generate deltas
+  + [cloud-workers] Increment default imap conn socket timeout in cloud workers
+  + [cloud-\*] add account to logging & fix typo
+  + [cloud-workers] make send later not retryable after successful send
+  + [iso-core, cloud-\*] move generate XOAuth2 & fix first auth usage
+  + [cloud-workers] fix stauts -> status
+  + [cloud-workers] adjust retry constants & fix orphan cleanup
+  + [isomorphic-core] Ensure IMAPConnPool uses updated account credentials
+
 ### 2.0.4 (4/5/2017)
 
   + [client-plugins] Correctly syncback metadata for send later
