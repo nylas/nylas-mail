@@ -308,7 +308,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     // block in a pokemon exception handler because we don't want to send messages
     // again if it fails.
     try {
-      await this.cleanupSentMessages(account, conn, sender, logger, baseMessage);
+      await this.cleanupSentMessages(account, connection, sender, logger, baseMessage);
       await this.cleanupAttachments(logger, baseMessage, account.id);
       logger.info("Successfully put delayed message in sent folder");
     } catch (err) {
