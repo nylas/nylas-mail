@@ -80,25 +80,29 @@ class SendLaterButton extends Component {
         label: dateLabel,
       });
     }
-    this.onSetMetadata(sendLaterDate);
+    this.onSetMetadata({expiration: sendLaterDate});
   };
 
   onCancelSendLater = () => {
     Actions.closePopover();
-    this.onSetMetadata(null);
+    this.onSetMetadata({expiration: null, cancelled: true});
   };
 
-  onSetMetadata = async (sendLaterDate) => {
+  onSetMetadata = async (metadatum = {}) => {
     if (!this.mounted) { return; }
     const {draft, session} = this.props;
+    const {expiration, ...extra} = metadatum
     this.setState({saving: true});
 
     try {
       await NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId);
       if (!this.mounted) { return; }
 
-      if (!sendLaterDate) {
-        session.changes.addPluginMetadata(PLUGIN_ID, {expiration: null});
+      if (!expiration) {
+        session.changes.addPluginMetadata(PLUGIN_ID, {
+          ...extra,
+          expiration: null,
+        });
       } else {
         session.changes.add({pristine: false})
         const draftContents = await DraftHelpers.prepareDraftForSyncback(session);
@@ -138,17 +142,19 @@ class SendLaterButton extends Component {
         }
         results.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
         results.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
-        session.changes.addPluginMetadata(
-          PLUGIN_ID,
-          Object.assign({expiration: sendLaterDate}, results, {uploads})
-        );
+        session.changes.addPluginMetadata(PLUGIN_ID, {
+          ...results,
+          ...extra,
+          expiration,
+          uploads,
+        });
       }
 
       // TODO: This currently is only useful for syncing the draft metadata,
       // even though we don't actually syncback drafts
       Actions.ensureDraftSynced(draft.clientId);
 
-      if (sendLaterDate && NylasEnv.isComposerWindow()) {
+      if (expiration && NylasEnv.isComposerWindow()) {
         NylasEnv.close();
       }
     } catch (error) {

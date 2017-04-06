@@ -15,7 +15,7 @@ export default class SendLaterStatus extends Component {
   };
 
   onCancelSendLater = () => {
-    Actions.setMetadata(this.props.draft, PLUGIN_ID, {expiration: null});
+    Actions.setMetadata(this.props.draft, PLUGIN_ID, {expiration: null, cancelled: true});
   };
 
   render() {
