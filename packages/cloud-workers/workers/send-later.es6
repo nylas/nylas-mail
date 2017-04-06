@@ -160,7 +160,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     let trashFolder;
 
     if (message.sentFolderName) {
-      logger.info("Using supplied sent folder", message.sentFolderName);
+      logger.debug("Using supplied sent folder", message.sentFolderName);
       sentFolder = message.sentFolderName;
     } else {
       const boxes = await conn.getBoxes();
@@ -168,7 +168,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     }
 
     if (message.trashFolderName) {
-      logger.info("Using supplied trash folder", message.trashFolderName);
+      logger.debug("Using supplied trash folder", message.trashFolderName);
       trashFolder = message.trashFolderName;
     } else {
       const boxes = await conn.getBoxes();
@@ -179,9 +179,9 @@ export default class SendLaterWorker extends ExpiredDataWorker {
 
     // Remove all existing messages.
     const uids = await box.search([['HEADER', 'Message-ID', message.message_id_header]])
-    logger.warn("Found uids", uids);
+    logger.debug("Found uids", uids);
     for (const uid of uids) {
-      logger.info("Moving to box", trashFolder);
+      logger.debug("Moving to box", trashFolder);
       await box.addFlags(uid, 'DELETED')
       await box.moveFromBox(uid, trashFolder);
     }
@@ -281,18 +281,32 @@ export default class SendLaterWorker extends ExpiredDataWorker {
       usesLinkTracking,
       logger,
     });
+    await this.db.sequelize.transaction(async (t) => {
+      const job = await this.db.CloudJob.findById(this.job.id, {transaction: t});
+      job.status = "INPROGRESS-NOTRETRYABLE";
+      await job.save({transaction: t})
+    })
+    logger.info("Successfully sent message");
 
-    // Sleep to avoid potential race conditions.
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-    logger.info("Sleeping to avoid Gmail message creation race condition.");
-    await sleep(45000);
+    /**
+     * When you send a message through Gmail, it automatically puts a
+     * message in your sent mail folder. But for a while, the message and
+     * the draft have the same ID.
+     */
+    if (account.provider === "gmail") {
+      logger.debug("Waiting to cleanup Gmail drafts");
+      await sleep(45000);
+    }
+
     // Now, remove all multisend messages from the user's mailbox. We wrap this
     // block in a pokemon exception handler because we don't want to send messages
     // again if it fails.
     try {
       await this.cleanupSentMessages(conn, sender, logger, baseMessage);
       await this.cleanupAttachments(logger, baseMessage, account.id);
+      logger.info("Successfully put delayed message in sent folder");
     } catch (err) {
       this.logger.error(`Error while trying to process metadatum ${metadatum.id}`, err);
     }
