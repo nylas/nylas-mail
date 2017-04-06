@@ -118,7 +118,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     });
   }
 
-  async sendPerRecipient({db, account, baseMessage, usesOpenTracking, usesLinkTracking, logger = console} = {}) {
+  async sendPerRecipient({account, baseMessage, usesOpenTracking, usesLinkTracking, logger = console} = {}) {
     const recipients = [].concat(baseMessage.to, baseMessage.cc, baseMessage.bcc);
     const failedRecipients = []
 
@@ -178,7 +178,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     const box = await conn.openBox(sentFolder);
 
     // Remove all existing messages.
-    const uids = await box.search([['HEADER', 'Message-ID', message.message_id_header]])
+    const uids = await box.search([['HEADER', 'Message-ID', message.message_id_header]]) || []
     logger.debug("Found uids", uids);
     for (const uid of uids) {
       logger.debug("Moving to box", trashFolder);
@@ -198,6 +198,10 @@ export default class SendLaterWorker extends ExpiredDataWorker {
   }
 
   async hydrateAttachments(baseMessage, accountId) {
+    if (!baseMessage.uploads) {
+      baseMessage.uploads = []
+      return baseMessage
+    }
     // We get a basic JSON message from the metadata database. We need to set
     // some fields (e.g: the `attachments` field) for it to be ready to send.
     // We call this "hydrating" it.
@@ -240,6 +244,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
   }
 
   async cleanupAttachments(logger, baseMessage, accountId) {
+    if (!baseMessage.uploads) { return }
     // Remove all attachments after sending a message.
     for (const upload of baseMessage.uploads) {
       if (NODE_ENV === 'development') {
