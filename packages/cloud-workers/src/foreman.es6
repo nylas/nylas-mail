@@ -14,11 +14,11 @@ export default class Foreman {
     });
     this.runTimeout = null;
 
-    this.MAX_RETRIES = +(process.env.MAX_RETRIES || 5);
+    this.MAX_RETRIES = +(process.env.MAX_RETRIES || 10);
     this.MAX_METADATA_GRAB = +(process.env.MAX_METADATA_GRAB || 100);
     this.DEAD_THRESHOLD_MIN = +(process.env.DEAD_THRESHOLD_MIN || 10);
-    this.MAX_JOBS_PER_FOREMAN = +(process.env.MAX_JOBS_PER_FOREMAN || 10);
-    this.FOREMAN_CHECK_INTERVAL = +(process.env.FOREMAN_CHECK_INTERVAL || 5 * 1000);
+    this.MAX_JOBS_PER_FOREMAN = +(process.env.MAX_JOBS_PER_FOREMAN || 20);
+    this.FOREMAN_CHECK_INTERVAL = +(process.env.FOREMAN_CHECK_INTERVAL || 10 * 1000);
   }
 
   async run() {
@@ -158,6 +158,7 @@ export default class Foreman {
         transaction: t,
         where: {
           type: this.pluginId,
+          stauts: {$ne: "FAILED"},
           attemptNumber: {$gte: this.MAX_RETRIES}, // Indexed
         }},
       );
