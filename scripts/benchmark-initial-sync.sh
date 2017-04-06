@@ -22,7 +22,7 @@ then
 fi
 
 CWD="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-NYLAS_DIR="$HOME/.nylas-dev"
+NYLAS_DIR="$HOME/.nylas-bench"
 EDGEHILL_DB="$NYLAS_DIR/edgehill.db"
 TIME_LIMIT=120
 ITERS=5
@@ -31,7 +31,7 @@ for i in `seq 1 $ITERS`
 do
   bash $CWD/drop-data-except-accounts.sh > /dev/null
 
-  (npm start &> /dev/null &)
+  (npm run benchmark &> /dev/null &)
 
   sleep $TIME_LIMIT
 

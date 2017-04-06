@@ -263,6 +263,14 @@ class SyncWorker {
       onConnected: async ([listenerConn], onDone) => {
         this._mailListenerIMAPConn = listenerConn;
         this._mailListenerIMAPConn._db = this._db;
+        this._mailListenerIMAPConnDisposer = onDone
+
+        // We don't want to listen for new mail while benchmarking initial
+        // sync b/c receiving new mail can significantly increase the variance
+        // in our measurements.
+        if (NylasEnv.inBenchmarkMode()) {
+          return true;
+        }
 
         this._mailListenerIMAPConn.on('mail', () => {
           this._onInboxUpdates(`You've got mail`);
@@ -275,9 +283,6 @@ class SyncWorker {
           if (this._shouldIgnoreInboxFlagUpdates) { return; }
           this._onInboxUpdates(`There are flag updates on the inbox`);
         })
-
-        this._mailListenerIMAPConnDisposer = onDone
-        // Return true to keep connection open
         return true
       },
     })

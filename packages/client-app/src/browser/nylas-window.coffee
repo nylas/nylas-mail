@@ -28,6 +28,7 @@ class NylasWindow
      pathToOpen,
      @isSpec,
      @devMode,
+     @benchmarkMode,
      @windowKey,
      @safeMode,
      @neverClose,
@@ -83,6 +84,7 @@ class NylasWindow
     loadSettings.appVersion = app.getVersion()
     loadSettings.resourcePath = @resourcePath
     loadSettings.devMode ?= false
+    loadSettings.benchmarkMode ?= false
     loadSettings.safeMode ?= false
     loadSettings.mainWindow ?= @mainWindow
     loadSettings.windowType ?= "default"

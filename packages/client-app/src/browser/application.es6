@@ -28,7 +28,7 @@ let clipboard = null;
 //
 export default class Application extends EventEmitter {
   async start(options) {
-    const {resourcePath, configDirPath, version, devMode, specMode, safeMode} = options;
+    const {resourcePath, configDirPath, version, devMode, specMode, benchmarkMode, safeMode} = options;
 
     // Initialize GlobalTimer and start timing app boot time
     this.timer = new GlobalTimer()
@@ -39,6 +39,7 @@ export default class Application extends EventEmitter {
     this.configDirPath = configDirPath;
     this.version = version;
     this.devMode = devMode;
+    this.benchmarkMode = benchmarkMode;
     this.specMode = specMode;
     this.safeMode = safeMode;
 
@@ -72,6 +73,7 @@ export default class Application extends EventEmitter {
       configDirPath: this.configDirPath,
       config: this.config,
       devMode: this.devMode,
+      benchmarkMode: this.benchmarkMode,
       specMode: this.specMode,
       safeMode: this.safeMode,
       initializeInBackground: initializeInBackground,

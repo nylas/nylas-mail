@@ -174,7 +174,7 @@ export default class NylasEnvConstructor {
     const ActionBridge = require('./flux/action-bridge').default;
     const MenuManager = require('./menu-manager').default;
 
-    const {devMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
+    const {devMode, benchmarkMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
 
     document.body.classList.add(`platform-${process.platform}`);
     document.body.classList.add(`window-type-${windowType}`);
@@ -209,7 +209,7 @@ export default class NylasEnvConstructor {
     const specMode = this.inSpecMode();
 
     this.commands = new CommandRegistry();
-    this.packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode, specMode});
+    this.packages = new PackageManager({devMode, benchmarkMode, configDirPath, resourcePath, safeMode, specMode});
     this.styles = new StyleManager();
     document.head.appendChild(new StylesElement());
     this.themes = new ThemeManager({packageManager: this.packages, configDirPath, resourcePath, safeMode});
@@ -296,7 +296,7 @@ export default class NylasEnvConstructor {
       return this.reportError(error);
     });
 
-    if (this.inSpecMode() || this.inDevMode()) {
+    if (this.inSpecMode() || (this.inDevMode() && !this.inBenchmarkMode())) {
       return Promise.config({longStackTraces: true});
     }
     return null;
@@ -447,6 +447,10 @@ export default class NylasEnvConstructor {
   // Public: Is the current window in development mode?
   inDevMode() {
     return this.getLoadSettings().devMode;
+  }
+
+  inBenchmarkMode() {
+    return this.getLoadSettings().benchmarkMode;
   }
 
   // Public: Is the current window in safe mode?
