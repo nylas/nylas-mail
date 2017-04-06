@@ -152,7 +152,7 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     return {failedRecipients}
   }
 
-  async cleanupSentMessages(conn, sender, logger, message) {
+  async cleanupSentMessages(account, conn, sender, logger, message) {
     await conn.connect();
 
     let sentFolder;
@@ -174,26 +174,44 @@ export default class SendLaterWorker extends ExpiredDataWorker {
       trashFolder = this.identifyTrashFolder(boxes);
     }
 
-    const box = await conn.openBox(sentFolder);
+    let box = await conn.openBox(sentFolder);
 
     // Remove all existing messages.
     const uids = await box.search([['HEADER', 'Message-ID', message.message_id_header]]) || []
     logger.debug("Found uids", uids);
     for (const uid of uids) {
       logger.debug("Moving to box", trashFolder);
-      await box.addFlags(uid, 'DELETED')
       await box.moveFromBox(uid, trashFolder);
+      await box.closeBox();
+    }
+
+    // Now, go the trash folder and remove all messages marked as deleted.
+    const trashBox = await conn.openBox(trashFolder);
+    const trashUids = await trashBox.search([['HEADER', 'Message-ID', message.message_id_header]])
+    for (const uid of trashUids) {
+      await trashBox.addFlags(uid, 'DELETED')
+    }
+
+    await trashBox.closeBox({expunge: true});
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+    /**
+     * When you send a message through Gmail, it automatically puts a
+     * message in your sent mail folder. But for a while, the message and
+     * the draft have the same ID.
+     */
+    if (account.provider === 'gmail') {
+      logger.debug("Waiting to add sent email to sent folder");
+      await sleep(45000);
     }
 
     // Add a single message without tracking information.
+    box = await conn.openBox(sentFolder);
     const rawMime = await sender.buildMime(message);
     await box.append(rawMime, {flags: 'SEEN'});
 
     await box.closeBox();
-
-    // Now, go the trash folder and remove all messages marked as deleted.
-    const trashBox = await conn.openBox(trashFolder);
-    await trashBox.closeBox({expunge: true});
   }
 
   async hydrateAttachments(baseMessage, accountId) {
@@ -286,23 +304,11 @@ export default class SendLaterWorker extends ExpiredDataWorker {
     })
     logger.info("Successfully sent message");
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
-    /**
-     * When you send a message through Gmail, it automatically puts a
-     * message in your sent mail folder. But for a while, the message and
-     * the draft have the same ID.
-     */
-    if (account.provider === "gmail") {
-      logger.debug("Waiting to cleanup Gmail drafts");
-      await sleep(45000);
-    }
-
     // Now, remove all multisend messages from the user's mailbox. We wrap this
     // block in a pokemon exception handler because we don't want to send messages
     // again if it fails.
     try {
-      await this.cleanupSentMessages(connection, sender, logger, baseMessage);
+      await this.cleanupSentMessages(account, conn, sender, logger, baseMessage);
       await this.cleanupAttachments(logger, baseMessage, account.id);
       logger.info("Successfully put delayed message in sent folder");
     } catch (err) {
