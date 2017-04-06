@@ -65,7 +65,7 @@ export default class Foreman {
   async createJobsFromMetadata() {
     await this.db.sequelize.transaction(async (t) => {
       const expiredMetadata = await this.db.Metadata.findAll({
-        attributes: ["id", "pluginId", "accountId", "expiration"],
+        attributes: ["id", "value", "pluginId", "accountId", "expiration"],
         transaction: t,
         limit: this.MAX_METADATA_GRAB,
         where: {pluginId: this.pluginId, expiration: {$lte: new Date()}}, // Indexed
@@ -89,11 +89,9 @@ export default class Foreman {
       await this.db.CloudJob.bulkCreate(newJobData, {transaction: t})
       // Immediately mark Metadata as no longer expired now that we've created
       // jobs for them
-      const writePromises = []
       for (const expiredMetadatum of expiredMetadata) {
-        writePromises.push(expiredMetadatum.update({expiration: null}, {transaction: t}))
+        await expiredMetadatum.clearExpiration({transaction: t})
       }
-      await Promise.all(writePromises)
     })
   }
 

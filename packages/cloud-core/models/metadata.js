@@ -1,3 +1,4 @@
+const _ = require('underscore')
 const {DatabaseTypes: {JSONColumn}} = require('isomorphic-core');
 
 module.exports = (sequelize, Sequelize) => {
@@ -29,11 +30,28 @@ module.exports = (sequelize, Sequelize) => {
           object_type: this.objectType,
         };
       },
-      updateValue(value) {
+      updateValue(value, {transaction} = {}) {
+        if (!_.isObject(this.value)) {
+          throw new Error(`Metadata.updateValue: \`value\` must be defined`)
+        }
         this.value = Object.assign({}, this.value, value)
+        if (transaction) {
+          return this.save({transaction})
+        }
         return sequelize.transaction((t) => {
           return this.save({transaction: t})
         })
+      },
+      async clearExpiration({transaction} = {}) {
+        if (!_.isObject(this.value)) {
+          throw new Error(`Metadata.clearExpiration: Can't clear expiration without a \`value\``)
+        }
+        // We need to update the `expiration` column, but also the `expiration`
+        // field inside our json `value` so that we generate the correct deltas
+        // for Nylas Mail
+        this.value = Object.assign({}, this.value, {expiration: null})
+        this.expiration = null
+        await this.save({transaction})
       },
     },
   });
