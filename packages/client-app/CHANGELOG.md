@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 2.0.8 (4/7/2017)
+
+  + [client-app] Ensure SyncbackMetadataTask dependency to prevent version conflicts
+  + Revert [client-app] Fix version conflict with send-reminders
+  + [client-private-plugins] Reminders: make sure accountId query isn't null
+
 ### 2.0.7 (4/6/2017)
 
   + [cloud-workers] [send-later] Fix send later token expiration
