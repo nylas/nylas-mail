@@ -7,20 +7,16 @@ import {setupMonitoring} from './src/monitoring'
 const {DatabaseConnector, Logger} = require('cloud-core')
 
 global.Promise = require('bluebird');
-const onUnhandledError = (err) => { global.Logger.error(err) }
-process.on('uncaughtException', onUnhandledError)
-process.on('unhandledRejection', onUnhandledError)
-
 global.Logger = Logger.createLogger('cloud-workers')
 
-async function main() {
-  setupMonitoring(global.Logger);
+let foremans = []
+async function start() {
   const db = await DatabaseConnector.forShared();
   const logger = global.Logger;
 
   logger.info("Starting Cloud Workers")
 
-  const foremans = [
+  foremans = [
     new Foreman({db, logger,
       pluginId: "thread-snooze",
       WorkerClass: SnoozeWorker,
@@ -37,4 +33,22 @@ async function main() {
   foremans.forEach(f => f.run()) // Don't await
 }
 
-main();
+let restartTimeout = null;
+async function restart() {
+  global.Logger.warn("Restarting app due to unhandled error")
+  clearTimeout(restartTimeout);
+  foremans.forEach(f => f.stop());
+  restartTimeout = setTimeout(() => {
+    start();
+  }, 30 * 1000);
+}
+
+const onUnhandledError = (err) => {
+  restart();
+  global.Logger.error(err)
+}
+process.on('uncaughtException', onUnhandledError)
+process.on('unhandledRejection', onUnhandledError)
+
+setupMonitoring(global.Logger);
+start();
