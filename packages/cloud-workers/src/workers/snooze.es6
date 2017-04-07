@@ -1,9 +1,9 @@
-import ExpiredDataWorker from './expired-data-worker'
+import CloudWorker from '../cloud-worker'
 
 // FIXME: change this to something like "Nylas Snoozed".
 const SNOOZE_FOLDER_NAME = "N1-Snoozed";
 
-export default class SnoozeWorker extends ExpiredDataWorker {
+export default class SnoozeWorker extends CloudWorker {
   pluginId() {
     return 'thread-snooze'
   }

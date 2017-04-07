@@ -4,8 +4,8 @@ import path from 'path';
 import tmp from 'tmp';
 import {Promise} from 'bluebird';
 import {DatabaseConnector} from 'cloud-core'
-import ExpiredDataWorker from './expired-data-worker'
-import {SendmailClient, MessageFactory, SendUtils} from '../../isomorphic-core'
+import {SendmailClient, MessageFactory, SendUtils} from 'isomorphic-core'
+import CloudWorker from '../cloud-worker'
 
 Promise.promisifyAll(fs);
 
@@ -26,7 +26,7 @@ AWS.config.update({
 const s3 = new AWS.S3({apiVersion: '2006-03-01'});
 
 
-export default class SendLaterWorker extends ExpiredDataWorker {
+export default class SendLaterWorker extends CloudWorker {
   pluginId() {
     return 'send-later';
   }

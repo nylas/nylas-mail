@@ -1,6 +1,6 @@
 import {GmailOAuthHelpers} from 'cloud-core'
 import {SendmailClient} from 'isomorphic-core'
-import ExpiredDataWorker from './expired-data-worker'
+import CloudWorker from '../cloud-worker'
 // This assumes there can't be any whitespace in the Message-Id value.
 // (Couldn't just use .+ because that doesn't match < or >)
 // https://regex101.com/r/1C1WCl/1
@@ -53,7 +53,7 @@ const asyncHasNewReply = (imapBox, origMessageId, seenMessageIdSet) => {
   })
 }
 
-export default class SendRemindersWorker extends ExpiredDataWorker {
+export default class SendRemindersWorker extends CloudWorker {
   pluginId() {
     return 'send-reminders';
   }

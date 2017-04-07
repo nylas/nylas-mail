@@ -5,7 +5,7 @@ import {GmailOAuthHelpers} from 'cloud-core'
 const DEFAULT_SOCKET_TIMEOUT = +(process.env.DEFAULT_SOCKET_TIMEOUT || 5 * 60 * 1000);
 const RETRY_BASE_SEC = +(process.env.RETRY_BASE_SEC || 5);
 
-export default class ExpiredDataWorker {
+export default class CloudWorker {
   constructor(cloudJob, {db, logger}) {
     this.job = cloudJob
     this.db = db

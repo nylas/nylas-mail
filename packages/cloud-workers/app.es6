@@ -1,8 +1,8 @@
 /* eslint object-property-newline:0 */
 import Foreman from './src/foreman'
-import SnoozeWorker from './workers/snooze'
-import SendLaterWorker from './workers/send-later'
-import SendRemindersWorker from './workers/send-reminders'
+import SnoozeWorker from './src/workers/snooze'
+import SendLaterWorker from './src/workers/send-later'
+import SendRemindersWorker from './src/workers/send-reminders'
 import {setupMonitoring} from './src/monitoring'
 const {DatabaseConnector, Logger} = require('cloud-core')
 
