@@ -90,7 +90,13 @@ export default class Foreman {
       // Immediately mark Metadata as no longer expired now that we've created
       // jobs for them
       for (const expiredMetadatum of expiredMetadata) {
-        await expiredMetadatum.clearExpiration({transaction: t})
+        try {
+          await expiredMetadatum.clearExpiration({transaction: t})
+        } catch (err) {
+          this.logger.error(err);
+          this.logger.info("Deleting corrupted metadata");
+          await expiredMetadatum.destroy();
+        }
       }
     })
   }

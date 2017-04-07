@@ -5,12 +5,17 @@ module.exports = {
     return Object.assign(options, {
       type: options.columnType || Sequelize.TEXT,
       get() {
-        const val = this.getDataValue(fieldName);
-        if (!val) {
-          const {defaultValue} = options
-          return defaultValue ? Object.assign({}, defaultValue) : {};
+        try {
+          const val = this.getDataValue(fieldName);
+          if (!val) {
+            const {defaultValue} = options
+            return defaultValue ? Object.assign({}, defaultValue) : {};
+          }
+          return JSON.parse(val);
+        } catch (err) {
+          console.error(err);
+          return null
         }
-        return JSON.parse(val);
       },
       set(val) {
         this.setDataValue(fieldName, JSON.stringify(val));
@@ -22,16 +27,21 @@ module.exports = {
     return Object.assign(options, {
       type: Sequelize.TEXT,
       get() {
-        const val = this.getDataValue(fieldName);
-        if (!val) {
-          const {defaultValue} = options
-          return defaultValue || [];
+        try {
+          const val = this.getDataValue(fieldName);
+          if (!val) {
+            const {defaultValue} = options
+            return defaultValue || [];
+          }
+          const arr = JSON.parse(val)
+          if (!Array.isArray(arr)) {
+            throw new Error('JSONArrayType should be an array')
+          }
+          return JSON.parse(val);
+        } catch (err) {
+          console.error(err);
+          return null
         }
-        const arr = JSON.parse(val)
-        if (!Array.isArray(arr)) {
-          throw new Error('JSONArrayType should be an array')
-        }
-        return JSON.parse(val);
       },
       set(val) {
         if (!Array.isArray(val)) {
