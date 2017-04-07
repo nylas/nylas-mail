@@ -15,6 +15,13 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
     return DatabaseObjectRegistry.get(this.modelClassName);
   }
 
+  isDependentOnTask(otherTask) {
+    return (
+      otherTask instanceof SyncbackMetadataTask &&
+      otherTask.pluginId === this.pluginId
+    )
+  }
+
   makeRequest = async (model) => {
     if (!model.serverId) {
       throw new Error(`Can't syncback metadata for a ${this.modelClassName} instance that doesn't have a serverId`)
