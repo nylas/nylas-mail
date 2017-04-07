@@ -1,4 +1,3 @@
-import React from 'react'
 import moment from 'moment'
 import {
   Rx,
@@ -11,7 +10,6 @@ import {
   DatabaseStore,
   FeatureUsageStore,
 } from 'nylas-exports'
-import {FeatureUsedUpModal} from 'nylas-component-kit'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-reminders-constants'
 
 
@@ -25,7 +23,7 @@ export function reminderDateForMessage(message) {
   return messageMetadata.expiration;
 }
 
-async function asyncBuildMetadata({message, thread, expiration} = {}) {
+async function asyncBuildMetadata({accountId, message, thread, expiration} = {}) {
   if (message) { // Not a draft
     let messageIdHeaders = [message.messageIdHeader];
     let folderImapNames = [];
@@ -45,9 +43,9 @@ async function asyncBuildMetadata({message, thread, expiration} = {}) {
 
     // We always want to check the main inbox folder for replies
     if (!hasPrimary) {
-      let primary = await DatabaseStore.findBy(Category, {name: 'all'})
+      let primary = await DatabaseStore.findBy(Category, {name: 'all', accountId})
       if (!primary) {
-        primary = await DatabaseStore.findBy(Category, {name: 'inbox'})
+        primary = await DatabaseStore.findBy(Category, {name: 'inbox', accountId})
       }
       const primaryName = primary ? primary.imapName : null;
 
@@ -118,10 +116,10 @@ async function asyncSetReminder(accountId, reminderDate, dateLabel, {message, th
 
   let metadata = {}
   if (reminderDate) {
-    metadata = await asyncBuildMetadata({message, thread, expiration: reminderDate})
+    metadata = await asyncBuildMetadata({accountId, message, thread, expiration: reminderDate})
   } // else: we're clearing the reminder and the metadata should remain empty
 
-  return NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, accountId)
+  await NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, accountId)
   .then(() => {
     if (isDraft) {
       if (!draftSession) { throw new Error('setDraftReminder: Must provide draftSession') }

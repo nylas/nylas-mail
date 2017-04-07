@@ -61,7 +61,7 @@ export default class SendRemindersWorker extends CloudWorker {
   async performAction({metadatum, account, connection}) {
     const {messageIdHeaders, folderImapNames, replyTo, subject} = metadatum.value
     if (!messageIdHeaders || !folderImapNames || !replyTo) {
-      throw new Error("Can't send reminder, now metadata value")
+      throw new Error("Can't send reminder, no metadata value")
     }
     const messageIdSet = new Set(messageIdHeaders)
     for (const folderImapName of folderImapNames) {
