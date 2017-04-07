@@ -1,3 +1,4 @@
+import moment from 'moment'
 import {GmailOAuthHelpers} from 'cloud-core'
 import {SendmailClient} from 'isomorphic-core'
 import CloudWorker from '../cloud-worker'
@@ -8,11 +9,18 @@ const messageIdRegexp = /^\s*message-id: ([^\s]+)\s*$/im
 
 // Search the imapBox for messages that are in reply to origMessageId. Messages
 // are not considered new replies if their id is present in seenMessageIdSet.
-const asyncHasNewReply = (imapBox, origMessageId, seenMessageIdSet) => {
+const asyncHasNewReply = ({imapBox, origMessageId, seenMessageIdSet, origDate}) => {
   return new Promise(async (resolve, reject) => {
     try {
       let count = 0;
-      const replyUIDS = await imapBox.search([['HEADER', 'IN-REPLY-TO', origMessageId]])
+
+      // We subtract one day to make sure there aren't any timezone issues.
+      const sinceDateString = moment(origDate).subtract(1, 'day').format('MMMM D, YYYY')
+
+      const replyUIDS = await imapBox.search([
+        ['HEADER', 'IN-REPLY-TO', origMessageId],
+        ['SINCE', sinceDateString],
+      ])
       if (replyUIDS.length === 0) {
         resolve(false)
         return;
@@ -67,7 +75,17 @@ export default class SendRemindersWorker extends CloudWorker {
     for (const folderImapName of folderImapNames) {
       const box = await connection.openBox(folderImapName)
       for (const messageId of messageIdHeaders) {
-        const hasNewReply = await asyncHasNewReply(box, messageId, messageIdSet)
+        // TODO: Eventually, we should make the app send the message date with
+        // the metadata. At this time we're trying to get a release out and
+        // don't want to wait for yet another build, so for now the createdAt
+        // date of the metadatum should be close enough, especially given the 1
+        // day buffer within asyncHasNewReply().
+        const hasNewReply = await asyncHasNewReply({
+          imapBox: box,
+          origmessageId: messageId,
+          seenMessageIdSet: messageIdSet,
+          origDate: metadatum.createdAt,
+        })
         if (hasNewReply) {
           this.logger.info("Skipping reminder, thread has already been replied to")
           return Promise.resolve();
