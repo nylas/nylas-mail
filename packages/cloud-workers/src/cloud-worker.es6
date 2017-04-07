@@ -85,7 +85,8 @@ export default class CloudWorker {
     const currentUnixDate = Math.floor(Date.now() / 1000);
     const credentials = account.decryptedCredentials()
     if (account.provider === 'gmail') {
-      if (!credentials.xoauth2 || currentUnixDate > credentials.expiry_date) {
+      if (!credentials.xoauth2 || !credentials.expiry_date ||
+          currentUnixDate > credentials.expiry_date) {
         this.logger.info(`Refreshing access token for account id: ${account.id}`);
         await GmailOAuthHelpers.refreshAccessToken(account);
       }

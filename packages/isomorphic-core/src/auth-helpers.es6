@@ -60,7 +60,7 @@ export function googleSettings(googleToken, email) {
     smtp_username: email,
   }, CommonProviderSettings.gmail);
   const connectionCredentials = {
-    expiry_date: googleToken.expiry_date,
+    expiry_date: Math.floor(googleToken.expiry_date / 1000),
   };
   if (GMAIL_CLIENT_ID && GMAIL_CLIENT_SECRET) {
     // cloud-only credentials
