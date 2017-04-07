@@ -2,60 +2,32 @@
 
 ### 2.0.8 (4/7/2017)
 
-  + [client-app] Ensure SyncbackMetadataTask dependency to prevent version conflicts
-  + Revert [client-app] Fix version conflict with send-reminders
-  + [client-private-plugins] Reminders: make sure accountId query isn't null
+- Fixes:
+  + Revamp SSL options during authentication to be able to properly auth against
+    SMTP and prevent sending failures
+  + Ensure IMAPConnnectionPool uses updated account credentials
+  + Always fetch and update identity regardless of environment
+  + Properly handle serialization errors for JSON columns in database
 
-### 2.0.7 (4/6/2017)
+- Cloud:
+  + Switch MySQL charset to utf8mb4
+  + Add exponential backoff for cloud worker jobs when encountering errors
+  + Use IMAP connection pool in cloud workers to limit number of connections
+  + Properly generate metadata deltas when clearing expiration field
+  + Increment default imap connection socket timeout in cloud workers
 
-  + [cloud-workers] [send-later] Fix send later token expiration
-  + [client-plugins] Correctly scope categories by acct when setting reminder
-  + [iso-core, cloud-\*] catch JSON parse errors in DB columns
-  + [cloud-workers] rename ExpiredDataWorker -> CloudWorker & rearrange src
-  + [cloud-\*] Fix options for setting MySQL connection charset
-  + [cloud-\*] Switch MySQL charset to utf8mb4
+- Plugins:
+  + Correctly syncback metadata for send later
+  + Delete drafts after they are sent later
+  + Correctly ensure messages in sent folder for send later in gmail
+  + Fix send reminders version conflict error
+  + Correctly set metadata values for send reminders
+  + Fix imap folder names in send-reminders
+  + Fix send later access token refresh
 
-### 2.0.6 (4/6/2017)
-
-  + [client-plugins] Delete drafts after they are sent later
-  + [cloud-workers] fix connection typo
-  + [cloud-api] change worker admin color
-  + [cloud-workers][send-later] 🔪 with 🔥 duplicate sent messages
-  + [cloud-workers] add a retryAt field to do exponential backoffs
-  + [client-app] Fix version conflict with send-reminders
-  + [cloud-workers] implement IMAP connection pool
-  + [dev] Ensure daily script grabs current version after pulling latest changes
-  + [cloud-workers] Fix runtime error trying to iterate over undefined
-  + [cloud-workers] Properly generate metadata deltas when clearing expiration
-  + [client-app] Always fetch and update identity regardless of env
-
-### 2.0.5 (4/6/2017)
-
-  + [cloud-workers] Don't use bulk updates in foreman in order to generate deltas
-  + [cloud-workers] Increment default imap conn socket timeout in cloud workers
-  + [cloud-\*] add account to logging & fix typo
-  + [cloud-workers] make send later not retryable after successful send
-  + [iso-core, cloud-\*] move generate XOAuth2 & fix first auth usage
-  + [cloud-workers] fix stauts -> status
-  + [cloud-workers] adjust retry constants & fix orphan cleanup
-  + [isomorphic-core] Ensure IMAPConnPool uses updated account credentials
-
-### 2.0.4 (4/5/2017)
-
-  + [client-plugins] Correctly syncback metadata for send later
-
-### 2.0.3 (4/5/2017)
-
-  + [\*] Revamp SSL options (including user-facing)
-
-### 2.0.2 (4/5/2017)
-
-  + [client-app] Updates to feature limiting
-  + [client-app] Some final benchmark fixes
-  + [cloud-api] basic view of CloudJobs
-  + [client-sync] Fix syncWorker arg
-  + [cloud-workers] fixes to metadata on workers
-  + [client-sync] Fix runtime error when getting sync activity for account
+- Development:
+  + Add view of CloudJobs in n1.nylas.com/admin
+  + Ensure daily script grabs current version after pulling latest changes
 
 ### 2.0.1 (4/5/2017)
 
