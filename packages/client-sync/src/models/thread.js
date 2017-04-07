@@ -48,13 +48,13 @@ module.exports = (sequelize, Sequelize) => {
       },
     },
     instanceMethods: {
-      async updateLabelsAndFolders() {
-        const messages = await this.getMessages({attributes: ['id', 'folderId']});
+      async updateLabelsAndFolders({transaction} = {}) {
+        const messages = await this.getMessages({attributes: ['id', 'folderId'], transaction});
         const labelIds = new Set()
         const folderIds = new Set()
 
         await Promise.all(messages.map(async (msg) => {
-          const labels = await msg.getLabels({attributes: ['id']})
+          const labels = await msg.getLabels({attributes: ['id'], transaction})
           labels.forEach(({id}) => {
             if (!id) return;
             labelIds.add(id);
@@ -64,11 +64,11 @@ module.exports = (sequelize, Sequelize) => {
         }));
 
         await Promise.all([
-          this.setLabels(Array.from(labelIds)),
-          this.setFolders(Array.from(folderIds)),
+          this.setLabels(Array.from(labelIds), {transaction}),
+          this.setFolders(Array.from(folderIds), {transaction}),
         ]);
 
-        return this.save();
+        return this.save({transaction});
       },
 
       // Updates the attributes that don't require an external set to prevent

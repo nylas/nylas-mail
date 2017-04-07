@@ -13,7 +13,7 @@ function isContactMeaningful(contact) {
   return true
 }
 
-async function extractContacts({db, messageValues, logger = console} = {}) {
+async function extractContacts({db, messageValues, logger = console, transaction} = {}) {
   const {Contact} = db
   let allContacts = [];
   ['to', 'from', 'bcc', 'cc'].forEach((field) => {
@@ -37,13 +37,14 @@ async function extractContacts({db, messageValues, logger = console} = {}) {
     where: {
       id: Array.from(contactsDataById.keys()),
     },
+    transaction,
   })
 
   for (const c of contactsDataById.values()) {
     const existing = existingContacts.find(({id}) => id === c.id);
 
     if (!existing) {
-      Contact.create(c).catch(Sequelize.ValidationError, (err) => {
+      Contact.create(c, {transaction}).catch(Sequelize.ValidationError, (err) => {
         if (err.name !== "SequelizeUniqueConstraintError") {
           logger.warn('Unknown error inserting contact', err);
           throw err;
@@ -52,12 +53,12 @@ async function extractContacts({db, messageValues, logger = console} = {}) {
           // and beat us to inserting. Since contacts are never deleted within
           // an account, we can safely assume that we can perform an update
           // instead.
-          Contact.find({where: {id: c.id}}).then(
-            (row) => { row.update(c) });
+          Contact.find({where: {id: c.id}, transaction}).then(
+            (row) => { row.update(c, {transaction}) });
         }
       });
     } else {
-      existing.update(c);
+      existing.update(c, {transaction});
     }
   }
 }

@@ -67,13 +67,13 @@ export default (sequelize, Sequelize) => {
         )
       },
 
-      async updateSyncState(nextSyncState = {}) {
+      async updateSyncState(nextSyncState = {}, {transaction} = {}) {
         if (_.isMatch(this.syncState, nextSyncState)) {
           return Promise.resolve();
         }
-        await this.reload(); // Fetch any recent syncState updates
+        await this.reload({transaction}); // Fetch any recent syncState updates
         this.syncState = Object.assign(this.syncState, nextSyncState);
-        return this.save();
+        return this.save({transaction});
       },
 
       syncProgress() {
