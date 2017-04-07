@@ -15,24 +15,10 @@ function upsertMetadata({account, objectId, objectType, pluginId, version, value
       },
     }).then((existing) => {
       if (existing) {
-        if (existing.version / 1 === (version / 1) + 1) {
-          // Sometimes the app might send two metadata updates before receiving
-          // the delta for the first update, which means the version number won't
-          // have changed. These second updates don't change old values, but rather
-          // just add new values. If the version is only off by one, and none of
-          // the old values have changed, it should be safe to merge the metadata.
-          const valueKeys = Object.keys(value)
-          for (const key of Object.keys(existing.value)) {
-            if (valueKeys.includes(key) && value[key] !== existing.value[key]) {
-              return Promise.reject(new Error("Version Conflict"))
-            }
-          }
-          existing.value = Object.assign({}, existing.value, value)
-        } else if (existing.version / 1 !== version / 1) {
+        if (existing.version / 1 !== version / 1) {
           return Promise.reject(new Error("Version Conflict"));
-        } else {
-          existing.value = value;
         }
+        existing.value = value;
         existing.expiration = expiration;
         return existing.save();
       }
