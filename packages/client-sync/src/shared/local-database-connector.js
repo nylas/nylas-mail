@@ -18,12 +18,15 @@ class LocalDatabaseConnector {
     const dbLog = (q, time) => {
       debugVerbose(StringUtils.trimTo(`🔷 (${time}ms) ${q}`))
     }
-    return new Sequelize(dbname, '', '', {
+    const sequelize = new Sequelize(dbname, '', '', {
       storage: storage,
       dialect: "sqlite",
       benchmark: debugVerbose.enabled,
       logging: debugVerbose.enabled ? dbLog : false,
     })
+    sequelize.query('PRAGMA page_size = 8192');
+    sequelize.query('PRAGMA cache_size = 4096');
+    return sequelize;
   }
 
   forAccount(accountId) {
