@@ -103,60 +103,67 @@ class MessageProcessor {
 
   async _processMessage({db, accountId, folder, imapMessage, struct, desiredParts, logger}) {
     try {
-      const {Message, Folder, Label} = db;
+      const {sequelize, Message, Folder, Label} = db;
       const messageValues = await MessageFactory.parseFromImap(imapMessage, desiredParts, {
         db,
         folder,
         accountId,
       });
-      const existingMessage = await Message.findById(messageValues.id, {
-        include: [{model: Folder, as: 'folder'}, {model: Label, as: 'labels'}],
-      });
       let processedMessage;
-      if (existingMessage) {
-        // TODO: optimize to not do a full message parse for existing messages
-        processedMessage = await this._processExistingMessage({
-          logger,
-          struct,
-          messageValues,
-          existingMessage,
-        })
-      } else {
-        processedMessage = await this._processNewMessage({
-          logger,
-          struct,
-          messageValues,
-        })
-      }
+      await sequelize.transaction(async (transaction) => {
+        const existingMessage = await Message.findById(messageValues.id, {
+          include: [{model: Folder, as: 'folder'}, {model: Label, as: 'labels'}],
+          transaction,
+        });
+        if (existingMessage) {
+          // TODO: optimize to not do a full message parse for existing messages
+          processedMessage = await this._processExistingMessage({
+            db,
+            logger,
+            struct,
+            messageValues,
+            existingMessage,
+            transaction,
+          })
+        } else {
+          processedMessage = await this._processNewMessage({
+            db,
+            logger,
+            struct,
+            messageValues,
+            transaction,
+          })
+        }
 
-      // Inflate the serialized oldestProcessedDate value, if it exists
-      let oldestProcessedDate;
-      if (folder.syncState && folder.syncState.oldestProcessedDate) {
-        oldestProcessedDate = new Date(folder.syncState.oldestProcessedDate);
-      }
-      const justProcessedDate = messageValues.date ? new Date(messageValues.date) : new Date()
+        // Inflate the serialized oldestProcessedDate value, if it exists
+        let oldestProcessedDate;
+        if (folder.syncState && folder.syncState.oldestProcessedDate) {
+          oldestProcessedDate = new Date(folder.syncState.oldestProcessedDate);
+        }
+        const justProcessedDate = messageValues.date ? new Date(messageValues.date) : new Date()
 
-      // Update the oldestProcessedDate if:
-      //   a) justProcessedDate is after the year 1980. We don't want to base this
-      //      off of messages with borked 1970 dates.
-      // AND
-      //   b) i) We haven't set oldestProcessedDate yet
-      //     OR
-      //      ii) justProcessedDate is before oldestProcessedDate and in a different
-      //          month. (We only use this to update the sync status in Nylas Mail,
-      //          which uses month precision. Updating a folder's syncState triggers
-      //          many re-renders in Nylas Mail, so we only do it as necessary.)
-      if (justProcessedDate > new Date("1980") && (
-            !oldestProcessedDate || (
-              (justProcessedDate.getMonth() !== oldestProcessedDate.getMonth() ||
-                justProcessedDate.getFullYear() !== oldestProcessedDate.getFullYear()) &&
-              justProcessedDate < oldestProcessedDate))) {
-        await folder.updateSyncState({oldestProcessedDate: justProcessedDate})
-      }
+        // Update the oldestProcessedDate if:
+        //   a) justProcessedDate is after the year 1980. We don't want to base this
+        //      off of messages with borked 1970 dates.
+        // AND
+        //   b) i) We haven't set oldestProcessedDate yet
+        //     OR
+        //      ii) justProcessedDate is before oldestProcessedDate and in a different
+        //          month. (We only use this to update the sync status in Nylas Mail,
+        //          which uses month precision. Updating a folder's syncState triggers
+        //          many re-renders in Nylas Mail, so we only do it as necessary.)
+        if (justProcessedDate > new Date("1980") && (
+              !oldestProcessedDate || (
+                (justProcessedDate.getMonth() !== oldestProcessedDate.getMonth() ||
+                  justProcessedDate.getFullYear() !== oldestProcessedDate.getFullYear()) &&
+                justProcessedDate < oldestProcessedDate))) {
+          await folder.updateSyncState({oldestProcessedDate: justProcessedDate}, {transaction})
+        }
 
-      const activity = `🔃 ✉️ (${folder.name}) "${messageValues.subject}" - ${messageValues.date}`
-      logger.log(activity)
-      SyncActivity.reportSyncActivity(accountId, activity)
+        const activity = `🔃 ✉️ (${folder.name}) "${messageValues.subject}" - ${messageValues.date}`
+        logger.log(activity)
+        SyncActivity.reportSyncActivity(accountId, activity)
+      });
       return processedMessage
     } catch (err) {
       await this._onError({imapMessage, desiredParts, folder, err, logger});
@@ -198,7 +205,7 @@ class MessageProcessor {
   // Replaces ["<rfc2822messageid>", ...] with [[object Reference], ...]
   // Creates references that do not yet exist, and adds the correct
   // associations as well
-  async _addReferences(db, message, thread, references) {
+  async _addReferences(db, message, thread, references, transaction) {
     const {Reference} = db;
 
     let existingReferences = [];
@@ -207,6 +214,7 @@ class MessageProcessor {
         where: {
           rfc2822MessageId: references,
         },
+        transaction,
       });
     }
 
@@ -216,45 +224,43 @@ class MessageProcessor {
     }
     for (const mid of references) {
       if (!refByMessageId[mid]) {
-        refByMessageId[mid] = await Reference.create({rfc2822MessageId: mid, threadId: thread.id});
+        refByMessageId[mid] = await Reference.create({rfc2822MessageId: mid, threadId: thread.id}, {transaction});
       }
     }
 
     const referencesInstances = references.map(mid => refByMessageId[mid]);
-    await message.addReferences(referencesInstances);
+    await message.addReferences(referencesInstances, {transaction});
     message.referencesOrder = referencesInstances.map(ref => ref.id);
-    await thread.addReferences(referencesInstances);
+    await thread.addReferences(referencesInstances, {transaction});
   }
 
-  async _processNewMessage({messageValues, struct, logger = console} = {}) {
-    const {accountId} = messageValues;
-    const db = await LocalDatabaseConnector.forAccount(accountId);
+  async _processNewMessage({db, messageValues, struct, logger = console, transaction} = {}) {
     const {Message} = db
 
-    const thread = await detectThread({db, messageValues});
+    const thread = await detectThread({db, messageValues, transaction});
     messageValues.threadId = thread.id;
-    const createdMessage = await Message.create(messageValues);
+    const createdMessage = await Message.create(messageValues, {transaction});
 
     if (messageValues.labels) {
-      await createdMessage.addLabels(messageValues.labels)
+      await createdMessage.addLabels(messageValues.labels, {transaction})
       // Note that the labels aren't officially associated until save() is called later
     }
 
-    await this._addReferences(db, createdMessage, thread, messageValues.references);
+    await this._addReferences(db, createdMessage, thread, messageValues.references, transaction);
 
     // TODO: need to delete dangling references somewhere (maybe at the
     // end of the sync loop?)
 
-    const files = await extractFiles({db, messageValues, struct});
+    const files = await extractFiles({db, messageValues, struct, transaction});
     // Don't count inline images (files with contentIds) as attachments
     if (files.some(f => !f.contentId) && !thread.hasAttachments) {
       thread.hasAttachments = true;
-      await thread.save();
+      await thread.save({transaction});
     }
-    await extractContacts({db, messageValues, logger});
+    await extractContacts({db, messageValues, logger, transaction});
 
     createdMessage.isProcessed = true;
-    await createdMessage.save()
+    await createdMessage.save({transaction})
     return createdMessage
   }
 
@@ -271,10 +277,7 @@ class MessageProcessor {
    * or because we interrupted the sync loop before the message was fully
    * processed.
    */
-  async _processExistingMessage({existingMessage, messageValues, struct} = {}) {
-    const {accountId} = messageValues;
-    const db = await LocalDatabaseConnector.forAccount(accountId);
-
+  async _processExistingMessage({db, existingMessage, messageValues, struct, transaction} = {}) {
     /**
      * There should never be a reason to update the body of a message
      * already in the database.
@@ -288,29 +291,30 @@ class MessageProcessor {
      */
     const newMessageWithoutBody = _.clone(messageValues)
     delete newMessageWithoutBody.body;
-    await existingMessage.update(newMessageWithoutBody);
+    await existingMessage.update(newMessageWithoutBody, {transaction});
     if (messageValues.labels && messageValues.labels.length > 0) {
-      await existingMessage.setLabels(messageValues.labels)
+      await existingMessage.setLabels(messageValues.labels, {transaction})
     }
 
     let thread = await existingMessage.getThread({
       include: [{model: db.Folder, as: 'folders'}, {model: db.Label, as: 'labels'}],
+      transaction,
     });
     if (!existingMessage.isProcessed) {
       if (!thread) {
-        thread = await detectThread({db, messageValues});
+        thread = await detectThread({db, messageValues, transaction});
         existingMessage.threadId = thread.id;
       } else {
-        await thread.updateFromMessages({db, messages: [existingMessage]})
+        await thread.updateFromMessages({db, messages: [existingMessage], transaction})
       }
-      await this._addReferences(db, existingMessage, thread, messageValues.references);
-      const files = await extractFiles({db, messageValues: existingMessage, struct});
+      await this._addReferences(db, existingMessage, thread, messageValues.references, transaction);
+      const files = await extractFiles({db, messageValues: existingMessage, struct, transaction});
       // Don't count inline images (files with contentIds) as attachments
       if (files.some(f => !f.contentId) && !thread.hasAttachments) {
         thread.hasAttachments = true;
-        await thread.save();
+        await thread.save({transaction});
       }
-      await extractContacts({db, messageValues: existingMessage});
+      await extractContacts({db, messageValues: existingMessage, transaction});
       existingMessage.isProcessed = true;
     } else {
       if (!thread) {
@@ -318,8 +322,8 @@ class MessageProcessor {
       }
     }
 
-    await existingMessage.save();
-    await thread.updateLabelsAndFolders();
+    await existingMessage.save({transaction});
+    await thread.updateLabelsAndFolders({transaction});
     return existingMessage
   }
 }

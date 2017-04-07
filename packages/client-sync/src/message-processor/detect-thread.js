@@ -14,7 +14,7 @@ function emptyThread({Thread, accountId}, options = {}) {
   return t;
 }
 
-async function findOrBuildByReferences(db, message) {
+async function findOrBuildByReferences(db, message, transaction) {
   const {Thread, Reference, Label, Folder} = db;
 
   let matchingRef = null;
@@ -30,6 +30,7 @@ async function findOrBuildByReferences(db, message) {
       include: [
         { model: Thread, include: [{model: Label}, {model: Folder}]},
       ],
+      transaction,
     });
   }
 
@@ -39,16 +40,17 @@ async function findOrBuildByReferences(db, message) {
   return matchingRef ? matchingRef.thread : emptyThread(db, {});
 }
 
-async function findOrBuildByRemoteThreadId(db, remoteThreadId) {
+async function findOrBuildByRemoteThreadId(db, remoteThreadId, transaction) {
   const {Thread, Label, Folder} = db;
   const existing = await Thread.find({
     where: {remoteThreadId},
     include: [{model: Label}, {model: Folder}],
+    transaction,
   });
   return existing || emptyThread(db, {remoteThreadId});
 }
 
-async function detectThread({db, messageValues}) {
+async function detectThread({db, messageValues, transaction}) {
   if (!(messageValues.labels instanceof Array)) {
     throw new Error("detectThread expects labels to be an inflated array.");
   }
@@ -58,9 +60,9 @@ async function detectThread({db, messageValues}) {
 
   let thread = null;
   if (messageValues.gThrId) {
-    thread = await findOrBuildByRemoteThreadId(db, messageValues.gThrId)
+    thread = await findOrBuildByRemoteThreadId(db, messageValues.gThrId, transaction)
   } else {
-    thread = await findOrBuildByReferences(db, messageValues)
+    thread = await findOrBuildByReferences(db, messageValues, transaction)
   }
 
   if (!(thread.labels instanceof Array)) {
@@ -81,7 +83,7 @@ async function detectThread({db, messageValues}) {
   }
 
   thread.subject = cleanSubject(messageValues.subject);
-  await thread.updateFromMessages({messages: [messageValues]});
+  await thread.updateFromMessages({messages: [messageValues], transaction});
   return thread;
 }
 
