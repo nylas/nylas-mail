@@ -1,5 +1,14 @@
 # Nylas Mail Changelog
 
+### 2.0.7 (4/6/2017)
+
+  + [cloud-workers] [send-later] Fix send later token expiration
+  + [client-plugins] Correctly scope categories by acct when setting reminder
+  + [iso-core, cloud-\*] catch JSON parse errors in DB columns
+  + [cloud-workers] rename ExpiredDataWorker -> CloudWorker & rearrange src
+  + [cloud-\*] Fix options for setting MySQL connection charset
+  + [cloud-\*] Switch MySQL charset to utf8mb4
+
 ### 2.0.6 (4/6/2017)
 
   + [client-plugins] Delete drafts after they are sent later
