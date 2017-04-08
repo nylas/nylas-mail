@@ -1,4 +1,7 @@
 import moment from 'moment'
+import {StatsD} from 'node-dogstatsd'
+const STATSD_HOST = process.env.STATSD_HOST || "172.17.0.1"
+const stats = new StatsD(STATSD_HOST, 8125)
 
 export default class Foreman {
   constructor({db, logger, pluginId, WorkerClass}) {
@@ -29,6 +32,7 @@ export default class Foreman {
       await this.cleanupDeadJobs();
       const newJobs = await this.claimJobs();
       this.runWorkers(newJobs); // Do NOT await. Does nothing if no new jobs
+      stats.gauge(`cloud-workers.heartbeat.${this.pluginId}`, 1)
     } finally {
       clearTimeout(this.runTimeout);
       this.runTimeout = setTimeout(this.run.bind(this), this.FOREMAN_CHECK_INTERVAL);

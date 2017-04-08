@@ -27,14 +27,15 @@
     "js-base64": "2.1.9",
     "libhoney": "1.0.0-beta.2",
     "mimelib": "0.2.19",
+    "node-dogstatsd": "0.0.6",
     "raven": "1.1.4",
     "request": "2.79.0",
     "request-promise": "4.1.1",
     "rx-lite": "4.0.8",
     "sequelize": "github:nylas/sequelize#nylas-3.30.1",
+    "tmp": "0.0.31",
     "umzug": "1.11.0",
     "underscore": "1.8.3",
-    "vision": "4.1.0",
-    "tmp": "0.0.31"
+    "vision": "4.1.0"
   }
 }
