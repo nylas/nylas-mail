@@ -6,7 +6,6 @@
         { "label": "&New Message...", "command": "application:new-message" },
         { "type": "separator" },
         { "label": "Add Account...", "command": "application:add-account", "args": {"source": "Menu"}},
-        { "label": "Add Custom IMAP Account...", "command": "application:add-account", "args": {"accountType": "imap", "source": "Menu"}},
         { "label": "Clos&e Window", "command": "window:close" },
         { "type": "separator" },
         { "label": "Print Current Thread...", "command": "core:print-thread" },
