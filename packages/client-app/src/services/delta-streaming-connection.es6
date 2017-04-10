@@ -11,7 +11,7 @@ import OnlineStatusStore from '../flux/stores/online-status-store'
 import NylasLongConnection from '../flux/nylas-long-connection'
 
 
-const MAX_RETRY_DELAY = 5 * 60 * 1000; // 5 minutes
+const MAX_RETRY_DELAY = 10 * 60 * 1000;
 const BASE_RETRY_DELAY = 1000;
 
 class DeltaStreamingConnection {
@@ -124,7 +124,6 @@ class DeltaStreamingConnection {
     this._writeStateDebounced();
     const {Closed, Connected} = NylasLongConnection.Status
     if (status === Connected) {
-      this._backoffScheduler.reset()
       Actions.updateAccount(this._account.id, {
         n1CloudState: Account.N1_CLOUD_STATE_RUNNING,
       })
