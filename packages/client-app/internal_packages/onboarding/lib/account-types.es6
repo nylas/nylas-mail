@@ -22,7 +22,6 @@ const AccountTypes = [
     icon: 'ic-settings-account-gmail.png',
     headerIcon: 'setup-icon-provider-gmail.png',
     color: '#e99999',
-    hidden: false,
   },
   {
     type: 'office365',
@@ -30,7 +29,6 @@ const AccountTypes = [
     icon: 'ic-settings-account-outlook.png',
     headerIcon: 'setup-icon-provider-outlook.png',
     color: '#0078d7',
-    hidden: false,
   },
   {
     type: 'yahoo',
@@ -38,7 +36,6 @@ const AccountTypes = [
     icon: 'ic-settings-account-yahoo.png',
     headerIcon: 'setup-icon-provider-yahoo.png',
     color: '#a76ead',
-    hidden: false,
   },
   {
     type: 'icloud',
@@ -46,7 +43,6 @@ const AccountTypes = [
     icon: 'ic-settings-account-icloud.png',
     headerIcon: 'setup-icon-provider-icloud.png',
     color: '#61bfe9',
-    hidden: false,
   },
   {
     type: 'fastmail',
@@ -55,7 +51,6 @@ const AccountTypes = [
     icon: 'ic-settings-account-fastmail.png',
     headerIcon: 'setup-icon-provider-fastmail.png',
     color: '#24345a',
-    hidden: false,
   },
   {
     type: 'imap',
@@ -64,7 +59,6 @@ const AccountTypes = [
     icon: 'ic-settings-account-imap.png',
     headerIcon: 'setup-icon-provider-imap.png',
     color: '#aaa',
-    hidden: true,
   },
 ]
 

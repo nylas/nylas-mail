@@ -11,7 +11,7 @@ export default class AccountChoosePage extends React.Component {
   }
 
   _renderAccountTypes() {
-    return AccountTypes.filter(accountType => !accountType.hidden).map((accountType) =>
+    return AccountTypes.map((accountType) =>
       <div
         key={accountType.type}
         className={`provider ${accountType.type}`}

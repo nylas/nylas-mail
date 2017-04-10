@@ -10,7 +10,6 @@
       { "label": "Install Theme...", "command": "application:install-package" },
       { "type": "separator" },
       { "label": "Add Account...", "command": "application:add-account", "args": {"source": "Menu"}},
-      { "label": "Add Custom IMAP Account...", "command": "application:add-account", "args": {"accountType": "imap", "source": "Menu"}},
       { "label": "VERSION", "enabled": false },
       { "label": "Restart and Install Update", "command": "application:install-update", "visible": false},
       { "label": "Check for Update", "command": "application:check-for-update", "visible": false},
