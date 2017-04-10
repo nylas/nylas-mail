@@ -22,7 +22,6 @@ import SyncTaskFactory from './sync-task-factory';
 import SyncbackTaskRunner from './syncback-task-runner'
 import SyncActivity from '../shared/sync-activity'
 
-
 const {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR} = Account
 const AC_SYNC_LOOP_INTERVAL_MS = 10 * 1000            // 10 sec
 const BATTERY_SYNC_LOOP_INTERVAL_MS = 5 * 60 * 1000   //  5 min
@@ -53,6 +52,7 @@ class SyncWorker {
     this._latestOpenTimesByFolder = new Map();
     this._mainIMAPConnDisposer = null
     this._mailListenerIMAPConnDisposer = null
+    this._mailListenerAttrPollTimeout = null;
 
     this._retryScheduler = new ExponentialBackoffScheduler({
       baseDelay: 15 * 1000,
@@ -275,14 +275,33 @@ class SyncWorker {
         this._mailListenerIMAPConn.on('mail', () => {
           this._onInboxUpdates(`You've got mail`);
         })
-        this._mailListenerIMAPConn.on('update', () => {
+
+        const onUpdate = () => {
           // `update` events happen when messages receive flag updates on the inbox
           // (e.g. marking as unread or starred). We need to listen to that event for
           // when those updates are performed from another mail client, but ignore
           // them when they are caused from within N1.
           if (this._shouldIgnoreInboxFlagUpdates) { return; }
           this._onInboxUpdates(`There are flag updates on the inbox`);
-        })
+        }
+
+        this._mailListenerIMAPConn.on('update', onUpdate)
+
+        // Gmail actually only emits 'update' events when there are new or
+        // removed messages. We have to periodically check the highestmodseq to
+        // see if there have been any flag changes.
+        if (this._account.provider === "gmail") {
+          const checkForAttributeUpdates = async () => {
+            const allMailFolder = await this._db.Folder.findOne({where: {role: 'all'}})
+            const allMailBox = await this._mailListenerIMAPConn.getLatestBoxStatus(allMailFolder.name)
+            if (allMailFolder.syncState.highestmodseq !== allMailBox.highestmodseq) {
+              onUpdate();
+            }
+            this._mailListenerAttrPollTimeout = setTimeout(checkForAttributeUpdates, 30 * 1000)
+          }
+          checkForAttributeUpdates()
+        }
+
         return true
       },
     })
@@ -321,6 +340,10 @@ class SyncWorker {
     if (this._mailListenerIMAPConnDisposer) {
       this._mailListenerIMAPConnDisposer()
       this._mailListenerIMAPConnDisposer = null
+    }
+    if (this._mailListenerAttrPollTimeout) {
+      clearTimeout(this._mailListenerAttrPollTimeout)
+      this._mailListenerAttrPollTimeout = null
     }
   }
 
