@@ -23,7 +23,7 @@ module.exports = {
   CommonProviderSettings: require('imap-provider-settings').CommonProviderSettings,
   MetricsReporter: require('./src/metrics-reporter').default,
   MessageUtils: require('./src/message-utils'),
-  ModelUtils: require('./src/model-utils'),
+  ModelUtils: require('./src/model-utils').default,
   executeJasmine: require('./spec/jasmine/execute').default,
   StringUtils: require('./src/string-utils'),
   TLSUtils: require('./src/tls-utils'),
