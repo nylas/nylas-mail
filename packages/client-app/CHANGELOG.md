@@ -2,16 +2,25 @@
 
 ### 2.0.9 (4/11/2017)
 
-  + [client-sync] Poll for gmail attribute changes from 
-  + [client-app] Re-add imap to the onboarding accounts page
-  + [client-app] Fix delta streaming connection retries
-  + [isomorphic-core] Handle weird MIME edge case with @ symbol
-  + [cloud-workers] Reminders: add 'SINCE' to imap search query
-  + [cloud-workers] add DataDog StatsD for heartbeats
-  + [client-app] Add benchmark mode
-  + [client-sync] Transaction-ify processMessage
-  + [client-sync] Increase sqlite page_size and cache_size
-  + [cloud-workers] restart automatically on unhandeld rejections
+- Features:
+  + Re-add imap to the onboarding accounts page
+
+- Fixes:
+  + Correctly detect changes in labels, starred and unread for Gmail accounts
+  + Fix delta streaming connection retries
+  + Handle weird MIME edge case with @ symbol
+
+- Performance:
+  + Wrap message processing in transaction for better performance
+  + Increase sqlite `page_size` and `cache_size`
+
+- Cloud:
+  + Improve performance of reminders worker
+  + Add DataDog StatsD for heartbeats
+  + Restart automatically on unhandeld rejections
+
+- Development:
+  + Add benchmark mode
 
 ### 2.0.8 (4/7/2017)
 
