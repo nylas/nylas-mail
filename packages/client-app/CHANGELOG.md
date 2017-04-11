@@ -1,5 +1,18 @@
 # Nylas Mail Changelog
 
+### 2.0.9 (4/11/2017)
+
+  + [client-sync] Poll for gmail attribute changes from 
+  + [client-app] Re-add imap to the onboarding accounts page
+  + [client-app] Fix delta streaming connection retries
+  + [isomorphic-core] Handle weird MIME edge case with @ symbol
+  + [cloud-workers] Reminders: add 'SINCE' to imap search query
+  + [cloud-workers] add DataDog StatsD for heartbeats
+  + [client-app] Add benchmark mode
+  + [client-sync] Transaction-ify processMessage
+  + [client-sync] Increase sqlite page_size and cache_size
+  + [cloud-workers] restart automatically on unhandeld rejections
+
 ### 2.0.8 (4/7/2017)
 
 - Fixes:
