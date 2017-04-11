@@ -396,7 +396,13 @@ class DatabaseStore extends NylasStore {
         // Some errors require action before the query can be retried
         if ((new RegExp(malformedStr, 'i')).test(errString)) {
           // This is unrecoverable. We have to do a full database reset
-          NylasEnv.reportError(err)
+          const fingerprint = ["{{ default }}", "database malformed", err.message];
+          NylasEnv.reportError(err, {fingerprint,
+            rateLimit: {
+              ratePerHour: 30,
+              key: `DatabaseStore:_executeLocally:${err.message}`,
+            },
+          })
           Actions.resetEmailCache()
         } else if ((new RegExp(schemaChangedStr, 'i')).test(errString)) {
           this._preparedStatementCache.del(query);
