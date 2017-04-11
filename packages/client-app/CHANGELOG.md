@@ -2,12 +2,14 @@
 
 ### 2.0.10 (4/11/2017)
 
-  + [client-sync] Ensure allmail folder exists before trying to access it
-  + [client-app] Fix SyncbackMetadataTask dependency
-  + [isomorphic-core] Add missing .default to require
-  + [isomorphic-core] Move buildMime to MessageUtils, add includeBcc option
-  + [\*] MessageFactory -> MessageUtils, SendUtils -> ModelUtils
-  + [client-sync] Don't report stuck sync processes to Sentry
+- Fixes:
+  + Fix missing UID error when archiving threads after sending
+  + Ensure all mail folder exists before trying to access it
+  + Fix SyncbackMetadataTask dependency
+
+- Development:
+  + Don't report stuck sync processes to Sentry
+  + MessageFactory -> MessageUtils, SendUtils -> ModelUtils
 
 ### 2.0.9 (4/11/2017)
 
