@@ -293,9 +293,11 @@ class SyncWorker {
         if (this._account.provider === "gmail") {
           const checkForAttributeUpdates = async () => {
             const allMailFolder = await this._db.Folder.findOne({where: {role: 'all'}})
-            const allMailBox = await this._mailListenerIMAPConn.getLatestBoxStatus(allMailFolder.name)
-            if (allMailFolder.syncState.highestmodseq !== allMailBox.highestmodseq) {
-              onUpdate();
+            if (allMailFolder) {
+              const allMailBox = await this._mailListenerIMAPConn.getLatestBoxStatus(allMailFolder.name)
+              if (allMailFolder.syncState.highestmodseq !== allMailBox.highestmodseq) {
+                onUpdate();
+              }
             }
             this._mailListenerAttrPollTimeout = setTimeout(checkForAttributeUpdates, 30 * 1000)
           }
