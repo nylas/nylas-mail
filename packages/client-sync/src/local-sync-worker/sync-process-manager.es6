@@ -95,12 +95,6 @@ class SyncProcessManager {
     const {time, activity} = SyncActivity.getLastSyncActivityForAccount(accountId);
     if (time < Date.now() - this.MAX_WORKER_SILENCE_MS) {
       const duration = Date.now() - time;
-      NylasEnv.reportError(new Error("SyncProcessManager: Detected stuck sync process"), {
-        rateLimit: {
-          ratePerHour: 30,
-          key: `SyncProcessManager:StuckProcess`,
-        },
-      })
       Actions.recordUserEvent('Stuck Sync Process', {
         accountId: accountId,
         lastActivityTime: time,
