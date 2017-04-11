@@ -18,7 +18,8 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
   isDependentOnTask(otherTask) {
     return (
       otherTask instanceof SyncbackMetadataTask &&
-      otherTask.pluginId === this.pluginId
+      otherTask.pluginId === this.pluginId &&
+      otherTask.sequentialId < this.sequentialId
     )
   }
 
