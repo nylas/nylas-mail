@@ -45,11 +45,11 @@ function collectFilesFromStruct({db, messageValues, struct, fileIds = new Set()}
   return collected;
 }
 
-async function extractFiles({db, messageValues, struct, transaction}) {
-  const files = collectFilesFromStruct({db, messageValues, struct, transaction});
+async function extractFiles({db, messageValues, struct}) {
+  const files = collectFilesFromStruct({db, messageValues, struct});
   if (files.length > 0) {
     for (const file of files) {
-      await file.save({transaction})
+      await file.save()
     }
   }
   return Promise.resolve(files)
