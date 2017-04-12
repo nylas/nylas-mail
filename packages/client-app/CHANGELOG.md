@@ -1,5 +1,14 @@
 # Nylas Mail Changelog
 
+### 2.0.11 (4/12/2017)
+
+  + [client-sync] Dispose of mail listener connection before getting new one
+  + Revert [client-sync] Poll for gmail attribute changes from 
+  + [client-app] Don't double report unhandled rejections
+  + [client-app] Fix unhandled rejection handling (fix ipc parse error)
+  + Revert [client-sync] Transaction-ify processMessage
+  + [client-app] Rate limit database malformed error reports to sentry
+
 ### 2.0.10 (4/11/2017)
 
 - Fixes:
