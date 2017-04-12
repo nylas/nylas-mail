@@ -277,7 +277,6 @@ export default class NylasEnvConstructor {
       originalError.stack = convertStackTrace(originalError.stack, sourceMapCache);
       return this.reportError(originalError, {url, line: newLine, column: newColumn});
     };
-    window.addEventListener("unhandledrejection", e => this.reportError(e));
 
     process.on('uncaughtException', e => this.reportError(e));
 
@@ -293,7 +292,15 @@ export default class NylasEnvConstructor {
       if (this.inDevMode()) {
         error.stack = convertStackTrace(error.stack, sourceMapCache);
       }
-      return this.reportError(error);
+      this.reportError(error);
+    });
+
+    window.addEventListener('unhandledrejection', e => {
+      const error = e.detail.reason
+      if (this.inDevMode()) {
+        error.stack = convertStackTrace(error.stack, sourceMapCache);
+      }
+      this.reportError(error)
     });
 
     if (this.inSpecMode() || (this.inDevMode() && !this.inBenchmarkMode())) {
