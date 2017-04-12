@@ -14,7 +14,7 @@ function emptyThread({Thread, accountId}, options = {}) {
   return t;
 }
 
-async function findOrBuildByReferences(db, message, transaction) {
+async function findOrBuildByReferences(db, message) {
   const {Thread, Reference, Label, Folder} = db;
 
   let matchingRef = null;
@@ -30,7 +30,6 @@ async function findOrBuildByReferences(db, message, transaction) {
       include: [
         { model: Thread, include: [{model: Label}, {model: Folder}]},
       ],
-      transaction,
     });
   }
 
@@ -40,17 +39,16 @@ async function findOrBuildByReferences(db, message, transaction) {
   return matchingRef ? matchingRef.thread : emptyThread(db, {});
 }
 
-async function findOrBuildByRemoteThreadId(db, remoteThreadId, transaction) {
+async function findOrBuildByRemoteThreadId(db, remoteThreadId) {
   const {Thread, Label, Folder} = db;
   const existing = await Thread.find({
     where: {remoteThreadId},
     include: [{model: Label}, {model: Folder}],
-    transaction,
   });
   return existing || emptyThread(db, {remoteThreadId});
 }
 
-async function detectThread({db, messageValues, transaction}) {
+async function detectThread({db, messageValues}) {
   if (!(messageValues.labels instanceof Array)) {
     throw new Error("detectThread expects labels to be an inflated array.");
   }
@@ -60,9 +58,9 @@ async function detectThread({db, messageValues, transaction}) {
 
   let thread = null;
   if (messageValues.gThrId) {
-    thread = await findOrBuildByRemoteThreadId(db, messageValues.gThrId, transaction)
+    thread = await findOrBuildByRemoteThreadId(db, messageValues.gThrId)
   } else {
-    thread = await findOrBuildByReferences(db, messageValues, transaction)
+    thread = await findOrBuildByReferences(db, messageValues)
   }
 
   if (!(thread.labels instanceof Array)) {
@@ -83,7 +81,7 @@ async function detectThread({db, messageValues, transaction}) {
   }
 
   thread.subject = cleanSubject(messageValues.subject);
-  await thread.updateFromMessages({messages: [messageValues], transaction});
+  await thread.updateFromMessages({messages: [messageValues]});
   return thread;
 }
 
