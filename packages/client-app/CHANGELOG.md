@@ -2,12 +2,14 @@
 
 ### 2.0.11 (4/12/2017)
 
-  + [client-sync] Dispose of mail listener connection before getting new one
-  + Revert [client-sync] Poll for gmail attribute changes from 
-  + [client-app] Don't double report unhandled rejections
-  + [client-app] Fix unhandled rejection handling (fix ipc parse error)
-  + Revert [client-sync] Transaction-ify processMessage
-  + [client-app] Rate limit database malformed error reports to sentry
+- Fixes:
+  + Dispose of mail listener connection before getting new one. This will
+    prevent sync process from leaking Imap connections and getting stuck.
+  + Fix performance regression when polling for gmail attribute changes from
+  + Don't double report unhandled rejections
+  + Fix unhandled rejection handling (fix ipc parse error)
+  + Fix regression when processing messages under a transaction
+  + Rate limit database malformed error reports to sentry
 
 ### 2.0.10 (4/11/2017)
 
