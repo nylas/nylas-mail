@@ -289,18 +289,15 @@ export default class NylasEnvConstructor {
     // errors. The Node process handler catches all Bluebird promises plus
     // those created with a native Promise.
     process.on('unhandledRejection', error => {
-      if (this.inDevMode()) {
-        error.stack = convertStackTrace(error.stack, sourceMapCache);
-      }
-      this.reportError(error);
+      this._onUnhandledRejection(error, sourceMapCache)
     });
 
+    // Based on testing, there are some unhandled rejections that don't get
+    // caught by `process.on('unhandledRejection')`, so we listen for unhandled
+    // rejections on the`window` as well
     window.addEventListener('unhandledrejection', e => {
       const error = e.detail.reason
-      if (this.inDevMode()) {
-        error.stack = convertStackTrace(error.stack, sourceMapCache);
-      }
-      this.reportError(error)
+      this._onUnhandledRejection(error, sourceMapCache)
     });
 
     if (this.inSpecMode() || (this.inDevMode() && !this.inBenchmarkMode())) {
@@ -308,6 +305,22 @@ export default class NylasEnvConstructor {
     }
     return null;
   }
+
+  // Given that we listen to unhandled rejections on both the `window` and the
+  // `process`, more often than not both of those will get called almost
+  // immedaitely with the same error. To prevent double reporting the same
+  // error, we debounce this function with a very small interval
+  _onUnhandledRejection = _.debounce((error, sourceMapCache) => {
+    if (this.inDevMode()) {
+      error.stack = convertStackTrace(error.stack, sourceMapCache);
+    }
+    this.reportError(error, {
+      rateLimit: {
+        ratePerHour: 30,
+        key: `UnhandledRejection:${error.stack}`,
+      },
+    })
+  }, 10)
 
   _createErrorCallbackEvent(error, extraArgs = {}) {
     const event = _.extend({}, extraArgs, {
