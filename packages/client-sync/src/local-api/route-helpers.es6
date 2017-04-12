@@ -6,7 +6,7 @@ import SyncProcessManager from '../local-sync-worker/sync-process-manager'
 
 const wakeSyncWorker = _.debounce((accountId, reason) => {
   SyncProcessManager.wakeWorkerForAccount(accountId, {interrupt: true, reason})
-}, 500)
+}, 500, true) // `true` so that we debounce on the leading edge instead of the trailing edge
 
 export async function createAndReplyWithSyncbackRequest(request, reply, syncRequestArgs = {}) {
   try {
