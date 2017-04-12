@@ -31,6 +31,14 @@ MailRulesActions =
       return Promise.reject(new Error("Could not find `important` label")) unless important
       return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread.id], source: "Mail Rules")
 
+  markAsUnimportant: (message, thread) ->
+    DatabaseStore.findBy(Category, {
+      name: 'important',
+      accountId: thread.accountId
+    }).then (important) ->
+      return Promise.reject(new Error("Could not find `important` label")) unless important
+      return new ChangeLabelsTask(labelsToRemove: [important], threads: [thread.id])
+
   moveToTrash: (message, thread) ->
     if AccountStore.accountForId(thread.accountId).usesLabels()
       return MailRulesActions.moveToLabel(message, thread, 'trash')
