@@ -51,8 +51,13 @@ class SyncWorker {
     this._requireTokenRefresh = false
     this._batchProcessedUids = new Map();
     this._latestOpenTimesByFolder = new Map();
-    this._mainIMAPConnDisposer = null
-    this._mailListenerIMAPConnDisposer = null
+    // We use lists for the disposers as a failsafe in case there's some code
+    // path that could possibly end up with two or more simultaneous disposers.
+    // We used to have just a nullable field, but this led to leaking connections
+    // from the IMAP connection pool because we would overwrite the old disposer
+    // without calling it first.
+    this._mainIMAPConnDisposers = [];
+    this._mailListenerIMAPConnDisposers = [];
 
     this._retryScheduler = new ExponentialBackoffScheduler({
       baseDelay: 15 * 1000,
@@ -256,6 +261,10 @@ class SyncWorker {
       return
     }
 
+    // We need to dispose of the old connection before trying to get a new one
+    // from the pool.
+    this._disposeMailListenerIMAPConnection();
+
     await IMAPConnectionPool.withConnectionsForAccount(this._account, {
       desiredCount: 1,
       logger: this._logger,
@@ -263,7 +272,7 @@ class SyncWorker {
       onConnected: async ([listenerConn], onDone) => {
         this._mailListenerIMAPConn = listenerConn;
         this._mailListenerIMAPConn._db = this._db;
-        this._mailListenerIMAPConnDisposer = onDone
+        this._mailListenerIMAPConnDisposers.push(onDone);
 
         // We don't want to listen for new mail while benchmarking initial
         // sync b/c receiving new mail can significantly increase the variance
@@ -312,18 +321,18 @@ class SyncWorker {
 
   _disposeMainIMAPConnection() {
     this._mainIMAPConn = null;
-    if (this._mainIMAPConnDisposer) {
-      this._mainIMAPConnDisposer()
-      this._mainIMAPConnDisposer = null
+    for (const disposer of this._mainIMAPConnDisposers) {
+      disposer();
     }
+    this._mainIMAPConnDisposers = [];
   }
 
   _disposeMailListenerIMAPConnection() {
     this._mailListenerIMAPConn = null;
-    if (this._mailListenerIMAPConnDisposer) {
-      this._mailListenerIMAPConnDisposer()
-      this._mailListenerIMAPConnDisposer = null
+    for (const disposer of this._mailListenerIMAPConnDisposers) {
+      disposer();
     }
+    this._mailListenerIMAPConnDisposers = [];
   }
 
   async _getFoldersToSync() {
@@ -606,10 +615,10 @@ class SyncWorker {
         logger: this._logger,
         socketTimeout: this._retryScheduler.currentDelay(),
         onConnected: async ([mainConn], done) => {
-          this._mainIMAPConnDisposer = done
+          this._mainIMAPConnDisposers.push(done);
           await this._ensureMainIMAPConnection(mainConn);
           await this._interruptible.run(this._performSync, this)
-          this._mainIMAPConnDisposer = null
+          this._mainIMAPConnDisposers = this._mainIMAPConnDisposers.filter(d => d !== done);
         },
       });
 
