@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+const program = require('commander')
+
+// const Spinner = require('cli-spinner').Spinner;
+// const spinner = new Spinner('processing.. %s');
+// spinner.setSpinnerString('|/-\\');
+// spinner.start()
+
+program
+  .version('0.0.1')
+  .option('--list-versions <branch>', 'List available builds for given branch')
+  .option('--limit', 'Limit release to a channel')
+  .arguments('<channel> [version]')
+  .parse(process.argv);
+
+console.log(program.listVersions)
+console.log(program.branch)
