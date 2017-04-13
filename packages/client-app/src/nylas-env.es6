@@ -296,7 +296,30 @@ export default class NylasEnvConstructor {
     // caught by `process.on('unhandledRejection')`, so we listen for unhandled
     // rejections on the`window` as well
     window.addEventListener('unhandledrejection', e => {
-      const error = e.detail.reason
+      // This event is supposed to look like {reason, promise}, according to
+      // https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
+      // In practice, it can have different shapes, so we try to make our best
+      // guess
+      if (!e) {
+        const error = new Error(`Unknown window.unhandledrejection event.`)
+        this._onUnhandledRejection(error, sourceMapCache)
+        return
+      }
+      if (e instanceof Error) {
+        this._onUnhandledRejection(e, sourceMapCache)
+        return
+      }
+      if (e.reason) {
+        const error = e.reason
+        this._onUnhandledRejection(error, sourceMapCache)
+        return
+      }
+      if (e.detail && e.detail.reason) {
+        const error = e.detail.reason
+        this._onUnhandledRejection(error, sourceMapCache)
+        return
+      }
+      const error = new Error(`Unrecognized event shape in window.unhandledrejection handler. Event keys: ${Object.keys(e)}`)
       this._onUnhandledRejection(error, sourceMapCache)
     });
 
