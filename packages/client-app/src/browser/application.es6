@@ -21,6 +21,7 @@ import DefaultClientHelper from '../default-client-helper';
 import NylasProtocolHandler from './nylas-protocol-handler';
 import PackageMigrationManager from './package-migration-manager';
 import ConfigPersistenceManager from './config-persistence-manager';
+import preventLegacyN1Migration from './prevent-legacy-n1-migration';
 
 let clipboard = null;
 
@@ -54,6 +55,8 @@ export default class Application extends EventEmitter {
     this.config = config;
     this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
     config.load();
+
+    preventLegacyN1Migration(configDirPath)
 
     this.configMigrator = new ConfigMigrator(this.config, this.databaseReader);
     this.configMigrator.migrate()
