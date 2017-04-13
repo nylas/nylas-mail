@@ -21,7 +21,7 @@
 - Fixes:
   + Dispose of mail listener connection before getting new one. This will
     prevent sync process from leaking Imap connections and getting stuck.
-  + Fix performance regression when polling for gmail attribute changes from
+  + Fix performance regression when polling for gmail attribute changes
   + Don't double report unhandled rejections
   + Fix unhandled rejection handling (fix ipc parse error)
   + Fix regression when processing messages under a transaction
