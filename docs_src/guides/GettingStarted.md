@@ -45,7 +45,7 @@ componentWillUnmount: =>
   _renderContent: =>
 ```
 
-![](/img/screenshot-base-plugin.png =100x)
+![](/img/screenshot-base-plugin.png)
 
 Try opening a message in N1 - you'll see the new package's example text show up on the sidebar. Delete the content of the `render` method and save - the text should disappear.
 
