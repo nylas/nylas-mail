@@ -14,6 +14,7 @@ module.exports = {
   DatabaseTypes: require('./src/database-types'),
   IMAPConnection: require('./src/imap-connection').default,
   IMAPConnectionPool: require('./src/imap-connection-pool'),
+  MessageBodyUtils: require('./src/message-body-utils'),
   SendmailClient: require('./src/sendmail-client'),
   DeltaStreamBuilder: require('./src/delta-stream-builder'),
   HookTransactionLog: require('./src/hook-transaction-log'),

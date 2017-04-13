@@ -3,13 +3,13 @@ const {
   ExponentialBackoffScheduler,
   IMAPErrors,
   IMAPConnectionPool,
+  MessageBodyUtils,
 } = require('isomorphic-core')
 const {DatabaseTypes: {JSONArrayColumn}} = require('isomorphic-core');
 const {Errors: {APIError}} = require('isomorphic-core')
 const {Actions} = require('nylas-exports')
 
 const MAX_IMAP_TIMEOUT_ERRORS = 5;
-
 
 function validateRecipientsPresent(message) {
   if (message.getRecipients().length === 0) {
@@ -25,7 +25,23 @@ module.exports = (sequelize, Sequelize) => {
     headerMessageId: { type: Sequelize.STRING, allowNull: true },
     gMsgId: { type: Sequelize.STRING, allowNull: true },
     gThrId: { type: Sequelize.STRING, allowNull: true },
-    body: Sequelize.TEXT,
+    body: {
+      type: Sequelize.TEXT,
+      get: function getBody() {
+        const val = this.getDataValue('body');
+        const result = MessageBodyUtils.tryReadBody(val);
+        if (result) {
+          return result;
+        }
+        return val;
+      },
+      set: function setBody(val) {
+        this.setDataValue('body', MessageBodyUtils.writeBody({
+          msgId: this.id,
+          body: val,
+        }));
+      },
+    },
     subject: Sequelize.STRING(500),
     snippet: Sequelize.STRING(255),
     date: Sequelize.DATE,
