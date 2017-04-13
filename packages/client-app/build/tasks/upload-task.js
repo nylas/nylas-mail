@@ -133,7 +133,7 @@ module.exports = (grunt) => {
           key: `${s3PathCurrentVersion}/NylasMailSetup.exe`,
         });
         uploads.push({
-          source: path.join(outputDir, `Nylas-${packageVersion}-full.nupkg`),
+          source: path.join(outputDir, `NylasMail-${packageVersion}-full.nupkg`),
           key: `${s3PathCurrentVersion}/nylas-${packageVersion}-full.nupkg`,
         });
         uploads.push({
@@ -145,7 +145,7 @@ module.exports = (grunt) => {
           key: `${s3PathNextVersion}/NylasMailSetup.exe`,
         });
         uploads.push({
-          source: path.join(outputDir, `Nylas-${packageVersion}-full.nupkg`),
+          source: path.join(outputDir, `NylasMail-${packageVersion}-full.nupkg`),
           key: `${s3PathNextVersion}/nylas-${packageVersion}-full.nupkg`,
         });
       } else if (process.platform === 'linux') {
