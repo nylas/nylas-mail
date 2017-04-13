@@ -348,4 +348,4 @@ Now we can access `@state.github` \(which is the GitHub user profile object\), a
 
 To make this plugin more compelling, we can extend the store to make further API requests and fetch more data about the user. Passing this data back to the UI component follows exactly the same pattern as the barebones data shown above, so we'll leave it as an exercise for the reader. :\)
 
-> You can find a more extensive version of this example in our [sample plugins repository](https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile).
+> You can find a more extensive version of this example in our [sample plugins repository](https://github.com/nylas/nylas-mail/tree/master/internal_packages/github-contact-card).
