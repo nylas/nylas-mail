@@ -4,7 +4,7 @@ If you followed the first part of the Getting Started Guide, you should have a f
 
 We're going to build on your new plugin to show the sender's [Gravatar](http://gravatar.com/) image in the sidebar, instead of just a colored line.
 
-If you don't still have it open, find the plugin source in`~/.nylas/dev/packages`and open the contents in your favorite text editor.
+If you don't still have it open, find the plugin source in `~/.nylas/dev/packages`and open the contents in your favorite text editor.
 
 > We use [CJSX](https://github.com/jsdf/coffee-react), a [CoffeeScript](http://coffeescript.org/) syntax for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), to streamline our plugin code. For syntax highlighting, we recommend [Babel](https://github.com/babel/babel-sublime) for Sublime, or the [CJSX Language](https://atom.io/packages/language-cjsx) Atom package.
 
@@ -12,11 +12,11 @@ If you don't still have it open, find the plugin source in`~/.nylas/dev/packages
 
 Let's poke around and change what the sidebar displays.
 
-Just like in the last tutorial, you'll find the code responsible for the sidebar in`lib/my-message-sidebar.cjsx`. Take a look at the`render`method -- this generates the content which appears in the sidebar.
+Just like in the last tutorial, you'll find the code responsible for the sidebar in `lib/my-message-sidebar.cjsx`. Take a look at the `render` method -- this generates the content which appears in the sidebar.
 
-\(How does it get in the sidebar? See[Interface Concepts](https://nylas.github.io/nylas-mail/docs/InterfaceConcepts.html)and look at`main.cjsx`for clues. We'll dive into this more later in the guide.\)
+\(How does it get in the sidebar? See [Interface Concepts](https://nylas.github.io/nylas-mail/docs/InterfaceConcepts.html) and look at `main.cjsx` for clues. We'll dive into this more later in the guide.\)
 
-We can change the sidebar to display the contact's email address as well. Check out the[Contact attributes](https://nylas.github.io/nylas-mail/docs/Contact.html)and change the`_renderContent`method to display more information:
+We can change the sidebar to display the contact's email address as well. Check out the [Contact attributes](https://nylas.github.io/nylas-mail/docs/Contact.html) and change the `_renderContent` method to display more information:
 
 ```js
 _renderContent: =>
@@ -26,13 +26,13 @@ _renderContent: =>
   </div>
 ```
 
-After making changes to the plugin, reload N1 by going to`Developer > Reload`.
+After making changes to the plugin, reload N1 by going to `Developer > Reload`.
 
 ### Installing a dependency {#installing-a-dependency}
 
-Now we've figured out how to show the contact's email address, we can use that to generate the[Gravatar](http://gravatar.com/)for the contact. However, as per the[Gravatar documentation](https://en.gravatar.com/site/implement/images/), we need to be able to calculate the MD5 hash for an email address first.
+Now we've figured out how to show the contact's email address, we can use that to generate the [Gravatar](http://gravatar.com/) for the contact. However, as per the [Gravatar documentation](https://en.gravatar.com/site/implement/images/), we need to be able to calculate the MD5 hash for an email address first.
 
-Let's install the`md5`plugin and save it as a dependency in our`package.json`:
+Let's install the `md5` plugin and save it as a dependency in our `package.json`:
 
 ```
 $ npm
@@ -43,7 +43,7 @@ md5
 
 Installing other dependencies works the same way.
 
-Now, add the`md5`requirement in`my-message-sidebar.cjsx`and update the`_renderContent`method to show the md5 hash:
+Now, add the `md5` requirement in `my-message-sidebar.cjsx` and update the `_renderContent` method to show the md5 hash:
 
 ```
 md5 = require 'md5'
@@ -61,7 +61,7 @@ class MyMessageSidebar
   </div>
 ```
 
-> JSX Tip: The`{..}`syntax is used for JavaScript expressions inside HTML elements.[Learn more](https://facebook.github.io/react/docs/jsx-in-depth.html).
+> JSX Tip: The `{..}` syntax is used for JavaScript expressions inside HTML elements. [Learn more](https://facebook.github.io/react/docs/jsx-in-depth.html).
 
 You should see the MD5 hash appear in the sidebar \(after you reload N1\):
 
@@ -69,7 +69,7 @@ You should see the MD5 hash appear in the sidebar \(after you reload N1\):
 
 ### Let's Render! {#let-s-render-}
 
-Turning the MD5 hash into a Gravatar image is simple. We need to add an`<img>`tag to the rendered HTML:
+Turning the MD5 hash into a Gravatar image is simple. We need to add an `<img>` tag to the rendered HTML:
 
 ```
 _renderContent =>
@@ -80,13 +80,13 @@ _renderContent =>
     </div>
 ```
 
-Now the Gravatar image associated with the currently focused contact appears in the sidebar. If there's no image available, the Gravatar default will show; you can[add parameters to your image tag](https://en.gravatar.com/site/implement/images/)to change the default behavior.
+Now the Gravatar image associated with the currently focused contact appears in the sidebar. If there's no image available, the Gravatar default will show; you can [add parameters to your image tag](https://en.gravatar.com/site/implement/images/) to change the default behavior.
 
 ![](/img/sidebar-gravatar.png)
 
 ### Styling {#styling}
 
-Adding styles to our Gravatar image is a matter of editing`stylesheets/main.less`and applying the class to our`img`tag. Let's make it round:
+Adding styles to our Gravatar image is a matter of editing `stylesheets/main.less` and applying the class to our `img` tag. Let's make it round:
 
 **stylesheets/main.less**
 
@@ -115,13 +115,13 @@ _renderContent =>
   </div>
 ```
 
-> React Tip: Remember to use DOM property names, i.e.`className`instead of`class`.
+> React Tip: Remember to use DOM property names, i.e. `className` instead of `class`.
 
 You'll see these styles reflected in your sidebar.
 
 ![](/img/sidebar-style.png)
 
-If you're a fan of using the Chrome Developer Tools to tinker with styles, no fear; they work in N1, too. Open them by going to`Developer > Toggle Developer Tools`. You'll also find them helpful for debugging in the event that your plugin isn't behaving as expected.
+If you're a fan of using the Chrome Developer Tools to tinker with styles, no fear; they work in N1, too. Open them by going to `Developer > Toggle Developer Tools`. You'll also find them helpful for debugging in the event that your plugin isn't behaving as expected.
 
 # Step 3: Adding a Data Store
 
@@ -129,11 +129,11 @@ Now let's introduce a data store to give our sidebar superpowers.
 
 ## Stores and Data Flow {#stores-and-data-flow}
 
-The Nylas data model revolves around a central`DatabaseStore`and lightweight`Models`that represent data with a particular schema. This works a lot like ActiveRecord, SQLAlchemy and other "smart model" ORMs. See the[Database](https://nylas.github.io/nylas-mail/docs/database)explanation for more details.
+The Nylas data model revolves around a central `DatabaseStore` and lightweight `Models` that represent data with a particular schema. This works a lot like ActiveRecord, SQLAlchemy and other "smart model" ORMs. See the [Database](https://nylas.github.io/nylas-mail/docs/database) explanation for more details.
 
-Using the[Flux pattern](https://facebook.github.io/flux/docs/overview.html#structure-and-data-flow)for data flow means that we set up our UI components to 'listen' to specific data stores. When those stores change, we update the state inside our component, and re-render the view.
+Using the [Flux pattern](https://facebook.github.io/flux/docs/overview.html#structure-and-data-flow) for data flow means that we set up our UI components to 'listen' to specific data stores. When those stores change, we update the state inside our component, and re-render the view.
 
-We've already used this \(without realizing\) in the[Gravatar sidebar example](https://nylas.github.io/nylas-mail/docs/getting-started-2):
+We've already used this \(without realizing\) in the [Gravatar sidebar example](https://nylas.github.io/nylas-mail/docs/getting-started-2):
 
 ```
   componentDidMount: =>
@@ -146,7 +146,7 @@ We've already used this \(without realizing\) in the[Gravatar sidebar example](h
   contact: FocusedContactsStore.focusedContact()
 ```
 
-In this case, the sidebar listens to the`FocusedContactsStore`, which updates when the person selected in the conversation changes. This triggers the`_onChange`method which updates the component state; this causes React to render the view with the new state.
+In this case, the sidebar listens to the `FocusedContactsStore`, which updates when the person selected in the conversation changes. This triggers the `_onChange` method which updates the component state; this causes React to render the view with the new state.
 
 To add more depth to our sidebar plugin, we need to:
 
@@ -155,11 +155,11 @@ To add more depth to our sidebar plugin, we need to:
 * Extend our data store to do additional things with the contact data
 * Update our sidebar to listen to, and display data from, the new store.
 
-In this guide, we'll fetch the GitHub profile for the currently focused contact and display a link to it, using the[GitHub API](https://developer.github.com/v3/search/).
+In this guide, we'll fetch the GitHub profile for the currently focused contact and display a link to it, using the [GitHub API](https://developer.github.com/v3/search/).
 
 ## Creating the Store {#creating-the-store}
 
-The boilerplate to create a new store which listens to`FocusedContactsStore`looks like this:
+The boilerplate to create a new store which listens to `FocusedContactsStore` looks like this:
 
 **lib/github-user-store.coffee**
 
@@ -179,15 +179,15 @@ Reflux = require 'reflux'
   @trigger(@)
 ```
 
-\(Note: You'll need to set up the`reflux`dependency.\)
+\(Note: You'll need to set up the `reflux` dependency.\)
 
-You should be able to drop this store into the sidebar example's`componentDidMount`method -- all it does is listen for the`FocusedContactsStore`to change, and then`trigger`its own event.
+You should be able to drop this store into the sidebar example's `componentDidMount` method -- all it does is listen for the `FocusedContactsStore` to change, and then `trigger` its own event.
 
 Let's build this out to retrieve some new data based on the focused contact, and expose it via a UI component.
 
 ## Getting Data In {#getting-data-in}
 
-We'll expand the`_onFocusedContactChanged`method to do something when the focused contact changes. In this case, we'll see if there's a GitHub profile for that user, and display some information if there is.
+We'll expand the `_onFocusedContactChanged` method to do something when the focused contact changes. In this case, we'll see if there's a GitHub profile for that user, and display some information if there is.
 
 ```
 request = require 'request'
@@ -225,9 +225,9 @@ request = require 'request'
 lback)
 ```
 
-The`console.log`line should show the GitHub profile for a contact \(if they have one!\) inside the Developer Tools Console, which you can enable at`Developer > Toggle Developer Tools`.
+The `console.log` line should show the GitHub profile for a contact \(if they have one!\) inside the Developer Tools Console, which you can enable at `Developer > Toggle Developer Tools`.
 
-You may run into rate-limiting issues with the GitHub API; to avoid these, you can add [authentication](https://developer.github.com/v3/#authentication) with a [pre-baked token](https://github.com/settings/tokens) by modifying the HTTP request your store makes.**Caution! Use this for local development only.**You could also try implementing a simple cache to avoid making the same request multiple times.
+You may run into rate-limiting issues with the GitHub API; to avoid these, you can add [authentication](https://developer.github.com/v3/#authentication) with a [pre-baked token](https://github.com/settings/tokens) by modifying the HTTP request your store makes. **Caution! Use this for local development only.** You could also try implementing a simple cache to avoid making the same request multiple times.
 
 ## Display Data {#display-time}
 
@@ -342,13 +342,10 @@ class GithubUserStore extends NylasStore {
 export default new GithubUserStore();
 ```
 
-Now we can access`@state.github`\(which is the GitHub user profile object\), and display the information it contains by updating the`render`and`renderContent`methods.
+Now we can access `@state.github` \(which is the GitHub user profile object\), and display the information it contains by updating the `render` and `renderContent` methods.
 
 ### Extending The Store
 
 To make this plugin more compelling, we can extend the store to make further API requests and fetch more data about the user. Passing this data back to the UI component follows exactly the same pattern as the barebones data shown above, so we'll leave it as an exercise for the reader. :\)
 
-> You can find a more extensive version of this example in our[sample plugins repository](https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile).
-
-
-
+> You can find a more extensive version of this example in our [sample plugins repository](https://github.com/nylas/edgehill-plugins/tree/master/sidebar-github-profile).
