@@ -134,7 +134,7 @@ module.exports = (grunt) => {
         });
         uploads.push({
           source: path.join(outputDir, `NylasMail-${packageVersion}-full.nupkg`),
-          key: `${s3PathCurrentVersion}/nylas-${packageVersion}-full.nupkg`,
+          key: `${s3PathCurrentVersion}/nylasmail-${packageVersion}-full.nupkg`,
         });
         uploads.push({
           source: path.join(outputDir, "RELEASES"),
@@ -146,7 +146,7 @@ module.exports = (grunt) => {
         });
         uploads.push({
           source: path.join(outputDir, `NylasMail-${packageVersion}-full.nupkg`),
-          key: `${s3PathNextVersion}/nylas-${packageVersion}-full.nupkg`,
+          key: `${s3PathNextVersion}/nylasmail-${packageVersion}-full.nupkg`,
         });
       } else if (process.platform === 'linux') {
         const files = fs.readdirSync(outputDir);
