@@ -22,6 +22,10 @@ class SyncbackTask {
     return this._syncbackRequest;
   }
 
+  inProgressStatusType() {
+    return 'INPROGRESS-RETRYABLE'
+  }
+
   description() {
     throw new Error("Must return a description")
   }
@@ -84,6 +88,10 @@ export class SyncbackIMAPTask extends SyncbackTask {
 export class SyncbackSMTPTask extends SyncbackTask {
   resource() {
     return 'smtp'
+  }
+
+  inProgressStatusType() {
+    return 'INPROGRESS-NOTRETRYABLE'
   }
 }
 

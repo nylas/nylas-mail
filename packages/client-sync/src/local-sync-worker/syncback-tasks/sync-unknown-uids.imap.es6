@@ -6,6 +6,10 @@ const UNKNOWN_UID_SYNC_BATCH_SIZE = 25;
 const NUM_BATCHES_PER_TASK = 20; // 500 messages per task
 
 class SyncUnknownUIDs extends SyncbackIMAPTask {
+  inProgressStatusType() {
+    return 'INPROGRESS-NOTRETRYABLE';
+  }
+
   description() {
     return `SyncUnknownUIDs`;
   }
@@ -25,8 +29,6 @@ class SyncUnknownUIDs extends SyncbackIMAPTask {
     if (!folderId) {
       throw new APIError('folderId is required');
     }
-
-    yield this.syncbackRequestObject().update({status: "INPROGRESS-NOTRETRYABLE"});
 
     const folder = yield Folder.findById(folderId);
     if (!folder) {

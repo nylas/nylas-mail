@@ -125,8 +125,7 @@ class SyncbackTaskRunner {
     // running a syncback task, we mark it as "in progress". If something
     // happens during the syncback (the worker window crashes, or the power
     // goes down), the task won't succeed or fail.
-    // By default, we will attempt to retry any INPROGRESS-RETRYABLE tasks,
-    // unless the task marks itself as INPROGRESS-NOTRETRYABLE
+    // By default, we will attempt to retry any INPROGRESS-RETRYABLE tasks
     const {SyncbackRequest} = this._db;
 
     const retryableRequests = await SyncbackRequest.findAll({
@@ -160,8 +159,7 @@ class SyncbackTaskRunner {
     try {
       // Before anything, mark the task as in progress. This allows
       // us to not run the same task twice.
-      // By default, tasks are retryable
-      syncbackRequest.status = "INPROGRESS-RETRYABLE";
+      syncbackRequest.status = task.inProgressStatusType();
       await syncbackRequest.save();
 
       const resource = task.resource()

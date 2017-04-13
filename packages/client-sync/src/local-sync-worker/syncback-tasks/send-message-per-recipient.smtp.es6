@@ -31,10 +31,6 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     } = syncbackRequest.props;
     const baseMessage = yield MessageUtils.buildForSend(db, messagePayload)
 
-    yield syncbackRequest.update({
-      status: 'INPROGRESS-NOTRETRYABLE',
-    })
-
     let sendResult;
     try {
       sendResult = yield this._sendPerRecipient({
