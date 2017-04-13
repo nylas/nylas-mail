@@ -33,9 +33,25 @@ Section: Database
 export default class AttributeJoinedData extends Attribute {
   static NullPlaceholder = NullPlaceholder;
 
-  constructor({modelKey, jsonKey, modelTable, queryable}) {
+  constructor({modelKey, jsonKey, modelTable, queryable, serializeFn, deserializeFn}) {
     super({modelKey, jsonKey, queryable});
     this.modelTable = modelTable;
+    this.serializeFn = serializeFn;
+    this.deserializeFn = deserializeFn;
+  }
+
+  serialize(thisValue, val) {
+    if (this.serializeFn) {
+      return this.serializeFn.call(thisValue, val);
+    }
+    return val;
+  }
+
+  deserialize(thisValue, val) {
+    if (this.deserializeFn) {
+      return this.deserializeFn.call(thisValue, val);
+    }
+    return val;
   }
 
   toJSON(val) {

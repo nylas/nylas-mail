@@ -233,7 +233,13 @@ class MessageProcessor {
 
     const thread = await detectThread({db, messageValues});
     messageValues.threadId = thread.id;
-    const createdMessage = await Message.create(messageValues);
+    // The way that sequelize initializes objects doesn't guarantee that the
+    // object will have a value for `id` before initializing the `body` field
+    // (which we now depend on). By using `build` instead of `create`, we can
+    // initialize an object with just the `id` field and then use `update` to
+    // initialize the remaining fields and save the object to the database.
+    const createdMessage = Message.build({id: messageValues.id});
+    await createdMessage.update(messageValues);
 
     if (messageValues.labels) {
       await createdMessage.addLabels(messageValues.labels)

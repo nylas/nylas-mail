@@ -310,7 +310,7 @@ export default class ModelQuery {
           if (value === AttributeJoinedData.NullPlaceholder) {
             value = null;
           }
-          object[attr.modelKey] = value;
+          object[attr.modelKey] = attr.deserialize(object, value);
         }
         return object;
       });
