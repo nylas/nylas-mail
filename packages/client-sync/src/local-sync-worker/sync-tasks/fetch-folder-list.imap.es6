@@ -31,7 +31,7 @@ class FetchFolderListIMAP extends SyncTask {
     const Klass = this._classForMailboxWithRole(role, this._db);
     const existing = await Klass.findAll({where: {role: role}})
     if (existing.length > 0) {
-      this.assignedRolesCache.add(role)
+      assignedRolesCache.add(role)
       return true
     }
     return false
