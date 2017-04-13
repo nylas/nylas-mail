@@ -2,8 +2,9 @@
 
 ### 2.0.13 (4/13/2017)
 
-  + [client-app] Upload nupkg with correct name for win32 autoupdater to work
-  + [client-app] Correctly handle window.unhandledrejection events
+- Fixes:
+  + Upload nupkg with correct name for win32 autoupdater to work
+  + Correctly handle window.unhandledrejection events
 
 ### 2.0.12 (4/13/2017)
 
