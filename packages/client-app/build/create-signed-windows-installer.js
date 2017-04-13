@@ -24,7 +24,7 @@ const config = {
   setupIcon: path.join(appDir, 'build', 'resources', 'win', 'nylas.ico'),
   setupExe: 'NylasMailSetup.exe',
   exe: 'nylas.exe',
-  name: 'Nylas',
+  name: 'NylasMail',
 }
 console.log(config);
 console.log("---> Starting")

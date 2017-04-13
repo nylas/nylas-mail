@@ -6,33 +6,33 @@
  * Read: https://github.com/electron/electron/blob/master/docs/api/auto-updater.md#windows
  *
  * When Nylas Mail gets installed on a Windows machine it gets put in:
- * C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x
+ * C:\Users\<USERNAME>\AppData\Local\NylasMail\app-x.x.x
  *
  * The `process.execPath` is:
- * C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x\nylas.exe
+ * C:\Users\<USERNAME>\AppData\Local\NylasMail\app-x.x.x\nylas.exe
  *
  * We manually copy everything in build/resources/win into a 'resources' folder
  * located inside the main app directory. See runCopyPlatformSpecificResources
  * in package-task.js
  *
  * This means `__dirname` should be:
- * C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x\resources
+ * C:\Users\<USERNAME>\AppData\Local\NylasMail\app-x.x.x\resources
  *
  * We also expect Squirrel Windows to have a file called `nylas.exe` at:
- * C:\Users\<USERNAME>\AppData\Local\Nylas\nylas.exe
+ * C:\Users\<USERNAME>\AppData\Local\NylasMail\nylas.exe
  */
 const ChildProcess = require('child_process');
 const fs = require('fs-plus');
 const path = require('path');
 const os = require('os');
 
-// C:\Users\<USERNAME>\AppData\Local\Nylas\app-x.x.x
+// C:\Users\<USERNAME>\AppData\Local\NylasMail\app-x.x.x
 const appFolder = path.resolve(process.execPath, '..');
 
-// C:\Users\<USERNAME>\AppData\Local\Nylas\
+// C:\Users\<USERNAME>\AppData\Local\NylasMail\
 const rootN1Folder = path.resolve(appFolder, '..');
 
-// C:\Users\<USERNAME>\AppData\Local\Nylas\Update.exe
+// C:\Users\<USERNAME>\AppData\Local\NylasMail\Update.exe
 const updateDotExe = path.join(rootN1Folder, 'Update.exe');
 
 // "nylas.exe"
