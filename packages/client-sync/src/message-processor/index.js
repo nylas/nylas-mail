@@ -12,8 +12,12 @@ const {BatteryStatusManager} = require('nylas-exports');
 const SyncActivity = require('../shared/sync-activity').default;
 
 const MAX_QUEUE_LENGTH = 500
-const MAX_CPU_USE_ON_AC = 1.0;
-const MAX_CPU_USE_ON_BATTERY = 0.10;
+// These CPU limits only apply when we're actually throttling. We don't
+// throttle for new mail, the first 500 threads, or for specific sets of
+// UIDs (e.g. during search for unsynced UIDs). Thus, we're essentially only
+// throttling when syncing the historical archive.
+const MAX_CPU_USE_ON_AC = 0.5;
+const MAX_CPU_USE_ON_BATTERY = 0.05;
 const MAX_CHUNK_SIZE = 1;
 
 class MessageProcessor {
