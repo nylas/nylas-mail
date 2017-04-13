@@ -2,10 +2,13 @@
 
 ### 2.0.12 (4/13/2017)
 
-  + [client-app] Prevent NM from overwriting N1 binary on windows
-  + [client-app] Fix runtime error in FetchFolderList
-  + [client-app] Prevent old N1 config from getting wiped when installing Nylas Mail
-  + [\*] Remove useless docs
+- Fixes:
+  + Prevent NM from overwriting N1 binary on windows
+  + Fix runtime error in sync process
+  + Prevent old N1 config from getting wiped when installing Nylas Mail
+
+- Development:
+  + Remove useless docs
 
 ### 2.0.11 (4/12/2017)
 
