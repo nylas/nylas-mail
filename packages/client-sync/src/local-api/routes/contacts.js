@@ -16,6 +16,9 @@ const calculateContactScores = (messages, result) => {
   for (const message of messages) {
     const weight = getMessageWeight(message, now);
     for (const recipient of message.getRecipients()) {
+      if (!recipient.email) {
+        continue;
+      }
       const email = recipient.email.toLowerCase();
       result[email] = result[email] ? (result[email] + weight) : weight;
     }
