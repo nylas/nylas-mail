@@ -173,7 +173,7 @@ class SyncProcessManager {
   async removeWorkerForAccountId(accountId, {timeout} = {}) {
     if (this._workersByAccountId[accountId]) {
       await this._workersByAccountId[accountId].destroy({timeout})
-      this._workersByAccountId[accountId] = null;
+      delete this._workersByAccountId[accountId];
     }
 
     if (this._localSyncDeltaEmittersByAccountId.has(accountId)) {
