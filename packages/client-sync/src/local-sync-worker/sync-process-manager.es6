@@ -17,7 +17,7 @@ class SyncProcessManager {
   constructor() {
     this._exiting = false;
     this._resettingEmailCache = false
-    this._identityId = null;
+    this._identityId = IdentityStore.identityId();
     this._workersByAccountId = {};
     this._localSyncDeltaEmittersByAccountId = new Map()
 
