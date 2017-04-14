@@ -32,10 +32,6 @@ class SyncbackTaskFactory {
         Task = require('./syncback-tasks/delete-folder.imap'); break;
       case "DeleteLabel":
         Task = require('./syncback-tasks/delete-label.imap'); break;
-      case "SendMessage":
-        Task = require('./syncback-tasks/send-message.smtp'); break;
-      case "SendMessagePerRecipient":
-        Task = require('./syncback-tasks/send-message-per-recipient.smtp'); break;
       case "EnsureMessageInSentFolder":
         Task = require('./syncback-tasks/ensure-message-in-sent-folder.imap'); break;
       case "SyncUnknownUIDs":

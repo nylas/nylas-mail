@@ -3,9 +3,7 @@ import Task from './task';
 import Actions from '../actions';
 import Message from '../models/message';
 import Account from '../models/account';
-import NylasAPI from '../nylas-api';
 import * as NylasAPIHelpers from '../nylas-api-helpers';
-import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import {APIError, RequestEnsureOnceError} from '../errors';
 import SoundRegistry from '../../registries/sound-registry';
 import DatabaseStore from '../stores/database-store';
@@ -19,13 +17,14 @@ const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
 export default class SendDraftTask extends BaseDraftTask {
 
-  constructor(draftClientId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
+  constructor(draftClientId, {playSound = true, emitError = true, allowMultiSend = true, performRemoteAlreadyCalled = false} = {}) {
     super(draftClientId);
     this.draft = null;
     this.message = null;
     this.emitError = emitError
     this.playSound = playSound
     this.allowMultiSend = allowMultiSend
+    this.performRemoteAlreadyCalled = performRemoteAlreadyCalled
   }
 
   label() {
@@ -41,6 +40,11 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   performRemote() {
+    if (this.performRemoteAlreadyCalled) {
+      const error = new Error('App was closed while sending was in progress.')
+      return this.onError(error)
+    }
+    this.performRemoteAlreadyCalled = true
     return this.refreshDraftReference()
     .then(this.assertDraftValidity)
     .then(this.sendMessage)
@@ -106,54 +110,41 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   _sendWithSingleBody = async () => {
-    let responseJSON = {}
-    if (this._syncbackRequestId) {
-      responseJSON = await SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
-    } else {
-      const task = new SyncbackTaskAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: "/send",
+    const responseJSON = await new Promise((resolve, reject) => {
+      // See comments on the Actions.runSendRequest() definition before changing
+      Actions.runSendRequest({
+        syncbackRequestJSON: {
+          type: "SendMessage",
           accountId: this.draft.accountId,
-          method: 'POST',
-          body: this.draft.toJSON(),
-          timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-          requestId: this.draft.clientId,
-          onSyncbackRequestCreated: (syncbackRequest) => {
-            this._syncbackRequestId = syncbackRequest.id
+          props: {
+            messagePayload: this.draft.toJSON(),
           },
         },
+        onSuccess: resolve,
+        onError: reject,
       })
-      responseJSON = await task.run();
-    }
+    })
     await this._createMessageFromResponse(responseJSON)
   }
 
   _sendPerRecipient = async () => {
-    let responseJSON = {}
-    if (this._syncbackRequestId) {
-      responseJSON = await SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
-    } else {
-      const task = new SyncbackTaskAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: "/send-per-recipient",
+    const responseJSON = await new Promise((resolve, reject) => {
+      // See comments on the Actions.runSendRequest() definition before changing
+      Actions.runSendRequest({
+        syncbackRequestJSON: {
+          type: "SendMessagePerRecipient",
           accountId: this.draft.accountId,
-          method: 'POST',
-          body: {
-            message: this.draft.toJSON(),
-            uses_open_tracking: this.draft.metadataForPluginId(OPEN_TRACKING_ID) != null,
-            uses_link_tracking: this.draft.metadataForPluginId(LINK_TRACKING_ID) != null,
-          },
-          timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-          onSyncbackRequestCreated: (syncbackRequest) => {
-            this._syncbackRequestId = syncbackRequest.id
+          props: {
+            messagePayload: this.draft.toJSON(),
+            usesOpenTracking: this.draft.metadataForPluginId(OPEN_TRACKING_ID) != null,
+            usesLinkTracking: this.draft.metadataForPluginId(LINK_TRACKING_ID) != null,
           },
         },
+        onSuccess: resolve,
+        onError: reject,
       })
-      responseJSON = await task.run();
-    }
-    await this._createMessageFromResponse(responseJSON);
+    })
+    await this._createMessageFromResponse(responseJSON)
   }
 
   updatePluginMetadata = () => {

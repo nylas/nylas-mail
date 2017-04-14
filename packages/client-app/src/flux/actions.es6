@@ -579,6 +579,15 @@ class Actions {
   static applyCategoryToThreads = ActionScopeWindow;
   static removeCategoryFromThreads = ActionScopeWindow;
   static threadListDidUpdate = ActionScopeWindow;
+
+  // Usage: Actions.runSendRequest({syncbackRequestJSON, onSuccess, onError})
+  //
+  // This allows us to communicate between client-sync and client-app without
+  // having to go through the API. The API request was adding a couple hundred
+  // milliseconds to our send time. Note that the scope of this has to remain
+  // within the window because onSuccess and onError are non-serializable
+  // functions. See https://phab.nylas.com/D4437 for more details.
+  static runSendRequest = ActionScopeWindow;
 }
 
 

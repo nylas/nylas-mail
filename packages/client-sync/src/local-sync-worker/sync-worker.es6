@@ -10,17 +10,14 @@ import {
 import {
   Actions,
   Account,
-  APIError,
-  NylasAPI,
-  N1CloudAPI,
   IdentityStore,
-  NylasAPIRequest,
   BatteryStatusManager,
 } from 'nylas-exports'
 import Interruptible from '../shared/interruptible'
 import SyncTaskFactory from './sync-task-factory';
 import SyncbackTaskRunner from './syncback-task-runner'
 import SyncActivity from '../shared/sync-activity'
+import {ensureGmailAccessToken} from './sync-utils'
 
 
 const {SYNC_STATE_RUNNING, SYNC_STATE_AUTH_FAILED, SYNC_STATE_ERROR} = Account
@@ -167,71 +164,22 @@ class SyncWorker {
   }
 
   async _ensureAccessToken() {
-    if (this._destroyed) { return null }
-    if (this._account.provider !== 'gmail') {
-      return null;
-    }
+    if (this._destroyed || this._account.provider !== 'gmail') { return null }
 
     try {
-      const credentials = this._account.decryptedCredentials()
-      if (!credentials) {
-        throw new Error("ensureAccessToken: There are no IMAP connection credentials for this account.");
-      }
-
-      const currentUnixDate = Math.floor(Date.now() / 1000);
-      if (this._requireTokenRefresh && (credentials.expiry_date > currentUnixDate)) {
-        console.warn("ensureAccessToken: got Invalid Credentials from server but token is not expired");
-      }
-      // try to avoid tokens expiring during the sync loop
-      const expiryDatePlusSlack = credentials.expiry_date - (5 * 60);
-      if (this._requireTokenRefresh || (currentUnixDate > expiryDatePlusSlack)) {
-        const req = new NylasAPIRequest({
-          api: N1CloudAPI,
-          options: {
-            path: `/auth/gmail/refresh`,
-            method: 'POST',
-            accountId: this._account.emailAddress,
-          },
-        });
-
-        const newCredentials = await req.run()
-        this._account.setCredentials(newCredentials);
-        await this._account.save();
-        this._requireTokenRefresh = false
-        return newCredentials;
-      }
-      return null
-    } catch (err) {
-      this._logger.warn(`🔃  Unable to refresh access token.`, err);
-      if (err instanceof APIError) {
-        const {statusCode} = err
-        this._logger.error(`🔃  Unable to refresh access token. Got status code: ${statusCode}`, err);
-
-        const isNonPermanentError = (
-          // If we got a 5xx error from the server, that means that something is wrong
-          // on the Nylas API side. It could be a bad deploy, or a bug on Google's side.
-          // In both cases, we've probably been alerted and are working on the issue,
-          // so it makes sense to have the client retry.
-          statusCode >= 500 ||
-          !NylasAPI.PermanentErrorCodes.includes(statusCode)
-        )
-        if (isNonPermanentError) {
-          throw new IMAPErrors.IMAPTransientAuthenticationError(`Server error when trying to refresh token.`);
-        } else {
-          // sync worker is persistent across reauths, so need to clear this flag
-          this._requireTokenRefresh = false
-          throw new IMAPErrors.IMAPAuthenticationError(`Unable to refresh access token`);
-        }
-      }
-      err.message = `Unknown error when refreshing access token: ${err.message}`
-      const fingerprint = ["{{ default }}", "access token refresh", err.message];
-      NylasEnv.reportError(err, {fingerprint,
-        rateLimit: {
-          ratePerHour: 30,
-          key: `SyncError:RefreshToken:${err.message}`,
-        },
+      const newCredentials = await ensureGmailAccessToken({
+        account: this._account,
+        forceRefresh: this._requireTokenRefresh,
+        expiryBufferInSecs: 5 * 60, // try to avoid tokens expiring during the sync loop
       })
-      throw err
+      this._requireTokenRefresh = false
+      return newCredentials
+    } catch (err) {
+      if (err instanceof IMAPErrors.IMAPAuthenticationError) {
+        // sync worker is persistent across reauths, so need to clear this flag
+        this._requireTokenRefresh = false
+      }
+      throw err;
     }
   }
 

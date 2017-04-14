@@ -4,6 +4,7 @@ import {ComponentRegistry} from 'nylas-exports'
 import {createLogger} from './src/shared/logger'
 import shimSequelize from './src/shared/shim-sequelize'
 import {removeDuplicateAccountsWithOldSettings} from './src/shared/dedupe-accounts'
+import SendTaskManager from './src/local-sync-worker/send-task-manager'
 
 export async function activate() {
   shimSequelize(Sequelize);
@@ -16,11 +17,11 @@ export async function activate() {
   await removeDuplicateAccountsWithOldSettings()
 
   require('./src/local-sync-worker');
-
+  SendTaskManager.activate();
   const Root = require('./src/local-sync-dashboard/root').default;
   ComponentRegistry.register(Root, {role: 'Developer:LocalSyncUI'});
 }
 
 export function deactivate() {
-
+  SendTaskManager.deactivate()
 }

@@ -1,12 +1,17 @@
 import {Actions} from 'nylas-exports'
-import {Errors} from 'isomorphic-core'
 import SyncbackTask from './syncback-tasks/syncback-task'
 import SyncbackTaskFactory from './syncback-task-factory';
+import {runWithRetryLogic} from './sync-utils'
 
-const SendTaskTypes = [
+const PrioritizedTaskTypes = [
+  'EnsureMessageInSentFolder',
+]
+
+// These types of tasks are run elsewhere and should not be returned in
+// getNewSyncbackTasks(), or updated in updateLingeringTasksInProgress()
+const IgnoredTaskTypes = [
   'SendMessage',
   'SendMessagePerRecipient',
-  'EnsureMessageInSentFolder',
 ]
 
 class SyncbackTaskRunner {
@@ -55,23 +60,23 @@ class SyncbackTaskRunner {
   async getNewSyncbackTasks() {
     const {SyncbackRequest, Message} = this._db;
 
-    const sendTasks = await SyncbackRequest.findAll({
+    const prioritizedTasks = await SyncbackRequest.findAll({
       limit: 100,
-      where: {type: SendTaskTypes, status: 'NEW'},
+      where: {type: PrioritizedTaskTypes, status: 'NEW'},
       order: [['createdAt', 'ASC']],
     })
     .map((req) => SyncbackTaskFactory.create(this._account, req))
     const otherTasks = await SyncbackRequest.findAll({
       limit: 100,
-      where: {type: {$notIn: SendTaskTypes}, status: 'NEW'},
+      where: {type: {$notIn: PrioritizedTaskTypes.concat(IgnoredTaskTypes)}, status: 'NEW'},
       order: [['createdAt', 'ASC']],
     })
     .map((req) => SyncbackTaskFactory.create(this._account, req))
 
-    if (sendTasks.length === 0 && otherTasks.length === 0) { return [] }
+    if (prioritizedTasks.length === 0 && otherTasks.length === 0) { return [] }
 
     const tasksToProcess = [
-      ...sendTasks,
+      ...prioritizedTasks,
       ...otherTasks.filter(t => !t.affectsImapMessageUIDs()),
     ]
     const tasksAffectingUIDs = otherTasks.filter(t => t.affectsImapMessageUIDs())
@@ -129,10 +134,10 @@ class SyncbackTaskRunner {
     const {SyncbackRequest} = this._db;
 
     const retryableRequests = await SyncbackRequest.findAll({
-      where: {status: 'INPROGRESS-RETRYABLE'},
+      where: {status: 'INPROGRESS-RETRYABLE', type: {$notIn: IgnoredTaskTypes}},
     });
     const notRetryableRequests = await SyncbackRequest.findAll({
-      where: {status: 'INPROGRESS-NOTRETRYABLE'},
+      where: {status: 'INPROGRESS-NOTRETRYABLE', type: {$notIn: IgnoredTaskTypes}},
     });
 
     for (const retryableReq of retryableRequests) {
@@ -153,10 +158,10 @@ class SyncbackTaskRunner {
     }
     const before = new Date();
     const syncbackRequest = task.syncbackRequestObject();
-    let retryableError = null
 
     this._logger.log(`🔃 📤 ${task.description()}`, syncbackRequest.props)
-    try {
+
+    const run = async () => {
       // Before anything, mark the task as in progress. This allows
       // us to not run the same task twice.
       syncbackRequest.status = task.inProgressStatusType();
@@ -176,37 +181,39 @@ class SyncbackTaskRunner {
       }
       syncbackRequest.status = "SUCCEEDED";
       syncbackRequest.responseJSON = responseJSON || {};
+      await syncbackRequest.save();
 
       const after = new Date();
       this._logger.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
-    } catch (error) {
-      const after = new Date();
-
-      if (error instanceof Errors.RetryableError) {
-        Actions.recordUserEvent('Retrying syncback task', {
-          accountId: this._account.id,
-          provider: this._account.provider,
-          errorMessage: error.message,
-        })
-        retryableError = error
-        syncbackRequest.status = "NEW";
-        this._logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
-      } else {
-        const fingerprint = ["{{ default }}", "syncback task", error.message];
-        NylasEnv.reportError(error, {fingerprint: fingerprint});
-        syncbackRequest.error = error;
-        syncbackRequest.status = "FAILED";
-        this._logger.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
-      }
-    } finally {
-      await syncbackRequest.save();
     }
-    if (retryableError) {
+
+    const onRetryableError = async (error) => {
+      const after = new Date();
+      Actions.recordUserEvent('Retrying send task', {
+        accountId: this._account.id,
+        provider: this._account.provider,
+        errorMessage: error.message,
+      })
+      syncbackRequest.status = "NEW";
+      await syncbackRequest.save();
+      this._logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
       // Throw retryable error to interrupt and restart sync loop
       // The sync loop will take care of backing off when handling retryable
       // errors.
-      retryableError.message = `${task.description()} failed with retryable error: ${retryableError.message}`
-      throw retryableError
+      error.message = `${task.description()} failed with retryable error: ${error.message}`
+      throw error
+    }
+
+    try {
+      await runWithRetryLogic({run, onRetryableError})
+    } catch (error) {
+      const after = new Date();
+      const fingerprint = ["{{ default }}", "syncback task", error.message];
+      NylasEnv.reportError(error, {fingerprint: fingerprint});
+      syncbackRequest.error = error;
+      syncbackRequest.status = "FAILED";
+      this._logger.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
+      await syncbackRequest.save();
     }
   }
 }
