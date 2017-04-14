@@ -2,10 +2,10 @@
 
 ### 2.0.14 (4/14/2017)
 
-  + [client-sync] Prevent duplicate accounts and sync workers
-  + [client-sync] Correctly remove sync worker reference when destroying it
-  + [client-sync] Init SyncProcessManager with Identity
-  + [client-sync] Fix contact ranking error
+  + Prevent from adding duplicate accounts and sync workers due to account id changes
+  + Correctly remove sync worker reference when destroying it
+  + Correctly initialize SyncProcessManager with Identity
+  + Fix contact ranking runtime error
 
 ### 2.0.13 (4/13/2017)
 
