@@ -1,5 +1,12 @@
 # Nylas Mail Changelog
 
+### 2.0.14 (4/14/2017)
+
+  + [client-sync] Prevent duplicate accounts and sync workers
+  + [client-sync] Correctly remove sync worker reference when destroying it
+  + [client-sync] Init SyncProcessManager with Identity
+  + [client-sync] Fix contact ranking error
+
 ### 2.0.13 (4/13/2017)
 
 - Fixes:
