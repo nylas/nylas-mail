@@ -34,12 +34,15 @@ module.exports = (sequelize, Sequelize) => {
       associate(data = {}) {
         Account.hasMany(data.AccountToken, {as: 'tokens', onDelete: 'cascade', hooks: true})
       },
+      hash({emailAddress, connectionSettings} = {}) {
+        const idString = `${emailAddress}${JSON.stringify(connectionSettings)}`;
+        return crypto.createHash('sha256').update(idString, 'utf8').digest('hex')
+      },
       upsertWithCredentials(accountParams, credentials) {
-        if (!accountParams || !credentials || !accountParams.emailAddress) {
+        if (!accountParams || !credentials || !accountParams.emailAddress || !accountParams.connectionSettings) {
           throw new Error("Need to pass accountParams and credentials to upsertWithCredentials")
         }
-        const idString = `${accountParams.emailAddress}${JSON.stringify(accountParams.connectionSettings)}`;
-        const id = crypto.createHash('sha256').update(idString, 'utf8').digest('hex')
+        const id = Account.hash(accountParams)
         return Account.findById(id).then((existing) => {
           const account = existing || Account.build(Object.assign({id}, accountParams))
 
