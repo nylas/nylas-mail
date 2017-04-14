@@ -2,6 +2,7 @@
 
 ### 2.0.14 (4/14/2017)
 
+- Fixes:
   + Prevent from adding duplicate accounts and sync workers due to account id changes
   + Correctly remove sync worker reference when destroying it
   + Correctly initialize SyncProcessManager with Identity
