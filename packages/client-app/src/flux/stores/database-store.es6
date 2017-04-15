@@ -1,6 +1,5 @@
 /* eslint global-require: 0 */
 import path from 'path';
-import fs from 'fs';
 import createDebug from 'debug'
 import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
@@ -15,7 +14,7 @@ import Actions from '../actions'
 import DatabaseChangeRecord from './database-change-record';
 import DatabaseWriter from './database-writer';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
-import {setupDatabase, databasePath} from '../../database-helpers'
+import {openDatabase, handleUnrecoverableDatabaseError, databasePath} from '../../database-helpers'
 
 const debug = createDebug('app:RxDB')
 const debugVerbose = createDebug('app:RxDB:all')
@@ -178,15 +177,7 @@ class DatabaseStore extends NylasStore {
 
   async _openDatabase() {
     if (this._db) return
-    try {
-      this._db = await setupDatabase(this._databasePath)
-    } catch (err) {
-      NylasEnv.showErrorDialog({
-        title: `Unable to open SQLite database at ${this._databasePath}`,
-        message: err.toString(),
-      });
-      this._handleSetupError(err);
-    }
+    this._db = await openDatabase(this._databasePath)
   }
 
   _checkDatabaseVersion({allowUnset} = {}, ready) {
@@ -194,7 +185,7 @@ class DatabaseStore extends NylasStore {
     const isUnsetVersion = (result === '0');
     const isWrongVersion = (result !== DatabaseVersion);
     if (isWrongVersion && !(isUnsetVersion && allowUnset)) {
-      return this._handleSetupError(new Error(`Incorrect database schema version: ${result} not ${DatabaseVersion}`));
+      return handleUnrecoverableDatabaseError(new Error(`Incorrect database schema version: ${result} not ${DatabaseVersion}`));
     }
     return ready();
   }
@@ -208,18 +199,11 @@ class DatabaseStore extends NylasStore {
         this._db.prepare(query).run();
       }
     } catch (err) {
-      return this._handleSetupError(err);
+      return handleUnrecoverableDatabaseError(err);
     }
 
     this._db.pragma(`user_version=${DatabaseVersion}`);
     return ready();
-  }
-
-  _handleSetupError(err = (new Error(`Manually called _handleSetupError`))) {
-    NylasEnv.reportError(err, {}, {noWindows: true});
-
-    const app = remote.getGlobal('application');
-    app.rebuildDatabase();
   }
 
   _prettyConsoleLog(qa) {

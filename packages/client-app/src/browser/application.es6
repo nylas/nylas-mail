@@ -48,7 +48,15 @@ export default class Application extends EventEmitter {
     this.nylasProtocolHandler = new NylasProtocolHandler(this.resourcePath, this.safeMode);
 
     this.databaseReader = new DatabaseReader({configDirPath, specMode});
-    await this.databaseReader.open();
+    try {
+      await this.databaseReader.open();
+    } catch (err) {
+      this._deleteDatabase(() => {
+        app.relaunch()
+        app.quit()
+      })
+      return
+    }
 
     const Config = require('../config');
     const config = new Config();
