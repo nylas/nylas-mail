@@ -151,7 +151,8 @@ class DeltaStreamingConnection {
       const error = new Error('DeltaStreamingConnection: Cursor is invalid. Need to blow away local cache.');
       NylasEnv.reportError(error)
       this._setCursor(0)
-      DatabaseStore._handleSetupError(error)
+      const app = require('electron').remote.getGlobal('application') // eslint-disable-line
+      app.rebuildDatabase()
       return
     }
 

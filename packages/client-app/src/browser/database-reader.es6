@@ -1,4 +1,4 @@
-import {setupDatabase, databasePath} from '../database-helpers'
+import {openDatabase, databasePath} from '../database-helpers'
 
 export default class DatabaseReader {
   constructor({configDirPath, specMode}) {
@@ -6,7 +6,7 @@ export default class DatabaseReader {
   }
 
   async open() {
-    this.database = await setupDatabase(this.databasePath)
+    this.database = await openDatabase(this.databasePath)
   }
 
   getJSONBlob(key) {
