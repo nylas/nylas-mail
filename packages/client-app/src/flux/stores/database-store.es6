@@ -10,7 +10,6 @@ import {StringUtils, ExponentialBackoffScheduler} from 'isomorphic-core';
 import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
 import Query from '../models/query';
-import Actions from '../actions'
 import DatabaseChangeRecord from './database-change-record';
 import DatabaseWriter from './database-writer';
 import DatabaseSetupQueryBuilder from './database-setup-query-builder';
@@ -301,12 +300,10 @@ class DatabaseStore extends NylasStore {
       maxDelay: MAX_RETRY_LOCK_DELAY,
     })
 
-    const malformedStr = 'database disk image is malformed'
     const schemaChangedStr = 'database schema has changed'
 
     const retryableRegexp = new RegExp(
       `(database is locked)||` +
-      `(${malformedStr})||` +
       `(${schemaChangedStr})`,
     'i')
 
@@ -316,7 +313,7 @@ class DatabaseStore extends NylasStore {
     while (!results) {
       try {
         if (scheduler.currentDelay() > 0) {
-          // Setting a tiemout for 0 will still defer execution of this function
+          // Setting a timeout for 0 will still defer execution of this function
           // to the next tick of the event loop.
           // We don't want to unnecessarily defer and delay every single query,
           // so we only set the timer when we are actually backing off for a
@@ -354,30 +351,22 @@ class DatabaseStore extends NylasStore {
         }
       } catch (err) {
         const errString = err.toString()
+        if (/database disk image is malformed/gi.test(errString)) {
+          handleUnrecoverableDatabaseError(err)
+          return results
+        }
 
         if (scheduler.numTries() > 5 || !retryableRegexp.test(errString)) {
-          // note: this function may throw a promise, which causes our Promise to reject
           throw new Error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
         }
 
         // Some errors require action before the query can be retried
-        if ((new RegExp(malformedStr, 'i')).test(errString)) {
-          // This is unrecoverable. We have to do a full database reset
-          const fingerprint = ["{{ default }}", "database malformed", err.message];
-          NylasEnv.reportError(err, {fingerprint,
-            rateLimit: {
-              ratePerHour: 30,
-              key: `DatabaseStore:_executeLocally:${err.message}`,
-            },
-          })
-          Actions.resetEmailCache()
-        } else if ((new RegExp(schemaChangedStr, 'i')).test(errString)) {
+        if ((new RegExp(schemaChangedStr, 'i')).test(errString)) {
           this._preparedStatementCache.del(query);
         }
       }
       scheduler.nextDelay()
     }
-
     return results;
   }
 
