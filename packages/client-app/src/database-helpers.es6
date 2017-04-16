@@ -2,26 +2,29 @@ import path from 'path';
 import Sqlite3 from 'better-sqlite3';
 
 let app;
-let dialog;
 let errorLogger;
 
 if (process.type === 'renderer') {
   const remote = require('electron').remote // eslint-disable-line
   app = remote.getGlobal('application')
-  dialog = remote.dialog
   errorLogger = NylasEnv.errorLogger;
 } else {
   app = global.application
   errorLogger = global.errorLogger;
-  dialog = require('electron').dialog // eslint-disable-line
 }
 
 export function handleUnrecoverableDatabaseError(err = (new Error(`Manually called handleUnrecoverableDatabaseError`))) {
-  errorLogger.reportError(err, {}, {noWindows: true});
+  const fingerprint = ["{{ default }}", "unrecoverable database error", err.message];
+  errorLogger.reportError(err, {fingerprint,
+    rateLimit: {
+      ratePerHour: 30,
+      key: `handleUnrecoverableDatabaseError:${err.message}`,
+    },
+  });
   if (!app) {
     throw new Error('handleUnrecoverableDatabaseError: `app` is not ready!')
   }
-  app.rebuildDatabase();
+  app.rebuildDatabase({detail: err.toString()});
 }
 
 export async function openDatabase(dbPath) {
@@ -49,12 +52,6 @@ export async function openDatabase(dbPath) {
     })
     return database
   } catch (err) {
-    dialog.showMessageBox({
-      type: 'warning',
-      buttons: ['Okay'],
-      message: `Unable to open SQLite database at ${dbPath}.\n\nDatbase will be rebuilt`,
-      detail: err.toString(),
-    });
     handleUnrecoverableDatabaseError(err);
     return null
   }

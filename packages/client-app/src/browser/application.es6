@@ -51,6 +51,14 @@ export default class Application extends EventEmitter {
     try {
       await this.databaseReader.open();
     } catch (err) {
+      // We need to manually handle errors here because
+      // `handleUnrecoverableDatabaseError` will fail because global.app hasn't
+      // been defined at this point
+      dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Okay'],
+        message: `We encountered a problem with your local email database. We will now attempt to rebuild it.`,
+      });
       this._deleteDatabase(() => {
         app.relaunch()
         app.quit()
@@ -250,7 +258,18 @@ export default class Application extends EventEmitter {
     this.windowManager.sendToAllWindows("database-phase-change", {}, phase);
   }
 
-  rebuildDatabase = () => {
+  rebuildDatabase = ({showErrorDialog = true, detail = ''} = {}) => {
+    if (this._rebuildingDatabase) { return }
+    this._rebuildingDatabase = true
+    if (showErrorDialog) {
+      dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Okay'],
+        message: `We encountered a problem with your local email database. We will now attempt to rebuild it.`,
+        detail,
+      });
+    }
+
     // We need to set a timeout so `rebuildDatabases` immediately returns.
     // If we don't immediately return the main window caller wants to wait
     // for this function to finish so it can get the return value via ipc.
@@ -266,6 +285,7 @@ export default class Application extends EventEmitter {
         this.databaseReader = new DatabaseReader({configDirPath: this.configDirPath, specMode: this.specMode});
         await this.databaseReader.open()
         this.setDatabasePhase('setup');
+        this._rebuildingDatabase = false
         this.openWindowsForTokenState();
       });
     }, 0);
