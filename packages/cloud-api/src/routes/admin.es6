@@ -19,7 +19,7 @@ export default function registerAdminRoutes(server) {
       let to = moment().tz(tz).ceil(1, 'hours');
       if (request.query.to) to = moment.tz(request.query.to, tz).ceil(1, 'hours');
       let step = 1;
-      if (request.query.step) step = +(step);
+      if (request.query.step) step = +(request.query.step);
       const stepUnit = request.query.stepUnit || 'hour'
 
       const db = await DatabaseConnector.forShared();
