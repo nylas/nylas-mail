@@ -1,0 +1,5 @@
+{
+  "window:toggle-full-screen": "f11",
+  "window:reload": "ctrl+shift+r",
+  "window:toggle-dev-tools": "ctrl+shift+i"
+}

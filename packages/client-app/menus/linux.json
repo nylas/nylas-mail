@@ -1,0 +1,102 @@
+{
+  "menu": [
+    {
+      "label": "&File",
+      "submenu": [
+        { "label": "&New Message...", "command": "application:new-message" },
+        { "type": "separator" },
+        { "label": "Add Account...", "command": "application:add-account", "args": {"source": "Menu"}},
+        { "label": "Clos&e Window", "command": "window:close" },
+        { "type": "separator" },
+        { "label": "Print Current Thread...", "command": "core:print-thread" },
+        { "type": "separator" },
+        { "label": "Quit", "command": "application:quit" }
+      ]
+    },
+
+    {
+      "label": "&Edit",
+      "submenu": [
+        { "label": "&Undo", "command": "core:undo" },
+        { "label": "&Redo", "command": "core:redo" },
+        { "type": "separator" },
+        { "label": "&Cut", "command": "core:cut" },
+        { "label": "C&opy", "command": "core:copy" },
+        { "label": "&Paste", "command": "core:paste" },
+        { "label": "Paste and Match Style", "command": "core:paste-and-match-style" },
+        { "label": "Select &All", "command": "core:select-all" },
+        { "type": "separator" },
+        { "label": "Find", "submenu": [
+          { "label": "Find in Thread...", "command": "core:find-in-thread" },
+          { "label": "Find Next", "command": "core:find-in-thread-next" },
+          { "label": "Find Previous", "command": "core:find-in-thread-previous" }
+        ]},
+        { "type": "separator" },
+        { "label": "Preferences", "command": "application:open-preferences" },
+        { "label": "Change Theme...", "command": "window:launch-theme-picker" },
+        { "label": "Install Theme...", "command": "application:install-package" }
+      ]
+    },
+
+    {
+      "label": "&View",
+      "submenu": [
+        { "type": "separator", "id": "mailbox-navigation"},
+        { "label": "Go to Inbox", "command": "navigation:go-to-inbox" },
+        { "label": "Go to Starred", "command": "navigation:go-to-starred" },
+        { "label": "Go to Sent", "command": "navigation:go-to-sent" },
+        { "label": "Go to Drafts", "command": "navigation:go-to-drafts" },
+        { "label": "Go to All mail", "command": "navigation:go-to-all" },
+        { "type": "separator" },
+        { "label": "Enter Full Screen", "command": "window:toggle-full-screen" },
+        { "label": "Exit Full Screen", "command": "window:toggle-full-screen", "visible": false }
+      ]
+    },
+
+    {
+      "label": "Thread",
+      "submenu": [
+        { "label": "Reply", "command": "core:reply" },
+        { "label": "Reply All", "command": "core:reply-all" },
+        { "label": "Forward", "command": "core:forward" },
+        { "type": "separator" },
+        { "label": "Star", "command": "core:star-item" },
+        { "type": "separator", "id": "thread-actions" },
+        { "label": "Remove from view", "command": "core:remove-from-view" },
+        { "type": "separator", "id": "view-actions" }
+      ]
+    },
+    {
+      "label": "Developer",
+      "submenu": [
+        { "label": "Run with &Debug Flags", "type": "checkbox", "command": "application:toggle-dev" },
+        { "type": "separator" },
+        { "label": "Reload", "command": "window:reload" },
+        { "label": "Toggle Developer &Tools", "command": "window:toggle-dev-tools" },
+        { "label": "Toggle Component Regions", "command": "window:toggle-component-regions" },
+        { "label": "Toggle Screenshot Mode", "command": "window:toggle-screenshot-mode" },
+        { "type": "separator" },
+        { "label": "Create a Plugin...", "command": "application:create-package" },
+        { "label": "Install a Plugin...", "command": "application:install-package" },
+        { "type": "separator" },
+        { "label": "Open Detailed Logs", "command": "window:open-errorlogger-logs" }
+      ]
+    },
+    {
+      "label": "Window",
+      "submenu": [
+        { "label": "Minimize", "command": "application:minimize" },
+        { "label": "Zoom", "command": "application:zoom" },
+        { "type": "separator", "id": "window-list-separator" }
+      ]
+    },
+    {
+      "label": "&Help",
+      "submenu": [
+        { "label": "VERSION", "enabled": false },
+        { "type": "separator" },
+        { "label": "Nylas Mail Help", "command": "application:view-help" }
+      ]
+    }
+  ]
+}

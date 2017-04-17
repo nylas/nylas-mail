@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=<%= productName %>
+Comment=<%= description %>
+GenericName=<%= productName %>
+Exec=/usr/bin/nylas-mail %U
+Icon=nylas-mail
+Type=Application
+StartupNotify=true
+StartupWMClass=<%= productName %>
+Categories=GNOME;GTK;Network;Email;Utility;Development;
+MimeType=text/plain;x-scheme-handler/mailto;x-scheme-handler/nylas;

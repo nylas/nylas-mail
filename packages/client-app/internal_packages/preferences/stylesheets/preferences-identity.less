@@ -1,0 +1,78 @@
+@import "ui-variables";
+
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+.container-identity {
+  max-width: 887px;
+  min-width: 530px;
+  margin: auto;
+
+  .id-header {
+    color: @text-color-very-subtle;
+    margin-bottom: @padding-base-vertical * 2;
+  }
+
+  .refresh {
+    float: right;
+    color: @text-color-very-subtle;
+    margin-bottom: @padding-base-vertical * 2;
+    img { background-color: @text-color-very-subtle; }
+  }
+  .refresh.spinning img {
+    animation:spin 1.4s linear infinite;
+  }
+
+  .identity-content-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: @text-color-subtle;
+    border-radius: @border-radius-large;
+    border: 1px solid @border-color-primary;
+    background-color: @background-secondary;
+
+    .row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .padded {
+      display: block;
+      padding: 20px;
+      padding-left: 137px;
+      border-top: 1px solid @border-color-primary;
+    }
+
+    .btn {
+      width: 180px;
+      &.minor-width {
+        width: 120px;
+      }
+      text-align: center;
+      margin-right: @padding-base-horizontal;
+      margin-bottom: @padding-base-horizontal;
+    }
+    .identity-actions {
+      margin-top: @padding-small-vertical + 1;
+    }
+    .subscription-actions {
+      margin-top: 20px;
+    }
+
+    .info-row {
+      padding: 30px;
+      .logo {
+        margin-right: 30px;
+      }
+      .identity-info {
+        flex: 1;
+        line-height: 1.9em;
+        .name {
+          font-size: 1.2em;
+        }
+      }
+    }
+  }
+
+}

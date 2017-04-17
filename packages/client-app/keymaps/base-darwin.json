@@ -1,0 +1,10 @@
+{
+  "application:minimize": "command+m",
+  "application:hide": "command+h",
+  "application:hide-other-applications": "command+alt+h",
+  "application:zoom": "alt+command+ctrl+m",
+
+  "window:toggle-full-screen": "command+ctrl+f",
+  "window:reload": "mod+alt+l",
+  "window:toggle-dev-tools": "meta+alt+i"
+}
