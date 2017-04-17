@@ -11,55 +11,108 @@
 .n1-send-later {}
 .send-reminders {}
 
-.jobs {
+#container {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-wrap: wrap;
-}
-.job {
-  margin: 1px;
-  height: 10px;
-  width: 10px;
-}
-#container {
-  width: 800px;
-  padding-top: 0;
+  padding: 0 20px 0 20px;
 }
 
 h1 {
+  font-size: 26px;
   margin: 0;
 }
 h2 {
-  margin-top: 20px;
+  text-align: left;
+  font-size: 20px;
+  margin: 0 0 0 5px;
+}
+
+.container-wrap {
+  height: calc(100% - 39px);
+}
+.job-area.thread-snooze {
+  height: 50%;
+}
+.job-area.n1-send-later {
+  height: 25%;
+}
+.job-area.send-reminders {
+  height: 25%;
+}
+
+.day-wrap {
+  display: flex;
+  height: calc(100% - 30px);
+}
+.day {
+  margin: 0 5px;
+  height: calc(100% - 20px);
+}
+.day h3 {
+  margin: 0;
+  max-height: 14px;
+  overflow: hidden;
+  font-family: sans-serif;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.hour-wrap {
+  height: 100%;
+  display: flex;
+}
+.hour {
+  height: 100%;
+  width: 12px;
+}
+.hour h4 {
+  margin-bottom: 5px;
+  font-family: sans-serif;
+  font-size: 8px;
+  padding-top: 5px;
+}
+.hour:nth-child(even) h4 {
+  visibility: hidden;
+}
+
+.job-wrap {
+  height: calc(100% - 19px);
+  display: flex;
+  flex-direction: column-reverse;
+}
+.job {
+  margin: 1px 1px 0 1px;
+  height: 10px;
+  width: 10px;
 }
 
 </style>
 <h1>Worker Jobs</h1>
 
-<div class="job-area">
-<h2>Snooze:</h2>
-<div class="jobs">
-  {{#each thread-snooze}}
-  <div class="job {{this.status}} {{this.type}}" title="{{this.foremanId}} {{this.statusUpdatedAt}} {{this.error.message}}"></div>
-  {{/each}}
+<div class="container-wrap">
+{{#each jobData}}
+<div class="job-area {{this.typeId}}" id={{this.typeId}}>
+  <h2>{{this.typeName}}</h2>
+  <div class="day-wrap">
+    {{#each this.dayBins}}
+      <div class="day">
+        <div class="hour-wrap">
+          {{#each this.hourBins}}
+            <div class="hour {{this.timeStr}}">
+              <div class="job-wrap">
+                {{#each this.jobs}}
+                  <div class="job {{this.status}} {{this.type}}"
+                       title="{{this.foremanId}} {{this.statusUpdatedAt}} {{this.error.message}}"></div>
+                {{/each}}
+              </div>
+              <h4>{{this.timeStr}}</h4>
+            </div>
+          {{/each}}
+        </div>
+        <h3>{{this.dayStr}}</h3>
+      </div>
+    {{/each}}
+  </div>
 </div>
-</div>
-
-<div class="job-area">
-<h2>Send Later:</h2>
-<div class="jobs">
-  {{#each n1-send-later}}
-  <div class="job {{this.status}} {{this.type}}" title="{{this.foremanId}} {{this.statusUpdatedAt}} {{this.error.message}}"></div>
-  {{/each}}
-</div>
-</div>
-
-<div class="job-area">
-<h2>Reminders:</h2>
-<div class="jobs">
-  {{#each send-reminders}}
-  <div class="job {{this.status}} {{this.type}}" title="{{this.foremanId}} {{this.statusUpdatedAt}} {{this.error.message}}"></div>
-  {{/each}}
-</div>
+{{/each}}
 </div>
