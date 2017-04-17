@@ -18,7 +18,7 @@ class ThreadTrashButton extends React.Component
     allowed = FocusedPerspectiveStore.current().canMoveThreadsTo([@props.thread], 'trash')
     return <span /> unless allowed
 
-    <button className="btn btn-toolbar"
+    <button className="btn btn-toolbar btn-trash"
             style={order: -106}
             title="Move to Trash"
             onClick={@_onRemove}>
