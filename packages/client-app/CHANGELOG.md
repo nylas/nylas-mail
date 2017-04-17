@@ -2,10 +2,8 @@
 
 ### 2.0.15 (4/17/2017)
 
-  + [client-app] Database malformed errors shouldn't be retryable
-  + [client-app] When resetting database, make sure to re-init db reader
-  + [client-app] Correctly handle db malformed errors in main process
-  + [client-app] Remove dead mail rules code
+  + Correctly handle and inform users about database malformed errors that can
+    occur both in main process and/or window processes
 
 ### 2.0.14 (4/14/2017)
 
