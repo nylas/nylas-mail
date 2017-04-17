@@ -576,6 +576,7 @@ class SyncWorker {
       await this._runTask(SyncTaskFactory.create('FetchMessagesInFolder', {account: this._account, folder}))
       yield  // Yield to allow interruption
     }
+    await this._cleanupOrphanMessages();
     SyncActivity.reportSyncActivity(accountId, "Done with worker sync")
   }
 
@@ -622,7 +623,6 @@ class SyncWorker {
         },
       });
 
-      await this._cleanupOrphanMessages();
       await this._onSyncDidComplete();
       this._numTimeoutErrors = 0;
       this._retryScheduler.reset()
