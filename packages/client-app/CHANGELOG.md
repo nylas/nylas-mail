@@ -1,5 +1,12 @@
 # Nylas Mail Changelog
 
+### 2.0.15 (4/17/2017)
+
+  + [client-app] Database malformed errors shouldn't be retryable
+  + [client-app] When resetting database, make sure to re-init db reader
+  + [client-app] Correctly handle db malformed errors in main process
+  + [client-app] Remove dead mail rules code
+
 ### 2.0.14 (4/14/2017)
 
 - Fixes:
