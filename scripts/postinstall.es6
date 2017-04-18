@@ -32,7 +32,16 @@ function copyErrorLoggerExtensions(privateDir) {
   fs.copySync(from, to);
 }
 
-async function installPrivateResources() {
+function installClientSyncPackage() {
+  console.log("\n---> Linking client-sync")
+  // link client-sync
+  const clientSyncDir = path.resolve(path.join('packages', 'client-sync'));
+  const destination = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'client-sync'));
+  unlinkIfExistsSync(destination);
+  fs.symlinkSync(clientSyncDir, destination, 'dir');
+}
+
+function installPrivateResources() {
   console.log("\n---> Linking private plugins")
   const privateDir = path.resolve(path.join('packages', 'client-private-plugins'))
   if (!fs.existsSync(privateDir)) {
@@ -49,12 +58,6 @@ async function installPrivateResources() {
     unlinkIfExistsSync(to);
     fs.symlinkSync(from, to, 'dir');
   }
-
-  // link client-sync
-  const clientSyncDir = path.resolve(path.join('packages', 'client-sync'));
-  const destination = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'client-sync'));
-  unlinkIfExistsSync(destination);
-  fs.symlinkSync(clientSyncDir, destination, 'dir');
 }
 
 async function lernaBootstrap(installTarget) {
@@ -161,7 +164,8 @@ async function main() {
     console.log(`\n---> Installing for target ${installTarget}`);
 
     if ([TARGET_ALL, TARGET_CLIENT].includes(installTarget)) {
-      await installPrivateResources()
+      installPrivateResources()
+      installClientSyncPackage()
     }
 
     await lernaBootstrap(installTarget);
