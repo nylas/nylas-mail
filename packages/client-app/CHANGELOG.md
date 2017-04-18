@@ -1,5 +1,21 @@
 # Nylas Mail Changelog
 
+### 2.0.16 (4/18/2017)
+
+  + [client-app] better handling of startup errors
+  + [client-app] fix occasional EPERM issues on boot on Windows
+  + [client-sync] Fix Message building when sending
+  + [client-sync] Reduce CPU limits for historical sync
+  + [client-app] Fix search parser to handle nested queries properly
+  + [client-app] Remove some more references to N1
+  + [client-sync] Correctly pass path when processing bodies
+  + [\*] postinstall: Don't try to link cloud specs if pkgs don't exist
+  + [\*] Postinstall should install client-sync regardless of private plugins
+  + [client-app, client-sync] Move messages out of db into compressed flat files
+  + [cloud-api] fix step param on worker admin dash
+  + [cloud-api] revamped worker dashboard
+  + [client-app] Fix benchmark mode
+
 ### 2.0.15 (4/17/2017)
 
   + Correctly handle and inform users about database malformed errors that can
