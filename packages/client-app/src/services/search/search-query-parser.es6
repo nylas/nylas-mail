@@ -228,6 +228,11 @@ const parseSimpleQuery = (text) => {
   if (tok === null) {
     return [null, afterTok];
   }
+
+  if (tok.s === ')') {
+    return [null, text];
+  }
+
   if (tok.s === '(') {
     const [exp, afterExp] = parseQuery(afterTok);
     const afterRparen = consumeExpectedToken(afterExp, ')');
@@ -303,14 +308,10 @@ const parseAndQuery = (text) => {
 };
 
 parseQuery = (text) => {
-  return parseAndQuery(text);
-}
-
-const parseQueryWrapper = (text) => {
   let currText = text;
   const exps = [];
   while (currText.length > 0) {
-    const [result, leftover] = parseQuery(currText);
+    const [result, leftover] = parseAndQuery(currText);
     if (result === null) {
       break;
     }
@@ -329,6 +330,14 @@ const parseQueryWrapper = (text) => {
     } else {
       result = new AndQueryExpression(exps[i], result);
     }
+  }
+  return [result, currText];
+}
+
+const parseQueryWrapper = (text) => {
+  const [result, leftover] = parseQuery(text);
+  if (leftover.length > 0) {
+    throw new Error('Unable to parse query: expected end of stream');
   }
   return result;
 };

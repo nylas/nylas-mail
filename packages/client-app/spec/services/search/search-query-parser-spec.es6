@@ -136,5 +136,13 @@ describe('SearchQueryParser.parse', () => {
     expect(SearchQueryParser.parse('is:unread foo').equals(
       and(unread(true), generic(text(token('foo'))))
     )).toBe(true)
+    expect(SearchQueryParser.parse('(from:mg to:mark) AND (in:"Sent Items")').equals(
+      and(and(from(text(token('mg'))), to(text(token('mark')))), in_(text(token('Sent Items'))))
+    )).toBe(true)
+    expect(SearchQueryParser.parse('(from:mg (to:mark subject:blah)) AND (in:"Sent Items" to:foo)').equals(
+      and(
+        and(from(text(token('mg'))), and(to(text(token('mark'))), subject(text(token('blah'))))),
+        and(in_(text(token('Sent Items'))), to(text(token('foo')))))
+    )).toBe(true)
   });
 });
