@@ -33,7 +33,7 @@ export function pathForBodyFile(msgId) {
     remainingId = remainingId.substring(2);
   }
   const bodyPath = path.join(...pathGroups);
-  return path.join(baseMessagePath, bodyPath, `${remainingId}.${FILE_EXTENSION}`);
+  return path.join(baseMessagePath(), bodyPath, `${remainingId}.${FILE_EXTENSION}`);
 }
 
 // NB: The return value of this function is what gets written into the database.
