@@ -463,7 +463,7 @@ function getMailerPayload(message) {
   const uploads = message.uploads || []
   for (const upload of uploads) {
     msgData.attachments.push({
-      filename: upload.filename,
+      filename: mimelib.encodeMimeWord(upload.filename),
       content: fs.createReadStream(upload.targetPath),
       cid: upload.inline ? upload.id : null,
     })
