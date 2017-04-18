@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import moment from 'moment'
+import {MessageBodyUtils} from 'isomorphic-core'
 
 import File from './file'
 import Utils from './utils'
@@ -104,6 +105,20 @@ export default class Message extends ModelWithMetadata {
     body: Attributes.JoinedData({
       modelTable: 'MessageBody',
       modelKey: 'body',
+      serializeFn: function serializeBody(val) {
+        return MessageBodyUtils.writeBody({
+          msgId: this.id,
+          body: val,
+          forceWrite: false,
+        });
+      },
+      deserializeFn: function deserializeBody(val) {
+        const result = MessageBodyUtils.tryReadBody(val);
+        if (result) {
+          return result;
+        }
+        return val;
+      },
     }),
 
     files: Attributes.Collection({

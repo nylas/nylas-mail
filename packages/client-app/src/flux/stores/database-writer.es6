@@ -322,8 +322,9 @@ export default class DatabaseWriter {
 
     joinedDataAttributes.forEach((attr) => {
       for (const model of models) {
-        if (model[attr.modelKey] !== undefined) {
-          promises.push(this._query(`REPLACE INTO \`${attr.modelTable}\` (\`id\`, \`value\`) VALUES (?, ?)`, [model.id, model[attr.modelKey]]));
+        const value = model[attr.modelKey];
+        if (value !== undefined) {
+          promises.push(this._query(`REPLACE INTO \`${attr.modelTable}\` (\`id\`, \`value\`) VALUES (?, ?)`, [model.id, attr.serialize(model, value)]));
         }
       }
     });

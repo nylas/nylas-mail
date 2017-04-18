@@ -32,7 +32,16 @@ function copyErrorLoggerExtensions(privateDir) {
   fs.copySync(from, to);
 }
 
-async function installPrivateResources() {
+function installClientSyncPackage() {
+  console.log("\n---> Linking client-sync")
+  // link client-sync
+  const clientSyncDir = path.resolve(path.join('packages', 'client-sync'));
+  const destination = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'client-sync'));
+  unlinkIfExistsSync(destination);
+  fs.symlinkSync(clientSyncDir, destination, 'dir');
+}
+
+function installPrivateResources() {
   console.log("\n---> Linking private plugins")
   const privateDir = path.resolve(path.join('packages', 'client-private-plugins'))
   if (!fs.existsSync(privateDir)) {
@@ -49,12 +58,6 @@ async function installPrivateResources() {
     unlinkIfExistsSync(to);
     fs.symlinkSync(from, to, 'dir');
   }
-
-  // link client-sync
-  const clientSyncDir = path.resolve(path.join('packages', 'client-sync'));
-  const destination = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'client-sync'));
-  unlinkIfExistsSync(destination);
-  fs.symlinkSync(clientSyncDir, destination, 'dir');
 }
 
 async function lernaBootstrap(installTarget) {
@@ -124,11 +127,16 @@ function linkJasmineConfigs() {
   console.log("\n---> Linking Jasmine configs");
   const linkToPackages = ['cloud-api', 'cloud-core', 'cloud-workers']
   const from = getJasmineConfigPath('isomorphic-core')
-
   for (const packageName of linkToPackages) {
-    const dir = getJasmineDir(packageName)
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir)
+    const packageDir = path.join('packages', packageName)
+    if (!fs.existsSync(packageDir)) {
+      console.log("\n---> No cloud packages to link. Moving on")
+      return
+    }
+
+    const jasmineDir = getJasmineDir(packageName)
+    if (!fs.existsSync(jasmineDir)) {
+      fs.mkdirSync(jasmineDir)
     }
     const to = getJasmineConfigPath(packageName)
     unlinkIfExistsSync(to)
@@ -161,7 +169,8 @@ async function main() {
     console.log(`\n---> Installing for target ${installTarget}`);
 
     if ([TARGET_ALL, TARGET_CLIENT].includes(installTarget)) {
-      await installPrivateResources()
+      installPrivateResources()
+      installClientSyncPackage()
     }
 
     await lernaBootstrap(installTarget);
