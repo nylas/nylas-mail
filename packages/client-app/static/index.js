@@ -6,6 +6,7 @@ var util = require('util')
 var path = require('path');
 var electron = require('electron');
 var remote = electron.remote;
+var ipcRenderer = electron.ipcRenderer;
 
 console.inspect = function consoleInspect(val) {
   console.log(util.inspect(val, true, depth=7, colorize=true));
@@ -20,12 +21,19 @@ function setLoadTime (loadTime) {
 }
 
 function handleSetupError (error) {
-  var currentWindow = remote.getCurrentWindow()
-  currentWindow.setSize(800, 600)
-  currentWindow.center()
-  currentWindow.show()
-  currentWindow.openDevTools()
+  var errorJSON = "{}";
+  try {
+    errorJSON = JSON.stringify(error);
+  } catch (err) {
+    var recoveredError = new Error();
+    recoveredError.stack = error.stack;
+    recoveredError.message = `Recovered Error: ${error.message}`;
+    errorJSON = JSON.stringify(recoveredError)
+  }
   console.error(error.stack || error)
+  ipcRenderer.sendSync("report-error", {errorJSON: errorJSON})
+  var message = `We encountered an unexpected problem starting up Nylas Mail. Please try again or contact support@nylas.com`
+  ipcRenderer.send("quit-with-error-message", message)
 }
 
 function copyEnvFromMainProcess() {

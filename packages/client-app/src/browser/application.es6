@@ -639,6 +639,24 @@ export default class Application extends EventEmitter {
       event.returnValue = true
     })
 
+    ipcMain.on("quit-with-error-message", (event, message) => {
+      if (this.quitting) {
+        event.returnValue = true;
+        return true
+      }
+      this.quitting = true;
+      if (message) {
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: ['Okay'],
+          message: message,
+        });
+      }
+      app.quit();
+      event.returnValue = true;
+      return true
+    })
+
     ipcMain.on("move-to-applications", () => {
       if (process.platform !== "darwin") {
         return;
