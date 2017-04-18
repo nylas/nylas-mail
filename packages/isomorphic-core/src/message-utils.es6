@@ -425,9 +425,9 @@ async function buildForSend(db, json) {
   // https://github.com/nodemailer/buildmail/blob/master/lib/buildmail.js#L470
   const messageForHashing = deepClone(message)
   messageForHashing.date = Message.dateString(date)
-  message.id = Message.hash(messageForHashing)
+  message.id = Message.hash(messageForHashing);
   message.body = replaceMessageIdInBodyTrackingLinks(message.id, message.body)
-  const instance = Message.build(message)
+  const instance = Object.assign(Message.build({id: message.id}), message);
 
   // TODO we set these temporary properties which aren't stored in the database
   // model because SendmailClient requires them to send the message with the
