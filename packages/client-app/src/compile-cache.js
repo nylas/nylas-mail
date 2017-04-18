@@ -29,11 +29,24 @@ function readCachedJavascript(relativeCachePath) {
   return null
 }
 
+/**
+ * We occasionally see EPERM errors on the compile cache during boot on
+ * Windows. See https://phab.nylas.com/T8128. This will simply catch these
+ * errors and defer writing to the cache instead of taking down the whole
+ * app on boot.
+ *
+ * TODO: Determine root cause of the EPERM lock. Maybe antivirus.  Maybe
+ * multiple processes loading at once.
+ */
 function writeCachedJavascript(relativeCachePath, code) {
-  const cacheTmpPath = path.join(cacheDirectory, `${relativeCachePath}.${process.pid}`)
-  const cachePath = path.join(cacheDirectory, relativeCachePath)
-  fs.writeFileSync(cacheTmpPath, code, 'utf8')
-  fs.renameSync(cacheTmpPath, cachePath)
+  try {
+    const cacheTmpPath = path.join(cacheDirectory, `${relativeCachePath}.${process.pid}`)
+    const cachePath = path.join(cacheDirectory, relativeCachePath)
+    fs.writeFileSync(cacheTmpPath, code, 'utf8')
+    fs.renameSync(cacheTmpPath, cachePath)
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 function addSourceURL(jsCode, filePath) {

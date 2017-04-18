@@ -32,7 +32,14 @@ export default class LessCompileCache {
   setImportPaths(importPaths = []) {
     const fullImportPaths = importPaths.concat(this.lessSearchPaths);
     if (!_.isEqual(fullImportPaths, this.cache.importPaths)) {
-      this.cache.setImportPaths(fullImportPaths);
+      try {
+        this.cache.setImportPaths(fullImportPaths);
+      } catch (err) {
+        // We occasionally see ENOENT: no such file or directory errors
+        // when trying to access the cache on boot. See
+        // https://phab.nylas.com/T8128
+        console.error(err)
+      }
     }
   }
 
