@@ -127,11 +127,16 @@ function linkJasmineConfigs() {
   console.log("\n---> Linking Jasmine configs");
   const linkToPackages = ['cloud-api', 'cloud-core', 'cloud-workers']
   const from = getJasmineConfigPath('isomorphic-core')
-
   for (const packageName of linkToPackages) {
-    const dir = getJasmineDir(packageName)
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir)
+    const packageDir = path.join('packages', packageName)
+    if (!fs.existsSync(packageDir)) {
+      console.log("\n---> No cloud packages to link. Moving on")
+      return
+    }
+
+    const jasmineDir = getJasmineDir(packageName)
+    if (!fs.existsSync(jasmineDir)) {
+      fs.mkdirSync(jasmineDir)
     }
     const to = getJasmineConfigPath(packageName)
     unlinkIfExistsSync(to)
