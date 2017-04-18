@@ -1,48 +1,519 @@
 # Nylas Mail Changelog
 
+### 2.0.15 (4/17/2017)
+
+  + Correctly handle and inform users about database malformed errors that can
+    occur both in main process and/or window processes
+
+### 2.0.14 (4/14/2017)
+
+- Fixes:
+  + Prevent from adding duplicate accounts and sync workers due to account id changes
+  + Correctly remove sync worker reference when destroying it
+  + Correctly initialize SyncProcessManager with Identity
+  + Fix contact ranking runtime error
+
+### 2.0.13 (4/13/2017)
+
+- Fixes:
+  + Upload nupkg with correct name for win32 autoupdater to work
+  + Correctly handle window.unhandledrejection events
+
+### 2.0.12 (4/13/2017)
+
+- Fixes:
+  + Prevent NM from overwriting N1 binary on windows
+  + Fix runtime error in sync process
+  + Prevent old N1 config from getting wiped when installing Nylas Mail
+
+- Development:
+  + Remove useless docs
+
+### 2.0.11 (4/12/2017)
+
+- Fixes:
+  + Dispose of mail listener connection before getting new one. This will
+    prevent sync process from leaking Imap connections and getting stuck.
+  + Fix performance regression when polling for gmail attribute changes
+  + Don't double report unhandled rejections
+  + Fix unhandled rejection handling (fix ipc parse error)
+  + Fix regression when processing messages under a transaction
+  + Rate limit database malformed error reports to sentry
+
+### 2.0.10 (4/11/2017)
+
+- Fixes:
+  + Fix missing UID error when archiving threads after sending
+  + Ensure all mail folder exists before trying to access it
+  + Fix SyncbackMetadataTask dependency
+
+- Development:
+  + Don't report stuck sync processes to Sentry
+  + MessageFactory -> MessageUtils, SendUtils -> ModelUtils
+
+### 2.0.9 (4/11/2017)
+
+- Features:
+  + Re-add imap to the onboarding accounts page
+
+- Fixes:
+  + Correctly detect changes in labels, starred and unread for Gmail accounts
+  + Fix delta streaming connection retries
+  + Handle weird MIME edge case with @ symbol
+
+- Performance:
+  + Wrap message processing in transaction for better performance
+  + Increase sqlite `page_size` and `cache_size`
+
+- Cloud:
+  + Improve performance of reminders worker
+  + Add DataDog StatsD for heartbeats
+  + Restart automatically on unhandeld rejections
+
+- Development:
+  + Add benchmark mode
+
+### 2.0.8 (4/7/2017)
+
+- Fixes:
+  + Revamp SSL options during authentication to be able to properly auth against
+    SMTP and prevent sending failures
+  + Ensure IMAPConnnectionPool uses updated account credentials
+  + Always fetch and update identity regardless of environment
+  + Properly handle serialization errors for JSON columns in database
+
+- Cloud:
+  + Switch MySQL charset to utf8mb4
+  + Add exponential backoff for cloud worker jobs when encountering errors
+  + Use IMAP connection pool in cloud workers to limit number of connections
+  + Properly generate metadata deltas when clearing expiration field
+  + Increment default imap connection socket timeout in cloud workers
+
+- Plugins:
+  + Correctly syncback metadata for send later
+  + Delete drafts after they are sent later
+  + Correctly ensure messages in sent folder for send later in gmail
+  + Fix send reminders version conflict error
+  + Correctly set metadata values for send reminders
+  + Fix imap folder names in send-reminders
+  + Fix send later access token refresh
+
+- Development:
+  + Add view of CloudJobs in n1.nylas.com/admin
+  + Ensure daily script grabs current version after pulling latest changes
+
+### 2.0.1 (4/5/2017)
+
+- Features:
+  + Limit search to focused perspective
+
+- Fixes:
+  + IMAPConnectionPool now correctly disposes connections
+  + Ensure we use refreshed access token for all imap connections during sync
+  + Prevent IMAP connection leaking in sync worker
+  + Fix send later button saving state and sending action
+  + Fix inline images for send later
+  + Correctly enable plugins on 2.0.1
+  + Make sure app can update even after signing out of NylasID
+  + Don't make any requests when NylasID isn't present
+
+- Cloud:
+  + Make cloud workers more robust
+  + Remove old SignalFX reporter & add docs
+  + Log errors according to bunyan specs
+
+- Development:
+  + Add script to run benchmarks once per day at specified time
+  + Add script to upload benchmark data to Google Sheets
+  + Add better logging when restarting stuck sync worker
+
+### 2.0.0 (4/4/2017)
+
+Introducing Nylas Mail Pro
+
+- Features:
+  + Enable snooze, send later, and send reminders
+  + Add feature limits to reminders and send later
+
+- Fixes
+  + Don't assign duplicate folder roles
+  + Re-setup IdentityStore in new window
+
+- Development:
+  + Fix sqlite build for older versions of clang
+  + Remove rogue scripts-tmp folder
+  + Remove unecessary db setup for mail rules
+
+### 1.0.55 (3/31/2017)
+
+- Fixes
+  + Ensure open/link tracking work when sending multiple consecutive emails
+  + Fix performance of contact rankings database query
+  + Fix performance of thread search index database queries
+  + Fix performance of ANALYZE queries
+
+### 1.0.54 (3/31/2017)
+
+- Features:
+  + Add search support for `has:attachment`
+
+- Fixes:
+  + Reduce database thrashing caused by thread search indexing
+  + Interrupt long-running syncback tasks
+  + Fix performance of contact rankings db query
+  + Don't hit contact rankings endpoint until account is ready
+  + Ensure sync worker is stopped correctly when removing accounts or when
+    restarting it
+
+- Metrics:
+  + Report metrics about SyncbackTask runs
+
+- Perf:
+  + Delay building new hot window to improve win perf
+
+- Development:
+  + Add script to benchmarks new commits
+  + Add DEBUG flag to be able to log all query activity for both databases
+  + Add `DatabaseStore.write` which doesn't use Transactions
+  + Metadata test fixes
+
+### 1.0.52 (3/29/2017)
+
+- Fixes:
+  + Fix open and link tracking:
+    + No longer triggers your own opens & link clicks
+    + Link tracking indicator is now always present in sent messages
+  + Fix regression in DB query execution which would delay all queries in the
+    system.
+  + Reduce max retry backoff for DB queries, which could hold a query open for
+    too long
+  + Fix thread reindexing issues, which should help performance and correctly
+    index threads for search
+  + Fix `in:` search syntax for non-gmail search
+  + Fix references to RetryableError imports
+
+- Development:
+  + Add initial sync benchmarking script
+  + Clean up logging in DatabaseStore: differentiate background queries from
+    regular queries in the logs, only log queries that actually take more than
+    100ms.
+  + Point the billing server URL to staging by default for easier development,
+    and allow it to be overriden
+  + Add index to expiration field on Metadata
+
+### 1.0.51 (3/28/2017)
+
+- Features:
+  + Restore contact rankings feature for better contact predictions in composer
+    recipient fields
+
+- Fixes:
+  + Correctly listen for new mail in between sync loops
+  + Verify SMTP credentials in /auth endpoint
+  + Also prioritize sent label for initial Gmail sync
+  + Properly relaunch windows on autoupdate
+  + Properly set up local /health endpoint by making sure to attach route files
+    ending in .es6 to local-api
+
+- Perf:
+  + Don't throttle while syncing first 500 threads
+
+- Metrics:
+  + Report battery state changes to Mixpanel
+
+- Development:
+  + Make deploy-it say what it's doing instead of hanging silently
+  + Make deploy-it print link to the EB console
+  + Make help message better on deploy-it
+  + Add `SHOW_HOT_WINDOW` env for prod debugging of window launches
+  + Correctly ignore `node_modules` in .ebignore for faster deploys
+  + Only bootstrap specific pkgs in postinstall for faster npm installs
+
+### 1.0.50 (3/28/2017)
+
+- Fixes:
+  + Fix SyncActivity errors introduced in 1.0.49
+
+### 1.0.49 (3/27/2017)
+
+- Fixes:
+  + Ensure sync process does not get stuck
+  + Ensure the worker window is always available
+  + Retry database operations when encountering locking issues
+
+- Metrics:
+  + Detect and report when the worker window is unavailable
+  + Detect and report when a sync process is stuck
+
+- Development:
+  + Windows autoupdater fixes
+  + Add better documentation for windows autoupdater
+  + Remap windows dev shortcuts to match the ones used on darwin and linux
+  + When building app, only re-install for optional dependencies on darwin
+
+- Cloud:
+  + Timeout streaming API connections every 15 minutes
+  + Add missing database indexes from SQL review
+
+### 1.0.48 (3/27/2017)
+
+- Fixes:
+  + Reindex threads when they're updated
+  + Don't try to restart sync on every IdentityStore change
+  + Correctly remove inline images with x button
+
+### 1.0.47 (3/23/2017)
+
+- Fixes:
+  + Report hard crashes using Electron's built-in crash reporter
+
+- Development:
+  + Don't handle IMAP timeouts in the connection pool
+  + Record file download times
+
+### 1.0.46 (3/22/2017)
+
+- Fixes:
+  + Ensure files get transferred in forwarded messages
+  + Correctly sign out of NylasID
+  + Don't report non-reportable errors in delta connection
+  + Fix S3 attachment upload for send later
+
+- Development:
+  + Rename downloadDataForFile(s) -> getDownloadDataForFile(s)
+  + Switch type of Metadata value column
+  + Fix build condition
+  + Fix DraftFactory specs
+  + Refactor sync worker IMAPConnectionPool callbacks
+
+### 1.0.45 (3/21/2017)
+
+- Fixes:
+  + Correctly report unhandled errors caught in window.
+  + Fix passing cursor to delta streams
+
+### 1.0.44 (3/20/2017)
+
+- Fixes:
+  + Add error handling when creating syncback requests
+  + Fix path for tmp dir in daily script
+
+### 1.0.43 (3/17/2017)
+
+- Fixes:
+
+ + Revert nodemailer to previous version
+ + Creating a folder no longer creates a non-existent duplicate subfolder
+ + Don't bump threads to the top of list when a message is sent: only update lastReceivedDate if the message was actually received
+
+### 1.0.42 (3/16/2017)
+
+- Fixes:
+ + Fix spellchecker regression (Don't exclude source maps in build)
+
+### 1.0.41 (3/16/2017)
+
+- Development:
+  + Upgrade nodemailer to latest version
+
+### 1.0.40 (3/15/2017)
+
+- Features:
+  + Add support for attachments in send later
+
+- Development:
+  + Improve build time
+  + Windows Autoupdater fixes
+
+### 1.0.39 (3/14/2017)
+
+- Fixes:
+  + Fix missing depedency for imap-provider-settings
+
+- Development:
+  + Only upload 7 characters of the commit hash for Windows build
+
+### 1.0.38 (3/13/2017)
+
+- Fixes:
+ + Restart sync when computer awakes from sleep
+ + Fix issue that made users log out of NylasID, restart, and then force them to log out and restart again in a loop (#3325)
+ + Don't start sync or delta connections without an identity
+
+- Development:
+ + Restore windows build
+ + Remove specs from production build
+ + Fix arc lint
+ + Specify Content-Type in developer bar curl commands
+
+### 1.0.37 (3/10/2017)
+
+- Fixes:
+  + Fix regression introduced in 1.0.36 in the message processor
+  + Correctly show auth error when we can't connect to n1cloud
+  + Fix error thrown sometimes when handling send errors
+
+### 1.0.36 (3/10/2017)
+
+- Fixes:
+  + Increase the IMAP connection pool size
+  + Shim sequelize to timeout after 1 minute on every database operation. This
+    is a safeguard to prevent unresolved db promises from halting the sync loop.
+  + Better error handling to prevent the message processor from halting sync
+
+- Development:
+  + Measure and report inline composer open times
+  + Refactor MessageProcessor to be more robust to errors
+
+### 1.0.35 (3/9/2017)
+
+- Fixes:
+  + Make sure delta connection is restarted when an account is re-authed
+  + More defensive error handling to prevent sync from halting
+  + Prevent delta streaming connection from retrying too much
+  + Fix error when attempting to report a fetch id error
+  + Prevent  error restart loop when database is malformed
+  + Correctly cancel search when the search perspective is cleared
+  + When many search results are returned from the server, don't try to sync them all at once, otherwise would slow down the main sync process.
+  + When restarting the app, don't try to continue syncing search results from an old search
+
+- Development:
+  + Consolidate delta connection stores, remove `internal_package/deltas`
+  + Rename NylasSyncStatusStore to FolderSyncProgressStore
+  + Consolidate APIError status code that we should not report
+  + Don't report incorrect username or password to Sentry
+  + Rate limit error reporting for message processing errors
+  + Fix circular reference error when reporting errors
+  + Refactor file download IMAPConnectionPool usage
+  + Don't focus the Console tab in dev tools every time an error is logged
+  + Correctly set process title
+
+### 1.0.34 (3/8/2017)
+
+- Fixes:
+  + Sync should not get stuck anymore due to sequelize
+  + Delta Streaming connections now correctly retry after they are closed or an error occurs
+  + Handle errors when opening imap box correctly
+
+- Development:
+  + Add script/daily
+  + Provide better info to Sentry on sending errors
+  + Refactor and clean up delta streaming code
+  + Refactor message processing throttling
+
+### 1.0.33 (3/8/2017)
+
+- Features:
+
+  + Add intitial support for send later
+
+- Fixes:
+
+  + Fetch unknown message uids returned in search results
+  + Don't throttle message processing when syncing specific UIDs
+
+- Development:
+
+  + Better grouping for APIError by URL also
+  + Don't generate sourceMapCache in prod mode
+  + Upload a next-version to S3 for autoupdate testing
+  + Windows build fixes
+
+### 1.0.32 (3/7/2017)
+
+- Development:
+
+  + Report provider when reporting remove-from-threads-from-list
+  + Report provider when reporting send perf metrics
+
+### 1.0.31 (3/6/2017)
+
+- Fixes:
+
+  + Improve initial sync speed by scaling number of messages synced based on
+    folder SELECT duration
+  + Immediately restore sync process when app comes back online after being
+    disconnected from the internet.
+  + Can now reply from within notifications again
+
+- Development:
+
+  + Add basic rate limiting to Sentry
+  + Report all search performance metrics
+  + Prevent noisy uncaught errors when closing long connection
+  + Improve reporting of refresh access token errors
+  + Don't double report refresh access token API errors
+  + Replace `setImmediate` with `setTimeout` as Promise scheduler
+  + Use new Bluebird preferred `longStackTraces` syntax
+  + NylasAPIRequest refactored and cleaned up
+  + Search refactors and improvements
+  + Protect from operating on IMAP connection while opening a box
+  + Enable logging in prod builds
+  + Make deploy-it support -h/--help
+  + Restore cloud testing environments
+
+### 1.0.30 (2/28/2017)
+
+- Fixes:
+
+  + Can properly add signatures and select them as default for different
+    accounts.
+  + Can now correctly reply to a thread and immediately archive it or move it to
+    another folder without throwing an error (#3290)
+  + Correctly fix IMAP connection timeout issues (#3232)
+  + Nylas Mail no longer opens an increasing number of IMAP connections which
+    caused some users to reach IMAP server connection limits (#3228)
+  + Fix memory leak while syncing which caused sync process to restart
+    sometimes.
+  + Correctly handle IMAP connections ending unexpectedly
+  + Correctly detect retryable IMAP errors during sync + detect more
+    retryable errors
+  + Correctly catch more authentication errors when sending
+  + Improve speed of processing messages during sync
+  + Prevent unnecessary re-renders of the thread list
+
+- Development:
+
+  + Report performance metrics
+  + More Coffeescript to Javascript conversions
+
+### 1.0.29 (2/21/2017)
+
+- Fixes:
+
+  + You can now click inline images in messages to open them
+  + More IMAP errors have been identified as retryable, which means users will
+    see less errors when syncing an account
+  + Improve performance of thread search indexing queries
+  + Correctly catch Invalid Login errors when sending
+
+- Development:
+
+  + Developer bar in Worker window now shows single delta connection
+  + More code converted to Javascript
+
 ### 1.0.28 (2/16/2017)
 
-- nylas-mail:
+- Fixes:
 
-  + [battery] Add BatteryStatusManager
-  + fix(exports) Add backoff schedulers
-  + feat(offline) Re add offline status notification
-  + reafctor(scheduler): Move SearchIndexer -> SearchIndexScheduler
-  + feat(backoff-scheduler): Add a backoff scheduler service
+  + Fix offline notification bug that caused api outage
+  + We now properly handle gmail auth token errors in the middle of the sync loop. This means less red boxes for users!
+  + Less battery usage when initial sync has completed!
+  + No more errors when saving sent messages to sent folders (`auth or accountId` errors)
+  + No more `Lingering tasks in progress marked as failed errors`
+  + Syncback tasks will continue retrying even after closing app
+  + Syncback tasks retry more aggressively
+  + Detect more offline errors when sending, sending is more reliable
+  + Imap connection pooling (yet to land)
+  + More retryable IMAP errors, means less red boxes for users
+  + Offline notification now shows itself when we’re actually offline, shows countdown for next reconnect attempt
 
-- K2:
+- Development:
 
-  + [local-sync] :art: sync loop error handler
-  + [sentry] Don't use breadcrumbs in dev mode
-  + [cloud-api] remove latest_cursor endpoint
-  + [cloud-api] Log error info on 5xx errors
-  + [local-sync] Refresh Google OAuth2 tokens when Invalid Credentials occurs in sync loop
-  + Add TODOs about retries in sending
-  + [local-sync] Add exponential backoff when retrying syncback tasks
-  + [SFDC] Update SalesforceSearchIndexer for new search indexing
-  + [cloud-api,cloud-workers,local-sync] Bump hapi version
-  + [cloud-api] Reduce request timing precision
-  + Bump pm2 version to 2.4.0
-  + [cloud-api] KEEP Timeout streaming API connections every 15 minutes
-  + Revert [cloud-api] Timeout streaming API connections every 15 minutes
-  + [cloud-\*] Properly listen to stream disconnect events to close redis connections
-  + [cloud-core, cloud-api] add logging to delta connection
-  + [cloud-api] Timeout streaming API connections every 15 minutes
-  + [isomorphic-core] add accountId index definition to Transaction table
-  + [cloud-api] recover from bad error from /n1/user
-  + [local-sync] :art: comment
-  + [local-sync] syncback(Part 5): Always keep retrying tasks if error is retryable
-  + [local-sync] :fire: Message syncback tasks
-  + [cloud-api] Change an extension from .js to .es6
-  + [local-sync] syncback(Part 4): Don't always mark INPROGRESS tasks as failed at beginning of sync
-  + [local-sync] syncback(Part 3): Fixup 
-  + [local-sync] syncback(Part 2): Reinstate send tasks back into the sync loop
-  + [cloud-api] Add metadata tests
-  + [local-sync, cloud-api] Add logic to handle thread metadata
-  + [local-sync] syncback(Part 1): Refactor syncback-task-helpers
-  + [iso-core] Detect more offline errors when sending
-  + [local-sync] Add a better reason when waking sync for syncback
-  + [local-sync] More retryable IMAP errors
+  + More tests
+  + Don't use breadcrumbs in dev mode
+  + Add a better reason when waking sync for syncback in the logs
+  + BackoffScheduler, BatteryManager added for reusability
 
 ### 1.0.27 (2/14/17)
 
