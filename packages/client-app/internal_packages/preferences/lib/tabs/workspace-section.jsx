@@ -148,7 +148,7 @@ const WorkspaceSection = (props) => {
 
       <div className="platform-note platform-linux-only">
         &quot;Launch on system start&quot; only works in XDG-compliant desktop environments.
-        To enable the N1 icon in the system tray, you may need to install libappindicator1.
+        To enable the Nylas Mail icon in the system tray, you may need to install libappindicator1.
         (i.e., &lt;code&gt;sudo apt-get install libappindicator1&lt;/code&gt;)
       </div>
     </section>
