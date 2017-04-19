@@ -18,9 +18,12 @@ const notifications = [
   UnstableChannelNotification,
   DevModeNotification,
   DisabledMailRulesNotification,
-  OfflineNotification,
   UpdateNotification,
 ]
+
+if (NylasEnv.config.get('core.workspace.showOfflineNotification')) {
+  notifications.push(OfflineNotification)
+}
 
 export function activate() {
   ComponentRegistry.register(ActivitySidebar, {location: WorkspaceStore.Location.RootSidebar});

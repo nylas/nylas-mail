@@ -31,6 +31,11 @@ export default {
             'default': false,
             'title': "Use 24-hour clock",
           },
+          showOfflineNotification: {
+            'type': 'boolean',
+            'default': true,
+            'title': "Show offline notification popup",
+          },
           interfaceZoom: {
             'title': "Override standard interface scaling",
             'type': 'number',
