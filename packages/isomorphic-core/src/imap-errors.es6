@@ -132,6 +132,8 @@ export function convertImapError(imapError) {
     case "socket":
       if (imapError.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE") {
         error = new IMAPCertificateError(imapError);
+      } else if (imapError.code === "SELF_SIGNED_CERT_IN_CHAIN") {
+        error = new IMAPCertificateError(imapError);
       } else {
         error = new IMAPSocketError(imapError);
       }
