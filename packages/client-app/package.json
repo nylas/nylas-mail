@@ -53,7 +53,7 @@
     "iconv": "2.2.1",
     "immutable": "3.7.5",
     "inert": "4.0.0",
-    "is-online": "6.1.0",
+    "is-online": "7.0.0",
     "isomorphic-core": "0.x.x",
     "jasmine-json": "~0.0",
     "jasmine-react-helpers": "^0.2",
