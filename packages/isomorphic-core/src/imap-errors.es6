@@ -52,7 +52,7 @@ export class IMAPConnectionEndedError extends IMAPRetryableError {
 export class IMAPCertificateError extends NylasError {
   constructor(msg) {
     super(msg)
-    this.userMessage = "We couldn't make a secure connection to your SMTP server. Please contact support@nylas.com."
+    this.userMessage = "Certificate Error: We couldn't verify the identity of your IMAP server. Please contact support@nylas.com."
     this.statusCode = 401
   }
 }
