@@ -37,7 +37,7 @@ export function pathForBodyFile(msgId) {
 }
 
 // NB: The return value of this function is what gets written into the database.
-export function writeBody({msgId, body, forceWrite = true} = {}) {
+export function writeBody({msgId, body} = {}) {
   const bodyPath = pathForBodyFile(msgId);
   const bodyDir = path.dirname(bodyPath);
 
@@ -63,22 +63,7 @@ export function writeBody({msgId, body, forceWrite = true} = {}) {
   }
 
   try {
-    let exists;
-
-    // If we don't have to write to the file and it already exists then don't.
-    if (!forceWrite) {
-      exists = fs.existsSync(bodyPath);
-      if (exists) {
-        return result;
-      }
-    }
-
-    // We want to minimize the number of times we interact with the filesystem
-    // since it can be slow.
-    if (exists === undefined) {
-      exists = fs.existsSync(bodyPath);
-    }
-    if (!exists) {
+    if (!fs.existsSync(bodyPath)) {
       mkdirp.sync(bodyDir);
     }
 
