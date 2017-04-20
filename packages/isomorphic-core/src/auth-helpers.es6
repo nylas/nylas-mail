@@ -244,36 +244,31 @@ export function imapAuthHandler(upsertAccount) {
           account_provider: provider,
           account_email: email,
           connection_settings: connectionSettings,
-          error_name: err.name,
+          error_name: err.constructor.name,
           error_message: err.message,
+          error_user_message: err.userMessage,
+          error_status_code: err.statusCode,
           error_tb: err.stack,
         })
+
+        const message = err.userMessage || err.message;
+        const statusCode = err.statusCode || 500;
 
         if (err instanceof RetryableError) {
           if (retryNum < MAX_RETRIES) {
             setTimeout(() => {
-              request.logger.info(`${err.name}. Retry #${retryNum + 1}`)
+              request.logger.info(`${err.constructor.name}. Retry #${retryNum + 1}`)
               authHandler(request, reply, retryNum + 1)
             }, 100)
             return
           }
           logger.error('Encountered retryable error while attempting to authenticate')
-          reply({message: err.userMessage, type: "api_error"}).code(err.statusCode);
+          reply({message, type: "api_error"}).code(statusCode);
           return
         }
 
         logger.error("Error trying to authenticate")
-        let userMessage = "Please contact support@nylas.com. An unforeseen error has occurred.";
-        let statusCode = 500;
-        if (err instanceof NylasError) {
-          if (err.userMessage) {
-            userMessage = err.userMessage;
-          }
-          if (err.statusCode) {
-            statusCode = err.statusCode;
-          }
-        }
-        reply({message: userMessage, type: "api_error"}).code(statusCode);
+        reply({message, type: "api_error"}).code(statusCode);
         return;
       })
   }
