@@ -88,14 +88,19 @@ export function buildGmailAuthURL(sessionKey) {
   return `${N1CloudAPI.APIRoot}/auth/gmail?state=${sessionKey}`;
 }
 
-export function runAuthRequest(accountInfo) {
+export function runAuthRequest(accountInfo, {forceTrustCertificate = false} = {}) {
   const {username, type, email, name} = accountInfo;
 
+  const settings = Object.assign({}, accountInfo)
+  if (forceTrustCertificate) {
+    settings.imap_allow_insecure_ssl = true
+    settings.smtp_allow_insecure_ssl = true
+  }
   const data = {
     provider: type,
     email: email,
     name: name,
-    settings: Object.assign({}, accountInfo),
+    settings,
   };
 
   // handle special case for exchange/outlook/hotmail username field

@@ -96,10 +96,17 @@ const CreatePageForForm = (FormComponent) => {
 
     onConnect = (updatedAccountInfo) => {
       const accountInfo = updatedAccountInfo || this.state.accountInfo;
+      const {errorStatusCode: statusCode} = this.state
 
       this.setState({submitting: true});
 
-      runAuthRequest(accountInfo)
+      const reqOptions = {}
+      const isCertificateError = statusCode === 495
+      if (isCertificateError) {
+        reqOptions.forceTrustCertificate = true
+      }
+
+      runAuthRequest(accountInfo, reqOptions)
       .then((json) => {
         OnboardingActions.moveToPage('account-onboarding-success')
         OnboardingActions.accountJSONReceived(json, json.localToken, json.cloudToken)
@@ -145,8 +152,12 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     _renderButton() {
-      const {accountInfo, submitting} = this.state;
-      const buttonLabel = FormComponent.submitLabel(accountInfo);
+      const {accountInfo, submitting, errorStatusCode} = this.state;
+      let buttonLabel = FormComponent.submitLabel(accountInfo);
+      const isCertificateError = errorStatusCode === 495
+      if (isCertificateError) {
+        buttonLabel = 'Connect anyway'
+      }
 
       // We're not on the last page.
       if (submitting) {
@@ -201,7 +212,7 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     render() {
-      const {accountInfo, errorMessage, errorFieldNames, submitting} = this.state;
+      const {accountInfo, errorMessage, errorStatusCode, errorFieldNames, submitting} = this.state;
       const AccountType = AccountTypes.find(a => a.type === accountInfo.type);
 
       if (!AccountType) {
@@ -223,6 +234,7 @@ const CreatePageForForm = (FormComponent) => {
           {hideTitle ? <div style={{height: 20}} /> : <h2>{FormComponent.titleLabel(AccountType)}</h2>}
           <FormErrorMessage
             message={errorMessage}
+            statusCode={errorStatusCode}
             empty={FormComponent.subtitleLabel(AccountType)}
           />
           { this._renderCredentialsNote() }
