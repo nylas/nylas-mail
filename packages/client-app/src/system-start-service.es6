@@ -104,7 +104,7 @@ class SystemStartServiceWin32 extends SystemStartServiceBase {
   }
 
   _launcherPath() {
-    return path.join(process.env.LOCALAPPDATA, "nylas", "Update.exe")
+    return path.join(process.env.LOCALAPPDATA, "NylasMail", "nylas.exe")
   }
 
   _shortcutPath() {
