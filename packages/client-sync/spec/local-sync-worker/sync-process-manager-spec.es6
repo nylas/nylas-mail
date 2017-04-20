@@ -1,4 +1,4 @@
-import {IdentityStore} from 'nylas-exports'
+import {Actions, IdentityStore} from 'nylas-exports'
 import {createLogger} from '../../src/shared/logger'
 import LocalDatabaseConnector from '../../src/shared/local-database-connector'
 import SyncProcessManager from '../../src/local-sync-worker/sync-process-manager'
@@ -18,7 +18,7 @@ describe("SyncProcessManager", () => {
   })
   describe("when a sync worker is stuck", () => {
     beforeEach(() => {
-      spyOn(NylasEnv, 'reportError')
+      spyOn(Actions, 'recordUserEvent')
       spyOn(SyncProcessManager, 'removeWorkerForAccountId').andCallThrough()
       spyOn(SyncProcessManager, 'addWorkerForAccount').andCallThrough()
       spyOn(SyncActivity, 'getLastSyncActivityForAccount').andReturn({
@@ -34,7 +34,7 @@ describe("SyncProcessManager", () => {
       expect(SyncProcessManager.addWorkerForAccount.calls.length).toEqual(1)
 
       await SyncProcessManager._checkHealth()
-      expect(NylasEnv.reportError.calls.length).toEqual(1)
+      expect(Actions.recordUserEvent.calls.length).toEqual(1)
       expect(SyncProcessManager.removeWorkerForAccountId.calls.length).toEqual(1)
       expect(SyncProcessManager.addWorkerForAccount.calls.length).toEqual(2)
     })
@@ -53,7 +53,7 @@ describe("SyncProcessManager", () => {
 
       // Make sure the worker is discarded by the manager
       await SyncProcessManager._checkHealth()
-      expect(NylasEnv.reportError.calls.length).toEqual(1)
+      expect(Actions.recordUserEvent.calls.length).toEqual(1)
       expect(SyncProcessManager.removeWorkerForAccountId.calls.length).toEqual(1)
       expect(SyncProcessManager.addWorkerForAccount.calls.length).toEqual(2)
 

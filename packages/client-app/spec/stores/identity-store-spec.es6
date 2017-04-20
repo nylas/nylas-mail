@@ -35,7 +35,10 @@ describe("IdentityStore", function identityStoreSpec() {
       spyOn(IdentityStore, "trigger")
     });
 
-    it("logs out of nylas identity properly", async () => {
+    // TODO: this spec messes with the spec runner!! All specs after here don't
+    // run, and it causes the current run to immediately exit without an error
+    // code, even if there were tests that failed before this point.
+    xit("logs out of nylas identity properly", async () => {
       spyOn(NylasEnv.config, 'unset')
       const promise = IdentityStore._onLogoutNylasIdentity()
       IdentityStore._onIdentityChanged(null)

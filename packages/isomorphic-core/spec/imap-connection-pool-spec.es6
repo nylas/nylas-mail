@@ -1,6 +1,6 @@
 import IMAPConnectionPool from '../src/imap-connection-pool';
 import IMAPConnection from '../src/imap-connection';
-import IMAPErrors from '../src/imap-errors';
+import {IMAPConnectionTimeoutError, IMAPSocketError} from '../src/imap-errors';
 
 describe('IMAPConnectionPool', function describeBlock() {
   beforeEach(() => {
@@ -33,7 +33,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     });
     expect(invokedCallback).toBe(true);
     expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(1);
   });
 
   it('opens multiple IMAP connections and properly returns to pool at end of scope', async () => {
@@ -51,7 +51,7 @@ describe('IMAPConnectionPool', function describeBlock() {
     });
     expect(invokedCallback).toBe(true);
     expect(IMAPConnection.prototype.connect.calls.length).toBe(2);
-    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(2);
   });
 
   it('opens an IMAP connection properly and only returns to pool on done', async () => {
@@ -74,39 +74,6 @@ describe('IMAPConnectionPool', function describeBlock() {
     expect(IMAPConnectionPool._poolMap[this.account.id]._availableConns.length === 2);
     doneCallback();
     expect(IMAPConnectionPool._poolMap[this.account.id]._availableConns.length === 3);
-  });
-
-  it('does not call connect if already connected', async () => {
-    let invokedCallback = false;
-    await IMAPConnectionPool.withConnectionsForAccount(this.account, {
-      desiredCount: 1,
-      logger: this.logger,
-      socketTimeout: 5 * 1000,
-      onConnected: ([conn]) => {
-        expect(conn instanceof IMAPConnection).toBe(true);
-        invokedCallback = true;
-        return false;
-      },
-    });
-    expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
-
-    invokedCallback = false;
-    await IMAPConnectionPool.withConnectionsForAccount(this.account, {
-      desiredCount: 1,
-      logger: this.logger,
-      socketTimeout: 5 * 1000,
-      onConnected: ([conn]) => {
-        expect(conn instanceof IMAPConnection).toBe(true);
-        invokedCallback = true;
-        return false;
-      },
-    });
-
-    expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.length).toBe(1);
-    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
   });
 
   it('waits for an available IMAP connection', async () => {
@@ -144,8 +111,8 @@ describe('IMAPConnectionPool', function describeBlock() {
     await promise;
 
     expect(invokedCallback).toBe(true);
-    expect(IMAPConnection.prototype.connect.calls.length).toBe(3);
-    expect(IMAPConnection.prototype.end.calls.length).toBe(0);
+    expect(IMAPConnection.prototype.connect.calls.length).toBe(4);
+    expect(IMAPConnection.prototype.end.calls.length).toBe(4);
   });
 
   it('does not retry on IMAP connection timeout', async () => {
@@ -159,14 +126,14 @@ describe('IMAPConnectionPool', function describeBlock() {
           expect(conn instanceof IMAPConnection).toBe(true);
           if (invokeCount === 0) {
             invokeCount += 1;
-            throw new IMAPErrors.IMAPConnectionTimeoutError();
+            throw new IMAPConnectionTimeoutError();
           }
           invokeCount += 1;
           return false;
         },
       });
     } catch (err) {
-      expect(err instanceof IMAPErrors.IMAPConnectionTimeoutError).toBe(true);
+      expect(err instanceof IMAPConnectionTimeoutError).toBe(true);
     }
 
     expect(invokeCount).toBe(1);
@@ -186,7 +153,7 @@ describe('IMAPConnectionPool', function describeBlock() {
           expect(conn instanceof IMAPConnection).toBe(true);
           if (invokeCount === 0) {
             invokeCount += 1;
-            throw new IMAPErrors.IMAPSocketError();
+            throw new IMAPSocketError();
           }
           invokeCount += 1;
           return false;

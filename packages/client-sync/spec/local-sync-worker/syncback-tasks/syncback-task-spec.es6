@@ -33,7 +33,7 @@ describe("SyncbackTask", () => {
       syncbackTask._syncbackRequest.status = "INPROGRESS-RETRYABLE"
       let error;
       try {
-        await syncbackTask.run({timeoutDelay: TIMEOUT_DELAY})
+        await syncbackTask.run(null, null, {timeoutDelay: TIMEOUT_DELAY})
       } catch (err) {
         error = err
       }

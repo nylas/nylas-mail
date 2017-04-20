@@ -182,7 +182,7 @@ describe "AccountStore", ->
       spyOn(AccountStore, 'tokensForAccountId').andReturn({n1Cloud: 'token'})
       @instance._onAPIAuthError(new Error(), auth: user: 'token', 'N1CloudAPI')
       expect(@instance._onUpdateAccount).toHaveBeenCalled()
-      expect(@instance._onUpdateAccount.mostRecentCall.args).toEqual(['A', {syncState: 'n1_cloud_auth_failed'}])
+      expect(@instance._onUpdateAccount.mostRecentCall.args).toEqual(['A', {n1CloudState: 'n1_cloud_auth_failed'}])
 
     it "should not throw an exception if the account cannot be found", ->
       spyOn(@instance, "_onUpdateAccount")
