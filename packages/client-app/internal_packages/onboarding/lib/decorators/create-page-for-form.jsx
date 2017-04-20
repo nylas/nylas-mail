@@ -105,8 +105,6 @@ const CreatePageForForm = (FormComponent) => {
         OnboardingActions.accountJSONReceived(json, json.localToken, json.cloudToken)
       })
       .catch((err) => {
-        const fingerprint = ["{{ default }}", "auth error", err.message];
-        NylasEnv.reportError(err, {fingerprint})
         Actions.recordUserEvent('Email Account Auth Failed', {
           errorMessage: err.message,
           errorLocation: err.location,
