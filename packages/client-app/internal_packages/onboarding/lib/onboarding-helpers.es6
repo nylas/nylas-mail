@@ -52,7 +52,7 @@ export async function makeGmailOAuthRequest(sessionKey) {
   return remoteRequest.run()
 }
 
-export async function authIMAPForGmail(tokenData) {
+export async function authIMAPForGmail(tokenData, {forceTrustCertificate = false} = {}) {
   const localRequest = new NylasAPIRequest({
     api: NylasAPI,
     options: {
@@ -67,6 +67,8 @@ export async function authIMAPForGmail(tokenData) {
         settings: {
           xoauth2: tokenData.resolved_settings.xoauth2,
           expiry_date: tokenData.resolved_settings.expiry_date,
+          imap_allow_insecure_ssl: forceTrustCertificate,
+          smtp_allow_insecure_ssl: forceTrustCertificate,
         },
       },
     },

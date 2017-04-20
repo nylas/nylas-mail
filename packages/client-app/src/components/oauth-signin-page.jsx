@@ -53,7 +53,9 @@ export default class OAuthSignInPage extends React.Component {
     this.state = {
       authStage: "initial",
       showAlternative: false,
+      isCertificateError: false,
     }
+    this._tokenData = null
   }
 
   componentDidMount() {
@@ -75,7 +77,8 @@ export default class OAuthSignInPage extends React.Component {
   }
 
   _handleError(err) {
-    this.setState({authStage: "error", errorMessage: err.message})
+    const isCertificateError = err.statusCode === 495
+    this.setState({authStage: "error", errorMessage: err.message, isCertificateError})
     Actions.recordUserEvent('Email Account Auth Failed', {
       errorMessage: err.message,
       errorLocation: "client",
@@ -100,9 +103,9 @@ export default class OAuthSignInPage extends React.Component {
     poll = async () => {
       clearTimeout(this._pollTimer);
       try {
-        const tokenData = await this.props.tokenRequestPollFn(this.props.sessionKey)
+        this._tokenData = await this.props.tokenRequestPollFn(this.props.sessionKey)
         ipcRenderer.removeListener('browser-window-focus', onWindowFocused);
-        this.fetchAccountDataWithToken(tokenData)
+        this.fetchAccountDataWithToken(this._tokenData)
       } catch (err) {
         if (err.statusCode === 404) {
           delay = Math.min(delay * 1.1, 3000);
@@ -118,10 +121,13 @@ export default class OAuthSignInPage extends React.Component {
     this._pollTimer = setTimeout(poll, 3000);
   }
 
-  async fetchAccountDataWithToken(tokenData) {
+  async fetchAccountDataWithToken(tokenData, {forceTrustCertificate = false} = {}) {
+    if (!tokenData) {
+      throw new Error('fetchAccountDataWithToken: `tokenData` is required')
+    }
     try {
       this.setState({authStage: "fetchingAccount"})
-      const accountData = await this.props.accountFromTokenFn(tokenData);
+      const accountData = await this.props.accountFromTokenFn(tokenData, {forceTrustCertificate});
       this.props.onSuccess(accountData)
       this.setState({authStage: 'accountSuccess'})
     } catch (err) {
@@ -129,31 +135,69 @@ export default class OAuthSignInPage extends React.Component {
     }
   }
 
+  _renderCertificateErrorHeader() {
+    const {onTryAgain} = this.props
+    const {errorMessage} = this.state
+    return (
+      <div>
+        <h2>Sorry, we had trouble logging you in</h2>
+        <div className="error-region">
+          <p className="message error error-message">{errorMessage}</p>
+          <p className="message error error-message">
+            The certificate for this server is invalid. Would you like to connect to the server anyway?
+          </p>
+          <br />
+          <div>
+            <button
+              className="btn btn-large btn-gradient btn-add-account"
+              onClick={onTryAgain}
+            >
+              Try again
+            </button>
+            <button
+              className="btn btn-large btn-gradient btn-add-account"
+              onClick={() => this.fetchAccountDataWithToken(this._tokenData, {forceTrustCertificate: true})}
+            >
+              Connect anyway
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   _renderHeader() {
-    const authStage = this.state.authStage;
+    const {serviceName, onTryAgain} = this.props
+    const {authStage, isCertificateError, errorMessage} = this.state
     if (authStage === 'initial' || authStage === 'polling') {
       return (<h2>
-        Sign in with {this.props.serviceName} in<br />your browser.
+        Sign in with {serviceName} in<br />your browser.
       </h2>)
     } else if (authStage === 'fetchingAccount') {
-      return <h2>Connecting to {this.props.serviceName}…</h2>
+      return <h2>Connecting to {serviceName}…</h2>
     } else if (authStage === 'accountSuccess') {
       return (
         <div>
-          <h2>Successfully connected to {this.props.serviceName}!</h2>
+          <h2>Successfully connected to {serviceName}!</h2>
           <h3>Adding your account to Nylas Mail…</h3>
         </div>
       )
     }
 
+    if (isCertificateError) {
+      return this._renderCertificateErrorHeader()
+    }
+
     // Error
-    return (<div>
-      <h2>Sorry, we had trouble logging you in</h2>
-      <div className="error-region">
-        <p className="message error error-message">{this.state.errorMessage}</p>
-        <p className="extra">Please <a onClick={this.props.onTryAgain}>try again</a>. If you continue to see this error contact support@nylas.com</p>
+    return (
+      <div>
+        <h2>Sorry, we had trouble logging you in</h2>
+        <div className="error-region">
+          <p className="message error error-message">{errorMessage}</p>
+          <p className="extra">Please <a onClick={onTryAgain}>try again</a>. If you continue to see this error contact support@nylas.com</p>
+        </div>
       </div>
-    </div>)
+    )
   }
 
   _renderAlternative() {
