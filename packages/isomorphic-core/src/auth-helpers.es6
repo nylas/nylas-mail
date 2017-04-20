@@ -33,6 +33,8 @@ const imapSmtpSettings = Joi.object().keys({
 const resolvedGmailSettings = Joi.object().keys({
   xoauth2: Joi.string().required(),
   expiry_date: Joi.number().integer().required(),
+  imap_allow_insecure_ssl: Joi.boolean(),
+  smtp_allow_insecure_ssl: Joi.boolean(),
 }).required();
 
 const office365Settings = Joi.object().keys({
@@ -41,6 +43,8 @@ const office365Settings = Joi.object().keys({
   email: Joi.string().required(),
   password: Joi.string().required(),
   username: Joi.string().required(),
+  imap_allow_insecure_ssl: Joi.boolean(),
+  smtp_allow_insecure_ssl: Joi.boolean(),
 }).required();
 
 export const SUPPORTED_PROVIDERS = new Set(
@@ -59,6 +63,15 @@ export function googleSettings(googleToken, email) {
     imap_username: email,
     smtp_username: email,
   }, CommonProviderSettings.gmail);
+
+  if (googleToken.imap_allow_insecure_ssl === true) {
+    connectionSettings.imap_allow_insecure_ssl = true
+  }
+
+  if (googleToken.smtp_allow_insecure_ssl === true) {
+    connectionSettings.smtp_allow_insecure_ssl = true
+  }
+
   const connectionCredentials = {
     expiry_date: Math.floor(googleToken.expiry_date / 1000),
   };
@@ -77,12 +90,20 @@ export function googleSettings(googleToken, email) {
   return {connectionSettings, connectionCredentials}
 }
 
-export function credentialsForProvider({provider, settings, email}) {
+export function credentialsForProvider({provider, settings, email} = {}) {
   if (provider === "gmail") {
     const {connectionSettings, connectionCredentials} = googleSettings(settings, email)
     return {connectionSettings, connectionCredentials}
   } else if (provider === "office365") {
     const connectionSettings = CommonProviderSettings[provider];
+
+    if (settings.imap_allow_insecure_ssl === true) {
+      connectionSettings.imap_allow_insecure_ssl = true
+    }
+
+    if (settings.smtp_allow_insecure_ssl === true) {
+      connectionSettings.smtp_allow_insecure_ssl = true
+    }
 
     const connectionCredentials = {
       imap_username: email,
