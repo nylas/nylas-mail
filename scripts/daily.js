@@ -109,6 +109,10 @@ async function main(args) {
   // Make sure working directory is clean
   try {
     await exec('git diff --exit-code && git diff --cached --exit-code')
+    const untrackedFiles = await exec('git ls-files --others --exclude-standard') || ''
+    if (untrackedFiles.length > 0) {
+      throw new Error('Working directory has untracked files')
+    }
   } catch (err) {
     console.error('Git working directory is not clean!')
     process.exit(1)
