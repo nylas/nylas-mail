@@ -140,7 +140,12 @@ export function runAuthRequest(accountInfo) {
       auth: noauth,
     },
   })
-  return n1CloudIMAPAuthRequest.run().then((remoteJSON) => {
+  return n1CloudIMAPAuthRequest.run()
+  .catch((err) => {
+    err.location = "cloud"
+    throw err
+  })
+  .then((remoteJSON) => {
     const localSyncIMAPAuthRequest = new NylasAPIRequest({
       api: NylasAPI,
       options: {
@@ -151,7 +156,12 @@ export function runAuthRequest(accountInfo) {
         auth: noauth,
       },
     })
-    return localSyncIMAPAuthRequest.run().then((localJSON) => {
+    return localSyncIMAPAuthRequest.run()
+    .catch((err) => {
+      err.location = "client"
+      throw err
+    })
+    .then((localJSON) => {
       const accountWithTokens = Object.assign({}, localJSON);
       accountWithTokens.localToken = localJSON.account_token;
       accountWithTokens.cloudToken = remoteJSON.account_token;
