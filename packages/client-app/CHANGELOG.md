@@ -2,17 +2,21 @@
 
 ### 2.0.17 (4/19/2017)
 
-  + [dev] Prevent from running daily when untracked files present in dir
-  + [client-app] record error location to Mixpanel
-  + [iso-core] cleanup auth helpers connect fn
-  + [iso-core] always default to showing an error message
-  + [iso-core] Update copy for cert errors
-  + [iso-core] Correctly identify more certificate errors
-  + [client-app] Upgrade  package - fix online detection behind proxy
-  + [client-sync, iso-core] Use MIME encoded-word syntax on attachment filenames
-  + [client-app] Add folder mapping to preferences
-  + [client-sync] Update categories route to handle role updates
-  + [client-app] Implemement a generic dropdown menu
+- Features:
+  + Allow users to select custom folder mappings for Sent and Trash folders
+  + Move messages out of db into compressed flat files for better space
+    efficiency
+
+- Fixes:
+  + Record auth error location to Mixpanel
+  + Show proper auth error messages to users
+  + Correctly identify more certificate errors
+  + Fix online detection behind proxy
+  + Use MIME encoded-word syntax on attachment filenames
+
+- Development
+  + Prevent from running daily when untracked files present in working dir
+  + Fixup auth helpers
 
 ### 2.0.16 (4/18/2017)
 
