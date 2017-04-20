@@ -50,10 +50,10 @@ export class IMAPConnectionEndedError extends IMAPRetryableError {
  * for us to retry.
  */
 export class IMAPCertificateError extends NylasError {
-  constructor(msg) {
+  constructor(msg, host) {
     super(msg)
-    this.userMessage = "Certificate Error: We couldn't verify the identity of your IMAP server. Please contact support@nylas.com."
-    this.statusCode = 401
+    this.userMessage = `Certificate Error: We couldn't verify the identity of the IMAP server "${host}".`
+    this.statusCode = 495
   }
 }
 
@@ -96,7 +96,7 @@ export class IMAPCertificateError extends NylasError {
  *     Message: 'Timed out while authenticating with server'
  *
  */
-export function convertImapError(imapError) {
+export function convertImapError(imapError, {connectionSettings} = {}) {
   let error = imapError;
 
   if (/try again/i.test(imapError.message)) {
@@ -131,9 +131,9 @@ export function convertImapError(imapError) {
       error = new IMAPConnectionTimeoutError(imapError); break;
     case "socket":
       if (imapError.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE") {
-        error = new IMAPCertificateError(imapError);
+        error = new IMAPCertificateError(imapError, connectionSettings.host);
       } else if (imapError.code === "SELF_SIGNED_CERT_IN_CHAIN") {
-        error = new IMAPCertificateError(imapError);
+        error = new IMAPCertificateError(imapError, connectionSettings.host);
       } else {
         error = new IMAPSocketError(imapError);
       }

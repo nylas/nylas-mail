@@ -242,7 +242,7 @@ export default class IMAPConnection extends EventEmitter {
         }
         const wrappedReject = (error) => {
           clearTimeout(socketTimeout)
-          const convertedError = convertImapError(error)
+          const convertedError = convertImapError(error, {connectionSettings: this._resolvedSettings})
           reject(convertedError)
           this.end()
         }
