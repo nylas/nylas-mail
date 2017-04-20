@@ -6,7 +6,7 @@ import nodemailer from 'nodemailer';
 import {CommonProviderSettings} from 'imap-provider-settings';
 import {INSECURE_TLS_OPTIONS, SECURE_TLS_OPTIONS} from './tls-utils';
 import IMAPConnection from './imap-connection'
-import {NylasError, RetryableError} from './errors'
+import {RetryableError} from './errors'
 import {convertSmtpError} from './smtp-errors'
 
 const {GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET} = process.env;
@@ -190,13 +190,24 @@ export function imapAuthRouteConfig() {
   }
 }
 
+/**
+ * NOTE: This gets run both on the cloud and on the client. On the cloud,
+ * logger goes to our ELK stack and can be viewed via Kibana.
+ *
+ * The client, in onboarding-helpers.es6 will first run this code on the
+ * cloud, and then run this code locally in the client-sync
+ *
+ * This is because both the cloud and the client must have valid auth
+ * tokens.
+ *
+ * Since the client does not have reporting access to our ELK stack, it
+ * sends the auth errors to Mixpanel
+ */
 export function imapAuthHandler(upsertAccount) {
   const MAX_RETRIES = 2
-  const authHandler = (request, reply, retryNum = 0) => {
-    const dbStub = {};
+  const authHandler = async (request, reply, retryNum = 0) => {
     const {email, provider, name} = request.payload;
 
-    const connectionChecks = [];
     const {connectionSettings, connectionCredentials} = credentialsForProvider(request.payload)
 
     const smtpConfig = smtpConfigFromSettings(provider, connectionSettings, connectionCredentials);
@@ -204,26 +215,26 @@ export function imapAuthHandler(upsertAccount) {
       connectionTimeout: 30000,
     }, smtpConfig));
 
-    // All IMAP accounts require a valid SMTP server for sending, and we never
-    // want to allow folks to connect accounts and find out later that they
-    // entered the wrong SMTP credentials. So verify here also!
-    const smtpVerifyPromise = smtpTransport.verify().catch((error) => {
-      throw convertSmtpError(error);
-    });
+    // All IMAP accounts require a valid SMTP server for sending, and we
+    // never want to allow folks to connect accounts and find out later
+    // that they entered the wrong SMTP credentials. So verify here also!
+    const testSMTP = () => {
+      return smtpTransport.verify()
+      .then(c => { if (c && c.end) c.end() })
+      .catch((error) => {
+        throw convertSmtpError(error);
+      });
+    }
 
-    connectionChecks.push(smtpVerifyPromise);
-    connectionChecks.push(IMAPConnection.connect({
-      settings: Object.assign({}, connectionSettings, connectionCredentials),
-      logger: request.logger,
-      db: dbStub,
-    }));
+    const testIMAP = () => {
+      return IMAPConnection.connect({
+        settings: Object.assign({}, connectionSettings, connectionCredentials),
+        logger: request.logger,
+        db: {}, // stub DB
+      }).then(c => { if (c && c.end) c.end() })
+    }
 
-    Promise.all(connectionChecks).then((results) => {
-      for (const result of results) {
-        // close any IMAP connections we opened
-        if (result && result.end) { result.end(); }
-      }
-
+    const upsertAccountWithParams = () => {
       const accountParams = {
         name: name,
         provider: provider,
@@ -231,46 +242,55 @@ export function imapAuthHandler(upsertAccount) {
         connectionSettings: connectionSettings,
       }
       return upsertAccount(accountParams, connectionCredentials)
-    })
-      .then(({account, token}) => {
-        const response = account.toJSON();
-        response.account_token = token.value;
-        reply(JSON.stringify(response));
+    }
+
+    const buildReply = ({account, token}) => {
+      const response = account.toJSON();
+      response.account_token = token.value;
+      return JSON.stringify(response);
+    }
+
+    const retryRequest = (err, logger, message, statusCode) => {
+      if (retryNum < MAX_RETRIES) {
+        setTimeout(() => {
+          request.logger.info(`${err.constructor.name}. Retry #${retryNum + 1}`)
+          authHandler(request, reply, retryNum + 1)
+        }, 100)
         return
+      }
+      logger.error(`AUTH ERROR: Failed after ${retryNum} retries`)
+      reply({message, type: "api_error"}).code(statusCode);
+      return
+    }
+
+    try {
+      await testSMTP();
+      await testIMAP();
+      const account = await upsertAccountWithParams();
+      return reply(buildReply(account))
+    } catch (err) {
+      const logger = request.logger.child({
+        account_name: name,
+        account_email: email,
+        account_provider: provider,
+        connection_settings: connectionSettings,
+        error_tb: err.stack,
+        error_name: err.constructor.name,
+        error_message: err.message,
+        error_status_code: err.statusCode,
+        error_user_message: err.userMessage,
       })
-      .catch((err) => {
-        const logger = request.logger.child({
-          account_name: name,
-          account_provider: provider,
-          account_email: email,
-          connection_settings: connectionSettings,
-          error_name: err.constructor.name,
-          error_message: err.message,
-          error_user_message: err.userMessage,
-          error_status_code: err.statusCode,
-          error_tb: err.stack,
-        })
 
-        const message = err.userMessage || err.message;
-        const statusCode = err.statusCode || 500;
+      const message = err.userMessage || err.message;
+      const statusCode = err.statusCode || 500;
 
-        if (err instanceof RetryableError) {
-          if (retryNum < MAX_RETRIES) {
-            setTimeout(() => {
-              request.logger.info(`${err.constructor.name}. Retry #${retryNum + 1}`)
-              authHandler(request, reply, retryNum + 1)
-            }, 100)
-            return
-          }
-          logger.error('Encountered retryable error while attempting to authenticate')
-          reply({message, type: "api_error"}).code(statusCode);
-          return
-        }
+      if (err instanceof RetryableError) {
+        return retryRequest(err, logger, message, statusCode)
+      }
 
-        logger.error("Error trying to authenticate")
-        reply({message, type: "api_error"}).code(statusCode);
-        return;
-      })
+      logger.error(`AUTH ERROR`)
+      return reply({message, type: "api_error"}).code(statusCode);
+    }
   }
   return authHandler
 }
