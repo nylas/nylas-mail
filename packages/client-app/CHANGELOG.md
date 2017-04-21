@@ -1,18 +1,21 @@
 # Nylas Mail Changelog
 
-### 2.0.17 (4/19/2017)
+### 2.0.18 (4/21/2017)
 
-- Features:
-  + Allow users to select custom folder mappings for Sent and Trash folders
-  + Move messages out of db into compressed flat files for better space
-    efficiency
+- Fixes:
+  + Correctly track all auth errors & correlate to email
+  + Add more IMAP provider settings from Mozilla's ISPDB
+  + Allow bypassing of invalid certificates during authentication
+  + Don't double report auth errors
+
+### 2.0.17 (4/19/2017)
 
 - Fixes:
   + Record auth error location to Mixpanel
   + Show proper auth error messages to users
   + Correctly identify more certificate errors
-  + Fix online detection behind proxy
-  + Use MIME encoded-word syntax on attachment filenames
+  + Fix offline notification behind proxies
+  + Fix attachment filename encodings
 
 - Development
   + Prevent from running daily when untracked files present in working dir
