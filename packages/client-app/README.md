@@ -10,7 +10,7 @@
 
 ## Download Nylas Mail
 
-You can download compiled versions of Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run Nylas Mail (Previously N1) on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
+You can download compiled versions of Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run Nylas Mail (Previously N1) on Fedora. On Arch Linux, you can install **[nylas-mail-bin](https://aur.archlinux.org/packages/nylas-mail-bin/)** or **[nylas-mail-git](https://aur.archlinux.org/packages/nylas-mail-git/)** from the aur.
 
 ## Build A Plugin
 
