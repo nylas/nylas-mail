@@ -52,7 +52,8 @@ export class IMAPConnectionEndedError extends IMAPRetryableError {
 export class IMAPCertificateError extends NylasError {
   constructor(msg, host) {
     super(msg)
-    this.userMessage = `Certificate Error: We couldn't verify the identity of the IMAP server "${host}".`
+    const hostStr = host ? ` "${host}"` : ''
+    this.userMessage = `Certificate Error: We couldn't verify the identity of the IMAP server${hostStr}.`
     this.statusCode = 495
   }
 }

@@ -39,7 +39,8 @@ export class SMTPAuthenticationError extends NylasError {
 export class SMTPCertificateError extends NylasError {
   constructor(msg, host) {
     super(msg)
-    this.userMessage = `Certificate Error: We couldn't verify the identity of the SMTP server "${host}".`
+    const hostStr = host ? ` "${host}"` : ''
+    this.userMessage = `Certificate Error: We couldn't verify the identity of the SMTP server${hostStr}.`
     this.statusCode = 495
   }
 }
