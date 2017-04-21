@@ -27,6 +27,7 @@ export class SMTPConnectionDNSError extends NylasError {
     this.statusCode = 401
   }
 }
+
 export class SMTPAuthenticationError extends NylasError {
   constructor(msg) {
     super(msg)
@@ -35,10 +36,18 @@ export class SMTPAuthenticationError extends NylasError {
   }
 }
 
+export class SMTPCertificateError extends NylasError {
+  constructor(msg, host) {
+    super(msg)
+    this.userMessage = `Certificate Error: We couldn't verify the identity of the SMTP server "${host}".`
+    this.statusCode = 495
+  }
+}
+
 /* Nodemailer's errors are just regular old Error objects, so we have to
  * test the error message to determine more about what they mean
  */
-export function convertSmtpError(err) {
+export function convertSmtpError(err, {connectionSettings = {}} = {}) {
   // TODO: what error is thrown if you're offline?
   // TODO: what error is thrown if the message you're sending is too large?
   if (/(?:connection timeout)|(?:connect etimedout)/i.test(err.message)) {
@@ -51,6 +60,16 @@ export function convertSmtpError(err) {
       smtpErr.code = err.code;
     }
   }
+
+  const isCertificateError = (
+    err.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
+    err.code === "SELF_SIGNED_CERT_IN_CHAIN" ||
+    /certificate/i.test(err.message)
+  )
+  if (isCertificateError) {
+    return new SMTPCertificateError(err, connectionSettings.host);
+  }
+
   if (/error initiating tls/i.test(err.message)) {
     return new SMTPConnectionTLSError(err);
   }

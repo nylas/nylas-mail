@@ -96,7 +96,7 @@ export class IMAPCertificateError extends NylasError {
  *     Message: 'Timed out while authenticating with server'
  *
  */
-export function convertImapError(imapError, {connectionSettings} = {}) {
+export function convertImapError(imapError, {connectionSettings = {}} = {}) {
   let error = imapError;
 
   if (/try again/i.test(imapError.message)) {
@@ -124,20 +124,24 @@ export function convertImapError(imapError, {connectionSettings} = {}) {
     return error
   }
 
+  const isCertificateError = (
+    imapError.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
+    imapError.code === "SELF_SIGNED_CERT_IN_CHAIN" ||
+    /certificate/i.test(imapError.message)
+  )
+  if (isCertificateError) {
+    error = new IMAPCertificateError(imapError, connectionSettings.host);
+    error.source = imapError.source
+    return error
+  }
+
   switch (imapError.source) {
     case "socket-timeout":
       error = new IMAPConnectionTimeoutError(imapError); break;
     case "timeout":
       error = new IMAPConnectionTimeoutError(imapError); break;
     case "socket":
-      if (imapError.code === "UNABLE_TO_VERIFY_LEAF_SIGNATURE") {
-        error = new IMAPCertificateError(imapError, connectionSettings.host);
-      } else if (imapError.code === "SELF_SIGNED_CERT_IN_CHAIN") {
-        error = new IMAPCertificateError(imapError, connectionSettings.host);
-      } else {
-        error = new IMAPSocketError(imapError);
-      }
-      break;
+      error = new IMAPSocketError(imapError); break;
     case "protocol":
       error = new IMAPProtocolError(imapError); break;
     case "authentication":

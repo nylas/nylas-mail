@@ -9,7 +9,8 @@ const MAX_RETRIES = 1;
 class SendmailClient {
 
   constructor(account, logger) {
-    this._transporter = nodemailer.createTransport(Object.assign(account.smtpConfig(), {pool: true}));
+    this._smtpConfig = account.smtpConfig()
+    this._transporter = nodemailer.createTransport(Object.assign(this._smtpConfig, {pool: true}));
     this._logger = logger;
   }
 
@@ -24,7 +25,7 @@ class SendmailClient {
         results = await this._transporter.sendMail(msgData);
       } catch (err) {
         // Keep retrying for MAX_RETRIES
-        error = convertSmtpError(err);
+        error = convertSmtpError(err, this._smtpConfig);
         this._logger.error(err);
       }
       if (!results) {
