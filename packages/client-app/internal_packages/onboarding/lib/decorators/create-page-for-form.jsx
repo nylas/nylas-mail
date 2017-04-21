@@ -113,6 +113,7 @@ const CreatePageForForm = (FormComponent) => {
       })
       .catch((err) => {
         Actions.recordUserEvent('Email Account Auth Failed', {
+          erroredEmail: accountInfo.email,
           errorMessage: err.message,
           errorLocation: err.location,
           provider: accountInfo.type,

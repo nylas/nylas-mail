@@ -1,5 +1,6 @@
 import React from 'react';
 import {OAuthSignInPage} from 'nylas-component-kit';
+import {IdentityStore} from 'nylas-exports'
 
 import {
   makeGmailOAuthRequest,
@@ -21,7 +22,7 @@ export default class AccountSettingsPageGmail extends React.Component {
 
   constructor() {
     super()
-    this._sessionKey = buildGmailSessionKey();
+    this._sessionKey = buildGmailSessionKey(IdentityStore.identityId());
     this._gmailAuthUrl = buildGmailAuthURL(this._sessionKey)
   }
 
@@ -40,6 +41,7 @@ export default class AccountSettingsPageGmail extends React.Component {
         serviceName="Google"
         providerAuthPageUrl={this._gmailAuthUrl}
         iconName={headerIcon}
+        accountInfo={accountInfo}
         tokenRequestPollFn={makeGmailOAuthRequest}
         accountFromTokenFn={authIMAPForGmail}
         onSuccess={this.onSuccess}

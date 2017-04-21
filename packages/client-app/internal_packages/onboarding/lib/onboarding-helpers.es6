@@ -80,8 +80,8 @@ export async function authIMAPForGmail(tokenData, {forceTrustCertificate = false
   return account
 }
 
-export function buildGmailSessionKey() {
-  return base64url(crypto.randomBytes(40));
+export function buildGmailSessionKey(identityId) {
+  return `${identityId}-----${base64url(crypto.randomBytes(40))}`;
 }
 
 export function buildGmailAuthURL(sessionKey) {

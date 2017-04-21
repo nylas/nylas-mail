@@ -46,6 +46,7 @@ export default class OAuthSignInPage extends React.Component {
     iconName: React.PropTypes.string,
     sessionKey: React.PropTypes.string,
     serviceName: React.PropTypes.string,
+    accountInfo: React.PropTypes.object,
   };
 
   constructor() {
@@ -80,6 +81,7 @@ export default class OAuthSignInPage extends React.Component {
     const isCertificateError = err.statusCode === 495
     this.setState({authStage: "error", errorMessage: err.message, isCertificateError})
     Actions.recordUserEvent('Email Account Auth Failed', {
+      erroredEmail: this.props.accountInfo.email,
       errorMessage: err.message,
       errorLocation: "client",
       provider: "gmail",
