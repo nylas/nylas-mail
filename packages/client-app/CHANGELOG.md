@@ -1,5 +1,23 @@
 # Nylas Mail Changelog
 
+### 2.0.19 (4/21/2017)
+
+- Features:
+  + Allow users to select custom folder mappings for Sent and Trash folders
+  + Move messages out of db into compressed flat files for better space
+    efficiency
+
+- Performance:
+  + 10x speed improvement for sending messages
+  + Improve performance of all syncback tasks by 500ms
+
+- Fixes:
+  + Correctly cleanup orphaned messages during sync
+
+- Development:
+  + Refactor sending code and remove cruft
+  + Fix the specs
+
 ### 2.0.18 (4/21/2017)
 
 - Fixes:
