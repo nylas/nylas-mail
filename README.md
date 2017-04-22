@@ -49,7 +49,7 @@ The Nylas Mail user interface is styled using CSS, which means it's easy to modi
 - [Monokai](https://github.com/dcondrey/n1-monokai)
 - [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme
 - [Stripe](https://github.com/oeaeee/n1-stripe)
-- [Kleinstein] (https://github.com/diklein/Kleinstein)—Hide the account list sidebar
+- [Kleinstein](https://github.com/diklein/Kleinstein)—Hide the account list sidebar
 - [BoraBora](https://github.com/arimai/N1-BoraBora)
 - [Honeyduke](https://github.com/arimai/n1-honeyduke)
 - [Snow](https://github.com/Wattenberger/N1-snow-theme)
