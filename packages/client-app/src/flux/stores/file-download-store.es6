@@ -2,7 +2,7 @@ import _ from 'underscore';
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import {exec} from 'child_process';
+import {ShellUtils} from 'isomorphic-core';
 import {remote, shell} from 'electron';
 import mkdirp from 'mkdirp';
 import progress from 'request-progress';
@@ -320,26 +320,22 @@ class FileDownloadStore extends NylasStore {
       })
       .catch(() => {
         // If the preview file doesn't exist yet, generate it
-        const fileDir = `"${path.dirname(filePath)}"`
-        const escapedPath = `"${filePath}"`
-        return new Promise((resolve) => {
-          const previewSize = THUMBNAIL_WIDTH * (11 / 8.5)
-          exec(`qlmanage -t -f ${window.devicePixelRatio} -s ${previewSize} -o ${fileDir} ${escapedPath}`, (error, stdout, stderr) => {
-            if (error) {
-              // Ignore errors, we don't really mind if we can't generate a preview
-              // for a file
-              NylasEnv.reportError(error)
-              resolve()
-              return
-            }
-            if (stdout.match(/No thumbnail created/i) || stderr) {
-              resolve()
-              return
-            }
-            this._filePreviewPaths[file.id] = previewPath
-            this.trigger()
-            resolve()
-          })
+        const fileDir = path.dirname(filePath)
+        const previewSize = THUMBNAIL_WIDTH * (11 / 8.5)
+
+        const qlManageArgs = ['-t', '-f', window.devicePixelRatio, '-s', previewSize, '-o', fileDir, filePath]
+        return ShellUtils.spawn(`qlmanage`, qlManageArgs)
+        .then(({stdout, stderr}) => {
+          if (/No thumbnail created/i.test(stdout) || stderr.length > 0) {
+            return
+          }
+          this._filePreviewPaths[file.id] = previewPath
+          this.trigger()
+        })
+        .catch((err) => {
+          // Ignore errors, we don't really mind if we can't generate a preview
+          // for a file
+          NylasEnv.reportError(err)
         })
       })
     })

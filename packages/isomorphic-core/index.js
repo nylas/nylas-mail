@@ -29,4 +29,5 @@ module.exports = {
   StringUtils: require('./src/string-utils'),
   TLSUtils: require('./src/tls-utils'),
   DBUtils: require('./src/db-utils'),
+  ShellUtils: require('./src/shell-utils'),
 }
