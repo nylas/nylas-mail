@@ -45,20 +45,35 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
      * again.
      */
     try {
+      /**
+       * When we send to multiple recipients, we only want 1 message in
+       * our sent folder that is void of tracking links.
+       *
+       * If the send is quick, we'll beat the sync loop and save a new
+       * message to the database. If the send is slow, on Gmail there may
+       * already be a message in our sent folder that was synced there.
+       */
+      let sentMessage = await db.Message.findById(baseMessage.id, {
+        include: [{model: db.Folder}, {model: db.Label}, {model: db.File}],
+      });
+      if (!sentMessage) {
+        sentMessage = baseMessage;
+      }
+
       // We strip the tracking links because this is the message that we want to
       // show the user as sent, so it shouldn't contain the tracking links
-      baseMessage.body = MessageUtils.stripTrackingLinksFromBody(baseMessage.body)
-      baseMessage.setIsSent(true)
+      sentMessage.body = MessageUtils.stripTrackingLinksFromBody(baseMessage.body)
+      sentMessage.setIsSent(true)
 
       // We don't save the message until after successfully sending it.
       // In the next sync loop, the message's labels and other data will
       // be updated, and we can guarantee this because we control message
       // id generation. The thread will be created or updated when we
       // detect this message in the sync loop
-      yield baseMessage.save()
+      await sentMessage.save()
 
       return {
-        message: baseMessage.toJSON(),
+        message: sentMessage.toJSON(),
         failedRecipients: sendResult.failedRecipients,
       }
     } catch (err) {
