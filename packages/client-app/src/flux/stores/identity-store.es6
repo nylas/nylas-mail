@@ -74,7 +74,7 @@ class IdentityStore extends NylasStore {
      * We also update from the server's version every
      * `SendFeatureUsageEventTask`
      */
-    setInterval(this._fetchIdentity.bind(this), 1000 * 60 * 10); // 10 minutes
+    setInterval(this._fetchIdentity.bind(this), 1000 * 60 * 60); // 60 minutes
     // Don't await for this!
     this._fetchIdentity();
   }
