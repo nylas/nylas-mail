@@ -13,6 +13,7 @@ import DatabaseStore from './database-store';
 Promise.promisifyAll(fs);
 const mkdirpAsync = Promise.promisify(mkdirp);
 const UPLOAD_DIR = path.join(NylasEnv.getConfigDirPath(), 'uploads');
+const MAX_UPLOAD_SIZE = 25 * 1000000 // 25 MB
 
 
 class Upload {
@@ -159,13 +160,13 @@ class FileUploadStore extends NylasStore {
       const upload = new Upload({messageClientId, filePath, stats, inline});
       if (stats.isDirectory()) {
         throw new Error(`${upload.filename} is a directory. Try compressing it and attaching it again.`);
-      } else if (stats.size > 15 * 1000000) {
-        throw new Error(`${upload.filename} cannot be attached because it is larger than 5MB.`);
+      } else if (stats.size > MAX_UPLOAD_SIZE) {
+        throw new Error(`${upload.filename} cannot be attached because it is larger than 25MB.`);
       }
       await mkdirpAsync(upload.targetDir)
 
       const totalSize = await this._getTotalDirSize(upload.targetDir)
-      if (totalSize >= 15 * 1000000) {
+      if (totalSize > MAX_UPLOAD_SIZE) {
         throw new Error(`Can't upload more than 15MB of attachments`);
       }
 
