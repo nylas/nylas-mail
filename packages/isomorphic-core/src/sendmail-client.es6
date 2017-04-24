@@ -25,7 +25,7 @@ class SendmailClient {
         results = await this._transporter.sendMail(msgData);
       } catch (err) {
         // Keep retrying for MAX_RETRIES
-        error = convertSmtpError(err, this._smtpConfig);
+        error = convertSmtpError(err, {connectionSettings: this._smtpConfig});
         this._logger.error(err);
       }
       if (!results) {

@@ -243,7 +243,7 @@ export function imapAuthHandler(upsertAccount) {
       return smtpTransport.verify()
       .then(c => { if (c && c.end) c.end() })
       .catch((error) => {
-        throw convertSmtpError(error, smtpConfig);
+        throw convertSmtpError(error, {connectionSettings: smtpConfig});
       });
     }
 
