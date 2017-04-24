@@ -237,7 +237,7 @@ class DraftFactory
       alias = account.meUsingAlias(aliasString)
       for recipient in [].concat(message.to, message.cc)
         emailIsNotDefault = alias.email isnt defaultMe.email
-        emailsMatch = recipient.email is alias.email
+        emailsMatch = recipient.email.toLowerCase() is alias.email.toLowerCase()
         nameIsNotDefault = alias.name isnt defaultMe.name
         namesMatch = recipient.name is alias.name
 
