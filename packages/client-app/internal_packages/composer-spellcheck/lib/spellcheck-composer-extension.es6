@@ -139,11 +139,12 @@ function wrapMisspelledWords(rootNode) {
 }
 
 let currentlyRunningSpellChecker = false;
-const runSpellChecker = _.debounce((rootNode) => {
+const runSpellChecker = _.debounce((editor) => {
+  if (!editor.currentSelection().isInScope()) return;
   currentlyRunningSpellChecker = true;
-  unwrapWords(rootNode);
-  Spellchecker.handler.provideHintText(rootNode.textContent).then(() => {
-    wrapMisspelledWords(rootNode)
+  unwrapWords(editor.rootNode);
+  Spellchecker.handler.provideHintText(editor.rootNode.textContent).then(() => {
+    wrapMisspelledWords(editor.rootNode)
 
     // We defer here so that when the MutationObserver fires the
     // SpellcheckComposerExtension.onContentChanged callback we will properly
@@ -160,9 +161,8 @@ const runSpellChecker = _.debounce((rootNode) => {
 export default class SpellcheckComposerExtension extends ComposerExtension {
 
   static onContentChanged({editor}) {
-    const {rootNode} = editor
     if (!currentlyRunningSpellChecker) {
-      runSpellChecker(rootNode);
+      runSpellChecker(editor);
     }
   }
 
