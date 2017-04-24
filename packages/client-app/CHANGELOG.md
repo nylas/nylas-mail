@@ -2,13 +2,12 @@
 
 ### 2.0.20 (4/24/2017)
 
-  + [iso-core] Correctly pass connSettings to convertSmtpError
-  + [client-app] Fix shell cmd injection when using qlmanage for file previews
-  + [client-app] only poll for identity every hour instead of every 10 min
-  + [cloud-api] remove auth requirement against billing
-  + [client-app] fix link editor jumping away from you
-  + [iso-core] Fix certificate error msg
-  + [client-app] Detect smtp cert errors and relax condition to detect them
+- Fixes:
+  + Correctly pass connSettings to convertSmtpError
+  + Fix shell cmd injection when using qlmanage for file previews
+  + Fix link editor jumping away from you in composer
+  + Fix certificate error msg
+  + Detect smtp cert errors and relax condition to detect them
 
 ### 2.0.19 (4/21/2017)
 
