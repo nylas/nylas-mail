@@ -2,22 +2,12 @@
 
 ### 2.0.23 (4/25/2017)
 
-  + [client-app] Properly retry retryable errors in syncback tasks
-  + [\*] remove old email references
-  + Revert [iso-core] Fix interruptible throwing errors
-  + [iso-core] Fix interruptible throwing errors
-  + [client-sync] fix sending when racing syncing of Gmail sent folder
-  + [client-app] Increment max upload size
-  + [iso-core] Correctly pass connSettings to convertSmtpError
-  + [client-app] Fix attachment previews
-
-### 2.0.22 (4/25/2017)
-
-  + Revert [iso-core] Fix interruptible throwing errors
+- Fixes:
+  + Properly retry retryable errors in syncback tasks
 
 ### 2.0.21 (4/24/2017)
 
-- Fixes
+- Fixes:
   + Fix throwing errors inside Interruptible
   + Fix sending on Gmail with large attachments (caused by conflict with syncing
     sent folder)
@@ -27,7 +17,7 @@
 
 - Fixes:
   + Correctly pass connSettings to convertSmtpError
-  + Fix shell cmd injection when using qlmanage for file previews
+  + Fix attachment previews
   + Fix link editor jumping away from you in composer
   + Fix certificate error msg
   + Detect smtp cert errors and relax condition to detect them
