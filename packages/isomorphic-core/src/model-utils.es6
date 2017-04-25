@@ -34,7 +34,7 @@ function deepClone(object, customizer, stackSeen = [], stackRefs = []) {
   return newObject;
 }
 
-function copyModel(Model, model, updates = {}) {
+function copyModelValues(model, updates = {}) {
   const fields = Object.keys(model.dataValues)
   const data = {}
   for (const field of fields) {
@@ -46,7 +46,7 @@ function copyModel(Model, model, updates = {}) {
   // string
     data[field] = model[field]
   }
-  return Model.build(Object.assign({}, data, updates))
+  return Object.assign({}, data, updates)
 }
 
 function isValidId(value) {
@@ -59,6 +59,6 @@ function isValidId(value) {
 
 export default {
   deepClone,
-  copyModel,
   isValidId,
+  copyModelValues,
 }

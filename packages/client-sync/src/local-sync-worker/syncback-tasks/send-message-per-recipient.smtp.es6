@@ -34,7 +34,8 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     let sendResult;
     try {
       sendResult = yield this._sendPerRecipient({
-        db, smtp, baseMessage, logger: this._logger, usesOpenTracking, usesLinkTracking})
+        smtp, baseMessage, logger: this._logger, usesOpenTracking, usesLinkTracking,
+      })
     } catch (err) {
       throw new APIError('SendMessagePerRecipient: Sending failed for all recipients', 500);
     }
@@ -82,8 +83,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     }
   }
 
-  async _sendPerRecipient({db, smtp, baseMessage, usesOpenTracking, usesLinkTracking} = {}) {
-    const {Message} = db
+  async _sendPerRecipient({smtp, baseMessage, usesOpenTracking, usesLinkTracking} = {}) {
     const recipients = baseMessage.getRecipients()
     const failedRecipients = []
 
@@ -95,18 +95,18 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
         usesLinkTracking,
       })
 
-      const individualizedMessage = ModelUtils.copyModel(Message, baseMessage, {
+      const individualizedMessageValues = ModelUtils.copyModelValues(baseMessage, {
         body: customBody,
       })
       // TODO we set these temporary properties which aren't stored in the
       // database model because SendmailClient requires them to send the message
       // with the correct headers.
       // This should be cleaned up
-      individualizedMessage.references = baseMessage.references;
-      individualizedMessage.inReplyTo = baseMessage.inReplyTo;
+      individualizedMessageValues.references = baseMessage.references;
+      individualizedMessageValues.inReplyTo = baseMessage.inReplyTo;
 
       try {
-        await smtp.sendCustom(individualizedMessage, {to: [recipient]})
+        await smtp.sendCustom(individualizedMessageValues, {to: [recipient]})
       } catch (error) {
         this._logger.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
         failedRecipients.push(recipient.email)
