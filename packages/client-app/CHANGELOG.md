@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.22 (4/25/2017)
+
+  + Revert [iso-core] Fix interruptible throwing errors
+
 ### 2.0.21 (4/24/2017)
 
 - Fixes
