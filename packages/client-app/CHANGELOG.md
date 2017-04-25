@@ -1,5 +1,10 @@
 # Nylas Mail Changelog
 
+### 2.0.24 (4/25/2017)
+
+  + [client-app] Speed up sending per recipient
+  + [client-app] Fix tracking when sending per recipient
+
 ### 2.0.23 (4/25/2017)
 
 - Fixes:
