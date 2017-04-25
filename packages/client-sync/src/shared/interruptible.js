@@ -67,7 +67,6 @@ class Interruptible extends EventEmitter {
         }
         let step = {done: false};
         let val;
-        let error;
         const advance = async () => {
           // Calling generator.next() will execute the generator function until
           // it's next `yield` statement.
@@ -76,36 +75,29 @@ class Interruptible extends EventEmitter {
           //   value: 'some val', // `yield`ed value
           //   done: false,       // is execution done?
           // }
-          if (error) {
-            step = generatorObj.throw(error)
+          step = generatorObj.next(val)
+
+          if (typeof step.then === 'function') {
+            // Await it in case it is a promise.
+            step = await step
+          }
+
+          if (!step.value) {
+            // If no value, just continue advancing
+            val = step.value
+            return
+          }
+
+
+          if (typeof step.value.next === 'function') {
+            // step.value is a generator object, so let's run it recursively
+            val = await this._runGenerator(step.value)
           } else {
-            step = generatorObj.next(val)
+            // step.value could be a Promise or not, let's just `await` it
+            // anyway
+            val = await step.value
           }
-
-          try {
-            if (typeof step.then === 'function') {
-              // Await it in case it is a promise.
-              step = await step
-            }
-
-            if (!step.value) {
-              // If no value, just continue advancing
-              val = step.value
-              return
-            }
-
-
-            if (typeof step.value.next === 'function') {
-              // step.value is a generator object, so let's run it recursively
-              val = await this._runGenerator(step.value)
-            } else {
-              // step.value could be a Promise or not, let's just `await` it
-              // anyway
-              val = await step.value
-            }
-          } catch (err) {
-            error = err
-          }
+          return
         }
 
         // Advance until done
