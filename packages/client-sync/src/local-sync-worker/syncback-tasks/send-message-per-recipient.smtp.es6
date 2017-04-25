@@ -87,7 +87,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     const recipients = baseMessage.getRecipients()
     const failedRecipients = []
 
-    for (const recipient of recipients) {
+    await Promise.all(recipients.map(async recipient => {
       const customBody = MessageUtils.buildTrackingBodyForRecipient({
         recipient,
         baseMessage,
@@ -111,7 +111,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
         this._logger.error(error, {recipient: recipient.email}, 'SendMessagePerRecipient: Failed to send to recipient');
         failedRecipients.push(recipient.email)
       }
-    }
+    }))
     if (failedRecipients.length === recipients.length) {
       throw new APIError('SendMessagePerRecipient: Sending failed for all recipients', 500);
     }
