@@ -1,5 +1,11 @@
 # Nylas Mail Changelog
 
+### 2.0.21 (4/24/2017)
+
+  + [iso-core] Fix interruptible throwing errors
+  + [client-sync] fix sending when racing syncing of Gmail sent folder
+  + [client-app] Increment max upload size
+
 ### 2.0.20 (4/24/2017)
 
 - Fixes:
