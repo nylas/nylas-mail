@@ -1,5 +1,16 @@
 # Nylas Mail Changelog
 
+### 2.0.23 (4/25/2017)
+
+  + [client-app] Properly retry retryable errors in syncback tasks
+  + [\*] remove old email references
+  + Revert [iso-core] Fix interruptible throwing errors
+  + [iso-core] Fix interruptible throwing errors
+  + [client-sync] fix sending when racing syncing of Gmail sent folder
+  + [client-app] Increment max upload size
+  + [iso-core] Correctly pass connSettings to convertSmtpError
+  + [client-app] Fix attachment previews
+
 ### 2.0.22 (4/25/2017)
 
   + Revert [iso-core] Fix interruptible throwing errors
