@@ -196,7 +196,7 @@ export default class OAuthSignInPage extends React.Component {
         <h2>Sorry, we had trouble logging you in</h2>
         <div className="error-region">
           <p className="message error error-message">{errorMessage}</p>
-          <p className="extra">Please <a onClick={onTryAgain}>try again</a>. If you continue to see this error contact support@nylas.com</p>
+          <p className="extra">Please <a onClick={onTryAgain}>try again</a> later.</p>
         </div>
       </div>
     )

@@ -20,7 +20,7 @@ export class IMAPTransientAuthenticationError extends IMAPRetryableError { }
 export class IMAPProtocolError extends NylasError {
   constructor(msg) {
     super(msg)
-    this.userMessage = "IMAP protocol error. Please contact support@nylas.com."
+    this.userMessage = "IMAP protocol error. Try to first remove your account from Nylas Mail, then re-add it and try again."
     this.statusCode = 401
   }
 }

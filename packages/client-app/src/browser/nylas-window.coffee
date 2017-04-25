@@ -212,7 +212,7 @@ class NylasWindow
           type: 'warning'
           buttons: ['Close Window', 'Reload', 'Keep It Open']
           message: 'Nylas Mail has crashed'
-          detail: 'Please report this issue to us at support@nylas.com.'
+          detail: 'Please restart Nylas Mail.'
         switch chosen
           when 0 then @browserWindow.destroy()
           when 1 then @browserWindow.reload()

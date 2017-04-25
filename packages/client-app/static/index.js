@@ -32,7 +32,7 @@ function handleSetupError (error) {
   }
   console.error(error.stack || error)
   ipcRenderer.sendSync("report-error", {errorJSON: errorJSON})
-  var message = `We encountered an unexpected problem starting up Nylas Mail. Please try again or contact support@nylas.com`
+  var message = `We encountered an unexpected problem starting up Nylas Mail. Please try again.`
   ipcRenderer.send("quit-with-error-message", message)
 }
 

@@ -179,7 +179,7 @@ class OnboardingStore extends NylasStore {
       }
     } catch (e) {
       NylasEnv.reportError(e);
-      NylasEnv.showErrorDialog("Unable to Connect Account", "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@nylas.com.");
+      NylasEnv.showErrorDialog("Unable to Connect Account", "Sorry, something went wrong on the Nylas server. Please try again later.");
     }
   }
 

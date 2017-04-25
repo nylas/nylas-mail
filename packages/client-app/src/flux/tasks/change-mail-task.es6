@@ -208,7 +208,7 @@ export default class ChangeMailTask extends Task {
         this._ensureLocksRemoved();
         NylasEnv.showErrorDialog({
           title: "Error",
-          message: `We were unable to apply the changes to your thread${this.threads.length > 1 ? 's' : ''}, please try again!\nIf the error persists, contact support@nylas.com with the error message.\n\nError message: ${err.message}`,
+          message: `We were unable to apply the changes to your thread${this.threads.length > 1 ? 's' : ''}, please try again later.\n\nError message: ${err.message}`,
         })
         return Promise.resolve([Task.Status.Failed, err]);
       });

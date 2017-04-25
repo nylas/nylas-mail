@@ -263,7 +263,6 @@ export default class SendDraftTask extends BaseDraftTask {
           threadId: this.draft.threadId,
           draftClientId: this.draft.clientId,
           errorMessage: `WARNING: Your message MIGHT have sent. We encountered a network problem while the send was in progress. Please wait a few minutes then check your sent folder and try again if necessary.`,
-          errorDetail: `Please email support@nylas.com if you see this error message.`,
         });
       } else {
         Actions.draftDeliveryFailed({

@@ -18,7 +18,8 @@
             It took too long to authenticate your account and the request timed out. Please try again.
           </p>
           <p>
-            If you're seeing this error multiple times, contact us at <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=client_key%3D{{ error }}">support@nylas.com</a>.
+            If you're seeing this error multiple times, we unfortunately
+            may not support your email provider.
           </p>
         {{else if imap_auth_error }}
           <p class="alert">
@@ -39,26 +40,13 @@
             Make sure "Show in IMAP" is checked for the "All Mail" and "Trash" labels.
           </p>
           <p><a href="https://mail.google.com/mail/#settings/labels" target="_blank"><img src="/static/images/all_trash_imap.png"/></a></p>
-          <h4>Still having trouble?</h4>
-          <p>
-             If you've tried all of these solutions but are still running into problems, please contact us at
-            <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=error%3D{{ error }}">support@nylas.com</a>.
-          </p>
         {{else if invalid_grant }}
           <p class="alert">
               Couldn't get an authorization token from Google! Please try authenticating again.
           </p>
-          <p>
-             If you're repeatedly receiving this error please contact us at 
-            <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=error%3D{{ error }}">support@nylas.com</a>.
-          </p>
         {{else}}
           <p class="alert">
             An unknown error occured when authorizing your account.
-          </p>
-          <p>
-             If you're repeatedly receiving this error please contact us at 
-             <a href="mailto:support@nylas.com?subject=Unable%20to%20connect%20gmail%20account&body=error%3D{{ error }}">support@nylas.com</a>.
           </p>
         {{/if}}
 

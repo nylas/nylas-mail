@@ -95,7 +95,7 @@ module.exports = (grunt) => {
         linuxShareDir: '/usr/share/nylas-mail',
         arch: arch,
         section: 'devel',
-        maintainer: 'Nylas Team <support@nylas.com>',
+        maintainer: 'Nylas Team',
         installedSize: installedSize,
       }
       writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data)

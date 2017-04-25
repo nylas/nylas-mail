@@ -87,35 +87,7 @@ class MessageControls extends React.Component
     menu.append(new SystemMenuItem({ label: 'Log Data', click: => @_onLogData()}))
     menu.append(new SystemMenuItem({ label: 'Show Original', click: => @_onShowOriginal()}))
     menu.append(new SystemMenuItem({ label: 'Copy Debug Info to Clipboard', click: => @_onCopyToClipboard()}))
-    menu.append(new SystemMenuItem({ type: 'separator'}))
-    menu.append(new SystemMenuItem({ label: 'Report Issue: Quoted Text', click: => @_onReport('Quoted Text')}))
-    menu.append(new SystemMenuItem({ label: 'Report Issue: Rendering', click: => @_onReport('Rendering')}))
     menu.popup(remote.getCurrentWindow())
-
-  _onReport: (issueType) =>
-    {Contact, Message, DatabaseStore, AccountStore} = require 'nylas-exports'
-
-    draft = new Message
-      from: [@_account().me()]
-      to: [new Contact(name: "Nylas Team", email: "n1-support@nylas.com")]
-      date: (new Date)
-      draft: true
-      subject: "Feedback - Message Display Issue (#{issueType})"
-      accountId: @_account().id
-      body: @props.message.body
-
-    DatabaseStore.inTransaction (t) =>
-      t.persistModel(draft)
-    .then =>
-      Actions.sendDraft(draft.clientId)
-
-      dialog = remote.dialog
-      dialog.showMessageBox remote.getCurrentWindow(), {
-        type: 'warning'
-        buttons: ['OK'],
-        message: "Thank you."
-        detail: "The contents of this message have been sent to the N1 team and will be added to a test suite."
-      }
 
   _onShowOriginal: =>
     fs = require 'fs'
