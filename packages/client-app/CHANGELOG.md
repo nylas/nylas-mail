@@ -2,9 +2,11 @@
 
 ### 2.0.21 (4/24/2017)
 
-  + [iso-core] Fix interruptible throwing errors
-  + [client-sync] fix sending when racing syncing of Gmail sent folder
-  + [client-app] Increment max upload size
+- Fixes
+  + Fix throwing errors inside Interruptible
+  + Fix sending on Gmail with large attachments (caused by conflict with syncing
+    sent folder)
+  + Increment max size for attachments
 
 ### 2.0.20 (4/24/2017)
 
