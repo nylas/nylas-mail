@@ -187,7 +187,9 @@ class SyncbackTaskRunner {
       this._logger.log(`🔃 📤 ${task.description()} Succeeded (${after.getTime() - before.getTime()}ms)`)
     }
 
+    let retryableError;
     const onRetryableError = async (error) => {
+      retryableError = error
       const after = new Date();
       Actions.recordUserEvent('Retrying send task', {
         accountId: this._account.id,
@@ -197,11 +199,6 @@ class SyncbackTaskRunner {
       syncbackRequest.status = "NEW";
       await syncbackRequest.save();
       this._logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
-      // Throw retryable error to interrupt and restart sync loop
-      // The sync loop will take care of backing off when handling retryable
-      // errors.
-      error.message = `${task.description()} failed with retryable error: ${error.message}`
-      throw error
     }
 
     try {
@@ -214,6 +211,14 @@ class SyncbackTaskRunner {
       syncbackRequest.status = "FAILED";
       this._logger.error(`🔃 📤 ${task.description()} Failed (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})
       await syncbackRequest.save();
+    }
+
+    if (retryableError) {
+      // Throw retryable error to interrupt and restart sync loop
+      // The sync loop will take care of backing off when handling retryable
+      // errors.
+      retryableError.message = `${task.description()} failed with retryable error: ${retryableError.message}`
+      throw retryableError
     }
   }
 }
