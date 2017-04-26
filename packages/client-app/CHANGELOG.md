@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.25 (4/26/2017)
+
+  + [\*] fix self-triggering open and link tracking
+
 ### 2.0.24 (4/25/2017)
 
   + [client-app] Speed up sending per recipient
