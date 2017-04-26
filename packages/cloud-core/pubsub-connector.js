@@ -15,10 +15,10 @@ class PubsubConnector {
 
   buildClient(accountId) {
     const client = redis.createClient(process.env.REDIS_URL || null);
-    global.Logger.log.info({account_id: accountId}, "Connecting to Redis")
-    client.on("error", global.Logger.log.error);
+    global.Logger.info({account_id: accountId}, "Connecting to Redis")
+    client.on("error", global.Logger.error);
     client.on("end", () => {
-      global.Logger.log.info({account_id: accountId}, "Redis disconnected")
+      global.Logger.info({account_id: accountId}, "Redis disconnected")
       this._broadcastClient = null;
     })
     return client;
@@ -102,7 +102,7 @@ class PubsubConnector {
       })
       sub.subscribe(`deltas-${accountId}`);
       return () => {
-        global.Logger.log.info({account_id: accountId}, "Closing Redis")
+        global.Logger.info({account_id: accountId}, "Closing Redis")
         sub.unsubscribe();
         sub.quit();
       }
