@@ -122,7 +122,7 @@ export default class SendLaterWorker extends CloudWorker {
     const failedRecipients = []
 
     for (const recipient of recipients) {
-      const customBody = MessageUtils.buildTrackingBodyForRecipient({
+      const customBody = MessageUtils.addRecipientToTrackingLinks({
         recipient,
         baseMessage,
         usesOpenTracking,

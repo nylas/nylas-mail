@@ -8,7 +8,7 @@ const extractFiles = require('./extract-files');
 const extractContacts = require('./extract-contacts');
 const {MessageUtils} = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector');
-const {BatteryStatusManager} = require('nylas-exports');
+const {AccountStore, BatteryStatusManager} = require('nylas-exports');
 const SyncActivity = require('../shared/sync-activity').default;
 
 const MAX_QUEUE_LENGTH = 500
@@ -113,6 +113,19 @@ class MessageProcessor {
         folder,
         accountId,
       });
+
+      /**
+       * When we send messages, Gmail will automatically stuff messages in
+       * the sent folder that contain open & link tracking data. While we
+       * will eventually clean that up, if the send takes a while to
+       * multiple people (due to attachments) it's possible that we'll
+       * sync that recently sent message. If this happens, we want to
+       * ensure that no open and link tracking data is included.
+       */
+      if (AccountStore.isMyEmail(messageValues.from.map(f => f.email))) {
+        messageValues.body = MessageUtils.stripTrackingLinksFromBody(messageValues.body)
+      }
+
       const existingMessage = await Message.findById(messageValues.id, {
         include: [{model: Folder, as: 'folder'}, {model: Label, as: 'labels'}],
       });

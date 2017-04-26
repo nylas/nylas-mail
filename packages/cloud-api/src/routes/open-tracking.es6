@@ -1,5 +1,5 @@
+import {decodeRecipient} from '../tracking-utils'
 const Joi = require('joi')
-const Base64 = require('js-base64').Base64
 const Path = require('path')
 const {DatabaseConnector} = require('cloud-core')
 
@@ -54,14 +54,14 @@ module.exports = (server) => {
           messageId: Joi.string().required(),
         },
         query: {
-          r: Joi.string(),
+          recipient: Joi.string(),
+          r: Joi.string(), // The deprecated recipient param
         },
       },
     },
     async handler(request, reply) {
       const {messageId} = request.params
-      const {r} = request.query
-      const recipient = r ? Base64.decode(r) : null
+      const recipient = decodeRecipient(request.query)
 
       const {Metadata} = await DatabaseConnector.forShared()
       const metadata = await Metadata.find({

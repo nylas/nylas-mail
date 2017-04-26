@@ -1,5 +1,5 @@
+import {decodeRecipient} from '../tracking-utils'
 const Joi = require('joi')
-const Base64 = require('js-base64').Base64
 const {DatabaseConnector} = require('cloud-core')
 
 const PLUGIN_NAME = 'link-tracking'
@@ -57,21 +57,21 @@ module.exports = (server) => {
         },
         query: {
           redirect: Joi.string().required(),
-          r: Joi.string(),
+          recipient: Joi.string(),
+          r: Joi.string(), // The deprecated recipient param
         },
       },
     },
     async handler(request, reply) {
       const {messageId, linkIdx} = request.params
       let {redirect} = request.query
-      const {r} = request.query
 
       if (!redirect) {
         reply('').code(404)
       } else if (!redirect.startsWith('http://') && !redirect.startsWith('https://')) {
         redirect = `https://${redirect}`
       }
-      const recipient = r ? Base64.decode(r) : null
+      const recipient = decodeRecipient(request.query)
 
       const {Metadata} = await DatabaseConnector.forShared()
       const metadata = await Metadata.find({

@@ -88,7 +88,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     const failedRecipients = []
 
     await Promise.all(recipients.map(async recipient => {
-      const customBody = MessageUtils.buildTrackingBodyForRecipient({
+      const customBody = MessageUtils.addRecipientToTrackingLinks({
         recipient,
         baseMessage,
         usesOpenTracking,

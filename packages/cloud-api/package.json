@@ -14,8 +14,10 @@
   },
   "dependencies": {
     "analytics-node": "2.x.x",
+    "atob": "2.0.3",
     "babel-cli": "6.23.0",
     "boom": "4.2.0",
+    "btoa": "1.1.2",
     "cloud-core": "0.x.x",
     "googleapis": "9.0.0",
     "handlebars": "4.0.6",
