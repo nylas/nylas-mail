@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.26 (4/26/2017)
+
+  + [\*] consolidate TrackingUtils & better documentation
+
 ### 2.0.25 (4/26/2017)
 
   + [\*] fix self-triggering open and link tracking
