@@ -1,7 +1,6 @@
 const Rx = require('rx-lite')
 const redis = require("redis");
 const {PromiseUtils} = require('isomorphic-core');
-const log = global.Logger || console;
 
 PromiseUtils.promisifyAll(redis.RedisClient.prototype);
 PromiseUtils.promisifyAll(redis.Multi.prototype);
@@ -16,10 +15,10 @@ class PubsubConnector {
 
   buildClient(accountId) {
     const client = redis.createClient(process.env.REDIS_URL || null);
-    log.info({account_id: accountId}, "Connecting to Redis")
-    client.on("error", log.error);
+    global.Logger.log.info({account_id: accountId}, "Connecting to Redis")
+    client.on("error", global.Logger.log.error);
     client.on("end", () => {
-      log.info({account_id: accountId}, "Redis disconnected")
+      global.Logger.log.info({account_id: accountId}, "Redis disconnected")
       this._broadcastClient = null;
     })
     return client;
@@ -103,7 +102,7 @@ class PubsubConnector {
       })
       sub.subscribe(`deltas-${accountId}`);
       return () => {
-        log.info({account_id: accountId}, "Closing Redis")
+        global.Logger.log.info({account_id: accountId}, "Closing Redis")
         sub.unsubscribe();
         sub.quit();
       }
