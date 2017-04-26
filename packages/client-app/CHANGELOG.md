@@ -1,5 +1,12 @@
 # Nylas Mail Changelog
 
+### 2.0.27 (4/26/2017)
+
+  + [iso-core] fix atob dependency
+  + [cloud-core] fix logger error
+  + [client-app] Don't throw error when search query has trailing whitespace
+  + [cloud-core] use correct logger when logging Redis connections
+
 ### 2.0.26 (4/26/2017)
 
 - Fixes:
