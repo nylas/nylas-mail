@@ -145,4 +145,9 @@ describe('SearchQueryParser.parse', () => {
         and(in_(text(token('Sent Items'))), to(text(token('foo')))))
     )).toBe(true)
   });
+  it('correctly parses queries with whitespace at the end', () => {
+    expect(SearchQueryParser.parse('from:blah ').equals(
+      from(text(token('blah')))
+    )).toBe(true)
+  });
 });

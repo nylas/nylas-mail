@@ -336,7 +336,8 @@ parseQuery = (text) => {
 
 const parseQueryWrapper = (text) => {
   const [result, leftover] = parseQuery(text);
-  if (leftover.length > 0) {
+  const leftoverNoWhitespace = consumeWhitespace(leftover);
+  if (leftoverNoWhitespace.length > 0) {
     throw new Error('Unable to parse query: expected end of stream');
   }
   return result;
