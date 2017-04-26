@@ -2,16 +2,13 @@
 
 ### 2.0.26 (4/26/2017)
 
-  + [\*] consolidate TrackingUtils & better documentation
+- Fixes:
+  + Fix self-triggering in open and link tracking
+  + Speed up sending per recipient
+  + Fix open and link tracking when sending per recipient
 
-### 2.0.25 (4/26/2017)
-
-  + [\*] fix self-triggering open and link tracking
-
-### 2.0.24 (4/25/2017)
-
-  + [client-app] Speed up sending per recipient
-  + [client-app] Fix tracking when sending per recipient
+- Development:
+  + Consolidate TrackingUtils & better documentation
 
 ### 2.0.23 (4/25/2017)
 
