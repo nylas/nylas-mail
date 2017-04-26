@@ -4,7 +4,7 @@ import path from 'path';
 import tmp from 'tmp';
 import {Promise} from 'bluebird';
 import {DatabaseConnector} from 'cloud-core'
-import {SendmailClient, MessageUtils, ModelUtils} from 'isomorphic-core'
+import {SendmailClient, MessageUtils, TrackingUtils, ModelUtils} from 'isomorphic-core'
 import CloudWorker from '../cloud-worker'
 
 Promise.promisifyAll(fs);
@@ -122,7 +122,7 @@ export default class SendLaterWorker extends CloudWorker {
     const failedRecipients = []
 
     for (const recipient of recipients) {
-      const customBody = MessageUtils.addRecipientToTrackingLinks({
+      const customBody = TrackingUtils.addRecipientToTrackingLinks({
         recipient,
         baseMessage,
         usesOpenTracking,

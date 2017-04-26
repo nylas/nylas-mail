@@ -6,7 +6,7 @@ const mkdirp = require('mkdirp');
 const detectThread = require('./detect-thread');
 const extractFiles = require('./extract-files');
 const extractContacts = require('./extract-contacts');
-const {MessageUtils} = require('isomorphic-core');
+const {MessageUtils, TrackingUtils} = require('isomorphic-core');
 const LocalDatabaseConnector = require('../shared/local-database-connector');
 const {AccountStore, BatteryStatusManager} = require('nylas-exports');
 const SyncActivity = require('../shared/sync-activity').default;
@@ -123,7 +123,7 @@ class MessageProcessor {
        * ensure that no open and link tracking data is included.
        */
       if (AccountStore.isMyEmail(messageValues.from.map(f => f.email))) {
-        messageValues.body = MessageUtils.stripTrackingLinksFromBody(messageValues.body)
+        messageValues.body = TrackingUtils.stripTrackingLinksFromBody(messageValues.body)
       }
 
       const existingMessage = await Message.findById(messageValues.id, {

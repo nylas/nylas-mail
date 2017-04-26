@@ -1,4 +1,4 @@
-const {Errors: {APIError}, MessageUtils, ModelUtils} = require('isomorphic-core')
+const {Errors: {APIError}, MessageUtils, TrackingUtils, ModelUtils} = require('isomorphic-core')
 const {SyncbackSMTPTask} = require('./syncback-task')
 
 
@@ -63,7 +63,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
 
       // We strip the tracking links because this is the message that we want to
       // show the user as sent, so it shouldn't contain the tracking links
-      sentMessage.body = MessageUtils.stripTrackingLinksFromBody(baseMessage.body)
+      sentMessage.body = TrackingUtils.stripTrackingLinksFromBody(baseMessage.body)
       sentMessage.setIsSent(true)
 
       // We don't save the message until after successfully sending it.
@@ -88,7 +88,7 @@ class SendMessagePerRecipientSMTP extends SyncbackSMTPTask {
     const failedRecipients = []
 
     await Promise.all(recipients.map(async recipient => {
-      const customBody = MessageUtils.addRecipientToTrackingLinks({
+      const customBody = TrackingUtils.addRecipientToTrackingLinks({
         recipient,
         baseMessage,
         usesOpenTracking,

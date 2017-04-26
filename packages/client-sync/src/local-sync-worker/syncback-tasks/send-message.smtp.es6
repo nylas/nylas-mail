@@ -1,4 +1,4 @@
-const {MessageUtils} = require('isomorphic-core')
+const {MessageUtils, TrackingUtils} = require('isomorphic-core')
 const {SyncbackSMTPTask} = require('../syncback-tasks/syncback-task')
 
 /**
@@ -22,7 +22,7 @@ class SendMessageSMTP extends SyncbackSMTPTask {
     await smtp.send(message);
 
     try {
-      message.body = MessageUtils.stripTrackingLinksFromBody(message.body)
+      message.body = TrackingUtils.stripTrackingLinksFromBody(message.body)
       message.setIsSent(true)
       await message.save();
       return {message: message.toJSON()}

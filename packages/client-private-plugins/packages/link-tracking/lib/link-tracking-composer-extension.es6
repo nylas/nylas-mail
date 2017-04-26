@@ -16,6 +16,26 @@ function forEachATagInBody(draftBodyRootNode, callback) {
   }
 }
 
+/**
+ * This replaces all links with a new url that redirects through our
+ * cloud-api servers (see cloud-api/routes/link-tracking)
+ *
+ * This redirect link href is NOT complete at this stage. It requires
+ * substantial post processing just before send. This happens in iso-core
+ * since sending can happen immediately or later in cloud-workers.
+ *
+ * See isomorphic-core tracking-utils.es6
+ *
+ * We don't have a Message Id yet since this is still a draft. We generate
+ * and replace `MESSAGE_ID` later with the correct one.
+ *
+ * We also need to add individualized recipients to each tracking pixel
+ * for each message sent to each person.
+ *
+ * We finally need to put the original url back for the message that ends
+ * up in the users's sent folder. This ensures the sender doesn't trip
+ * their own link tracks.
+ */
 export default class LinkTrackingComposerExtension extends ComposerExtension {
   static applyTransformsForSending({draftBodyRootNode, draft}) {
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
