@@ -1,6 +1,5 @@
 import {ComponentRegistry} from 'nylas-exports';
 import {HasTutorialTip} from 'nylas-component-kit';
-import SendLaterDraftsListener from './send-later-drafts-listener';
 import SendLaterButton from './send-later-button';
 import SendLaterStatus from './send-later-status';
 
@@ -10,13 +9,11 @@ const SendLaterButtonWithTip = HasTutorialTip(SendLaterButton, {
 });
 
 export function activate() {
-  SendLaterDraftsListener.activate()
   ComponentRegistry.register(SendLaterButtonWithTip, {role: 'Composer:ActionButton'})
   ComponentRegistry.register(SendLaterStatus, {role: 'DraftList:DraftStatus'})
 }
 
 export function deactivate() {
-  SendLaterDraftsListener.deactivate()
   ComponentRegistry.unregister(SendLaterButtonWithTip)
   ComponentRegistry.unregister(SendLaterStatus)
 }

@@ -168,6 +168,7 @@ class SyncWorker {
 
     try {
       const newCredentials = await ensureGmailAccessToken({
+        logger: this._logger,
         account: this._account,
         forceRefresh: this._requireTokenRefresh,
         expiryBufferInSecs: 5 * 60, // try to avoid tokens expiring during the sync loop

@@ -155,43 +155,31 @@ export default class SendLaterWorker extends CloudWorker {
   async cleanupSentMessages(account, conn, sender, logger, message) {
     await conn.connect();
 
-    let sentFolder;
-    let trashFolder;
+    const boxes = await conn.getBoxes();
 
-    if (message.sentFolderName) {
-      logger.debug("Using supplied sent folder", message.sentFolderName);
-      sentFolder = message.sentFolderName;
-    } else {
-      const boxes = await conn.getBoxes();
-      sentFolder = this.identifySentFolder(boxes);
-    }
+    const sentName = message.sentFolderName || this.identifySentFolder(boxes);
+    const trashName = message.trashFolderName || this.identifyTrashFolder(boxes);
 
-    if (message.trashFolderName) {
-      logger.debug("Using supplied trash folder", message.trashFolderName);
-      trashFolder = message.trashFolderName;
-    } else {
-      const boxes = await conn.getBoxes();
-      trashFolder = this.identifyTrashFolder(boxes);
-    }
-
-    let box = await conn.openBox(sentFolder);
-
+    const sentBox = await conn.openBox(sentName);
+    logger.debug("Opened sent box", sentName);
     // Remove all existing messages.
-    const uids = await box.search([['HEADER', 'Message-ID', message.message_id_header]]) || []
-    logger.debug("Found uids", uids);
+    const uids = await sentBox.search([['HEADER', 'Message-ID', message.message_id_header]]) || []
+    logger.debug("Found Gmail's optimistically placed message UIDs in sent folder", uids);
     for (const uid of uids) {
-      logger.debug("Moving to box", trashFolder);
-      await box.moveFromBox(uid, trashFolder);
-      await box.closeBox();
+      logger.debug("Moving from sent to trash", uid);
+      await sentBox.moveFromBox(uid, trashName);
     }
+    await sentBox.closeBox();
 
     // Now, go the trash folder and remove all messages marked as deleted.
-    const trashBox = await conn.openBox(trashFolder);
+    const trashBox = await conn.openBox(trashName);
+    logger.debug("Opened trash box", trashName);
     const trashUids = await trashBox.search([['HEADER', 'Message-ID', message.message_id_header]])
+    logger.debug("Found message UIDs in trash", uids);
     for (const uid of trashUids) {
+      logger.debug("Fully removing from trash", uid);
       await trashBox.addFlags(uid, 'DELETED')
     }
-
     await trashBox.closeBox({expunge: true});
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
@@ -203,14 +191,13 @@ export default class SendLaterWorker extends CloudWorker {
      */
     if (account.provider === 'gmail') {
       logger.debug("Waiting to add sent email to sent folder");
-      await sleep(45000);
+      await sleep(5000);
     }
 
     // Add a single message without tracking information.
-    box = await conn.openBox(sentFolder);
+    const box = await conn.openBox(sentName);
     const rawMime = await MessageUtils.buildMime(message, {includeBcc: true});
     await box.append(rawMime, {flags: 'SEEN'});
-
     await box.closeBox();
   }
 
@@ -276,18 +263,25 @@ export default class SendLaterWorker extends CloudWorker {
     }
   }
 
+  _buildMessageFromJSON(json = {}) {
+    const baseMessage = json;
+    baseMessage.date = new Date(+json.date * 1000);
+    return baseMessage
+  }
+
   async performAction({metadatum, account, connection}) {
     const db = await DatabaseConnector.forShared();
 
     if (Object.keys(metadatum.value || {}).length === 0) {
       throw new Error("Can't send later, no metadata value")
     }
-
     const logger = global.Logger.forAccount(account);
     const sender = new SendmailClient(account, logger);
     const usesOpenTracking = metadatum.value.usesOpenTracking || false;
     const usesLinkTracking = metadatum.value.usesLinkTracking || false;
-    const baseMessage = await this.hydrateAttachments(metadatum.value, account.id);
+
+    let baseMessage = this._buildMessageFromJSON(metadatum.value)
+    baseMessage = await this.hydrateAttachments(baseMessage, account.id);
 
     await this.sendPerRecipient({
       db,
@@ -297,6 +291,7 @@ export default class SendLaterWorker extends CloudWorker {
       usesLinkTracking,
       logger,
     });
+
     await this.db.sequelize.transaction(async (t) => {
       const job = await this.db.CloudJob.findById(this.job.id, {transaction: t});
       job.status = "INPROGRESS-NOTRETRYABLE";

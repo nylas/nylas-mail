@@ -47,12 +47,12 @@ class SendTaskManager {
   async _runTask(task) {
     const {_account: account} = task
     let newCredentials;
+    const logger = global.Logger.forAccount(account)
     if (account.provider === 'gmail') {
-      newCredentials = await ensureGmailAccessToken({account, expiryBufferInSecs: 2 * 60})
+      newCredentials = await ensureGmailAccessToken({logger, account, expiryBufferInSecs: 2 * 60})
     }
     let sendTaskRunner = this._sendTaskRunnersByAccountId[account.id]
     if (newCredentials || !sendTaskRunner) {
-      const logger = global.Logger.forAccount(account)
       const db = await LocalDatabaseConnector.forAccount(account.id)
       const smtp = new SendmailClient(account, logger)
       sendTaskRunner = new SendTaskRunner({account, db, smtp, logger})
