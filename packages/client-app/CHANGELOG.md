@@ -1,5 +1,10 @@
 # Nylas Mail Changelog
 
+### 2.0.28 (4/26/2017)
+
+  + [\*] fix send later with open/link tracking
+  + [\*] remove draft syncback to fix send later with tracking
+
 ### 2.0.27 (4/26/2017)
 
 - Fixes:
