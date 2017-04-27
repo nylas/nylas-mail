@@ -3,7 +3,8 @@
   "main": "./lib/main",
   "version": "0.1.0",
   "serverUrl": {
-    "development": "http://lvh.me:5100",
+    "local": "https://local-n1.nylas.com",
+    "development": "https://local-n1.nylas.com",
     "staging": "https://n1-staging.nylas.com",
     "production": "https://n1.nylas.com"
   },
@@ -12,7 +13,7 @@
   "description": "Track when email messages have been opened by recipients.",
   "icon": "./icon.png",
   "isOptional": true,
-  "supportedEnvs": ["development", "staging", "production"],
+  "supportedEnvs": ["local", "development", "staging", "production"],
 
   "repository": {
     "type": "git",

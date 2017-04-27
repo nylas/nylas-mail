@@ -429,7 +429,7 @@ class Actions {
   static ensureMessageInSentSuccess = ActionScopeGlobal;
 
   static sendManyDrafts = ActionScopeWindow;
-  static ensureDraftSynced = ActionScopeWindow;
+  static finalizeDraftAndSyncbackMetadata = ActionScopeWindow;
 
   /*
   Public: Destroys the draft with the given ID. This Action is handled by the {DraftStore},

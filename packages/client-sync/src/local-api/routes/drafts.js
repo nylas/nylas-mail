@@ -1,6 +1,5 @@
 const {MessageUtils, Errors: {APIError}} = require('isomorphic-core')
 const Joi = require('joi');
-const crypto = require('crypto');
 
 // TODO: This is a placeholder.
 module.exports = (server) => {
@@ -26,31 +25,6 @@ module.exports = (server) => {
       reply('[]');
     },
   });
-
-  // This is a placeholder route we use to make send-later happy.
-  // Eventually, we should flesh it out and actually sync back drafts.
-  server.route({
-    method: ['PUT', 'POST'],
-    path: `/drafts/{objectId?}`,
-    config: {
-      description: `Dummy draft update`,
-      tags: ['drafts'],
-      payload: {
-        output: 'data',
-        parse: true,
-      },
-      validate: {
-        params: {
-          objectId: Joi.string(),
-        },
-      },
-    },
-    handler: (request, reply) => {
-      const data = request.payload;
-      data.id = crypto.createHash('sha256').update(data.client_id, 'utf8').digest('hex')
-      return reply(data);
-    },
-  })
 
   server.route({
     method: ['PUT', 'POST'],

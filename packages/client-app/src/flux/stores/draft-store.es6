@@ -10,7 +10,7 @@ import TaskQueueStatusStore from './task-queue-status-store';
 import FocusedContentStore from './focused-content-store';
 import BaseDraftTask from '../tasks/base-draft-task';
 import PerformSendActionTask from '../tasks/perform-send-action-task';
-import SyncbackDraftTask from '../tasks/syncback-draft-task';
+import SyncbackMetadataTask from '../tasks/syncback-metadata-task'
 import DestroyDraftTask from '../tasks/destroy-draft-task';
 import Thread from '../models/thread';
 import Message from '../models/message';
@@ -56,7 +56,7 @@ class DraftStore extends NylasStore {
     // Remember that these two actions only fire in the current window and
     // are picked up by the instance of the DraftStore in the current
     // window.
-    this.listenTo(Actions.ensureDraftSynced, this._onEnsureDraftSynced);
+    this.listenTo(Actions.finalizeDraftAndSyncbackMetadata, this._onFinalizeDraftAndSyncbackMetadata);
     this.listenTo(Actions.sendDraft, this._onSendDraft);
     this.listenTo(Actions.destroyDraft, this._onDestroyDraft);
     this.listenTo(Actions.removeFile, this._onRemoveFile);
@@ -384,19 +384,19 @@ class DraftStore extends NylasStore {
     }
   }
 
-  _onEnsureDraftSynced = (draftClientId) => {
-    return this.sessionForClientId(draftClientId).then((session) => {
-      return DraftHelpers.prepareDraftForSyncback(session)
-      .then(() => {
-        Actions.queueTask(new SyncbackDraftTask(draftClientId));
-      });
-    });
+  _onFinalizeDraftAndSyncbackMetadata = async (draftClientId) => {
+    const session = await this.sessionForClientId(draftClientId)
+    const draft = await DraftHelpers.finalizeDraft(session)
+    for (const {pluginId} of draft.pluginMetadata) {
+      const task = new SyncbackMetadataTask(draft.clientId, Message.name, pluginId);
+      Actions.queueTask(task);
+    }
   }
 
   _onSendDraft = (draftClientId, sendActionKey = DefaultSendActionKey) => {
     this._draftsSending[draftClientId] = true;
     return this.sessionForClientId(draftClientId).then((session) => {
-      return DraftHelpers.prepareDraftForSyncback(session)
+      return DraftHelpers.finalizeDraft(session)
       .then(() => {
         Actions.queueTask(new PerformSendActionTask(draftClientId, sendActionKey));
         this._doneWithSession(session);

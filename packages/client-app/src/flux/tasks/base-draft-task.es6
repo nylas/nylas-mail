@@ -19,10 +19,10 @@ export default class BaseDraftTask extends Task {
   }
 
   isDependentOnTask(other) {
-    // Set this task to be dependent on any SyncbackDraftTasks and
-    // SendDraftTasks for the same draft that were created first.
-    // This, in conjunction with this method on SendDraftTask, ensures
-    // that a send and a syncback never run at the same time for a draft.
+    // Set this task to be dependent on any and SendDraftTasks for the
+    // same draft that were created first.  This, in conjunction with this
+    // method on SendDraftTask, ensures that a send and a syncback never
+    // run at the same time for a draft.
 
     // Require here rather than on top to avoid a circular dependency
     const isSameDraft = (other.draftClientId === this.draftClientId);
@@ -32,9 +32,6 @@ export default class BaseDraftTask extends Task {
   }
 
   performLocal() {
-    // SyncbackDraftTask does not do anything locally. You should persist your changes
-    // to the local database directly or using a DraftEditingSession, and then queue a
-    // SyncbackDraftTask to send those changes to the server.
     if (!this.draftClientId) {
       const errMsg = `Attempt to call ${this.constructor.name}.performLocal without a draftClientId`;
       return Promise.reject(new Error(errMsg));

@@ -216,23 +216,6 @@ xdescribe "DraftEditingSession Specs", ->
             updated = DatabaseWriter.prototype.persistModel.calls[0].args[0]
             expect(updated.body).toBe "123"
 
-      # Note: Syncback temporarily disabled
-      #
-      # it "queues a SyncbackDraftTask", ->
-      #   spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
-      #   @session.changes.add({body: "123"})
-      #   waitsForPromise =>
-      #     @session.changes.commit().then =>
-      #       expect(Actions.queueTask).toHaveBeenCalled()
-      #       task = Actions.queueTask.calls[0].args[0]
-      #       expect(task.draftClientId).toBe "client-id"
-
-      it "doesn't queues a SyncbackDraftTask if no Syncback is passed", ->
-        spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
-        waitsForPromise =>
-          @session.changes.commit({noSyncback: true}).then =>
-            expect(Actions.queueTask).not.toHaveBeenCalled()
-
       describe "when findBy does not return a draft", ->
         it "continues and persists it's local draft reference, so it is resaved and draft editing can continue", ->
           spyOn(DatabaseStore, "run").andReturn(Promise.resolve(null))

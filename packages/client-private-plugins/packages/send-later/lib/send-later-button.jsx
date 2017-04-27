@@ -105,7 +105,7 @@ class SendLaterButton extends Component {
         });
       } else {
         session.changes.add({pristine: false})
-        const draftContents = await DraftHelpers.prepareDraftForSyncback(session);
+        const draftContents = await DraftHelpers.finalizeDraft(session);
         const req = new NylasAPIRequest({
           api: NylasAPI,
           options: {
@@ -117,7 +117,7 @@ class SendLaterButton extends Component {
           },
         });
 
-        const results = await req.run();
+        const draftMessage = await req.run();
         const uploads = [];
 
         // Now, upload attachments to our blob service.
@@ -140,10 +140,11 @@ class SendLaterButton extends Component {
           attachment.serverId = `${draftContents.accountId}-${attachment.id}`;
           uploads.push(attachment);
         }
-        results.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
-        results.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
+        draftMessage.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
+        draftMessage.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
+        session.changes.add({serverId: draftMessage.id})
         session.changes.addPluginMetadata(PLUGIN_ID, {
-          ...results,
+          ...draftMessage,
           ...extra,
           expiration,
           uploads,
@@ -152,7 +153,7 @@ class SendLaterButton extends Component {
 
       // TODO: This currently is only useful for syncing the draft metadata,
       // even though we don't actually syncback drafts
-      Actions.ensureDraftSynced(draft.clientId);
+      Actions.finalizeDraftAndSyncbackMetadata(draft.clientId);
 
       if (expiration && NylasEnv.isComposerWindow()) {
         NylasEnv.close();

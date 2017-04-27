@@ -46,10 +46,9 @@ const TaskDebugStatus = {
 //
 // ## Task Dependencies
 //
-// The Task system handles dependencies between multiple queued tasks. For
-// example, the {SendDraftTask} has a dependency on the {SyncbackDraftTask}
-// (aka saving) succeeding. To establish dependencies between tasks, your
-// subclass may implement one or more of the following methods:
+// The Task system handles dependencies between multiple queued tasks.  To
+// establish dependencies between tasks, your subclass may implement one
+// or more of the following methods:
 //
 // - {Task::isDependentOnTask}
 // - {Task::onDependentTaskError}

@@ -8,7 +8,6 @@ UndoStack = require('../../undo-stack').default
 DraftHelpers = require('../stores/draft-helpers').default
 ExtensionRegistry = require '../../registries/extension-registry'
 {Listener, Publisher} = require '../modules/reflux-coffee'
-SyncbackDraftTask = require('../tasks/syncback-draft-task').default
 CoffeeHelpers = require '../coffee-helpers'
 DraftStore = null
 _ = require 'underscore'
@@ -60,7 +59,7 @@ class DraftChangeSet
     changes["#{MetadataChangePrefix}#{pluginId}"] = metadata
     @add(changes, {doesNotAffectPristine: true})
 
-  commit: ({noSyncback}={}) =>
+  commit: () =>
     clearTimeout(@_timer) if @_timer
     @_commitChain = @_commitChain.finally =>
       if Object.keys(@_pending).length is 0
@@ -68,7 +67,7 @@ class DraftChangeSet
 
       @_saving = @_pending
       @_pending = {}
-      return @callbacks.onCommit({noSyncback}).then =>
+      return @callbacks.onCommit().then =>
         @_saving = {}
 
     return @_commitChain
@@ -187,7 +186,7 @@ class DraftEditingSession
   #
   # If the account is updated it makes a request to delete the draft with the
   # old accountId
-  ensureCorrectAccount: ({noSyncback} = {}) =>
+  ensureCorrectAccount: =>
     account = AccountStore.accountForEmail(@_draft.from[0].email)
     if !account
       return Promise.reject(new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account."))
@@ -201,7 +200,7 @@ class DraftEditingSession
         threadId: null,
         replyToMessageId: null,
       })
-      return @changes.commit({noSyncback})
+      return @changes.commit()
       .thenReturn(@)
     return Promise.resolve(@)
 
@@ -254,7 +253,7 @@ class DraftEditingSession
       @_setDraft(Object.assign(new Message(), @_draft, nextValues))
       @trigger()
 
-  changeSetCommit: ({noSyncback}={}) =>
+  changeSetCommit: () =>
     if @_destroyed or not @_draft
       return Promise.resolve(true)
 
@@ -264,29 +263,9 @@ class DraftEditingSession
 
     DatabaseStore.inTransaction (t) =>
       t.findBy(Message, clientId: inMemoryDraft.clientId).include(Message.attributes.body).then (draft) =>
-        # This can happen if we get a "delete" delta, or something else
-        # strange happens. In this case, we'll use the @_draft we have in
-        # memory to apply the changes to. On the `persistModel` in the
-        # next line it will save the correct changes. The
-        # `SyncbackDraftTask` may then fail due to differing Ids not
-        # existing, but if this happens it'll 404 and recover gracefully
-        # by creating a new draft
         draft ?= inMemoryDraft
         updatedDraft = @changes.applyToModel(draft)
         return t.persistModel(updatedDraft)
-
-    .then =>
-      return if noSyncback
-      # We have temporarily disabled the syncback of most drafts to user's mail
-      # providers, due to a number of issues in the sync-engine that we're still
-      # firefighting.
-      #
-      # For now, drafts are only synced when you choose "Send Later", and then
-      # once they have a serverId we sync them periodically here.
-      #
-      return unless @_draft.serverId
-      Actions.ensureDraftSynced(@draftClientId)
-
 
   # Undo / Redo
 

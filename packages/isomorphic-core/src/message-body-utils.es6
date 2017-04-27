@@ -20,7 +20,8 @@ export function tryReadBody(val) {
       return fs.readFileSync(parsed.path, {encoding: 'utf8'});
     }
   } catch (err) {
-    console.warn('Got error while trying to parse body path, assuming we need to migrate', err);
+    // ignore. this is valid. JSON parse should fail if the body isn't
+    // metadata about the flat zipped file, but rather a plain text
   }
   return null;
 }

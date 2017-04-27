@@ -37,7 +37,7 @@ xdescribe('SendLaterButton', function sendLaterButton() {
       const button = makeButton(null, {sendLaterDate: 'date'})
       spyOn(button, 'setState')
       spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
-      spyOn(Actions, 'ensureDraftSynced')
+      spyOn(Actions, 'finalizeDraftAndSyncbackMetadata')
 
       const sendLaterDate = {utc: () => 'utc'}
       button.onSendLater(sendLaterDate)
@@ -54,7 +54,7 @@ xdescribe('SendLaterButton', function sendLaterButton() {
       spyOn(NylasEnv, 'reportError')
       spyOn(NylasEnv, 'showErrorDialog')
       spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.reject(new Error('Oh no!')))
-      spyOn(Actions, 'ensureDraftSynced')
+      spyOn(Actions, 'finalizeDraftAndSyncbackMetadata')
       button.onSendLater({utc: () => 'utc'})
       advanceClock()
       expect(NylasEnv.reportError).toHaveBeenCalled()
@@ -67,7 +67,7 @@ xdescribe('SendLaterButton', function sendLaterButton() {
       spyOn(NylasEnv, 'close')
       spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
       spyOn(NylasEnv, 'isComposerWindow').andReturn(true)
-      spyOn(Actions, 'ensureDraftSynced')
+      spyOn(Actions, 'finalizeDraftAndSyncbackMetadata')
       button.onSendLater({utc: () => 'utc'})
       advanceClock()
       expect(NylasEnv.close).toHaveBeenCalled()

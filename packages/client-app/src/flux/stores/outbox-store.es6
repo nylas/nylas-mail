@@ -1,6 +1,5 @@
 import NylasStore from 'nylas-store';
 import SendDraftTask from '../tasks/send-draft-task';
-import SyncbackDraftTask from '../tasks/syncback-draft-task';
 import TaskQueueStatusStore from './task-queue-status-store';
 
 class OutboxStore extends NylasStore {
@@ -13,7 +12,7 @@ class OutboxStore extends NylasStore {
 
   _populate() {
     const nextTasks = TaskQueueStatusStore.queue().filter((task) =>
-      (task instanceof SendDraftTask) || (task instanceof SyncbackDraftTask)
+      (task instanceof SendDraftTask)
     );
     if ((this._tasks.length === 0) && (nextTasks.length === 0)) {
       return;

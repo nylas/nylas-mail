@@ -106,7 +106,7 @@ export function buildDraft(baseDraft, {tableDataSource, tokenDataSource, rowIdx}
 export function sendManyDrafts(mailMergeSession, recipientDrafts) {
   const transformedDrafts = [];
 
-  return mailMergeSession.draftSession().ensureCorrectAccount({noSyncback: true})
+  return mailMergeSession.draftSession().ensureCorrectAccount()
   .then(() => {
     const baseDraft = mailMergeSession.draft();
     return Promise.each(recipientDrafts, (recipientDraft) => {

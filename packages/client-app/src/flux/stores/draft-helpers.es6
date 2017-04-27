@@ -144,8 +144,8 @@ class DraftHelpers {
     });
   }
 
-  async prepareDraftForSyncback(session) {
-    await session.ensureCorrectAccount({noSyncback: true})
+  async finalizeDraft(session) {
+    await session.ensureCorrectAccount()
     const transformed = await this.applyExtensionTransforms(session.draft())
     let draft;
     if (!transformed.replyToMessageId || !this.shouldAppendQuotedText(transformed)) {

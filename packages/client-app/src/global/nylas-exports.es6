@@ -121,7 +121,6 @@ lazyLoadAndRegisterTask(`ChangeLabelsTask`, 'change-labels-task');
 lazyLoadAndRegisterTask(`ChangeFolderTask`, 'change-folder-task');
 lazyLoadAndRegisterTask(`ChangeUnreadTask`, 'change-unread-task');
 lazyLoadAndRegisterTask(`DestroyModelTask`, 'destroy-model-task');
-lazyLoadAndRegisterTask(`SyncbackDraftTask`, 'syncback-draft-task');
 lazyLoadAndRegisterTask(`ChangeStarredTask`, 'change-starred-task');
 lazyLoadAndRegisterTask(`SyncbackModelTask`, 'syncback-model-task');
 lazyLoadAndRegisterTask(`SyncbackEventTask`, 'syncback-event-task');

@@ -27,7 +27,7 @@ class TrackingUtils {
    * accessed.
    */
   prepareTrackingLinks(messageId, originalBody) {
-    const regex = new RegExp(`(https://.+?)MESSAGE_ID`, 'g')
+    const regex = new RegExp(`(https?://.+?)MESSAGE_ID`, 'g')
     const body = originalBody.replace(regex, `$1${messageId}`);
     return this.addSrcToOpenTrackingPixel(body);
   }
