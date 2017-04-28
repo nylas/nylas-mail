@@ -8,10 +8,14 @@ export default class SendTaskRunner {
     this._db = db
     this._smtp = smtp
     this._logger = logger
+    this.expiresAtInMs = account.connectionCredentials.expiry_date * 1000
   }
 
   runTask = async (task) => {
     const before = new Date();
+    if (before > this.expiresAtInMs) {
+      throw new Error('SendTaskRunner.runTask: stored credentials have expired')
+    }
     // syncbackRequests for send tasks aren't persistent database instances
     const syncbackRequestJSON = task.syncbackRequestObject();
     this._logger.log(`🔃 📤 ${task.description()}`, syncbackRequestJSON.props)

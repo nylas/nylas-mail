@@ -52,7 +52,7 @@ class SendTaskManager {
       newCredentials = await ensureGmailAccessToken({logger, account, expiryBufferInSecs: 2 * 60})
     }
     let sendTaskRunner = this._sendTaskRunnersByAccountId[account.id]
-    if (newCredentials || !sendTaskRunner) {
+    if (newCredentials || !sendTaskRunner || sendTaskRunner.expiresAtInMs < (Date.now() - 60 * 1000)) {
       const db = await LocalDatabaseConnector.forAccount(account.id)
       const smtp = new SendmailClient(account, logger)
       sendTaskRunner = new SendTaskRunner({account, db, smtp, logger})
