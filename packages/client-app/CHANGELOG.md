@@ -1,5 +1,10 @@
 # Nylas Mail Changelog
 
+### 2.0.30 (4/28/2017)
+
+  + [client-sync] Keep track of when SendTaskRunners expire
+  + Revert [*] fix google auth expiry date
+
 ### 2.0.29 (4/27/2017)
 
   + [\*] fix google auth expiry date
