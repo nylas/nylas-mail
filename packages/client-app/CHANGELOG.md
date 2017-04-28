@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.31 (4/28/2017)
+
+  + [client-sync] Use decryptedCredentials instead
+
 ### 2.0.30 (4/28/2017)
 
   + [client-sync] Keep track of when SendTaskRunners expire
