@@ -254,7 +254,7 @@ export default function registerAuthRoutes(server) {
         const res = {}
         res.access_token = tokens.access_token;
         res.xoauth2 = AuthHelpers.generateXOAuth2Token(account.emailAddress, tokens.access_token);
-        res.expiry_date = tokens.expiry_date;
+        res.expiry_date = Math.floor(tokens.expiry_date / 1000);
         reply(res).code(200);
       });
     },

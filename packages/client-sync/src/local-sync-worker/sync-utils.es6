@@ -1,19 +1,19 @@
 import {Errors, IMAPErrors} from 'isomorphic-core'
 import {APIError, NylasAPI, NylasAPIRequest, N1CloudAPI} from 'nylas-exports'
 
-async function ensureGmailAccessToken({account, logger, forceRefresh = false, expiryBufferInMs = 0} = {}) {
+async function ensureGmailAccessToken({account, logger, forceRefresh = false, expiryBufferInSecs = 0} = {}) {
   try {
     const credentials = account.decryptedCredentials()
     if (!credentials) {
       throw new Error("ensureGmailAccessToken: There are no IMAP connection credentials for this account.");
     }
 
-    const dateInMs = Date.now();
-    if (forceRefresh && (credentials.expiry_date > dateInMs)) {
+    const currentUnixDate = Math.floor(Date.now() / 1000);
+    if (forceRefresh && (credentials.expiry_date > currentUnixDate)) {
       console.warn("ensureGmailAccessToken: refreshing token, but token is not expired");
     }
-    const bufferedExpiryDate = credentials.expiry_date - expiryBufferInMs;
-    if (forceRefresh || (dateInMs > bufferedExpiryDate)) {
+    const bufferedExpiryDate = credentials.expiry_date - expiryBufferInSecs;
+    if (forceRefresh || (currentUnixDate > bufferedExpiryDate)) {
       const req = new NylasAPIRequest({
         api: N1CloudAPI,
         options: {
