@@ -1,5 +1,10 @@
 # Nylas Mail Changelog
 
+### 2.0.29 (4/27/2017)
+
+  + [\*] fix google auth expiry date
+  + [cloud-core] fix leaking redis connections & cleanup
+
 ### 2.0.28 (4/26/2017)
 
 - Fixes:
