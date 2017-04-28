@@ -8,7 +8,7 @@ export default class SendTaskRunner {
     this._db = db
     this._smtp = smtp
     this._logger = logger
-    this.expiresAtInMs = account.connectionCredentials.expiry_date * 1000
+    this.expiresAtInMs = account.decryptedCredentials().expiry_date * 1000
   }
 
   runTask = async (task) => {
