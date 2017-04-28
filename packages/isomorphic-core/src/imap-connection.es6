@@ -22,7 +22,7 @@ const Capabilities = {
   Search: 'ESEARCH',
   Sort: 'SORT',
 }
-const ONE_HOUR_SECS = 60 * 60;
+const ONE_HOUR_MS = 60 * 60 * 1000;
 const AUTH_TIMEOUT_MS = 30 * 1000;
 const DEFAULT_SOCKET_TIMEOUT_MS = 30 * 1000;
 
@@ -93,7 +93,7 @@ export default class IMAPConnection extends EventEmitter {
           if (err) { return reject(err) }
           delete settings.password;
           settings.xoauth2 = token;
-          settings.expiry_date = Math.floor(Date.now() / 1000) + ONE_HOUR_SECS;
+          settings.expiry_date = Date.now() + ONE_HOUR_MS;
           return resolve(settings);
         });
       });

@@ -73,7 +73,7 @@ export function googleSettings(googleToken, email) {
   }
 
   const connectionCredentials = {
-    expiry_date: Math.floor(googleToken.expiry_date / 1000),
+    expiry_date: googleToken.expiry_date,
   };
   if (GMAIL_CLIENT_ID && GMAIL_CLIENT_SECRET) {
     // cloud-only credentials

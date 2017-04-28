@@ -72,7 +72,7 @@ class GmailOAuthHelpers {
         res.access_token = tokens.access_token;
         res.xoauth2 = AuthHelpers.generateXOAuth2Token(account.emailAddress,
                                                 tokens.access_token);
-        res.expiry_date = Math.floor(tokens.expiry_date / 1000);
+        res.expiry_date = tokens.expiry_date;
         const newCredentials = Object.assign(credentials, res);
         account.setCredentials(newCredentials);
         await account.save();

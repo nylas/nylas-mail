@@ -49,7 +49,7 @@ class SendTaskManager {
     let newCredentials;
     const logger = global.Logger.forAccount(account)
     if (account.provider === 'gmail') {
-      newCredentials = await ensureGmailAccessToken({logger, account, expiryBufferInSecs: 2 * 60})
+      newCredentials = await ensureGmailAccessToken({logger, account, expiryBufferInMs: 2 * 60 * 1000})
     }
     let sendTaskRunner = this._sendTaskRunnersByAccountId[account.id]
     if (newCredentials || !sendTaskRunner) {

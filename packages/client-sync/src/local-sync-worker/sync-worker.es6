@@ -171,7 +171,7 @@ class SyncWorker {
         logger: this._logger,
         account: this._account,
         forceRefresh: this._requireTokenRefresh,
-        expiryBufferInSecs: 5 * 60, // try to avoid tokens expiring during the sync loop
+        expiryBufferInMs: 5 * 60 * 1000, // try to avoid tokens expiring during the sync loop
       })
       this._requireTokenRefresh = false
       return newCredentials
