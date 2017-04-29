@@ -1,4 +1,3 @@
-const request = require('request');
 const _ = require('underscore');
 const Rx = require('rx-lite');
 const {
@@ -8,7 +7,6 @@ const {
 } = require('isomorphic-core')
 const SyncProcessManager = require('../local-sync-worker/sync-process-manager')
 const {
-  Actions,
   SearchQueryParser,
   IMAPSearchQueryBackend,
 } = require('nylas-exports')
@@ -134,12 +132,6 @@ class ImapSearchClient {
 
       const onTimeout = () => {
         numTimeoutErrors += 1;
-        Actions.recordUserEvent('Timeout error in IMAP search', {
-          accountId: this.account.id,
-          provider: this.account.provider,
-          socketTimeout: timeoutScheduler.currentDelay(),
-          numTimeoutErrors,
-        });
         timeoutScheduler.nextDelay();
       };
 
@@ -235,7 +227,7 @@ class ImapSearchClient {
           messages = messages.concat(newMessages);
           if (newMessages.length > 0) {
             observer.onNext(newMessages);
-          } 
+          }
           knownUids = new Set(messages.map(m => parseInt(m.folderImapUID, 10)));
           setTimeout(findFn, 1000, remainingUids.filter(uid => !knownUids.has(uid)));
         };

@@ -30,19 +30,6 @@ import {
  * any events.
  */
 const DEBOUNCE_TIME = 15 * 1000
-const DEFAULT_MIXPANEL_MAX_VALUE = 3 * 1000
-const PERF_ACTIONS_TO_MIXPANEL_EVENTS = {
-  'remove-threads-from-list': 'Perf: Removed Threads from List',
-  'select-thread': 'Perf: Selected Thread',
-  'send-draft': 'Perf: Draft Sent',
-  'perform-local-task': 'Perf: Task Performed Database Operation',
-  'open-composer-window': 'Perf: Composer Window Opened',
-  'open-inline-composer': 'Perf: Inline Composer Opened',
-  'open-add-account-window': 'Perf: Add Account Window Opened',
-  'app-boot': 'Perf: App Booted',
-  'search-performed': 'Perf: Search Performed',
-  'file-download': 'Perf: File Downloaded',
-}
 
 class AnalyticsStore extends NylasStore {
 
@@ -178,7 +165,6 @@ class AnalyticsStore extends NylasStore {
     const {
       sample = 1,
       clippedData = [],
-      maxValue = DEFAULT_MIXPANEL_MAX_VALUE,
       ...dataToReport
     } = data
 
@@ -195,21 +181,6 @@ class AnalyticsStore extends NylasStore {
       honeycombData[key] = val
     })
     MetricsReporter.reportEvent(honeycombData)
-
-    // Report to mixpanel
-    // When reporting to mixpanel, we need to make sure time data is clipped
-    // to a range so that reporting does not get screwed up
-    const clippedActionTimeMs = Math.min(Math.max(0, actionTimeMs), maxValue)
-    const mixpanelData = Object.assign({}, dataToReport, {
-      actionTimeMs: clippedActionTimeMs,
-      rawActionTimeMs: actionTimeMs,
-    })
-    clippedData.forEach(({key, val, maxValue: max}) => {
-      mixpanelData[key] = Math.min(Math.max(0, val), max || DEFAULT_MIXPANEL_MAX_VALUE)
-    })
-
-    const mixpanelEventName = PERF_ACTIONS_TO_MIXPANEL_EVENTS[action] || action
-    this.track(mixpanelEventName, mixpanelData)
   }
 
   track(eventName, eventArgs = {}) {

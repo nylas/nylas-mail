@@ -95,12 +95,6 @@ class SyncProcessManager {
     const {time, activity} = SyncActivity.getLastSyncActivityForAccount(accountId);
     if (time < Date.now() - this.MAX_WORKER_SILENCE_MS) {
       const duration = Date.now() - time;
-      Actions.recordUserEvent('Stuck Sync Process', {
-        accountId: accountId,
-        lastActivityTime: time,
-        lastActivity: activity,
-        duration,
-      })
       const {Account} = await LocalDatabaseConnector.forShared();
       const account = await Account.findById(accountId)
       const logger = global.Logger.forAccount(account)

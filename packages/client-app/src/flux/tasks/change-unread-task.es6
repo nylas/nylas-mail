@@ -50,13 +50,13 @@ export default class ChangeUnreadTask extends ChangeMailTask {
     if (this.source === "Mail Rules") {
       return
     }
-    const eventName = this.unread ? "Unread" : "Read";
-    Actions.recordUserEvent(`Threads Marked as ${eventName}`, {
-      source: this.source,
-      numThreads: this.threads.length,
-      description: this.description(),
-      isUndo: this._isUndoTask,
-    })
+    // const eventName = this.unread ? "Unread" : "Read";
+    // Actions.recordUserEvent(`Threads Marked as ${eventName}`, {
+    //   source: this.source,
+    //   numThreads: this.threads.length,
+    //   description: this.description(),
+    //   isUndo: this._isUndoTask,
+    // })
   }
 
   retrieveModels() {

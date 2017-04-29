@@ -183,7 +183,7 @@ class DraftStore extends NylasStore {
   }
 
   _onComposeReply = ({thread, threadId, message, messageId, popout, type, behavior}) => {
-    Actions.recordUserEvent("Draft Created", {type});
+    // Actions.recordUserEvent("Draft Created", {type});
     return Promise.props(
       this._modelifyContext({thread, threadId, message, messageId})
     )
@@ -199,7 +199,7 @@ class DraftStore extends NylasStore {
   }
 
   _onComposeForward = ({thread, threadId, message, messageId, popout}) => {
-    Actions.recordUserEvent("Draft Created", {type: "forward"});
+    // Actions.recordUserEvent("Draft Created", {type: "forward"});
     return Promise.props(
       this._modelifyContext({thread, threadId, message, messageId})
     )
@@ -273,7 +273,7 @@ class DraftStore extends NylasStore {
   }
 
   _onPopoutNewDraftToRecipient = (contact) => {
-    Actions.recordUserEvent("Draft Created", {type: "new"});
+    // Actions.recordUserEvent("Draft Created", {type: "new"});
     const timerId = Utils.generateTempId()
     NylasEnv.timer.start(`open-composer-window-${timerId}`);
     return DraftFactory.createDraft({to: [contact]}).then((draft) => {
@@ -284,7 +284,7 @@ class DraftStore extends NylasStore {
   }
 
   _onPopoutBlankDraft = () => {
-    Actions.recordUserEvent("Draft Created", {type: "new"});
+    // Actions.recordUserEvent("Draft Created", {type: "new"});
     const timerId = Utils.generateTempId()
     NylasEnv.timer.start(`open-composer-window-${timerId}`);
     return DraftFactory.createDraft().then((draft) => {
@@ -295,7 +295,7 @@ class DraftStore extends NylasStore {
   }
 
   _onHandleMailtoLink = (event, urlString) => {
-    Actions.recordUserEvent("Draft Created", {type: "mailto"});
+    // Actions.recordUserEvent("Draft Created", {type: "mailto"});
     const timerId = Utils.generateTempId()
     NylasEnv.timer.start(`open-composer-window-${timerId}`);
     return DraftFactory.createDraftForMailto(urlString).then((draft) => {
@@ -308,7 +308,7 @@ class DraftStore extends NylasStore {
   }
 
   _onHandleMailFiles = (event, paths) => {
-    Actions.recordUserEvent("Draft Created", {type: "dropped-file-in-dock"});
+    // Actions.recordUserEvent("Draft Created", {type: "dropped-file-in-dock"});
     const timerId = Utils.generateTempId()
     NylasEnv.timer.start(`open-composer-window-${timerId}`);
     return DraftFactory.createDraft().then((draft) => {

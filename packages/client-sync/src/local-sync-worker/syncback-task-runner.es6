@@ -191,11 +191,6 @@ class SyncbackTaskRunner {
     const onRetryableError = async (error) => {
       retryableError = error
       const after = new Date();
-      Actions.recordUserEvent('Retrying send task', {
-        accountId: this._account.id,
-        provider: this._account.provider,
-        errorMessage: error.message,
-      })
       syncbackRequest.status = "NEW";
       await syncbackRequest.save();
       this._logger.warn(`🔃 📤 ${task.description()} Failed with retryable error, retrying in next loop (${after.getTime() - before.getTime()}ms)`, {syncbackRequest: syncbackRequest.toJSON(), error})

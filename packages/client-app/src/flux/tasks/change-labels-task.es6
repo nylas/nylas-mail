@@ -1,7 +1,6 @@
 import _ from 'underscore';
 import Thread from '../models/thread';
 import Message from '../models/message';
-import Actions from '../actions'
 import Category from '../models/category';
 import DatabaseStore from '../stores/database-store';
 import CategoryStore from '../stores/category-store';
@@ -174,18 +173,18 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     if (this.source === "Mail Rules") {
       return
     }
-    Actions.recordUserEvent("Threads Changed Labels", {
-      source: this.source,
-      isArchive: this._isArchive(),
-      labelTypesToAdd: this.labelsToAdd.map(l => l.name || "custom"),
-      labelTypesToRemove: this.labelsToRemove.map(l => l.name || "custom"),
-      labelDisplayNamesToAdd: this.labelsToAdd.map(l => l.displayName),
-      labelDisplayNamesToRemove: this.labelsToRemove.map(l => l.displayName),
-      numThreads: this.threads.length,
-      numMessages: this.messages.length,
-      description: this.description(),
-      isUndo: this._isUndoTask,
-    })
+    // Actions.recordUserEvent("Threads Changed Labels", {
+    //   source: this.source,
+    //   isArchive: this._isArchive(),
+    //   labelTypesToAdd: this.labelsToAdd.map(l => l.name || "custom"),
+    //   labelTypesToRemove: this.labelsToRemove.map(l => l.name || "custom"),
+    //   labelDisplayNamesToAdd: this.labelsToAdd.map(l => l.displayName),
+    //   labelDisplayNamesToRemove: this.labelsToRemove.map(l => l.displayName),
+    //   numThreads: this.threads.length,
+    //   numMessages: this.messages.length,
+    //   description: this.description(),
+    //   isUndo: this._isUndoTask,
+    // })
   }
 
   retrieveModels() {
