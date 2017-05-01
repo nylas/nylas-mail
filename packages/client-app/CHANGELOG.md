@@ -1,5 +1,9 @@
 # Nylas Mail Changelog
 
+### 2.0.32 (5/1/2017)
+
+  + [client-app] remove unnecessary tracking events
+
 ### 2.0.31 (4/28/2017)
 
   + [client-sync] Use decryptedCredentials instead
