@@ -2,21 +2,13 @@
 
 ### 2.0.32 (5/1/2017)
 
-  + [client-app] remove unnecessary tracking events
+  + Remove unnecessary tracking events
 
 ### 2.0.31 (4/28/2017)
 
-  + [client-sync] Use decryptedCredentials instead
-
-### 2.0.30 (4/28/2017)
-
-  + [client-sync] Keep track of when SendTaskRunners expire
-  + Revert [*] fix google auth expiry date
-
-### 2.0.29 (4/27/2017)
-
-  + [\*] fix google auth expiry date
-  + [cloud-core] fix leaking redis connections & cleanup
+- Fixes:
+  + Fix invalid credentials error when sending on Gmail. This error will happen
+    sporadically, and was introduced in version 2.0.28
 
 ### 2.0.28 (4/26/2017)
 
