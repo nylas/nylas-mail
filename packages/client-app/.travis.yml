@@ -6,6 +6,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - sourceline: 'ppa:versable/elementary-community-ppa'
     packages:
     - build-essential
     - clang
@@ -17,7 +18,7 @@ addons:
     - libxext-dev
     - libxtst-dev
     - libxkbfile-dev
-
+    - libsecret-1-dev
 branches:
   only:
   - master
@@ -43,9 +44,6 @@ before_script:
   export DISPLAY=:99.0;
   sh -e /etc/init.d/xvfb start;
   fi
-- add-apt-repository ppa:versable/elementary-community-ppa -y
-- apt-get update -q
-- apt-get install libsecret-1-dev -y
 
 script:
 - npm install && npm test

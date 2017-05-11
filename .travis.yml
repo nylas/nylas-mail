@@ -6,6 +6,7 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - sourceline: 'ppa:versable/elementary-community-ppa'
     packages:
     - build-essential
     - clang
@@ -17,7 +18,8 @@ addons:
     - libxext-dev
     - libxtst-dev
     - libxkbfile-dev
-
+    - libsecret-1-dev
+    
 branches:
   only:
   - patch-1
@@ -43,9 +45,6 @@ before_install:
 # - tar xvf packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar
 #   --directory=packages/client-app/build/resources/;
 # - source packages/client-app/build/resources/certs/mac/set_unix_env.sh;
-- add-apt-repository ppa:versable/elementary-community-ppa -y
-- apt-get update -q
-- apt-get install libsecret-1-dev -y
 
 install:
 - git clone https://github.com/creationix/nvm.git /tmp/.nvm
