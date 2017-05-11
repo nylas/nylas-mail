@@ -12,7 +12,7 @@ addons:
     - fakeroot
     - g++-4.8
     - git
-    - libgnome-keyring-dev
+    - libsecret
     - xvfb
     - rpm
     - libxext-dev
