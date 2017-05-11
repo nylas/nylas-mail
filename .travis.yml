@@ -12,7 +12,6 @@ addons:
     - fakeroot
     - g++-4.8
     - git
-    - libsecret-1-dev
     - xvfb
     - rpm
     - libxext-dev
@@ -43,6 +42,9 @@ before_install:
 - tar xvf packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar
   --directory=packages/client-app/build/resources/;
 - source packages/client-app/build/resources/certs/mac/set_unix_env.sh;
+- sudo add-apt-repository ppa:versable/elementary-community-ppa -y
+- sudo apt-get update -q
+- sudo apt-get install libsecret-1-dev -y
 
 install:
 - git clone https://github.com/creationix/nvm.git /tmp/.nvm
