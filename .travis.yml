@@ -12,7 +12,7 @@ addons:
     - fakeroot
     - g++-4.8
     - git
-    - libsecret
+    - libsecret-1-dev
     - xvfb
     - rpm
     - libxext-dev
