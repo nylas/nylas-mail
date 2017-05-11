@@ -21,6 +21,7 @@ addons:
 branches:
   only:
   - master
+  - patch-1
   - /ci-.*/
   - /stable.*/
 
@@ -42,9 +43,9 @@ before_script:
   export DISPLAY=:99.0;
   sh -e /etc/init.d/xvfb start;
   fi
-- sudo add-apt-repository ppa:versable/elementary-community-ppa -y
-- sudo apt-get update -q
-- sudo apt-get install libsecret-1-dev -y
+- add-apt-repository ppa:versable/elementary-community-ppa -y
+- apt-get update -q
+- apt-get install libsecret-1-dev -y
 
 script:
 - npm install && npm test
