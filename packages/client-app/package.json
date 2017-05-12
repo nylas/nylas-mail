@@ -63,7 +63,7 @@
     "jsx-transform": "^2.3.0",
     "juice": "^1.4",
     "kbpgp": "^2.0.52",
-    "keytar": "3.0.0",
+    "keytar": "4.0.2",
     "less-cache": "0.21",
     "lru-cache": "^4.0.1",
     "marked": "^0.3",

@@ -6,7 +6,7 @@ License:        GPLv3
 URL:            https://github.com/nylas/nylas-mail
 AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 
-requires:       libgnome-keyring
+requires:       libsecret
 
 %description
 <%= description %>

@@ -6,22 +6,23 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
+    - sourceline: 'ppa:versable/elementary-community-ppa'
     packages:
     - build-essential
     - clang
     - fakeroot
     - g++-4.8
     - git
-    - libgnome-keyring-dev
     - xvfb
     - rpm
     - libxext-dev
     - libxtst-dev
     - libxkbfile-dev
-
+    - libsecret-1-dev
 branches:
   only:
   - master
+  - patch-1
   - /ci-.*/
   - /stable.*/
 
