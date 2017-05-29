@@ -115,3 +115,6 @@ You can configure Nylas Mail in a few ways—for instance, pointing it to your s
 
 ## Feature Requests / Plugin Ideas
 Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](https://github.com/nylas/nylas-mail/issues) and join the conversation!
+
+## Contributing
+If you would like to contribute to the project, but aren't sure where to start, please take a look at the [Guide](docs/guide/README.md#contributing).
