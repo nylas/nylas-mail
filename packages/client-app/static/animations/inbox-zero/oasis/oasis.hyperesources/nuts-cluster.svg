@@ -1,16 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" width="40.938" height="39.5" viewBox="0 0 40.938 39.5">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #c88023;
-        stroke: #603913;
-        stroke-width: 6px;
-      }
-    </style>
-  </defs>
-  <g>
-    <circle cx="26.5" cy="14.438" r="11.438" class="cls-1"/>
-    <circle cx="14.454" cy="14.438" r="11.453" class="cls-1"/>
-    <circle cx="20.844" cy="25.063" r="11.437" class="cls-1"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40.9 39.5" enable-background="new 0 0 40.9 39.5"><style type="text/css">.st0{fill:#C88023;stroke:#603913;stroke-width:6;}</style><circle class="st0" cx="26.5" cy="14.4" r="11.4"/><circle class="st0" cx="14.5" cy="14.4" r="11.5"/><circle class="st0" cx="20.8" cy="25.1" r="11.4"/></svg>
