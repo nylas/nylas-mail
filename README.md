@@ -1,11 +1,9 @@
 # Nylas Mail - the open-source, extensible mail client
-![N1 Screenshot](https://github.com/nylas/nylas-mail/raw/master/screenshot/hero_graphic_mac%402x.png)
+![N1 Screenshot](https://www.nylas.com/hs-fs/hubfs/%20Nylas%20May%202017%20/Images/hero_graphic_mac@2x.png?t=1496457553218&width=1572&name=hero_graphic_mac@2x.png)
 
-**Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It was designed to be easy to extend, and many third-party plugins are available that add functionality to the client. 
+  **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail)
 
-**⚠️ Nylas Mail was initially released and open-sourced in early 2015 and was maintained by Nylas until Spring 2017.** While Nylas no longer supports Nylas Mail, you can download the latest release or build it from source. There are also **[several forks](#forks)** that are being actively developed and maintained.
-
-# Getting Started
+[![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](https://join.slack.com/nylasisalive/shared_invite/MTg4MzQzMzY3NDEyLTE0OTU3NTQwNDMtYzhhZmE3NDM0NA)
 
 ## Setup your Environment (Mac):
 
@@ -14,7 +12,22 @@
 1. Install Node 6 via NVM: `nvm install 6`
 1. `npm install`
 
-## Setup your Environment (Linux - Debian/Ubuntu):
+# This is a Fork
+This is a fork from the project currently hosted at [nylas/nylas-mail](https://github.com/nylas-mail-lives/nylas-mail). A bunch of developers who really liked this open source project got upset on [this issue thread](https://github.com/nylas/nylas-mail/issues/3564) and wondered if they could contribute to the project, as the main development team had stopped to look into issues and pull requests from the comunity.
+
+Our main objective is to maintain this amazing project alive and actively accepting contributions from the comunity. We believe this is the true life behind any open source endevour.
+
+We are still figuring out how to manage this fork, our relationship with the original repository maintainers, how to deploy and etc. We welcome contributions of all kinds as we try to get the house in order.
+
+We will, naturally, honor the licenses as they were writen by Nylas on the original project.
+
+Please, feel free to contact any of the developers or, preferably, use our Slack team linked above to look into the discussions.
+
+## Download Nylas Mail
+
+We are still figuring out our deploy options for this fork. 
+
+## Build A Plugin
 
 1. Install Node 6+ via NodeSource (trusted):
   1. `curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -`
@@ -140,7 +153,9 @@ When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Ma
 There are several forks of Nylas Mail that you should check out!
 
 ## Feature Requests / Plugin Ideas
-Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](https://github.com/nylas/nylas-mail/issues) and join the conversation!
+
+Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](http://github.com/nylas-mail-lives/nylas-mail/issues) and join the conversation!
 
 ## Contributing
 If you would like to contribute to the project, but aren't sure where to start, please take a look at the [Guide](docs/guide/README.md#contributing).
+
