@@ -104,7 +104,7 @@ Note these are not tested or officially supported by Nylas, but we still think t
 - [Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)
 - [Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)
 - [Evernote](https://github.com/grobgl/n1-evernote)
-- [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
+- [Wunderlist (new v2)](https://github.com/miguelrs/nylas-wunderlist)
 - [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
 - [GitHub](https://github.com/ForbesLindesay/N1-GitHub)
 
