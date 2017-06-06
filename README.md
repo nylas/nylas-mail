@@ -1,16 +1,28 @@
 # Nylas Mail - the open-source, extensible mail client
-![N1 Screenshot](https://nylas.com/static/img/nylas-mail/hero_graphic_mac@2x.png)
+![N1 Screenshot](https://www.nylas.com/hs-fs/hubfs/%20Nylas%20May%202017%20/Images/hero_graphic_mac@2x.png?t=1496457553218&width=1572&name=hero_graphic_mac@2x.png)
 
-  **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail/).
+  **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail)
 
-[![Build Status](https://travis-ci.org/nylas/nylas-mail.svg?branch=master)](https://travis-ci.org/nylas/nylas-mail)
-[![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
-
-#### Want to help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
+[![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](https://join.slack.com/nylasisalive/shared_invite/MTg4MzQzMzY3NDEyLTE0OTU3NTQwNDMtYzhhZmE3NDM0NA)
 
 ## Download Nylas Mail
 
 You can download compiled versions of Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run Nylas Mail (Previously N1) on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
+
+# This is a Fork
+This is a fork from the project currently hosted at [nylas/nylas-mail](https://github.com/nylas-mail-lives/nylas-mail). A bunch of developers who really liked this open source project got upset on [this issue thread](https://github.com/nylas/nylas-mail/issues/3564) and wondered if they could contribute to the project, as the main development team had stopped to look into issues and pull requests from the comunity.
+
+Our main objective is to maintain this amazing project alive and actively accepting contributions from the comunity. We believe this is the true life behind any open source endevour.
+
+We are still figuring out how to manage this fork, our relationship with the original repository maintainers, how to deploy and etc. We welcome contributions of all kinds as we try to get the house in order.
+
+We will, naturally, honor the licenses as they were writen by Nylas on the original project.
+
+Please, feel free to contact any of the developers or, preferably, use our Slack team linked above to look into the discussions.
+
+## Download Nylas Mail
+
+We are still figuring out our deploy options for this fork. 
 
 ## Build A Plugin
 
@@ -114,7 +126,9 @@ When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Ma
 You can configure Nylas Mail in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/nylas-mail/blob/master/CONFIGURATION.md)
 
 ## Feature Requests / Plugin Ideas
-Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](https://github.com/nylas/nylas-mail/issues) and join the conversation!
+
+Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](http://github.com/nylas-mail-lives/nylas-mail/issues) and join the conversation!
 
 ## Contributing
 If you would like to contribute to the project, but aren't sure where to start, please take a look at the [Guide](docs/guide/README.md#contributing).
+
