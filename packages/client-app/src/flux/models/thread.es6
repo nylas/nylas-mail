@@ -85,31 +85,27 @@ class Thread extends ModelWithMetadata {
     }),
 
     hasAttachments: Attributes.Boolean({
-      modelKey: 'has_attachments',
+      modelKey: 'hasAttachments',
     }),
 
     lastMessageReceivedTimestamp: Attributes.DateTime({
       queryable: true,
       modelKey: 'lastMessageReceivedTimestamp',
-      jsonKey: 'last_message_received_timestamp',
     }),
 
     lastMessageSentTimestamp: Attributes.DateTime({
       queryable: true,
       modelKey: 'lastMessageSentTimestamp',
-      jsonKey: 'last_message_sent_timestamp',
     }),
 
     inAllMail: Attributes.Boolean({
       queryable: true,
       modelKey: 'inAllMail',
-      jsonKey: 'in_all_mail',
     }),
 
     isSearchIndexed: Attributes.Boolean({
       queryable: true,
       modelKey: 'isSearchIndexed',
-      jsonKey: 'is_search_indexed',
       defaultValue: false,
       loadFromColumn: true,
     }),
@@ -119,7 +115,6 @@ class Thread extends ModelWithMetadata {
     // these operations would be way too slow on large FTS tables.
     searchIndexId: Attributes.Number({
       modelKey: 'searchIndexId',
-      jsonKey: 'search_index_id',
     }),
   })
 
@@ -138,26 +133,26 @@ class Thread extends ModelWithMetadata {
       'CREATE UNIQUE INDEX IF NOT EXISTS ThreadCountsIndex ON `ThreadCounts` (category_id DESC)',
 
       // ThreadContact
-      'CREATE INDEX IF NOT EXISTS ThreadContactDateIndex ON `ThreadContact` (last_message_received_timestamp DESC, value, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadContactDateIndex ON `ThreadContact` (lastMessageReceivedTimestamp DESC, value, id)',
 
       // ThreadCategory
-      'CREATE INDEX IF NOT EXISTS ThreadListCategoryIndex ON `ThreadCategory` (last_message_received_timestamp DESC, value, in_all_mail, unread, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadListCategorySentIndex ON `ThreadCategory` (last_message_sent_timestamp DESC, value, in_all_mail, unread, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadListCategoryIndex ON `ThreadCategory` (lastMessageReceivedTimestamp DESC, value, inAllMail, unread, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadListCategorySentIndex ON `ThreadCategory` (lastMessageSentTimestamp DESC, value, inAllMail, unread, id)',
 
       // Thread: General index
-      'CREATE INDEX IF NOT EXISTS ThreadDateIndex ON `Thread` (last_message_received_timestamp DESC)',
-      'CREATE INDEX IF NOT EXISTS ThreadClientIdIndex ON `Thread` (client_id)',
+      'CREATE INDEX IF NOT EXISTS ThreadDateIndex ON `Thread` (lastMessageReceivedTimestamp DESC)',
+      'CREATE INDEX IF NOT EXISTS ThreadClientIdIndex ON `Thread` (id)',
 
       // Thread: Partial indexes for specific views
-      'CREATE INDEX IF NOT EXISTS ThreadUnreadIndex ON `Thread` (account_id, last_message_received_timestamp DESC) WHERE unread = 1 AND in_all_mail = 1',
-      'CREATE INDEX IF NOT EXISTS ThreadUnifiedUnreadIndex ON `Thread` (last_message_received_timestamp DESC) WHERE unread = 1 AND in_all_mail = 1',
+      'CREATE INDEX IF NOT EXISTS ThreadUnreadIndex ON `Thread` (accountId, lastMessageReceivedTimestamp DESC) WHERE unread = 1 AND inAllMail = 1',
+      'CREATE INDEX IF NOT EXISTS ThreadUnifiedUnreadIndex ON `Thread` (lastMessageReceivedTimestamp DESC) WHERE unread = 1 AND inAllMail = 1',
 
       'DROP INDEX IF EXISTS `Thread`.ThreadStarIndex',
-      'CREATE INDEX IF NOT EXISTS ThreadStarredIndex ON `Thread` (account_id, last_message_received_timestamp DESC) WHERE starred = 1 AND in_all_mail = 1',
-      'CREATE INDEX IF NOT EXISTS ThreadUnifiedStarredIndex ON `Thread` (last_message_received_timestamp DESC) WHERE starred = 1 AND in_all_mail = 1',
+      'CREATE INDEX IF NOT EXISTS ThreadStarredIndex ON `Thread` (accountId, lastMessageReceivedTimestamp DESC) WHERE starred = 1 AND inAllMail = 1',
+      'CREATE INDEX IF NOT EXISTS ThreadUnifiedStarredIndex ON `Thread` (lastMessageReceivedTimestamp DESC) WHERE starred = 1 AND inAllMail = 1',
 
-      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedIndex ON `Thread` (is_search_indexed, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedLastMessageReceivedIndex ON `Thread` (is_search_indexed, last_message_received_timestamp)',
+      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedIndex ON `Thread` (isSearchIndexed, id)',
+      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedLastMessageReceivedIndex ON `Thread` (isSearchIndexed, lastMessageReceivedTimestamp)',
     ],
   }
 

@@ -93,7 +93,6 @@ export default class Message extends ModelWithMetadata {
 
     replyTo: Attributes.Collection({
       modelKey: 'replyTo',
-      jsonKey: 'reply_to',
       itemClass: Contact,
     }),
 
@@ -153,12 +152,10 @@ export default class Message extends ModelWithMetadata {
     threadId: Attributes.ServerId({
       queryable: true,
       modelKey: 'threadId',
-      jsonKey: 'thread_id',
     }),
 
     messageIdHeader: Attributes.ServerId({
       modelKey: 'messageIdHeader',
-      jsonKey: 'message_id_header',
     }),
 
     subject: Attributes.String({
@@ -167,13 +164,11 @@ export default class Message extends ModelWithMetadata {
 
     draft: Attributes.Boolean({
       modelKey: 'draft',
-      jsonKey: 'draft',
       queryable: true,
     }),
 
     pristine: Attributes.Boolean({
       modelKey: 'pristine',
-      jsonKey: 'pristine',
       queryable: false,
     }),
 
@@ -184,7 +179,6 @@ export default class Message extends ModelWithMetadata {
 
     replyToMessageId: Attributes.ServerId({
       modelKey: 'replyToMessageId',
-      jsonKey: 'reply_to_message_id',
     }),
 
     categories: Attributes.Collection({
@@ -199,10 +193,10 @@ export default class Message extends ModelWithMetadata {
 
   static additionalSQLiteConfig = {
     setup: () => [
-      `CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(thread_id, date ASC)`,
-      `CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(client_id)`,
+      `CREATE INDEX IF NOT EXISTS MessageListThreadIndex ON Message(threadId, date ASC)`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS MessageDraftIndex ON Message(id)`,
       `CREATE INDEX IF NOT EXISTS MessageListDraftIndex ON \
-Message(account_id, date DESC) WHERE draft = 1`,
+Message(accountId, date DESC) WHERE draft = 1`,
       `CREATE INDEX IF NOT EXISTS MessageListUnifiedDraftIndex ON \
 Message(date DESC) WHERE draft = 1`,
       `CREATE UNIQUE INDEX IF NOT EXISTS MessageBodyIndex ON MessageBody(id)`,

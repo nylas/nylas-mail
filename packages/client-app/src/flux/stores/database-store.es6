@@ -129,7 +129,7 @@ class DatabaseStore extends NylasStore {
     const app = remote.getGlobal('application')
     const phase = app.databasePhase()
 
-    if (phase === DatabasePhase.Setup && NylasEnv.isWorkWindow()) {
+    if (phase === DatabasePhase.Setup && NylasEnv.isMainWindow()) {
       await this._openDatabase()
       this._checkDatabaseVersion({allowUnset: true}, () => {
         this._runDatabaseSetup(() => {
@@ -163,7 +163,7 @@ class DatabaseStore extends NylasStore {
   // database schema to prepare those tables. This method may be called
   // extremely frequently as new models are added when packages load.
   refreshDatabaseSchema() {
-    if (!NylasEnv.isWorkWindow()) {
+    if (!NylasEnv.isMainWindow()) {
       return Promise.resolve();
     }
     const app = remote.getGlobal('application');

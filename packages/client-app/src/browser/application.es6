@@ -190,19 +190,18 @@ export default class Application extends EventEmitter {
   }
 
   openWindowsForTokenState() {
-    const accounts = this.config.get('nylas.accounts');
-    const hasAccount = accounts && accounts.length > 0;
-    const hasN1ID = this._getNylasId();
+    // const accounts = this.config.get('nylas.accounts');
+    // const hasAccount = accounts && accounts.length > 0;
+    // const hasN1ID = this._getNylasId();
 
-    if (hasAccount && hasN1ID) {
-      this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
-      this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
-    } else {
-      this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-        title: "Welcome to Nylas Mail",
-      });
-      this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
-    }
+    // TODO BEN
+    // if (hasAccount && hasN1ID) {
+    this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
+    // } else {
+    //   this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
+    //     title: "Welcome to Nylas Mail",
+    //   });
+    // }
   }
 
   _getNylasId() {
@@ -503,7 +502,8 @@ export default class Application extends EventEmitter {
     });
 
     ipcMain.on('ensure-worker-window', () => {
-      this.windowManager.ensureWindow(WindowManager.WORK_WINDOW)
+      // TODO BG
+      // this.windowManager.ensureWindow(WindowManager.WORK_WINDOW)
     })
 
     ipcMain.on('inline-style-parse', (event, {html, key}) => {
@@ -571,14 +571,15 @@ export default class Application extends EventEmitter {
     });
 
     ipcMain.on('action-bridge-rebroadcast-to-work', (event, ...args) => {
-      const workWindow = this.windowManager.get(WindowManager.WORK_WINDOW)
-      if (!workWindow || !workWindow.browserWindow.webContents) {
-        return;
-      }
-      if (BrowserWindow.fromWebContents(event.sender) === workWindow) {
-        return;
-      }
-      workWindow.browserWindow.webContents.send('action-bridge-message', ...args);
+      // TODO BG
+      // const workWindow = this.windowManager.get(WindowManager.WORK_WINDOW)
+      // if (!workWindow || !workWindow.browserWindow.webContents) {
+      //   return;
+      // }
+      // if (BrowserWindow.fromWebContents(event.sender) === workWindow) {
+      //   return;
+      // }
+      // workWindow.browserWindow.webContents.send('action-bridge-message', ...args);
     });
 
     ipcMain.on('write-text-to-selection-clipboard', (event, selectedText) => {
@@ -596,7 +597,8 @@ export default class Application extends EventEmitter {
     });
 
     ipcMain.on('new-account-added', () => {
-      this.windowManager.ensureWindow(WindowManager.WORK_WINDOW)
+      // TODO BEN
+      // this.windowManager.ensureWindow(WindowManager.WORK_WINDOW)
     });
 
     ipcMain.on('run-in-window', (event, params) => {
@@ -605,7 +607,6 @@ export default class Application extends EventEmitter {
       this._sourceWindows[params.taskId] = sourceWindow
 
       const targetWindowKey = {
-        work: WindowManager.WORK_WINDOW,
         main: WindowManager.MAIN_WINDOW,
       }[params.window];
       if (!targetWindowKey) {

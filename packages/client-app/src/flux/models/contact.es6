@@ -79,7 +79,6 @@ export default class Contact extends Model {
     isSearchIndexed: Attributes.Boolean({
       queryable: true,
       modelKey: 'isSearchIndexed',
-      jsonKey: 'is_search_indexed',
       defaultValue: false,
     }),
 
@@ -88,7 +87,6 @@ export default class Contact extends Model {
     // these operations would be way too slow on large FTS tables.
     searchIndexId: Attributes.Number({
       modelKey: 'searchIndexId',
-      jsonKey: 'search_index_id',
     }),
   });
 
@@ -96,8 +94,8 @@ export default class Contact extends Model {
     setup: () => {
       return [
         'CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)',
-        'CREATE INDEX IF NOT EXISTS ContactAccountEmailIndex ON Contact(account_id, email)',
-        'CREATE INDEX IF NOT EXISTS ContactIsSearchIndexedIndex ON `Contact` (is_search_indexed, id)',
+        'CREATE INDEX IF NOT EXISTS ContactAccountEmailIndex ON Contact(accountId, email)',
+        'CREATE INDEX IF NOT EXISTS ContactIsSearchIndexedIndex ON `Contact` (isSearchIndexed, id)',
       ];
     },
   };

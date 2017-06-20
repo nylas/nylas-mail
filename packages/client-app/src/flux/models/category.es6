@@ -106,8 +106,8 @@ export default class Category extends Model {
   static additionalSQLiteConfig = {
     setup: () => {
       return [
-        'CREATE INDEX IF NOT EXISTS CategoryNameIndex ON Category(account_id,name)',
-        'CREATE UNIQUE INDEX IF NOT EXISTS CategoryClientIndex ON Category(client_id)',
+        'CREATE INDEX IF NOT EXISTS CategoryNameIndex ON Category(accountId,name)',
+        'CREATE UNIQUE INDEX IF NOT EXISTS CategoryClientIndex ON Category(id)',
       ];
     },
   };

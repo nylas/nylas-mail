@@ -3,7 +3,6 @@ import {app} from 'electron';
 import WindowLauncher from './window-launcher';
 
 const MAIN_WINDOW = "default"
-const WORK_WINDOW = "work"
 const SPEC_WINDOW = "spec"
 const ONBOARDING_WINDOW = "onboarding"
 // const CALENDAR_WINDOW = "calendar"
@@ -195,17 +194,6 @@ export default class WindowManager {
       initializeInBackground: this.initializeInBackground,
     };
 
-    coreWinOpts[WindowManager.WORK_WINDOW] = {
-      windowKey: WindowManager.WORK_WINDOW,
-      windowType: WindowManager.WORK_WINDOW,
-      coldStartOnly: true, // It's a secondary window, but not a hot window
-      title: "Activity",
-      hidden: true,
-      neverClose: true,
-      width: 800,
-      height: 400,
-    }
-
     coreWinOpts[WindowManager.ONBOARDING_WINDOW] = {
       windowKey: WindowManager.ONBOARDING_WINDOW,
       windowType: WindowManager.ONBOARDING_WINDOW,
@@ -238,7 +226,6 @@ export default class WindowManager {
 }
 
 WindowManager.MAIN_WINDOW = MAIN_WINDOW;
-WindowManager.WORK_WINDOW = WORK_WINDOW;
 WindowManager.SPEC_WINDOW = SPEC_WINDOW;
 // WindowManager.CALENDAR_WINDOW = CALENDAR_WINDOW;
 WindowManager.ONBOARDING_WINDOW = ONBOARDING_WINDOW;

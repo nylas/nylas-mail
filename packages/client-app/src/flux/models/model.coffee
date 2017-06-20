@@ -31,11 +31,13 @@ Section: Models
 ###
 class Model
 
-  Object.defineProperty @prototype, "id",
+  Object.defineProperty @prototype, "clientId",
     enumerable: false
-    get: -> @serverId ? @clientId
-    set: ->
-      throw new Error("You may not directly set the ID of an object. Set either the `clientId` or the `serverId` instead.")
+    get: -> @id
+
+  Object.defineProperty @prototype, "serverId",
+    enumerable: false
+    get: -> @id
 
   @attributes:
     # Lookups will go through the custom getter.
@@ -43,22 +45,12 @@ class Model
       queryable: true
       modelKey: 'id'
 
-    'clientId': Attributes.String
-      queryable: true
-      modelKey: 'clientId'
-      jsonKey: 'client_id'
-
-    'serverId': Attributes.ServerId
-      modelKey: 'serverId'
-      jsonKey: 'server_id'
-
     'object': Attributes.String
       modelKey: 'object'
 
     'accountId': Attributes.ServerId
       queryable: true
       modelKey: 'accountId'
-      jsonKey: 'account_id'
 
   @naturalSortOrder: -> null
 
