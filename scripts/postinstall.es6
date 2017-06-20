@@ -83,7 +83,7 @@ const npmEnvs = {
     NPM_CONFIG_TARGET: '0.10.40',
   }),
   electron: Object.assign({}, process.env, {
-    NPM_CONFIG_TARGET: '1.4.15',
+    NPM_CONFIG_TARGET: '1.7.3',
     NPM_CONFIG_ARCH: process.arch,
     NPM_CONFIG_TARGET_ARCH: process.arch,
     NPM_CONFIG_DISTURL: 'https://atom.io/download/electron',
