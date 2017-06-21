@@ -18,7 +18,7 @@ export default class EnsureMessageInSentFolderTask extends Task {
   }
 
   isDependentOnTask(other) {
-    return (other instanceof SendDraftTask) && (other.message) && (other.message.clientId === this.message.clientId);
+    return (other instanceof SendDraftTask) && (other.message) && (other.message.id === this.message.id);
   }
 
   performLocal() {
@@ -51,7 +51,7 @@ export default class EnsureMessageInSentFolderTask extends Task {
     }
 
     return runPromise.then(() => {
-      Actions.ensureMessageInSentSuccess({messageClientId: this.message.clientId})
+      Actions.ensureMessageInSentSuccess({messageId: this.message.id})
       return Task.Status.Success
     })
     .catch((err) => {

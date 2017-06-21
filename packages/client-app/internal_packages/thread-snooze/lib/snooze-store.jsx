@@ -45,8 +45,8 @@ class SnoozeStore {
       if (!threadsByAccountId[accId]) {
         threadsByAccountId[accId] = {
           threads: [thread],
-          snoozeCategoryId: getSnoozeCategory(accId).serverId,
-          returnCategoryId: getInboxCategory(accId).serverId,
+          snoozeCategoryId: getSnoozeCategory(accId).id,
+          returnCategoryId: getInboxCategory(accId).id,
         }
       } else {
         threadsByAccountId[accId].threads.push(thread);

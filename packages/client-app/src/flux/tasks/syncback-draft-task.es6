@@ -12,6 +12,7 @@ import {APIError} from '../errors';
 export default class SyncbackDraftTask extends BaseDraftTask {
 
   performRemote() {
+    throw new Error("BG TODO");
     return this.refreshDraftReference()
     .then(() =>
       new NylasAPIRequest({

@@ -134,7 +134,7 @@ export default class ComposerHeader extends React.Component {
 
   _onChangeParticipants = (changes) => {
     this.props.session.changes.add(changes);
-    Actions.draftParticipantsChanged(this.props.draft.clientId, changes);
+    Actions.draftParticipantsChanged(this.props.draft.id, changes);
   }
 
   _onSubjectChange = (value) => {
@@ -243,7 +243,7 @@ export default class ComposerHeader extends React.Component {
             draft,
             session,
             value: draft.subject,
-            draftClientId: draft.clientId,
+            draftId: draft.id,
             onSubjectChange: this._onSubjectChange,
           }}
           requiredMethods={['focus']}
@@ -326,7 +326,7 @@ export default class ComposerHeader extends React.Component {
     return (
       <div className="composer-header">
         <ComposerHeaderActions
-          draftClientId={this.props.draft.clientId}
+          draftId={this.props.draft.id}
           enabledFields={this.state.enabledFields}
           participantsFocused={this.state.participantsFocused}
           onShowAndFocusField={this.showAndFocusField}

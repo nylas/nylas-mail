@@ -4,8 +4,8 @@ import SyncbackModelTask from './syncback-model-task'
 const EVENTS_ENDPOINT = "/events"
 
 export default class SyncbackEventTask extends SyncbackModelTask {
-  constructor(clientId) {
-    super({clientId, endpoint: EVENTS_ENDPOINT})
+  constructor(id) {
+    super({id, endpoint: EVENTS_ENDPOINT})
   }
 
   getModelConstructor() {

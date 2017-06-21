@@ -27,7 +27,7 @@ class DraftFactory
     Promise.resolve(new Message(_.extend({
       body: ''
       subject: ''
-      clientId: Utils.generateTempId()
+      id: Utils.generateTempId()
       from: [account.defaultMe()]
       date: (new Date)
       draft: true
@@ -155,7 +155,7 @@ class DraftFactory
           {fileId, filename, filesize, targetPath} = FileDownloadStore.getDownloadDataForFile(f.id)
           # Return an object that can act as an Upload instance.
           return (
-            messageClientId: draft.clientId,
+            messageId: draft.id,
             id: fileId,
             filename: filename,
             size: filesize,
@@ -187,7 +187,7 @@ class DraftFactory
       else if behavior is 'prefer-existing-if-pristine'
         DraftStore ?= require('./draft-store').default
         return Promise.all(candidateDrafts.map (candidateDraft) =>
-          DraftStore.sessionForClientId(candidateDraft.clientId)
+          DraftStore.sessionForId(candidateDraft.id)
         ).then (sessions) =>
           for session in sessions
             if session.draft().pristine

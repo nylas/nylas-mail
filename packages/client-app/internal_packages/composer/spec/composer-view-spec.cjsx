@@ -44,7 +44,7 @@ DRAFT_CLIENT_ID = "local-123"
 
 useDraft = (draftAttributes={}) ->
   @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
-  @draft.clientId = DRAFT_CLIENT_ID
+  @draft.id = DRAFT_CLIENT_ID
   @session = new DraftEditingSession(DRAFT_CLIENT_ID, @draft)
   # spyOn().andCallFake wasn't working properly on ensureCorrectAccount for some reason
   @session.ensureCorrectAccount = => Promise.resolve(@session)
@@ -561,17 +561,17 @@ describe "when a file is received (via drag and drop or paste)", ->
     runs( =>
       makeComposer.call(@)
       @upload = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
-      spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageClientId, onUploadCreated}) =>
+      spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageId, onUploadCreated}) =>
         @draft.uploads.push(@upload)
         onUploadCreated(@upload)
       spyOn(Actions, 'insertAttachmentIntoDraft')
     )
 
-  it "should call addAttachment with the path and clientId", ->
+  it "should call addAttachment with the path and id", ->
     @composer._onFileReceived('../../f.txt')
     expect(Actions.addAttachment.callCount).toBe(1)
     expect(Object.keys(Actions.addAttachment.calls[0].args[0])).toEqual([
-      'filePath', 'messageClientId', 'onUploadCreated',
+      'filePath', 'messageId', 'onUploadCreated',
     ])
 
   it "should call insertAttachmentIntoDraft if the upload looks like an image", ->

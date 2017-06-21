@@ -6,14 +6,14 @@ PGPKeyStore = require '../lib/pgp-key-store'
 
 describe "DecryptMessageButton", ->
   beforeEach ->
-    @unencryptedMsg = new Message({clientId: 'test', subject: 'Subject', body: '<p>Body</p>'})
+    @unencryptedMsg = new Message({id: 'test', subject: 'Subject', body: '<p>Body</p>'})
     body = """-----BEGIN PGP MESSAGE-----
     Version: Keybase OpenPGP v2.0.52 Comment: keybase.io/crypto
 
     wcBMA5nwa6GWVDOUAQf+MjiVRIBWJyM6The6/h2MgSJTDyrN9teFFJTizOvgHNnD W4EpEmmhShNyERI67qXhC03lFczu2Zp2Qofgs8YePIEv7wwb27/cviODsE42YJvX 1zGir+jBp81s9ZiF4dex6Ir9XfiZJlypI2QV2dHjO+5pstW+XhKIc1R5vKvoFTGI 1XmZtL3EgtKfj/HkPUkq2N0G5kAoB2MTTQuurfXm+3TRkftqesyTKlek652sFjCv nSF+LQ1GYq5hI4YaUBiHnZd7wKUgDrIh2rzbuGq+AHjrHdVLMfRTbN0Xsy3OWRcC 9uWU8Nln00Ly6KbTqPXKcBDcMrOJuoxYcpmLlhRds9JoAY7MyIsj87M2mkTtAtMK hqK0PPvJKfepV+eljDhQ7y0TQ0IvNtO5/pcY2CozbFJncm/ToxxZPNJueKRcz+EH M9uBvrWNTwfHj26g405gpRDN1T8CsY5ZeiaDHduIKnBWd4za0ak0Xfw=
     =1aPN
     -----END PGP MESSAGE-----"""
-    @encryptedMsg = new Message({clientId: 'test2', subject: 'Subject', body: body})
+    @encryptedMsg = new Message({id: 'test2', subject: 'Subject', body: body})
 
     @msg = new Message({subject: 'Subject', body: '<p>Body</p>'})
     @component = ReactTestUtils.renderIntoDocument(

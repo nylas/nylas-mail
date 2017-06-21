@@ -17,27 +17,12 @@ describe("Model", function modelSpecs() {
       return expect(m.accountId).toBe(attrs.accountId);
     });
 
-    it("by default assigns things passed into the id constructor to the serverId", () => {
-      const attrs = {id: "A"};
-      const m = new Model(attrs);
-      return expect(m.serverId).toBe(attrs.id);
-    });
-
-    it("by default assigns values passed into the id constructor that look like localIds to be a localID", () => {
-      const attrs = {id: "A"};
-      const m = new Model(attrs);
-      return expect(m.serverId).toBe(attrs.id);
-    });
-
-    it("assigns serverIds and clientIds", () => {
+    it("assigns id", () => {
       const attrs = {
-        clientId: "local-A",
-        serverId: "A",
+        id: "A",
       };
       const m = new Model(attrs);
-      expect(m.serverId).toBe(attrs.serverId);
-      expect(m.clientId).toBe(attrs.clientId);
-      return expect(m.id).toBe(attrs.serverId);
+      expect(m.id).toBe(attrs.id);
     });
 
     it("throws an error if you attempt to manually assign the id", () => {
@@ -45,11 +30,9 @@ describe("Model", function modelSpecs() {
       return expect(() => { m.id = "bar" }).toThrow();
     });
 
-    return it("automatically assigns a clientId (and id) to the model if no id is provided", () => {
+    return it("automatically assigns an id to the model if no id is provided", () => {
       const m = new Model();
       expect(Utils.isTempId(m.id)).toBe(true);
-      expect(Utils.isTempId(m.clientId)).toBe(true);
-      return expect(m.serverId).toBeUndefined();
     });
   });
 

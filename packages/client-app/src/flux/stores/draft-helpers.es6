@@ -66,9 +66,9 @@ class DraftHelpers {
     return (cleaned.indexOf("attach") >= 0);
   }
 
-  async refreshDraftReference(clientId) {
+  async refreshDraftReference(id) {
     const message = await DatabaseStore
-      .findBy(Message, {clientId: clientId})
+      .findBy(Message, {id: id})
       .include(Message.attributes.body)
 
     if (!message || !message.draft) {

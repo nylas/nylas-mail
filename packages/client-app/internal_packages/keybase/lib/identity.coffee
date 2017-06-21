@@ -7,7 +7,7 @@ path = require 'path'
 module.exports =
 class Identity
   constructor: ({key, addresses, isPriv, keybase_profile}) ->
-    @clientId = Utils.generateTempId()
+    @id = Utils.generateTempId()
     @key = key ? null # keybase keymanager object
     @isPriv = isPriv ? false # is this a private key?
     @timeout = null # the time after which this key (if private) needs to be unlocked again
@@ -48,6 +48,6 @@ class Identity
     else if @addresses.length > 0
       uid = @addresses.join('')
     else
-      uid = @clientId
+      uid = @id
 
     return uid

@@ -17,17 +17,17 @@ xdescribe('SnoozeStore', function snoozeStore() {
     this.accounts = [{id: 123}, {id: 321}]
 
     this.snoozeCatsByAccount = {
-      123: new Category({accountId: 123, displayName: this.name, serverId: 'sn-1'}),
-      321: new Category({accountId: 321, displayName: this.name, serverId: 'sn-2'}),
+      123: new Category({accountId: 123, displayName: this.name, id: 'sn-1'}),
+      321: new Category({accountId: 321, displayName: this.name, id: 'sn-2'}),
     }
     this.inboxCatsByAccount = {
-      123: new Category({accountId: 123, name: 'inbox', serverId: 'in-1'}),
-      321: new Category({accountId: 321, name: 'inbox', serverId: 'in-2'}),
+      123: new Category({accountId: 123, name: 'inbox', id: 'in-1'}),
+      321: new Category({accountId: 321, name: 'inbox', id: 'in-2'}),
     }
     this.threads = [
-      new Thread({accountId: 123, serverId: 's-1'}),
-      new Thread({accountId: 123, serverId: 's-2'}),
-      new Thread({accountId: 321, serverId: 's-3'}),
+      new Thread({accountId: 123, id: 's-1'}),
+      new Thread({accountId: 123, id: 's-2'}),
+      new Thread({accountId: 321, id: 's-3'}),
     ]
     this.updatedThreadsByAccountId = {
       123: {

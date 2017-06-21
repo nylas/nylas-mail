@@ -202,7 +202,7 @@ class MessageItem extends React.Component
 
   _renderAttachments: =>
     files = (@props.message.files ? []).filter((f) => @_isRealFile(f))
-    messageClientId = @props.message.clientId
+    messageId = @props.message.id
     {filePreviewPaths, downloads} = @state
     if files.length > 0
       <div>
@@ -210,7 +210,7 @@ class MessageItem extends React.Component
         <div className="attachments-area">
           <InjectedComponent
             matching={{role: 'MessageAttachments'}}
-            exposedProps={{files, downloads, filePreviewPaths, messageClientId, canRemoveAttachments: false}}
+            exposedProps={{files, downloads, filePreviewPaths, messageId, canRemoveAttachments: false}}
           />
         </div>
       </div>

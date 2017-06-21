@@ -63,8 +63,7 @@ xdescribe('Snooze Utils', function snoozeUtils() {
       this.category = new Category({
         displayName: this.name,
         accountId: this.accId,
-        clientId: 321,
-        serverId: 321,
+        id: 321,
       })
       spyOn(Actions, 'queueTask')
       spyOn(TaskQueueStatusStore, 'waitForPerformRemote').andReturn(Promise.resolve())
@@ -89,7 +88,7 @@ xdescribe('Snooze Utils', function snoozeUtils() {
     });
 
     it('rejects if the category could not be found in the database', () => {
-      this.category.serverId = null
+      this.category.id = null
       jasmine.unspy(DatabaseStore, 'findBy')
       spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(this.category))
       waitsForPromise(() => {
@@ -160,12 +159,12 @@ xdescribe('Snooze Utils', function snoozeUtils() {
     beforeEach(() => {
       this.description = 'Snoozin';
       this.snoozeCatsByAccount = {
-        123: new Category({accountId: 123, displayName: this.name, serverId: 'sr-1'}),
-        321: new Category({accountId: 321, displayName: this.name, serverId: 'sr-2'}),
+        123: new Category({accountId: 123, displayName: this.name, id: 'sr-1'}),
+        321: new Category({accountId: 321, displayName: this.name, id: 'sr-2'}),
       }
       this.inboxCatsByAccount = {
-        123: new Category({accountId: 123, name: 'inbox', serverId: 'sr-3'}),
-        321: new Category({accountId: 321, name: 'inbox', serverId: 'sr-4'}),
+        123: new Category({accountId: 123, name: 'inbox', id: 'sr-3'}),
+        321: new Category({accountId: 321, name: 'inbox', id: 'sr-4'}),
       }
       this.threads = [
         new Thread({accountId: 123}),

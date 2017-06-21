@@ -48,7 +48,7 @@ const SnoozeUtils = {
 
     Actions.queueTask(task)
     return TaskQueueStatusStore.waitForPerformRemote(task).then(() => {
-      return DatabaseStore.findBy(Category, {clientId: category.clientId})
+      return DatabaseStore.findBy(Category, {id: category.id})
       .then((updatedCat) => {
         if (updatedCat && updatedCat.isSavedRemotely()) {
           return Promise.resolve(updatedCat)
@@ -93,7 +93,7 @@ const SnoozeUtils = {
     // Resolve with the updated threads
     return (
       Promise.all(promises).then(() => {
-        return DatabaseStore.modelify(Thread, _.pluck(threads, 'clientId'))
+        return DatabaseStore.modelify(Thread, _.pluck(threads, 'id'))
       })
     )
   },

@@ -5,8 +5,8 @@ import NylasAPIRequest from '../nylas-api-request'
 
 export default class SyncbackMetadataTask extends SyncbackModelTask {
 
-  constructor(modelClientId, modelClassName, pluginId) {
-    super({clientId: modelClientId});
+  constructor(modelId, modelClassName, pluginId) {
+    super({id: modelId});
     this.modelClassName = modelClassName;
     this.pluginId = pluginId;
   }

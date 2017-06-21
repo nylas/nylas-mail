@@ -137,7 +137,7 @@ xdescribe "DraftEditingSession Specs", ->
 
     describe "prepare", ->
       beforeEach ->
-        @draft = new Message(draft: true, body: '123', clientId: 'client-id')
+        @draft = new Message(draft: true, body: '123', id: 'client-id')
         spyOn(DraftEditingSession.prototype, "prepare")
         @session = new DraftEditingSession('client-id')
         spyOn(@session, '_setDraft').andCallThrough()
@@ -174,7 +174,7 @@ xdescribe "DraftEditingSession Specs", ->
 
     describe "when a draft changes", ->
       beforeEach ->
-        @draft = new Message(draft: true, clientId: 'client-id', body: 'A', subject: 'initial')
+        @draft = new Message(draft: true, id: 'client-id', body: 'A', subject: 'initial')
         @session = new DraftEditingSession('client-id', @draft)
         advanceClock()
 
@@ -225,7 +225,7 @@ xdescribe "DraftEditingSession Specs", ->
       #     @session.changes.commit().then =>
       #       expect(Actions.queueTask).toHaveBeenCalled()
       #       task = Actions.queueTask.calls[0].args[0]
-      #       expect(task.draftClientId).toBe "client-id"
+      #       expect(task.draftId).toBe "client-id"
 
       it "doesn't queues a SyncbackDraftTask if no Syncback is passed", ->
         spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
@@ -255,7 +255,7 @@ xdescribe "DraftEditingSession Specs", ->
     describe "draft pristine body", ->
       describe "when the draft given to the session is pristine", ->
         it "should return the initial body", ->
-          pristineDraft = new Message(draft: true, body: 'Hiya', pristine: true, clientId: 'client-id')
+          pristineDraft = new Message(draft: true, body: 'Hiya', pristine: true, id: 'client-id')
           updatedDraft = pristineDraft.clone()
           updatedDraft.body = '123444'
           updatedDraft.pristine = false

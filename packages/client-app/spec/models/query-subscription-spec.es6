@@ -83,14 +83,14 @@ describe("QuerySubscription", function QuerySubscriptionSpecs() {
         new Thread({accountId: 'a', clientId: '1', lastMessageReceivedTimestamp: 1}),
       ],
       tests: [{
-        name: 'Item in set saved - new serverId, same sort value',
+        name: 'Item in set saved - new id, same sort value',
         change: {
           objectClass: Thread.name,
-          objects: [new Thread({accountId: 'a', serverId: 's-4', clientId: '4', lastMessageReceivedTimestamp: 4, subject: 'hello'})],
+          objects: [new Thread({accountId: 'a', id: 's-4', clientId: '4', lastMessageReceivedTimestamp: 4, subject: 'hello'})],
           type: 'persist',
         },
         nextModels: [
-          new Thread({accountId: 'a', serverId: 's-4', clientId: '4', lastMessageReceivedTimestamp: 4, subject: 'hello'}),
+          new Thread({accountId: 'a', id: 's-4', clientId: '4', lastMessageReceivedTimestamp: 4, subject: 'hello'}),
           new Thread({accountId: 'a', clientId: '3', lastMessageReceivedTimestamp: 3}),
           new Thread({accountId: 'a', clientId: '2', lastMessageReceivedTimestamp: 2}),
           new Thread({accountId: 'a', clientId: '1', lastMessageReceivedTimestamp: 1}),

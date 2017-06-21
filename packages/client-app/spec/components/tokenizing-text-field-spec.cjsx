@@ -121,7 +121,7 @@ describe 'TokenizingTextField', ->
 
   describe "when the user drags and drops a token between two fields", ->
     it "should work properly", ->
-      participant2.clientId = '123'
+      participant2.id = '123'
 
       tokensA = [participant1, participant2, participant3]
       fieldA = @rebuildRenderedField(tokensA)

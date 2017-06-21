@@ -36,7 +36,7 @@ xdescribe('ParticipantsTextField', function ParticipantsTextFieldSpecs() {
         field={this.fieldName}
         visible
         participants={this.participants}
-        draft={{clientId: 'draft-1'}}
+        draft={{id: 'draft-1'}}
         session={{}}
         change={this.propChange}
       />

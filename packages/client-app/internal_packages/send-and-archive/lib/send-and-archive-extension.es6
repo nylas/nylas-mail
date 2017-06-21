@@ -17,7 +17,7 @@ export function sendActions() {
       return draft.threadId != null
     },
     performSendAction({draft}) {
-      Actions.queueTask(new SendDraftTask(draft.clientId))
+      Actions.queueTask(new SendDraftTask(draft.id))
       return DatabaseStore.modelify(Thread, [draft.threadId])
       .then((threads) => {
         Actions.archiveThreads({

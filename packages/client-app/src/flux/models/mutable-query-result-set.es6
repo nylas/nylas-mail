@@ -82,7 +82,7 @@ export default class MutableQueryResultSet extends QueryResultSet {
     // Sometimes the new copy of `item` doesn't contain the joined data present
     // in the old one, since it's not provided by default and may not have changed.
     // Make sure we never drop joined data by pulling it over.
-    const existing = this._modelsHash[item.clientId];
+    const existing = this._modelsHash[item.id];
     if (existing) {
       const attrs = existing.constructor.attributes
       for (const key of Object.keys(attrs)) {
@@ -100,23 +100,20 @@ export default class MutableQueryResultSet extends QueryResultSet {
       // new item is not.
       if (!existing.serverId && item.serverId) {
         // Now check that _ids does in fact have both IDs.
-        const clientIndex = this._ids.indexOf(existing.clientId)
-        const serverIndex = this._ids.indexOf(item.serverId)
-        if (clientIndex > -1 && serverIndex > -1) {
-          // Remove the clientID
-          this._ids.splice(clientIndex, 1)
+        const idx = this._ids.indexOf(existing.id)
+        if (idx > -1) {
+          // Remove the id
+          this._ids.splice(idx, 1)
         }
       }
     }
 
-    this._modelsHash[item.clientId] = item;
     this._modelsHash[item.id] = item;
     this._idToIndexHash = null;
   }
 
   removeModelAtOffset(item, offset) {
     const idx = offset - this._offset;
-    delete this._modelsHash[item.clientId];
     delete this._modelsHash[item.id];
     this._ids.splice(idx, 1);
     this._idToIndexHash = null;

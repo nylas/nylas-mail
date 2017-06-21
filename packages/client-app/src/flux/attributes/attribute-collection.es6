@@ -80,12 +80,12 @@ export default class AttributeCollection extends Attribute {
         // randomly.  This causes an object to be "different" each time it's
         // de-serialized even if it's actually the same, makes React
         // components re-render!
-        obj.clientId = undefined;
+        obj.id = undefined;
         obj.fromJSON(objJSON);
         objs.push(obj);
       } else {
         const obj = new this.ItemClass(objJSON);
-        obj.clientId = undefined;
+        obj.id = undefined;
         objs.push(obj);
       }
     }

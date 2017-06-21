@@ -107,7 +107,7 @@ class MessageControls extends React.Component
     DatabaseStore.inTransaction (t) =>
       t.persistModel(draft)
     .then =>
-      Actions.sendDraft(draft.clientId)
+      Actions.sendDraft(draft.id)
 
       dialog = remote.dialog
       dialog.showMessageBox remote.getCurrentWindow(), {
@@ -148,9 +148,9 @@ class MessageControls extends React.Component
   _onCopyToClipboard: =>
     clipboard = require('electron').clipboard
     data = "AccountID: #{@props.message.accountId}\n"+
-      "Message ID: #{@props.message.serverId}\n"+
+      "Message ID: #{@props.message.id}\n"+
       "Message Metadata: #{JSON.stringify(@props.message.pluginMetadata, null, '  ')}\n"+
-      "Thread ID: #{@props.thread.serverId}\n"+
+      "Thread ID: #{@props.thread.id}\n"+
       "Thread Metadata: #{JSON.stringify(@props.thread.pluginMetadata, null, '  ')}\n"
 
     clipboard.writeText(data)

@@ -19,8 +19,8 @@ const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
 export default class SendDraftTask extends BaseDraftTask {
 
-  constructor(draftClientId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
-    super(draftClientId);
+  constructor(draftId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
+    super(draftId);
     this.draft = null;
     this.message = null;
     this.emitError = emitError
@@ -35,7 +35,7 @@ export default class SendDraftTask extends BaseDraftTask {
   performLocal() {
     return super.performLocal()
     .then(() => {
-      this._timerKey = `send-draft-${this.draftClientId}`
+      this._timerKey = `send-draft-${this.draftId}`
       NylasEnv.timer.start(this._timerKey)
     })
   }
@@ -118,7 +118,7 @@ export default class SendDraftTask extends BaseDraftTask {
           method: 'POST',
           body: this.draft.toJSON(),
           timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-          requestId: this.draft.clientId,
+          requestId: this.draft.id,
           onSyncbackRequestCreated: (syncbackRequest) => {
             this._syncbackRequestId = syncbackRequest.id
           },
@@ -158,7 +158,7 @@ export default class SendDraftTask extends BaseDraftTask {
 
   updatePluginMetadata = () => {
     this.message.pluginMetadata.forEach((m) => {
-      const t1 = new SyncbackMetadataTask(this.message.clientId,
+      const t1 = new SyncbackMetadataTask(this.message.id,
           this.message.constructor.name, m.pluginId);
       Actions.queueTask(t1);
     });
@@ -186,7 +186,7 @@ export default class SendDraftTask extends BaseDraftTask {
     }
 
     this.message = new Message().fromJSON(message);
-    this.message.clientId = this.draft.clientId;
+    this.message.id = this.draft.id;
     this.message.body = this.draft.body;
     this.message.draft = false;
     this.message.clonePluginMetadataFrom(this.draft);
@@ -200,7 +200,7 @@ export default class SendDraftTask extends BaseDraftTask {
 
   onSuccess = () => {
     Actions.recordUserEvent("Draft Sent")
-    Actions.draftDeliverySucceeded({message: this.message, messageClientId: this.message.clientId, draftClientId: this.draft.clientId});
+    Actions.draftDeliverySucceeded({message: this.message, messageId: this.message.id, draftId: this.draft.id});
     // TODO we shouldn't need to do this anymore
     NylasAPIHelpers.makeDraftDeletionRequest(this.draft);
 
@@ -270,14 +270,14 @@ export default class SendDraftTask extends BaseDraftTask {
       if (err instanceof RequestEnsureOnceError) {
         Actions.draftDeliveryFailed({
           threadId: this.draft.threadId,
-          draftClientId: this.draft.clientId,
+          draftId: this.draft.id,
           errorMessage: `WARNING: Your message MIGHT have sent. We encountered a network problem while the send was in progress. Please wait a few minutes then check your sent folder and try again if necessary.`,
           errorDetail: `Please email support@nylas.com if you see this error message.`,
         });
       } else {
         Actions.draftDeliveryFailed({
           threadId: this.draft.threadId,
-          draftClientId: this.draft.clientId,
+          draftId: this.draft.id,
           errorMessage: message,
           errorDetail: err.message + (err.error ? err.error.stack : '') + err.stack,
         });

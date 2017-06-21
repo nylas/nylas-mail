@@ -496,49 +496,24 @@ class DatabaseStore extends NylasStore {
     }
 
     const ids = []
-    const clientIds = []
     for (const item of arr) {
       if (item instanceof klass) {
-        if (!item.serverId) {
-          clientIds.push(item.clientId);
-        } else {
-          continue;
-        }
+        // nothing
       } else if (typeof item === 'string') {
-        if (Utils.isTempId(item)) {
-          clientIds.push(item);
-        } else {
-          ids.push(item);
-        }
+        ids.push(item);
       } else {
         throw new Error(`modelify: Not sure how to convert ${item} into a ${klass.name}`);
       }
     }
-    if ((ids.length === 0) && (clientIds.length === 0)) {
+    if (ids.length === 0) {
       return Promise.resolve(arr);
     }
 
-    const queries = {
-      modelsFromIds: [],
-      modelsFromClientIds: [],
-    }
-
-    if (ids.length) {
-      queries.modelsFromIds = this.findAll(klass).where(klass.attributes.id.in(ids)).markNotBackgroundable();
-    }
-    if (clientIds.length) {
-      queries.modelsFromClientIds = this.findAll(klass).where(klass.attributes.clientId.in(clientIds)).markNotBackgroundable();
-    }
-
-    return Promise.props(queries).then(({modelsFromIds, modelsFromClientIds}) => {
+    return this.findAll(klass).where(klass.attributes.id.in(ids)).markNotBackgroundable().then(modelsFromIds => {
       const modelsByString = {};
       for (const model of modelsFromIds) {
         modelsByString[model.id] = model;
       }
-      for (const model of modelsFromClientIds) {
-        modelsByString[model.clientId] = model;
-      }
-
       return Promise.resolve(arr.map(item =>
         (item instanceof klass ? item : modelsByString[item]))
       );

@@ -130,12 +130,12 @@ class FileUploadStore extends NylasStore {
     if (change.objectClass !== Message.name || change.type !== 'unpersist') { return; }
 
     change.objects.forEach((message) => {
-      this._deleteUploadsForClientId(message.clientId);
+      this._deleteUploadsForId(message.id);
     });
   }
 
-  _onSelectAttachment = ({messageClientId}) => {
-    this._assertIdPresent(messageClientId);
+  _onSelectAttachment = ({messageId}) => {
+    this._assertIdPresent(messageId);
 
     // When the dialog closes, it triggers `Actions.addAttachment`
     return NylasEnv.showOpenDialog({properties: ['openFile', 'multiSelections']},

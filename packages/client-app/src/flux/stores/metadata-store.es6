@@ -22,7 +22,7 @@ class MetadataStore extends NylasStore {
       // metadata in case other plugins also saved metadata, and we don't want
       // to overwrite it
       return (
-        t.modelify(modelClass, _.pluck(models, 'clientId'))
+        t.modelify(modelClass, _.pluck(models, 'id'))
         .then((latestModels) => {
           const updatedModels = _.compact(latestModels).map(m => m.applyPluginMetadata(pluginId, metadataValue));
           return (
@@ -34,7 +34,7 @@ class MetadataStore extends NylasStore {
     }).then((updatedModels) => {
       updatedModels.forEach((updated) => {
         if (updated.isSavedRemotely()) {
-          const task = new SyncbackMetadataTask(updated.clientId, updated.constructor.name, pluginId);
+          const task = new SyncbackMetadataTask(updated.id, updated.constructor.name, pluginId);
           Actions.queueTask(task);
         }
       })

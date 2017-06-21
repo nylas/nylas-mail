@@ -110,7 +110,7 @@ export default class QuerySubscription {
     this._queuedChangeRecords.forEach((record) => {
       if (record.type === 'unpersist') {
         for (const item of record.objects) {
-          const offset = this._set.offsetOfId(item.clientId)
+          const offset = this._set.offsetOfId(item.id)
           if (offset !== -1) {
             this._set.removeModelAtOffset(item, offset);
             unknownImpacts += 1;
@@ -118,7 +118,7 @@ export default class QuerySubscription {
         }
       } else if (record.type === 'persist') {
         for (const item of record.objects) {
-          const offset = this._set.offsetOfId(item.clientId);
+          const offset = this._set.offsetOfId(item.id);
           const itemIsInSet = offset !== -1;
           const itemShouldBeInSet = item.matches(this._query.matchers());
 
@@ -129,7 +129,7 @@ export default class QuerySubscription {
             this._set.updateModel(item)
             unknownImpacts += 1;
           } else if (itemIsInSet) {
-            const oldItem = this._set.modelWithId(item.clientId);
+            const oldItem = this._set.modelWithId(item.id);
             this._set.updateModel(item);
 
             if (this._itemSortOrderHasChanged(oldItem, item)) {
@@ -267,6 +267,7 @@ export default class QuerySubscription {
       error = new Error("QuerySubscription: Applied all changes and result set is missing models.");
     }
     if (!allUniqueIds) {
+      debugger;
       error = new Error("QuerySubscription: Applied all changes and result set contains duplicate IDs.");
     }
 

@@ -31,7 +31,7 @@ xdescribe "DestroyCategoryTask", ->
     category = new Category
       displayName: "important emails"
       accountId: "account 123"
-      serverId: "server-444"
+      id: "server-444"
     new DestroyCategoryTask
       category: category
 
@@ -48,7 +48,7 @@ xdescribe "DestroyCategoryTask", ->
         DatabaseWriter.prototype.unpersistModel.callCount > 0
       runs =>
         model = DatabaseWriter.prototype.unpersistModel.calls[0].args[0]
-        expect(model.serverId).toEqual "server-444"
+        expect(model.id).toEqual "server-444"
 
   describe "performRemote", ->
     it "throws error when no category present", ->
@@ -61,10 +61,10 @@ xdescribe "DestroyCategoryTask", ->
         .catch Error, (err) ->
           expect(err).toBeDefined()
 
-    it "throws error when category does not have a serverId", ->
+    it "throws error when category does not have a id", ->
       waitsForPromise ->
         task = makeTask()
-        task.category.serverId = undefined
+        task.category.id = undefined
         task.performRemote()
         .then ->
           throw new Error('The promise should reject')
@@ -124,7 +124,7 @@ xdescribe "DestroyCategoryTask", ->
             expect(NylasEnv.reportError).toHaveBeenCalled()
             expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
             model = DatabaseWriter.prototype.persistModel.calls[0].args[0]
-            expect(model.serverId).toEqual "server-444"
+            expect(model.id).toEqual "server-444"
             expect(NylasAPI.decrementRemoteChangeLock).toHaveBeenCalled
 
       describe "_notifyUserOfError", ->

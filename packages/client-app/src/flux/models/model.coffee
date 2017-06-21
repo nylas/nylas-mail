@@ -10,17 +10,7 @@ serialization and deserialization, matching by attributes, and ID-based equality
 
 `id`: {AttributeString} The resolved canonical ID of the model used in the
 database and generally throughout the app. The id property is a custom
-getter that resolves to the serverId first, and then the clientId.
-
-`clientId`: {AttributeString} An ID created at object construction and
-persists throughout the lifetime of the object. This is extremely useful
-for optimistically creating objects (like drafts and categories) and
-having a constant reference to it. In all other cases, use the resolved
-`id` field.
-
-`serverId`: {AttributeServerId} The server ID of the model. In most cases,
-except optimistic creation, this will also be the canonical id of the
-object.
+getter that resolves to the id first, and then the id.
 
 `object`: {AttributeString} The model's type. This field is used by the JSON
  deserializer to create an instance of the correct class when inflating the object.
@@ -30,14 +20,6 @@ object.
 Section: Models
 ###
 class Model
-
-  Object.defineProperty @prototype, "clientId",
-    enumerable: false
-    get: -> @id
-
-  Object.defineProperty @prototype, "serverId",
-    enumerable: false
-    get: -> @id
 
   @attributes:
     # Lookups will go through the custom getter.
@@ -55,20 +37,15 @@ class Model
   @naturalSortOrder: -> null
 
   constructor: (values = {}) ->
-    if values["id"] and Utils.isTempId(values["id"])
-      values["clientId"] ?= values["id"]
-    else
-      values["serverId"] ?= values["id"]
-
     for key in Object.keys(@constructor.attributes)
-      continue if key is 'id'
       continue unless values[key]?
       @[key] = values[key]
 
-    @clientId ?= Utils.generateTempId()
+    @id ?= Utils.generateTempId()
     @
 
   isSavedRemotely: ->
+    throw new Error("BG TODO")
     @serverId?
 
   clone: ->
@@ -93,10 +70,7 @@ class Model
     # Note: The loop in this function has been optimized for the V8 'fast case'
     # https://github.com/petkaantonov/bluebird/wiki/Optimization-killers
     #
-    if json["id"] and not Utils.isTempId(json["id"])
-      @serverId = json["id"]
     for key in Object.keys(@constructor.attributes)
-      continue if key is 'id'
       attr = @constructor.attributes[key]
       attrValue = json[attr.jsonKey]
       @[key] = attr.fromJSON(attrValue) unless attrValue is undefined

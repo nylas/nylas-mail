@@ -178,7 +178,7 @@ describe "DeltaProcessor", ->
           account_id: 2,
 
     it "saves metadata to existing Messages", ->
-      message = new Message({serverId: @messageMetadataDelta.attributes.object_id})
+      message = new Message({id: @messageMetadataDelta.attributes.object_id})
       @stubDB[message.id] = message
       waitsForPromise =>
         DeltaProcessor.process([@messageMetadataDelta])
@@ -188,7 +188,7 @@ describe "DeltaProcessor", ->
         expect(message.metadataForPluginId('link-tracking')).toEqual({link_clicks: 1})
 
     it "saves metadata to existing Threads", ->
-      thread = new Thread({serverId: @threadMetadataDelta.attributes.object_id})
+      thread = new Thread({id: @threadMetadataDelta.attributes.object_id})
       @stubDB[thread.id] = thread
       waitsForPromise =>
         DeltaProcessor.process([@threadMetadataDelta])
@@ -198,10 +198,10 @@ describe "DeltaProcessor", ->
         expect(thread.metadataForPluginId('send-reminders')).toEqual({shouldNotify: true})
 
     it "knows how to reconcile different thread ids", ->
-      thread = new Thread({serverId: 't:1948'})
+      thread = new Thread({id: 't:1948'})
       @stubDB[thread.id] = thread
       message = new Message({
-        serverId: @threadMetadataDelta.attributes.object_id.substring(2),
+        id: @threadMetadataDelta.attributes.object_id.substring(2),
         threadId: thread.id
       })
       @stubDB[message.id] = message

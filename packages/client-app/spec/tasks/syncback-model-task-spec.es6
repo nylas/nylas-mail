@@ -47,7 +47,7 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
   describe("performRemote", () => {
     beforeEach(() => {
       this.task = new TestTask({
-        clientId: "local-123",
+        id: "local-123",
         endpoint: "/test",
       })
     });
@@ -63,7 +63,7 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
     });
 
     it("throws an error if getLatestModel hasn't been implemented", () => {
-      const bumTask = new SyncbackModelTask({clientId: 'local-123'});
+      const bumTask = new SyncbackModelTask({id: 'local-123'});
       spyOn(this.task, "getModelConstructor").andCallThrough()
       window.waitsForPromise(() => {
         return bumTask.performRemote().then((err) => {
@@ -85,7 +85,7 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
 
     it("gets the correct path and method for existing objects", () => {
       jasmine.unspy(DatabaseStore, "findBy")
-      const serverModel = new Model({clientId: 'local-123', serverId: 'server-123'})
+      const serverModel = new Model({id: 'server-123'})
 
       spyOn(DatabaseStore, "findBy").andReturn(Promise.resolve(serverModel));
 
@@ -122,7 +122,7 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
           }
         };
       }
-      const task = new TaskMethodAndPath({clientId: 'local-123'});
+      const task = new TaskMethodAndPath({id: 'local-123'});
       spyOn(task, "getRequestData").andCallThrough();
       spyOn(task, "getModelConstructor").andCallThrough()
       window.waitsForPromise(() => {
@@ -151,7 +151,7 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
       });
     });
 
-    it("updates the local model with only the version and serverId", () => {
+    it("updates the local model with only the version and id", () => {
       spyOn(this.task, "updateLocalModel").andCallThrough()
       performRemote(() => {
         expect(this.task.updateLocalModel).toHaveBeenCalled();
@@ -160,7 +160,7 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
         expect(opts.id).toBe("server-123")
         expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
         const model = DatabaseWriter.prototype.persistModel.calls[0].args[0]
-        expect(model.serverId).toBe('server-123')
+        expect(model.id).toBe('server-123')
         expect(model.version).toBe(10)
       });
     });

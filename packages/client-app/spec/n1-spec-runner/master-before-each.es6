@@ -100,8 +100,7 @@ class MasterBeforeEach {
         name: nylasTestConstants.TEST_ACCOUNT_NAME,
         emailAddress: nylasTestConstants.TEST_ACCOUNT_EMAIL,
         organizationUnit: NylasEnv.testOrganizationUnit || 'label',
-        clientId: nylasTestConstants.TEST_ACCOUNT_CLIENT_ID,
-        serverId: nylasTestConstants.TEST_ACCOUNT_ID,
+        id: nylasTestConstants.TEST_ACCOUNT_ID,
         aliases: [
           `${nylasTestConstants.TEST_ACCOUNT_NAME} Alternate <${nylasTestConstants.TEST_ACCOUNT_ALIAS_EMAIL}>`,
         ],
@@ -112,8 +111,7 @@ class MasterBeforeEach {
         name: 'Second',
         emailAddress: 'second@gmail.com',
         organizationUnit: NylasEnv.testOrganizationUnit || 'label',
-        clientId: 'second-test-account-id',
-        serverId: 'second-test-account-id',
+        id: 'second-test-account-id',
         aliases: [
           'Second Support <second@gmail.com>',
           'Second Alternate <second+alternate@gmail.com>',

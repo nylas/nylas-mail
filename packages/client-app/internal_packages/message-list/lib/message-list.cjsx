@@ -76,9 +76,9 @@ class MessageList extends React.Component
   componentDidMount: =>
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
-    @_unsubscribers.push Actions.focusDraft.listen ({draftClientId}) =>
-      Utils.waitFor( => @_getMessageContainer(draftClientId)?).then =>
-        @_focusDraft(@_getMessageContainer(draftClientId))
+    @_unsubscribers.push Actions.focusDraft.listen ({draftId}) =>
+      Utils.waitFor( => @_getMessageContainer(draftId)?).then =>
+        @_focusDraft(@_getMessageContainer(draftId))
       .catch =>
 
   componentWillUnmount: =>
@@ -129,8 +129,8 @@ class MessageList extends React.Component
 
     handlers
 
-  _getMessageContainer: (clientId) =>
-    @refs["message-container-#{clientId}"]
+  _getMessageContainer: (id) =>
+    @refs["message-container-#{id}"]
 
   _focusDraft: (draftElement) =>
     # Note: We don't want the contenteditable view competing for scroll offset,
@@ -305,8 +305,8 @@ class MessageList extends React.Component
 
       elements.push(
         <MessageItemContainer
-          key={message.clientId}
-          ref={"message-container-#{message.clientId}"}
+          key={message.id}
+          ref={"message-container-#{message.id}"}
           thread={@state.currentThread}
           message={message}
           messages={@state.messages}
@@ -386,10 +386,10 @@ class MessageList extends React.Component
   #
   # If messageId and location are defined, that means we want to scroll
   # smoothly to the top of a particular message.
-  _scrollTo: ({clientId, rect, position}={}) =>
+  _scrollTo: ({id, rect, position}={}) =>
     return if @_draftScrollInProgress
-    if clientId
-      messageElement = @_getMessageContainer(clientId)
+    if id
+      messageElement = @_getMessageContainer(id)
       return unless messageElement
       pos = position ? ScrollRegion.ScrollPosition.Visible
       @refs.messageWrap.scrollTo(messageElement, {
@@ -400,7 +400,7 @@ class MessageList extends React.Component
         position: ScrollRegion.ScrollPosition.CenterIfInvisible
       })
     else
-      throw new Error("onChildScrollRequest: expected clientId or rect")
+      throw new Error("onChildScrollRequest: expected id or rect")
 
   _onMessageLoaded: =>
     if @state.currentThread

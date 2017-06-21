@@ -17,7 +17,7 @@ xdescribe('DraftHelpers', function describeBlock() {
 
     it('calls the proper functions', () => {
       const draft = new Message({
-        clientId: "local-123",
+        id: "local-123",
         threadId: "thread-123",
         uploads: [{inline: true, id: 1}],
         body: "",

@@ -15,8 +15,6 @@ export default class ConfigMigrator {
     const q = `REPLACE INTO JSONBlob (id, data, client_id) VALUES (?,?,?)`;
     const jsonBlobData = {
       id: key,
-      clientId: key,
-      serverId: key,
       json: oldIdentity,
     }
     this.database.database.prepare(q).run([key, JSON.stringify(jsonBlobData), key])

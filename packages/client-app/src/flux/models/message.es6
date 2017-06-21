@@ -225,7 +225,7 @@ Message(date DESC) WHERE draft = 1`,
     }
 
     if (this.events && this.events.length) {
-      json.event_id = this.events[0].serverId
+      json.event_id = this.events[0].id
     }
 
     return json

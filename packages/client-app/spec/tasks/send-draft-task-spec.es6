@@ -134,7 +134,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
             expect(DBt.persistModel).toHaveBeenCalled();
             const model = DBt.persistModel.mostRecentCall.args[0];
             expect(model.clientId).toEqual(this.draft.clientId);
-            expect(model.serverId).toEqual(this.response.id);
+            expect(model.id).toEqual(this.response.id);
             expect(model.draft).toEqual(false);
           }));
         });
@@ -443,7 +443,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           expect(DBt.persistModel).toHaveBeenCalled();
           const model = DBt.persistModel.calls[0].args[0];
           expect(model.clientId).toBe(this.draft.clientId);
-          expect(model.serverId).toBe(this.response.id);
+          expect(model.id).toBe(this.response.id);
           expect(model.draft).toBe(false);
         }));
       });
@@ -454,7 +454,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         this.draft = new Message({
           version: 1,
           clientId: 'client-id',
-          serverId: 'server-123',
+          id: 'server-123',
           accountId: TEST_ACCOUNT_ID,
           from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
           subject: 'New Draft',
@@ -487,14 +487,14 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
       it("should locally convert the existing draft to a message on send", () => {
         expect(this.draft.clientId).toBe(this.draft.clientId);
-        expect(this.draft.serverId).toBe("server-123");
+        expect(this.draft.id).toBe("server-123");
 
         this.task.performLocal();
         waitsForPromise(() => this.task.performRemote().then(() => {
           expect(DBt.persistModel).toHaveBeenCalled()
           const model = DBt.persistModel.calls[0].args[0];
           expect(model.clientId).toBe(this.draft.clientId);
-          expect(model.serverId).toBe(this.response.id);
+          expect(model.id).toBe(this.response.id);
           expect(model.draft).toBe(false);
         }));
       });
@@ -508,7 +508,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       this.task.draft = new Message({
         version: 1,
         clientId: 'client-id',
-        serverId: 'server-123',
+        id: 'server-123',
         accountId: TEST_ACCOUNT_ID,
         from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
         subject: 'New Draft',

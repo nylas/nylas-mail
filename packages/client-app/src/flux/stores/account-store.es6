@@ -401,7 +401,6 @@ class AccountStore extends NylasStore {
     let account = this.accountForEmail('nora@nylas.com')
     if (!account) {
       account = new Account()
-      account.serverId = account.clientId
       account.emailAddress = "nora@nylas.com"
       account.organizationUnit = 'label'
       account.label = "Nora's Email"
@@ -443,8 +442,7 @@ class AccountStore extends NylasStore {
       const lastMsg = _.last(threadMessages)
       const thread = new Thread({
         accountId: account.id,
-        serverId: lastMsg.threadId,
-        clientId: lastMsg.threadId,
+        id: lastMsg.threadId,
         subject: lastMsg.subject,
         lastMessageReceivedTimestamp: lastMsg.date,
         hasAttachment: threadAttachment,

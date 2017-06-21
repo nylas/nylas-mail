@@ -11,7 +11,6 @@ const makeComponent = (props = {}) => {
 
 const account = new Account({
   id: 1,
-  clientId: 1,
   name: 'someone',
   emailAddress: 'someone@nylas.com',
   aliases: [],

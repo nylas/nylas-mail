@@ -181,9 +181,9 @@ describe 'CategoryPickerPopover', ->
           new Promise (resolve, reject) ->
             resolveSave = resolve
 
-        spyOn(DatabaseStore, "findBy").andCallFake (klass, {clientId}) ->
+        spyOn(DatabaseStore, "findBy").andCallFake (klass, {id}) ->
           expect(klass).toBe(Category)
-          expect(typeof clientId).toBe("string")
+          expect(typeof id).toBe("string")
           Promise.resolve(category)
 
         @picker._onSelectCategory(@input)

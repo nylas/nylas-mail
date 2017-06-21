@@ -256,9 +256,9 @@ describe "NylasAPI", ->
             NylasAPIHelpers.handleModelResponse(json).then verifyUpdate
 
     it "properly reconciles threads", ->
-      @stubDB.upsertModel(new Thread(serverId: 't:4', unread: true, starred: true))
-      @stubDB.upsertModel(new Message(serverId: '7', threadId: 't:4'))
-      @stubDB.upsertModel(new Message(serverId: '4', threadId: 't:4'))
+      @stubDB.upsertModel(new Thread(id: 't:4', unread: true, starred: true))
+      @stubDB.upsertModel(new Message(id: '7', threadId: 't:4'))
+      @stubDB.upsertModel(new Message(id: '4', threadId: 't:4'))
 
       json = [{id: 't:7', object: 'thread', message_ids: ['4', '7'], unread: false}]
       updatedThread = null
@@ -276,26 +276,26 @@ describe "NylasAPI", ->
 
   describe "makeDraftDeletionRequest", ->
     it "should make an API request to delete the draft", ->
-      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
+      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, id: 'asd')
       spyOn(NylasAPIRequest.prototype, 'run').andCallFake ->
-        expect(this.options.path).toBe "/drafts/#{draft.serverId}"
+        expect(this.options.path).toBe "/drafts/#{draft.id}"
         expect(this.options.accountId).toBe TEST_ACCOUNT_ID
         expect(this.options.method).toBe "DELETE"
       NylasAPIHelpers.makeDraftDeletionRequest(draft)
 
     it "should increment the change tracker, preventing any further deltas about the draft", ->
-      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
+      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, id: 'asd')
       spyOn(NylasAPI, 'incrementRemoteChangeLock')
       NylasAPIHelpers.makeDraftDeletionRequest(draft)
-      expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalledWith(Message, draft.serverId)
+      expect(NylasAPI.incrementRemoteChangeLock).toHaveBeenCalledWith(Message, draft.id)
 
     it "should not return a promise or anything else, to avoid accidentally making things dependent on the request", ->
-      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: 'asd')
+      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, id: 'asd')
       a = NylasAPIHelpers.makeDraftDeletionRequest(draft)
       expect(a).toBe(undefined)
 
-    it "should not do anything if the draft is missing a serverId", ->
-      draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, clientId: 'asd', serverId: null)
-      spyOn(NylasAPIRequest.prototype, 'run')
-      NylasAPIHelpers.makeDraftDeletionRequest(draft)
-      expect(NylasAPIRequest.prototype.run).not.toHaveBeenCalled()
+    # it "should not do anything if the draft is missing a id", ->
+    #   draft = new Message(accountId: TEST_ACCOUNT_ID, draft: true, id: 'asd', id: null)
+    #   spyOn(NylasAPIRequest.prototype, 'run')
+    #   NylasAPIHelpers.makeDraftDeletionRequest(draft)
+    #   expect(NylasAPIRequest.prototype.run).not.toHaveBeenCalled()

@@ -34,7 +34,7 @@ xdescribe "DeltaStreamingConnection", ->
 
 
     spyOn(DeltaStreamingConnection.prototype, 'start')
-    @account = new Account(clientId: TEST_ACCOUNT_CLIENT_ID, serverId: TEST_ACCOUNT_ID, organizationUnit: 'label')
+    @account = new Account(id: TEST_ACCOUNT_CLIENT_ID, organizationUnit: 'label')
     @worker = new DeltaStreamingConnection(@account)
     @worker.loadStateFromDatabase()
     advanceClock()

@@ -54,7 +54,7 @@ export default class CalendarEventPopover extends React.Component {
       this.setState({editing: false}); // TODO: where's the best place to put this?
       return t.persistModel(event)
     }).then(() => {
-      const task = new SyncbackEventTask(event.clientId);
+      const task = new SyncbackEventTask(event.id);
       Actions.queueTask(task);
     });
   }

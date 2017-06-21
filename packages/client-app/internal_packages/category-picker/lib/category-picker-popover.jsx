@@ -184,7 +184,7 @@ export default class CategoryPickerPopover extends Component {
       const syncbackTask = new SyncbackCategoryTask({category})
 
       TaskQueueStatusStore.waitForPerformRemote(syncbackTask).then(() => {
-        DatabaseStore.findBy(category.constructor, {clientId: category.clientId})
+        DatabaseStore.findBy(category.constructor, {id: category.id})
         .then((cat) => {
           if (!cat) {
             const categoryType = account.usesLabels() ? "label" : "folder";

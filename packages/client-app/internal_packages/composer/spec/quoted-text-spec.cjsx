@@ -22,7 +22,7 @@ describe "Composer Quoted Text", ->
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'
     @htmlWithQuote = 'Test <strong>HTML</strong><div id="n1-quoted-text-marker"></div><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
-    @draft = new Message(draft: true, clientId: "client-123")
+    @draft = new Message(draft: true, id: "client-123")
     @session =
       trigger: ->
       changes:

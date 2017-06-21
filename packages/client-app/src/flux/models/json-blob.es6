@@ -17,17 +17,6 @@ export default class JSONBlob extends Model {
       modelKey: 'id',
     }),
 
-    clientId: Attributes.String({
-      queryable: true,
-      modelKey: 'clientId',
-      jsonKey: 'client_id',
-    }),
-
-    serverId: Attributes.ServerId({
-      modelKey: 'serverId',
-      jsonKey: 'server_id',
-    }),
-
     json: Attributes.Object({
       modelKey: 'json',
       jsonKey: 'json',
@@ -35,18 +24,10 @@ export default class JSONBlob extends Model {
   };
 
   get key() {
-    return this.serverId;
+    return this.id;
   }
 
   set key(val) {
-    this.serverId = val;
-  }
-
-  get clientId() {
-    return this.serverId;
-  }
-
-  set clientId(val) {
-    this.serverId = val
+    this.id = val;
   }
 }

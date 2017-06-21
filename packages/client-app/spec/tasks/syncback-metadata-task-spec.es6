@@ -5,14 +5,14 @@ describe("SyncbackMetadataTask", () => {
     spyOn(NylasAPIRequest.prototype, 'run').andCallFake(function fakeRun() {
       return Promise.resolve(this)
     })
-    const thread = new Thread({serverId: 't:5'})
+    const thread = new Thread({id: 't:5'})
     thread.applyPluginMetadata('test-plugin', {key: 'value'})
     const messages = [
       new Message({threadId: thread.id}),
       new Message({threadId: thread.id}),
     ]
     thread.messages = () => messages
-    const task = new SyncbackMetadataTask(thread.clientId, 'Thread', 'test-plugin')
+    const task = new SyncbackMetadataTask(thread.id, 'Thread', 'test-plugin')
     waitsForPromise(() => task.makeRequest(thread).then(nylasAPIRequest => {
       expect(nylasAPIRequest.options.body.messageIds).toEqual(messages.map(m => m.id))
     }))
@@ -22,9 +22,9 @@ describe("SyncbackMetadataTask", () => {
     spyOn(NylasAPIRequest.prototype, 'run').andCallFake(function fakeRun() {
       return Promise.resolve(this)
     })
-    const message = new Message({serverId: '5'})
+    const message = new Message({id: '5'})
     message.applyPluginMetadata('test-plugin', {key: 'value'})
-    const task = new SyncbackMetadataTask(message.clientId, 'Message', 'test-plugin')
+    const task = new SyncbackMetadataTask(message.id, 'Message', 'test-plugin')
     waitsForPromise(() => task.makeRequest(message).then(nylasAPIRequest => {
       expect(nylasAPIRequest.options.body.messageIds).toBeUndefined()
     }))

@@ -14,7 +14,7 @@ import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
  * @param {object} props - props for ComposerEditor
  * @param {string} props.body - Html string with the draft content to be
  * rendered by the editor
- * @param {string} props.draftClientId - Id of the draft being currently edited
+ * @param {string} props.draftId - Id of the draft being currently edited
  * @param {object} props.parentActions - Object containg helper actions
  * associated with the parent container
  * @param {props.parentActions.getComposerBoundingRect} props.parentActions.getComposerBoundingRect
@@ -41,8 +41,8 @@ class ComposerEditor extends Component {
    * @function
    * @name props.parentActions.scrollTo
    * @param {object} options
-   * @param {string} options.clientId - Id of the message we want to scroll to
-   * @param {string} [options.positon] - If clientId is provided, this optional
+   * @param {string} options.id - Id of the message we want to scroll to
+   * @param {string} [options.positon] - If id is provided, this optional
    * parameter will indicate what position of the message to scrollTo. See
    * {ScrollRegion}
    * @param {DOMRect} options.rect - Bounding rect we want to scroll to
@@ -64,7 +64,7 @@ class ComposerEditor extends Component {
    */
   static propTypes = {
     body: PropTypes.string.isRequired,
-    draftClientId: PropTypes.string,
+    draftId: PropTypes.string,
     onFilePaste: PropTypes.func,
     onBodyChanged: PropTypes.func,
     parentActions: PropTypes.shape({
@@ -185,7 +185,7 @@ class ComposerEditor extends Component {
 
   _scrollToBottom = () => {
     this.props.parentActions.scrollTo({
-      clientId: this.props.draftClientId,
+      id: this.props.draftId,
       position: ScrollRegion.ScrollPosition.Bottom,
     });
   };

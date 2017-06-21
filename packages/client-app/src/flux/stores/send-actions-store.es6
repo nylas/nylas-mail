@@ -13,7 +13,7 @@ const DefaultSendAction = {
   iconUrl: null,
   configKey: DefaultSendActionKey,
   isAvailableForDraft: () => true,
-  performSendAction: ({draft}) => Actions.queueTask(new SendDraftTask(draft.clientId)),
+  performSendAction: ({draft}) => Actions.queueTask(new SendDraftTask(draft.id)),
 }
 
 function verifySendAction(sendAction = {}, extension = {}) {

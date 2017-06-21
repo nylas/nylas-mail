@@ -114,7 +114,7 @@ export default class PreferencesSignatures extends React.Component {
   }
 
   _selectItemKey = (accountOrAlias) => {
-    return accountOrAlias.clientId
+    return accountOrAlias.id
   }
 
   _isChecked = (accountOrAlias) => {

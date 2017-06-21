@@ -9,15 +9,14 @@ import {
 xdescribe('DestroyModelTask', function destroyModelTask() {
   beforeEach(() => {
     this.existingModel = new Model()
-    this.existingModel.clientId = "local-123"
-    this.existingModel.serverId = "server-123"
+    this.existingModel.id = "local-123"
     spyOn(DatabaseWriter.prototype, "unpersistModel")
     spyOn(DatabaseStore, "findBy").andCallFake(() => {
       return Promise.resolve(this.existingModel)
     })
 
     this.defaultArgs = {
-      clientId: "local-123",
+      id: "local-123",
       accountId: "a123",
       modelName: "Model",
       endpoint: "/endpoint",
@@ -61,7 +60,7 @@ xdescribe('DestroyModelTask', function destroyModelTask() {
         return t.performLocal().then(() => {
           throw new Error("Shouldn't succeed")
         }).catch((err) => {
-          expect(err.message).toMatch(/^Couldn't find the model with clientId.*/)
+          expect(err.message).toMatch(/^Couldn't find the model with id.*/)
         });
       });
     });
@@ -92,10 +91,10 @@ xdescribe('DestroyModelTask', function destroyModelTask() {
       });
     }
 
-    it("skips request if the serverId is undefined", () => {
+    it("skips request if the id is undefined", () => {
       window.waitsForPromise(() => {
         return this.task.performLocal().then(() => {
-          this.task.serverId = null
+          this.task.id = null
           return this.task.performRemote().then((status) => {
             expect(status).toEqual(Task.Status.Continue)
           })

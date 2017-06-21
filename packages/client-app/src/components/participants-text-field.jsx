@@ -203,7 +203,7 @@ export default class ParticipantsTextField extends React.Component {
     const classSet = {
       [this.props.field]: true,
     };
-    const draftId = this.props.draft ? this.props.draft.clientId : null
+    const draftId = this.props.draft ? this.props.draft.id : null
     // TODO Ahh now that this component is part of the component kit this
     // injected region feels out of place
     return (
@@ -232,7 +232,7 @@ export default class ParticipantsTextField extends React.Component {
             menuPrompt: this.props.field,
             field: this.props.field,
             draft: this.props.draft,
-            draftClientId: draftId,
+            draftId: draftId,
             session: this.props.session,
           }}
         />

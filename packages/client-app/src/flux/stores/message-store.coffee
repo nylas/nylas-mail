@@ -52,8 +52,8 @@ class MessageStore extends NylasStore
   numberOfHiddenItems: ->
     @_items.length - @items().length
 
-  itemClientIds: ->
-    _.pluck(@_items, "clientId")
+  itemIds: ->
+    _.pluck(@_items, "id")
 
   itemsLoading: ->
     @_itemsLoading
@@ -121,7 +121,7 @@ class MessageStore extends NylasStore
 
       if change.objects.length is 1 and change.objects[0].draft is true
         item = change.objects[0]
-        itemIndex = _.findIndex @_items, (msg) -> msg.id is item.id or msg.clientId is item.clientId
+        itemIndex = _.findIndex @_items, (msg) -> msg.id is item.id
 
         if change.type is 'persist' and itemIndex is -1
           @_items = [].concat(@_items, [item]).filter((m) => !m.isHidden())

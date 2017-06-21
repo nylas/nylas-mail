@@ -16,11 +16,6 @@ Offset vs Index:
 To avoid confusion, "index" refers to an item's position in an
 array, and "offset" refers to it's position in the query result set. For example,
 an item might be at index 20 in the _ids array, but at offset 120 in the result.
-
-Ids and clientIds:
-
-QueryResultSet calways returns object `ids` when asked for ids, but lookups
-for models by clientId work once models are loaded.
 */
 export default class QueryResultSet {
 
@@ -104,10 +99,6 @@ export default class QueryResultSet {
     this._idToIndexHash = {}
     this._ids.forEach((id, idx) => {
       this._idToIndexHash[id] = idx;
-      const model = this._modelsHash[id];
-      if (model) {
-        this._idToIndexHash[model.clientId] = idx;
-      }
     });
   }
 

@@ -35,8 +35,8 @@ describe('SendActionButton', function describeBlock() {
     spyOn(NylasEnv, 'reportError')
     spyOn(Actions, 'sendDraft')
     this.isValidDraft = jasmine.createSpy('isValidDraft')
-    this.clientId = "client-23"
-    this.draft = new Message({clientId: this.clientId, draft: true})
+    this.id = "client-23"
+    this.draft = new Message({id: this.id, draft: true})
   })
 
   const render = (draft, {isValid = true, sendActions = [], ordered = {}} = {}) => {
@@ -112,7 +112,7 @@ describe('SendActionButton', function describeBlock() {
     const button = sendActionButton.find('button').first();
     button.simulate('click')
     expect(this.isValidDraft).toHaveBeenCalled();
-    expect(Actions.sendDraft).toHaveBeenCalledWith(this.draft.clientId, 'send');
+    expect(Actions.sendDraft).toHaveBeenCalledWith(this.draft.id, 'send');
   });
 
   it("doesn't send a draft if the isValidDraft fails", () => {
@@ -131,6 +131,6 @@ describe('SendActionButton', function describeBlock() {
     const button = sendActionButton.find('.primary-item').first();
     button.simulate('click')
     expect(this.isValidDraft).toHaveBeenCalled();
-    expect(Actions.sendDraft).toHaveBeenCalledWith(this.draft.clientId, 'good-send-action');
+    expect(Actions.sendDraft).toHaveBeenCalledWith(this.draft.id, 'good-send-action');
   });
 });

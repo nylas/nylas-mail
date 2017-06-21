@@ -117,7 +117,7 @@ describe "FocusedPerspectiveStore", ->
       spyOn(FocusedPerspectiveStore, '_defaultPerspective').andReturn(defaultPerspective)
 
       otherAccountInbox = @inboxCategory.clone()
-      otherAccountInbox.serverId = 'other-id'
+      otherAccountInbox.id = 'other-id'
       FocusedPerspectiveStore._current = MailboxPerspective.forCategory(otherAccountInbox)
 
       FocusedPerspectiveStore._onCategoryStoreChanged()

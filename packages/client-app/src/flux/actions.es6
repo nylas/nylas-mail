@@ -421,7 +421,7 @@ class Actions {
   Public: Fired when a draft is successfully sent
   *Scope: Global*
 
-  Recieves the clientId of the message that was sent
+  Recieves the id of the message that was sent
   */
   static draftDeliverySucceeded = ActionScopeGlobal;
   static draftDeliveryFailed = ActionScopeGlobal;

@@ -425,7 +425,7 @@ describe('DraftFactory', function draftFactory() {
     describe("when there is already a draft in reply to the same message the thread", () => {
       beforeEach(() => {
         this.existingDraft = new Message({
-          clientId: 'asd',
+          id: 'asd',
           accountId: TEST_ACCOUNT_ID,
           replyToMessageId: fakeMessage1.id,
           threadId: fakeMessage1.threadId,
@@ -438,7 +438,7 @@ describe('DraftFactory', function draftFactory() {
         };
         spyOn(Actions, 'focusDraft')
         spyOn(DatabaseStore, 'run').andReturn(Promise.resolve([fakeMessage1, this.existingDraft]));
-        spyOn(DraftStore, 'sessionForClientId').andReturn(Promise.resolve(this.sessionStub));
+        spyOn(DraftStore, 'sessionForId').andReturn(Promise.resolve(this.sessionStub));
         spyOn(DatabaseWriter.prototype, 'persistModel').andReturn(Promise.resolve());
 
         this.expectContactsEqual = (a, b) => {

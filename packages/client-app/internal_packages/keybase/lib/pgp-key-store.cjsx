@@ -107,7 +107,7 @@ class PGPKeyStore extends NylasStore
               addresses: filename.split(" ")
               isPriv: readresults[1]
             })
-            @_identities[ident.clientId] = ident
+            @_identities[ident.id] = ident
             @trigger(@)
             i++)
       )
@@ -303,9 +303,9 @@ class PGPKeyStore extends NylasStore
     if not msg?
       return null
     else
-      clientId = msg.clientId
+      id = msg.id
       statuses = _.filter @_msgStatus, (status) ->
-        return status.clientId == clientId
+        return status.id == id
       status = _.max statuses, (stat) ->
         return stat.time
     return status.message
@@ -325,8 +325,8 @@ class PGPKeyStore extends NylasStore
     # Fetch a cached decrypted message
     # (synchronous)
 
-    if message.clientId in _.pluck(@_msgCache, 'clientId')
-      msg = _.findWhere(@_msgCache, {clientId: message.clientId})
+    if message.id in _.pluck(@_msgCache, 'id')
+      msg = _.findWhere(@_msgCache, {id: message.id})
       if msg.timeout > Date.now()
         return msg.body
 
@@ -416,7 +416,7 @@ class PGPKeyStore extends NylasStore
           if !@msgStatus(message)?
             errMsg = "Decryption preprocessing failed."
         Actions.recordUserEvent("Email Decryption Errored", {error: errMsg})
-        @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": errMsg})
+        @_msgStatus.push({"id": message.id, "time": Date.now(), "message": errMsg})
       else
         if warnings._w.length > 0
           console.warn warnings._w
@@ -433,16 +433,16 @@ class PGPKeyStore extends NylasStore
 
           # TODO if message is already in the cache, consider updating its TTL
           timeout = 1000 * 60 * 30 # 30 minutes in ms
-          @_msgCache.push({clientId: message.clientId, body: body, timeout: Date.now() + timeout})
+          @_msgCache.push({id: message.id, body: body, timeout: Date.now() + timeout})
           keyprint = subkey.get_fingerprint().toString('hex')
-          @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Message decrypted with key #{keyprint}"})
+          @_msgStatus.push({"id": message.id, "time": Date.now(), "message": "Message decrypted with key #{keyprint}"})
           # re-render messages
           Actions.recordUserEvent("Email Decrypted")
           MessageBodyProcessor.resetCache()
           @trigger(@)
         else
           console.warn "Unable to decrypt message."
-          @_msgStatus.push({"clientId": message.clientId, "time": Date.now(), "message": "Unable to decrypt message."})
+          @_msgStatus.push({"id": message.id, "time": Date.now(), "message": "Unable to decrypt message."})
 
   decryptAttachments: (identity, files) =>
     # fill our keyring with all possible private keys

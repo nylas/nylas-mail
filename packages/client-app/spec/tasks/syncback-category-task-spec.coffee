@@ -27,7 +27,7 @@ xdescribe "SyncbackCategoryTask", ->
       category = new Category
         displayName: "important emails"
         accountId: "account 123"
-        clientId: "local-444"
+        id: "local-444"
       new SyncbackCategoryTask
         category: category
 
@@ -68,5 +68,4 @@ xdescribe "SyncbackCategoryTask", ->
         .then ->
           expect(DatabaseWriter.prototype.persistModel).toHaveBeenCalled()
           model = DatabaseWriter.prototype.persistModel.calls[0].args[0]
-          expect(model.clientId).toBe "local-444"
-          expect(model.serverId).toBe "server-444"
+          expect(model.id).toBe "local-444"

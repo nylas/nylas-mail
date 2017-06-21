@@ -70,7 +70,7 @@ class MessageItemContainer extends React.Component
 
     <Composer
       ref="message"
-      draftClientId={@props.message.clientId}
+      draftId={@props.message.id}
       className={@_classNames()}
       mode={"inline"}
       threadId={@props.thread.id}
@@ -84,11 +84,11 @@ class MessageItemContainer extends React.Component
     "message-item-wrap": true
     "before-reply-area": @props.isBeforeReplyArea
 
-  _onSendingStateChanged: (draftClientId) =>
-    if draftClientId is @props.message.clientId
+  _onSendingStateChanged: (draftId) =>
+    if draftId is @props.message.id
       @setState(@_getStateFromStores())
 
   _getStateFromStores: (props = @props) ->
-    isSending: DraftStore.isSendingDraft(props.message.clientId)
+    isSending: DraftStore.isSendingDraft(props.message.id)
 
 module.exports = MessageItemContainer

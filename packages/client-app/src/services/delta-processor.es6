@@ -193,7 +193,7 @@ class DeltaProcessor {
   @param ids An array of metadata object_ids that correspond to threads
   @returns A map of the object_ids to threads in the database, resolving the
   IDs as necessary. If the thread does not yet exist, we create a ghost thread that
-  contains only the serverId and the metadata.
+  contains only the id and the metadata.
   */
   async _findOrCreateThreadsForMetadata(t, ids) {
     // Since threads can have different ids, we need to find the equivalent threads
@@ -222,10 +222,10 @@ class DeltaProcessor {
       // Build both the thread and corresponding message. We won't be able to find
       // the ghost thread if the message with the corresponding id doesn't exist.
       const thread = new Thread();
-      thread.serverId = id;
+      thread.id = id;
       thread.categories = [];
       const message = new Message();
-      message.serverId = id.substring(2);
+      message.id = id.substring(2);
       message.threadId = id;
 
       map[id] = thread;
@@ -244,7 +244,7 @@ class DeltaProcessor {
   @param ids An array of metadata object_ids
   @returns A map of the object_ids to models in the database, resolving the
   IDs as necessary. If the model does not yet exist, we create a ghost model that
-  contains only the serverId and the metadata.
+  contains only the id and the metadata.
   */
   async _findOrCreateModelsForMetadata(t, Klass, ids) {
     if (Klass === Thread) {
@@ -262,7 +262,7 @@ class DeltaProcessor {
     const missingIds = ids.filter(id => !map[id])
     const instances = []
     missingIds.forEach(id => {
-      const klass = new Klass({serverId: id})
+      const klass = new Klass({id: id})
       map[id] = klass
       instances.push(klass)
     })

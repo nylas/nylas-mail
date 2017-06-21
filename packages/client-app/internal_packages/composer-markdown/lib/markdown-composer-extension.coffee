@@ -7,11 +7,11 @@ rawBodies = {}
 class MarkdownComposerExtension extends ComposerExtension
 
   @applyTransformsForSending: ({draftBodyRootNode, draft}) ->
-    rawBodies[draft.clientId] = draftBodyRootNode.innerHTML
+    rawBodies[draft.id] = draftBodyRootNode.innerHTML
     draftBodyRootNode.innerHTML = marked(draftBodyRootNode.innerText)
 
   @unapplyTransformsForSending: ({draftBodyRootNode, draft}) ->
-    if rawBodies[draft.clientId]
-      draftBodyRootNode.innerHTML = rawBodies[draft.clientId]
+    if rawBodies[draft.id]
+      draftBodyRootNode.innerHTML = rawBodies[draft.id]
 
 module.exports = MarkdownComposerExtension

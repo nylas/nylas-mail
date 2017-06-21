@@ -63,13 +63,13 @@ describe("DatabaseStore", function DatabaseStoreSpecs() {
   describe("modelify", () => {
     beforeEach(() => {
       this.models = [
-        new Thread({clientId: 'local-A'}),
-        new Thread({clientId: 'local-B'}),
-        new Thread({clientId: 'local-C'}),
-        new Thread({clientId: 'local-D', serverId: 'SERVER:D'}),
-        new Thread({clientId: 'local-E', serverId: 'SERVER:E'}),
-        new Thread({clientId: 'local-F', serverId: 'SERVER:F'}),
-        new Thread({clientId: 'local-G', serverId: 'SERVER:G'}),
+        new Thread({id: 'local-A'}),
+        new Thread({id: 'local-B'}),
+        new Thread({id: 'local-C'}),
+        new Thread({id: 'local-D'}),
+        new Thread({id: 'local-E'}),
+        new Thread({id: 'local-F'}),
+        new Thread({id: 'local-G'}),
       ];
       // Actually returns correct sets for queries, since matchers can evaluate
       // themselves against models in memory
@@ -91,9 +91,9 @@ describe("DatabaseStore", function DatabaseStoreSpecs() {
       )
     );
 
-    describe("when given an array of mixed IDs, clientIDs, and models", () =>
+    describe("when given an array of mixed IDs, and models", () =>
       it("resolves with an array of models", () => {
-        const input = ['SERVER:F', 'local-B', 'local-C', 'SERVER:D', this.models[6]];
+        const input = ['local-F', 'local-B', 'local-C', 'local-D', this.models[6]];
         const expectedOutput = [this.models[5], this.models[1], this.models[2], this.models[3], this.models[6]];
         return waitsForPromise(() => {
           return DatabaseStore.modelify(Thread, input).then(output => {
@@ -106,21 +106,8 @@ describe("DatabaseStore", function DatabaseStoreSpecs() {
 
     describe("when the input is only IDs", () =>
       it("resolves with an array of models", () => {
-        const input = ['SERVER:D', 'SERVER:F', 'SERVER:G'];
+        const input = ['local-D', 'local-F', 'local-G'];
         const expectedOutput = [this.models[3], this.models[5], this.models[6]];
-        return waitsForPromise(() => {
-          return DatabaseStore.modelify(Thread, input).then(output => {
-            expect(output).toEqual(expectedOutput);
-          });
-        });
-      })
-
-    );
-
-    describe("when the input is only clientIDs", () =>
-      it("resolves with an array of models", () => {
-        const input = ['local-A', 'local-B', 'local-C', 'local-D'];
-        const expectedOutput = [this.models[0], this.models[1], this.models[2], this.models[3]];
         return waitsForPromise(() => {
           return DatabaseStore.modelify(Thread, input).then(output => {
             expect(output).toEqual(expectedOutput);

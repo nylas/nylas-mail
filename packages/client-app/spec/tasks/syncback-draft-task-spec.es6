@@ -37,7 +37,7 @@ const localDraft = () => new Message(_.extend({}, testData, {
 
 const remoteDraft = () => new Message(_.extend({}, testData, {
   clientId: "local-id",
-  serverId: "remoteid1234",
+  id: "remoteid1234",
   threadId: '1234',
   version: 2,
 }));
@@ -45,7 +45,7 @@ const remoteDraft = () => new Message(_.extend({}, testData, {
 xdescribe('SyncbackDraftTask', function syncbackDraftTask() {
   beforeEach(() => {
     spyOn(AccountStore, "accountForEmail").andCallFake((email) =>
-      new Account({clientId: 'local-abc123', serverId: 'abc123', emailAddress: email})
+      new Account({clientId: 'local-abc123', id: 'abc123', emailAddress: email})
     );
 
     spyOn(DatabaseStore, "run").andCallFake((query) => {
@@ -178,7 +178,7 @@ xdescribe('SyncbackDraftTask', function syncbackDraftTask() {
         const saved = DatabaseWriter.prototype.persistModel.calls[0].args[0];
         const remote = remoteDraft();
         expect(saved.threadId).toEqual(remote.threadId);
-        expect(saved.serverId).toEqual(remote.serverId);
+        expect(saved.id).toEqual(remote.id);
         expect(saved.version).toEqual(remote.version);
       }));
     });

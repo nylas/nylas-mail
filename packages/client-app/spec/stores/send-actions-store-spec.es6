@@ -92,8 +92,8 @@ function sendActionKeys() {
 
 describe('SendActionsStore', function describeBlock() {
   beforeEach(() => {
-    this.clientId = "client-23"
-    this.draft = new Message({clientId: this.clientId, draft: true})
+    this.id = "client-23"
+    this.draft = new Message({id: this.id, draft: true})
     spyOn(NylasEnv, 'reportError')
   });
 

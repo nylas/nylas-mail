@@ -102,7 +102,7 @@ class DraftEditingSession
   @include Publisher
   @include Listener
 
-  constructor: (@draftClientId, draft = null) ->
+  constructor: (@draftId, draft = null) ->
     DraftStore ?= require('./draft-store').default
     @listenTo DraftStore, @_onDraftChanged
 
@@ -137,9 +137,9 @@ class DraftEditingSession
     @_draftPristineBody
 
   prepare: ->
-    @_draftPromise ?= DatabaseStore.findBy(Message, clientId: @draftClientId).include(Message.attributes.body).then (draft) =>
+    @_draftPromise ?= DatabaseStore.findBy(Message, id: @draftId).include(Message.attributes.body).then (draft) =>
       return Promise.reject(new Error("Draft has been destroyed.")) if @_destroyed
-      return Promise.reject(new Error("Assertion Failure: Draft #{@draftClientId} not found.")) if not draft
+      return Promise.reject(new Error("Assertion Failure: Draft #{@draftId} not found.")) if not draft
       return @_setDraft(draft)
 
   teardown: ->
@@ -244,7 +244,7 @@ class DraftEditingSession
 
     # If our draft has been changed, only accept values which are present.
     # If `body` is undefined, assume it's not loaded. Do not overwrite old body.
-    nextDraft = _.filter(change.objects, (obj) => obj.clientId is @_draft.clientId).pop()
+    nextDraft = _.filter(change.objects, (obj) => obj.id is @_draft.id).pop()
     if nextDraft
       nextValues = {}
       for key, attr of Message.attributes
@@ -263,7 +263,7 @@ class DraftEditingSession
     inMemoryDraft = @_draft
 
     DatabaseStore.inTransaction (t) =>
-      t.findBy(Message, clientId: inMemoryDraft.clientId).include(Message.attributes.body).then (draft) =>
+      t.findBy(Message, id: inMemoryDraft.id).include(Message.attributes.body).then (draft) =>
         # This can happen if we get a "delete" delta, or something else
         # strange happens. In this case, we'll use the @_draft we have in
         # memory to apply the changes to. On the `persistModel` in the
@@ -285,7 +285,7 @@ class DraftEditingSession
       # once they have a serverId we sync them periodically here.
       #
       return unless @_draft.serverId
-      Actions.ensureDraftSynced(@draftClientId)
+      Actions.ensureDraftSynced(@draftId)
 
 
   # Undo / Redo

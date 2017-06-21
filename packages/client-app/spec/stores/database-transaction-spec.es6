@@ -365,9 +365,9 @@ xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
       beforeEach(() => TestModel.configureWithJoinedDataAttribute());
 
       it("should not include the value to the joined attribute in the JSON written to the main model table", () => {
-        this.m = new TestModel({clientId: 'local-6806434c-b0cd', serverId: 'server-1', body: 'hello world'});
+        this.m = new TestModel({id: 'server-1', body: 'hello world'});
         this.transaction._writeModels([this.m]);
-        expect(this.performed[0].values).toEqual(['server-1', '{"client_id":"local-6806434c-b0cd","server_id":"server-1","id":"server-1"}', 'local-6806434c-b0cd', 'server-1']);
+        expect(this.performed[0].values).toEqual(['server-1', '{"id":"server-1","id":"server-1"}', 'local-6806434c-b0cd', 'server-1']);
       });
 
       it("should write the value to the joined table if it is defined", () => {
