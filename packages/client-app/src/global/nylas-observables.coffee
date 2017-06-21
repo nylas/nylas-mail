@@ -1,6 +1,7 @@
 Rx = require 'rx-lite'
 _ = require 'underscore'
-Category = require('../flux/models/category').default
+Folder = require('../flux/models/folder').default
+Label = require('../flux/models/label').default
 QuerySubscriptionPool = require('../flux/models/query-subscription-pool').default
 DatabaseStore = require('../flux/stores/database-store').default
 
@@ -27,17 +28,32 @@ CategoryOperators =
 CategoryObservables =
 
   forAllAccounts: =>
-    observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category))
-    _.extend(observable, CategoryOperators)
-    observable
+    folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
+    labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label))
+    joined = Rx.Observable.combineLatest(folders, labels, (f, l) =>
+      debugger
+      [].concat(f, l)
+    )
+    _.extend(joined, CategoryOperators)
+    joined
 
   forAccount: (account) =>
     if account
-      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category).where(accountId: account.id))
+      folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder).where(accountId: account.id))
+      labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label).where(accountId: account.id))
+      joined = Rx.Observable.combineLatest(folders, labels, (f, l) =>
+        debugger
+        [].concat(f, l)
+      )
     else
-      observable = Rx.Observable.fromQuery(DatabaseStore.findAll(Category))
-    _.extend(observable, CategoryOperators)
-    observable
+      folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
+      labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label))
+      joined = Rx.Observable.combineLatest(folders, labels, (f, l) =>
+        debugger
+        [].concat(f, l)
+      )
+    _.extend(joined, CategoryOperators)
+    joined
 
   standard: (account) =>
     observable = Rx.Observable.fromConfig('core.workspace.showImportant')
