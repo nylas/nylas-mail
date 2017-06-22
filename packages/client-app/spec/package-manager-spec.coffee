@@ -507,7 +507,6 @@ describe "PackageManager", ->
   describe "::enablePackage(id) and ::disablePackage(id)", ->
     describe "with packages", ->
       it "enables a disabled package", ->
-        spyOn(DatabaseStore, "refreshDatabaseSchema")
         packageName = 'package-with-main'
         NylasEnv.config.pushAtKeyPath('core.disabledPackages', packageName)
         NylasEnv.packages.observeDisabledPackages()
@@ -523,7 +522,6 @@ describe "PackageManager", ->
         runs ->
           expect(loadedPackages).toContain(pack)
           expect(activatedPackages).toContain(pack)
-          expect(DatabaseStore.refreshDatabaseSchema).not.toHaveBeenCalled()
           expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
 
       it "disables an enabled package", ->

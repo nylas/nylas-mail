@@ -454,8 +454,6 @@ class PackageManager
       for packageName in packagesToEnable
         @loadPackage(packageName)
 
-      @refreshDatabaseSchema()
-
       for packageName in packagesToEnable
         @activatePackage(packageName)
 
@@ -571,38 +569,22 @@ class PackageManager
       for pack in packages
         @loadPackage(pack.name)
 
-      setupPromise = @refreshDatabaseSchema()
-
       for pack in packages
-        promise = @activatePackage(pack.name, setupPromise)
+        promise = @activatePackage(pack.name)
         promises.push(promise)
     @observeDisabledPackages()
     promises
 
-  # When packages load they can declare new DatabaseObjects that need to
-  # be setup in the Database. It's important that the Database starts
-  # getting setup before packages activate so any DB queries in the
-  # `activate` methods get properly queued then executed.
-  #
-  # When a package with database-altering changes loads, it will put an
-  # entry in `packagesWithDatabaseObjects`.
-  refreshDatabaseSchema: ->
-    if @packagesWithDatabaseObjects.length > 0
-      return DatabaseStore.refreshDatabaseSchema().then =>
-        @packagesWithDatabaseObjects = []
-    return Promise.resolve()
-
   # Activate a single package by name
-  activatePackage: (name, setupPromise = Promise.resolve()) ->
+  activatePackage: (name) ->
     if pack = @getActivePackage(name)
       Q(pack)
     else if pack = @loadPackage(name)
-      setupPromise.then =>
-        pack.activate().then =>
-          @activePackages[pack.name] = pack
-          @emitter.emit 'did-activate-package', pack
-          @onPluginsChanged()
-          pack
+      pack.activate().then =>
+        @activePackages[pack.name] = pack
+        @emitter.emit 'did-activate-package', pack
+        @onPluginsChanged()
+        pack
     else
       Q.reject(new Error("Failed to load package '#{name}'"))
 

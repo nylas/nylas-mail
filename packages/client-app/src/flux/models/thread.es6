@@ -75,13 +75,11 @@ class Thread extends ModelWithMetadata {
     }),
 
     folders: Attributes.Collection({
-      queryable: true,
       modelKey: 'folders',
       itemClass: Folder,
     }),
 
     labels: Attributes.Collection({
-      queryable: true,
       modelKey: 'labels',
       joinOnField: 'id',
       joinQueryableBy: ['inAllMail', 'lastMessageReceivedTimestamp', 'lastMessageSentTimestamp', 'unread'],

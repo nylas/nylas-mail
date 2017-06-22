@@ -130,8 +130,8 @@ class TaskQueue extends NylasStore {
     }
     task.sequentialId = ++this._currentSequentialId;
     task.runLocal().then(() => {
-      DatabaseStore.inTransation((t) => {
-        t.persistModel(task);
+      DatabaseStore.inTransaction((t) => {
+        return t.persistModel(task);
       });
     });
   }
@@ -155,8 +155,8 @@ class TaskQueue extends NylasStore {
       // or reject, and then we'll end up back here.
       task.cancel();
     } else {
-      DatabaseStore.inTransation((t) => {
-        t.unpersistModel(task);
+      DatabaseStore.inTransaction((t) => {
+        return t.unpersistModel(task);
       });
     }
   };

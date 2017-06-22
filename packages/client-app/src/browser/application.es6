@@ -98,7 +98,8 @@ export default class Application extends EventEmitter {
       initializeInBackground: initializeInBackground,
     });
     this.systemTrayManager = new SystemTrayManager(process.platform, this);
-    this._databasePhase = 'setup';
+
+    // TODO : Run database initialization
 
     this.setupJavaScriptArguments();
     this.handleEvents();
@@ -211,8 +212,7 @@ export default class Application extends EventEmitter {
 
   _relaunchToInitialWindows = ({resetConfig, resetDatabase} = {}) => {
     // This will re-fetch the NylasID to update the feed url
-    this.autoUpdateManager.updateFeedURL()
-    this.setDatabasePhase('close');
+    this.autoUpdateManager.updateFeedURL();
     this.windowManager.destroyAllWindows();
 
     let fn = (callback) => callback()
@@ -222,14 +222,12 @@ export default class Application extends EventEmitter {
 
     fn(async () => {
       if (resetDatabase) {
-        this.databaseReader = new DatabaseReader({configDirPath: this.configDirPath, specMode: this.specMode});
-        await this.databaseReader.open()
+        // TODO BG Reset Database via helpers
       }
       if (resetConfig) {
         this.config.set('nylas', null);
         this.config.set('edgehill', null);
       }
-      this.setDatabasePhase('setup');
       this.openWindowsForTokenState();
     });
   }
@@ -238,23 +236,6 @@ export default class Application extends EventEmitter {
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db'), callback);
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db-wal'));
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db-shm'));
-  }
-
-  databasePhase() {
-    return this._databasePhase;
-  }
-
-  setDatabasePhase(phase) {
-    if (!['setup', 'ready', 'close'].includes(phase)) {
-      throw new Error(`setDatabasePhase: ${phase} is invalid.`);
-    }
-
-    if (phase === this._databasePhase) {
-      return;
-    }
-
-    this._databasePhase = phase;
-    this.windowManager.sendToAllWindows("database-phase-change", {}, phase);
   }
 
   rebuildDatabase = ({showErrorDialog = true, detail = ''} = {}) => {
@@ -275,15 +256,9 @@ export default class Application extends EventEmitter {
     // Unfortunately since this function destroys the main window
     // immediately, an error will be thrown.
     setTimeout(() => {
-      if (this._databasePhase === 'close') {
-        return;
-      }
-      this.setDatabasePhase('close');
       this.windowManager.destroyAllWindows();
       this._deleteDatabase(async () => {
-        this.databaseReader = new DatabaseReader({configDirPath: this.configDirPath, specMode: this.specMode});
-        await this.databaseReader.open()
-        this.setDatabasePhase('setup');
+        // TODO BG Invoke db helepr
         this._rebuildingDatabase = false
         this.openWindowsForTokenState();
       });
@@ -457,15 +432,6 @@ export default class Application extends EventEmitter {
       // (Electron will wait for them to finish loading before quitting.)
       this.windowManager.cleanupBeforeAppQuit();
       this.systemTrayManager.destroyTray();
-    });
-
-    // Called after the app has closed all windows.
-    app.on('will-quit', () => {
-      this.setDatabasePhase('close');
-    });
-
-    app.on('will-exit', () => {
-      this.setDatabasePhase('close');
     });
 
     app.on('open-file', (event, pathToOpen) => {

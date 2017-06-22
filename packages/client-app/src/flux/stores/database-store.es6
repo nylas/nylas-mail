@@ -17,13 +17,6 @@ import {openDatabase, handleUnrecoverableDatabaseError, databasePath} from '../.
 const debug = createDebug('app:RxDB')
 const debugVerbose = createDebug('app:RxDB:all')
 
-const DatabaseVersion = "23";
-const DatabasePhase = {
-  Setup: 'setup',
-  Ready: 'ready',
-  Close: 'close',
-}
-
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
 
 const BASE_RETRY_LOCK_DELAY = 50;
@@ -93,66 +86,18 @@ class DatabaseStore extends NylasStore {
     this._emitter.setMaxListeners(100);
 
     this._databasePath = databasePath(NylasEnv.getConfigDirPath(), NylasEnv.inSpecMode())
-
     this._databaseMutationHooks = [];
-
-    // Listen to events from the application telling us when the database is ready,
-    // should be closed so it can be deleted, etc.
-    ipcRenderer.on('database-phase-change', () => this._onPhaseChange());
-    setTimeout(() => this._onPhaseChange(), 0);
+    this.open();
   }
 
-  async _asyncWaitForReady() {
-    return new Promise((resolve) => {
-      const app = remote.getGlobal('application')
-      const phase = app.databasePhase()
-      if (phase === DatabasePhase.Setup) {
-        resolve()
-        return
-      }
-
-      const listener = () => {
-        this._emitter.removeListener('ready', listener);
-        resolve()
-      }
-      this._emitter.on('ready', listener)
-    })
-  }
-
-  async _onPhaseChange() {
-    if (NylasEnv.inSpecMode()) {
-      this._emitter.emit('ready')
-      return;
+  async open() {
+    this._db = await openDatabase(this._databasePath)
+    this._open = true;
+    for (const w of this._waiting) {
+      w();
     }
-
-    const app = remote.getGlobal('application')
-    const phase = app.databasePhase()
-
-    if (phase === DatabasePhase.Setup && NylasEnv.isMainWindow()) {
-      // TODO: Run migration assistant / setup script
-      app.setDatabasePhase(DatabasePhase.Ready);
-
-    } else if (phase === DatabasePhase.Ready) {
-      await this._openDatabase()
-      this._checkDatabaseVersion({}, () => {
-        this._open = true;
-        for (const w of this._waiting) {
-          w();
-        }
-        this._waiting = [];
-        this._emitter.emit('ready')
-      });
-    } else if (phase === DatabasePhase.Close) {
-      this._open = false;
-      if (this._db) {
-        // https://sqlite.org/pragma.html#pragma_optimize
-        // We do this instead of holding up initial booting by running
-        // potentially very expensive `ANALYZE` queries.
-        this._db.pragma('optimize');
-        this._db.close();
-        this._db = null;
-      }
-    }
+    this._waiting = [];
+    this._emitter.emit('ready')
   }
 
   // When 3rd party components register new models, we need to refresh the
@@ -168,21 +113,6 @@ class DatabaseStore extends NylasStore {
       app.setDatabasePhase(DatabasePhase.Setup);
     }
     return this._asyncWaitForReady()
-  }
-
-  async _openDatabase() {
-    if (this._db) return
-    this._db = await openDatabase(this._databasePath)
-  }
-
-  _checkDatabaseVersion({allowUnset} = {}, ready) {
-    const result = this._db.pragma('user_version', true);
-    const isUnsetVersion = (result === '0');
-    const isWrongVersion = (result !== DatabaseVersion);
-    if (isWrongVersion && !(isUnsetVersion && allowUnset)) {
-      return handleUnrecoverableDatabaseError(new Error(`Incorrect database schema version: ${result} not ${DatabaseVersion}`));
-    }
-    return ready();
   }
 
   _prettyConsoleLog(qa) {
