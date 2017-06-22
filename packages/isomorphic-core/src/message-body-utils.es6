@@ -29,12 +29,10 @@ export function tryReadBody(val) {
 export function pathForBodyFile(msgId) {
   const pathGroups = [];
   let remainingId = msgId;
-  while (pathGroups.length < MAX_PATH_DIRS) {
-    if (remainingId) {
+  if (remainingId) {
+    while (pathGroups.length < MAX_PATH_DIRS) {
       pathGroups.push(remainingId.substring(0, 2));
       remainingId = remainingId.substring(2);
-    } else {
-      break;
     }
   }
   const bodyPath = path.join(...pathGroups);
