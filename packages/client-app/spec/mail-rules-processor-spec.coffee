@@ -4,7 +4,7 @@ _ = require 'underscore'
  Thread,
  File,
  DatabaseStore,
- TaskQueueStatusStore,
+ TaskQueue,
  Actions} = require 'nylas-exports'
 
 MailRulesProcessor = require '../src/mail-rules-processor'
@@ -142,11 +142,11 @@ xdescribe "MailRulesProcessor", ->
 
   describe "_applyRuleToMessage", ->
     it "should queue tasks for messages", ->
-      spyOn(TaskQueueStatusStore, 'waitForPerformLocal')
+      spyOn(TaskQueue, 'waitForPerformLocal')
       spyOn(Actions, 'queueTask')
       spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve({}))
       Tests.forEach ({rule}) =>
-        TaskQueueStatusStore.waitForPerformLocal.reset()
+        TaskQueue.waitForPerformLocal.reset()
         Actions.queueTask.reset()
 
         message = new Message({accountId: rule.accountId})
@@ -156,5 +156,5 @@ xdescribe "MailRulesProcessor", ->
 
         waitsForPromise =>
           response.then =>
-            expect(TaskQueueStatusStore.waitForPerformLocal).toHaveBeenCalled()
+            expect(TaskQueue.waitForPerformLocal).toHaveBeenCalled()
             expect(Actions.queueTask).toHaveBeenCalled()

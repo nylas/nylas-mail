@@ -4,7 +4,6 @@ path = require('path')
 moment = require('moment-timezone')
 
 DefaultResourcePath = null
-TaskRegistry = require('../../registries/task-registry').default
 DatabaseObjectRegistry = require('../../registries/database-object-registry').default
 
 imageData = null
@@ -40,15 +39,12 @@ Utils =
     if DatabaseObjectRegistry.isInRegistry(type)
       return DatabaseObjectRegistry.deserialize(type, v)
 
-    if TaskRegistry.isInRegistry(type)
-      return TaskRegistry.deserialize(type, v)
-
     return v
 
   registeredObjectReplacer: (k, v) ->
     if _.isObject(v)
       type = this[k].constructor.name
-      if DatabaseObjectRegistry.isInRegistry(type) or TaskRegistry.isInRegistry(type)
+      if DatabaseObjectRegistry.isInRegistry(type)
         v.__constructorName = type
     return v
 

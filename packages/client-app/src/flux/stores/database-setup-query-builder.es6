@@ -14,6 +14,7 @@ export default class DatabaseSetupQueryBuilder {
   setupQueries() {
     let queries = []
     for (const klass of DatabaseObjectRegistry.getAllConstructors()) {
+      if (klass.SubclassesUseModelTable && klass.SubclassesUseModelTable !== klass) { continue; }
       queries = queries.concat(this.setupQueriesForTable(klass));
     }
     return queries;

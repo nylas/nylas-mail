@@ -9,7 +9,6 @@ Q = require 'q'
 
 ModuleCache = require './module-cache'
 
-TaskRegistry = require('./registries/task-registry').default
 DatabaseObjectRegistry = require('./registries/database-object-registry').default
 
 try
@@ -122,7 +121,6 @@ class Package
         mainModule = @requireMainModule()
         return unless mainModule
         @registerModelConstructors(mainModule.modelConstructors)
-        @registerTaskConstructors(mainModule.taskConstructors)
 
       catch error
         console.warn "Failed to load package named '#{@name}'"
@@ -137,11 +135,6 @@ class Package
       _.each constructors, (constructor) ->
         constructorFactory = -> constructor
         DatabaseObjectRegistry.register(constructor.name, constructorFactory)
-
-  registerTaskConstructors: (constructors=[]) ->
-    _.each constructors, (constructor) ->
-      constructorFactory = -> constructor
-      TaskRegistry.register(constructor.name, constructorFactory)
 
   reset: ->
     @stylesheets = []

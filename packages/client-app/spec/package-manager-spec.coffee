@@ -486,12 +486,6 @@ describe "PackageManager", ->
       themes = themeActivator.mostRecentCall.args[0]
       expect(['theme']).toContain(theme.getType()) for theme in themes
 
-    it "refreshes the database after activating packages with models", ->
-      spyOn(DatabaseStore, "refreshDatabaseSchema").andReturn(Promise.resolve())
-      package2 = NylasEnv.packages.loadPackage('package-with-models')
-      NylasEnv.packages.activatePackages([package2])
-      expect(DatabaseStore.refreshDatabaseSchema).toHaveBeenCalled()
-      expect(DatabaseStore.refreshDatabaseSchema.calls.length).toBe 1
 
     it "calls callbacks registered with ::onDidActivateInitialPackages", ->
       package1 = NylasEnv.packages.loadPackage('package-with-main')
@@ -531,15 +525,6 @@ describe "PackageManager", ->
           expect(activatedPackages).toContain(pack)
           expect(DatabaseStore.refreshDatabaseSchema).not.toHaveBeenCalled()
           expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
-
-      it 'refreshes the DB when loading a package with models', ->
-        spyOn(DatabaseStore, "refreshDatabaseSchema").andReturn(Promise.resolve())
-        packageName = "package-with-models"
-        NylasEnv.config.pushAtKeyPath('core.disabledPackages', packageName)
-        NylasEnv.packages.observeDisabledPackages()
-        NylasEnv.config.removeAtKeyPath("core.disabledPackages", packageName)
-        expect(DatabaseStore.refreshDatabaseSchema).toHaveBeenCalled()
-        expect(DatabaseStore.refreshDatabaseSchema.calls.length).toBe 1
 
       it "disables an enabled package", ->
         packageName = 'package-with-main'
@@ -604,16 +589,3 @@ describe "PackageManager", ->
           expect(NylasEnv.config.get('core.themes')).not.toContain packageName
           expect(NylasEnv.config.get('core.themes')).not.toContain packageName
           expect(NylasEnv.config.get('core.disabledPackages')).not.toContain packageName
-
-  describe 'packages with models and tasks', ->
-    beforeEach ->
-      NylasEnv.packages.deactivatePackages()
-      NylasEnv.packages.unloadPackages()
-
-    it 'registers objects on load', ->
-      withModels = NylasEnv.packages.loadPackage("package-with-models")
-      withoutModels = NylasEnv.packages.loadPackage("package-with-main")
-      expect(withModels.declaresNewDatabaseObjects).toBe true
-      expect(withoutModels.declaresNewDatabaseObjects).toBe false
-      expect(NylasEnv.packages.packagesWithDatabaseObjects.length).toBe 1
-      expect(NylasEnv.packages.packagesWithDatabaseObjects[0]).toBe withModels

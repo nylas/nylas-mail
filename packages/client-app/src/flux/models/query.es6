@@ -44,7 +44,7 @@ export default class ModelQuery {
   //   query will be executed on.
   //
   constructor(klass, database) {
-    this._klass = klass;
+    this._klass = klass.SubclassesUseModelTable || klass;
     this._database = database || require('./database-store').default;
     this._matchers = [];
     this._orders = [];

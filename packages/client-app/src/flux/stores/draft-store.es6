@@ -6,7 +6,6 @@ import DraftHelpers from './draft-helpers';
 import DraftFactory from './draft-factory';
 import DatabaseStore from './database-store';
 import SendActionsStore from './send-actions-store';
-import TaskQueueStatusStore from './task-queue-status-store';
 import FocusedContentStore from './focused-content-store';
 import BaseDraftTask from '../tasks/base-draft-task';
 import PerformSendActionTask from '../tasks/perform-send-action-task';
@@ -16,6 +15,7 @@ import Thread from '../models/thread';
 import Message from '../models/message';
 import Utils from '../models/utils';
 import Actions from '../actions';
+import TaskQueue from './task-queue';
 import SoundRegistry from '../../registries/sound-registry';
 import * as ExtensionRegistry from '../../registries/extension-registry';
 
@@ -370,7 +370,7 @@ class DraftStore extends NylasStore {
     }
 
     // Stop any pending tasks related ot the draft
-    TaskQueueStatusStore.queue().forEach((task) => {
+    TaskQueue.queue().forEach((task) => {
       if (task instanceof BaseDraftTask && task.draftClientId === draftClientId) {
         Actions.dequeueTask(task.id);
       }

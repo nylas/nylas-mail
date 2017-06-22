@@ -77,39 +77,4 @@ xdescribe('DestroyModelTask', function destroyModelTask() {
       });
     });
   });
-
-  describe("performRemote", () => {
-    beforeEach(() => {
-      this.task = new DestroyModelTask(this.defaultArgs)
-    });
-
-    const performRemote = (fn) => {
-      window.waitsForPromise(() => {
-        return this.task.performLocal().then(() => {
-          return this.task.performRemote().then(fn)
-        });
-      });
-    }
-
-    it("skips request if the id is undefined", () => {
-      window.waitsForPromise(() => {
-        return this.task.performLocal().then(() => {
-          this.task.id = null
-          return this.task.performRemote().then((status) => {
-            expect(status).toEqual(Task.Status.Continue)
-          })
-        });
-      });
-    });
-
-    it("makes a DELETE request to the Nylas API", () => {
-      spyOn(NylasAPIRequest.prototype, "run").andReturn(Promise.resolve())
-      performRemote(() => {
-        const opts = NylasAPIRequest.prototype.run.calls[0].args[0]
-        expect(opts.method).toBe("DELETE")
-        expect(opts.path).toBe("/endpoint/server-123")
-        expect(opts.accountId).toBe(this.defaultArgs.accountId)
-      })
-    });
-  });
 });

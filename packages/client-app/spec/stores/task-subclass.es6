@@ -18,12 +18,10 @@ export class TaskSubclassB extends Task {
 
 export class APITestTask extends Task {
   performLocal() { return Promise.resolve() }
-  performRemote() { return Promise.resolve(Task.Status.Success) }
 }
 
 export class KillsTaskA extends Task {
   shouldDequeueOtherTask(other) { return other instanceof TaskSubclassA }
-  performRemote() { return new Promise(() => {}) }
 }
 
 export class BlockedByTaskA extends Task {
@@ -35,24 +33,14 @@ export class BlockingTask extends Task {
 }
 
 export class TaskAA extends Task {
-  performRemote() {
-    const testError = new Error("Test Error")
-    // We reject instead of `throw` because jasmine thinks this
-    // `throw` is in the context of the test instead of the context
-    // of the calling promise in task-queue.coffee
-    return Promise.reject(testError)
-  }
 }
 
 export class TaskBB extends Task {
   isDependentOnTask(other) { return other instanceof TaskAA }
-  performRemote = jasmine.createSpy("performRemote")
 }
 
 export class OKTask extends Task {
-  performRemote() { return Promise.resolve(Task.Status.Retry) }
 }
 
 export class BadTask extends Task {
-  performRemote() { return Promise.resolve('lalal') }
 }

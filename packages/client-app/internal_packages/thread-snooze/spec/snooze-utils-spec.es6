@@ -1,7 +1,7 @@
 import moment from 'moment'
 import {
   Actions,
-  TaskQueueStatusStore,
+  TaskQueue,
   TaskFactory,
   DatabaseStore,
   Category,
@@ -66,7 +66,7 @@ xdescribe('Snooze Utils', function snoozeUtils() {
         id: 321,
       })
       spyOn(Actions, 'queueTask')
-      spyOn(TaskQueueStatusStore, 'waitForPerformRemote').andReturn(Promise.resolve())
+      spyOn(TaskQueue, 'waitForPerformRemote').andReturn(Promise.resolve())
       spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(this.category))
     })
 
@@ -176,7 +176,7 @@ xdescribe('Snooze Utils', function snoozeUtils() {
 
       spyOn(DatabaseStore, 'modelify').andReturn(Promise.resolve(this.threads))
       spyOn(TaskFactory, 'tasksForApplyingCategories').andReturn([])
-      spyOn(TaskQueueStatusStore, 'waitForPerformRemote').andReturn(Promise.resolve())
+      spyOn(TaskQueue, 'waitForPerformRemote').andReturn(Promise.resolve())
       spyOn(Actions, 'queueTasks')
     })
 

@@ -4,7 +4,7 @@ import NylasStore from 'nylas-store'
 import {FeatureUsedUpModal} from 'nylas-component-kit'
 import Actions from '../actions'
 import IdentityStore from './identity-store'
-import TaskQueueStatusStore from './task-queue-status-store'
+import TaskQueue from './task-queue';
 import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task'
 
 class NoProAccess extends Error { }
@@ -164,7 +164,7 @@ class FeatureUsageStore extends NylasStore {
   async _markFeatureUsed(featureName) {
     const task = new SendFeatureUsageEventTask(featureName)
     Actions.queueTask(task);
-    await TaskQueueStatusStore.waitForPerformLocal(task)
+    await TaskQueue.waitForPerformLocal(task)
     const feat = IdentityStore.identity().feature_usage[featureName]
     return feat.quota - feat.used_in_period
   }

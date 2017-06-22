@@ -3,9 +3,7 @@ import Task from './task';
 import Thread from '../models/thread';
 import Message from '../models/message';
 import NylasAPI from '../nylas-api';
-import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import DatabaseStore from '../stores/database-store';
-import {APIError} from '../errors';
 import EnsureMessageInSentFolderTask from './ensure-message-in-sent-folder-task'
 import BaseDraftTask from './base-draft-task'
 
@@ -192,61 +190,6 @@ export default class ChangeMailTask extends Task {
     return this._isReverting || this._isUndoTask;
   }
 
-  performRemote() {
-    return this._performRequests(this.objectClass(), this.objectArray())
-    .then(() => {
-      this._ensureLocksRemoved();
-      return Promise.resolve(Task.Status.Success);
-    })
-    .catch((err) => {
-      if (err instanceof APIError && !NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-        return Promise.resolve(Task.Status.Retry);
-      }
-      this._isReverting = true;
-      return this.performLocal()
-      .then(() => {
-        this._ensureLocksRemoved();
-        NylasEnv.showErrorDialog({
-          title: "Error",
-          message: `We were unable to apply the changes to your thread${this.threads.length > 1 ? 's' : ''}, please try again!\nIf the error persists, contact support@nylas.com with the error message.\n\nError message: ${err.message}`,
-        })
-        return Promise.resolve([Task.Status.Failed, err]);
-      });
-    });
-  }
-
-  _performRequests(klass, models) {
-    const alreadyQueued = Object.assign({}, this._syncbackRequestIds || {})
-    return Promise.map(models, (model) => {
-      if (alreadyQueued[model.id]) {
-        return SyncbackTaskAPIRequest.waitForQueuedRequest(alreadyQueued[model.id])
-      }
-
-      const endpoint = (klass === Thread) ? 'threads' : 'messages';
-
-      return new SyncbackTaskAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: `/${endpoint}/${model.id}`,
-          accountId: model.accountId,
-          method: 'PUT',
-          body: this.requestBodyForModel(model),
-          onSyncbackRequestCreated: (syncbackRequest) => {
-            if (!this._syncbackRequestIds) this._syncbackRequestIds = {}
-            this._syncbackRequestIds[model.id] = syncbackRequest.id
-          },
-        },
-      })
-      .run()
-      .catch((err) => {
-        if (err instanceof APIError && err.statusCode === 404) {
-          return Promise.resolve();
-        }
-        return Promise.reject(err);
-      })
-    })
-  }
-
   // Task lifecycle
 
   canBeUndone() {
@@ -300,33 +243,6 @@ export default class ChangeMailTask extends Task {
     return this.objectArray().length;
   }
 
-  // To ensure that complex offline actions are synced correctly, label/folder additions
-  // and removals need to be applied in order. (For example, star many threads,
-  // and then unstar one.)
-  isDependentOnTask(other) {
-    // objectIds() in practice never contains draftClientIds, so in order to
-    // avoid making this function async w/a db lookup, we always depend on any
-    // send-related tasks no matter if they are in the same thread
-    if (other instanceof BaseDraftTask) {
-      return true;
-    }
-    // Wait on EnsureMessageInSentFolderTask if it involves a message that
-    // belongs to a thread we are trying to operate on
-    if (other instanceof EnsureMessageInSentFolderTask && other.message) {
-      const objectIds = this.objectIds()
-      if (objectIds.includes(other.message.threadId)) {
-        return true;
-      }
-    }
-    // Only wait on other tasks that are older and also involve the same threads
-    if (!(other instanceof ChangeMailTask)) {
-      return false;
-    }
-    const otherOlder = other.sequentialId < this.sequentialId;
-    const otherSameObjs = _.intersection(other.objectIds(), this.objectIds()).length > 0;
-    return otherOlder && otherSameObjs;
-  }
-
   // Helpers used in subclasses
 
   _lockAll() {
@@ -345,19 +261,4 @@ export default class ChangeMailTask extends Task {
     this._locked[item.id] -= 1;
   }
 
-  _ensureLocksRemoved() {
-    const klass = this.objectClass()
-    if (!this._locked) {
-      return;
-    }
-
-    for (const id of Object.keys(this._locked)) {
-      let count = this._locked[id];
-      while (count > 0) {
-        NylasAPI.decrementRemoteChangeLock(klass, id);
-        count -= 1;
-      }
-    }
-    this._locked = null;
-  }
 }

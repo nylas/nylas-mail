@@ -238,7 +238,7 @@ export default class NylasEnvConstructor {
 
     // Nylas exports is designed to provide a lazy-loaded set of globally
     // accessible objects to all packages. Upon require, nylas-exports will
-    // fill the TaskRegistry, StoreRegistry, and DatabaseObjectRegistries
+    // fill the StoreRegistry, and DatabaseObjectRegistries
     // with various constructors.
     //
     // We initialize all of the stores loaded into the StoreRegistry once

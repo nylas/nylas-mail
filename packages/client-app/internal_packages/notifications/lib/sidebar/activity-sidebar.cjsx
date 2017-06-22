@@ -12,7 +12,7 @@ SyncbackActivity = require("./syncback-activity").default
  TaskQueue,
  AccountStore,
  FolderSyncProgressStore,
- TaskQueueStatusStore
+ TaskQueue,
  PerformSendActionTask,
  SendDraftTask} = require 'nylas-exports'
 
@@ -35,7 +35,7 @@ class ActivitySidebar extends React.Component
 
   componentDidMount: =>
     @_unlisteners = []
-    @_unlisteners.push TaskQueueStatusStore.listen @_onDataChanged
+    @_unlisteners.push TaskQueue.listen @_onDataChanged
     @_unlisteners.push FolderSyncProgressStore.listen @_onDataChanged
 
   componentWillUnmount: =>
@@ -81,7 +81,7 @@ class ActivitySidebar extends React.Component
     @setState(@_getStateFromStores())
 
   _getStateFromStores: =>
-    tasks: TaskQueueStatusStore.queue()
+    tasks: TaskQueue.queue()
     isInitialSyncComplete: FolderSyncProgressStore.isSyncComplete()
 
 module.exports = ActivitySidebar

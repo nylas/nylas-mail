@@ -5,7 +5,7 @@ import {Actions,
   AccountStore,
   MailRulesStore,
   MailRulesTemplates,
-  TaskQueueStatusStore,
+  TaskQueue,
   ReprocessMailRulesTask} from 'nylas-exports';
 
 import {Flexbox,
@@ -31,7 +31,7 @@ class PreferencesMailRules extends React.Component {
   componentDidMount() {
     this._unsubscribers = [];
     this._unsubscribers.push(MailRulesStore.listen(this._onRulesChanged));
-    this._unsubscribers.push(TaskQueueStatusStore.listen(this._onTasksChanged));
+    this._unsubscribers.push(TaskQueue.listen(this._onTasksChanged));
   }
 
   componentWillUnmount() {
@@ -53,7 +53,7 @@ class PreferencesMailRules extends React.Component {
       currentAccount: currentAccount,
       rules: rules,
       selectedRule: selectedRule,
-      tasks: TaskQueueStatusStore.tasksMatching(ReprocessMailRulesTask, {}),
+      tasks: TaskQueue.tasksMatching(ReprocessMailRulesTask, {}),
       actionTemplates: ActionTemplatesForAccount(currentAccount),
       conditionTemplates: ConditionTemplatesForAccount(currentAccount),
     }
@@ -129,7 +129,7 @@ class PreferencesMailRules extends React.Component {
   }
 
   _onTasksChanged = () => {
-    this.setState({tasks: TaskQueueStatusStore.tasksMatching(ReprocessMailRulesTask, {})})
+    this.setState({tasks: TaskQueue.tasksMatching(ReprocessMailRulesTask, {})})
   }
 
   _renderAccountPicker() {

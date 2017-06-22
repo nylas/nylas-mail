@@ -16,7 +16,7 @@ CategoryPickerPopover = require('../lib/category-picker-popover').default
  FocusedPerspectiveStore,
  MailboxPerspective,
  NylasTestUtils,
- TaskQueueStatusStore} = require 'nylas-exports'
+ TaskQueue} = require 'nylas-exports'
 
 {Categories} = require 'nylas-observables'
 
@@ -176,7 +176,7 @@ describe 'CategoryPickerPopover', ->
       it "queues a task for applying the category after it has saved", ->
         category = false
         resolveSave = false
-        spyOn(TaskQueueStatusStore, "waitForPerformRemote").andCallFake (task) ->
+        spyOn(TaskQueue, "waitForPerformRemote").andCallFake (task) ->
           expect(task instanceof SyncbackCategoryTask).toBe true
           new Promise (resolve, reject) ->
             resolveSave = resolve

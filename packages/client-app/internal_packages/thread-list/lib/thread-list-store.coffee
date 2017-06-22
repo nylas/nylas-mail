@@ -8,7 +8,7 @@ NylasStore = require 'nylas-store'
  DatabaseStore,
  WorkspaceStore,
  FocusedContentStore,
- TaskQueueStatusStore,
+ TaskQueue,
  FocusedPerspectiveStore} = require 'nylas-exports'
 {ListTabular} = require 'nylas-component-kit'
 

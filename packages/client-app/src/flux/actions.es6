@@ -100,7 +100,6 @@ class Actions {
 
   *Scope: Work Window*
   */
-  static dequeueAllTasks = ActionScopeWorkWindow;
   static dequeueTask = ActionScopeWorkWindow;
 
   /*
@@ -108,8 +107,6 @@ class Actions {
 
   *Scope: Work Window*
   */
-  static dequeueMatchingTask = ActionScopeWorkWindow;
-
   static longPollReceivedRawDeltas = ActionScopeWorkWindow;
   static longPollProcessedDeltas = ActionScopeWorkWindow;
   static willMakeAPIRequest = ActionScopeWorkWindow;
@@ -139,13 +136,6 @@ class Actions {
   *Scope: Global*
   */
   static switchPreferencesTab = ActionScopeGlobal;
-
-  /*
-  Public: Clear the developer console for the current window.
-
-  *Scope: Window*
-  */
-  static clearDeveloperConsole = ActionScopeWindow;
 
   /*
   Public: Manage the Nylas identity

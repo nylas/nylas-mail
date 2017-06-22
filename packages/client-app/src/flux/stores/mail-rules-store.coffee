@@ -3,7 +3,7 @@ _ = require 'underscore'
 Rx = require 'rx-lite'
 AccountStore = require('./account-store').default
 DatabaseStore = require('./database-store').default
-TaskQueueStatusStore = require './task-queue-status-store'
+TaskQueue = require('./task-queue').default;
 ReprocessMailRulesTask = require('../tasks/reprocess-mail-rules-task').default
 Utils = require '../models/utils'
 Actions = require('../actions').default
@@ -82,7 +82,7 @@ class MailRulesStore extends NylasStore
     @_saveMailRules()
 
     # Cancel all bulk processing jobs
-    for task in TaskQueueStatusStore.tasksMatching(ReprocessMailRulesTask, {})
+    for task in TaskQueue.findTasks(ReprocessMailRulesTask, {})
       Actions.dequeueTask(task.id)
 
     @trigger()

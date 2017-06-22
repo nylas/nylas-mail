@@ -1,6 +1,5 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
-import TaskRegistry from '../registries/task-registry'
 import StoreRegistry from '../registries/store-registry'
 import DatabaseObjectRegistry from '../registries/database-object-registry'
 
@@ -49,7 +48,7 @@ const lazyLoadAndRegisterModel = (klassName, path) => {
 
 const lazyLoadAndRegisterTask = (klassName, path) => {
   lazyLoad(klassName, `flux/tasks/${path}`);
-  TaskRegistry.register(klassName, () => exports[klassName]);
+  DatabaseObjectRegistry.register(klassName, () => exports[klassName]);
 };
 
 const lazyLoadDeprecated = (prop, path, {instead} = {}) => {
@@ -109,9 +108,8 @@ lazyLoad(`SearchQueryParser`, 'services/search/search-query-parser');
 lazyLoad(`IMAPSearchQueryBackend`, 'services/search/search-query-backend-imap');
 
 // Tasks
-exports.TaskRegistry = TaskRegistry;
-lazyLoad(`Task`, 'flux/tasks/task');
 lazyLoad(`TaskFactory`, 'flux/tasks/task-factory');
+lazyLoadAndRegisterTask(`Task`, 'task');
 lazyLoadAndRegisterTask(`EventRSVPTask`, 'event-rsvp-task');
 lazyLoadAndRegisterTask(`BaseDraftTask`, 'base-draft-task');
 lazyLoadAndRegisterTask(`SendDraftTask`, 'send-draft-task');
@@ -165,7 +163,6 @@ lazyLoadAndRegisterStore(`FocusedContentStore`, 'focused-content-store');
 lazyLoadAndRegisterStore(`MessageBodyProcessor`, 'message-body-processor');
 lazyLoadAndRegisterStore(`FocusedContactsStore`, 'focused-contacts-store');
 lazyLoadAndRegisterStore(`DeltaConnectionStore`, 'delta-connection-store');
-lazyLoadAndRegisterStore(`TaskQueueStatusStore`, 'task-queue-status-store');
 lazyLoadAndRegisterStore(`FolderSyncProgressStore`, 'folder-sync-progress-store');
 lazyLoadAndRegisterStore(`ThreadListActionsStore`, 'thread-list-actions-store');
 lazyLoadAndRegisterStore(`FocusedPerspectiveStore`, 'focused-perspective-store');

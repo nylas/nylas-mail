@@ -10,7 +10,7 @@ import {
   CategoryStore,
   DatabaseStore,
   SyncbackCategoryTask,
-  TaskQueueStatusStore,
+  TaskQueue,
   FolderSyncProgressStore,
 } from 'nylas-exports';
 import {SNOOZE_CATEGORY_NAME} from './snooze-constants'
@@ -47,7 +47,7 @@ const SnoozeUtils = {
     const task = new SyncbackCategoryTask({category})
 
     Actions.queueTask(task)
-    return TaskQueueStatusStore.waitForPerformRemote(task).then(() => {
+    return TaskQueue.waitForPerformRemote(task).then(() => {
       return DatabaseStore.findBy(Category, {id: category.id})
       .then((updatedCat) => {
         if (updatedCat && updatedCat.isSavedRemotely()) {
@@ -89,7 +89,7 @@ const SnoozeUtils = {
     })
 
     Actions.queueTasks(tasks)
-    const promises = tasks.map(task => TaskQueueStatusStore.waitForPerformRemote(task))
+    const promises = tasks.map(task => TaskQueue.waitForPerformRemote(task))
     // Resolve with the updated threads
     return (
       Promise.all(promises).then(() => {

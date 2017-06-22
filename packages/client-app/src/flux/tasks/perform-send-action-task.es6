@@ -33,32 +33,6 @@ class PerformSendActionTask extends BaseDraftTask {
     return Promise.resolve()
   }
 
-  performRemote() {
-    const sameTasks = TaskQueue.findTasks(PerformSendActionTask, {draftClientId: this.draftClientId})
-    if (sameTasks.length > 1) {
-      return Promise.resolve(Task.Status.Continue)
-    }
-    const undoSendTimeout = NylasEnv.config.get('core.sending.undoSend')
-    if (!undoSendTimeout) {
-      return this._performSendAction()
-      .then(() => Task.Status.Success)
-      .catch((err) => [Task.Status.Failed, err])
-    }
-
-    return new Promise((resolve, reject) => {
-      const {id: taskId, draftClientId} = this
-      this._taskResolve = resolve
-
-      Actions.willPerformSendAction({taskId, draftClientId})
-      this._sendTimer = setTimeout(() => {
-        this._performSendAction()
-        .then(() => resolve(Task.Status.Success))
-        .catch((err) => reject([Task.Status.Failed, err]))
-        .finally(() => Actions.didPerformSendAction({taskId, draftClientId}))
-      }, undoSendTimeout)
-    })
-  }
-
   cancel() {
     const {id: taskId, draftClientId} = this
     clearTimeout(this._sendTimer)

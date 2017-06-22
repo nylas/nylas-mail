@@ -220,7 +220,7 @@ export default class DatabaseWriter {
       ]);
     }
 
-    const klass = models[0].constructor;
+    const klass = models[0].constructor.SubclassesUseModelTable || models[0].constructor;
     const attributes = Object.keys(klass.attributes).map(key => klass.attributes[key])
 
     const columnAttributes = attributes.filter((attr) =>

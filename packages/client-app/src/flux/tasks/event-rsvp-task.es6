@@ -32,32 +32,6 @@ export default class EventRSVPTask extends Task {
     });
   }
 
-  performRemote() {
-    const {accountId, id} = this.event;
-
-    return new NylasAPIRequest({
-      api: NylasAPI,
-      options: {
-        accountId,
-        timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-        path: "/send-rsvp",
-        method: "POST",
-        body: {
-          event_id: id,
-          status: this.RSVPResponse,
-        },
-      },
-    })
-    .run()
-    .thenReturn(Task.Status.Success)
-    .catch(APIError, (err) => {
-      this.event.participants = this._previousParticipantsState;
-      return DatabaseStore.inTransaction((t) =>
-        t.persistModel(this.event)
-      ).thenReturn(Task.Status.Failed, err);
-    });
-  }
-
   onOtherError() {
     return Promise.resolve();
   }

@@ -2,7 +2,7 @@ Actions = require('../../src/flux/actions').default
 DatabaseStore = require('../../src/flux/stores/database-store').default
 TaskQueue = require '../../src/flux/stores/task-queue'
 Task = require('../../src/flux/tasks/task').default
-TaskRegistry = require('../../src/registries/task-registry').default
+DatabaseObjectRegistry = require('../../src/registries/database-object-registry').default
 
 {APIError} = require '../../src/flux/errors'
 
@@ -29,7 +29,7 @@ xdescribe "TaskQueue", ->
     task
 
   beforeEach ->
-    spyOn(TaskRegistry, 'isInRegistry').andReturn(true)
+    spyOn(DatabaseObjectRegistry, 'isInRegistry').andReturn(true)
     @task              = new Task()
     @unstartedTask     = makeUnstartedTask(new Task())
     @processingTask    = makeProcessing(new Task())

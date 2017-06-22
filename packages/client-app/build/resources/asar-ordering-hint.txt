@@ -1416,7 +1416,6 @@
 5417961: src/sound-registry.js
 5459931: src/flux/tasks/syncback-draft-task.js
 91943581: src/flux/tasks/base-draft-task.js
-5471010: src/flux/stores/task-queue-status-store.js
 5419733: src/flux/tasks/syncback-metadata-task.js
 5431422: src/flux/tasks/syncback-model-task.js
 91991403: src/flux/tasks/notify-plugins-of-send-task.js
@@ -1425,7 +1424,6 @@
 91919008: src/flux/stores/recently-read-store.js
 5459931: src/flux/tasks/syncback-draft-task.js
 5501930: src/flux/models/mutable-query-subscription.js
-5471010: src/flux/stores/task-queue-status-store.js
 91852488: src/flux/models/unread-query-subscription.js
 5512912: src/flux/stores/thread-counts-store.js
 91919008: src/flux/stores/recently-read-store.js
@@ -2017,7 +2015,6 @@
 5459931: src/flux/tasks/syncback-draft-task.js
 5975123: node_modules/request-progress/package.json
 5976554: node_modules/request-progress/index.js
-5471010: src/flux/stores/task-queue-status-store.js
 5978608: node_modules/request-progress/node_modules/throttleit/index.js
 5986780: src/flux/stores/preferences-ui-store.js
 5512912: src/flux/stores/thread-counts-store.js

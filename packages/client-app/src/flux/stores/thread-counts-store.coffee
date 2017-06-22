@@ -16,29 +16,29 @@ ReadCountsQuery = ->
 
 SetCountsQuery = ->
   """
-  REPLACE INTO `ThreadCounts` (category_id, unread, total)
+  REPLACE INTO `ThreadCounts` (categoryId, unread, total)
   SELECT
-    `ThreadCategory`.`value` as category_id,
+    `ThreadCategory`.`value` as categoryId,
     SUM(`ThreadCategory`.`unread`) as unread,
     COUNT(*) as total
   FROM `ThreadCategory`
   WHERE
-    `ThreadCategory`.in_all_mail = 1
+    `ThreadCategory`.inAllMail = 1
   GROUP BY `ThreadCategory`.`value`;
   """
 
 UpdateCountsQuery = (objectIds, operator) ->
   objectIdsString = "'" + objectIds.join("','") +  "'"
   """
-  REPLACE INTO `ThreadCounts` (category_id, unread, total)
+  REPLACE INTO `ThreadCounts` (categoryId, unread, total)
   SELECT
-    `ThreadCategory`.`value` as category_id,
-    COALESCE((SELECT unread FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} SUM(`ThreadCategory`.`unread`) as unread,
-    COALESCE((SELECT total  FROM `ThreadCounts` WHERE category_id = `ThreadCategory`.`value`), 0) #{operator} COUNT(*) as total
+    `ThreadCategory`.`value` as categoryId,
+    COALESCE((SELECT unread FROM `ThreadCounts` WHERE categoryId = `ThreadCategory`.`value`), 0) #{operator} SUM(`ThreadCategory`.`unread`) as unread,
+    COALESCE((SELECT total  FROM `ThreadCounts` WHERE categoryId = `ThreadCategory`.`value`), 0) #{operator} COUNT(*) as total
   FROM `ThreadCategory`
   WHERE
     `ThreadCategory`.id IN (#{objectIdsString}) AND
-    `ThreadCategory`.in_all_mail = 1
+    `ThreadCategory`.inAllMail = 1
   GROUP BY `ThreadCategory`.`value`
   """
 
@@ -88,8 +88,8 @@ class ThreadCountsStore extends NylasStore
       nextCounts = {}
 
       foundNegative = false
-      for {category_id, unread, total} in results
-        nextCounts[category_id] = {unread, total}
+      for {categoryId, unread, total} in results
+        nextCounts[categoryId] = {unread, total}
         if unread < 0 or total < 0
           foundNegative = true
 

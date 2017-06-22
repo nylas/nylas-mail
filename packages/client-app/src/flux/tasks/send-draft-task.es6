@@ -5,7 +5,6 @@ import Message from '../models/message';
 import Account from '../models/account';
 import NylasAPI from '../nylas-api';
 import * as NylasAPIHelpers from '../nylas-api-helpers';
-import SyncbackTaskAPIRequest from '../syncback-task-api-request';
 import {APIError, RequestEnsureOnceError} from '../errors';
 import SoundRegistry from '../../registries/sound-registry';
 import DatabaseStore from '../stores/database-store';

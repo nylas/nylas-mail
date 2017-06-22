@@ -7,7 +7,7 @@ Thread = require('./flux/models/thread').default
 Message = require('./flux/models/message').default
 AccountStore = require('./flux/stores/account-store').default
 DatabaseStore = require('./flux/stores/database-store').default
-TaskQueueStatusStore = require './flux/stores/task-queue-status-store'
+TaskQueue = require('./flux/stores/task-queue').default;
 
 {ConditionMode, ConditionTemplates} = require './mail-rules-templates'
 
@@ -134,7 +134,7 @@ class MailRulesProcessor
 
       actionTasks = actionResults.filter (r) -> r instanceof Task
       actionTasks.forEach (task) ->
-        performLocalPromises.push TaskQueueStatusStore.waitForPerformLocal(task)
+        performLocalPromises.push TaskQueue.waitForPerformLocal(task)
         Actions.queueTask(task)
 
       return Promise.all(performLocalPromises)

@@ -47,24 +47,6 @@ export default class DestroyModelTask extends Task {
     })
   }
 
-  performRemote() {
-    if (!this.serverId) {
-      return Promise.resolve(Task.Status.Continue)
-    }
-    return new NylasAPIRequest({
-      api: new NylasAPI(),
-      options: {
-        path: `${this.endpoint}/${this.serverId}`,
-        method: "DELETE",
-        accountId: this.accountId,
-      },
-    })
-    .run()
-    .then(() => {
-      return Promise.resolve(Task.Status.Success)
-    }).catch(this.apiErrorHandler)
-  }
-
   canBeUndone() { return false }
 
 }
