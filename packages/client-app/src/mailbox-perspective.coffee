@@ -13,8 +13,6 @@ UnreadQuerySubscription = require('./flux/models/unread-query-subscription').def
 Matcher = require('./flux/attributes/matcher').default
 Thread = require('./flux/models/thread').default
 Category = require('./flux/models/category').default
-Folder = require('./flux/models/folder').default
-Label = require('./flux/models/label').default
 Actions = require('./flux/actions').default
 ChangeUnreadTask = null
 
@@ -270,16 +268,9 @@ class CategoryMailboxPerspective extends MailboxPerspective
     super(other) and _.isEqual(_.pluck(@categories(), 'id'), _.pluck(other.categories(), 'id'))
 
   threads: =>
-    folders = @categories().filter((c) => c instanceof Folder)
-    labels = @categories().filter((c) => c instanceof Label)
     query = DatabaseStore.findAll(Thread)
-    
-    if folders.length > 0
-      query = query.where([Thread.attributes.folders.containsAny(_.pluck(folders, 'id'))])
-    if labels.length > 0
-      query = query.where([Thread.attributes.labels.containsAny(_.pluck(labels, 'id'))])
-    
-    query = query.limit(0)
+      .where([Thread.attributes.categories.containsAny(_.pluck(@categories(), 'id'))])
+      .limit(0)
 
     if @isSent()
       query.order(Thread.attributes.lastMessageSentTimestamp.descending())

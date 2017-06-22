@@ -22,11 +22,11 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
 
     this.threadA = new Thread({
       id: 'A',
-      categories: [inbox],
+      folders: [inbox],
     });
     this.threadB = new Thread({
       id: 'B',
-      categories: [archive],
+      folders: [archive],
     });
 
     this.msg1 = new Message({

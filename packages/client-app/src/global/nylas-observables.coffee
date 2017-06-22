@@ -30,10 +30,7 @@ CategoryObservables =
   forAllAccounts: =>
     folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
     labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label))
-    joined = Rx.Observable.combineLatest(folders, labels, (f, l) =>
-      debugger
-      [].concat(f, l)
-    )
+    joined = Rx.Observable.combineLatest(folders, labels, (f, l) => [].concat(f, l))
     _.extend(joined, CategoryOperators)
     joined
 
@@ -41,17 +38,11 @@ CategoryObservables =
     if account
       folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder).where(accountId: account.id))
       labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label).where(accountId: account.id))
-      joined = Rx.Observable.combineLatest(folders, labels, (f, l) =>
-        debugger
-        [].concat(f, l)
-      )
+      joined = Rx.Observable.combineLatest(folders, labels, (f, l) => [].concat(f, l))
     else
       folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
       labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label))
-      joined = Rx.Observable.combineLatest(folders, labels, (f, l) =>
-        debugger
-        [].concat(f, l)
-      )
+      joined = Rx.Observable.combineLatest(folders, labels, (f, l) => [].concat(f, l))
     _.extend(joined, CategoryOperators)
     joined
 

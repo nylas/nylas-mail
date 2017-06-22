@@ -1,6 +1,6 @@
 /* eslint global-require: 0 */
 import path from 'path';
-import createDebug from 'debug'
+import createDebug from 'debug';
 import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
 import {remote, ipcRenderer} from 'electron';

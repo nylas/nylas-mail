@@ -267,7 +267,6 @@ export default class QuerySubscription {
       error = new Error("QuerySubscription: Applied all changes and result set is missing models.");
     }
     if (!allUniqueIds) {
-      debugger;
       error = new Error("QuerySubscription: Applied all changes and result set contains duplicate IDs.");
     }
 

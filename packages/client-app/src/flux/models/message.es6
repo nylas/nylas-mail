@@ -6,7 +6,7 @@ import File from './file'
 import Utils from './utils'
 import Event from './event'
 import Contact from './contact'
-import Category from './category'
+import Folder from './folder'
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
 import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
@@ -181,9 +181,10 @@ export default class Message extends ModelWithMetadata {
       modelKey: 'replyToMessageId',
     }),
 
-    categories: Attributes.Collection({
-      modelKey: 'categories',
-      itemClass: Category,
+    folder: Attributes.Object({
+      queryable: false,
+      modelKey: 'folder',
+      itemClass: Folder,
     }),
   });
 
@@ -214,7 +215,6 @@ Message(date DESC) WHERE draft = 1`,
     this.files = this.files || []
     this.uploads = this.uploads || []
     this.events = this.events || []
-    this.categories = this.categories || []
   }
 
   toJSON(options) {
@@ -240,29 +240,6 @@ Message(date DESC) WHERE draft = 1`,
     // draft bit alone.
     if (json.object) {
       this.draft = (json.object === 'draft')
-    }
-
-    let categories = []
-    if (json.categories) {
-      categories = this.constructor.attributes.categories.fromJSON(json.categories)
-    } else {
-      if (json.folder) {
-        categories = categories.concat(this.constructor.attributes.categories.fromJSON([json.folder]))
-      }
-      if (json.labels) {
-        categories = categories.concat(this.constructor.attributes.categories.fromJSON(json.labels))
-      }
-    }
-    this.categories = categories
-
-    for (const attr of ['to', 'from', 'cc', 'bcc', 'files', 'categories']) {
-      const values = this[attr]
-      if (!(values && values instanceof Array)) {
-        continue;
-      }
-      for (const item of values) {
-        item.accountId = this.accountId
-      }
     }
 
     return this

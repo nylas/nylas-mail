@@ -394,7 +394,7 @@ class AccountStore extends NylasStore {
 
     this._caches = {}
 
-    let labels = []
+    let folders = []
     const threads = []
     let messages = []
 
@@ -416,28 +416,26 @@ class AccountStore extends NylasStore {
     for (const filename of filenames) {
       const threadJSON = fs.readFileSync(path.join(dir, 'threads', filename))
       const threadMessages = JSON.parse(threadJSON).map((j) => (new Message()).fromJSON(j))
-      let threadLabels = []
+      let threadFolders = []
       let threadParticipants = []
       let threadAttachment = false
       let threadUnread = false
 
       for (const m of threadMessages) {
         m.accountId = account.id
-        for (const l of m.categories) {
-          l.accountId = account.id
-        }
+        m.folder.accountId = account.id
         for (const l of m.files) {
           l.accountId = account.id
         }
         threadParticipants = threadParticipants.concat(m.participants())
-        threadLabels = threadLabels.concat(m.categories)
+        threadFolders = threadFolders.push(m.folder)
         threadAttachment = threadAttachment || m.files.length > 0
         threadUnread = threadUnread || m.unread
       }
 
       threadParticipants = _.uniq(threadParticipants, (p) => p.email)
-      threadLabels = _.uniq(threadLabels, (l) => l.id)
-      labels = _.uniq(labels.concat(threadLabels), (l) => l.id)
+      threadFolders = _.uniq(threadFolders, (l) => l.id)
+      folders = _.uniq(folders.concat(threadFolders), (l) => l.id)
 
       const lastMsg = _.last(threadMessages)
       const thread = new Thread({
@@ -446,7 +444,7 @@ class AccountStore extends NylasStore {
         subject: lastMsg.subject,
         lastMessageReceivedTimestamp: lastMsg.date,
         hasAttachment: threadAttachment,
-        categories: threadLabels,
+        folders: threadFolders,
         participants: threadParticipants,
         unread: threadUnread,
         snippet: lastMsg.snippet,
@@ -470,7 +468,7 @@ class AccountStore extends NylasStore {
     DatabaseStore.inTransaction((t) =>
       Promise.all([
         t.persistModel(account),
-        t.persistModels(labels),
+        t.persistModels(folders),
         t.persistModels(messages),
         t.persistModels(threads),
       ])

@@ -12,7 +12,7 @@ ExtensionRegistry = require('../../registries/extension-registry')
 async = require 'async'
 _ = require 'underscore'
 
-CategoryNamesHiddenByDefault = ['spam', 'trash']
+FolderNamesHiddenByDefault = ['spam', 'trash']
 
 class MessageStore extends NylasStore
 
@@ -26,15 +26,15 @@ class MessageStore extends NylasStore
     return @_items if @_showingHiddenItems
 
     viewing = FocusedPerspectiveStore.current().categoriesSharedName()
-    viewingHiddenCategory = viewing in CategoryNamesHiddenByDefault
+    viewingHiddenCategory = viewing in FolderNamesHiddenByDefault
 
     if viewingHiddenCategory
       return @_items.filter (item) ->
-        inHidden = _.any item.categories, (cat) -> cat.name in CategoryNamesHiddenByDefault
+        inHidden = item.folder in FolderNamesHiddenByDefault
         return inHidden or item.draft is true
     else
       return @_items.filter (item) ->
-        inHidden = _.any item.categories, (cat) -> cat.name in CategoryNamesHiddenByDefault
+        inHidden = item.folder in FolderNamesHiddenByDefault
         return not inHidden
 
   threadId: -> @_thread?.id
@@ -347,6 +347,6 @@ store.unregisterExtension = deprecate(
   store,
   store.unregisterExtension
 )
-store.CategoryNamesHiddenByDefault = CategoryNamesHiddenByDefault
+store.FolderNamesHiddenByDefault = FolderNamesHiddenByDefault
 
 module.exports = store

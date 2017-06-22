@@ -40,7 +40,7 @@ export default class MailLabelSet extends React.Component {
       }
 
       const ignoredIds = [].concat(hidden, current).map(l => l.id);
-      const ignoredNames = MessageStore.CategoryNamesHiddenByDefault;
+      const ignoredNames = MessageStore.FolderNamesHiddenByDefault;
 
       for (const label of thread.sortedCategories()) {
         const labelExists = CategoryStore.byId(thread.accountId, label.id);

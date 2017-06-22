@@ -3,6 +3,7 @@ import Message from './message'
 import Contact from './contact'
 import Folder from './folder'
 import Label from './label'
+import Category from './category'
 import Attributes from '../attributes'
 import DatabaseStore from '../stores/database-store'
 import ModelWithMetadata from './model-with-metadata'
@@ -65,11 +66,17 @@ class Thread extends ModelWithMetadata {
       modelKey: 'version',
     }),
 
+    categories: Attributes.Collection({
+      queryable: true,
+      modelKey: 'categories',
+      joinOnField: 'id',
+      joinQueryableBy: ['inAllMail', 'lastMessageReceivedTimestamp', 'lastMessageSentTimestamp', 'unread'],
+      itemClass: Category,
+    }),
+
     folders: Attributes.Collection({
       queryable: true,
       modelKey: 'folders',
-      joinOnField: 'id',
-      joinQueryableBy: ['inAllMail', 'lastMessageReceivedTimestamp', 'lastMessageSentTimestamp', 'unread'],
       itemClass: Folder,
     }),
 
@@ -193,8 +200,8 @@ class Thread extends ModelWithMetadata {
     })
   }
 
-  get inAllMail() {
-    return this.folders.find(f => f.role === 'all');
+  get categories() {
+    return [].concat(this.folders, this.labels);
   }
 
   /**

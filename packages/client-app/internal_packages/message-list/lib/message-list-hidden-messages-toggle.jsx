@@ -38,7 +38,7 @@ export default class MessageListHiddenMessagesToggle extends React.Component {
     const viewing = FocusedPerspectiveStore.current().categoriesSharedName();
     let message = null;
 
-    if (MessageStore.CategoryNamesHiddenByDefault.includes(viewing)) {
+    if (MessageStore.FolderNamesHiddenByDefault.includes(viewing)) {
       if (numberOfHiddenItems > 1) {
         message = `There are ${numberOfHiddenItems} more messages in this thread that are not in spam or trash.`;
       } else {

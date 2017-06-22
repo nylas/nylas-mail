@@ -38,7 +38,7 @@ class MailImportantIcon extends React.Component
       category = CategoryStore.getStandardCategory(props.thread.accountId, 'important')
       visible = category?
 
-    isImportant = category and _.findWhere(props.thread.categories, {id: category.id})?
+    isImportant = category and _.findWhere(props.thread.labels, {id: category.id})?
 
     {visible, category, isImportant}
 
@@ -81,7 +81,7 @@ class MailImportantIcon extends React.Component
     {category} = @state
 
     if category
-      isImportant = _.findWhere(@props.thread.categories, {id: category.id})?
+      isImportant = _.findWhere(@props.thread.labels, {id: category.id})?
       threads = [@props.thread]
 
       source = "Important Icon"

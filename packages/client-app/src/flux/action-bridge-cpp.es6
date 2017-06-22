@@ -34,11 +34,18 @@ class ActionBridgeCPP {
       c.on('data', (d) => {
         this.onIncomingMessage(d.toString());
       });
+      c.on('error', (err) => {
+        console.log('client error', err);
+      });
+      c.on('timeout', () => {
+        console.log('client timeout');
+      });
+
       c.on('end', () => {
         console.log('client disconnected');
       });
-      c.write('hello\r\n');
-      c.pipe(c);
+      // c.write('hello\r\n');
+      // c.pipe(c);
     });
 
     unixServer.listen('/tmp/cmail.sock', () => { 
@@ -55,15 +62,17 @@ class ActionBridgeCPP {
   }
 
   onIncomingMessage(message) {
-    console.log(message);
     this._readBuffer += message;
     const msgs = this._readBuffer.split('\n');
     this._readBuffer = msgs.pop();
 
     for (const msg of msgs) {
-      const {type, model} = JSON.parse(msg, Utils.registeredObjectReviver);
+      if (msg.length === 0) {
+        continue;
+      }
+      const {type, object, objectClass} = JSON.parse(msg, Utils.registeredObjectReviver);
       DatabaseStore.triggeringFromActionBridge = true;
-      DatabaseStore.trigger(new DatabaseChangeRecord({type, objects: [model]}));
+      DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: [object]}));
       DatabaseStore.triggeringFromActionBridge = false;
     }
   }

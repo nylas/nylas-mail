@@ -95,7 +95,7 @@ export class MarkAsSpamButton extends React.Component {
   }
 
   _allInSpam() {
-    return this.props.items.every(item => item.categories.map(c => c.name).includes('spam'));
+    return this.props.items.every(item => item.folders.map(c => c.role).includes('spam'));
   }
 
   _onNotSpam = (event) => {

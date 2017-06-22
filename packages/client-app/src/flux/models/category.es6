@@ -61,15 +61,31 @@ Section: Models
 */
 export default class Category extends Model {
 
+  get displayName() {
+    if (this.path && this.path.startsWith('INBOX.')) {
+      return this.path.substr(6);
+    }
+    if (this.path && this.path.startsWith('[Gmail]/')) {
+      return this.path.substr(8);
+    }
+    if (this.path && this.path === 'INBOX') {
+      return 'Inbox';
+    }
+    return this.path;
+  }
+
+  get name() {
+    return this.role;
+  }
+
   static attributes = Object.assign({}, Model.attributes, {
-    name: Attributes.String({
+    role: Attributes.String({
       queryable: true,
-      modelKey: 'name',
+      modelKey: 'role',
     }),
-    displayName: Attributes.String({
+    path: Attributes.String({
       queryable: true,
-      modelKey: 'displayName',
-      jsonKey: 'display_name',
+      modelKey: 'path',
     }),
     imapName: Attributes.String({
       modelKey: 'imapName',
@@ -106,30 +122,14 @@ export default class Category extends Model {
   static additionalSQLiteConfig = {
     setup: () => {
       return [
-        'CREATE INDEX IF NOT EXISTS CategoryNameIndex ON Category(accountId,name)',
-        'CREATE UNIQUE INDEX IF NOT EXISTS CategoryClientIndex ON Category(id)',
+        // 'CREATE INDEX IF NOT EXISTS FolderNameIndex ON Folder(accountId,name)',
+        // 'CREATE UNIQUE INDEX IF NOT EXISTS FolderClientIndex ON Folder(id)',
       ];
     },
   };
 
-  fromJSON(json) {
-    super.fromJSON(json);
-
-    if (this.displayName && this.displayName.startsWith('INBOX.')) {
-      this.displayName = this.displayName.substr(6);
-    }
-    if (this.displayName && this.displayName === 'INBOX') {
-      this.displayName = 'Inbox';
-    }
-    return this;
-  }
-
   displayType() {
-    AccountStore = AccountStore || require('../stores/account-store').default;
-    if (AccountStore.accountForId(this.accountId).usesLabels()) {
-      return 'label';
-    }
-    return 'folder';
+    throw new Error("Base class");
   }
 
   hue() {

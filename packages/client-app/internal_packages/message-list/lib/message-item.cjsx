@@ -148,7 +148,7 @@ class MessageItem extends React.Component
     return [] unless @state.detailedHeaders
     acct = AccountStore.accountForId(@props.message.accountId)
     acctUsesFolders = acct and acct.usesFolders()
-    folder = @props.message.categories?[0]
+    folder = @props.message.folder
     return unless folder and acctUsesFolders
     <div className="header-row">
       <div className="header-label">Folder:&nbsp;</div>

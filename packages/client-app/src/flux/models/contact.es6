@@ -144,9 +144,9 @@ export default class Contact extends Model {
     return (this.name && this.name !== this.email) ? `${this.name} <${this.email}>` : this.email;
   }
 
-  toJSON(...args) {
-    const json = super.toJSON(...args);
-    json.name = json.name || json.email;
+  fromJSON(json) {
+    super.fromJSON(json);
+    this.name = this.name || this.email;
     return json;
   }
 
