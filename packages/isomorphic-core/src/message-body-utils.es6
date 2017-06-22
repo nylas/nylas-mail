@@ -30,8 +30,12 @@ export function pathForBodyFile(msgId) {
   const pathGroups = [];
   let remainingId = msgId;
   while (pathGroups.length < MAX_PATH_DIRS) {
-    pathGroups.push(remainingId.substring(0, 2));
-    remainingId = remainingId.substring(2);
+    if (remainingId) {
+      pathGroups.push(remainingId.substring(0, 2));
+      remainingId = remainingId.substring(2);
+    } else {
+      break;
+    }
   }
   const bodyPath = path.join(...pathGroups);
   return path.join(baseMessagePath(), bodyPath, `${remainingId}.${FILE_EXTENSION}`);
