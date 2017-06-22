@@ -32,15 +32,6 @@ function copyErrorLoggerExtensions(privateDir) {
   fs.copySync(from, to);
 }
 
-function installClientSyncPackage() {
-  console.log("\n---> Linking client-sync")
-  // link client-sync
-  const clientSyncDir = path.resolve(path.join('packages', 'client-sync'));
-  const destination = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'client-sync'));
-  unlinkIfExistsSync(destination);
-  fs.symlinkSync(clientSyncDir, destination, 'dir');
-}
-
 function installPrivateResources() {
   console.log("\n---> Linking private plugins")
   const privateDir = path.resolve(path.join('packages', 'client-private-plugins'))
@@ -170,7 +161,6 @@ async function main() {
 
     if ([TARGET_ALL, TARGET_CLIENT].includes(installTarget)) {
       installPrivateResources()
-      installClientSyncPackage()
     }
 
     await lernaBootstrap(installTarget);

@@ -1,7 +1,6 @@
 import pathwatcher from 'pathwatcher';
 import ReactTestUtils from 'react-addons-test-utils';
 import {TaskQueue} from 'nylas-exports'
-import {destroyTestDatabase} from '../../internal_packages/client-sync/spec/helpers'
 
 class MasterAfterEach {
   setup(loadSettings, afterEach) {
@@ -9,7 +8,7 @@ class MasterAfterEach {
 
     const self = this
     afterEach(async function masterAfterEach() {
-      await destroyTestDatabase()
+      // await destroyTestDatabase() TODO BEN
       NylasEnv.packages.deactivatePackages();
       NylasEnv.menu.template = [];
 
