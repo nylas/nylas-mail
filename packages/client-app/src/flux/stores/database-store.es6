@@ -12,7 +12,6 @@ import Utils from '../models/utils';
 import Query from '../models/query';
 import DatabaseChangeRecord from './database-change-record';
 import DatabaseWriter from './database-writer';
-import DatabaseSetupQueryBuilder from './database-setup-query-builder';
 import {openDatabase, handleUnrecoverableDatabaseError, databasePath} from '../../database-helpers'
 
 const debug = createDebug('app:RxDB')
@@ -130,12 +129,9 @@ class DatabaseStore extends NylasStore {
     const phase = app.databasePhase()
 
     if (phase === DatabasePhase.Setup && NylasEnv.isMainWindow()) {
-      await this._openDatabase()
-      this._checkDatabaseVersion({allowUnset: true}, () => {
-        this._runDatabaseSetup(() => {
-          app.setDatabasePhase(DatabasePhase.Ready);
-        });
-      });
+      // TODO: Run migration assistant / setup script
+      app.setDatabasePhase(DatabasePhase.Ready);
+
     } else if (phase === DatabasePhase.Ready) {
       await this._openDatabase()
       this._checkDatabaseVersion({}, () => {
@@ -186,22 +182,6 @@ class DatabaseStore extends NylasStore {
     if (isWrongVersion && !(isUnsetVersion && allowUnset)) {
       return handleUnrecoverableDatabaseError(new Error(`Incorrect database schema version: ${result} not ${DatabaseVersion}`));
     }
-    return ready();
-  }
-
-  _runDatabaseSetup(ready) {
-    const builder = new DatabaseSetupQueryBuilder()
-
-    try {
-      for (const query of builder.setupQueries()) {
-        debug(`DatabaseStore: ${query}`);
-        this._db.prepare(query).run();
-      }
-    } catch (err) {
-      return handleUnrecoverableDatabaseError(err);
-    }
-
-    this._db.pragma(`user_version=${DatabaseVersion}`);
     return ready();
   }
 
