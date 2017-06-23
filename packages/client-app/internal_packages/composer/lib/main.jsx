@@ -48,19 +48,6 @@ class ComposerWithWindowProps extends React.Component {
 
   _onDraftReady = () => {
     this.refs.composer.focus().then(() => {
-      if (NylasEnv.timer.isPending('open-composer-window')) {
-        const actionTimeMs = NylasEnv.timer.stop('open-composer-window');
-        if (actionTimeMs && actionTimeMs <= 4000) {
-          Actions.recordUserEvent("Composer Popout Timed", {timeInMs: actionTimeMs})
-        }
-        // TODO time when plugins actually get loaded in
-        Actions.recordPerfMetric({
-          action: 'open-composer-window',
-          actionTimeMs,
-          maxValue: 4000,
-          sample: 0.9,
-        })
-      }
       NylasEnv.displayWindow();
 
       if (this.state.errorMessage) {

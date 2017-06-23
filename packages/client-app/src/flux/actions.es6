@@ -511,7 +511,6 @@ class Actions {
   Public: Publish a user event to any analytics services linked to N1.
   */
   static recordUserEvent = ActionScopeWorkWindow;
-  static recordPerfMetric = ActionScopeWorkWindow;
 
   static addMailRule = ActionScopeWindow;
   static reorderMailRule = ActionScopeWindow;
@@ -554,8 +553,6 @@ class Actions {
   static expandInitialSyncState = ActionScopeWindow;
 
   static resetEmailCache = ActionScopeGlobal;
-
-  static debugSync = ActionScopeGlobal;
 }
 
 

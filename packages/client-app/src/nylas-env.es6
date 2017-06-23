@@ -225,8 +225,6 @@ export default class NylasEnvConstructor {
     this.packages.onDidActivateInitialPackages(() => this.watchThemes());
     this.windowEventHandler = new WindowEventHandler();
 
-    this.timer = remote.getGlobal('application').timer;
-
     this.globalWindowEmitter = new Emitter();
 
     if (!this.inSpecMode()) {
@@ -933,9 +931,6 @@ export default class NylasEnvConstructor {
   // This also means that the windowType has changed and a different set of
   // plugins needs to be loaded.
   populateHotWindow(event, loadSettings) {
-    if (/composer/.test(loadSettings.windowType)) {
-      NylasEnv.timer.split("Popout Draft");
-    }
     this.loadSettings = loadSettings;
     this.constructor.loadSettings = loadSettings;
 

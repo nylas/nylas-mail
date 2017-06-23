@@ -51,10 +51,6 @@ export default class AccountErrorNotification extends React.Component {
   }
 
   _onCheckAgain(event, account) {
-    if (event.metaKey) {
-      Actions.debugSync()
-      return
-    }
     clearTimeout(this._checkingTimeout)
     this.setState({checking: true})
     this._checkingTimeout = setTimeout(() => this.setState({checking: false}), 10000)

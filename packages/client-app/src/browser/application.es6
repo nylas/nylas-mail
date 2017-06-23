@@ -9,7 +9,6 @@ import path from 'path';
 import proc from 'child_process'
 import {EventEmitter} from 'events';
 
-import GlobalTimer from './global-timer'
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
 import DatabaseReader from './database-reader';
