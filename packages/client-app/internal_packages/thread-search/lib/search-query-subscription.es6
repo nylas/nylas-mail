@@ -25,7 +25,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
     this._connections = []
     this._unsubscribers = [
-      FocusedContentStore.listen(this.onFocusedContentChanged),
+      FocusedContentStore.listen(::this.onFocusedContentChanged),
     ]
     this._extDisposables = []
 
@@ -38,10 +38,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
   resetData() {
     this._searchStartedAt = null
-    this._localResultsReceivedAt = null
-    this._remoteResultsReceivedAt = null
-    this._remoteResultsCount = 0
-    this._localResultsCount = 0
+    this._resultsReceivedAt = null
     this._firstThreadSelectedAt = null
     this._lastFocusedThread = null
     this._focusedThreadCount = 0
@@ -75,13 +72,9 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     console.info('dbQuery.sql() =', dbQuery.sql());
 
     dbQuery.then((results) => {
-      if (!this._localResultsReceivedAt) {
-        this._localResultsReceivedAt = Date.now()
+      if (results.length > 0) {
+        this.replaceQuery(dbQuery)
       }
-      this._localResultsCount += results.length
-      // Even if we don't have any results now we might sync additional messages
-      // from the provider which will cause new results to appear later.
-      this.replaceQuery(dbQuery)
     })
   }
 
@@ -149,9 +142,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     })
   }
 
-  // We want to keep track of how many threads from the search results were
-  // focused
-  onFocusedContentChanged = () => {
+  onFocusedContentChanged() {
     const thread = FocusedContentStore.focused('thread')
     const shouldRecordChange = (
       thread &&
@@ -171,41 +162,30 @@ class SearchQuerySubscription extends MutableQuerySubscription {
       return;
     }
 
-    let timeToLocalResultsMs = null
-    let timeToFirstRemoteResultsMs = null;
-    let timeToFirstThreadSelectedMs = null;
-    const timeInsideSearchMs = Date.now() - this._searchStartedAt
-    const numThreadsSelected = this._focusedThreadCount
-    const numLocalResults = this._localResultsCount
-    const numRemoteResults = this._remoteResultsCount
+    let timeToFirstServerResults = null;
+    let timeToFirstThreadSelected = null;
+    const timeInsideSearch = Math.round((Date.now() - this._searchStartedAt) / 1000)
+    const numItems = this._focusedThreadCount
+    const didSelectAnyThreads = numItems > 0
 
     if (this._firstThreadSelectedAt) {
-      timeToFirstThreadSelectedMs = this._firstThreadSelectedAt - this._searchStartedAt
+      timeToFirstThreadSelected = Math.round((this._firstThreadSelectedAt - this._searchStartedAt) / 1000)
     }
-    if (this._localResultsReceivedAt) {
-      timeToLocalResultsMs = this._localResultsReceivedAt - this._searchStartedAt
-    }
-    if (this._remoteResultsReceivedAt) {
-      timeToFirstRemoteResultsMs = this._remoteResultsReceivedAt - this._searchStartedAt
+    if (this._resultsReceivedAt) {
+      timeToFirstServerResults = Math.round((this._resultsReceivedAt - this._searchStartedAt) / 1000)
     }
 
-    Actions.recordPerfMetric({
-      action: 'search-performed',
-      actionTimeMs: timeToLocalResultsMs,
-      numLocalResults,
-      numRemoteResults,
-      numThreadsSelected,
-      clippedData: [
-        {key: 'timeToLocalResultsMs', val: timeToLocalResultsMs},
-        {key: 'timeToFirstThreadSelectedMs', val: timeToFirstThreadSelectedMs},
-        {key: 'timeInsideSearchMs', val: timeInsideSearchMs, maxValue: 60 * 1000},
-        {key: 'timeToFirstRemoteResultsMs', val: timeToFirstRemoteResultsMs, maxValue: 10 * 1000},
-      ],
-    })
+    const data = {
+      numItems,
+      timeInsideSearch,
+      didSelectAnyThreads,
+      timeToFirstServerResults,
+      timeToFirstThreadSelected,
+    }
+    Actions.recordUserEvent("Search Performed", data)
     this.resetData()
   }
 
-  // This function is called when the user leaves the SearchPerspective
   onLastCallbackRemoved() {
     this.reportSearchMetrics();
     this._connections.forEach((conn) => conn.end())
