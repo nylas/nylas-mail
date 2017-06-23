@@ -31,10 +31,6 @@ export default class Application extends EventEmitter {
   async start(options) {
     const {resourcePath, configDirPath, version, devMode, specMode, benchmarkMode, safeMode} = options;
 
-    // Initialize GlobalTimer and start timing app boot time
-    this.timer = new GlobalTimer()
-    this.timer.start('app-boot')
-
     // Normalize to make sure drive letter case is consistent on Windows
     this.resourcePath = path.normalize(resourcePath);
     this.configDirPath = configDirPath;

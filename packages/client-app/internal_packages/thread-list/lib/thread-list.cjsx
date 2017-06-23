@@ -45,8 +45,9 @@ class ThreadList extends React.Component
       syncing: false
 
   componentDidMount: =>
-    @_reportAppBootTime()
-    @unsub = FolderSyncProgressStore.listen(@_onSyncStatusChanged)
+    @unsub = NylasSyncStatusStore.listen( => @setState
+      syncing: FocusedPerspectiveStore.current().hasSyncingCategories()
+    )
     window.addEventListener('resize', @_onResize, true)
     ReactDOM.findDOMNode(@).addEventListener('contextmenu', @_onShowContextMenu)
     @_onResize()
@@ -61,14 +62,6 @@ class ThreadList extends React.Component
     @unsub()
     window.removeEventListener('resize', @_onResize, true)
     ReactDOM.findDOMNode(@).removeEventListener('contextmenu', @_onShowContextMenu)
-
-  _reportAppBootTime: =>
-    if NylasEnv.timer.isPending('app-boot')
-      Actions.recordPerfMetric({
-        action: 'app-boot',
-        actionTimeMs: NylasEnv.timer.stop('app-boot'),
-        maxValue: 60 * 1000,
-      })
 
   _shift: ({offset, afterRunning}) =>
     dataSource = ThreadListStore.dataSource()
