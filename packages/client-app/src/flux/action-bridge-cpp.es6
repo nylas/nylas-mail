@@ -1,17 +1,9 @@
-import _ from 'underscore';
 import net from 'net';
 import fs from 'fs';
-import Actions from './actions';
 import DatabaseStore from './stores/database-store';
 import DatabaseChangeRecord from './stores/database-change-record';
 
 import Utils from './models/utils';
-
-const Message = {
-  DATABASE_STORE_TRIGGER: 'db-store-trigger',
-};
-
-const printToConsole = false;
 
 class ActionBridgeCPP {
 
@@ -27,10 +19,12 @@ class ActionBridgeCPP {
       console.info(err);
     }
 
+    this.clients = [];
+
     // This server listens on a Unix socket at /var/run/mysocket
     const unixServer = net.createServer((c) => {
-      // Do something with the client connection
       console.log('client connected');
+      this.clients.push(c);
       c.on('data', (d) => {
         this.onIncomingMessage(d.toString());
       });
@@ -43,9 +37,8 @@ class ActionBridgeCPP {
 
       c.on('end', () => {
         console.log('client disconnected');
+        this.clients = this.clients.filter((o) => o !== c);
       });
-      // c.write('hello\r\n');
-      // c.pipe(c);
     });
 
     unixServer.listen('/tmp/cmail.sock', () => { 
@@ -74,6 +67,19 @@ class ActionBridgeCPP {
       DatabaseStore.triggeringFromActionBridge = true;
       DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: [object]}));
       DatabaseStore.triggeringFromActionBridge = false;
+    }
+  }
+
+  onTellClients(json) {
+    const msg = JSON.stringify(json, Utils.registeredObjectReplacer);
+    const headerBuffer = new Buffer(4);
+    const contentBuffer = Buffer.from(msg);
+    headerBuffer.fill(0);
+    headerBuffer.writeUInt32LE(contentBuffer.length, 0);
+
+    for (const c of this.clients) {
+      c.write(headerBuffer);
+      c.write(contentBuffer);
     }
   }
 

@@ -124,20 +124,14 @@ class TaskQueue extends NylasStore {
       console.log(task);
       throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
     }
-    if (!task.queueState) {
-      console.log(task);
-      throw new Error("Tasks must have a queueState prior to being queued. Check that your Task constructor is calling `super`");
-    }
     task.sequentialId = ++this._currentSequentialId;
-    task.runLocal().then(() => {
-      DatabaseStore.inTransaction((t) => {
-        return t.persistModel(task);
-      });
-    });
+    task.status = 'local';
+
+    NylasEnv.actionBridgeCpp.onTellClients({type: 'task-queued', task: task});
   }
 
   enqueueUndoOfTaskId = (taskId) => {
-    const task = this._queue.find(t => t.id == taskId) || this._completed.find(t => t.id == taskId);
+    const task = this._queue.find(t => t.id === taskId) || this._completed.find(t => t.id === taskId);
     if (task) {
       this.enqueue(task.createUndoTask());
     }

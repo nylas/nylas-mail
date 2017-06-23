@@ -20,7 +20,7 @@ xdescribe "DestroyCategoryTask", ->
     fn.calls[0].args[0].accountId
 
   nameOf = (fn) ->
-    fn.calls[0].args[0].body.display_name
+    fn.calls[0].args[0].body.displayName
 
   makeAccount = ({usesFolders, usesLabels} = {}) ->
     spyOn(AccountStore, "accountForId").andReturn {

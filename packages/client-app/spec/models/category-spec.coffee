@@ -21,9 +21,9 @@ describe 'Category', ->
 
   describe 'fromJSON', ->
     it "should strip the INBOX. prefix from FastMail folders", ->
-      foo = (new Category()).fromJSON({display_name: 'INBOX.Foo'})
+      foo = (new Category()).fromJSON({displayName: 'INBOX.Foo'})
       expect(foo.displayName).toEqual('Foo')
-      foo = (new Category()).fromJSON({display_name: 'INBOX'})
+      foo = (new Category()).fromJSON({displayName: 'INBOX'})
       expect(foo.displayName).toEqual('Inbox')
 
   describe 'category types', ->

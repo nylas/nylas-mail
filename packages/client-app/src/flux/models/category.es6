@@ -87,13 +87,12 @@ export default class Category extends Model {
       queryable: true,
       modelKey: 'path',
     }),
-    imapName: Attributes.String({
-      modelKey: 'imapName',
-      jsonKey: 'imap_name',
-    }),
     syncProgress: Attributes.Object({
       modelKey: 'syncProgress',
       jsonKey: 'sync_progress',
+    }),
+    _refcount: Attributes.Number({
+      modelKey: '_refcount',
     }),
   });
 

@@ -98,6 +98,7 @@ export default class CategoryPickerPopover extends Component {
     }
     const item = category.toJSON()
     item.category = category
+    item.displayName = category.displayName
     item.backgroundColor = LabelColorizer.backgroundColorDark(category)
     item.usage = usageCount[category.id] || 0
     item.numThreads = numThreads
@@ -316,7 +317,7 @@ export default class CategoryPickerPopover extends Component {
       <div className="category-item">
         {icon}
         <div className="category-display-name">
-          <BoldedSearchResult value={item.display_name} query={this.state.searchValue || ""} />
+          <BoldedSearchResult value={item.displayName} query={this.state.searchValue || ""} />
         </div>
       </div>
     )

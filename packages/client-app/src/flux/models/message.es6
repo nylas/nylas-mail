@@ -147,6 +147,10 @@ export default class Message extends ModelWithMetadata {
       modelKey: 'subject',
     }),
 
+    folderImapUID: Attributes.Number({
+      modelKey: 'folderImapUID',
+    }),
+
     draft: Attributes.Boolean({
       modelKey: 'draft',
       queryable: true,
