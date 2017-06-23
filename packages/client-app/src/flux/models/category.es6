@@ -167,10 +167,6 @@ export default class Category extends Model {
     return !this.isStandardCategory() && !this.isHiddenCategory();
   }
 
-  isInbox() {
-    return this.name === 'inbox'
-  }
-
   isArchive() {
     return ['all', 'archive'].includes(this.name);
   }

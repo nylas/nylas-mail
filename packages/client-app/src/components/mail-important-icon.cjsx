@@ -87,9 +87,11 @@ class MailImportantIcon extends React.Component
       source = "Important Icon"
 
       if !isImportant
-        Actions.applyCategoryToThreads({threads, categoryToApply: category, source})
+        task = TaskFactory.taskForApplyingCategory({threads, category, source})
       else
-        Actions.removeCategoryFromThreads({threads, categoryToRemove: category, source})
+        task = TaskFactory.taskForRemovingCategory({threads, category, source})
+
+      Actions.queueTask(task)
 
     # Don't trigger the thread row click
     event.stopPropagation()

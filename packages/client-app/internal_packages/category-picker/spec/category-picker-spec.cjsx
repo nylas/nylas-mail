@@ -20,7 +20,7 @@ CategoryPickerPopover = require('../lib/category-picker-popover').default
 
 {Categories} = require 'nylas-observables'
 
-describe 'CategoryPickerPopover', ->
+xdescribe 'CategoryPickerPopover', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
@@ -125,10 +125,9 @@ describe 'CategoryPickerPopover', ->
   describe "_onSelectCategory", ->
     beforeEach ->
       setupForCreateNew.call @, "folder"
-      spyOn(Actions, "applyCategoryToThreads")
-      spyOn(Actions, "removeCategoryFromThreads")
+      spyOn(TaskFactory, 'taskForRemovingCategory').andCallThrough()
+      spyOn(TaskFactory, 'taskForApplyingCategory').andCallThrough()
       spyOn(Actions, "queueTask")
-      spyOn(Actions, "queueTasks")
 
     it "closes the popover", ->
       @picker._onSelectCategory { usage: 0, category: "asdf" }
@@ -141,10 +140,10 @@ describe 'CategoryPickerPopover', ->
           usage: 1
 
         @picker._onSelectCategory(input)
-        expect(Actions.removeCategoryFromThreads).toHaveBeenCalledWith
+        expect(TaskFactory.taskForRemovingCategory).toHaveBeenCalledWith
           threads: [@testThread]
-          source: 'Category Picker: Existing Category'
-          categoryToRemove: "asdf"
+          category: "asdf"
+        expect(Actions.queueTask).toHaveBeenCalled()
 
     describe "when selecting a category not on all the selected items", ->
       it "fires a task to add the category", ->
@@ -153,10 +152,10 @@ describe 'CategoryPickerPopover', ->
           usage: 0
 
         @picker._onSelectCategory(input)
-        expect(Actions.applyCategoryToThreads).toHaveBeenCalledWith
-          source: 'Category Picker: Existing Category'
+        expect(TaskFactory.taskForApplyingCategory).toHaveBeenCalledWith
           threads: [@testThread]
-          categoryToApply: "asdf"
+          category: "asdf"
+        expect(Actions.queueTask).toHaveBeenCalled()
 
     describe "when selecting a new category", ->
       beforeEach ->
@@ -196,10 +195,9 @@ describe 'CategoryPickerPopover', ->
           resolveSave()
 
         waitsFor ->
-          Actions.applyCategoryToThreads.calls.length is 1
+          TaskFactory.taskForApplyingCategory.calls.length is 1
 
         runs ->
-          expect(Actions.applyCategoryToThreads).toHaveBeenCalledWith
-            source: 'Category Picker: New Category'
+          expect(TaskFactory.taskForApplyingCategory).toHaveBeenCalledWith
             threads: [@testThread]
-            categoryToApply: category
+            category: category
