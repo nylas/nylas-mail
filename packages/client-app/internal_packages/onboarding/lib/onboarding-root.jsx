@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import {Actions} from 'nylas-exports'
 import OnboardingStore from './onboarding-store';
 import PageTopBar from './page-top-bar';
 
@@ -42,26 +41,6 @@ export default class OnboardingRoot extends React.Component {
     this.unsubscribe = OnboardingStore.listen(this._onStateChanged, this);
     NylasEnv.center();
     NylasEnv.displayWindow();
-
-    if (NylasEnv.timer.isPending('open-add-account-window')) {
-      const {source} = NylasEnv.getWindowProps()
-      Actions.recordPerfMetric({
-        source,
-        action: 'open-add-account-window',
-        actionTimeMs: NylasEnv.timer.stop('open-add-account-window'),
-        maxValue: 4 * 1000,
-      })
-    }
-
-    if (NylasEnv.timer.isPending('app-boot')) {
-      // If this component is mounted and we are /still/ timing `app-boot`, it
-      // means that the app booted for an unauthenticated user and we are
-      // showing the onboarding window for the first time.
-      // In this case, we can't report `app-boot` time because we don't have a
-      // nylasId or accountId required to report a metric.
-      // However, we do want to clear the timer by stopping it
-      NylasEnv.timer.stop('app-boot')
-    }
   }
 
   componentWillUnmount() {
