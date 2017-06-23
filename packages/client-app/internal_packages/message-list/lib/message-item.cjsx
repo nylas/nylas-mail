@@ -2,6 +2,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 _ = require 'underscore'
+EmailFrame = require('./email-frame').default
 MessageParticipants = require "./message-participants"
 MessageItemBody = require "./message-item-body"
 MessageTimestamp = require("./message-timestamp").default
@@ -28,7 +29,6 @@ class MessageItem extends React.Component
     message: React.PropTypes.object.isRequired
     messages: React.PropTypes.array.isRequired
     collapsed: React.PropTypes.bool
-    onLoad: React.PropTypes.func
 
   constructor: (@props) ->
     fileIds = @props.message.fileIds()
@@ -87,11 +87,7 @@ class MessageItem extends React.Component
       <div className="message-item-white-wrap">
         <div className="message-item-area">
           {@_renderHeader()}
-          <MessageItemBody
-            message={@props.message}
-            downloads={@state.downloads}
-            onLoad={@props.onLoad}
-          />
+          <MessageItemBody message={@props.message} downloads={@state.downloads} />
           {@_renderAttachments()}
           {@_renderFooterStatus()}
         </div>

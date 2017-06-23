@@ -24,7 +24,6 @@ class MessageItemBody extends React.Component
   @propTypes:
     message: React.PropTypes.object.isRequired
     downloads: React.PropTypes.object.isRequired
-    onLoad: React.PropTypes.func
 
   constructor: (@props) ->
     @_mounted = false
@@ -66,7 +65,6 @@ class MessageItemBody extends React.Component
         showQuotedText={@state.showQuotedText}
         content={@_mergeBodyWithFiles(@state.processedBody)}
         message={@props.message}
-        onLoad={@props.onLoad}
       />
     else
       <div className="message-body-loading">

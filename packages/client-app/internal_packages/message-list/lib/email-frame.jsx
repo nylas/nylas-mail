@@ -15,7 +15,6 @@ export default class EmailFrame extends React.Component {
     content: React.PropTypes.string.isRequired,
     message: React.PropTypes.object,
     showQuotedText: React.PropTypes.bool,
-    onLoad: React.PropTypes.func,
   };
 
   componentDidMount() {
@@ -161,7 +160,6 @@ export default class EmailFrame extends React.Component {
           ref="iframe"
           seamless="seamless"
           searchable
-          onLoad={this.props.onLoad}
           onResize={this._onMustRecalculateFrameHeight}
         />
       </div>
