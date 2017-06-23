@@ -61,7 +61,8 @@ export class TrashButton extends React.Component {
   }
 
   _onRemove = (event) => {
-    Actions.trashThreads({threads: this.props.items, source: "Toolbar Button: Thread List"});
+    const tasks = TaskFactory.tasksForMovingToTrash({threads: this.props.items, source: "Toolbar Button: Thread List"});
+    Actions.queueTasks(tasks);
     Actions.popSheet();
     event.stopPropagation();
     return;
@@ -118,7 +119,8 @@ export class MarkAsSpamButton extends React.Component {
   }
 
   _onMarkAsSpam = (event) => {
-    Actions.markAsSpamThreads({threads: this.props.items, source: "Toolbar Button: Thread List"});
+    const tasks = TaskFactory.tasksForMarkingAsSpam({threads: this.props.items, source: "Toolbar Button: Thread List"});
+    Actions.queueTasks(tasks);
     Actions.popSheet();
     event.stopPropagation();
     return;

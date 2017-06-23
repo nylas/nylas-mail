@@ -325,10 +325,10 @@ class ThreadList extends React.Component
   _onMarkAsSpam: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    Actions.markAsSpamThreads({
-      source: "Keyboard Shortcut",
-      threads: threads,
-    })
+    tasks = TaskFactory.tasksForMarkingAsSpam
+      source: "Keyboard Shortcut"
+      threads: threads
+    Actions.queueTasks(tasks)
 
   _onRemoveFromView: (ruleset = CategoryRemovalTargetRulesets.Default) =>
     threads = @_threadsForKeyboardAction()
@@ -350,10 +350,10 @@ class ThreadList extends React.Component
   _onDeleteItem: =>
     threads = @_threadsForKeyboardAction()
     if threads
-      Actions.trashThreads({
-        source: "Keyboard Shortcut",
-        threads: threads,
-      })
+      tasks = TaskFactory.tasksForMovingToTrash
+        source: "Keyboard Shortcut"
+        threads: threads
+      Actions.queueTasks(tasks)
     Actions.popSheet()
 
   _onSelectRead: =>
