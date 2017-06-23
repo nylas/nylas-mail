@@ -556,19 +556,6 @@ class Actions {
   static resetEmailCache = ActionScopeGlobal;
 
   static debugSync = ActionScopeGlobal;
-
-  // Thread list actions
-  static archiveThreads = ActionScopeWindow;
-  static trashThreads = ActionScopeWindow;
-  static markAsSpamThreads = ActionScopeWindow;
-  static toggleStarredThreads = ActionScopeWindow;
-  static toggleUnreadThreads = ActionScopeWindow;
-  static setUnreadThreads = ActionScopeWindow;
-  static removeThreadsFromView = ActionScopeWindow;
-  static moveThreadsToPerspective = ActionScopeWindow;
-  static applyCategoryToThreads = ActionScopeWindow;
-  static removeCategoryFromThreads = ActionScopeWindow;
-  static threadListDidUpdate = ActionScopeWindow;
 }
 
 

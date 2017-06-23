@@ -342,9 +342,11 @@ class ThreadList extends React.Component
 
   _onArchiveItem: =>
     threads = @_threadsForKeyboardAction()
-    if not threads
-      return
-    Actions.archiveThreads({threads, source: "Keyboard Shortcut"})
+    if threads
+      tasks = TaskFactory.tasksForArchiving
+        source: "Keyboard Shortcut"
+        threads: threads
+      Actions.queueTasks(tasks)
     Actions.popSheet()
 
   _onDeleteItem: =>
