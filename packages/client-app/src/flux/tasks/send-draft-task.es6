@@ -31,14 +31,6 @@ export default class SendDraftTask extends BaseDraftTask {
     return "Sending message";
   }
 
-  performLocal() {
-    return super.performLocal()
-    .then(() => {
-      this._timerKey = `send-draft-${this.draftId}`
-      NylasEnv.timer.start(this._timerKey)
-    })
-  }
-
   performRemote() {
     return this.refreshDraftReference()
     .then(this.assertDraftValidity)
@@ -207,6 +199,7 @@ export default class SendDraftTask extends BaseDraftTask {
     if (this.playSound && NylasEnv.config.get("core.sending.sounds")) {
       SoundRegistry.playSound('send');
     }
+<<<<<<< HEAD
     if (NylasEnv.timer.isPending(this._timerKey)) {
       const account = AccountStore.accountForId(this.draft.accountId)
       const provider = account ? account.provider : 'Unknown provider'
@@ -218,10 +211,13 @@ export default class SendDraftTask extends BaseDraftTask {
         succeeded: true,
       })
     }
+=======
+>>>>>>> parent of ae9aede30... [client-app] Measure and report sending times
     return Promise.resolve(Task.Status.Success);
   }
 
   onError = (err) => {
+<<<<<<< HEAD
     if (NylasEnv.timer.isPending(this._timerKey)) {
       const account = AccountStore.accountForId(this.draft.accountId)
       const provider = account ? account.provider : 'Unknown provider'
@@ -233,6 +229,8 @@ export default class SendDraftTask extends BaseDraftTask {
         succeeded: false,
       })
     }
+=======
+>>>>>>> parent of ae9aede30... [client-app] Measure and report sending times
     if (err instanceof BaseDraftTask.DraftNotFoundError) {
       return Promise.resolve(Task.Status.Continue);
     }
