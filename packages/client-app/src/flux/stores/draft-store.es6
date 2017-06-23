@@ -285,11 +285,10 @@ class DraftStore extends NylasStore {
 
   _onPopoutBlankDraft = () => {
     Actions.recordUserEvent("Draft Created", {type: "new"});
-    const timerId = Utils.generateTempId()
-    NylasEnv.timer.start(`open-composer-window-${timerId}`);
+    NylasEnv.timer.start("Popout Draft");
     return DraftFactory.createDraft().then((draft) => {
       return this._finalizeAndPersistNewMessage(draft).then(({draftClientId}) => {
-        return this._onPopoutDraftClientId(draftClientId, {timerId, newDraft: true});
+        return this._onPopoutDraftClientId(draftClientId, {newDraft: true});
       });
     });
   }
@@ -337,10 +336,7 @@ class DraftStore extends NylasStore {
     if (draftClientId == null) {
       throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId");
     }
-    const {timerId} = options
-    if (!timerId) {
-      NylasEnv.timer.start(`open-composer-window-${draftClientId}`);
-    }
+    NylasEnv.timer.start("Popout Draft");
 
     const title = options.newDraft ? "New Message" : "Message";
     return this.sessionForClientId(draftClientId).then((session) => {
@@ -352,9 +348,8 @@ class DraftStore extends NylasStore {
         NylasEnv.newWindow({
           title,
           hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
-          timerId: timerId || draftClientId,
           windowKey: `composer-${draftClientId}`,
-          windowType: 'composer-preload',
+          windowType: "composer-preload",
           windowProps: _.extend(options, {draftClientId, draftJSON}),
         });
       });
