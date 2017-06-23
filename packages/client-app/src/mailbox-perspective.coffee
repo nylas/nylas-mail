@@ -97,9 +97,6 @@ class MailboxPerspective
   isTrash: =>
     @categoriesSharedName() is 'trash'
 
-  isSpam: =>
-    @categoriesSharedName() is 'spam'
-
   isArchive: =>
     false
 
@@ -147,7 +144,7 @@ class MailboxPerspective
     areIncomingIdsInCurrent = _.difference(accountIds, @accountIds).length is 0
     return areIncomingIdsInCurrent
 
-  receiveThreads: (threadIds) =>
+  receiveThreads: (threadsOrIds) =>
     throw new Error("receiveThreads: Not implemented in base class.")
 
   canArchiveThreads: (threads) =>
@@ -212,9 +209,9 @@ class StarredMailboxPerspective extends MailboxPerspective
   canReceiveThreadsFromAccountIds: =>
     super
 
-  receiveThreads: (threadIds) =>
+  receiveThreads: (threadsOrIds) =>
     ChangeStarredTask = require('./flux/tasks/change-starred-task').default
-    task = new ChangeStarredTask({threads:threadIds, starred: true, source: "Dragged Into List"})
+    task = new ChangeStarredTask({threads:threadsOrIds, starred: true, source: "Dragged Into List"})
     Actions.queueTask(task)
 
   tasksForRemovingItems: (threads) =>
@@ -308,13 +305,13 @@ class CategoryMailboxPerspective extends MailboxPerspective
   canReceiveThreadsFromAccountIds: =>
     super and not _.any @_categories, (c) -> c.isLockedCategory()
 
-  receiveThreads: (threadIds) =>
+  receiveThreads: (threadsOrIds) =>
     FocusedPerspectiveStore = require('./flux/stores/focused-perspective-store').default
-    current = FocusedPerspectiveStore.current()
+    current= FocusedPerspectiveStore.current()
 
     # This assumes that the we don't have more than one category per accountId
     # attached to this perspective
-    DatabaseStore.modelify(Thread, threadIds).then (threads) =>
+    DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
       tasks = TaskFactory.tasksForApplyingCategories
         source: "Dragged Into List",
         threads: threads
@@ -397,10 +394,11 @@ class UnreadMailboxPerspective extends CategoryMailboxPerspective
   unreadCount: =>
     0
 
-  receiveThreads: (threadIds) =>
-    super(threadIds)
+  receiveThreads: (threadsOrIds) =>
+    super(threadsOrIds)
+
     ChangeUnreadTask ?= require('./flux/tasks/change-unread-task').default
-    task = new ChangeUnreadTask({threads:threadIds, unread: true, source: "Dragged Into List"})
+    task = new ChangeUnreadTask({threads:threadsOrIds, unread: true, source: "Dragged Into List"})
     Actions.queueTask(task)
 
   tasksForRemovingItems: (threads, ruleset, source) =>

@@ -92,11 +92,7 @@ class SidebarItem
         catch err
           console.error("JSON parse error: #{err}")
         return unless jsonData
-        Actions.moveThreadsToPerspective({
-          targetPerspective: item.perspective,
-          threadIds: jsonData.threadIds,
-          accountIds: jsonData.accountIds,
-        })
+        item.perspective.receiveThreads(jsonData.threadIds)
 
       shouldAcceptDrop: (item, event) ->
         target = item.perspective

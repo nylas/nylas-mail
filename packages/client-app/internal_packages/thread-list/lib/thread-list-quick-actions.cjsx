@@ -30,6 +30,9 @@ class ThreadArchiveQuickAction extends React.Component
       threads: [@props.thread]
     Actions.queueTasks(tasks)
 
+    # Don't trigger the thread row click
+    event.stopPropagation()
+
 class ThreadTrashQuickAction extends React.Component
   @displayName: 'ThreadTrashQuickAction'
   @propTypes:
