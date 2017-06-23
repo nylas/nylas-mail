@@ -153,8 +153,6 @@ class ThreadList extends React.Component
     props =
       className: classes
 
-
-    # TODO this swiping logic needs some serious cleanup
     props.shouldEnableSwipe = =>
       perspective = FocusedPerspectiveStore.current()
       tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
@@ -165,6 +163,7 @@ class ThreadList extends React.Component
       tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
       return null if tasks.length is 0
 
+      # TODO this logic is brittle
       task = tasks[0]
       name = if task instanceof ChangeStarredTask
         'unstar'
@@ -178,11 +177,9 @@ class ThreadList extends React.Component
     props.onSwipeRight = (callback) ->
       perspective = FocusedPerspectiveStore.current()
       tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
-      if tasks.length is 0
-        callback(false)
-        return
-      Actions.removeThreadsFromView({threads: [item], source: 'Swipe', ruleset: CategoryRemovalTargetRulesets.Default})
+      callback(false) if tasks.length is 0
       Actions.closePopover()
+      Actions.queueTasks(tasks)
       callback(true)
 
     disabledPackages = NylasEnv.config.get('core.disabledPackages') ? []
@@ -335,9 +332,10 @@ class ThreadList extends React.Component
 
   _onRemoveFromView: (ruleset = CategoryRemovalTargetRulesets.Default) =>
     threads = @_threadsForKeyboardAction()
-    if not threads
-      return
-    Actions.removeThreadsFromView({threads, ruleset, source: "Keyboard Shortcut"})
+    return unless threads
+    current = FocusedPerspectiveStore.current()
+    tasks = current.tasksForRemovingItems(threads, ruleset, "Keyboard Shortcut")
+    Actions.queueTasks(tasks)
     Actions.popSheet()
 
   _onArchiveItem: =>

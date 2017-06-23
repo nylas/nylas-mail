@@ -217,10 +217,10 @@ class StarredMailboxPerspective extends MailboxPerspective
     task = new ChangeStarredTask({threads:threadIds, starred: true, source: "Dragged Into List"})
     Actions.queueTask(task)
 
-  tasksForRemovingItems: (threads, ruleset, source) =>
+  tasksForRemovingItems: (threads) =>
     task = TaskFactory.taskForInvertingStarred({
       threads: threads
-      source: source || "Removed From List"
+      source: "Removed From List"
     })
     return [task]
 
@@ -361,8 +361,6 @@ class CategoryMailboxPerspective extends MailboxPerspective
   # )
   #
   tasksForRemovingItems: (threads, ruleset, source) =>
-    if threads.length is 0
-      return []
     if not ruleset
       throw new Error("tasksForRemovingItems: you must pass a ruleset object to determine the destination of the threads")
 
@@ -372,8 +370,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     else
       @categoriesSharedName()
 
-    if ruleset[name] is null
-      return []
+    return [] if ruleset[name] is null
 
     return TaskFactory.tasksForApplyingCategories(
       source: source || "Removed From List",
