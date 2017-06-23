@@ -13,7 +13,6 @@ import SyncbackDraftTask from '../tasks/syncback-draft-task';
 import DestroyDraftTask from '../tasks/destroy-draft-task';
 import Thread from '../models/thread';
 import Message from '../models/message';
-import Utils from '../models/utils';
 import Actions from '../actions';
 import TaskQueue from './task-queue';
 import SoundRegistry from '../../registries/sound-registry';
@@ -188,9 +187,6 @@ class DraftStore extends NylasStore {
       this._modelifyContext({thread, threadId, message, messageId})
     )
     .then(({message: m, thread: t}) => {
-      if (['reply', 'reply-all'].includes(type)) {
-        NylasEnv.timer.start(`compose-reply-${m.id}`)
-      }
       return DraftFactory.createOrUpdateDraftForReply({message: m, thread: t, type, behavior});
     })
     .then(draft => {
@@ -204,7 +200,6 @@ class DraftStore extends NylasStore {
       this._modelifyContext({thread, threadId, message, messageId})
     )
     .then(({thread: t, message: m}) => {
-      NylasEnv.timer.start(`compose-forward-${t.id}`)
       return DraftFactory.createDraftForForward({thread: t, message: m})
     })
     .then((draft) => {
@@ -273,19 +268,14 @@ class DraftStore extends NylasStore {
   }
 
   _onPopoutNewDraftToRecipient = (contact) => {
-    Actions.recordUserEvent("Draft Created", {type: "new"});
-    const timerId = Utils.generateTempId()
-    NylasEnv.timer.start(`open-composer-window-${timerId}`);
     return DraftFactory.createDraft({to: [contact]}).then((draft) => {
-      return this._finalizeAndPersistNewMessage(draft).then(({draftClientId}) => {
-        return this._onPopoutDraftClientId(draftClientId, {timerId, newDraft: true});
-      });
+      return this._finalizeAndPersistNewMessage(draft, {popout: true});
     });
   }
 
   _onPopoutBlankDraft = () => {
     Actions.recordUserEvent("Draft Created", {type: "new"});
-    NylasEnv.timer.start("Popout Draft");
+    NylasEnv.timer.start('open-composer-window');
     return DraftFactory.createDraft().then((draft) => {
       return this._finalizeAndPersistNewMessage(draft).then(({draftClientId}) => {
         return this._onPopoutDraftClientId(draftClientId, {newDraft: true});
@@ -293,50 +283,11 @@ class DraftStore extends NylasStore {
     });
   }
 
-  _onHandleMailtoLink = (event, urlString) => {
-    Actions.recordUserEvent("Draft Created", {type: "mailto"});
-    const timerId = Utils.generateTempId()
-    NylasEnv.timer.start(`open-composer-window-${timerId}`);
-    return DraftFactory.createDraftForMailto(urlString).then((draft) => {
-      return this._finalizeAndPersistNewMessage(draft).then(({draftClientId}) => {
-        return this._onPopoutDraftClientId(draftClientId, {timerId, newDraft: true});
-      });
-    }).catch((err) => {
-      NylasEnv.showErrorDialog(err.toString())
-    });
-  }
-
-  _onHandleMailFiles = (event, paths) => {
-    Actions.recordUserEvent("Draft Created", {type: "dropped-file-in-dock"});
-    const timerId = Utils.generateTempId()
-    NylasEnv.timer.start(`open-composer-window-${timerId}`);
-    return DraftFactory.createDraft().then((draft) => {
-      return this._finalizeAndPersistNewMessage(draft);
-    })
-    .then(({draftClientId}) => {
-      let remaining = paths.length;
-      const callback = () => {
-        remaining -= 1;
-        if (remaining === 0) {
-          this._onPopoutDraftClientId(draftClientId, {timerId});
-        }
-      };
-
-      paths.forEach((path) => {
-        Actions.addAttachment({
-          filePath: path,
-          messageClientId: draftClientId,
-          onUploadCreated: callback,
-        });
-      })
-    });
-  }
-
   _onPopoutDraftClientId = (draftClientId, options = {}) => {
     if (draftClientId == null) {
       throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId");
     }
-    NylasEnv.timer.start("Popout Draft");
+    NylasEnv.timer.start('open-composer-window');
 
     const title = options.newDraft ? "New Message" : "Message";
     return this.sessionForClientId(draftClientId).then((session) => {
@@ -349,10 +300,43 @@ class DraftStore extends NylasStore {
           title,
           hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
           windowKey: `composer-${draftClientId}`,
-          windowType: "composer-preload",
+          windowType: 'composer-preload',
           windowProps: _.extend(options, {draftClientId, draftJSON}),
         });
       });
+    });
+  }
+
+  _onHandleMailtoLink = (event, urlString) => {
+    // return is just used for specs
+    return DraftFactory.createDraftForMailto(urlString).then((draft) => {
+      return this._finalizeAndPersistNewMessage(draft, {popout: true});
+    }).catch((err) => {
+      NylasEnv.showErrorDialog(err.toString())
+    });
+  }
+
+  _onHandleMailFiles = (event, paths) => {
+    // return is just used for specs
+    return DraftFactory.createDraft().then((draft) => {
+      return this._finalizeAndPersistNewMessage(draft);
+    })
+    .then(({draftClientId}) => {
+      let remaining = paths.length;
+      const callback = () => {
+        remaining -= 1;
+        if (remaining === 0) {
+          this._onPopoutDraftClientId(draftClientId);
+        }
+      };
+
+      paths.forEach((path) => {
+        Actions.addAttachment({
+          filePath: path,
+          messageClientId: draftClientId,
+          onUploadCreated: callback,
+        });
+      })
     });
   }
 
