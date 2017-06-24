@@ -18,9 +18,7 @@ import AutoUpdateManager from './auto-update-manager';
 import SystemTrayManager from './system-tray-manager';
 import DefaultClientHelper from '../default-client-helper';
 import NylasProtocolHandler from './nylas-protocol-handler';
-import PackageMigrationManager from './package-migration-manager';
 import ConfigPersistenceManager from './config-persistence-manager';
-import preventLegacyN1Migration from './prevent-legacy-n1-migration';
 
 let clipboard = null;
 
@@ -67,13 +65,8 @@ export default class Application extends EventEmitter {
     this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
     config.load();
 
-    preventLegacyN1Migration(configDirPath)
-
     this.configMigrator = new ConfigMigrator(this.config, this.databaseReader);
     this.configMigrator.migrate()
-
-    this.packageMigrationManager = new PackageMigrationManager({config, configDirPath, version})
-    this.packageMigrationManager.migrate()
 
     let initializeInBackground = options.background;
     if (initializeInBackground === undefined) {
