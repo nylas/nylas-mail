@@ -296,8 +296,7 @@ export default class ModelQuery {
 
     try {
       return result.map((row) => {
-        const json = JSON.parse(row.data, Utils.registeredObjectReviver)
-        const object = (new this._klass()).fromJSON(json);
+        const object = JSON.parse(row.data, Utils.registeredObjectReviver)
         for (const attrName of Object.keys(this._klass.attributes)) {
           const attr = this._klass.attributes[attrName];
           if (!attr.needsColumn() || !attr.loadFromColumn) {
