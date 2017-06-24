@@ -4,7 +4,7 @@ classNames = require 'classnames'
 {Actions,
  Utils,
  Thread,
- TaskFactory,
+ ChangeLabelsTask,
  CategoryStore,
  FocusedPerspectiveStore,
  AccountStore} = require 'nylas-exports'
@@ -28,14 +28,14 @@ class MailImportantIcon extends React.Component
       perspective = FocusedPerspectiveStore.current()
       for accountId in perspective.accountIds
         account = AccountStore.accountForId(accountId)
-        accountImportant = CategoryStore.getStandardCategory(account, 'important')
+        accountImportant = CategoryStore.getCategoryByRole(account, 'important')
         if accountImportant
           visible = true
         if accountId is props.thread.accountId
           category = accountImportant
         break if visible and category
     else
-      category = CategoryStore.getStandardCategory(props.thread.accountId, 'important')
+      category = CategoryStore.getCategoryByRole(props.thread.accountId, 'important')
       visible = category?
 
     isImportant = category and _.findWhere(props.thread.labels, {id: category.id})?
@@ -82,16 +82,21 @@ class MailImportantIcon extends React.Component
 
     if category
       isImportant = _.findWhere(@props.thread.labels, {id: category.id})?
-      threads = [@props.thread]
-
-      source = "Important Icon"
 
       if !isImportant
-        task = TaskFactory.taskForApplyingCategory({threads, category, source})
+        Actions.queueTask(new ChangeLabelsTask({
+          labelsToAdd: [category],
+          labelsToRemove: [],
+          threads: [@props.thread],
+          source: "Important Icon",
+        }))
       else
-        task = TaskFactory.taskForRemovingCategory({threads, category, source})
-
-      Actions.queueTask(task)
+        Actions.queueTask(new ChangeLabelsTask({
+          labelsToAdd: [],
+          labelsToRemove: [category],
+          threads: [@props.thread],
+          source: "Important Icon",
+        }))
 
     # Don't trigger the thread row click
     event.stopPropagation()

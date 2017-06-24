@@ -16,7 +16,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
     const inbox = new Category({id: "l1", name: "inbox", displayName: "Inbox"})
     const archive = new Category({id: "l2", name: "archive", displayName: "Archive"})
 
-    spyOn(CategoryStore, "getStandardCategory").andReturn(inbox);
+    spyOn(CategoryStore, "getCategoryByRole").andReturn(inbox);
 
     const account = AccountStore.accounts()[0];
 

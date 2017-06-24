@@ -143,9 +143,9 @@ class MessageItem extends React.Component
   _renderFolder: =>
     return [] unless @state.detailedHeaders
     acct = AccountStore.accountForId(@props.message.accountId)
-    acctUsesFolders = acct and acct.usesFolders()
     folder = @props.message.folder
-    return unless folder and acctUsesFolders
+    return unless folder
+    return if folder.role is 'all'
     <div className="header-row">
       <div className="header-label">Folder:&nbsp;</div>
       <div className="header-name">{folder.displayName}</div>

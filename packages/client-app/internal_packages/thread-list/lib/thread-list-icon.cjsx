@@ -4,6 +4,7 @@ React = require 'react'
  Actions,
  Thread,
  ChangeStarredTask,
+ TaskFactory,
  ExtensionRegistry,
  AccountStore} = require 'nylas-exports'
 
@@ -59,7 +60,9 @@ class ThreadListIcon extends React.Component
          onClick={@_onToggleStar}></div>
 
   _onToggleStar: (event) =>
-    Actions.toggleStarredThreads(threads: [@props.thread], source: "Thread List Icon")
+    Actions.queueTask(TaskFactory.taskForInvertingStarred({
+      threads: [@props.thread], source: "Thread List Icon"
+    }))
     # Don't trigger the thread row click
     event.stopPropagation()
 

@@ -101,17 +101,8 @@ export class MarkAsSpamButton extends React.Component {
   }
 
   _onNotSpam = (event) => {
-    const tasks = TaskFactory.tasksForApplyingCategories({
-      source: "Toolbar Button: Thread List",
-      threads: this.props.items,
-      categoriesToAdd: (accountId) => {
-        const account = AccountStore.accountForId(accountId)
-        return account.usesFolders() ? [CategoryStore.getInboxCategory(accountId)] : [];
-      },
-      categoriesToRemove: (accountId) => {
-        return [CategoryStore.getSpamCategory(accountId)];
-      },
-    })
+    // TODO BG REPLACE TASK FACTORY
+    const tasks = TaskFactory.tasksForMarkingNotSpam({source: "Toolbar Button: Thread List", threads: this.props.items})
     Actions.queueTasks(tasks);
     Actions.popSheet();
     event.stopPropagation();
@@ -168,7 +159,9 @@ export class ToggleStarredButton extends React.Component {
   };
 
   _onStar = (event) => {
-    Actions.toggleStarredThreads({threads: this.props.items, source: "Toolbar Button: Thread List"});
+    Actions.queueTask(TaskFactory.taskForInvertingStarred({
+      threads: this.props.items, source: "Toolbar Button: Thread List",
+    }));
     event.stopPropagation();
     return;
   }
@@ -201,7 +194,9 @@ export class ToggleUnreadButton extends React.Component {
   }
 
   _onClick = (event) => {
-    Actions.toggleUnreadThreads({threads: this.props.items, source: "Toolbar Button: Thread List"});
+    Actions.queueTask(TaskFactory.taskForInvertingUnread({
+      threads: this.props.items, source: "Toolbar Button: Thread List",
+    }));
     Actions.popSheet();
     event.stopPropagation();
     return;

@@ -146,7 +146,7 @@ class SidebarItem
 
   @forUnread: (accountIds, opts = {}) ->
     categories = accountIds.map (accId) =>
-      CategoryStore.getStandardCategory(accId, 'inbox')
+      CategoryStore.getCategoryByRole(accId, 'inbox')
 
     # NOTE: It's possible for an account to not yet have an `inbox`
     # category. Since the `SidebarStore` triggers on `AccountStore`

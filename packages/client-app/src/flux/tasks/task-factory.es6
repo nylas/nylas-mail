@@ -3,38 +3,34 @@ import ChangeFolderTask from './change-folder-task'
 import ChangeLabelsTask from './change-labels-task'
 import ChangeUnreadTask from './change-unread-task'
 import ChangeStarredTask from './change-starred-task'
-import AccountStore from '../stores/account-store'
 import CategoryStore from '../stores/category-store'
 import Thread from '../models/thread'
 import Category from '../models/category'
+import Label from '../models/label';
 
+function threadsByAccount(threads) {
+  const byAccount = {}
+  threads.forEach((thread) => {
+    if (!(thread instanceof Thread)) {
+      throw new Error("tasksForApplyingCategories: `threads` must be instances of Thread")
+    }
+    const {accountId} = thread;
+    if (!byAccount[accountId]) {
+      byAccount[accountId] = {accountThreads: [], accountId: accountId};
+    }
+    byAccount[accountId].accountThreads.push(thread)
+  })
+  return Object.values(byAccount);
+}
 
 const TaskFactory = {
-
   tasksForApplyingCategories({threads, categoriesToRemove, categoriesToAdd, taskDescription, source}) {
-    const byAccount = {}
-    const tasks = []
+    const tasks = [];
 
-    threads.forEach((thread) => {
-      if (!(thread instanceof Thread)) {
-        throw new Error("tasksForApplyingCategories: `threads` must be instances of Thread")
-      }
-      const {accountId} = thread
-      if (!byAccount[accountId]) {
-        byAccount[accountId] = {
-          categoriesToRemove: categoriesToRemove ? categoriesToRemove(accountId) : [],
-          categoriesToAdd: categoriesToAdd ? categoriesToAdd(accountId) : [],
-          threadsToUpdate: [],
-        }
-      }
-      byAccount[accountId].threadsToUpdate.push(thread)
-    })
+    threadsByAccount(threads).forEach(({accountThreads, accountId}) => {
+      const catsToAdd = categoriesToAdd ? categoriesToAdd(accountId) : [];
+      const catsToRemove = categoriesToRemove ? categoriesToRemove(accountId) : [];
 
-    _.each(byAccount, (data, accountId) => {
-      const catsToAdd = data.categoriesToAdd;
-      const catsToRemove = data.categoriesToRemove;
-      const threadsToUpdate = data.threadsToUpdate;
-      const account = AccountStore.accountForId(accountId);
       if (!(catsToAdd instanceof Array)) {
         throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return an array of Categories")
       }
@@ -42,8 +38,24 @@ const TaskFactory = {
         throw new Error("tasksForApplyingCategories: `categoriesToRemove` must return an array of Categories")
       }
 
-      if (account.usesFolders()) {
-        if (catsToAdd.length === 0) return;
+      const usingLabels = [].concat(catsToAdd, catsToRemove).pop() instanceof Label;
+
+      if (usingLabels) {
+        if (catsToAdd.length === 0 && catsToRemove.length === 0) {
+          return;
+        }
+
+        tasks.push(new ChangeLabelsTask({
+          source,
+          threads: accountThreads,
+          labelsToRemove: catsToRemove,
+          labelsToAdd: catsToAdd,
+          taskDescription,
+        }))
+      } else {
+        if (catsToAdd.length === 0) {
+          return;
+        }
         if (catsToAdd.length > 1) {
           throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a single `Category` (folder) for Exchange accounts")
         }
@@ -55,81 +67,69 @@ const TaskFactory = {
         tasks.push(new ChangeFolderTask({
           folder,
           source,
-          threads: threadsToUpdate,
+          threads: accountThreads,
           taskDescription,
-        }))
-      } else {
-        const labelsToAdd = catsToAdd
-        const labelsToRemove = catsToRemove
-        if (labelsToAdd.length === 0 && labelsToRemove.length === 0) return;
-
-        tasks.push(new ChangeLabelsTask({
-          source,
-          threads: threadsToUpdate,
-          labelsToRemove,
-          labelsToAdd,
-          taskDescription,
-        }))
+        }));
       }
     })
 
     return tasks;
   },
 
-  taskForApplyingCategory({threads, category, source}) {
-    const tasks = TaskFactory.tasksForApplyingCategories({
-      source,
-      threads,
-      categoriesToAdd: () => [category],
-    })
-
-    if (tasks.length > 1) {
-      throw new Error("taskForApplyingCategory: Threads must be from the same account.")
-    }
-
-    return tasks[0];
-  },
-
-  taskForRemovingCategory({threads, category, source}) {
-    const tasks = TaskFactory.tasksForApplyingCategories({
-      source,
-      threads,
-      categoriesToRemove: () => [category],
-    })
-
-    if (tasks.length > 1) {
-      throw new Error("taskForRemovingCategory: Threads must be from the same account.")
-    }
-
-    return tasks[0];
-  },
-
   tasksForMarkingAsSpam({threads, source}) {
-    return TaskFactory.tasksForApplyingCategories({
-      source,
-      threads,
-      categoriesToAdd: (accountId) => [CategoryStore.getSpamCategory(accountId)],
-      categoriesToRemove: (accountId) => [CategoryStore.getInboxCategory(accountId)],
+    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+      return new ChangeFolderTask({
+        folder: CategoryStore.getSpamCategory(accountId),
+        threads: accountThreads,
+        source,
+      });
     })
+  },
+
+  tasksForMarkingNotSpam({threads, source}) {
+    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+      const inbox = CategoryStore.getInboxCategory(accountId);
+      if (inbox instanceof Label) {
+        return new ChangeFolderTask({
+          folder: CategoryStore.getAllMailCategory(accountId),
+          threads: accountThreads,
+          source,
+        });
+      }
+      return new ChangeFolderTask({
+        folder: inbox,
+        threads: accountThreads,
+        source,
+      });
+    });
   },
 
   tasksForArchiving({threads, source}) {
-    return TaskFactory.tasksForApplyingCategories({
-      source,
-      threads,
-      categoriesToRemove: (accountId) => [
-        CategoryStore.getInboxCategory(accountId),
-      ],
-      categoriesToAdd: (accountId) => [CategoryStore.getArchiveCategory(accountId)],
-    })
+    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+      const inbox = CategoryStore.getInboxCategory(accountId);
+      if (inbox instanceof Label) {
+        return new ChangeLabelsTask({
+          labelsToRemove: [inbox],
+          labelsToAdd: [],
+          threads: accountThreads,
+          source,
+        });
+      }
+      return new ChangeFolderTask({
+        folder: CategoryStore.getArchiveCategory(accountId),
+        threads: accountThreads,
+        source,
+      });
+    });
   },
 
   tasksForMovingToTrash({threads, source}) {
-    return TaskFactory.tasksForApplyingCategories({
-      source,
-      threads,
-      categoriesToAdd: (accountId) => [CategoryStore.getTrashCategory(accountId)],
-      categoriesToRemove: (accountId) => [CategoryStore.getInboxCategory(accountId)],
+    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+      return new ChangeFolderTask({
+        folder: CategoryStore.getTrashCategory(accountId),
+        threads: accountThreads,
+        source,
+      });
     })
   },
 

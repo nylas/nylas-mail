@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require "react"
 ReactDOM = require 'react-dom'
 ReactTestUtils = require 'react-addons-test-utils'
-CategoryPickerPopover = require('../lib/category-picker-popover').default
+MovePickerPopover = require('../lib/move-picker-popover').default
 
 {Utils,
  Category,
@@ -20,7 +20,7 @@ CategoryPickerPopover = require('../lib/category-picker-popover').default
 
 {Categories} = require 'nylas-observables'
 
-xdescribe 'CategoryPickerPopover', ->
+describe 'MovePickerPopover', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
@@ -43,7 +43,7 @@ xdescribe 'CategoryPickerPopover', ->
     observable.sort = => observable
 
     spyOn(Categories, "forAccount").andReturn observable
-    spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
+    spyOn(CategoryStore, "getCategoryByRole").andReturn @inboxCategory
     spyOn(AccountStore, "accountForItems").andReturn @account
     spyOn(Actions, "closePopover")
 
@@ -57,7 +57,7 @@ xdescribe 'CategoryPickerPopover', ->
 
     @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
     @picker = ReactTestUtils.renderIntoDocument(
-      <CategoryPickerPopover threads={[@testThread]} account={@account} />
+      <MovePickerPopover threads={[@testThread]} account={@account} />
     )
 
   describe 'when using labels', ->
@@ -70,7 +70,7 @@ xdescribe 'CategoryPickerPopover', ->
 
       @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
       @picker = ReactTestUtils.renderIntoDocument(
-        <CategoryPickerPopover threads={[@testThread]} account={@account} />
+        <MovePickerPopover threads={[@testThread]} account={@account} />
       )
 
     it 'lists the desired categories', ->
@@ -112,21 +112,11 @@ xdescribe 'CategoryPickerPopover', ->
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new-folder').length
       expect(count).toBe 1
 
-  describe "'create new' item with labels", ->
-    beforeEach ->
-      setupForCreateNew.call @, "label"
-
-    it "shows label icon if we're using gmail", ->
-      inputNode = ReactDOM.findDOMNode(ReactTestUtils.scryRenderedDOMComponentsWithTag(@picker, "input")[0])
-      ReactTestUtils.Simulate.change inputNode, target: { value: "calendar" }
-      count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new-tag').length
-      expect(count).toBe 1
-
   describe "_onSelectCategory", ->
     beforeEach ->
       setupForCreateNew.call @, "folder"
       spyOn(TaskFactory, 'taskForRemovingCategory').andCallThrough()
-      spyOn(TaskFactory, 'taskForApplyingCategory').andCallThrough()
+      spyOn(TaskFactory, 'tasK').andCallThrough()
       spyOn(Actions, "queueTask")
 
     it "closes the popover", ->

@@ -39,7 +39,7 @@ class MailboxPerspective
 
   @forStandardCategories: (accountsOrIds, names...) ->
     # TODO this method is broken
-    categories = CategoryStore.getStandardCategories(accountsOrIds, names...)
+    categories = CategoryStore.getCategoriesWithRoles(accountsOrIds, names...)
     @forCategories(categories)
 
   @forStarred: (accountsOrIds) ->
@@ -158,7 +158,7 @@ class MailboxPerspective
   canMoveThreadsTo: (threads, standardCategoryName) =>
     return false if @categoriesSharedName() is standardCategoryName
     return _.every AccountStore.accountsForItems(threads), (acc) ->
-      CategoryStore.getStandardCategory(acc, standardCategoryName)?
+      CategoryStore.getCategoryByRole(acc, standardCategoryName)?
 
   tasksForRemovingItems: (threads) =>
     if not threads instanceof Array

@@ -4,6 +4,7 @@ Message = require("../models/message").default
 Thread = require("../models/thread").default
 Utils = require '../models/utils'
 DatabaseStore = require("./database-store").default
+TaskFactory = require("../tasks/task-factory").default
 FocusedPerspectiveStore = require('./focused-perspective-store').default
 FocusedContentStore = require "./focused-content-store"
 NylasAPIHelpers = require '../nylas-api-helpers'
@@ -198,12 +199,12 @@ class MessageStore extends NylasStore
 
       setTimeout =>
         return unless markAsReadId is @_thread?.id and @_thread.unread
-        Actions.setUnreadThreads({
+        Actions.queueTask(TaskFactory.taskForInvertingUnread({
           threads: [@_thread],
           source: "Thread Selected",
           canBeUndone: false,
           unread: false,
-        })
+        }))
       , markAsReadDelay
 
   _onToggleAllMessagesExpanded: =>

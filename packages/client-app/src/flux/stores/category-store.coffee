@@ -3,7 +3,7 @@ Rx = require 'rx-lite'
 NylasStore = require 'nylas-store'
 AccountStore = require('./account-store').default
 Account = require('../models/account').default
-{StandardCategoryNames} = require('../models/category').default
+{StandardRoles} = require('../models/category').default
 {Categories} = require 'nylas-observables'
 
 asAccount = (a) ->
@@ -67,25 +67,25 @@ class CategoryStore extends NylasStore
   # ('inbox', 'drafts', etc.) It's possible for this to return `null`.
   # For example, Gmail likely doesn't have an `archive` label.
   #
-  getStandardCategory: (accountOrId, name) =>
+  getCategoryByRole: (accountOrId, role) =>
     return null unless accountOrId
 
-    unless name in StandardCategoryNames
-      throw new Error("'#{name}' is not a standard category")
+    unless role in StandardRoles
+      throw new Error("'#{role}' is not a standard category")
 
-    return _.findWhere(@_standardCategories[asAccountId(accountOrId)], {name})
+    return _.findWhere(@_standardCategories[asAccountId(accountOrId)], {role})
 
   # Public: Returns the set of all standard categories that match the given
   # names for each of the provided accounts
-  getStandardCategories: (accountsOrIds, names...) =>
+  getCategoriesWithRoles: (accountsOrIds, names...) =>
     if Array.isArray(accountsOrIds)
       res = []
       for accOrId in accountsOrIds
-        cats = names.map((name) => @getStandardCategory(accOrId, name))
+        cats = names.map((name) => @getCategoryByRole(accOrId, name))
         res = res.concat(_.compact(cats))
       res
     else
-      _.compact(names.map((name) => @getStandardCategory(accountsOrIds, name)))
+      _.compact(names.map((name) => @getCategoryByRole(accountsOrIds, name)))
 
   # Public: Returns the Folder or Label object that should be used for "Archive"
   # actions. On Gmail, this is the "all" label. On providers using folders, it
@@ -96,10 +96,7 @@ class CategoryStore extends NylasStore
     account = asAccount(accountOrId)
     return null unless account
 
-    if account.usesFolders()
-      return @getStandardCategory(account.id, "archive")
-    else
-      return @getStandardCategory(account.id, "all")
+    return @getCategoryByRole(account.id, "archive") || @getCategoryByRole(account.id, "all")
 
   # Public: Returns Label object for "All mail"
   #
@@ -107,27 +104,26 @@ class CategoryStore extends NylasStore
     return null unless accountOrId
     account = asAccount(accountOrId)
     return null unless account
-    return null unless account.usesLabels()
 
-    return @getStandardCategory(account.id, "all")
+    return @getCategoryByRole(account.id, "all")
 
   # Public: Returns the Folder or Label object that should be used for
   # the inbox or null if it doesn't exist
   #
   getInboxCategory: (accountOrId) =>
-    @getStandardCategory(accountOrId, "inbox")
+    @getCategoryByRole(accountOrId, "inbox")
 
   # Public: Returns the Folder or Label object that should be used for
   # "Move to Trash", or null if no trash folder exists.
   #
   getTrashCategory: (accountOrId) =>
-    @getStandardCategory(accountOrId, "trash")
+    @getCategoryByRole(accountOrId, "trash")
 
   # Public: Returns the Folder or Label object that should be used for
   # "Move to Spam", or null if no trash folder exists.
   #
   getSpamCategory: (accountOrId) =>
-    @getStandardCategory(accountOrId, "spam")
+    @getCategoryByRole(accountOrId, "spam")
 
   _onCategoriesChanged: (categories) =>
     @_categoryResult = categories
@@ -151,7 +147,7 @@ class CategoryStore extends NylasStore
     # Ensure standard categories are always sorted in the correct order
     for accountId, items of @_standardCategories
       @_standardCategories[accountId].sort (a, b) ->
-        StandardCategoryNames.indexOf(a.name) - StandardCategoryNames.indexOf(b.name)
+        StandardRoles.indexOf(a.name) - StandardRoles.indexOf(b.name)
 
     @trigger()
 

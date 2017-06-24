@@ -30,8 +30,8 @@ describe "ThreadToolbarButtons", ->
   beforeEach ->
     spyOn Actions, "queueTask"
     spyOn Actions, "queueTasks"
-    spyOn Actions, "toggleStarredThreads"
-    spyOn Actions, "toggleUnreadThreads"
+    spyOn TaskFactory, "taskForInvertingStarred"
+    spyOn TaskFactory, "taskForInvertingUnread"
 
   describe "Starring", ->
     it "stars a thread if the star button is clicked and thread is unstarred", ->
@@ -39,14 +39,14 @@ describe "ThreadToolbarButtons", ->
 
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(starButton)
 
-      expect(Actions.toggleStarredThreads.mostRecentCall.args[0].threads).toEqual([test_thread])
+      expect(TaskFactory.taskForInvertingStarred.mostRecentCall.args[0].threads).toEqual([test_thread])
 
     it "unstars a thread if the star button is clicked and thread is starred", ->
       starButton = ReactTestUtils.renderIntoDocument(<ToggleStarredButton items={[test_thread_starred]}/>)
 
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(starButton)
 
-      expect(Actions.toggleStarredThreads.mostRecentCall.args[0].threads).toEqual([test_thread_starred])
+      expect(TaskFactory.taskForInvertingStarred.mostRecentCall.args[0].threads).toEqual([test_thread_starred])
 
   describe "Marking as unread", ->
     thread = null
@@ -60,7 +60,7 @@ describe "ThreadToolbarButtons", ->
 
     it "queues a task to change unread status to true", ->
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(markUnreadBtn).childNodes[0]
-      expect(Actions.toggleUnreadThreads.mostRecentCall.args[0].threads).toEqual([thread])
+      expect(Actions.queueTask.mostRecentCall.args[0].threads).toEqual([thread])
 
     it "returns to the thread list", ->
       spyOn Actions, "popSheet"

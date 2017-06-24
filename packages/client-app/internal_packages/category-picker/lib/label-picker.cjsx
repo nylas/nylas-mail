@@ -9,12 +9,12 @@ ReactDOM = require 'react-dom'
 {RetinaImg,
  KeyCommandsRegion} = require 'nylas-component-kit'
 
-CategoryPickerPopover = require('./category-picker-popover').default
+LabelPickerPopover = require('./label-picker-popover').default
 
 
 # This changes the category on one or more threads.
-class CategoryPicker extends React.Component
-  @displayName: "CategoryPicker"
+class LabelPicker extends React.Component
+  @displayName: "LabelPicker"
 
   @containerRequired: false
 
@@ -41,7 +41,7 @@ class CategoryPicker extends React.Component
     return unless @context.sheetDepth is WorkspaceStore.sheetStack().length - 1
     buttonRect = ReactDOM.findDOMNode(@refs.button).getBoundingClientRect()
     Actions.openPopover(
-      <CategoryPickerPopover
+      <LabelPickerPopover
         threads={@props.items}
         account={@_account} />,
       {originRect: buttonRect, direction: 'down'}
@@ -51,14 +51,6 @@ class CategoryPicker extends React.Component
   render: =>
     return <span /> unless @_account
     btnClasses = "btn btn-toolbar btn-category-picker"
-    img = ""
-    tooltip = ""
-    if @_account.usesLabels()
-      img = "toolbar-tag.png"
-      tooltip = "Apply Labels"
-    else
-      img = "toolbar-movetofolder.png"
-      tooltip = "Move to Folder"
 
     return (
       <KeyCommandsRegion
@@ -67,20 +59,20 @@ class CategoryPicker extends React.Component
         globalMenuItems={[
           {
             "label": "Thread",
-            "submenu": [{ "label": "#{tooltip}...", "command": "core:change-category", "position": "endof=thread-actions" }]
+            "submenu": [{ "label": "Apply Labels...", "command": "core:change-category", "position": "endof=thread-actions" }]
           }
         ]}
         >
         <button
           tabIndex={-1}
           ref="button"
-          title={tooltip}
+          title={"Apply Labels"}
           onClick={@_onOpenCategoryPopover}
           className={btnClasses} >
-          <RetinaImg name={img} mode={RetinaImg.Mode.ContentIsMask}/>
+          <RetinaImg name={"toolbar-tag.png"} mode={RetinaImg.Mode.ContentIsMask}/>
         </button>
       </KeyCommandsRegion>
     )
 
 
-module.exports = CategoryPicker
+module.exports = LabelPicker

@@ -19,7 +19,7 @@ describe "FocusedPerspectiveStore", ->
     @userCategory = new Category(id: 'id-456', name: null, displayName: "MyCategory", accountId: @account.id)
     @userPerspective = MailboxPerspective.forCategory(@userCategory)
 
-    spyOn(CategoryStore, "getStandardCategory").andReturn @inboxCategory
+    spyOn(CategoryStore, "getCategoryByRole").andReturn @inboxCategory
     spyOn(CategoryStore, "byId").andCallFake (aid, cid) =>
       return {id: 'A'} if aid is 1 and cid is 'A'
       return @inboxCategory if cid is @inboxCategory.id

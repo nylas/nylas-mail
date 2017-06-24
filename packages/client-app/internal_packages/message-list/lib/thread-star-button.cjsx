@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions, Utils} = require 'nylas-exports'
+{Actions, TaskFactory, Utils} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class StarButton extends React.Component
@@ -19,10 +19,10 @@ class StarButton extends React.Component
     </button>
 
   _onStarToggle: (e) =>
-    Actions.toggleStarredThreads({
+    Actions.queueTask(TaskFactory.taskForInvertingStarred({
       source: "Toolbar Button: Message List",
       threads: [@props.thread]
-    })
+    }))
     e.stopPropagation()
 
 

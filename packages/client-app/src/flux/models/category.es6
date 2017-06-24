@@ -103,7 +103,7 @@ export default class Category extends Model {
     Hidden: 'hidden',
   }
 
-  static StandardCategoryNames = Object.keys(StandardCategories)
+  static StandardRoles = Object.keys(StandardCategories)
   static LockedCategoryNames = Object.keys(LockedCategories)
   static HiddenCategoryNames = Object.keys(HiddenCategories)
 

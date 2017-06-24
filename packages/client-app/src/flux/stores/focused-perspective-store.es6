@@ -130,7 +130,7 @@ class FocusedPerspectiveStore extends NylasStore {
   _onEnsureCategoryIsFocused = (categoryName, accountIds = []) => {
     const ids = accountIds instanceof Array ? accountIds : [accountIds]
     const categories = ids.map((id) => (
-      CategoryStore.getStandardCategory(id, categoryName)
+      CategoryStore.getCategoryByRole(id, categoryName)
     ))
     const perspective = MailboxPerspective.forCategories(categories)
     this._onFocusPerspective(perspective)
@@ -185,7 +185,7 @@ class FocusedPerspectiveStore extends NylasStore {
 
   _setPerspectiveByName(categoryName) {
     let categories = this._current.accountIds.map((id) => {
-      return CategoryStore.getStandardCategory(id, categoryName);
+      return CategoryStore.getCategoryByRole(id, categoryName);
     });
     categories = _.compact(categories);
     if (categories.length === 0) { return; }

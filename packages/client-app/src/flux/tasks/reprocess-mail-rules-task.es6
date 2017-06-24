@@ -41,7 +41,7 @@ export default class ReprocessMailRulesTask extends Task {
   }
 
   _processSomeMessages = (callback) => {
-    const inboxCategory = CategoryStore.getStandardCategory(this.accountId, 'inbox');
+    const inboxCategory = CategoryStore.getCategoryByRole(this.accountId, 'inbox');
     if (!inboxCategory) {
       return callback(new Error("ReprocessMailRulesTask: No inbox category found."));
     }

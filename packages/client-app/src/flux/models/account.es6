@@ -22,10 +22,6 @@ let Contact = null
  * `emailAddress`: {AttributeString} The Account's email address
  * (ie: `ben@nylas.com`). Queryable.
  *
- * `organizationUnit`: {AttributeString} Either "label" or "folder".
- * Depending on the provider, the account may be organized by folders or
- * labels.
- *
  * This class also inherits attributes from {Model}
  *
  * Section: Models
@@ -55,11 +51,6 @@ export default class Account extends ModelWithMetadata {
       queryable: true,
       modelKey: 'emailAddress',
       jsonKey: 'email_address',
-    }),
-
-    organizationUnit: Attributes.String({
-      modelKey: 'organizationUnit',
-      jsonKey: 'organization_unit',
     }),
 
     label: Attributes.String({
@@ -133,21 +124,8 @@ export default class Account extends ModelWithMetadata {
     return this.me()
   }
 
-  usesLabels() {
-    return this.organizationUnit === "label"
-  }
-
-  usesFolders() {
-    return this.organizationUnit === "folder"
-  }
-
   categoryLabel() {
-    if (this.usesFolders()) {
-      return 'Folders'
-    } else if (this.usesLabels()) {
-      return 'Labels'
-    }
-    return 'Unknown'
+    return 'Unknown';
   }
 
   categoryCollection() {
@@ -155,12 +133,7 @@ export default class Account extends ModelWithMetadata {
   }
 
   categoryIcon() {
-    if (this.usesFolders()) {
-      return 'folder.png'
-    } else if (this.usesLabels()) {
-      return 'tag.png'
-    }
-    return 'folder.png'
+    return 'bla.png'
   }
 
   // Public: Returns the localized, properly capitalized provider name,

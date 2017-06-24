@@ -45,7 +45,7 @@ class ThreadList extends React.Component
       syncing: false
 
   componentDidMount: =>
-    @unsub = NylasSyncStatusStore.listen( => @setState
+    @unsub = FolderSyncProgressStore.listen( => @setState
       syncing: FocusedPerspectiveStore.current().hasSyncingCategories()
     )
     window.addEventListener('resize', @_onResize, true)
@@ -125,15 +125,9 @@ class ThreadList extends React.Component
           onDoubleClick={(thread) -> Actions.popoutThread(thread)}
           onDragStart={@_onDragStart}
           onDragEnd={@_onDragEnd}
-          onComponentDidUpdate={@_onThreadListDidUpdate}
         />
       </FocusContainer>
     </FluxContainer>
-
-  _onThreadListDidUpdate: =>
-    dataSource = ThreadListStore.dataSource()
-    threads = dataSource.itemsCurrentlyInView()
-    Actions.threadListDidUpdate(threads)
 
   _threadPropsProvider: (item) ->
     classes = classnames({
@@ -264,7 +258,9 @@ class ThreadList extends React.Component
   _onStarItem: =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    Actions.toggleStarredThreads({threads, source: "Keyboard Shortcut"})
+    Actions.queueTask(TaskFactory.taskForInvertingStarred({
+      threads, source: "Keyboard Shortcut",
+    }))
 
   _onSnoozeItem: =>
     disabledPackages = NylasEnv.config.get('core.disabledPackages') ? []
@@ -296,14 +292,14 @@ class ThreadList extends React.Component
         threads: threads
         categoriesToRemove: (accountId) -> []
         categoriesToAdd: (accountId) ->
-          [CategoryStore.getStandardCategory(accountId, 'important')]
+          [CategoryStore.getCategoryByRole(accountId, 'important')]
 
     else
       tasks = TaskFactory.tasksForApplyingCategories
         source: "Keyboard Shortcut"
         threads: threads
         categoriesToRemove: (accountId) ->
-          important = CategoryStore.getStandardCategory(accountId, 'important')
+          important = CategoryStore.getCategoryByRole(accountId, 'important')
           return [important] if important
           return []
 
@@ -312,7 +308,7 @@ class ThreadList extends React.Component
   _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    Actions.setUnreadThreads({threads, unread, source: "Keyboard Shortcut"})
+    Actions.queueTask(TaskFactory.taskForInvertingUnread({threads, unread, source: "Keyboard Shortcut"}))
     Actions.popSheet()
 
   _onMarkAsSpam: =>

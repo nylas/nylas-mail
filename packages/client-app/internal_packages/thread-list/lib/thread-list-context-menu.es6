@@ -29,9 +29,6 @@ export default class ThreadListContextMenu {
         this.trashItem(),
         this.markAsReadItem(),
         this.starItem(),
-        // this.moveToOrLabelItem(),
-        // {type: 'separator'},
-        // this.extensionItems(),
       ])
     }).then((menuItems) => {
       return _.filter(_.compact(menuItems), (item, index) => {
@@ -139,10 +136,10 @@ export default class ThreadListContextMenu {
     return {
       label: `Mark as ${dir}`,
       click: () => {
-        Actions.toggleUnreadThreads({
+        Actions.queueTask(TaskFactory.taskForInvertingUnread({
           source: "Context Menu: Thread List",
           threads: this.threads,
-        })
+        }));
       },
     }
   }
@@ -163,10 +160,10 @@ export default class ThreadListContextMenu {
     return {
       label: `${dir}${star}`,
       click: () => {
-        Actions.toggleStarredThreads({
+        Actions.queueTask(TaskFactory.taskForInvertingStarred({
           source: "Context Menu: Thread List",
           threads: this.threads,
-        })
+        }));
       },
     }
   }

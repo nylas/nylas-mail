@@ -82,7 +82,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
         {id: 'a'},
         {id: 'b'},
       ]
-      spyOn(CategoryStore, 'getStandardCategory').andReturn(null)
+      spyOn(CategoryStore, 'getCategoryByRole').andReturn(null)
       spyOn(AccountStore, 'accountsForItems').andReturn(accounts)
       spyOn(this.perspective, 'categoriesSharedName').andReturn('inbox')
       expect(this.perspective.canMoveThreadsTo([], 'trash')).toBe(false)
@@ -94,7 +94,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
         {id: 'b'},
       ]
       const category = {id: 'cat'};
-      spyOn(CategoryStore, 'getStandardCategory').andReturn(category)
+      spyOn(CategoryStore, 'getCategoryByRole').andReturn(category)
       spyOn(AccountStore, 'accountsForItems').andReturn(accounts)
       spyOn(this.perspective, 'categoriesSharedName').andReturn('inbox')
       expect(this.perspective.canMoveThreadsTo([], 'trash')).toBe(true)

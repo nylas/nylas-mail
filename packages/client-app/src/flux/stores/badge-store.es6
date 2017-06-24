@@ -37,7 +37,7 @@ class BadgeStore extends NylasStore {
     let total = 0;
 
     const accountIds = FocusedPerspectiveStore.current().accountIds;
-    for (const cat of CategoryStore.getStandardCategories(accountIds, 'inbox')) {
+    for (const cat of CategoryStore.getCategoriesWithRoles(accountIds, 'inbox')) {
       unread += ThreadCountsStore.unreadCountForCategoryId(cat.id)
       total += ThreadCountsStore.totalCountForCategoryId(cat.id)
     }

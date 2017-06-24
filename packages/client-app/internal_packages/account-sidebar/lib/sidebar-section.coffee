@@ -76,13 +76,13 @@ class SidebarSection
 
     for names in standardNames
       names = if Array.isArray(names) then names else [names]
-      categories = CategoryStore.getStandardCategories(accounts, names...)
+      categories = CategoryStore.getCategoriesWithRoles(accounts, names...)
       continue if categories.length is 0
 
       children = []
       accounts.forEach (acc) ->
         cat = _.first(_.compact(
-          names.map((name) -> CategoryStore.getStandardCategory(acc, name))
+          names.map((name) -> CategoryStore.getCategoryByRole(acc, name))
         ))
         return unless cat
         children.push(SidebarItem.forCategories([cat], name: acc.label, editable: false, deletable: false))
