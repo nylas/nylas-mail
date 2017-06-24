@@ -5,8 +5,6 @@ EmailFrame = require('./email-frame').default
 {
   DraftHelpers,
   CanvasUtils,
-  NylasAPI,
-  NylasAPIRequest,
   MessageUtils,
   MessageBodyProcessor,
   QuotedHTMLTransformer,

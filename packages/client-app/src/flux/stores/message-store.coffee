@@ -141,7 +141,7 @@ class MessageStore extends NylasStore
       @_fetchFromCache()
 
     if change.objectClass is Thread.name
-      updatedThread = _.find change.objects, (obj) => obj.id is @_thread.id
+      updatedThread = change.objects.find((t) => t.id is @_thread.id)
       if updatedThread
         @_thread = updatedThread
         @_fetchFromCache()
@@ -251,18 +251,13 @@ class MessageStore extends NylasStore
       # loading items for. Necessary because this takes a while.
       return unless loadedThreadId is @_thread?.id
 
-      loaded = true
-
       @_items = items.filter((m) => !m.isHidden())
       @_items = @_sortItemsForDisplay(@_items)
 
-      # If no items were returned, attempt to load messages via the API. If items
-      # are returned, this will trigger a refresh here.
-      if @_items.length is 0
-        @_fetchMessages()
-        loaded = false
-
       @_expandItemsToDefault()
+
+      if @_itemsLoading
+        @_fetchMissingBodies(@_items)
 
       # Download the attachments on expanded messages.
       @_fetchExpandedAttachments(@_items)
@@ -272,10 +267,14 @@ class MessageStore extends NylasStore
       # know we're not ready, don't even bother.  Trigger once at start
       # and once when ready. Many third-party stores will observe
       # MessageStore and they'll be stupid and re-render constantly.
-      if loaded
-        @_itemsLoading = false
-        @_markAsRead()
-        @trigger(@)
+      @_itemsLoading = false
+      @_markAsRead()
+      @trigger(@)
+
+  _fetchMissingBodies: (items) ->
+    missingIds = items.filter((i) -> i.body == null).map((i) -> i.id)
+    if missingIds.length > 0
+      NylasEnv.actionBridgeCpp.onTellClients({type: 'need-bodies', ids: missingIds})
 
   _fetchExpandedAttachments: (items) ->
     policy = NylasEnv.config.get('core.attachments.downloadPolicy')
@@ -292,9 +291,6 @@ class MessageStore extends NylasStore
     for item, idx in visibleItems
       if item.unread or item.draft or idx is visibleItems.length - 1
         @_itemsExpanded[item.id] = "default"
-
-  _fetchMessages: ->
-    NylasAPIHelpers.getCollection(@_thread.accountId, 'messages', {thread_id: @_thread.id})
 
   _sortItemsForDisplay: (items) ->
     # Re-sort items in the list so that drafts appear after the message that

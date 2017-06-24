@@ -1,10 +1,7 @@
 import Task from './task';
 import Event from '../models/event';
-import {APIError} from '../errors';
 import Utils from '../models/utils';
 import DatabaseStore from '../stores/database-store';
-import NylasAPI from '../nylas-api';
-import NylasAPIRequest from '../nylas-api-request';
 
 
 export default class EventRSVPTask extends Task {
