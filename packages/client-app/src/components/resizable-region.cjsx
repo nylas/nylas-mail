@@ -3,8 +3,7 @@ ReactDOM = require 'react-dom'
 _ = require 'underscore'
 {Utils,
  Actions,
- ComponentRegistry,
- PriorityUICoordinator} = require "nylas-exports"
+ ComponentRegistry} = require "nylas-exports"
 
 ResizableHandle =
   Top:
@@ -118,10 +117,6 @@ class ResizableRegion extends React.Component
     if nextProps.handle.axis is 'horizontal' and nextProps.initialWidth != @props.initialWidth
       @setState(width: nextProps.initialWidth)
 
-  componentWillUnmount: =>
-    PriorityUICoordinator.endPriorityTask(@_taskId) if @_taskId
-    @_taskId = null
-
   _mouseDown: (event) =>
     return if event.button != 0
     bcr = ReactDOM.findDOMNode(@).getBoundingClientRect()
@@ -131,9 +126,6 @@ class ResizableRegion extends React.Component
     event.stopPropagation()
     event.preventDefault()
 
-    PriorityUICoordinator.endPriorityTask(@_taskId) if @_taskId
-    @_taskId = PriorityUICoordinator.beginPriorityTask()
-
   _mouseUp: (event) =>
     return if event.button != 0
     @setState
@@ -141,9 +133,6 @@ class ResizableRegion extends React.Component
     @props.onResize(@state.height ? @state.width) if @props.onResize
     event.stopPropagation()
     event.preventDefault()
-
-    PriorityUICoordinator.endPriorityTask(@_taskId)
-    @_taskId = null
 
   _mouseMove: (event) =>
     return if !@state.dragging

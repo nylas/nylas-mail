@@ -187,7 +187,6 @@ lazyLoadWithGetter(`ReactTestUtils`, () => require('react-addons-test-utils'));
 
 // React Components
 lazyLoad(`ComponentRegistry`, 'registries/component-registry');
-lazyLoad(`PriorityUICoordinator`, 'priority-ui-coordinator');
 
 // Utils
 lazyLoad(`Utils`, 'flux/models/utils');
