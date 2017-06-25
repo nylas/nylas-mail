@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import moment from 'moment'
 import React from 'react'
-import ReactTestUtils from 'react-addons-test-utils'
+import ReactTestUtils from 'react-dom/test-utils'
 import {NylasCalendar} from 'nylas-component-kit'
 
 import {

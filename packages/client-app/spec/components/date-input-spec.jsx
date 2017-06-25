@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {
   Simulate,
   findRenderedDOMComponentWithClass,
-} from 'react-addons-test-utils';
+} from 'react-dom/test-utils';
 
 import {DateUtils} from 'nylas-exports'
 import DateInput from '../../src/components/date-input';

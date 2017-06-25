@@ -1,5 +1,5 @@
 import {React, ReactDOM} from 'nylas-exports';
-const ReactTestUtils = require('react-addons-test-utils')
+const ReactTestUtils = require('react-dom/test-utils')
 
 import MyComposerButton from '../lib/my-composer-button';
 

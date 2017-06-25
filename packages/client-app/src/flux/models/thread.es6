@@ -182,16 +182,11 @@ class Thread extends ModelWithMetadata {
   fromJSON(json) {
     super.fromJSON(json)
 
-    ['participants'].forEach((attr) => {
-      const value = this[attr]
-      if (!(value && value instanceof Array)) {
-        return;
-      }
-      value.forEach((item) => {
+    if (this.participants && this.participants instanceof Array) {
+      this.participants.forEach((item) => {
         item.accountId = this.accountId
       })
-    })
-
+    }
     return this
   }
 

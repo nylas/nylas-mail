@@ -6,7 +6,7 @@ _ = require "underscore"
 fs = require 'fs'
 React = require "react"
 ReactDOM = require 'react-dom'
-ReactTestUtils = require('react-addons-test-utils')
+ReactTestUtils = require('react-dom/test-utils')
 Contenteditable = require "../../src/components/contenteditable/contenteditable",
 
 describe "Contenteditable", ->

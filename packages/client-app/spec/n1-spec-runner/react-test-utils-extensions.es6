@@ -1,7 +1,7 @@
 /* eslint react/no-render-return-value: 0 */
 import _ from 'underscore';
 import ReactDOM from "react-dom";
-import ReactTestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 
 export function scryRenderedComponentsWithTypeAndProps(root, type, props) {
   if (!root) { throw new Error("Must supply a root to scryRenderedComponentsWithTypeAndProps"); }

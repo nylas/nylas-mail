@@ -1,5 +1,5 @@
 import pathwatcher from 'pathwatcher';
-import ReactTestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 import {TaskQueue} from 'nylas-exports'
 
 class MasterAfterEach {

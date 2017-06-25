@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require "react"
 ReactDOM = require "react-dom"
-ReactTestUtils = require 'react-addons-test-utils'
+ReactTestUtils = require 'react-dom/test-utils'
 {Contact, Message, DOMUtils} = require "nylas-exports"
 MessageParticipants = require "../lib/message-participants"
 

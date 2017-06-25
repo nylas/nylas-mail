@@ -1,0 +1,20 @@
+goal: drafts don't have a stable message ID because the participants can be changed.
+drafts DO have a client ID but it's now the headerMessageId
+
+ONLY c++ can write the draft to the database. 
+- there's really no harm in having a draft never saved to the database at all
+  until the first time it's closed or saved or popped out
+- EXCEPT that it's not even possible to get it into the UI without saving it...
+  will need to send to c++ to save immediately, even if just locally.
+
+
+possible prereq:
+
+- right now, C++ connects to JS. What if JS connected to C++?
+  + each window connects to three sync servers
+  + to ensure deltas aren't missed...c++ needs to wait until they all connect? hmm...
+
+current:
+  + three sync clients connect to main window
+    + main window uses electron IPC to relay events to the other windows
+

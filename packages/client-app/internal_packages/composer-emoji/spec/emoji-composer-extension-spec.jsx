@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactTestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 
 import {renderIntoDocument} from '../../../spec/nylas-test-utils';
 import Contenteditable from '../../../src/components/contenteditable/contenteditable';

@@ -1,7 +1,7 @@
 /* eslint global-require:0 */
 import _ from 'underscore';
 
-import ReactTestUtils from 'react-addons-test-utils';
+import ReactTestUtils from 'react-dom/test-utils';
 import Config from '../../src/config'
 import N1SpecLoader from './n1-spec-loader'
 import TimeReporter from './time-reporter'

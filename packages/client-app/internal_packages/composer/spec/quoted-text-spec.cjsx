@@ -6,7 +6,7 @@
 _ = require "underscore"
 React = require "react"
 ReactDOM = require 'react-dom'
-ReactTestUtils = require('react-addons-test-utils')
+ReactTestUtils = require('react-dom/test-utils')
 
 Fields = require('../lib/fields').default
 Composer = require("../lib/composer-view").default

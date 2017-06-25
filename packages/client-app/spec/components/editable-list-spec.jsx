@@ -4,7 +4,7 @@ import {
   findRenderedDOMComponentWithClass,
   scryRenderedDOMComponentsWithClass,
   Simulate,
-} from 'react-addons-test-utils';
+} from 'react-dom/test-utils';
 
 import EditableList from '../../src/components/editable-list';
 import {renderIntoDocument, simulateCommand} from '../nylas-test-utils'

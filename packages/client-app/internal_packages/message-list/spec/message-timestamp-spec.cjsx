@@ -1,7 +1,7 @@
 moment = require 'moment'
 React = require "react"
 ReactDOM = require "react-dom"
-ReactTestUtils = require 'react-addons-test-utils'
+ReactTestUtils = require 'react-dom/test-utils'
 MessageTimestamp = require('../lib/message-timestamp').default
 
 msgTime = ->

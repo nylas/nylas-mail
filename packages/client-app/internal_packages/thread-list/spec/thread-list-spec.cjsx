@@ -13,7 +13,7 @@ return
 moment = require "moment"
 _ = require 'underscore'
 React = require "react"
-ReactTestUtils = require('react-addons-test-utils')
+ReactTestUtils = require('react-dom/test-utils')
 ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
 
 {Thread,

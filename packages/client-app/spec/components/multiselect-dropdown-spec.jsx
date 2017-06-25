@@ -2,7 +2,7 @@ import React from 'react'
 import {
   scryRenderedDOMComponentsWithClass,
   Simulate,
-} from 'react-addons-test-utils';
+} from 'react-dom/test-utils';
 
 import MultiselectDropdown from '../../src/components/multiselect-dropdown'
 import {renderIntoDocument} from '../nylas-test-utils'

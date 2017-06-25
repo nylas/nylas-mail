@@ -172,7 +172,7 @@ lazyLoadWithGetter(`Rx`, () => require('rx-lite'));
 lazyLoadWithGetter(`React`, () => require('react'));
 lazyLoadWithGetter(`Reflux`, () => require('reflux'));
 lazyLoadWithGetter(`ReactDOM`, () => require('react-dom'));
-lazyLoadWithGetter(`ReactTestUtils`, () => require('react-addons-test-utils'));
+lazyLoadWithGetter(`ReactTestUtils`, () => require('react-dom/test-utils'));
 
 // React Components
 lazyLoad(`ComponentRegistry`, 'registries/component-registry');

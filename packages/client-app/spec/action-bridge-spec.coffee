@@ -12,10 +12,10 @@ ipc =
 
 describe "ActionBridge", ->
 
-  describe "in the womainrk window", ->
+  describe "in the main window", ->
     beforeEach ->
       spyOn(NylasEnv, "getWindowType").andReturn "default"
-      spyOn(NylasEnv, "isWorkWindow").andReturn true
+      spyOn(NylasEnv, "isMainWindow").andReturn true
       @bridge = new ActionBridge(ipc)
 
     it "should have the role Role.MAIN", ->
@@ -47,7 +47,7 @@ describe "ActionBridge", ->
   describe "in another window", ->
     beforeEach ->
       spyOn(NylasEnv, "getWindowType").andReturn "popout"
-      spyOn(NylasEnv, "isWorkWindow").andReturn false
+      spyOn(NylasEnv, "isMainWindow").andReturn false
       @bridge = new ActionBridge(ipc)
       @message = new Message
         id: 'test-id'

@@ -1,6 +1,6 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
-ReactTestUtils = require('react-addons-test-utils')
+ReactTestUtils = require('react-dom/test-utils')
 
 ThreadSearchBar = require('../lib/thread-search-bar').default
 SearchActions = require('../lib/search-actions').default
