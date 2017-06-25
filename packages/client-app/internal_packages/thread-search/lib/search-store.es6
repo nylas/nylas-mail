@@ -161,8 +161,7 @@ class SearchStore extends NylasStore {
     }
     dbQuery = dbQuery
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-
-    // console.info(dbQuery.sql());
+      .limit(10)
 
     dbQuery.background().then(results => {
       // We've fetched the latest thread results - display them!
