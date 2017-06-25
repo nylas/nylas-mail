@@ -118,15 +118,6 @@ export default class Category extends Model {
     return name;
   }
 
-  static additionalSQLiteConfig = {
-    setup: () => {
-      return [
-        // 'CREATE INDEX IF NOT EXISTS FolderNameIndex ON Folder(accountId,name)',
-        // 'CREATE UNIQUE INDEX IF NOT EXISTS FolderClientIndex ON Folder(id)',
-      ];
-    },
-  };
-
   displayType() {
     throw new Error("Base class");
   }

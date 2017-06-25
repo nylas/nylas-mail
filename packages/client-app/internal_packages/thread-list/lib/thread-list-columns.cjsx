@@ -94,7 +94,7 @@ c3 = new ListTabular.Column
     attachment = false
     messages = thread.__messages || []
 
-    hasAttachments = thread.hasAttachments and messages.find (m) -> Utils.showIconForAttachments(m.files)
+    hasAttachments = thread.attachmentCount > 0 and messages.find (m) -> Utils.showIconForAttachments(m.files)
     if hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 
@@ -144,7 +144,7 @@ cNarrow = new ListTabular.Column
     attachment = false
     messages = thread.__messages || []
 
-    hasAttachments = thread.hasAttachments and messages.find (m) -> Utils.showIconForAttachments(m.files)
+    hasAttachments = thread.attachmentCount > 0 and messages.find (m) -> Utils.showIconForAttachments(m.files)
     if hasAttachments
       attachment = <div className="thread-icon thread-icon-attachment"></div>
 

@@ -94,8 +94,8 @@ class Thread extends ModelWithMetadata {
       itemClass: Contact,
     }),
 
-    hasAttachments: Attributes.Boolean({
-      modelKey: 'hasAttachments',
+    attachmentCount: Attributes.Number({
+      modelKey: 'attachmentCount',
     }),
 
     lastMessageReceivedTimestamp: Attributes.DateTime({
@@ -134,36 +134,6 @@ class Thread extends ModelWithMetadata {
 
   static naturalSortOrder = () => {
     return Thread.sortOrderAttribute().descending()
-  }
-
-  static additionalSQLiteConfig = {
-    setup: () => [
-      // ThreadCounts
-      'CREATE TABLE IF NOT EXISTS `ThreadCounts` (`category_id` TEXT PRIMARY KEY, `unread` INTEGER, `total` INTEGER)',
-      'CREATE UNIQUE INDEX IF NOT EXISTS ThreadCountsIndex ON `ThreadCounts` (category_id DESC)',
-
-      // ThreadContact
-      'CREATE INDEX IF NOT EXISTS ThreadContactDateIndex ON `ThreadContact` (lastMessageReceivedTimestamp DESC, value, id)',
-
-      // ThreadCategory
-      'CREATE INDEX IF NOT EXISTS ThreadListCategoryIndex ON `ThreadCategory` (lastMessageReceivedTimestamp DESC, value, inAllMail, unread, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadListCategorySentIndex ON `ThreadCategory` (lastMessageSentTimestamp DESC, value, inAllMail, unread, id)',
-
-      // Thread: General index
-      'CREATE INDEX IF NOT EXISTS ThreadDateIndex ON `Thread` (lastMessageReceivedTimestamp DESC)',
-      'CREATE INDEX IF NOT EXISTS ThreadClientIdIndex ON `Thread` (id)',
-
-      // Thread: Partial indexes for specific views
-      'CREATE INDEX IF NOT EXISTS ThreadUnreadIndex ON `Thread` (accountId, lastMessageReceivedTimestamp DESC) WHERE unread = 1 AND inAllMail = 1',
-      'CREATE INDEX IF NOT EXISTS ThreadUnifiedUnreadIndex ON `Thread` (lastMessageReceivedTimestamp DESC) WHERE unread = 1 AND inAllMail = 1',
-
-      'DROP INDEX IF EXISTS `Thread`.ThreadStarIndex',
-      'CREATE INDEX IF NOT EXISTS ThreadStarredIndex ON `Thread` (accountId, lastMessageReceivedTimestamp DESC) WHERE starred = 1 AND inAllMail = 1',
-      'CREATE INDEX IF NOT EXISTS ThreadUnifiedStarredIndex ON `Thread` (lastMessageReceivedTimestamp DESC) WHERE starred = 1 AND inAllMail = 1',
-
-      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedIndex ON `Thread` (isSearchIndexed, id)',
-      'CREATE INDEX IF NOT EXISTS ThreadIsSearchIndexedLastMessageReceivedIndex ON `Thread` (isSearchIndexed, lastMessageReceivedTimestamp)',
-    ],
   }
 
   static searchable = true

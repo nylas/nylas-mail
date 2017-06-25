@@ -90,16 +90,6 @@ export default class Contact extends Model {
     }),
   });
 
-  static additionalSQLiteConfig = {
-    setup: () => {
-      return [
-        'CREATE INDEX IF NOT EXISTS ContactEmailIndex ON Contact(email)',
-        'CREATE INDEX IF NOT EXISTS ContactAccountEmailIndex ON Contact(accountId, email)',
-        'CREATE INDEX IF NOT EXISTS ContactIsSearchIndexedIndex ON `Contact` (isSearchIndexed, id)',
-      ];
-    },
-  };
-
   static searchable = true;
 
   static searchFields = ['content'];

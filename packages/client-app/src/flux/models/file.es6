@@ -29,25 +29,19 @@ export default class File extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     filename: Attributes.String({
       modelKey: 'filename',
-      jsonKey: 'filename',
       queryable: true,
     }),
     size: Attributes.Number({
       modelKey: 'size',
-      jsonKey: 'size',
     }),
     contentType: Attributes.String({
       modelKey: 'contentType',
-      jsonKey: 'content_type',
     }),
-    messageIds: Attributes.Collection({
-      modelKey: 'messageIds',
-      jsonKey: 'message_ids',
-      itemClass: String,
+    messageId: Attributes.ServerId({
+      modelKey: 'messageId',
     }),
     contentId: Attributes.String({
       modelKey: 'contentId',
-      jsonKey: 'content_id',
     }),
   });
 

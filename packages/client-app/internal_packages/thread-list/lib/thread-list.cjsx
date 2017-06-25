@@ -16,6 +16,8 @@ classnames = require 'classnames'
  CanvasUtils,
  TaskFactory,
  ChangeStarredTask,
+ ChangeFolderTask,
+ ChangeLabelsTask,
  WorkspaceStore,
  AccountStore,
  CategoryStore,
@@ -154,8 +156,10 @@ class ThreadList extends React.Component
       task = tasks[0]
       name = if task instanceof ChangeStarredTask
         'unstar'
-      else if task.categoriesToAdd().length is 1
-        task.categoriesToAdd()[0].name
+      else if task instanceof ChangeFolderTask
+        task.folder.name
+      else if task instanceof ChangeLabelsTask and task.labelsToAdd.length is 1
+        task.labelsToAdd[0].name
       else
         'remove'
 

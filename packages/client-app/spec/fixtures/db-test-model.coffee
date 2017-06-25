@@ -19,7 +19,6 @@ class TestModel extends Model
       jsonKey: 'server_id'
 
 TestModel.configureBasic = ->
-  TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'id': Attributes.String
       queryable: true
@@ -34,7 +33,6 @@ TestModel.configureBasic = ->
       jsonKey: 'server_id'
 
 TestModel.configureWithAllAttributes = ->
-  TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'datetime': Attributes.DateTime
       queryable: true
@@ -53,7 +51,6 @@ TestModel.configureWithAllAttributes = ->
       modelKey: 'other'
 
 TestModel.configureWithCollectionAttribute = ->
-  TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'id': Attributes.String
       queryable: true
@@ -77,7 +74,6 @@ TestModel.configureWithCollectionAttribute = ->
       joinQueryableBy: ['other'],
 
 TestModel.configureWithJoinedDataAttribute = ->
-  TestModel.additionalSQLiteConfig = undefined
   TestModel.attributes =
     'id': Attributes.String
       queryable: true
@@ -95,7 +91,6 @@ TestModel.configureWithJoinedDataAttribute = ->
       modelKey: 'body'
 
 
-TestModel.configureWithAdditionalSQLiteConfig = ->
   TestModel.attributes =
     'id': Attributes.String
       queryable: true
@@ -109,8 +104,5 @@ TestModel.configureWithAdditionalSQLiteConfig = ->
     'body': Attributes.JoinedData
       modelTable: 'TestModelBody'
       modelKey: 'body'
-  TestModel.additionalSQLiteConfig =
-    setup: ->
-      ['CREATE INDEX IF NOT EXISTS ThreadListIndex ON Thread(last_message_received_timestamp DESC, account_id, id)']
 
 module.exports = TestModel
