@@ -27,7 +27,11 @@ class DraftFactory
     Promise.resolve(new Message(_.extend({
       body: ''
       subject: ''
-      id: Utils.generateTempId()
+      version: 0
+      unread: false
+      starred: false
+      folderImapUID: 0
+      headerMessageId: Utils.generateTempId()
       from: [account.defaultMe()]
       date: (new Date)
       draft: true

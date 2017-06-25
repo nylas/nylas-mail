@@ -6,13 +6,13 @@ import DatabaseChangeRecord from './stores/database-change-record';
 import Utils from './models/utils';
 
 const Role = {
-  WORK: 'work',
+  MAIN: 'default',
   SECONDARY: 'secondary',
 };
 
 const TargetWindows = {
   ALL: 'all',
-  WORK: 'work',
+  MAIN: 'default',
 };
 
 const Message = {
@@ -49,7 +49,7 @@ class ActionBridge {
     this.ipc = ipc;
     this.ipcLastSendTime = null;
     this.initiatorId = NylasEnv.getWindowType();
-    this.role = NylasEnv.isWorkWindow() ? Role.WORK : Role.SECONDARY;
+    this.role = NylasEnv.isMainWindow() ? Role.MAIN : Role.SECONDARY;
 
     NylasEnv.onBeforeUnload(this.onBeforeUnload);
 
@@ -76,11 +76,11 @@ class ActionBridge {
     };
     DatabaseStore.listen(databaseCallback, this);
 
-    if (this.role !== Role.WORK) {
+    if (this.role !== Role.MAIN) {
       // Observe all mainWindow actions fired in this window and re-broadcast
       // them to other windows so the central application stores can take action
-      Actions.workWindowActions.forEach(name => {
-        const callback = (...args) => this.onRebroadcast(TargetWindows.WORK, name, args);
+      Actions.mainWindowActions.forEach(name => {
+        const callback = (...args) => this.onRebroadcast(TargetWindows.MAIN, name, args);
         return Actions[name].listen(callback, this);
       });
     }
@@ -157,7 +157,7 @@ class ActionBridge {
     const params = [];
     args.forEach((arg) => {
       if (arg instanceof Function) {
-        throw new Error("ActionBridge cannot forward action argument of type `function` to work window.");
+        throw new Error("ActionBridge cannot forward action argument of type `function` to another window.");
       }
       return params.push(arg);
     });

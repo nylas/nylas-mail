@@ -83,7 +83,7 @@ xdescribe('TemplateStore', function templateStore() {
       runs(() => {
         TemplateStore._onInsertTemplateId({
           templateId: 'template1.html',
-          draftClientId: 'localid-draft',
+          headerMessageId: 'localid-draft',
         });
       });
       waitsFor(() => add.calls.length > 0);
@@ -98,8 +98,8 @@ xdescribe('TemplateStore', function templateStore() {
   describe('onCreateTemplate', () => {
     beforeEach(() => {
       let d;
-      spyOn(DraftStore, 'sessionForClientId').andCallFake((draftClientId) => {
-        if (draftClientId === 'localid-nosubject') {
+      spyOn(DraftStore, 'sessionForClientId').andCallFake((headerMessageId) => {
+        if (headerMessageId === 'localid-nosubject') {
           d = new Message({subject: '', body: '<p>Body</p>'});
         } else {
           d = new Message({subject: 'Subject', body: '<p>Body</p>'});
@@ -149,7 +149,7 @@ xdescribe('TemplateStore', function templateStore() {
         spyOn(TemplateStore, 'trigger');
         spyOn(TemplateStore, '_populate');
         runs(() => {
-          TemplateStore._onCreateTemplate({draftClientId: 'localid-b'});
+          TemplateStore._onCreateTemplate({headerMessageId: 'localid-b'});
         });
         waitsFor(() => TemplateStore.trigger.callCount > 0);
         runs(() => {
@@ -161,7 +161,7 @@ xdescribe('TemplateStore', function templateStore() {
         spyOn(TemplateStore, '_displayError');
         spyOn(fs, 'watch');
         runs(() => {
-          TemplateStore._onCreateTemplate({draftClientId: 'localid-nosubject'});
+          TemplateStore._onCreateTemplate({headerMessageId: 'localid-nosubject'});
         });
         waitsFor(() => TemplateStore._displayError.callCount > 0);
         runs(() => {

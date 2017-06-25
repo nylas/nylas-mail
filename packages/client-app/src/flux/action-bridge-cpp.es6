@@ -2,7 +2,8 @@ import net from 'net';
 import fs from 'fs';
 import DatabaseStore from './stores/database-store';
 import DatabaseChangeRecord from './stores/database-change-record';
-
+import DatabaseObjectRegistry from '../registries/database-object-registry';
+import Actions from './actions';
 import Utils from './models/utils';
 
 class ActionBridgeCPP {
@@ -12,6 +13,13 @@ class ActionBridgeCPP {
       // maybe bind as listener?
       return;
     }
+
+    Actions.queueTask.listen(this.onQueueTask, this);
+    Actions.queueTasks.listen((tasks) => {
+      if (!tasks || !tasks.length) { return; }
+      for (const task of tasks) { this.onQueueTask(task); }
+    });
+    Actions.dequeueTask.listen(this.onDequeueTask, this);
 
     try {
       fs.unlinkSync('/tmp/cmail.sock');
@@ -41,7 +49,7 @@ class ActionBridgeCPP {
       });
     });
 
-    unixServer.listen('/tmp/cmail.sock', () => { 
+    unixServer.listen('/tmp/cmail.sock', () => {
       console.log('server bound');
     });
 
@@ -52,6 +60,29 @@ class ActionBridgeCPP {
 
     this._readBuffer = '';
     process.on('SIGINT', shutdown);
+  }
+
+  onQueueTask(task) {
+    // if (!(task instanceof Task)) {
+    //   console.log(task);
+    //   throw new Error("You must queue a `Task` instance. Be sure you have the task registered with the DatabaseObjectRegistry. If this is a task for a custom plugin, you must export a `taskConstructors` array with your `Task` constructors in it. You must all subclass the base Nylas `Task`.");
+    // }
+    if (!DatabaseObjectRegistry.isInRegistry(task.constructor.name)) {
+      console.log(task);
+      throw new Error("You must queue a `Task` instance which is registred with the DatabaseObjectRegistry")
+    }
+    if (!task.id) {
+      console.log(task);
+      throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
+    }
+    task.sequentialId = ++this._currentSequentialId;
+    task.status = 'local';
+
+    this.onTellClients({type: 'task-queued', task: task});
+  }
+
+  onDequeueTask() { // task
+    throw new Error("Unimplemented");
   }
 
   onIncomingMessage(message) {

@@ -7,8 +7,8 @@ import SendActionsStore from '../stores/send-actions-store';
 
 class PerformSendActionTask extends BaseDraftTask {
 
-  constructor(draftClientId, sendActionKey) {
-    super(draftClientId)
+  constructor(headerMessageId, sendActionKey) {
+    super(headerMessageId)
     this._sendActionKey = sendActionKey
     this._sendTimer = null
     this._taskResolve = () => {}
@@ -21,22 +21,22 @@ class PerformSendActionTask extends BaseDraftTask {
   shouldDequeueOtherTask(otherTask) {
     return (
       otherTask instanceof PerformSendActionTask &&
-      this.draftClientId === otherTask.draftClientId
+      this.headerMessageId === otherTask.headerMessageId
     )
   }
 
   performLocal() {
-    if (!this.draftClientId) {
-      const errMsg = `Attempt to call ${this.constructor.name}.performLocal without a draftClientId`;
+    if (!this.headerMessageId) {
+      const errMsg = `Attempt to call ${this.constructor.name}.performLocal without a headerMessageId`;
       return Promise.reject(new Error(errMsg));
     }
     return Promise.resolve()
   }
 
   cancel() {
-    const {id: taskId, draftClientId} = this
+    const {id: taskId, headerMessageId} = this
     clearTimeout(this._sendTimer)
-    Actions.didCancelSendAction({taskId, draftClientId})
+    Actions.didCancelSendAction({taskId, headerMessageId})
     this._taskResolve(Task.Status.Continue)
   }
 

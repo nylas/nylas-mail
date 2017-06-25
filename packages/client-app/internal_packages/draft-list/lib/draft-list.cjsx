@@ -41,12 +41,12 @@ class DraftList extends React.Component
 
   _onDoubleClick: (draft) =>
     unless draft.uploadTaskId
-      Actions.composePopoutDraft(draft.id)
+      Actions.composePopoutDraft(draft.headerMessageId)
 
   # Additional Commands
 
   _onRemoveFromView: =>
     drafts = DraftListStore.dataSource().selection.items()
-    Actions.destroyDraft(draft.id) for draft in drafts
+    Actions.destroyDraft(draft.headerMessageId) for draft in drafts
 
 module.exports = DraftList

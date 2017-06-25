@@ -64,11 +64,11 @@ class MessageItemContainer extends React.Component
   _renderComposer: =>
     Composer = ComponentRegistry.findComponentsMatching(role: 'Composer')[0]
     if (!Composer)
-      return <span></span>
+      return <span>No Composer Component Present</span>
 
     <Composer
       ref="message"
-      draftId={@props.message.id}
+      headerMessageId={@props.message.headerMessageId}
       className={@_classNames()}
       mode={"inline"}
       threadId={@props.thread.id}
@@ -82,8 +82,8 @@ class MessageItemContainer extends React.Component
     "message-item-wrap": true
     "before-reply-area": @props.isBeforeReplyArea
 
-  _onSendingStateChanged: (draftId) =>
-    if draftId is @props.message.id
+  _onSendingStateChanged: (headerMessageId) =>
+    if headerMessageId is @props.message.headerMessageId
       @setState(@_getStateFromStores())
 
   _getStateFromStores: (props = @props) ->

@@ -456,7 +456,7 @@ export default class Application extends EventEmitter {
 
     ipcMain.on('ensure-worker-window', () => {
       // TODO BG
-      // this.windowManager.ensureWindow(WindowManager.WORK_WINDOW)
+      // this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW)
     })
 
     ipcMain.on('inline-style-parse', (event, {html, key}) => {
@@ -523,16 +523,15 @@ export default class Application extends EventEmitter {
       this.windowManager.sendToAllWindows('action-bridge-message', {except: win}, ...args)
     });
 
-    ipcMain.on('action-bridge-rebroadcast-to-work', (event, ...args) => {
-      // TODO BG
-      // const workWindow = this.windowManager.get(WindowManager.WORK_WINDOW)
-      // if (!workWindow || !workWindow.browserWindow.webContents) {
-      //   return;
-      // }
-      // if (BrowserWindow.fromWebContents(event.sender) === workWindow) {
-      //   return;
-      // }
-      // workWindow.browserWindow.webContents.send('action-bridge-message', ...args);
+    ipcMain.on('action-bridge-rebroadcast-to-default', (event, ...args) => {
+      const mainWindow = this.windowManager.get(WindowManager.MAIN_WINDOW)
+      if (!mainWindow || !mainWindow.browserWindow.webContents) {
+        return;
+      }
+      if (BrowserWindow.fromWebContents(event.sender) === mainWindow) {
+        return;
+      }
+      mainWindow.browserWindow.webContents.send('action-bridge-message', ...args);
     });
 
     ipcMain.on('write-text-to-selection-clipboard', (event, selectedText) => {
@@ -542,7 +541,6 @@ export default class Application extends EventEmitter {
 
     ipcMain.on('account-setup-successful', () => {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
-      this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
       const onboarding = this.windowManager.get(WindowManager.ONBOARDING_WINDOW);
       if (onboarding) {
         onboarding.close();

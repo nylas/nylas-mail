@@ -68,7 +68,7 @@ xdescribe('BaseDraftTask', function baseDraftTask() {
       badTask.performLocal().then(() => {
         throw new Error("Shouldn't succeed")
       }).catch((err) => {
-        expect(err.message).toBe("Attempt to call BaseDraftTask.performLocal without a draftClientId")
+        expect(err.message).toBe("Attempt to call BaseDraftTask.performLocal without a headerMessageId")
       });
     });
   });

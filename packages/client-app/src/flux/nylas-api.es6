@@ -1,4 +1,4 @@
-import {AccountStore} from 'nylas-exports'
+import AccountStore from './stores/account-store'
 import NylasLongConnection from './nylas-long-connection'
 
 // A 0 code is when an error returns without a status code, like "ESOCKETTIMEDOUT"

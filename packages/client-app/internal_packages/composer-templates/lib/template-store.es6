@@ -112,9 +112,9 @@ class TemplateStore extends NylasStore {
     });
   }
 
-  _onCreateTemplate({draftClientId, name, contents} = {}) {
-    if (draftClientId) {
-      DraftStore.sessionForClientId(draftClientId).then((session) => {
+  _onCreateTemplate({headerMessageId, name, contents} = {}) {
+    if (headerMessageId) {
+      DraftStore.sessionForClientId(headerMessageId).then((session) => {
         const draft = session.draft();
         const draftName = name || draft.subject.replace(TemplateStore.INVALID_TEMPLATE_NAME_REGEX, '');
         let draftContents = contents || QuotedHTMLTransformer.removeQuotedHTML(draft.body);
@@ -255,9 +255,9 @@ class TemplateStore extends NylasStore {
     });
   }
 
-  _onInsertTemplateId({templateId, draftClientId} = {}) {
+  _onInsertTemplateId({templateId, headerMessageId} = {}) {
     this.getTemplateContents(templateId, (templateBody) => {
-      DraftStore.sessionForClientId(draftClientId).then((session) => {
+      DraftStore.sessionForClientId(headerMessageId).then((session) => {
         let proceed = true;
         if (!session.draft().pristine && !session.draft().hasEmptyBody()) {
           proceed = this._displayDialog(

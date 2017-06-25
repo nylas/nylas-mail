@@ -3,7 +3,7 @@ AccountStore = require("../../src/flux/stores/account-store").default
 
 json_event =
   {
-    "object": "event",
+    "__constructorName": "Event",
     "id": "4ee4xbnx7pxdb9g7c2f8ncyto",
     "calendar_id": "ci0k1wfyv533ccgox4t7uri4h",
     "account_id": "14e5bn96uizyuhidhcw5rfrb0",

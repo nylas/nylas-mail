@@ -43,7 +43,7 @@ class UndoRedoStore extends NylasStore {
     this.trigger();
 
     for (const task of topTasks) {
-      Actions.undoTaskId(task.id);
+      Actions.queueTask(task.createUndoTask());
     }
 
     const redoTasks = topTasks.map((t) => {

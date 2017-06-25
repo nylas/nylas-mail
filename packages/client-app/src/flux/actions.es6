@@ -2,7 +2,7 @@ import Reflux from 'reflux';
 
 const ActionScopeWindow = 'window';
 const ActionScopeGlobal = 'global';
-const ActionScopeWorkWindow = 'work';
+const ActionScopeMainWindow = 'main';
 
 /*
 Public: In the Flux {Architecture.md}, almost every user action
@@ -81,36 +81,33 @@ class Actions {
   /*
   Public: Queue a {Task} object to the {TaskQueue}.
 
-  *Scope: Work Window*
+  *Scope: Main Window*
   */
-  static queueTask = ActionScopeWorkWindow;
+  static queueTask = ActionScopeMainWindow;
 
   /*
   Public: Queue multiple {Task} objects to the {TaskQueue}, which should be
   undone as a single user action.
 
-  *Scope: Work Window*
+  *Scope: Main Window*
   */
-  static queueTasks = ActionScopeWorkWindow;
-
-  static undoTaskId = ActionScopeWorkWindow;
-
+  static queueTasks = ActionScopeMainWindow;
   /*
   Public: Dequeue all {Task}s from the {TaskQueue}. Use with care.
 
-  *Scope: Work Window*
+  *Scope: Main Window*
   */
-  static dequeueTask = ActionScopeWorkWindow;
+  static dequeueTask = ActionScopeMainWindow;
 
   /*
   Public: Dequeue a {Task} matching the description provided.
 
-  *Scope: Work Window*
+  *Scope: Main Window*
   */
-  static longPollReceivedRawDeltas = ActionScopeWorkWindow;
-  static longPollProcessedDeltas = ActionScopeWorkWindow;
-  static willMakeAPIRequest = ActionScopeWorkWindow;
-  static didMakeAPIRequest = ActionScopeWorkWindow;
+  static longPollReceivedRawDeltas = ActionScopeMainWindow;
+  static longPollProcessedDeltas = ActionScopeMainWindow;
+  static willMakeAPIRequest = ActionScopeMainWindow;
+  static didMakeAPIRequest = ActionScopeMainWindow;
   static checkOnlineStatus = ActionScopeWindow;
 
 
@@ -456,7 +453,7 @@ class Actions {
   ```
   Actions.removeFile
     file: fileObject
-    messageClientId: draftClientId
+    headerMessageId: headerMessageId
   ```
   */
   static removeFile = ActionScopeWindow;
@@ -510,7 +507,7 @@ class Actions {
   /*
   Public: Publish a user event to any analytics services linked to N1.
   */
-  static recordUserEvent = ActionScopeWorkWindow;
+  static recordUserEvent = ActionScopeMainWindow;
 
   static addMailRule = ActionScopeWindow;
   static reorderMailRule = ActionScopeWindow;
@@ -570,14 +567,14 @@ const create = (obj, name, scope) => {
 const scopes = {
   window: [],
   global: [],
-  work: [],
+  main: [],
 };
 
 for (const name of Object.getOwnPropertyNames(Actions)) {
   if (name === 'length' || name === 'name' || name === 'arguments' || name === 'caller' || name === 'prototype') {
     continue;
   }
-  if (Actions[name] !== 'window' && Actions[name] !== 'global' && Actions[name] !== 'work') {
+  if (Actions[name] !== 'window' && Actions[name] !== 'global' && Actions[name] !== 'main') {
     continue;
   }
   const scope = Actions[name];
@@ -586,7 +583,7 @@ for (const name of Object.getOwnPropertyNames(Actions)) {
 }
 
 Actions.windowActions = scopes.window;
-Actions.workWindowActions = scopes.work;
+Actions.mainWindowActions = scopes.main;
 Actions.globalActions = scopes.global;
 
 export default Actions;

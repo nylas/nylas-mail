@@ -6,7 +6,7 @@ import MyComposerButton from '../lib/my-composer-button';
 describe("MyComposerButton", () => {
   beforeEach(() => {
     this.component = ReactTestUtils.renderIntoDocument(
-      <MyComposerButton draftClientId="test" />
+      <MyComposerButton headerMessageId="test" />
     );
   });
 

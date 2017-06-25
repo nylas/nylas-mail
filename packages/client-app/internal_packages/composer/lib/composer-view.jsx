@@ -205,7 +205,7 @@ export default class ComposerView extends React.Component {
   _renderEditor() {
     const exposedProps = {
       body: this.props.draft.body,
-      draftClientId: this.props.draft.clientId,
+      headerMessageId: this.props.draft.headerMessageId,
       parentActions: {
         getComposerBoundingRect: this._getComposerBoundingRect,
         scrollTo: this.props.scrollTo,
@@ -292,7 +292,7 @@ export default class ComposerView extends React.Component {
           exposedProps={{
             draft: this.props.draft,
             threadId: this.props.draft.threadId,
-            draftClientId: this.props.draft.clientId,
+            headerMessageId: this.props.draft.headerMessageId,
             session: this.props.session,
           }}
           direction="column"
@@ -311,11 +311,11 @@ export default class ComposerView extends React.Component {
   }
 
   _renderFileAttachments() {
-    const {files, clientId: messageClientId} = this.props.draft
+    const {files, headerMessageId} = this.props.draft
     return (
       <InjectedComponent
         matching={{role: 'MessageAttachments'}}
-        exposedProps={{files, messageClientId, canRemoveAttachments: true}}
+        exposedProps={{files, headerMessageId, canRemoveAttachments: true}}
       />
     )
   }
@@ -365,7 +365,7 @@ export default class ComposerView extends React.Component {
         exposedProps={{
           draft: this.props.draft,
           threadId: this.props.draft.threadId,
-          draftClientId: this.props.draft.clientId,
+          headerMessageId: this.props.draft.headerMessageId,
           session: this.props.session,
         }}
       />
@@ -415,7 +415,7 @@ export default class ComposerView extends React.Component {
           ]}
           exposedProps={{
             draft: this.props.draft,
-            draftClientId: this.props.draft.clientId,
+            headerMessageId: this.props.draft.headerMessageId,
             session: this.props.session,
             isValidDraft: this._isValidDraft,
           }}
@@ -510,7 +510,7 @@ export default class ComposerView extends React.Component {
     // called from onDrop and onFilePaste - assume images should be inline
     Actions.addAttachment({
       filePath: filePath,
-      messageClientId: this.props.draft.clientId,
+      headerMessageId: this.props.draft.headerMessageId,
       onUploadCreated: (upload) => {
         if (Utils.shouldDisplayAsImage(upload)) {
           const {draft, session} = this.props;
@@ -522,7 +522,7 @@ export default class ComposerView extends React.Component {
             session.changes.add({uploads})
 
             Actions.insertAttachmentIntoDraft({
-              draftClientId: draft.clientId,
+              headerMessageId: draft.headerMessageId,
               uploadId: matchingUpload.id,
             });
           }
@@ -541,7 +541,7 @@ export default class ComposerView extends React.Component {
     // immediately and synchronously updated as soon as this function
     // fires. Since `setState` is asynchronous, if we used that as our only
     // check, then we might get a false reading.
-    if (DraftStore.isSendingDraft(this.props.draft.clientId)) {
+    if (DraftStore.isSendingDraft(this.props.draft.headerMessageId)) {
       return false;
     }
 
@@ -579,11 +579,11 @@ export default class ComposerView extends React.Component {
   }
 
   _onDestroyDraft = () => {
-    Actions.destroyDraft(this.props.draft.clientId);
+    Actions.destroyDraft(this.props.draft.headerMessageId);
   }
 
   _onSelectAttachment = () => {
-    Actions.selectAttachment({messageClientId: this.props.draft.clientId});
+    Actions.selectAttachment({headerMessageId: this.props.draft.headerMessageId});
   }
 
   render() {

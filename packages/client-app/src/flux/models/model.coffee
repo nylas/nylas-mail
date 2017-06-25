@@ -27,9 +27,6 @@ class Model
       queryable: true
       modelKey: 'id'
 
-    'object': Attributes.String
-      modelKey: 'object'
-
     'accountId': Attributes.String
       queryable: true
       modelKey: 'accountId'
@@ -96,6 +93,7 @@ class Model
       continue if attr instanceof Attributes.AttributeJoinedData and options.joined is false
       json[attr.jsonKey] = attr.toJSON(attrValue)
     json["id"] = @id
+    json["__constructorName"] = this.constructor.name
     json
 
   toString: ->

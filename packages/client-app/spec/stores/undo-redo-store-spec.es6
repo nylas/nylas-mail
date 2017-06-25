@@ -23,7 +23,6 @@ describe("UndoRedoStore", function undoRedoStoreSpec() {
     UndoRedoStore._undo = []
     UndoRedoStore._redo = []
     spyOn(UndoRedoStore, "trigger")
-    spyOn(Actions, "undoTaskId")
     spyOn(Actions, "queueTask").andCallFake((...args) => {
       UndoRedoStore._onQueue(...args)
     });
@@ -83,9 +82,9 @@ describe("UndoRedoStore", function undoRedoStoreSpec() {
   it("runs undoTask on each group of undo tasks", () => {
     UndoRedoStore._undo = [[this.t3], [this.t1, this.t2]]
     UndoRedoStore.undo()
-    expect(Actions.undoTaskId.calls.length).toBe(2)
-    expect(Actions.undoTaskId.calls[0].args[0]).toBe("t1")
-    expect(Actions.undoTaskId.calls[1].args[0]).toBe("t2")
+    expect(Actions.queueTask.calls.length).toBe(2)
+    expect(Actions.queueTask.calls[0].args[0]).toBe("t1")
+    expect(Actions.queueTask.calls[1].args[0]).toBe("t2")
     expect(UndoRedoStore._undo).toEqual([[this.t3]])
   });
 

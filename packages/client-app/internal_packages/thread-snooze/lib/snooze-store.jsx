@@ -90,7 +90,7 @@ class SnoozeStore {
         // Get messages for those threads and metadata for those.
         DatabaseStore.findAll(Message, {threadId: update.threads.map(t => t.id)}).then((messages) => {
           for (const message of messages) {
-            const header = message.messageIdHeader;
+            const header = message.headerMessageId;
             const stableId = message.id;
             Actions.setMetadata(message, this.pluginId,
               {expiration: snoozeDate, header, stableId, snoozeCategoryId, returnCategoryId})

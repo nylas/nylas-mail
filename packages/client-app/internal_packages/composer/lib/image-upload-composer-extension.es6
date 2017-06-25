@@ -24,7 +24,7 @@ export default class ImageUploadComposerExtension extends ComposerExtension {
   }
 
   static _onInsertAttachmentIntoDraft({editor, actionArg}) {
-    if (editor.draftClientId === actionArg.draftClientId) { return }
+    if (editor.headerMessageId === actionArg.headerMessageId) { return }
 
     editor.insertCustomComponent("InlineImageUploadContainer", {
       className: `inline-container-${actionArg.uploadId}`,

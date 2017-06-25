@@ -326,7 +326,7 @@ export default class ComposerHeader extends React.Component {
     return (
       <div className="composer-header">
         <ComposerHeaderActions
-          draftId={this.props.draft.id}
+          headerMessageId={this.props.draft.headerMessageId}
           enabledFields={this.state.enabledFields}
           participantsFocused={this.state.participantsFocused}
           onShowAndFocusField={this.showAndFocusField}

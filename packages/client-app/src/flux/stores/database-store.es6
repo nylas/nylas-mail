@@ -3,7 +3,6 @@ import path from 'path';
 import createDebug from 'debug';
 import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
-import {remote} from 'electron';
 import LRU from "lru-cache";
 import {ExponentialBackoffScheduler} from '../../backoff-schedulers';
 
@@ -111,21 +110,6 @@ class DatabaseStore extends NylasStore {
     this._emitter.emit('ready')
   }
 
-  // When 3rd party components register new models, we need to refresh the
-  // database schema to prepare those tables. This method may be called
-  // extremely frequently as new models are added when packages load.
-  refreshDatabaseSchema() {
-    if (!NylasEnv.isMainWindow()) {
-      return Promise.resolve();
-    }
-    const app = remote.getGlobal('application');
-    const phase = app.databasePhase();
-    if (phase !== DatabasePhase.Setup) {
-      app.setDatabasePhase(DatabasePhase.Setup);
-    }
-    return this._asyncWaitForReady()
-  }
-
   _prettyConsoleLog(qa) {
     let q = qa.replace(/%/g, '%%');
     q = `color:black |||%c ${q}`;
@@ -200,7 +184,7 @@ class DatabaseStore extends NylasStore {
           const msec = Date.now() - start;
           if (debugVerbose.enabled) {
             const q = `🔶 (${msec}ms) Background: ${query}`;
-            debugVerbose(StringUtils.trimTo(q))
+            debugVerbose(trimTo(q))
           }
 
           if (msec > 100) {
@@ -253,7 +237,7 @@ class DatabaseStore extends NylasStore {
         const msec = Date.now() - start;
         if (debugVerbose.enabled) {
           const q = `(${msec}ms) ${query}`;
-          debugVerbose(StringUtils.trimTo(q))
+          debugVerbose(trimTo(q))
         }
 
         if (msec > 100) {

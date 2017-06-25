@@ -132,9 +132,9 @@ xdescribe 'FileUploadStore', ->
 
   describe "when a draft is sent", ->
     it "should delete its uploads directory", ->
-      spyOn(FileUploadStore, '_deleteUploadsForClientId')
+      spyOn(FileUploadStore, '_deleteUploadsForId')
       Actions.ensureMessageInSentSuccess({messageClientId: '123'})
-      expect(FileUploadStore._deleteUploadsForClientId).toHaveBeenCalledWith('123')
+      expect(FileUploadStore._deleteUploadsForId).toHaveBeenCalledWith('123')
 
   describe '_getFileStats', ->
     it 'returns the correct stats', ->

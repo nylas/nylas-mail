@@ -8,7 +8,7 @@ function InflatesDraftClientId(ComposedComponent) {
     static displayName = ComposedComponent.displayName;
 
     static propTypes = {
-      draftClientId: React.PropTypes.string,
+      headerMessageId: React.PropTypes.string,
       onDraftReady: React.PropTypes.func,
     }
 
@@ -28,7 +28,7 @@ function InflatesDraftClientId(ComposedComponent) {
 
     componentDidMount() {
       this._mounted = true;
-      this._prepareForDraft(this.props.draftClientId);
+      this._prepareForDraft(this.props.headerMessageId);
     }
 
     componentWillUnmount() {
@@ -38,19 +38,19 @@ function InflatesDraftClientId(ComposedComponent) {
     }
 
     componentWillReceiveProps(newProps) {
-      if (newProps.draftClientId !== this.props.draftClientId) {
+      if (newProps.headerMessageId !== this.props.headerMessageId) {
         this._teardownForDraft();
-        this._prepareForDraft(newProps.draftClientId);
+        this._prepareForDraft(newProps.headerMessageId);
       }
     }
 
-    _prepareForDraft(draftClientId) {
-      if (!draftClientId) {
+    _prepareForDraft(headerMessageId) {
+      if (!headerMessageId) {
         return;
       }
-      DraftStore.sessionForClientId(draftClientId).then((session) => {
+      DraftStore.sessionForClientId(headerMessageId).then((session) => {
         const shouldSetState = () =>
-          this._mounted && session.draftClientId === this.props.draftClientId
+          this._mounted && session.headerMessageId === this.props.headerMessageId
 
         if (!shouldSetState()) { return; }
         this._sessionUnlisten = session.listen(() => {
@@ -80,7 +80,7 @@ function InflatesDraftClientId(ComposedComponent) {
         return;
       }
       if (this.state.draft.pristine) {
-        Actions.destroyDraft(this.props.draftClientId);
+        Actions.destroyDraft(this.props.headerMessageId);
       }
     }
 

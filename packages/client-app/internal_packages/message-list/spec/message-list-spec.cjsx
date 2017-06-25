@@ -50,7 +50,7 @@ m1 = (new Message).fromJSON({
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "object"    : "message",
+  "__constructorName": "Message",
   "snippet"   : "snippet one...",
   "subject"   : "Subject One",
   "thread_id" : "thread_12345",
@@ -67,7 +67,7 @@ m2 = (new Message).fromJSON({
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "object"    : "message",
+  "__constructorName": "Message",
   "snippet"   : "snippet Two...",
   "subject"   : "Subject Two",
   "thread_id" : "thread_12345",
@@ -84,7 +84,7 @@ m3 = (new Message).fromJSON({
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "object"    : "message",
+  "__constructorName": "Message",
   "snippet"   : "snippet Three...",
   "subject"   : "Subject Three",
   "thread_id" : "thread_12345",
@@ -101,7 +101,7 @@ m4 = (new Message).fromJSON({
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "object"    : "message",
+  "__constructorName": "Message",
   "snippet"   : "snippet Four...",
   "subject"   : "Subject Four",
   "thread_id" : "thread_12345",
@@ -118,7 +118,7 @@ m5 = (new Message).fromJSON({
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "object"    : "message",
+  "__constructorName": "Message",
   "snippet"   : "snippet Five...",
   "subject"   : "Subject Five",
   "thread_id" : "thread_12345",
@@ -137,7 +137,7 @@ draftMessages = [
     "draft"     : true
     "files"     : [],
     "unread"    : false,
-    "object"    : "draft",
+    "__constructorName": "Message",
     "snippet"   : "draft snippet one...",
     "subject"   : "Draft One",
     "thread_id" : "thread_12345",

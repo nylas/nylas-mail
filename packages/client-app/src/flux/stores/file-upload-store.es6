@@ -50,7 +50,7 @@ class FileUploadStore extends NylasStore {
     mkdirp.sync(UPLOAD_DIR);
     if (NylasEnv.isMainWindow() || NylasEnv.inSpecMode()) {
       this.listenTo(Actions.ensureMessageInSentSuccess, ({messageClientId}) => {
-        this._deleteUploadsForClientId(messageClientId);
+        this._deleteUploadsForId(messageClientId);
       });
     }
   }
@@ -107,7 +107,7 @@ class FileUploadStore extends NylasStore {
     .catch((err) => Promise.reject(new Error(`Error deleting file upload ${upload.filename}:\n\n${err.message}`)));
   }
 
-  _deleteUploadsForClientId(messageClientId) {
+  _deleteUploadsForId(messageClientId) {
     rimraf(path.join(UPLOAD_DIR, messageClientId), {disableGlob: true}, (err) => {
       if (err) {
         console.warn(err);

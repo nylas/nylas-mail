@@ -139,8 +139,9 @@ export default class Message extends ModelWithMetadata {
       modelKey: 'threadId',
     }),
 
-    messageIdHeader: Attributes.String({
-      modelKey: 'messageIdHeader',
+    headerMessageId: Attributes.String({
+      queryable: true,
+      modelKey: 'headerMessageId',
     }),
 
     subject: Attributes.String({

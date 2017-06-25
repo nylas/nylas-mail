@@ -37,7 +37,7 @@ xdescribe 'MessageItemContainer', ->
     ReactTestUtils.renderIntoDocument(
       <MessageItemContainer thread={testThread}
                             message={message}
-                            draftClientId={testClientId} />
+                            headerMessageId={testClientId} />
     )
 
   it "shows composer if it's a draft", ->

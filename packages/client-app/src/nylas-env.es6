@@ -171,9 +171,9 @@ export default class NylasEnvConstructor {
     const PackageManager = require('./package-manager');
     const ThemeManager = require('./theme-manager');
     const StyleManager = require('./style-manager');
+    const MenuManager = require('./menu-manager').default;
     const ActionBridge = require('./flux/action-bridge').default;
     const ActionBridgeCPP = require('./flux/action-bridge-cpp').default;
-    const MenuManager = require('./menu-manager').default;
 
     const {devMode, benchmarkMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
 
@@ -371,8 +371,13 @@ export default class NylasEnvConstructor {
     if (event.defaultPrevented) { return; }
 
     this.lastUncaughtError = error;
-
-    extra.pluginIds = this._findPluginsFromError(error);
+  
+    try {
+      extra.pluginIds = this._findPluginsFromError(error);
+    } catch (err) {
+      // can happen when an error is thrown very early
+      extra.pluginIds = [];
+    }
 
     if (this.inSpecMode()) {
       jasmine.getEnv().currentSpec.fail(error);

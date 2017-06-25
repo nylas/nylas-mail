@@ -12,14 +12,14 @@ ipc =
 
 describe "ActionBridge", ->
 
-  describe "in the work window", ->
+  describe "in the womainrk window", ->
     beforeEach ->
       spyOn(NylasEnv, "getWindowType").andReturn "default"
       spyOn(NylasEnv, "isWorkWindow").andReturn true
       @bridge = new ActionBridge(ipc)
 
-    it "should have the role Role.WORK", ->
-      expect(@bridge.role).toBe(ActionBridge.Role.WORK)
+    it "should have the role Role.MAIN", ->
+      expect(@bridge.role).toBe(ActionBridge.Role.MAIN)
 
     it "should rebroadcast global actions", ->
       spyOn(@bridge, 'onRebroadcast')
@@ -87,12 +87,12 @@ describe "ActionBridge", ->
         @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
         expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'onNewMailDeltas', '[{"oldModel":"1","newModel":2}]')
 
-    describe "when called with TargetWindows.WORK", ->
+    describe "when called with TargetWindows.MAIN", ->
       it "should broadcast the action over IPC to the main window only", ->
         spyOn(ipc, 'send')
         Actions.onNewMailDeltas.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.WORK, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-work', 'popout', 'onNewMailDeltas', '[{"oldModel":"1","newModel":2}]')
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.MAIN, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-default', 'popout', 'onNewMailDeltas', '[{"oldModel":"1","newModel":2}]')
 
     it "should not do anything if the current invocation of the Action was triggered by itself", ->
       spyOn(ipc, 'send')

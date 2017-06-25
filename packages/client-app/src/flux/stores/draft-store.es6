@@ -91,26 +91,26 @@ class DraftStore extends NylasStore {
   @param {String} clientId - The clientId of the draft.
   @returns {Promise} - Resolves to an {DraftEditingSession} for the draft once it has been prepared
   */
-  sessionForClientId(clientId) {
-    if (!clientId) {
+  sessionForClientId(headerMessageId) {
+    if (!headerMessageId) {
       throw new Error("DraftStore::sessionForClientId requires a clientId");
     }
-    if (this._draftSessions[clientId] == null) {
-      this._draftSessions[clientId] = this._createSession(clientId);
+    if (this._draftSessions[headerMessageId] == null) {
+      this._draftSessions[headerMessageId] = this._createSession(headerMessageId);
     }
-    return this._draftSessions[clientId].prepare();
+    return this._draftSessions[headerMessageId].prepare();
   }
 
-  // Public: Look up the sending state of the given draftClientId.
+  // Public: Look up the sending state of the given draft headerMessageId.
   // In popout windows the existance of the window is the sending state.
-  isSendingDraft(draftClientId) {
-    return this._draftsSending[draftClientId] || false;
+  isSendingDraft(headerMessageId) {
+    return this._draftsSending[headerMessageId] || false;
   }
 
 
   _doneWithSession(session) {
     session.teardown();
-    delete this._draftSessions[session.draftClientId];
+    delete this._draftSessions[session.headerMessageId];
   }
 
   _cleanupAllSessions() {
@@ -129,7 +129,7 @@ class DraftStore extends NylasStore {
     _.each(this._draftSessions, (session) => {
       const draft = session.draft()
       if (draft && draft.pristine) {
-        Actions.queueTask(new DestroyDraftTask(session.draftClientId));
+        Actions.queueTask(new DestroyDraftTask(session.headerMessageId));
       } else {
         promises.push(session.changes.commit());
       }
@@ -172,10 +172,10 @@ class DraftStore extends NylasStore {
     .then((draft) => {
       draft.body = `${body}\n\n${draft.body}`
       draft.pristine = false;
-      return DatabaseStore.inTransaction((t) => {
-        return t.persistModel(draft);
-      })
-      .then(() => {
+
+      const t = new SyncbackDraftTask(draft)
+      Actions.queueTask(t)
+      TaskQueue.waitForPerformLocal(t).then(() => {
         Actions.sendDraft(draft.clientId);
       });
     });
@@ -249,17 +249,17 @@ class DraftStore extends NylasStore {
     // doesn't need to do a query for it a second from now when the composer wants it.
     this._createSession(draft.clientId, draft);
 
-    return DatabaseStore.inTransaction((t) => {
-      return t.persistModel(draft);
-    })
-    .then(() => {
+    const task = new SyncbackDraftTask(draft);
+    Actions.queueTask(task)
+    
+    return TaskQueue.waitForPerformLocal(task).then(() => {
       if (popout) {
-        this._onPopoutDraftClientId(draft.clientId);
+        this._onPopoutDraftClientId(draft.headerMessageId);
       } else {
-        Actions.focusDraft({draftClientId: draft.clientId});
+        Actions.focusDraft({headerMessageId: draft.headerMessageId});
       }
+      return {headerMessageId: draft.headerMessageId, draft};
     })
-    .thenReturn({draftClientId: draft.clientId, draft});
   }
 
   _createSession(clientId, draft) {
@@ -276,18 +276,18 @@ class DraftStore extends NylasStore {
   _onPopoutBlankDraft = () => {
     Actions.recordUserEvent("Draft Created", {type: "new"});
     return DraftFactory.createDraft().then((draft) => {
-      return this._finalizeAndPersistNewMessage(draft).then(({draftClientId}) => {
-        return this._onPopoutDraftClientId(draftClientId, {newDraft: true});
+      return this._finalizeAndPersistNewMessage(draft).then(({headerMessageId}) => {
+        return this._onPopoutDraftClientId(headerMessageId, {newDraft: true});
       });
     });
   }
 
-  _onPopoutDraftClientId = (draftClientId, options = {}) => {
-    if (draftClientId == null) {
-      throw new Error("DraftStore::onPopoutDraftId - You must provide a draftClientId");
+  _onPopoutDraftClientId = (headerMessageId, options = {}) => {
+    if (headerMessageId == null) {
+      throw new Error("DraftStore::onPopoutDraftId - You must provide a headerMessageId");
     }
     const title = options.newDraft ? "New Message" : "Message";
-    return this.sessionForClientId(draftClientId).then((session) => {
+    return this.sessionForClientId(headerMessageId).then((session) => {
       return session.changes.commit().then(() => {
         const draftJSON = session.draft().toJSON();
         // Since we pass a windowKey, if the popout composer draft already
@@ -296,9 +296,9 @@ class DraftStore extends NylasStore {
         NylasEnv.newWindow({
           title,
           hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
-          windowKey: `composer-${draftClientId}`,
+          windowKey: `composer-${headerMessageId}`,
           windowType: 'composer-preload',
-          windowProps: _.extend(options, {draftClientId, draftJSON}),
+          windowProps: _.extend(options, {headerMessageId, draftJSON}),
         });
       });
     });
@@ -318,27 +318,27 @@ class DraftStore extends NylasStore {
     return DraftFactory.createDraft().then((draft) => {
       return this._finalizeAndPersistNewMessage(draft);
     })
-    .then(({draftClientId}) => {
+    .then(({headerMessageId}) => {
       let remaining = paths.length;
       const callback = () => {
         remaining -= 1;
         if (remaining === 0) {
-          this._onPopoutDraftClientId(draftClientId);
+          this._onPopoutDraftClientId(headerMessageId);
         }
       };
 
       paths.forEach((path) => {
         Actions.addAttachment({
           filePath: path,
-          messageClientId: draftClientId,
+          messageClientId: headerMessageId,
           onUploadCreated: callback,
         });
       })
     });
   }
 
-  _onDestroyDraft = (draftClientId) => {
-    const session = this._draftSessions[draftClientId];
+  _onDestroyDraft = (headerMessageId) => {
+    const session = this._draftSessions[headerMessageId];
 
     // Immediately reset any pending changes so no saves occur
     if (session) {
@@ -347,34 +347,34 @@ class DraftStore extends NylasStore {
 
     // Stop any pending tasks related ot the draft
     TaskQueue.queue().forEach((task) => {
-      if (task instanceof BaseDraftTask && task.draftClientId === draftClientId) {
+      if (task instanceof BaseDraftTask && task.headerMessageId === headerMessageId) {
         Actions.dequeueTask(task.id);
       }
     })
 
     // Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask(draftClientId));
+    Actions.queueTask(new DestroyDraftTask(headerMessageId));
 
     if (NylasEnv.isComposerWindow()) {
       NylasEnv.close();
     }
   }
 
-  _onEnsureDraftSynced = (draftClientId) => {
-    return this.sessionForClientId(draftClientId).then((session) => {
+  _onEnsureDraftSynced = (headerMessageId) => {
+    return this.sessionForClientId(headerMessageId).then((session) => {
       return DraftHelpers.prepareDraftForSyncback(session)
       .then(() => {
-        Actions.queueTask(new SyncbackDraftTask(draftClientId));
+        Actions.queueTask(new SyncbackDraftTask(headerMessageId));
       });
     });
   }
 
-  _onSendDraft = (draftClientId, sendActionKey = DefaultSendActionKey) => {
-    this._draftsSending[draftClientId] = true;
-    return this.sessionForClientId(draftClientId).then((session) => {
+  _onSendDraft = (headerMessageId, sendActionKey = DefaultSendActionKey) => {
+    this._draftsSending[headerMessageId] = true;
+    return this.sessionForClientId(headerMessageId).then((session) => {
       return DraftHelpers.prepareDraftForSyncback(session)
       .then(() => {
-        Actions.queueTask(new PerformSendActionTask(draftClientId, sendActionKey));
+        Actions.queueTask(new PerformSendActionTask(headerMessageId, sendActionKey));
         this._doneWithSession(session);
         if (NylasEnv.config.get("core.sending.sounds")) {
           SoundRegistry.playSound('hit-send');
@@ -387,7 +387,7 @@ class DraftStore extends NylasStore {
   }
 
   __testExtensionTransforms() {
-    const clientId = NylasEnv.getWindowProps().draftClientId;
+    const clientId = NylasEnv.getWindowProps().headerMessageId;
     return this.sessionForClientId(clientId).then((session) => {
       return this._prepareForSyncback(session).then(() => {
         window.__draft = session.draft();
@@ -405,19 +405,19 @@ class DraftStore extends NylasStore {
     });
   }
 
-  _onDidCancelSendAction = ({draftClientId}) => {
-    delete this._draftsSending[draftClientId];
-    this.trigger(draftClientId);
+  _onDidCancelSendAction = ({headerMessageId}) => {
+    delete this._draftsSending[headerMessageId];
+    this.trigger(headerMessageId);
   }
 
-  _onSendDraftSuccess = ({draftClientId}) => {
-    delete this._draftsSending[draftClientId];
-    this.trigger(draftClientId);
+  _onSendDraftSuccess = ({headerMessageId}) => {
+    delete this._draftsSending[headerMessageId];
+    this.trigger(headerMessageId);
   }
 
-  _onSendDraftFailed = ({draftClientId, threadId, errorMessage, errorDetail}) => {
-    this._draftsSending[draftClientId] = false;
-    this.trigger(draftClientId);
+  _onSendDraftFailed = ({headerMessageId, threadId, errorMessage, errorDetail}) => {
+    this._draftsSending[headerMessageId] = false;
+    this.trigger(headerMessageId);
     if (NylasEnv.isMainWindow()) {
       // We delay so the view has time to update the restored draft. If we
       // don't delay the modal may come up in a state where the draft looks
@@ -426,17 +426,17 @@ class DraftStore extends NylasStore {
       // We also need to delay because the old draft window needs to fully
       // close. It takes windows currently (June 2016) 100ms to close by
       setTimeout(() => {
-        this._notifyUserOfError({draftClientId, threadId, errorMessage, errorDetail});
+        this._notifyUserOfError({headerMessageId, threadId, errorMessage, errorDetail});
       }, 300);
     }
   }
 
-  _notifyUserOfError({draftClientId, threadId, errorMessage, errorDetail}) {
+  _notifyUserOfError({headerMessageId, threadId, errorMessage, errorDetail}) {
     const focusedThread = FocusedContentStore.focused('thread');
     if (threadId && focusedThread && focusedThread.id === threadId) {
       NylasEnv.showErrorDialog(errorMessage, {detail: errorDetail});
     } else {
-      Actions.composePopoutDraft(draftClientId, {errorMessage, errorDetail});
+      Actions.composePopoutDraft(headerMessageId, {errorMessage, errorDetail});
     }
   }
 }

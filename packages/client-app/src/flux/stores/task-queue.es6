@@ -2,8 +2,6 @@ import _ from 'underscore';
 import NylasStore from 'nylas-store';
 import {Rx} from 'nylas-exports';
 import Task from "../tasks/task";
-import DatabaseObjectRegistry from '../../registries/database-object-registry';
-import Actions from '../actions';
 import DatabaseStore from './database-store';
 
 /**
@@ -52,19 +50,28 @@ class TaskQueue extends NylasStore {
     this._waitingForRemote = [];
 
     Rx.Observable.fromQuery(DatabaseStore.findAll(Task)).subscribe((tasks => {
-      this._queue = tasks.filter(t => t.complete === false);
-      this._completed = tasks.filter(t => t.complete === true);
-      this.trigger();
-      // TODO : this._waitingForLocal!
-    }))
+      this._queue = tasks.filter(t => t.status !== 'complete');
+      this._completed = tasks.filter(t => t.status === 'complete');
+      const all = [].concat(this._queue, this._completed);
 
-    this.listenTo(Actions.queueTask, this.enqueue)
-    this.listenTo(Actions.queueTasks, (tasks) => {
-      if (!tasks || !tasks.length) { return; }
-      for (const task of tasks) { this.enqueue(task); }
-    });
-    this.listenTo(Actions.undoTaskId, this.enqueueUndoOfTaskId);
-    this.listenTo(Actions.dequeueTask, this.dequeue);
+      this._waitingForLocal.filter(({task, resolve}) => {
+        if (all.find(t => task.id === t.id)) {
+          resolve();
+          return false;
+        }
+        return true;
+      });
+
+      this._waitingForRemote.filter(({task, resolve}) => {
+        if (this._completed.find(t => task.id === t.id)) {
+          resolve();
+          return false;
+        }
+        return true;
+      });
+
+      this.trigger();
+    }));
   }
 
   queue() {
@@ -88,7 +95,7 @@ class TaskQueue extends NylasStore {
     {SaveDraftTask} or 'SaveDraftTask')
 
   - `matching`: Optional An {Object} with criteria to pass to _.isMatch. For a
-     SaveDraftTask, this could be {draftClientId: "123123"}
+     SaveDraftTask, this could be {headerMessageId: "123123"}
 
   Returns a matching {Task}, or null.
   */
@@ -109,32 +116,6 @@ class TaskQueue extends NylasStore {
     });
 
     return matches;
-  }
-
-  enqueue = (task) => {
-    if (!(task instanceof Task)) {
-      console.log(task);
-      throw new Error("You must queue a `Task` instance. Be sure you have the task registered with the DatabaseObjectRegistry. If this is a task for a custom plugin, you must export a `taskConstructors` array with your `Task` constructors in it. You must all subclass the base Nylas `Task`.");
-    }
-    if (!DatabaseObjectRegistry.isInRegistry(task.constructor.name)) {
-      console.log(task);
-      throw new Error("You must queue a `Task` instance which is registred with the DatabaseObjectRegistry")
-    }
-    if (!task.id) {
-      console.log(task);
-      throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
-    }
-    task.sequentialId = ++this._currentSequentialId;
-    task.status = 'local';
-
-    NylasEnv.actionBridgeCpp.onTellClients({type: 'task-queued', task: task});
-  }
-
-  enqueueUndoOfTaskId = (taskId) => {
-    const task = this._queue.find(t => t.id === taskId) || this._completed.find(t => t.id === taskId);
-    if (task) {
-      this.enqueue(task.createUndoTask());
-    }
   }
 
   dequeue = (taskOrId) => {

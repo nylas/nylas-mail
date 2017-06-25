@@ -7,7 +7,7 @@ class TemplatePopover extends React.Component {
   static displayName = 'TemplatePopover';
 
   static propTypes = {
-    draftClientId: React.PropTypes.string,
+    headerMessageId: React.PropTypes.string,
   };
 
   constructor() {
@@ -45,7 +45,7 @@ class TemplatePopover extends React.Component {
   };
 
   _onChooseTemplate = (template) => {
-    Actions.insertTemplateId({templateId: template.id, draftClientId: this.props.draftClientId});
+    Actions.insertTemplateId({templateId: template.id, headerMessageId: this.props.headerMessageId});
     Actions.closePopover();
   }
 
@@ -54,7 +54,7 @@ class TemplatePopover extends React.Component {
   };
 
   _onNewTemplate = () => {
-    Actions.createTemplate({draftClientId: this.props.draftClientId});
+    Actions.createTemplate({headerMessageId: this.props.headerMessageId});
   };
 
   _onClickButton = () => {
@@ -103,13 +103,13 @@ class TemplatePicker extends React.Component {
   static displayName = 'TemplatePicker';
 
   static propTypes = {
-    draftClientId: React.PropTypes.string,
+    headerMessageId: React.PropTypes.string,
   };
 
   _onClickButton = () => {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
-      <TemplatePopover draftClientId={this.props.draftClientId} />,
+      <TemplatePopover headerMessageId={this.props.headerMessageId} />,
       {originRect: buttonRect, direction: 'up'}
     )
   };

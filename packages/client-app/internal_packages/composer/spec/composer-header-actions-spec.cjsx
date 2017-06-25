@@ -10,7 +10,7 @@ describe "ComposerHeaderActions", ->
     @onShowAndFocusField = jasmine.createSpy("onShowAndFocusField")
     props.onShowAndFocusField = @onShowAndFocusField
     props.enabledFields ?= []
-    props.draftClientId = 'a'
+    props.headerMessageId = 'a'
     @component = ReactTestUtils.renderIntoDocument(
       <ComposerHeaderActions {...props} />
     )
