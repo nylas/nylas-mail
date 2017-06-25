@@ -6,16 +6,14 @@ export class Registry {
 
   static include = includeModule;
 
-  constructor(name, deprecationAdapter = (ext) => ext) {
+  constructor(name) {
     this.name = name;
-    this._deprecationAdapter = deprecationAdapter;
     this._registry = new Map();
   }
 
-  register(ext, {priority = 0} = {}) {
-    this.validateExtension(ext, 'register');
-    const extension = this._deprecationAdapter(ext)
-    this._registry.set(ext.name, {extension, priority});
+  register(extension, {priority = 0} = {}) {
+    this.validateExtension(extension, 'register');
+    this._registry.set(extension.name, {extension, priority});
     this.triggerDebounced();
     return this;
   }

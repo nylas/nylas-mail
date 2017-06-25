@@ -5,7 +5,6 @@ class TestExtension
 
 describe 'ExtensionRegistry', ->
   beforeEach ->
-    @originalAdapters = ExtensionRegistry._deprecationAdapters
     @registry = new ExtensionRegistry.Registry('Test')
     spyOn @registry, 'triggerDebounced'
 
@@ -42,13 +41,6 @@ describe 'ExtensionRegistry', ->
         expect(@registry.extensions().length).toEqual 1
         @registry.register({name: 'TestExtension'})
         expect(@registry.extensions().length).toEqual 1
-
-      it 'calls deprecationAdapters if present for a role', ->
-        adapterSpy = jasmine.createSpy('adapterSpy').andCallFake (ext) -> ext
-        @registry = new ExtensionRegistry.Registry('Test', adapterSpy)
-        spyOn @registry, 'triggerDebounced'
-        @registry.register(TestExtension)
-        expect(adapterSpy.calls.length).toEqual 1
 
     describe 'unregister', ->
       it 'unregisters the extension if it exists', ->

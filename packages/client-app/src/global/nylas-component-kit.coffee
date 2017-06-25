@@ -30,19 +30,11 @@ class NylasComponentKit
         exported = require "../components/#{path}"
         return exported[prop]
 
-  @loadDeprecated = (prop, path, {instead} = {}) ->
-    {deprecate} = require '../deprecate-utils'
-    Object.defineProperty @prototype, prop,
-      get: deprecate prop, instead, @, ->
-        exported = NylasComponentKit.default(require "../components/#{path}")
-        return exported
-      enumerable: true
 
   @load "Menu", 'menu'
   @load "DropZone", 'drop-zone'
   @load "Spinner", 'spinner'
   @load "Switch", 'switch'
-  @loadDeprecated "Popover", 'popover', instead: 'Actions.openPopover'
   @load "FixedPopover", 'fixed-popover'
   @require "DatePickerPopover", 'date-picker-popover'
   @load "Modal", 'modal'
@@ -73,7 +65,6 @@ class NylasComponentKit
   @load "InjectedComponent", 'injected-component'
   @load "TokenizingTextField", 'tokenizing-text-field'
   @load "ParticipantsTextField", 'participants-text-field'
-  @loadDeprecated "MultiselectActionBar", 'multiselect-action-bar', instead: 'MultiselectToolbar'
   @load "MultiselectToolbar", 'multiselect-toolbar'
   @load "InjectedComponentSet", 'injected-component-set'
   @load "MetadataComposerToggleButton", 'metadata-composer-toggle-button'

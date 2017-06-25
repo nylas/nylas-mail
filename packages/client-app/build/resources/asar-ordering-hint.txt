@@ -1036,11 +1036,8 @@
 3662409: src/nylas-spellchecker.js
 3798011: src/global/nylas-exports.js
 3798011: src/global/nylas-exports.js
-5912469: src/deprecate-utils.js
 3668481: src/config-schema.js
-5912469: src/deprecate-utils.js
 3798011: src/global/nylas-exports.js
-5912469: src/deprecate-utils.js
 3668481: src/config-schema.js
 4687050: src/global/nylas-observables.js
 4697858: node_modules/rx-lite/package.json

@@ -288,10 +288,6 @@ class ThemeManager
       themePaths = []
       for themeName in @getEnabledThemeNames()
         if themePath = @packageManager.resolvePackagePath(themeName)
-          deprecatedPath = path.join(themePath, 'stylesheets')
-          if fs.isDirectorySync(deprecatedPath)
-            themePaths.push(deprecatedPath)
-          else
-            themePaths.push(path.join(themePath, 'styles'))
+          themePaths.push(path.join(themePath, 'styles'))
 
     themePaths.filter (themePath) -> fs.isDirectorySync(themePath)

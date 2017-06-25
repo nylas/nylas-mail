@@ -51,16 +51,6 @@ const lazyLoadAndRegisterTask = (klassName, path) => {
   DatabaseObjectRegistry.register(klassName, () => exports[klassName]);
 };
 
-const lazyLoadDeprecated = (prop, path, {instead} = {}) => {
-  const {deprecate} = require('../deprecate-utils');
-  Object.defineProperty(exports, prop, {
-    get: deprecate(prop, instead, exports, () => {
-      return resolveExport(require(`../${path}`));
-    }),
-    enumerable: true,
-  });
-};
-
 // Actions
 lazyLoad(`Actions`, 'flux/actions');
 
@@ -71,7 +61,6 @@ lazyLoad(`EdgehillAPI`, 'flux/edgehill-api');
 lazyLoad(`LegacyEdgehillAPI`, 'flux/legacy-edgehill-api');
 lazyLoad(`NylasAPIHelpers`, 'flux/nylas-api-helpers');
 lazyLoad(`NylasAPIRequest`, 'flux/nylas-api-request');
-lazyLoad(`NylasLongConnection`, 'flux/nylas-long-connection');
 
 // The Database
 lazyLoad(`Matcher`, 'flux/attributes/matcher');
@@ -196,7 +185,6 @@ lazyLoad(`FsUtils`, 'fs-utils');
 lazyLoad(`CanvasUtils`, 'canvas-utils');
 lazyLoad(`RegExpUtils`, 'regexp-utils');
 lazyLoad(`MenuHelpers`, 'menu-helpers');
-lazyLoad(`DeprecateUtils`, 'deprecate-utils');
 lazyLoad(`VirtualDOMUtils`, 'virtual-dom-utils');
 lazyLoad(`Spellchecker`, 'spellchecker');
 lazyLoad(`DraftHelpers`, 'flux/stores/draft-helpers');
@@ -231,14 +219,3 @@ lazyLoadWithGetter(`APMWrapper`, () => require('../apm-wrapper'));
 
 // Testing
 lazyLoadWithGetter(`NylasTestUtils`, () => require('../../spec/nylas-test-utils'));
-
-// Deprecated
-lazyLoadDeprecated(`QuotedHTMLParser`, 'services/quoted-html-transformer', {
-  instead: 'QuotedHTMLTransformer',
-});
-lazyLoadDeprecated(`DraftStoreExtension`, 'flux/stores/draft-store-extension', {
-  instead: 'ComposerExtension',
-});
-lazyLoadDeprecated(`MessageStoreExtension`, 'flux/stores/message-store-extension', {
-  instead: 'MessageViewExtension',
-});

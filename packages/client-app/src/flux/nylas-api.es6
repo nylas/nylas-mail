@@ -1,5 +1,4 @@
 import AccountStore from './stores/account-store'
-import NylasLongConnection from './nylas-long-connection'
 
 // A 0 code is when an error returns without a status code, like "ESOCKETTIMEDOUT"
 const TimeoutErrorCodes = [0, 408, "ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ENETDOWN", "ENETUNREACH"]
@@ -52,7 +51,6 @@ class NylasAPI {
     this.PermanentErrorCodes = PermanentErrorCodes
     this.CanceledErrorCodes = CanceledErrorCodes
     this.SampleTemporaryErrorCode = SampleTemporaryErrorCode
-    this.LongConnectionStatus = NylasLongConnection.Status
   }
 
   accessTokenForAccountId(aid) {

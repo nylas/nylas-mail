@@ -6,13 +6,10 @@ import {
   DatabaseStore,
   SearchQueryParser,
   ComponentRegistry,
-  NylasLongConnection,
   FocusedContentStore,
   MutableQuerySubscription,
 } from 'nylas-exports'
 import SearchActions from './search-actions'
-
-const {LongConnectionStatus} = NylasAPI
 
 class SearchQuerySubscription extends MutableQuerySubscription {
 
@@ -94,37 +91,37 @@ class SearchQuerySubscription extends MutableQuerySubscription {
   }
 
   performRemoteSearch() {
-    const accountsSearched = new Set()
-    const allAccountsSearched = () => accountsSearched.size === this._accountIds.length
-    this._connections = this._accountIds.map((accountId) => {
-      const conn = new NylasLongConnection({
-        accountId,
-        api: NylasAPI,
-        path: `/threads/search/streaming?q=${encodeURIComponent(this._searchQuery)}`,
-        onResults: (results) => {
-          if (!this._remoteResultsReceivedAt) {
-            this._remoteResultsReceivedAt = Date.now();
-          }
-          const threads = results[0];
-          this._remoteResultsCount += threads.length;
-        },
-        onStatusChanged: (status) => {
-          const hasClosed = [
-            LongConnectionStatus.Closed,
-            LongConnectionStatus.Ended,
-          ].includes(status)
+    // const accountsSearched = new Set()
+    // const allAccountsSearched = () => accountsSearched.size === this._accountIds.length
+    // this._connections = this._accountIds.map((accountId) => {
+    //   const conn = new NylasLongConnection({
+    //     accountId,
+    //     api: NylasAPI,
+    //     path: `/threads/search/streaming?q=${encodeURIComponent(this._searchQuery)}`,
+    //     onResults: (results) => {
+    //       if (!this._remoteResultsReceivedAt) {
+    //         this._remoteResultsReceivedAt = Date.now();
+    //       }
+    //       const threads = results[0];
+    //       this._remoteResultsCount += threads.length;
+    //     },
+    //     onStatusChanged: (status) => {
+    //       const hasClosed = [
+    //         LongConnectionStatus.Closed,
+    //         LongConnectionStatus.Ended,
+    //       ].includes(status)
 
-          if (hasClosed) {
-            accountsSearched.add(accountId)
-            if (allAccountsSearched()) {
-              SearchActions.searchCompleted()
-            }
-          }
-        },
-      })
+    //       if (hasClosed) {
+    //         accountsSearched.add(accountId)
+    //         if (allAccountsSearched()) {
+    //           SearchActions.searchCompleted()
+    //         }
+    //       }
+    //     },
+    //   })
 
-      return conn.start()
-    })
+    //   return conn.start()
+    // })
   }
 
   performExtensionSearch() {

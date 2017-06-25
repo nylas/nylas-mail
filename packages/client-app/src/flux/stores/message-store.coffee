@@ -9,7 +9,6 @@ FocusedPerspectiveStore = require('./focused-perspective-store').default
 FocusedContentStore = require "./focused-content-store"
 NylasAPIHelpers = require '../nylas-api-helpers'
 ExtensionRegistry = require('../../registries/extension-registry')
-{deprecate} = require '../../deprecate-utils'
 async = require 'async'
 _ = require 'underscore'
 
@@ -66,24 +65,6 @@ class MessageStore extends NylasStore
   # Public: Returns the extensions registered with the MessageStore.
   extensions: =>
     ExtensionRegistry.MessageView.extensions()
-
-  # Public: Deprecated, use {ExtensionRegistry.MessageView.register} instead.
-  # Registers a new extension with the MessageStore. MessageStore extensions
-  # make it possible to customize message body parsing, and will do more in
-  # the future.
-  #
-  # - `ext` A {MessageViewExtension} instance.
-  #
-  registerExtension: (ext) =>
-    ExtensionRegistry.MessageView.register(ext)
-
-  # Public: Deprecated, use {ExtensionRegistry.MessageView.unregister} instead.
-  # Unregisters the extension provided from the MessageStore.
-  #
-  # - `ext` A {MessageViewExtension} instance.
-  #
-  unregisterExtension: (ext) =>
-    ExtensionRegistry.MessageView.unregister(ext)
 
   _onExtensionsChanged: (role) ->
     MessageBodyProcessor = require('./message-body-processor').default
@@ -332,18 +313,6 @@ class MessageStore extends NylasStore
 
 
 store = new MessageStore()
-store.registerExtension = deprecate(
-  'MessageStore.registerExtension',
-  'ExtensionRegistry.MessageView.register',
-  store,
-  store.registerExtension
-)
-store.unregisterExtension = deprecate(
-  'MessageStore.unregisterExtension',
-  'ExtensionRegistry.MessageView.unregister',
-  store,
-  store.unregisterExtension
-)
 store.FolderNamesHiddenByDefault = FolderNamesHiddenByDefault
 
 module.exports = store
