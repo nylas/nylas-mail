@@ -112,20 +112,6 @@ class Thread extends ModelWithMetadata {
       queryable: true,
       modelKey: 'inAllMail',
     }),
-
-    isSearchIndexed: Attributes.Boolean({
-      queryable: true,
-      modelKey: 'isSearchIndexed',
-      defaultValue: false,
-      loadFromColumn: true,
-    }),
-
-    // This corresponds to the rowid in the FTS table. We need to use the FTS
-    // rowid when updating and deleting items in the FTS table because otherwise
-    // these operations would be way too slow on large FTS tables.
-    searchIndexId: Attributes.Number({
-      modelKey: 'searchIndexId',
-    }),
   })
 
   static sortOrderAttribute = () => {
@@ -135,10 +121,6 @@ class Thread extends ModelWithMetadata {
   static naturalSortOrder = () => {
     return Thread.sortOrderAttribute().descending()
   }
-
-  static searchable = true
-
-  static searchFields = ['subject', 'to_', 'from_', 'categories', 'body']
 
   async messages({includeHidden} = {}) {
     const messages = await DatabaseStore.findAll(Message)

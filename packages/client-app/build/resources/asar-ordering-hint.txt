@@ -2465,8 +2465,6 @@
 94875052: src/searchable-components/search-constants.js
 6217392: internal_packages/screenshot-mode/lib/main.js
 3672501: keymaps/base.json
-38810714: internal_packages/thread-search-index/lib/main.js
-38818707: internal_packages/thread-search-index/lib/search-index-store.js
 6218172: internal_packages/deltas/lib/main.js
 6218486: internal_packages/deltas/lib/account-delta-connection-pool.js
 6226311: internal_packages/deltas/lib/nylas-long-connection.js
