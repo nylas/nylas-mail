@@ -3,9 +3,9 @@ import path from 'path';
 import createDebug from 'debug';
 import childProcess from 'child_process';
 import PromiseQueue from 'promise-queue';
-import {remote, ipcRenderer} from 'electron';
+import {remote} from 'electron';
 import LRU from "lru-cache";
-import {StringUtils, ExponentialBackoffScheduler} from 'isomorphic-core';
+import {ExponentialBackoffScheduler} from '../../backoff-schedulers';
 
 import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
@@ -23,6 +23,17 @@ const BASE_RETRY_LOCK_DELAY = 50;
 const MAX_RETRY_LOCK_DELAY = 500;
 
 let JSONBlob = null;
+
+function trimTo(str, size) {
+  const g = window || global || {}
+  const TRIM_SIZE = size || process.env.TRIM_SIZE || g.TRIM_SIZE || 256;
+  let trimed = str;
+  if (str.length >= TRIM_SIZE) {
+    trimed = `${str.slice(0, TRIM_SIZE / 2)}…${str.slice(str.length - TRIM_SIZE / 2, str.length)}`
+  }
+  return trimed
+}
+
 
 /*
 Public: N1 is built on top of a custom database layer modeled after

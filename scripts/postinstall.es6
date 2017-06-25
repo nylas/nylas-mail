@@ -107,42 +107,6 @@ async function electronRebuild() {
   })
 }
 
-const getJasmineDir = (packageName) => path.resolve(
-  path.join('packages', packageName, 'spec', 'jasmine')
-)
-const getJasmineConfigPath = (packageName) => path.resolve(
-  path.join(getJasmineDir(packageName), 'config.json')
-)
-
-function linkJasmineConfigs() {
-  console.log("\n---> Linking Jasmine configs");
-  const linkToPackages = ['cloud-api', 'cloud-core', 'cloud-workers']
-  const from = getJasmineConfigPath('isomorphic-core')
-  for (const packageName of linkToPackages) {
-    const packageDir = path.join('packages', packageName)
-    if (!fs.existsSync(packageDir)) {
-      console.log("\n---> No cloud packages to link. Moving on")
-      return
-    }
-
-    const jasmineDir = getJasmineDir(packageName)
-    if (!fs.existsSync(jasmineDir)) {
-      fs.mkdirSync(jasmineDir)
-    }
-    const to = getJasmineConfigPath(packageName)
-    unlinkIfExistsSync(to)
-    fs.symlinkSync(from, to, 'file')
-  }
-}
-
-function linkIsomorphicCoreSpecs() {
-  console.log("\n---> Linking isomorphic-core specs to client-app specs")
-  const from = path.resolve(path.join('packages', 'isomorphic-core', 'spec'))
-  const to = path.resolve(path.join('packages', 'client-app', 'spec', 'isomorphic-core'))
-  unlinkIfExistsSync(to)
-  fs.symlinkSync(from, to, 'dir')
-}
-
 function getInstallTarget() {
   const {INSTALL_TARGET} = process.env
   if (!INSTALL_TARGET) {
@@ -175,8 +139,6 @@ async function main() {
         await npm('install', {cwd: 'packages/client-app'})
       }
       await electronRebuild();
-      linkJasmineConfigs();
-      linkIsomorphicCoreSpecs();
     }
   } catch (err) {
     console.error(err);

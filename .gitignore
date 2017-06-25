@@ -48,10 +48,6 @@ spec-saved-state.json
 
 # Symlinked Jasmine config files
 **/jasmine/config.json
-!packages/isomorphic-core/spec/jasmine/config.json
-
-# Symlinked isomorphic-core Specs
-packages/client-app/spec/isomorphic-core
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

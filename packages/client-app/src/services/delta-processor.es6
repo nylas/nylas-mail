@@ -7,8 +7,7 @@ import * as NylasAPIHelpers from '../flux/nylas-api-helpers'
 
 /**
  * This injests deltas from multiple sources. One is from local-sync, the
- * other is from n1-cloud. Both sources use
- * isomorphic-core/src/delta-stream-builder to generate the delta stream.
+ * other is from n1-cloud. Both sources use delta-stream-builder to generate the delta stream.
  *
  * In both cases we are given the JSON serialized form of a `Transaction`
  * model. An example Thread delta would look like:

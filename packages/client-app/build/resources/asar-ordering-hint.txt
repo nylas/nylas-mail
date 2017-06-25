@@ -692,8 +692,6 @@
 3485716: src/flux/attributes/attribute-collection.js
 3490067: src/flux/attributes/attribute-joined-data.js
 3490067: src/flux/attributes/attribute-joined-data.js
-3492659: src/flux/attributes/attribute-serverid.js
-3492659: src/flux/attributes/attribute-serverid.js
 3494243: src/flux/actions.js
 3449351: src/flux/models/model.js
 3494243: src/flux/actions.js
@@ -735,7 +733,6 @@
 3536620: node_modules/reflux/src/listenTo.js
 3536620: node_modules/reflux/src/listenTo.js
 3538124: node_modules/reflux/src/listenToMany.js
-3492659: src/flux/attributes/attribute-serverid.js
 3538124: node_modules/reflux/src/listenToMany.js
 3494243: src/flux/actions.js
 3509768: node_modules/reflux/package.json

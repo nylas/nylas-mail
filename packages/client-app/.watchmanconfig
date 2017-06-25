@@ -2,12 +2,6 @@
   "ignore_dirs": [
     "build/node_modules",
     "apm/node_modules",
-    "node_modules",
-    "src/K2/node_modules",
-    "src/K2/packages/local-sync/node_modules",
-    "src/K2/packages/isomorphic-core/node_modules",
-    "src/K2/packages/cloud-api/node_modules",
-    "src/K2/packages/cloud-workers/node_modules",
-    "src/K2/packages/cloud-core/node_modules"
+    "node_modules"
   ]
 }

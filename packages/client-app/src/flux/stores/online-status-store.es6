@@ -1,7 +1,7 @@
-import isOnline from 'is-online'
-import NylasStore from 'nylas-store'
-import {ExponentialBackoffScheduler} from 'isomorphic-core'
-import Actions from '../actions'
+import isOnline from 'is-online';
+import NylasStore from 'nylas-store';
+import {ExponentialBackoffScheduler} from '../../backoff-schedulers';
+import Actions from '../actions';
 
 
 const CHECK_ONLINE_INTERVAL = 30 * 1000

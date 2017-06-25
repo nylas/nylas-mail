@@ -89,17 +89,6 @@ module.exports = (grunt) => {
     callback();
   }
 
-  /**
-   * We don't need the K2 folder anymore since the previous step hard
-   * copied the client-sync package (and its isomorphic-core dependency)
-   * into /internal_packages. The remains of the folder are N1-Cloud
-   * pieces that aren't necessary
-   */
-  function removeUnnecessaryFiles(buildPath, electronVersion, platform, arch, callback) {
-    fs.removeSync(path.join(buildPath, 'src', 'K2'))
-    callback();
-  }
-
   function runTranspilers(buildPath, electronVersion, platform, arch, callback) {
     console.log("---> Running babel and coffeescript transpilers")
 
@@ -263,7 +252,6 @@ module.exports = (grunt) => {
         runCopyPlatformSpecificResources,
         runCopyAPM,
         runCopySymlinkedPackages,
-        removeUnnecessaryFiles,
         runTranspilers,
       ],
     },
