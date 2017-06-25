@@ -243,7 +243,7 @@ export default class ComposerHeader extends React.Component {
             draft,
             session,
             value: draft.subject,
-            draftId: draft.id,
+            headerMessageId: draft.headerMessageId,
             onSubjectChange: this._onSubjectChange,
           }}
           requiredMethods={['focus']}

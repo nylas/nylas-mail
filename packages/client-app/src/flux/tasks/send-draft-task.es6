@@ -18,8 +18,8 @@ const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
 export default class SendDraftTask extends BaseDraftTask {
 
-  constructor(draftId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
-    super(draftId);
+  constructor(headerMessageId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
+    super(headerMessageId);
     this.draft = null;
     this.message = null;
     this.emitError = emitError
@@ -191,7 +191,7 @@ export default class SendDraftTask extends BaseDraftTask {
 
   onSuccess = () => {
     Actions.recordUserEvent("Draft Sent")
-    Actions.draftDeliverySucceeded({message: this.message, messageId: this.message.id, draftId: this.draft.id});
+    Actions.draftDeliverySucceeded({message: this.message, messageId: this.message.id, headerMessageId: this.draft.headerMessageId});
     // TODO we shouldn't need to do this anymore
     NylasAPIHelpers.makeDraftDeletionRequest(this.draft);
 
@@ -239,14 +239,14 @@ export default class SendDraftTask extends BaseDraftTask {
       if (err instanceof RequestEnsureOnceError) {
         Actions.draftDeliveryFailed({
           threadId: this.draft.threadId,
-          draftId: this.draft.id,
+          headerMessageId: this.draft.headerMessageId,
           errorMessage: `WARNING: Your message MIGHT have sent. We encountered a network problem while the send was in progress. Please wait a few minutes then check your sent folder and try again if necessary.`,
           errorDetail: `Please email support@nylas.com if you see this error message.`,
         });
       } else {
         Actions.draftDeliveryFailed({
           threadId: this.draft.threadId,
-          draftId: this.draft.id,
+          headerMessageId: this.draft.headerMessageId,
           errorMessage: message,
           errorDetail: err.message + (err.error ? err.error.stack : '') + err.stack,
         });

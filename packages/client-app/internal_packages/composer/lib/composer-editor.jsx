@@ -14,7 +14,7 @@ import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
  * @param {object} props - props for ComposerEditor
  * @param {string} props.body - Html string with the draft content to be
  * rendered by the editor
- * @param {string} props.draftId - Id of the draft being currently edited
+ * @param {string} props.headerMessageId - Id of the draft being currently edited
  * @param {object} props.parentActions - Object containg helper actions
  * associated with the parent container
  * @param {props.parentActions.getComposerBoundingRect} props.parentActions.getComposerBoundingRect
@@ -64,7 +64,7 @@ class ComposerEditor extends Component {
    */
   static propTypes = {
     body: PropTypes.string.isRequired,
-    draftId: PropTypes.string,
+    headerMessageId: PropTypes.string,
     onFilePaste: PropTypes.func,
     onBodyChanged: PropTypes.func,
     parentActions: PropTypes.shape({
@@ -185,7 +185,7 @@ class ComposerEditor extends Component {
 
   _scrollToBottom = () => {
     this.props.parentActions.scrollTo({
-      id: this.props.draftId,
+      headerMessageId: this.props.headerMessageId,
       position: ScrollRegion.ScrollPosition.Bottom,
     });
   };

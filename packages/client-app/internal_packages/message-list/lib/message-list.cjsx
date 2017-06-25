@@ -76,9 +76,9 @@ class MessageList extends React.Component
   componentDidMount: =>
     @_unsubscribers = []
     @_unsubscribers.push MessageStore.listen @_onChange
-    @_unsubscribers.push Actions.focusDraft.listen ({draftId}) =>
-      Utils.waitFor( => @_getMessageContainer(draftId)?).then =>
-        @_focusDraft(@_getMessageContainer(draftId))
+    @_unsubscribers.push Actions.focusDraft.listen ({headerMessageId}) =>
+      Utils.waitFor( => @_getMessageContainer(headerMessageId)?).then =>
+        @_focusDraft(@_getMessageContainer(headerMessageId))
       .catch =>
 
   componentWillUnmount: =>
@@ -129,8 +129,8 @@ class MessageList extends React.Component
 
     handlers
 
-  _getMessageContainer: (id) =>
-    @refs["message-container-#{id}"]
+  _getMessageContainer: (headerMessageId) =>
+    @refs["message-container-#{headerMessageId}"]
 
   _focusDraft: (draftElement) =>
     # Note: We don't want the contenteditable view competing for scroll offset,
@@ -306,7 +306,7 @@ class MessageList extends React.Component
       elements.push(
         <MessageItemContainer
           key={message.id}
-          ref={"message-container-#{message.id}"}
+          ref={"message-container-#{message.headerMessageId}"}
           thread={@state.currentThread}
           message={message}
           messages={@state.messages}

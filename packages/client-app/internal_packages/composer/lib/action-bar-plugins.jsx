@@ -68,7 +68,7 @@ export default class ActionBarPlugins extends React.Component {
           exposedProps={{
             draft: this.props.draft,
             threadId: this.props.draft.threadId,
-            draftId: this.props.draft.id,
+            headerMessageId: this.props.draft.headerMessageId,
             session: this.props.session,
             isValidDraft: this.props.isValidDraft,
           }}
