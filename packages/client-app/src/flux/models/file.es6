@@ -37,7 +37,7 @@ export default class File extends Model {
     contentType: Attributes.String({
       modelKey: 'contentType',
     }),
-    messageId: Attributes.ServerId({
+    messageId: Attributes.String({
       modelKey: 'messageId',
     }),
     contentId: Attributes.String({

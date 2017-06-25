@@ -30,7 +30,7 @@ class Model
     'object': Attributes.String
       modelKey: 'object'
 
-    'accountId': Attributes.ServerId
+    'accountId': Attributes.String
       queryable: true
       modelKey: 'accountId'
 

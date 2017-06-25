@@ -91,21 +91,6 @@ export default class MutableQueryResultSet extends QueryResultSet {
           item[attr.modelKey] = existing[attr.modelKey];
         }
       }
-
-      // There can briefly be two rows in the database that are actually the
-      // same item (due to optimistic client-side updates). When these rows are
-      // merged together, _ids is not properly updated because there is never
-      // an 'unpersist' change record. We attempt to catch this scenario here.
-      // First check that the existing item was optimistic (no serverId) and the
-      // new item is not.
-      if (!existing.serverId && item.serverId) {
-        // Now check that _ids does in fact have both IDs.
-        const idx = this._ids.indexOf(existing.id)
-        if (idx > -1) {
-          // Remove the id
-          this._ids.splice(idx, 1)
-        }
-      }
     }
 
     this._modelsHash[item.id] = item;

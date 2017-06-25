@@ -13,7 +13,7 @@ class TestModel extends Model
       modelKey: 'clientId'
       jsonKey: 'client_id'
 
-    'serverId': Attributes.ServerId
+    'serverId': Attributes.String
       queryable: true
       modelKey: 'serverId'
       jsonKey: 'server_id'
@@ -27,7 +27,7 @@ TestModel.configureBasic = ->
       queryable: true
       modelKey: 'clientId'
       jsonKey: 'client_id'
-    'serverId': Attributes.ServerId
+    'serverId': Attributes.String
       queryable: true
       modelKey: 'serverId'
       jsonKey: 'server_id'
@@ -59,7 +59,7 @@ TestModel.configureWithCollectionAttribute = ->
       queryable: true
       modelKey: 'clientId'
       jsonKey: 'client_id'
-    'serverId': Attributes.ServerId
+    'serverId': Attributes.String
       queryable: true
       modelKey: 'serverId'
       jsonKey: 'server_id'
@@ -82,7 +82,7 @@ TestModel.configureWithJoinedDataAttribute = ->
       queryable: true
       modelKey: 'clientId'
       jsonKey: 'client_id'
-    'serverId': Attributes.ServerId
+    'serverId': Attributes.String
       queryable: true
       modelKey: 'serverId'
       jsonKey: 'server_id'
@@ -98,7 +98,7 @@ TestModel.configureWithJoinedDataAttribute = ->
     'clientId': Attributes.String
       modelKey: 'clientId'
       jsonKey: 'client_id'
-    'serverId': Attributes.ServerId
+    'serverId': Attributes.String
       modelKey: 'serverId'
       jsonKey: 'server_id'
     'body': Attributes.JoinedData

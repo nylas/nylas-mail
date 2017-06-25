@@ -197,7 +197,6 @@ class DraftEditingSession
       @changes.add({
         accountId: account.id,
         version: null,
-        serverId: null,
         threadId: null,
         replyToMessageId: null,
       })

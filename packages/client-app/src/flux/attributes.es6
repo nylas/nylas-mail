@@ -7,7 +7,6 @@ import AttributeBoolean from './attributes/attribute-boolean'
 import AttributeDateTime from './attributes/attribute-datetime'
 import AttributeCollection from './attributes/attribute-collection'
 import AttributeJoinedData from './attributes/attribute-joined-data'
-import AttributeServerId from './attributes/attribute-serverid'
 
 export default {
   Matcher: Matcher,
@@ -20,7 +19,6 @@ export default {
   DateTime: (...args) => new AttributeDateTime(...args),
   Collection: (...args) => new AttributeCollection(...args),
   JoinedData: (...args) => new AttributeJoinedData(...args),
-  ServerId: (...args) => new AttributeServerId(...args),
 
   AttributeNumber: AttributeNumber,
   AttributeString: AttributeString,
@@ -29,5 +27,4 @@ export default {
   AttributeDateTime: AttributeDateTime,
   AttributeCollection: AttributeCollection,
   AttributeJoinedData: AttributeJoinedData,
-  AttributeServerId: AttributeServerId,
 };

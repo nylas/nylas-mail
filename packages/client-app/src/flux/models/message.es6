@@ -134,12 +134,12 @@ export default class Message extends ModelWithMetadata {
       modelKey: 'snippet',
     }),
 
-    threadId: Attributes.ServerId({
+    threadId: Attributes.String({
       queryable: true,
       modelKey: 'threadId',
     }),
 
-    messageIdHeader: Attributes.ServerId({
+    messageIdHeader: Attributes.String({
       modelKey: 'messageIdHeader',
     }),
 
@@ -166,7 +166,7 @@ export default class Message extends ModelWithMetadata {
       queryable: true,
     }),
 
-    replyToMessageId: Attributes.ServerId({
+    replyToMessageId: Attributes.String({
       modelKey: 'replyToMessageId',
     }),
 
