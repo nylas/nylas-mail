@@ -5,7 +5,6 @@ Contact = require('../../src/flux/models/contact').default
 NylasAPI = require('../../src/flux/nylas-api').default
 NylasAPIRequest = require('../../src/flux/nylas-api-request').default
 ContactStore = require '../../src/flux/stores/contact-store'
-ContactRankingStore = require '../../src/flux/stores/contact-ranking-store'
 DatabaseStore = require('../../src/flux/stores/database-store').default
 AccountStore = require('../../src/flux/stores/account-store').default
 
@@ -15,65 +14,23 @@ xdescribe "ContactStore", ->
   beforeEach ->
     spyOn(NylasEnv, "isMainWindow").andReturn true
 
-    @rankings = [
-      ["evanA@nylas.com", 10]
-      ["evanB@nylas.com", 1]
-      ["evanC@nylas.com", 0.1]
-    ]
-
-    spyOn(NylasAPIRequest.prototype, "run").andCallFake (options) =>
-      if options.path is "/contacts/rankings"
-        return Promise.resolve(@rankings)
-      else
-        throw new Error("Invalid request path!")
-
     NylasEnv.testOrganizationUnit = "folder"
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
     ContactStore._accountId = null
-    ContactRankingStore.reset()
 
   afterEach ->
     NylasEnv.testOrganizationUnit = null
 
-  describe "ranking contacts", ->
-    beforeEach ->
-      @accountId = TEST_ACCOUNT_ID
-      @c1 = new Contact({name: "Evan A", email: "evanA@nylas.com", @accountId})
-      @c2 = new Contact({name: "Evan B", email: "evanB@nylas.com", @accountId})
-      @c3 = new Contact({name: "Evan C", email: "evanC@nylas.com", @accountId})
-      @c4 = new Contact({name: "Ben", email: "ben@nylas.com"})
-      @contacts = [@c3, @c1, @c2, @c4]
-
-    it "queries for, and sorts, contacts present in the rankings", ->
-      spyOn(ContactRankingStore, 'valuesForAllAccounts').andReturn
-        "evana@nylas.com": 10
-        "evanb@nylas.com": 1
-        "evanc@nylas.com": 0.1
-
-      spyOn(DatabaseStore, 'findAll').andCallFake =>
-        return {background: => Promise.resolve([@c3, @c1, @c2, @c4])}
-
-      waitsForPromise =>
-        ContactStore._updateRankedContactCache().then =>
-          expect(ContactStore._rankedContacts).toEqual [@c1, @c2, @c3, @c4]
-
-  describe "when ContactRankings change", ->
-    it "re-generates the ranked contact cache", ->
-      spyOn(ContactStore, "_updateRankedContactCache")
-      ContactRankingStore.trigger()
-      expect(ContactStore._updateRankedContactCache).toHaveBeenCalled()
-
   describe "when searching for a contact", ->
     beforeEach ->
-      @c1 = new Contact(name: "", email: "1test@nylas.com")
-      @c2 = new Contact(name: "First", email: "2test@nylas.com")
-      @c3 = new Contact(name: "First Last", email: "3test@nylas.com")
-      @c4 = new Contact(name: "Fit", email: "fit@nylas.com")
-      @c5 = new Contact(name: "Fins", email: "fins@nylas.com")
-      @c6 = new Contact(name: "Fill", email: "fill@nylas.com")
-      @c7 = new Contact(name: "Fin", email: "fin@nylas.com")
-      ContactStore._rankedContacts = [@c1,@c2,@c3,@c4,@c5,@c6,@c7]
+      @c1 = new Contact(name: "", email: "1test@nylas.com", refs: 7)
+      @c2 = new Contact(name: "First", email: "2test@nylas.com", refs: 6)
+      @c3 = new Contact(name: "First Last", email: "3test@nylas.com", refs: 5)
+      @c4 = new Contact(name: "Fit", email: "fit@nylas.com", refs: 4)
+      @c5 = new Contact(name: "Fins", email: "fins@nylas.com", refs: 3)
+      @c6 = new Contact(name: "Fill", email: "fill@nylas.com", refs: 2)
+      @c7 = new Contact(name: "Fin", email: "fin@nylas.com", refs: 1)
 
     it "can find by first name", ->
       waitsForPromise =>

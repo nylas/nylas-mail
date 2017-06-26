@@ -42,7 +42,7 @@ Section: Models
 class Thread extends ModelWithMetadata {
 
   static attributes = _.extend({}, ModelWithMetadata.attributes, {
-    snippet: Attributes.String({
+    snippet: Attributes.String({ // TODO NONFUNCTIONAL
       modelKey: 'snippet',
     }),
 

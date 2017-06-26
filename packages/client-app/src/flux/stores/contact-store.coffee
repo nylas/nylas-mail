@@ -10,7 +10,6 @@ RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require('./database-store').default
 AccountStore = require('./account-store').default
 ComponentRegistry = require('../../registries/component-registry')
-ContactRankingStore = require './contact-ranking-store'
 _ = require 'underscore'
 
 WindowBridge = require '../../window-bridge'
@@ -23,11 +22,6 @@ with additional actions.
 Section: Stores
 ###
 class ContactStore extends NylasStore
-
-  constructor: ->
-    @_rankedContacts = []
-    @listenTo ContactRankingStore, => @_updateRankedContactCache()
-    @_updateRankedContactCache()
 
   # Public: Search the user's contact list for the given search term.
   # This method compares the `search` string against each Contact's
@@ -47,18 +41,12 @@ class ContactStore extends NylasStore
 
     search = search.toLowerCase()
     accountCount = AccountStore.accounts().length
+    extensions = ComponentRegistry.findComponentsMatching({
+      role: "ContactSearchResults"
+    })
 
     if not search or search.length is 0
       return Promise.resolve([])
-
-    # Search ranked contacts which are stored in order in memory
-    results = []
-    for contact in @_rankedContacts
-      if (contact.email.toLowerCase().indexOf(search) isnt -1 or
-          contact.name.toLowerCase().indexOf(search) isnt -1)
-        results.push(contact)
-      if results.length is limit
-        break
 
     # If we haven't found enough items in memory, query for more from the
     # database. Note that we ask for LIMIT * accountCount because we want to
@@ -68,18 +56,10 @@ class ContactStore extends NylasStore
     query = DatabaseStore.findAll(Contact)
       .search(search)
       .limit(limit * accountCount)
-    query.then (queryResults) =>
-      existingEmails = _.pluck(results, 'email')
-
+      .order(Contact.attributes.refs.descending())
+    query.then (results) =>
       # remove query results that were already found in ranked contacts
-      queryResults = _.reject queryResults, (c) -> c.email in existingEmails
-      queryResults = @_distinctByEmail(queryResults)
-
-      results = results.concat(queryResults)
-
-      extensions = ComponentRegistry.findComponentsMatching({
-        role: "ContactSearchResults"
-      })
+      results = @_distinctByEmail(results)
       return Promise.each extensions, (ext) =>
         return ext.findAdditionalContacts(search, results).then (contacts) =>
           results = contacts
@@ -141,26 +121,6 @@ class ContactStore extends NylasStore
         return match if match and match.email is contact.email
         return contact
 
-  _updateRankedContactCache: =>
-    rankings = ContactRankingStore.valuesForAllAccounts()
-    emails = Object.keys(rankings)
-
-    if emails.length is 0
-      @_rankedContacts = []
-      return
-
-    # Sort the emails by rank and then clip to 400 so that our ranked cache
-    # has a bounded size.
-    emails = _.sortBy emails, (email) ->
-      (- (rankings[email.toLowerCase()] ? 0) / 1)
-    emails.length = 400 if emails.length > 400
-
-    DatabaseStore.findAll(Contact, {email: emails}).background().then (contacts) =>
-      contacts = @_distinctByEmail(contacts)
-      for contact in contacts
-        contact._rank = (- (rankings[contact.email.toLowerCase()] ? 0) / 1)
-      @_rankedContacts = _.sortBy contacts, (contact) -> contact._rank
-
   _distinctByEmail: (contacts) =>
     # remove query results that are duplicates, prefering ones that have names
     uniq = {}
@@ -171,10 +131,5 @@ class ContactStore extends NylasStore
       if not existing or (not existing.name or existing.name is existing.email)
         uniq[key] = contact
     _.values(uniq)
-
-  _resetCache: =>
-    @_rankedContacts = []
-    ContactRankingStore.reset()
-    @trigger(@)
 
 module.exports = new ContactStore()

@@ -54,6 +54,11 @@ export default class Contact extends Model {
       modelKey: 'email',
     }),
 
+    refs: Attributes.Number({
+      queryable: true,
+      modelKey: 'refs',
+    }),
+
     // Contains the raw thirdPartyData (keyed by the vendor name) about
     // this contact.
     thirdPartyData: Attributes.Object({
