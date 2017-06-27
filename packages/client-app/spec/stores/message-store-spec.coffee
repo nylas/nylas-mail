@@ -73,7 +73,7 @@ describe "MessageStore", ->
 
     describe "when in trash or spam", ->
       it "should show only the message which are in trash or spam, and drafts", ->
-        spyOn(FocusedPerspectiveStore, 'current').andReturn({categoriesSharedName: => 'trash'})
+        spyOn(FocusedPerspectiveStore, 'current').andReturn({categoriesSharedRole: => 'trash'})
         expect(MessageStore.items()).toEqual([
           MessageStore._items[0],
           MessageStore._items[2],
@@ -82,7 +82,7 @@ describe "MessageStore", ->
 
     describe "when in another folder", ->
       it "should hide all of the messages which are in trash or spam", ->
-        spyOn(FocusedPerspectiveStore, 'current').andReturn({categoriesSharedName: => 'inbox'})
+        spyOn(FocusedPerspectiveStore, 'current').andReturn({categoriesSharedRole: => 'inbox'})
         expect(MessageStore.items()).toEqual([
           MessageStore._items[1],
           MessageStore._items[3],

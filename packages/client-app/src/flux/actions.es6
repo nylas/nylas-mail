@@ -72,8 +72,6 @@ class Actions {
   */
   static onNewMailDeltas = ActionScopeGlobal;
 
-  static didReceiveSyncbackRequestDeltas = ActionScopeWindow;
-
   static downloadStateChanged = ActionScopeGlobal;
 
   static sendToAllWindows = ActionScopeGlobal;

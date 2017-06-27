@@ -8,7 +8,6 @@ import Contact from './contact'
 import Folder from './folder'
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
-import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
 
 
 /*
@@ -318,37 +317,6 @@ export default class Message extends ModelWithMetadata {
   // user's email addresses && accounts.
   isFromMe() {
     return this.from[0] ? this.from[0].isMe() : false
-  }
-
-  // Public: Returns a plaintext version of the message body using Chromium's
-  // DOMParser. Use with care.
-  computePlainText(options = {}) {
-    if ((this.body || "").trim().length === 0) {
-      return ""
-    }
-    if (options.includeQuotedText) {
-      return (new DOMParser()).parseFromString(this.body, "text/html").body.innerText
-    }
-    const doc = this.computeDOMWithoutQuotes()
-    return this.cleanPlainTextBody(doc.body.innerText)
-  }
-
-  cleanPlainTextBody(body) {
-    let cleanBody = body;
-    const leadingOrTrailingTabs = /(?:^\t+|\t+$)/gmi
-    cleanBody = cleanBody.replace(leadingOrTrailingTabs, "")
-    const manyNewlines = /\n{3,}/gi
-    cleanBody = cleanBody.replace(manyNewlines, "\n\n")
-    const manySpaces = /\n{5,}/gi
-    cleanBody = cleanBody.replace(manySpaces, "    ")
-    return cleanBody
-  }
-
-  // Separated out so callers (like SyncbackThreadToSalesforce) can only
-  // run an expensive parse once, but use the DOM to load both HTML and
-  // PlainText versions of the body.
-  computeDOMWithoutQuotes() {
-    return QuotedHTMLTransformer.removeQuotedHTML(this.body, {asDOM: true});
   }
 
   fromContact() {

@@ -30,7 +30,6 @@ ThreadListColumns = require './thread-list-columns'
 ThreadListScrollTooltip = require './thread-list-scroll-tooltip'
 ThreadListStore = require './thread-list-store'
 ThreadListContextMenu = require('./thread-list-context-menu').default
-CategoryRemovalTargetRulesets = require('./category-removal-target-rulesets').default
 
 
 class ThreadList extends React.Component
@@ -77,7 +76,7 @@ class ThreadList extends React.Component
     'core:remove-from-view': =>
       @_onRemoveFromView()
     'core:gmail-remove-from-view': =>
-      @_onRemoveFromView(CategoryRemovalTargetRulesets.Gmail)
+      @_onRemoveFromView() # todo bg
     'core:archive-item': @_onArchiveItem
     'core:delete-item': @_onDeleteItem
     'core:star-item': @_onStarItem
@@ -144,12 +143,12 @@ class ThreadList extends React.Component
 
     props.shouldEnableSwipe = =>
       perspective = FocusedPerspectiveStore.current()
-      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
+      tasks = perspective.tasksForRemovingItems([item], "Swipe")
       return tasks.length > 0
 
     props.onSwipeRightClass = =>
       perspective = FocusedPerspectiveStore.current()
-      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
+      tasks = perspective.tasksForRemovingItems([item], "Swipe")
       return null if tasks.length is 0
 
       # TODO this logic is brittle
@@ -158,8 +157,8 @@ class ThreadList extends React.Component
         'unstar'
       else if task instanceof ChangeFolderTask
         task.folder.name
-      else if task instanceof ChangeLabelsTask and task.labelsToAdd.length is 1
-        task.labelsToAdd[0].name
+      else if task instanceof ChangeLabelsTask
+        'archive'
       else
         'remove'
 
@@ -167,7 +166,7 @@ class ThreadList extends React.Component
 
     props.onSwipeRight = (callback) ->
       perspective = FocusedPerspectiveStore.current()
-      tasks = perspective.tasksForRemovingItems([item], CategoryRemovalTargetRulesets.Default, "Swipe")
+      tasks = perspective.tasksForRemovingItems([item], "Swipe")
       callback(false) if tasks.length is 0
       Actions.closePopover()
       Actions.queueTasks(tasks)
@@ -290,24 +289,14 @@ class ThreadList extends React.Component
     return unless threads
     return unless NylasEnv.config.get('core.workspace.showImportant')
 
-    if important
-      tasks = TaskFactory.tasksForApplyingCategories
+    Actions.queueTasks(TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => 
+      return ChangeLabelsTask({
+        threads: accountThreads,
         source: "Keyboard Shortcut"
-        threads: threads
-        categoriesToRemove: (accountId) -> []
-        categoriesToAdd: (accountId) ->
-          [CategoryStore.getCategoryByRole(accountId, 'important')]
-
-    else
-      tasks = TaskFactory.tasksForApplyingCategories
-        source: "Keyboard Shortcut"
-        threads: threads
-        categoriesToRemove: (accountId) ->
-          important = CategoryStore.getCategoryByRole(accountId, 'important')
-          return [important] if important
-          return []
-
-    Actions.queueTasks(tasks)
+        labelsToAdd: if important then [CategoryStore.getCategoryByRole(accountId, 'important')] else []
+        labelsToRemove: if important then [] else [CategoryStore.getCategoryByRole(accountId, 'important')]
+      })
+    ))
 
   _onSetUnread: (unread) =>
     threads = @_threadsForKeyboardAction()
@@ -323,11 +312,11 @@ class ThreadList extends React.Component
       threads: threads
     Actions.queueTasks(tasks)
 
-  _onRemoveFromView: (ruleset = CategoryRemovalTargetRulesets.Default) =>
+  _onRemoveFromView: (ruleset) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
     current = FocusedPerspectiveStore.current()
-    tasks = current.tasksForRemovingItems(threads, ruleset, "Keyboard Shortcut")
+    tasks = current.tasksForRemovingItems(threads, "Keyboard Shortcut")
     Actions.queueTasks(tasks)
     Actions.popSheet()
 

@@ -97,7 +97,10 @@ class DatabaseStore extends NylasStore {
 
     this._databasePath = databasePath(NylasEnv.getConfigDirPath(), NylasEnv.inSpecMode())
     this._databaseMutationHooks = [];
-    this.open();
+
+    if (!NylasEnv.inSpecMode()) {
+      this.open();
+    }
   }
 
   async open() {

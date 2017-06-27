@@ -107,7 +107,7 @@ export default class Category extends Model {
   static LockedCategoryNames = Object.keys(LockedCategories)
   static HiddenCategoryNames = Object.keys(HiddenCategories)
 
-  static categoriesSharedName(cats) {
+  static categoriesSharedRole(cats) {
     if (!cats || cats.length === 0) {
       return null;
     }

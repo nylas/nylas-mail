@@ -24,10 +24,9 @@ describe 'Utils', ->
         id: 'local-1'
         accountId: '1'
         pluginMetadata: []
-        isSearchIndexed: false
         participants: [
-          new Contact(id: 'local-a', name: 'Juan', email:'juan@nylas.com', accountId: '1', isSearchIndexed: false),
-          new Contact(id: 'local-b', name: 'Ben', email:'ben@nylas.com', accountId: '1', isSearchIndexed: false)
+          new Contact(id: 'local-a', name: 'Juan', email:'juan@nylas.com', accountId: '1'),
+          new Contact(id: 'local-b', name: 'Ben', email:'ben@nylas.com', accountId: '1')
         ]
         subject: 'Test 1234'
 

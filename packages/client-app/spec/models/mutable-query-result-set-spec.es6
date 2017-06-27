@@ -54,26 +54,18 @@ describe("MutableQueryResultSet", function MutableQueryResultSetSpecs() {
         _ids: ['A', 'B', 'C', 'D', 'E'],
         _offset: 5,
         _modelsHash: {
-          'A-local': {id: 'A', clientId: 'A-local'},
-          'A': {id: 'A', clientId: 'A-local'},
-          'B-local': {id: 'B', clientId: 'B-local'},
-          'B': {id: 'B', clientId: 'B-local'},
-          'C-local': {id: 'C', clientId: 'C-local'},
-          'C': {id: 'C', clientId: 'C-local'},
-          'D-local': {id: 'D', clientId: 'D-local'},
-          'D': {id: 'D', clientId: 'D-local'},
-          'E-local': {id: 'E', clientId: 'E-local'},
-          'E': {id: 'E', clientId: 'E-local'},
+          'A': {id: 'A'},
+          'B': {id: 'B'},
+          'C': {id: 'C'},
+          'D': {id: 'D'},
+          'E': {id: 'E'},
         }});
 
       set.clipToRange(new QueryRange({start: 5, end: 8}));
       expect(set._modelsHash).toEqual({
-        'A-local': {id: 'A', clientId: 'A-local'},
-        'A': {id: 'A', clientId: 'A-local'},
-        'B-local': {id: 'B', clientId: 'B-local'},
-        'B': {id: 'B', clientId: 'B-local'},
-        'C-local': {id: 'C', clientId: 'C-local'},
-        'C': {id: 'C', clientId: 'C-local'},
+        'A': {id: 'A'},
+        'B': {id: 'B'},
+        'C': {id: 'C'},
       });
     });
   });

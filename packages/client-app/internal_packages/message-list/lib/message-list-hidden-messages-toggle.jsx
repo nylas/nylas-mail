@@ -35,7 +35,7 @@ export default class MessageListHiddenMessagesToggle extends React.Component {
     }
 
 
-    const viewing = FocusedPerspectiveStore.current().categoriesSharedName();
+    const viewing = FocusedPerspectiveStore.current().categoriesSharedRole();
     let message = null;
 
     if (MessageStore.FolderNamesHiddenByDefault.includes(viewing)) {

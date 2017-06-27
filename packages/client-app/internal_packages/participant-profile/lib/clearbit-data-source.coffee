@@ -11,6 +11,7 @@ module.exports = class ClearbitDataSource
     if (tryCount ? 0) >= MAX_RETRY
       return Promise.resolve(null)
     new Promise (resolve, reject) =>
+      return; # TODO BG 
       req = LegacyEdgehillAPI.makeRequest({
         authWithNylasAPI: true
         path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}",

@@ -5,79 +5,37 @@ import ChangeUnreadTask from './change-unread-task'
 import ChangeStarredTask from './change-starred-task'
 import CategoryStore from '../stores/category-store'
 import Thread from '../models/thread'
-import Category from '../models/category'
 import Label from '../models/label';
 
-function threadsByAccount(threads) {
-  const byAccount = {}
-  threads.forEach((thread) => {
-    if (!(thread instanceof Thread)) {
-      throw new Error("tasksForApplyingCategories: `threads` must be instances of Thread")
-    }
-    const {accountId} = thread;
-    if (!byAccount[accountId]) {
-      byAccount[accountId] = {accountThreads: [], accountId: accountId};
-    }
-    byAccount[accountId].accountThreads.push(thread)
-  })
-  return Object.values(byAccount);
-}
 
 const TaskFactory = {
-  tasksForApplyingCategories({threads, categoriesToRemove, categoriesToAdd, taskDescription, source}) {
+  tasksForThreadsByAccountId(threads, callback) {
+    const byAccount = {}
+    threads.forEach((thread) => {
+      if (!(thread instanceof Thread)) {
+        throw new Error("tasksForApplyingCategories: `threads` must be instances of Thread")
+      }
+      const {accountId} = thread;
+      if (!byAccount[accountId]) {
+        byAccount[accountId] = {accountThreads: [], accountId: accountId};
+      }
+      byAccount[accountId].accountThreads.push(thread)
+    });
+
     const tasks = [];
-
-    threadsByAccount(threads).forEach(({accountThreads, accountId}) => {
-      const catsToAdd = categoriesToAdd ? categoriesToAdd(accountId) : [];
-      const catsToRemove = categoriesToRemove ? categoriesToRemove(accountId) : [];
-
-      if (!(catsToAdd instanceof Array)) {
-        throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return an array of Categories")
+    Object.values(byAccount).forEach(({accountThreads, accountId}) => {
+      const taskOrTasks = callback(accountThreads, accountId);
+      if (taskOrTasks && taskOrTasks instanceof Array) {
+        tasks.push(...taskOrTasks);
+      } else if (taskOrTasks) {
+        tasks.push(taskOrTasks);
       }
-      if (!(catsToRemove instanceof Array)) {
-        throw new Error("tasksForApplyingCategories: `categoriesToRemove` must return an array of Categories")
-      }
-
-      const usingLabels = [].concat(catsToAdd, catsToRemove).pop() instanceof Label;
-
-      if (usingLabels) {
-        if (catsToAdd.length === 0 && catsToRemove.length === 0) {
-          return;
-        }
-
-        tasks.push(new ChangeLabelsTask({
-          source,
-          threads: accountThreads,
-          labelsToRemove: catsToRemove,
-          labelsToAdd: catsToAdd,
-          taskDescription,
-        }))
-      } else {
-        if (catsToAdd.length === 0) {
-          return;
-        }
-        if (catsToAdd.length > 1) {
-          throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a single `Category` (folder) for Exchange accounts")
-        }
-        const folder = catsToAdd[0]
-        if (!(folder instanceof Category)) {
-          throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a Category")
-        }
-
-        tasks.push(new ChangeFolderTask({
-          folder,
-          source,
-          threads: accountThreads,
-          taskDescription,
-        }));
-      }
-    })
-
+    });
     return tasks;
   },
 
   tasksForMarkingAsSpam({threads, source}) {
-    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+    return this.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
       return new ChangeFolderTask({
         folder: CategoryStore.getSpamCategory(accountId),
         threads: accountThreads,
@@ -87,7 +45,7 @@ const TaskFactory = {
   },
 
   tasksForMarkingNotSpam({threads, source}) {
-    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+    return this.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
       const inbox = CategoryStore.getInboxCategory(accountId);
       if (inbox instanceof Label) {
         return new ChangeFolderTask({
@@ -105,7 +63,7 @@ const TaskFactory = {
   },
 
   tasksForArchiving({threads, source}) {
-    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+    return this.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
       const inbox = CategoryStore.getInboxCategory(accountId);
       if (inbox instanceof Label) {
         return new ChangeLabelsTask({
@@ -124,7 +82,7 @@ const TaskFactory = {
   },
 
   tasksForMovingToTrash({threads, source}) {
-    return threadsByAccount(threads).map(({accountThreads, accountId}) => {
+    return this.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
       return new ChangeFolderTask({
         folder: CategoryStore.getTrashCategory(accountId),
         threads: accountThreads,

@@ -111,13 +111,6 @@ export default class Event extends Model {
       jsonKey: '_end',
     }),
 
-    isSearchIndexed: Attributes.Boolean({
-      queryable: true,
-      modelKey: 'isSearchIndexed',
-      jsonKey: 'is_search_indexed',
-      defaultValue: false,
-    }),
-
     // This corresponds to the rowid in the FTS table. We need to use the FTS
     // rowid when updating and deleting items in the FTS table because otherwise
     // these operations would be way too slow on large FTS tables.

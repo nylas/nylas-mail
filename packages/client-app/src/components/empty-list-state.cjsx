@@ -26,7 +26,7 @@ class EmptyPerspectiveState extends React.Component
 
   render: ->
     {messageContent, perspective} = @props
-    name = perspective.categoriesSharedName()
+    name = perspective.categoriesSharedRole()
     name = 'archive' if perspective.isArchive()
     name = perspective.name if not name
     name = name.toLowerCase() if name

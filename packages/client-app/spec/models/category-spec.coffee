@@ -2,34 +2,34 @@
 
 describe 'Category', ->
 
-  describe '.categoriesSharedName', ->
+  describe '.categoriesSharedRole', ->
 
-    it 'returns the name if all the categories on the perspective have the same name', ->
-      expect(Category.categoriesSharedName([
-        new Category({name: 'c1', accountId: 'a1'}),
-        new Category({name: 'c1', accountId: 'a2'}),
+    it 'returns the name if all the categories on the perspective have the same role', ->
+      expect(Category.categoriesSharedRole([
+        new Category({path: 'c1', role: 'c1', accountId: 'a1'}),
+        new Category({path: 'c1', role: 'c1', accountId: 'a2'}),
       ])).toEqual('c1')
 
     it 'returns null if there are no categories', ->
-      expect(Category.categoriesSharedName([])).toEqual(null)
+      expect(Category.categoriesSharedRole([])).toEqual(null)
 
-    it 'returns null if the categories have different names', ->
-      expect(Category.categoriesSharedName([
-        new Category({name: 'c1', accountId: 'a1'}),
-        new Category({name: 'c2', accountId: 'a2'}),
+    it 'returns null if the categories have different roles', ->
+      expect(Category.categoriesSharedRole([
+        new Category({path: 'c1', role: 'c1', accountId: 'a1'}),
+        new Category({path: 'c2', role: 'c2', accountId: 'a2'}),
       ])).toEqual(null)
 
-  describe 'fromJSON', ->
+  describe 'displayName', ->
     it "should strip the INBOX. prefix from FastMail folders", ->
-      foo = (new Category()).fromJSON({displayName: 'INBOX.Foo'})
+      foo = new Category({path: 'INBOX.Foo'})
       expect(foo.displayName).toEqual('Foo')
-      foo = (new Category()).fromJSON({displayName: 'INBOX'})
+      foo = new Category({path: 'INBOX'})
       expect(foo.displayName).toEqual('Inbox')
 
   describe 'category types', ->
     it 'assigns type correctly when it is a user category', ->
       cat = new Label
-      cat.name = undefined
+      cat.role = undefined
       expect(cat.isUserCategory()).toBe true
       expect(cat.isStandardCategory()).toBe false
       expect(cat.isHiddenCategory()).toBe false
@@ -37,7 +37,7 @@ describe 'Category', ->
 
     it 'assigns type correctly when it is a standard category', ->
       cat = new Label
-      cat.name = 'inbox'
+      cat.role = 'inbox'
       expect(cat.isUserCategory()).toBe false
       expect(cat.isStandardCategory()).toBe true
       expect(cat.isHiddenCategory()).toBe false
@@ -45,7 +45,7 @@ describe 'Category', ->
 
     it 'assigns type for `important` category when should not show important', ->
       cat = new Label
-      cat.name = 'important'
+      cat.role = 'important'
       expect(cat.isUserCategory()).toBe false
       expect(cat.isStandardCategory(false)).toBe false
       expect(cat.isHiddenCategory()).toBe true
@@ -53,7 +53,7 @@ describe 'Category', ->
 
     it 'assigns type correctly when it is a hidden category', ->
       cat = new Label
-      cat.name = 'archive'
+      cat.role = 'archive'
       expect(cat.isUserCategory()).toBe false
       expect(cat.isStandardCategory()).toBe true
       expect(cat.isHiddenCategory()).toBe true
@@ -61,7 +61,7 @@ describe 'Category', ->
 
     it 'assigns type correctly when it is a locked category', ->
       cat = new Label
-      cat.name = 'sent'
+      cat.role = 'sent'
       expect(cat.isUserCategory()).toBe false
       expect(cat.isStandardCategory()).toBe true
       expect(cat.isHiddenCategory()).toBe true

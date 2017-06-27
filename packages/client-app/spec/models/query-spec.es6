@@ -141,7 +141,7 @@ describe("ModelQuery", function ModelQuerySpecs() {
         const q = new ModelQuery(klass, this.db);
         Attributes.Matcher.muid = 1;
         scenario.builder(q);
-        expect(q.sql().trim()).toBe(scenario.sql.trim());
+        expect(q.sql().replace(/ /g, '').trim()).toBe(scenario.sql.replace(/ /g, '').trim());
       };
     });
 
@@ -157,7 +157,7 @@ describe("ModelQuery", function ModelQuerySpecs() {
         builder: (q) =>
           q.where({emailAddress: 'ben@nylas.com'}).where({id: 2}),
         sql: "SELECT `Account`.`data` FROM `Account`  " +
-             "WHERE `Account`.`email_address` = 'ben@nylas.com' AND `Account`.`id` = 2",
+             "WHERE `Account`.`emailAddress` = 'ben@nylas.com' AND `Account`.`id` = 2",
       });
     });
 
@@ -165,7 +165,7 @@ describe("ModelQuery", function ModelQuerySpecs() {
       this.runScenario(Account, {
         builder: (q) =>
           q.where(Account.attributes.emailAddress.like("you're")),
-        sql: "SELECT `Account`.`data` FROM `Account`  WHERE `Account`.`email_address` like '%you''re%'",
+        sql: "SELECT `Account`.`data` FROM `Account`  WHERE `Account`.`emailAddress` like '%you''re%'",
       });
     });
 
@@ -173,7 +173,7 @@ describe("ModelQuery", function ModelQuerySpecs() {
       this.runScenario(Account, {
         builder: (q) =>
           q.where(Account.attributes.emailAddress.equal("you're")),
-        sql: "SELECT `Account`.`data` FROM `Account`  WHERE `Account`.`email_address` = 'you''re'",
+        sql: "SELECT `Account`.`data` FROM `Account`  WHERE `Account`.`emailAddress` = 'you''re'",
       });
     });
 
@@ -182,7 +182,7 @@ describe("ModelQuery", function ModelQuerySpecs() {
         builder: (q) =>
           q.where({accountId: 'abcd'}).count(),
         sql: "SELECT COUNT(*) as count FROM `Thread`  " +
-             "WHERE `Thread`.`account_id` = 'abcd'  ",
+             "WHERE `Thread`.`accountId` = 'abcd'  ",
       });
     });
 
@@ -190,9 +190,9 @@ describe("ModelQuery", function ModelQuerySpecs() {
       this.runScenario(Thread, {
         builder: (q) =>
           q.where({accountId: 'abcd'}).one(),
-        sql: "SELECT `Thread`.`data`, is_search_indexed  FROM `Thread`  " +
-             "WHERE `Thread`.`account_id` = 'abcd'  " +
-             "ORDER BY `Thread`.`last_message_received_timestamp` DESC LIMIT 1",
+        sql: "SELECT `Thread`.`data`  FROM `Thread`  " +
+             "WHERE `Thread`.`accountId` = 'abcd'  " +
+             "ORDER BY `Thread`.`lastMessageReceivedTimestamp` DESC LIMIT 1",
       });
     });
 
@@ -200,20 +200,20 @@ describe("ModelQuery", function ModelQuerySpecs() {
       this.runScenario(Thread, {
         builder: (q) =>
           q.where(Thread.attributes.categories.contains('category-id')).where({id: '1234'}),
-        sql: "SELECT `Thread`.`data`, is_search_indexed  FROM `Thread` " +
+        sql: "SELECT `Thread`.`data`  FROM `Thread` " +
              "INNER JOIN `ThreadCategory` AS `M1` ON `M1`.`id` = `Thread`.`id` " +
              "WHERE `M1`.`value` = 'category-id' AND `Thread`.`id` = '1234'  " +
-             "ORDER BY `Thread`.`last_message_received_timestamp` DESC",
+             "ORDER BY `Thread`.`lastMessageReceivedTimestamp` DESC",
       });
 
       this.runScenario(Thread, {
         builder: (q) =>
           q.where([Thread.attributes.categories.contains('l-1'), Thread.attributes.categories.contains('l-2')]),
-        sql: "SELECT `Thread`.`data`, is_search_indexed  FROM `Thread` " +
+        sql: "SELECT `Thread`.`data`  FROM `Thread` " +
              "INNER JOIN `ThreadCategory` AS `M1` ON `M1`.`id` = `Thread`.`id` " +
              "INNER JOIN `ThreadCategory` AS `M2` ON `M2`.`id` = `Thread`.`id` " +
              "WHERE `M1`.`value` = 'l-1' AND `M2`.`value` = 'l-2'  " +
-             "ORDER BY `Thread`.`last_message_received_timestamp` DESC",
+             "ORDER BY `Thread`.`lastMessageReceivedTimestamp` DESC",
       });
     });
 
@@ -221,17 +221,17 @@ describe("ModelQuery", function ModelQuerySpecs() {
       this.runScenario(Thread, {
         builder: (q) =>
           q.where({accountId: 'abcd'}),
-        sql: "SELECT `Thread`.`data`, is_search_indexed  FROM `Thread`  " +
-             "WHERE `Thread`.`account_id` = 'abcd'  " +
-             "ORDER BY `Thread`.`last_message_received_timestamp` DESC",
+        sql: "SELECT `Thread`.`data`  FROM `Thread`  " +
+             "WHERE `Thread`.`accountId` = 'abcd'  " +
+             "ORDER BY `Thread`.`lastMessageReceivedTimestamp` DESC",
       });
 
       this.runScenario(Thread, {
         builder: (q) =>
           q.where({accountId: 'abcd'}).order(Thread.attributes.lastMessageReceivedTimestamp.ascending()),
-        sql: "SELECT `Thread`.`data`, is_search_indexed  FROM `Thread`  " +
-             "WHERE `Thread`.`account_id` = 'abcd'  " +
-             "ORDER BY `Thread`.`last_message_received_timestamp` ASC",
+        sql: "SELECT `Thread`.`data`  FROM `Thread`  " +
+             "WHERE `Thread`.`accountId` = 'abcd'  " +
+             "ORDER BY `Thread`.`lastMessageReceivedTimestamp` ASC",
       });
 
       this.runScenario(Account, {

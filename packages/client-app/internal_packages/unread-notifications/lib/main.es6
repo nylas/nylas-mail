@@ -159,7 +159,7 @@ export class Notifier {
       Promise.props(threads).then((resolvedThreads) => {
         // Filter new unread messages to just the ones in the inbox
         const newUnreadInInbox = newUnread.filter((msg) =>
-          resolvedThreads[msg.threadId] && resolvedThreads[msg.threadId].categoryNamed('inbox')
+          resolvedThreads[msg.threadId] && resolvedThreads[msg.threadId].categories.find(c => c.role === 'inbox')
         )
 
         // Filter messages that we can't decide whether to display or not

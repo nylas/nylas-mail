@@ -1,5 +1,13 @@
 import _ from 'underscore'
-import {AccountStore, CategoryStore, TaskFactory, MailboxPerspective} from 'nylas-exports'
+import {
+  Folder,
+  ChangeLabelsTask,
+  ChangeFolderTask,
+  AccountStore,
+  CategoryStore,
+  TaskFactory,
+  MailboxPerspective,
+} from 'nylas-exports'
 import SearchQuerySubscription from './search-query-subscription'
 
 class SearchMailboxPerspective extends MailboxPerspective {
@@ -47,17 +55,27 @@ class SearchMailboxPerspective extends MailboxPerspective {
   }
 
   tasksForRemovingItems(threads) {
-    return TaskFactory.tasksForApplyingCategories({
-      source: "Dragged Out of List",
-      threads: threads,
-      categoriesToAdd: (accountId) => {
-        const account = AccountStore.accountForId(accountId)
-        return [account.defaultFinishedCategory()]
-      },
-      categoriesToRemove: (accountId) => {
-        return [CategoryStore.getInboxCategory(accountId)]
-      },
-    })
+    return TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
+      const account = AccountStore.accountForId(accountId)
+      const dest = account.preferredRemovalDestination();
+
+      if (dest instanceof Folder) {
+        return ChangeFolderTask({
+          threads: accountThreads,
+          source: "Dragged out of list",
+          folder: dest,
+        })
+      }
+      if (dest.role === 'all') {
+        // if you're searching and archive something, it really just removes the inbox label
+        return ChangeLabelsTask({
+          threads: accountThreads,
+          source: "Dragged out of list",
+          labelsToRemove: [CategoryStore.getInboxCategory(accountId)],
+        })
+      }
+      throw new Error("Unexpected destination returned from preferredRemovalDestination()");
+    });
   }
 }
 

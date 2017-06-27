@@ -20,7 +20,6 @@ MessagePluginMetadata
 ProviderSyncbackRequest
 Thread 
 ThreadCategory 
-ThreadContact 
 ThreadCounts 
 ThreadPluginMetadata 
 ThreadSearch"

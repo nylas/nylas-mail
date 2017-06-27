@@ -67,7 +67,7 @@
             "first_message_timestamp": 1440610192,
             "id": "62ehtebypazlgokcjvo8o9yak",
             "subject": "This is an email following up on the Electron meetup.",
-            "last_message_received_timestamp": 1440610192,
+            "lastMessageReceivedTimestamp": 1440610192,
             "message_ids": [
                 "9p571g0ie63rg0ekec699ol5e"
             ],
@@ -133,7 +133,7 @@
             "first_message_timestamp": 1440543552,
             "id": "cungn0trv89l19mf08a2blyuh",
             "subject": "[Differential] [Request, 1,621 lines] D1936: feat(work): Create the \"Work\" window, move TaskQueue, Nylas sync workers",
-            "last_message_received_timestamp": 1440609916,
+            "lastMessageReceivedTimestamp": 1440609916,
             "message_ids": [
                 "9uznoal93shahahlkesxkmfkr",
                 "4rv7upa3gzuf1hal48b15lxrx"
@@ -231,7 +231,7 @@
             "first_message_timestamp": 1440594160,
             "id": "8qesqxoftrd3nqiig3cz6gu49",
             "subject": "Incoming webhook POST body empty",
-            "last_message_received_timestamp": 1440609839,
+            "lastMessageReceivedTimestamp": 1440609839,
             "message_ids": [
                 "b2dq8u1kbambwor2vy5nz619n",
                 "tt4i92q8rtpgrbxaq6viqlf4"
@@ -325,7 +325,7 @@
             "first_message_timestamp": 1440594160,
             "id": "auro0q0gn0eawfrmqgzbi4f53",
             "subject": "Incoming webhook POST body empty",
-            "last_message_received_timestamp": 1440609839,
+            "lastMessageReceivedTimestamp": 1440609839,
             "message_ids": [
                 "4oesh7fhsbd45t7dx30p03vz1",
                 "7q4wtqzj3nxb42y6ysbl5l73t"
@@ -419,7 +419,7 @@
             "first_message_timestamp": 1440594160,
             "id": "auro0q0gn0eawfrmqgzbi4f53",
             "subject": "Incoming webhook POST body empty",
-            "last_message_received_timestamp": 1440609839,
+            "lastMessageReceivedTimestamp": 1440609839,
             "message_ids": [
                 "4oesh7fhsbd45t7dx30p03vz1",
                 "7q4wtqzj3nxb42y6ysbl5l73t"

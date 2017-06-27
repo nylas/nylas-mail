@@ -1,3 +1,4 @@
+import Label from '../models/label';
 import Category from '../models/category';
 import ChangeMailTask from './change-mail-task';
 
@@ -16,18 +17,16 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     this.labelsToAdd = options.labelsToAdd || [];
     this.labelsToRemove = options.labelsToRemove || [];
     this.taskDescription = options.taskDescription;
+
+    for (const l of [].concat(this.labelsToAdd, this.labelsToRemove)) {
+      if ((l instanceof Label) === false) {
+        throw new Error(`Assertion Failure: ChangeLabelsTask received a non-label: ${JSON.stringify(l)}`)
+      }
+    }
   }
 
   label() {
     return "Applying labels";
-  }
-
-  categoriesToAdd() {
-    return this.labelsToAdd;
-  }
-
-  categoriesToRemove() {
-    return this.labelsToRemove;
   }
 
   description() {
@@ -48,8 +47,6 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     // factory and pass the string in as this.taskDescription (ala Snooze), but
     // it's nice to have them declaratively based on the actual labels.
     if (objectsAvailable) {
-      const looksLikeMove = (this.labelsToAdd.length === 1 && this.labelsToRemove.length > 0);
-
       // Spam / trash interactions are always "moves" because they're the three
       // folders of Gmail. If another folder is involved, we need to decide to
       // return either "Moved to Bla" or "Added Bla".
@@ -62,13 +59,10 @@ export default class ChangeLabelsTask extends ChangeMailTask {
       } else if (removed && removed.name === 'trash') {
         return `Removed${countString} from Trash`;
       }
-      if (looksLikeMove) {
-        if (added.name === 'all') {
-          return `Archived${countString}`;
-        } else if (removed.name === 'all') {
-          return `Unarchived${countString}`;
-        }
-        return `Moved${countString} to ${added.displayName}`;
+      if (this.labelsToAdd.length === 0 && this.labelsToRemove.find(l => l.role === 'inbox')) {
+        return `Archived${countString}`;
+      } else if (this.labelsToRemove.length === 0 && this.labelsToAdd.find(l => l.role === 'inbox')) {
+        return `Unarchived${countString}`;
       }
       if (this.labelsToAdd.length === 1 && this.labelsToRemove.length === 0) {
         return `Added ${added.displayName}${countString ? ' to' : ''}${countString}`;

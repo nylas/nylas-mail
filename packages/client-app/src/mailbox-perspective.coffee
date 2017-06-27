@@ -13,8 +13,13 @@ UnreadQuerySubscription = require('./flux/models/unread-query-subscription').def
 Matcher = require('./flux/attributes/matcher').default
 Thread = require('./flux/models/thread').default
 Category = require('./flux/models/category').default
+Label = require('./flux/models/label').default
+Folder = require('./flux/models/folder').default
 Actions = require('./flux/actions').default
-ChangeUnreadTask = null
+
+ChangeLabelsTask = require('./flux/tasks/change-labels-task').default
+ChangeFolderTask = require('./flux/tasks/change-folder-task').default
+ChangeUnreadTask = require('./flux/tasks/change-unread-task').default
 
 # This is a class cluster. Subclasses are not for external use!
 # https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html
@@ -89,13 +94,13 @@ class MailboxPerspective
     true
 
   isInbox: =>
-    @categoriesSharedName() is 'inbox'
+    @categoriesSharedRole() is 'inbox'
 
   isSent: =>
-    @categoriesSharedName() is 'sent'
+    @categoriesSharedRole() is 'sent'
 
   isTrash: =>
-    @categoriesSharedName() is 'trash'
+    @categoriesSharedRole() is 'trash'
 
   isArchive: =>
     false
@@ -110,9 +115,9 @@ class MailboxPerspective
   hasSyncingCategories: =>
     false
 
-  categoriesSharedName: =>
-    @_categoriesSharedName ?= Category.categoriesSharedName(@categories())
-    @_categoriesSharedName
+  categoriesSharedRole: =>
+    @_categoriesSharedRole ?= Category.categoriesSharedRole(@categories())
+    @_categoriesSharedRole
 
   category: =>
     return null unless @categories().length is 1
@@ -156,7 +161,7 @@ class MailboxPerspective
     @canMoveThreadsTo(threads, 'trash')
 
   canMoveThreadsTo: (threads, standardCategoryName) =>
-    return false if @categoriesSharedName() is standardCategoryName
+    return false if @categoriesSharedRole() is standardCategoryName
     return _.every AccountStore.accountsForItems(threads), (acc) ->
       CategoryStore.getCategoryByRole(acc, standardCategoryName)?
 
@@ -272,7 +277,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
     if @isSent()
       query.order(Thread.attributes.lastMessageSentTimestamp.descending())
 
-    unless @categoriesSharedName() in ['spam', 'trash']
+    unless @categoriesSharedRole() in ['spam', 'trash']
       query.where(inAllMail: true)
 
     if @_categories.length > 1 and @accountIds.length < @_categories.length
@@ -307,77 +312,96 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
   receiveThreads: (threadsOrIds) =>
     FocusedPerspectiveStore = require('./flux/stores/focused-perspective-store').default
-    current= FocusedPerspectiveStore.current()
+    current = FocusedPerspectiveStore.current()
 
     # This assumes that the we don't have more than one category per accountId
     # attached to this perspective
     DatabaseStore.modelify(Thread, threadsOrIds).then (threads) =>
-      tasks = TaskFactory.tasksForApplyingCategories
-        source: "Dragged Into List",
-        threads: threads
-        categoriesToRemove: (accountId) ->
-          if current.categoriesSharedName() in Category.LockedCategoryNames
-            return []
-          return _.filter(current.categories(), _.matcher({accountId}))
-        categoriesToAdd: (accountId) => [_.findWhere(@_categories, {accountId})]
+      tasks = TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) =>
+        if current.categoriesSharedRole() in Category.LockedCategoryNames
+          return null
+        
+        myCat = @categories().find((c) -> c.accountId == accountId)
+        currentCat = current.categories().find((c) -> c.accountId == accountId)
+
+        if myCat instanceof Folder
+          return new ChangeFolderTask({
+            threads: accountThreads,
+            source: "Dragged into list",
+            folder: myCat,
+          })
+      
+        # We are a label!
+        if currentCat instanceof Folder
+          # dragging from trash or spam into a label? We need to both apply the label and move.
+          return [
+            new ChangeFolderTask({
+              threads: accountThreads,
+              source: "Dragged into list",
+              folder: CategoryStore.getCategoryByRole(accountId, 'all'),
+            }),
+            new ChangeLabelsTask({
+              threads: accountThreads,
+              source: "Dragged into list",
+              labelsToAdd: [myCat],
+            })
+          ]
+        else
+          return [
+            new ChangeLabelsTask({
+              threads: accountThreads,
+              source: "Dragged into list",
+              labelsToAdd: [myCat],
+            })
+          ]
+      )
       Actions.queueTasks(tasks)
 
   # Public:
   # Returns the tasks for removing threads from this perspective and moving them
-  # to a given target/destination based on a {RemovalTargetRuleset}.
+  # to the default destination based on the current view:
   #
-  # A RemovalTargetRuleset for categories is a map that represents the
-  # target/destination Category when removing threads from another given
-  # category, i.e., when removing them the current CategoryPerspective.
-  # Rulesets are of the form:
-  #
-  #   [categoryName] -> function(accountId): Category
-  #
-  # Keys correspond to category names, e.g.`{'inbox', 'trash',...}`, which
-  # correspond to the name of the categories associated with the current perspective
-  # Values are functions with the following signature:
-  #
-  #   `function(accountId): Category`
-  #
-  # If the value of the category name of the current perspective is null instead
-  # of a function, this method will return an empty array of tasks
-  #
-  # RemovalRulesets should also contain a key `other`, that is meant to be used
-  # when a key cannot be found for the current category name
-  #
-  # Example:
-  # perspective.tasksForRemovingItems(
-  #   threads,
-  #   {
-  #     # Move to trash if the current perspective is inbox
-  #     inbox: (accountId) -> CategoryStore.getTrashCategory(accountId),
-  #
-  #     # Do nothing if the current perspective is trash
-  #     trash: null,
-  #   }
-  # )
-  #
-  tasksForRemovingItems: (threads, ruleset, source) =>
-    if not ruleset
-      throw new Error("tasksForRemovingItems: you must pass a ruleset object to determine the destination of the threads")
+  # if you're looking at a folder:
+  # - spam: null
+  # - trash: null
+  # - archive: trash
+  # - all others: "finished category (archive or trash)"
 
-    name = if @isArchive()
-      # TODO this is an awful hack
-      'archive'
+  # if you're looking at a label
+  # - if finished category === "archive" remove the label
+  # - if finished category === "trash" move to trash folder, keep labels intact
+  #
+  tasksForRemovingItems: (threads, source = "Removed from list") =>
+    # TODO this is an awful hack
+    if @isArchive()
+      role = 'archive'
     else
-      @categoriesSharedName()
+      role = @categoriesSharedRole()
+      'archive'
 
-    return [] if ruleset[name] is null
-
-    return TaskFactory.tasksForApplyingCategories(
-      source: source || "Removed From List",
-      threads: threads,
-      categoriesToRemove: (accountId) =>
-        # Remove all categories from this perspective that match the accountId
-        return _.filter(@_categories, _.matcher({accountId}))
-      categoriesToAdd: (accId) =>
-        category = (ruleset[name] ? ruleset.other)(accId)
-        return if category then [category] else []
+    if role == 'spam' or role == 'trash'
+      return []
+    
+    if role == 'archive'
+      return TaskFactory.tasksForMovingToTrash({threads, source})
+    
+    return TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) =>
+      acct = AccountStore.accountForId(accountId)
+      preferred = acct.preferredRemovalDestination()
+      cat = @categories().find((c) -> c.accountId == accountId)
+      if cat instanceof Label and preferred.role != 'trash'
+        inboxCat = CategoryStore.getInboxCategory(accountId)
+        return new ChangeLabelsTask({
+          threads: accountThreads,
+          labelsToRemove: [cat, inboxCat],
+          source: source,
+        })
+      else 
+        return new ChangeFolderTask({
+          threads: accountThreads,
+          folder: preferred,
+          source: source,
+        })
     )
 
 

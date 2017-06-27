@@ -25,11 +25,6 @@ describe("Model", function modelSpecs() {
       expect(m.id).toBe(attrs.id);
     });
 
-    it("throws an error if you attempt to manually assign the id", () => {
-      const m = new Model({id: "foo"});
-      return expect(() => { m.id = "bar" }).toThrow();
-    });
-
     return it("automatically assigns an id to the model if no id is provided", () => {
       const m = new Model();
       expect(Utils.isTempId(m.id)).toBe(true);
@@ -114,10 +109,10 @@ describe("Model", function modelSpecs() {
 
       this.json = {
         'id': '1234',
+        'aid': 'bla',
         'test_number': 4,
         'test_boolean': true,
         'daysOld': 4,
-        'account_id': 'bla',
       };
       this.m = new Submodel();
     });
@@ -145,7 +140,7 @@ describe("Model", function modelSpecs() {
 
     it("should maintain empty string as empty strings", () => {
       expect(this.m.accountId).toBe(undefined);
-      this.m.fromJSON({account_id: ''});
+      this.m.fromJSON({aid: ''});
       return expect(this.m.accountId).toBe('');
     });
 
@@ -240,7 +235,7 @@ describe("Model", function modelSpecs() {
       const json = this.model.toJSON();
       expect(json instanceof Object).toBe(true);
       expect(json.id).toBe('1234');
-      return expect(json.account_id).toBe('inflated value!');
+      return expect(json.aid).toBe('inflated value!');
     });
 
     return it("should surface any exception one of the attribute toJSON functions raises", () => {

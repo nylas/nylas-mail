@@ -25,7 +25,7 @@ class MessageStore extends NylasStore
   items: ->
     return @_items if @_showingHiddenItems
 
-    viewing = FocusedPerspectiveStore.current().categoriesSharedName()
+    viewing = FocusedPerspectiveStore.current().categoriesSharedRole()
     viewingHiddenCategory = viewing in FolderNamesHiddenByDefault
 
     if viewingHiddenCategory

@@ -50,7 +50,6 @@ export default class Account extends ModelWithMetadata {
     emailAddress: Attributes.String({
       queryable: true,
       modelKey: 'emailAddress',
-      jsonKey: 'email_address',
     }),
 
     label: Attributes.String({
@@ -63,22 +62,18 @@ export default class Account extends ModelWithMetadata {
 
     defaultAlias: Attributes.Object({
       modelKey: 'defaultAlias',
-      jsonKey: 'default_alias',
     }),
 
     syncState: Attributes.String({
       modelKey: 'syncState',
-      jsonKey: 'sync_state',
     }),
 
     syncError: Attributes.Object({
       modelKey: 'syncError',
-      jsonKey: 'sync_error',
     }),
 
     n1CloudState: Attributes.String({
       modelKey: 'n1CloudState',
-      jsonKey: 'n1_cloud_state',
     }),
   });
 
@@ -149,27 +144,21 @@ export default class Account extends ModelWithMetadata {
 
   canArchiveThreads() {
     CategoryStore = CategoryStore || require('../stores/category-store')
-
     return CategoryStore.getArchiveCategory(this)
   }
 
   canTrashThreads() {
     CategoryStore = CategoryStore || require('../stores/category-store')
-
     return CategoryStore.getTrashCategory(this)
   }
 
-  defaultFinishedCategory() {
+  preferredRemovalDestination() {
     CategoryStore = CategoryStore || require('../stores/category-store')
-
     const preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
-    const archiveCategory = CategoryStore.getArchiveCategory(this)
-    const trashCategory = CategoryStore.getTrashCategory(this)
-
-    if (preferDelete || !archiveCategory) {
-      return trashCategory
+    if (preferDelete || !CategoryStore.getArchiveCategory(this)) {
+      return CategoryStore.getTrashCategory(this);
     }
-    return archiveCategory
+    return CategoryStore.getArchiveCategory(this);
   }
 
   hasN1CloudError() {

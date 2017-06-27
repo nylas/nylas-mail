@@ -3,6 +3,7 @@ import _ from 'underscore';
 import {
   Actions,
   Thread,
+  Label,
   Category,
   DateUtils,
   TaskFactory,
@@ -10,6 +11,8 @@ import {
   CategoryStore,
   DatabaseStore,
   SyncbackCategoryTask,
+  ChangeLabelsTask,
+  ChangeFolderTask,
   TaskQueue,
   FolderSyncProgressStore,
 } from 'nylas-exports';
@@ -80,15 +83,27 @@ const SnoozeUtils = {
   },
 
   moveThreads(threads, {snooze, getSnoozeCategory, getInboxCategory, description} = {}) {
-    const tasks = TaskFactory.tasksForApplyingCategories({
-      source: "Snooze Move",
-      threads,
-      categoriesToRemove: snooze ? getInboxCategory : getSnoozeCategory,
-      categoriesToAdd: snooze ? getSnoozeCategory : getInboxCategory,
-      taskDescription: description,
-    })
+    const tasks = TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
+      const snoozeCat = getSnoozeCategory(accountId);
+      const inboxCat = getInboxCategory(accountId);
+      if (snoozeCat instanceof Label) {
+        return ChangeLabelsTask({
+          source: "Snooze Move",
+          threads: accountThreads,
+          taskDescription: description,
+          labelsToAdd: snooze ? [snoozeCat] : [inboxCat],
+          labelsToRemove: snooze ? [inboxCat] : [snoozeCat],
+        });
+      }
+      return ChangeFolderTask({
+        source: "Snooze Move",
+        threads: accountThreads,
+        taskDescription: description,
+        folder: snooze ? snoozeCat : inboxCat,
+      });
+    });
 
-    Actions.queueTasks(tasks)
+    Actions.queueTasks(tasks);
     const promises = tasks.map(task => TaskQueue.waitForPerformRemote(task))
     // Resolve with the updated threads
     return (

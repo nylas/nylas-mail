@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import Message from './message'
 import Contact from './contact'
 import Folder from './folder'
@@ -41,7 +40,7 @@ Section: Models
 */
 class Thread extends ModelWithMetadata {
 
-  static attributes = _.extend({}, ModelWithMetadata.attributes, {
+  static attributes = Object.assign({}, ModelWithMetadata.attributes, {
     snippet: Attributes.String({ // TODO NONFUNCTIONAL
       modelKey: 'snippet',
     }),
@@ -132,24 +131,6 @@ class Thread extends ModelWithMetadata {
     return messages
   }
 
-  /** Computes the plaintext version of ALL messages.
-   * WARNING: This method is VERY expensive.
-   * Parsing a thread with ~50 messages took ~2-3 seconds!
-   */
-  computePlainText() {
-    return Promise.map(this.messages(), (message) => {
-      return new Promise((resolve) => {
-        // Add a defer tick so we don't COMPLETELY hang the thread.
-        setTimeout(() => {
-          resolve(`${message.replyAttributionLine()}\n\n${message.computePlainText()}`)
-        }, 1)
-      })
-    }).then((plainTextBodies = []) => {
-      const msgDivider = "\n\n--------------------------------------------------\n"
-      return plainTextBodies.join(msgDivider)
-    })
-  }
-
   get categories() {
     return [].concat(this.folders, this.labels);
   }
@@ -172,22 +153,12 @@ class Thread extends ModelWithMetadata {
     return this
   }
 
-  /**
-  * Public: Returns true if the thread has a {Category} with the given
-  * name. Note, only catgories of type `Category.Types.Standard` have valid
-  * `names`
-  * - `id` A {String} {Category} name
-  */
-  categoryNamed(name) {
-    return _.findWhere(this.categories, {name})
-  }
-
   sortedCategories() {
     if (!this.categories) {
       return []
     }
     let out = []
-    const isImportant = (l) => l.name === 'important'
+    const isImportant = (l) => l.role === 'important'
     const isStandardCategory = (l) => l.isStandardCategory()
     const isUnhiddenStandardLabel = (l) => (
       !isImportant(l) &&
@@ -195,21 +166,22 @@ class Thread extends ModelWithMetadata {
       !(l.isHiddenCategory())
     )
 
-    const importantLabel = _.find(this.categories, isImportant)
+    const importantLabel = this.categories.find(isImportant)
     if (importantLabel) {
       out = out.concat(importantLabel)
     }
 
-    const standardLabels = _.filter(this.categories, isUnhiddenStandardLabel)
+    const standardLabels = this.categories.filter(isUnhiddenStandardLabel)
     if (standardLabels.length > 0) {
       out = out.concat(standardLabels)
     }
 
-    const userLabels = _.filter(this.categories, (l) => (
+    const userLabels = this.categories.filter((l) =>
       !isImportant(l) && !isStandardCategory(l)
-    ))
+    )
+
     if (userLabels.length > 0) {
-      out = out.concat(_.sortBy(userLabels, 'displayName'))
+      out = out.concat(userLabels.sort((a, b) => a.displayName.localeCompare(b.displayName)))
     }
     return out
   }
