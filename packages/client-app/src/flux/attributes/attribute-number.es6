@@ -16,7 +16,7 @@ export default class AttributeNumber extends Attribute {
   }
 
   columnSQL() {
-    return `${this.jsonKey} INTEGER`;
+    return `${this.tableColumn} INTEGER`;
   }
 
   // Public: Returns a {Matcher} for objects greater than the provided value.

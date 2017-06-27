@@ -19,7 +19,7 @@ export default class SortOrder {
   }
 
   orderBySQL(klass) {
-    return `\`${klass.name}\`.\`${this.attr.jsonKey}\` ${this.direction}`;
+    return `\`${klass.name}\`.\`${this.attr.tableColumn}\` ${this.direction}`;
   }
 
   attribute() {

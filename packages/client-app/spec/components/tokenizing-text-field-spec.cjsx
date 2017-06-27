@@ -140,7 +140,7 @@ describe 'TokenizingTextField', ->
       token.simulate('dragStart', dragStartEvent)
 
       expect(dragStartEventData).toEqual({
-        'nylas-token-items': '[{"client_id":"123","server_id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","thirdPartyData":{},"is_search_indexed":false,"id":"2","__constructorName":"Contact"}]'
+        'nylas-token-items': '[{"client_id":"123","server_id":"2","name":"Nylas Burger Basket","email":"burgers@nylas.com","thirdPartyData":{},"is_search_indexed":false,"id":"2","__cls":"Contact"}]'
         'text/plain': 'Nylas Burger Basket <burgers@nylas.com>'
       })
 

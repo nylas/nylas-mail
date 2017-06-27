@@ -141,15 +141,12 @@ export default class Message extends ModelWithMetadata {
 
     headerMessageId: Attributes.String({
       queryable: true,
+      jsonKey: 'hMsgId',
       modelKey: 'headerMessageId',
     }),
 
     subject: Attributes.String({
       modelKey: 'subject',
-    }),
-
-    folderImapUID: Attributes.Number({
-      modelKey: 'folderImapUID',
     }),
 
     draft: Attributes.Boolean({
@@ -163,6 +160,7 @@ export default class Message extends ModelWithMetadata {
     }),
 
     version: Attributes.Number({
+      jsonKey: 'v',
       modelKey: 'version',
       queryable: true,
     }),
@@ -176,6 +174,11 @@ export default class Message extends ModelWithMetadata {
       modelKey: 'folder',
       itemClass: Folder,
     }),
+
+    folderUID: Attributes.Number({
+      modelKey: 'folderUID',
+    }),
+
   });
 
   static naturalSortOrder() {

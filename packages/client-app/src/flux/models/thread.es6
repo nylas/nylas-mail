@@ -63,6 +63,7 @@ class Thread extends ModelWithMetadata {
 
     version: Attributes.Number({
       queryable: true,
+      jsonKey: 'v',
       modelKey: 'version',
     }),
 
@@ -100,11 +101,13 @@ class Thread extends ModelWithMetadata {
 
     lastMessageReceivedTimestamp: Attributes.DateTime({
       queryable: true,
+      jsonKey: 'lmrt',
       modelKey: 'lastMessageReceivedTimestamp',
     }),
 
     lastMessageSentTimestamp: Attributes.DateTime({
       queryable: true,
+      jsonKey: 'lmst',
       modelKey: 'lastMessageSentTimestamp',
     }),
 

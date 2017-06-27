@@ -12,6 +12,7 @@ class PluginMetadata extends Model {
       jsonKey: "plugin_id",
     }),
     version: Attributes.Number({
+      jsonKey: 'v',
       modelKey: 'version',
     }),
     value: Attributes.Object({

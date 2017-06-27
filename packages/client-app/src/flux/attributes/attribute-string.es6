@@ -24,7 +24,7 @@ export default class AttributeString extends Attribute {
   }
 
   columnSQL() {
-    return `${this.jsonKey} TEXT`;
+    return `${this.tableColumn} TEXT`;
   }
 
   like(val) {

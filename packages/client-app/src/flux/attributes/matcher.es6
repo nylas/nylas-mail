@@ -140,7 +140,7 @@ class Matcher {
       const escapedVals = []
       for (const v of val) {
         if (typeof v !== 'string') {
-          throw new Error(`${this.attr.jsonKey} value ${v} must be a string.`);
+          throw new Error(`${this.attr.tableColumn} value ${v} must be a string.`);
         }
         escapedVals.push(`'${v.replace(/'/g, singleQuoteEscapeSequence)}'`);
       }
@@ -152,15 +152,15 @@ class Matcher {
     switch (this.comparator) {
       case '=': {
         if (escaped === null) {
-          return `\`${klass.name}\`.\`${this.attr.jsonKey}\` IS NULL`;
+          return `\`${klass.name}\`.\`${this.attr.tableColumn}\` IS NULL`;
         }
-        return `\`${klass.name}\`.\`${this.attr.jsonKey}\` = ${escaped}`;
+        return `\`${klass.name}\`.\`${this.attr.tableColumn}\` = ${escaped}`;
       }
       case '!=': {
         if (escaped === null) {
-          return `\`${klass.name}\`.\`${this.attr.jsonKey}\` IS NOT NULL`;
+          return `\`${klass.name}\`.\`${this.attr.tableColumn}\` IS NOT NULL`;
         }
-        return `\`${klass.name}\`.\`${this.attr.jsonKey}\` != ${escaped}`;
+        return `\`${klass.name}\`.\`${this.attr.tableColumn}\` != ${escaped}`;
       }
       case 'startsWith':
         return " RAISE `TODO`; ";
@@ -169,7 +169,7 @@ class Matcher {
       case 'containsAny':
         return `\`${this.joinTableRef()}\`.\`value\` IN ${escaped}`;
       default:
-        return `\`${klass.name}\`.\`${this.attr.jsonKey}\` ${this.comparator} ${escaped}`;
+        return `\`${klass.name}\`.\`${this.attr.tableColumn}\` ${this.comparator} ${escaped}`;
     }
   }
 }

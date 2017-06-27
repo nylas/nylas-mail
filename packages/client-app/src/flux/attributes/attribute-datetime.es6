@@ -22,7 +22,7 @@ export default class AttributeDateTime extends Attribute {
   }
 
   columnSQL() {
-    return `${this.jsonKey} INTEGER`;
+    return `${this.tableColumn} INTEGER`;
   }
 
   // Public: Returns a {Matcher} for objects greater than the provided value.

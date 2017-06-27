@@ -20,14 +20,12 @@ export default class Task extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     version: Attributes.String({
       queryable: true,
+      jsonKey: 'v',
       modelKey: 'version',
     }),
     status: Attributes.String({
       queryable: true,
       modelKey: 'status',
-    }),
-    accountId: Attributes.String({
-      modelKey: 'accountId',
     }),
   });
 

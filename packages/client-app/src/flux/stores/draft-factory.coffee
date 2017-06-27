@@ -30,7 +30,7 @@ class DraftFactory
       version: 0
       unread: false
       starred: false
-      folderImapUID: 0
+      folderUID: 0
       headerMessageId: Utils.generateTempId()
       from: [account.defaultMe()]
       date: (new Date)

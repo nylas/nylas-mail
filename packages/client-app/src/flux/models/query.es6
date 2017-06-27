@@ -302,10 +302,10 @@ export default class ModelQuery {
           if (!attr.needsColumn() || !attr.loadFromColumn) {
             continue;
           }
-          object[attr.modelKey] = attr.fromColumn(row[attr.jsonKey]);
+          object[attr.modelKey] = attr.fromColumn(row[attr.tableColumn]);
         }
         for (const attr of this._includeJoinedData) {
-          let value = row[attr.jsonKey];
+          let value = row[attr.tableColumn];
           if (value === AttributeJoinedData.NullPlaceholder) {
             value = null;
           }
@@ -348,7 +348,7 @@ export default class ModelQuery {
         if (!attr.needsColumn() || !attr.loadFromColumn) {
           continue;
         }
-        result += `, ${attr.jsonKey} `;
+        result += `, ${attr.tableColumn} `;
       }
       this._includeJoinedData.forEach((attr) => {
         result += `, ${attr.selectSQL(this._klass)} `;

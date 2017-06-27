@@ -33,7 +33,7 @@ Utils =
     (new DOMParser()).parseFromString(html, "text/html").body.innerText
 
   registeredObjectReviver: (k,v) ->
-    type = v?.__constructorName
+    type = v?.__cls
     return v unless type
 
     if DatabaseObjectRegistry.isInRegistry(type)
@@ -45,7 +45,7 @@ Utils =
     if _.isObject(v)
       type = this[k].constructor.name
       if DatabaseObjectRegistry.isInRegistry(type)
-        v.__constructorName = type
+        v.__cls = type
     return v
 
   fastOmit: (props, without) ->

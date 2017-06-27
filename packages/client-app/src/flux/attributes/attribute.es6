@@ -12,6 +12,7 @@ Section: Database
 export default class Attribute {
   constructor({modelKey, queryable, jsonKey, defaultValue, loadFromColumn}) {
     this.modelKey = modelKey;
+    this.tableColumn = modelKey;
     this.jsonKey = jsonKey || modelKey;
     this.queryable = queryable;
     this.defaultValue = defaultValue;

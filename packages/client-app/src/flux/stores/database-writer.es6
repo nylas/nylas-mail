@@ -224,14 +224,14 @@ export default class DatabaseWriter {
     const attributes = Object.keys(klass.attributes).map(key => klass.attributes[key])
 
     const columnAttributes = attributes.filter((attr) =>
-      attr.queryable && attr.columnSQL && attr.jsonKey !== 'id'
+      attr.queryable && attr.columnSQL && attr.tableColumn !== 'id'
     );
 
     // Compute the columns in the model table and a question mark string
     const columns = ['id', 'data'];
     const columnMarks = ['?', '?'];
     columnAttributes.forEach((attr) => {
-      columns.push(attr.jsonKey);
+      columns.push(attr.tableColumn);
       columnMarks.push('?');
     });
     const columnsSQL = columns.join(',');
@@ -249,7 +249,7 @@ export default class DatabaseWriter {
       ids.push(model.id);
       values.push(model.id, JSON.stringify(json, registeredObjectReplacer));
       columnAttributes.forEach((attr) => {
-        values.push(json[attr.jsonKey]);
+        values.push(json[attr.tableColumn]);
       });
       marks.push(marksSet);
     }
@@ -277,7 +277,7 @@ export default class DatabaseWriter {
       const joinedValues = [];
       const joinMarkUnit = `(${["?", "?"].concat(attr.joinQueryableBy.map(() => '?')).join(',')})`;
       const joinQueryableByJSONKeys = attr.joinQueryableBy.map(joinedModelKey =>
-        klass.attributes[joinedModelKey].jsonKey
+        klass.attributes[joinedModelKey].tableColumn
       );
       const joinColumns = ['id', 'value'].concat(joinQueryableByJSONKeys);
 
