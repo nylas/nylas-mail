@@ -197,7 +197,6 @@ lazyLoad(`SoundRegistry`, 'registries/sound-registry');
 lazyLoad(`MailRulesTemplates`, 'mail-rules-templates');
 lazyLoad(`MailRulesProcessor`, 'mail-rules-processor');
 lazyLoad(`MailboxPerspective`, 'mailbox-perspective');
-lazyLoad(`DeltaProcessor`, 'services/delta-processor');
 lazyLoad(`NativeNotifications`, 'native-notifications');
 lazyLoad(`SanitizeTransformer`, 'services/sanitize-transformer');
 lazyLoad(`QuotedHTMLTransformer`, 'services/quoted-html-transformer');

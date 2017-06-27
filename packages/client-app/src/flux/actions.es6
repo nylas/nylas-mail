@@ -102,21 +102,12 @@ class Actions {
 
   *Scope: Main Window*
   */
-  static longPollReceivedRawDeltas = ActionScopeMainWindow;
-  static longPollProcessedDeltas = ActionScopeMainWindow;
   static willMakeAPIRequest = ActionScopeMainWindow;
   static didMakeAPIRequest = ActionScopeMainWindow;
   static checkOnlineStatus = ActionScopeWindow;
 
 
   static wakeLocalSyncWorkerForAccount = ActionScopeGlobal;
-
-  /*
-  Public: Retry the initial sync
-
-  *Scope: Global*
-  */
-  static retryDeltaConnection = ActionScopeGlobal;
 
   /*
   Public: Open the preferences view.
