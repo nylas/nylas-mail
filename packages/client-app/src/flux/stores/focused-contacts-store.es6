@@ -9,6 +9,7 @@ import Contact from '../models/contact';
 import MessageStore from './message-store';
 import AccountStore from './account-store';
 import DatabaseStore from './database-store';
+import SearchQueryParser from '../../services/search/search-query-parser';
 
 // A store that handles the focuses collections of and individual contacts
 class FocusedContactsStore extends NylasStore {
@@ -95,16 +96,17 @@ class FocusedContactsStore extends NylasStore {
     if (!email) {
       return
     }
+    const parsedQuery = SearchQueryParser.parse(`from:${email}`);
     DatabaseStore.findAll(Thread)
-    .where(Thread.attributes.participants.contains(email))
-    .limit(100).background()
-    .then((threads = []) => {
-      if (currentContact.email !== email) {
-        return
-      }
-      this._currentParticipantThreads = threads;
-      this.trigger();
-    });
+      .structuredSearch(parsedQuery)
+      .limit(100).background()
+      .then((threads = []) => {
+        if (currentContact.email !== email) {
+          return
+        }
+        this._currentParticipantThreads = threads;
+        this.trigger();
+      });
   }
 
   // We score everyone to determine who's the most relevant to display in
