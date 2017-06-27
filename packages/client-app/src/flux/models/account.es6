@@ -123,10 +123,6 @@ export default class Account extends ModelWithMetadata {
     return 'Unknown';
   }
 
-  categoryCollection() {
-    return `${this.organizationUnit}s`
-  }
-
   categoryIcon() {
     return 'bla.png'
   }

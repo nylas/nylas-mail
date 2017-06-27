@@ -44,8 +44,6 @@ class MasterBeforeEach {
   }
 
   _resetNylasEnv() {
-    NylasEnv.testOrganizationUnit = null;
-
     NylasEnv.workspaceViewParentSelector = '#jasmine-content';
 
     // Don't actually write to disk
@@ -99,7 +97,6 @@ class MasterBeforeEach {
         provider: "gmail",
         name: nylasTestConstants.TEST_ACCOUNT_NAME,
         emailAddress: nylasTestConstants.TEST_ACCOUNT_EMAIL,
-        organizationUnit: NylasEnv.testOrganizationUnit || 'label',
         id: nylasTestConstants.TEST_ACCOUNT_ID,
         aliases: [
           `${nylasTestConstants.TEST_ACCOUNT_NAME} Alternate <${nylasTestConstants.TEST_ACCOUNT_ALIAS_EMAIL}>`,
@@ -110,7 +107,6 @@ class MasterBeforeEach {
         provider: "gmail",
         name: 'Second',
         emailAddress: 'second@gmail.com',
-        organizationUnit: NylasEnv.testOrganizationUnit || 'label',
         id: 'second-test-account-id',
         aliases: [
           'Second Support <second@gmail.com>',

@@ -6,6 +6,7 @@ MovePickerPopover = require('../lib/move-picker-popover').default
 
 {Utils,
  Category,
+ Folder,
  Thread,
  Actions,
  AccountStore,
@@ -24,20 +25,14 @@ describe 'MovePickerPopover', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
-  afterEach ->
-    NylasEnv.testOrganizationUnit = null
-
-  setupFor = (organizationUnit) ->
-    NylasEnv.testOrganizationUnit = organizationUnit
+  setupFor = () ->
     @account = {
       id: TEST_ACCOUNT_ID
-      usesLabels: -> organizationUnit is "label"
-      usesFolders: -> organizationUnit isnt "label"
     }
 
-    @inboxCategory = new Category(id: 'id-123', name: 'inbox', displayName: "INBOX", accountId: TEST_ACCOUNT_ID)
-    @archiveCategory = new Category(id: 'id-456', name: 'archive', displayName: "ArCHIVe", accountId: TEST_ACCOUNT_ID)
-    @userCategory = new Category(id: 'id-789', name: null, displayName: "MyCategory", accountId: TEST_ACCOUNT_ID)
+    @inboxCategory = new Folder(id: 'id-123', role: 'inbox', path: "INBOX", accountId: TEST_ACCOUNT_ID)
+    @archiveCategory = new Folder(id: 'id-456', role: 'archive', path: "ArCHIVe", accountId: TEST_ACCOUNT_ID)
+    @userCategory = new Folder(id: 'id-789', role: null, path: "MyCategory", accountId: TEST_ACCOUNT_ID)
 
     observable = NylasTestUtils.mockObservable([@inboxCategory, @archiveCategory, @userCategory])
     observable.sort = => observable
@@ -52,21 +47,17 @@ describe 'MovePickerPopover', ->
     spyOn(FocusedPerspectiveStore, 'current').andCallFake =>
       MailboxPerspective.forCategory(@inboxCategory)
 
-  setupForCreateNew = (orgUnit = "folder") ->
-    setupFor.call(@, orgUnit)
+  setupForCreateNew = () ->
+    setupFor.call(@)
 
     @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
     @picker = ReactTestUtils.renderIntoDocument(
       <MovePickerPopover threads={[@testThread]} account={@account} />
     )
 
-  describe 'when using labels', ->
-    beforeEach ->
-      setupFor.call(@, "label")
-
   describe 'when using folders', ->
     beforeEach ->
-      setupFor.call(@, "folder")
+      setupFor.call(@)
 
       @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])
       @picker = ReactTestUtils.renderIntoDocument(
@@ -94,8 +85,6 @@ describe 'MovePickerPopover', ->
     beforeEach ->
       setupForCreateNew.call @
 
-    afterEach -> NylasEnv.testOrganizationUnit = null
-
     it "is not visible when the search box is empty", ->
       count = ReactTestUtils.scryRenderedDOMComponentsWithClass(@picker, 'category-create-new').length
       expect(count).toBe 0
@@ -114,7 +103,7 @@ describe 'MovePickerPopover', ->
 
   describe "_onSelectCategory", ->
     beforeEach ->
-      setupForCreateNew.call @, "folder"
+      setupForCreateNew.call @
       spyOn(TaskFactory, 'taskForRemovingCategory').andCallThrough()
       spyOn(TaskFactory, 'tasK').andCallThrough()
       spyOn(Actions, "queueTask")

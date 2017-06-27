@@ -26,16 +26,14 @@ describe "AccountStore", ->
           "client_id" : 'local-4f9d476a-c173',
           "server_id" : 'A',
           "email_address":"bengotow@gmail.com",
-          "__cls":"Account"
-          "organization_unit": "label"
+          "__cls":"Account",
           "aliases": ["Alias <alias@nylas.com>"]
         },{
           "id": "B",
           "client_id" : 'local-4f9d476a-c175',
           "server_id" : 'B',
           "email_address":"ben@nylas.com",
-          "__cls":"Account"
-          "organization_unit": "label"
+          "__cls":"Account",
         }]
 
       spyOn(NylasEnv.config, 'get').andCallFake (key) =>
@@ -96,7 +94,6 @@ describe "AccountStore", ->
         "email_address":"ben@nylas.com",
         "provider":"gmail",
         "__cls":"Account",
-        "organization_unit": "label",
       @instance = new @constructor
       spyOn(NylasEnv.config, "set")
       spyOn(@instance, "trigger")
@@ -128,7 +125,6 @@ describe "AccountStore", ->
           "email_address":"ben@nylas.com",
           "provider":"gmail",
           "__cls":"Account"
-          "organization_unit": "label"
         @spyOnConfig()
         @instance = new @constructor
         spyOn(@instance, "trigger")
@@ -145,7 +141,6 @@ describe "AccountStore", ->
           "email_address":"ben@nylas.com",
           "provider":"gmail",
           "__cls":"Account"
-          "organization_unit": "label"
         @spyOnConfig()
         @instance = new @constructor
         spyOn(@instance, "trigger")
