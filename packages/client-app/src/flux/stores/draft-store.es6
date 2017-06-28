@@ -8,7 +8,6 @@ import DatabaseStore from './database-store';
 import SendActionsStore from './send-actions-store';
 import FocusedContentStore from './focused-content-store';
 import BaseDraftTask from '../tasks/base-draft-task';
-import PerformSendActionTask from '../tasks/perform-send-action-task';
 import SyncbackDraftTask from '../tasks/syncback-draft-task';
 import DestroyDraftTask from '../tasks/destroy-draft-task';
 import Thread from '../models/thread';
@@ -58,7 +57,6 @@ class DraftStore extends NylasStore {
     this.listenTo(Actions.ensureDraftSynced, this._onEnsureDraftSynced);
     this.listenTo(Actions.sendDraft, this._onSendDraft);
     this.listenTo(Actions.destroyDraft, this._onDestroyDraft);
-    this.listenTo(Actions.removeFile, this._onRemoveFile);
 
     NylasEnv.onBeforeUnload(this._onBeforeUnload);
 
@@ -369,40 +367,26 @@ class DraftStore extends NylasStore {
     });
   }
 
-  _onSendDraft = (headerMessageId, sendActionKey = DefaultSendActionKey) => {
+  _onSendDraft = async (headerMessageId, sendActionKey = DefaultSendActionKey) => {
     this._draftsSending[headerMessageId] = true;
-    return this.sessionForClientId(headerMessageId).then((session) => {
-      return DraftHelpers.prepareDraftForSyncback(session)
-      .then(() => {
-        Actions.queueTask(new PerformSendActionTask(headerMessageId, sendActionKey));
-        this._doneWithSession(session);
-        if (NylasEnv.config.get("core.sending.sounds")) {
-          SoundRegistry.playSound('hit-send');
-        }
-        if (NylasEnv.isComposerWindow()) {
-          NylasEnv.close();
-        }
-      });
-    });
-  }
 
-  __testExtensionTransforms() {
-    const headerMessageId = NylasEnv.getWindowProps().headerMessageId;
-    return this.sessionForClientId(headerMessageId).then((session) => {
-      return this._prepareForSyncback(session).then(() => {
-        window.__draft = session.draft();
-        console.log("Done transforming draft. Available at window.__draft");
-      });
-    });
-  }
+    const sendAction = SendActionsStore.sendActionForKey(sendActionKey)
+    if (!sendAction) {
+      throw new Error(`Cant find send action ${sendActionKey} `);
+    }
 
-  _onRemoveFile = ({file, headerMessageId}) => {
-    return this.sessionForClientId(headerMessageId).then((session) => {
-      let files = _.clone(session.draft().files) || [];
-      files = _.reject(files, (f) => f.id === file.id);
-      session.changes.add({files});
-      return session.changes.commit();
-    });
+    if (NylasEnv.config.get("core.sending.sounds")) {
+      SoundRegistry.playSound('hit-send');
+    }
+
+    const session = await this.sessionForClientId(headerMessageId);
+    await DraftHelpers.prepareDraftForSyncback(session)
+    await sendAction.performSendAction({draft: session.draft()});
+    this._doneWithSession(session);
+
+    if (NylasEnv.isComposerWindow()) {
+      NylasEnv.close();
+    }
   }
 
   _onDidCancelSendAction = ({headerMessageId}) => {

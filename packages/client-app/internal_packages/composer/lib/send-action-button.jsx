@@ -28,7 +28,7 @@ class SendActionButton extends React.Component {
   _onSendWithAction = (sendAction) => {
     const {isValidDraft, draft} = this.props
     if (isValidDraft()) {
-      Actions.sendDraft(draft.id, sendAction.configKey)
+      Actions.sendDraft(draft.headerMessageId, sendAction.configKey)
     }
   }
 

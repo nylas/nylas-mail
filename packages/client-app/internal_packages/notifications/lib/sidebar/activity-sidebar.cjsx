@@ -13,10 +13,9 @@ SyncbackActivity = require("./syncback-activity").default
  AccountStore,
  FolderSyncProgressStore,
  TaskQueue,
- PerformSendActionTask,
  SendDraftTask} = require 'nylas-exports'
 
-SEND_TASK_CLASSES = [PerformSendActionTask, SendDraftTask]
+SEND_TASK_CLASSES = [SendDraftTask]
 
 class ActivitySidebar extends React.Component
   @displayName: 'ActivitySidebar'
