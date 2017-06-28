@@ -93,7 +93,7 @@ class DraftStore extends NylasStore {
   */
   sessionForClientId(headerMessageId) {
     if (!headerMessageId) {
-      throw new Error("DraftStore::sessionForClientId requires a clientId");
+      throw new Error("DraftStore::sessionForClientId requires a headerMessageId");
     }
     if (this._draftSessions[headerMessageId] == null) {
       this._draftSessions[headerMessageId] = this._createSession(headerMessageId);
@@ -176,7 +176,7 @@ class DraftStore extends NylasStore {
       const t = new SyncbackDraftTask(draft)
       Actions.queueTask(t)
       TaskQueue.waitForPerformLocal(t).then(() => {
-        Actions.sendDraft(draft.clientId);
+        Actions.sendDraft(draft.headerMessageId);
       });
     });
   }
@@ -247,7 +247,7 @@ class DraftStore extends NylasStore {
 
     // Optimistically create a draft session and hand it the draft so that it
     // doesn't need to do a query for it a second from now when the composer wants it.
-    this._createSession(draft.clientId, draft);
+    this._createSession(draft.headerMessageId, draft);
 
     const task = new SyncbackDraftTask(draft);
     Actions.queueTask(task)
@@ -262,9 +262,9 @@ class DraftStore extends NylasStore {
     })
   }
 
-  _createSession(clientId, draft) {
-    this._draftSessions[clientId] = new DraftEditingSession(clientId, draft);
-    return this._draftSessions[clientId]
+  _createSession(headerMessageId, draft) {
+    this._draftSessions[headerMessageId] = new DraftEditingSession(headerMessageId, draft);
+    return this._draftSessions[headerMessageId]
   }
 
   _onPopoutNewDraftToRecipient = (contact) => {
@@ -330,7 +330,7 @@ class DraftStore extends NylasStore {
       paths.forEach((path) => {
         Actions.addAttachment({
           filePath: path,
-          messageClientId: headerMessageId,
+          headerMessageId: headerMessageId,
           onUploadCreated: callback,
         });
       })
@@ -387,8 +387,8 @@ class DraftStore extends NylasStore {
   }
 
   __testExtensionTransforms() {
-    const clientId = NylasEnv.getWindowProps().headerMessageId;
-    return this.sessionForClientId(clientId).then((session) => {
+    const headerMessageId = NylasEnv.getWindowProps().headerMessageId;
+    return this.sessionForClientId(headerMessageId).then((session) => {
       return this._prepareForSyncback(session).then(() => {
         window.__draft = session.draft();
         console.log("Done transforming draft. Available at window.__draft");
@@ -396,8 +396,8 @@ class DraftStore extends NylasStore {
     });
   }
 
-  _onRemoveFile = ({file, messageClientId}) => {
-    return this.sessionForClientId(messageClientId).then((session) => {
+  _onRemoveFile = ({file, headerMessageId}) => {
+    return this.sessionForClientId(headerMessageId).then((session) => {
       let files = _.clone(session.draft().files) || [];
       files = _.reject(files, (f) => f.id === file.id);
       session.changes.add({files});

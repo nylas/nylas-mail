@@ -26,7 +26,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       badTask.draft = new Message({
         from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
         accountId: TEST_ACCOUNT_ID,
-        clientId: '1',
+        headerMessageId: '1',
         uploads: ['123'],
       });
       badTask.assertDraftValidity().then(() => {
@@ -42,7 +42,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       badTask.draft = new Message({from: [],
         uploads: [],
         accountId: TEST_ACCOUNT_ID,
-        clientId: '1',
+        headerMessageId: '1',
       })
       badTask.assertDraftValidity().then(() => {
         throw new Error("Shouldn't succeed");
@@ -57,7 +57,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       badTask.draft = new Message({
         from: [new Contact({email: 'not-configuredthis.nylas.com'})],
         accountId: TEST_ACCOUNT_ID,
-        clientId: '1',
+        headerMessageId: '1',
       });
       badTask.assertDraftValidity().then(() => {
         throw new Error("Shouldn't succeed");
@@ -133,7 +133,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           waitsForPromise(() => this.task.performRemote().then(() => {
             expect(DBt.persistModel).toHaveBeenCalled();
             const model = DBt.persistModel.mostRecentCall.args[0];
-            expect(model.clientId).toEqual(this.draft.clientId);
+            expect(model.headerMessageId).toEqual(this.draft.headerMessageId);
             expect(model.id).toEqual(this.response.id);
             expect(model.draft).toEqual(false);
           }));
@@ -159,7 +159,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         waitsForPromise(() => this.task.performRemote().then(() => {
           const args = Actions.draftDeliverySucceeded.calls[0].args[0];
           expect(args.message instanceof Message).toBe(true)
-          expect(args.messageClientId).toBe(this.draft.clientId)
+          expect(args.headerMessageId).toBe(this.draft.headerMessageId)
         }));
       });
 
@@ -170,7 +170,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           metadataTasks = metadataTasks.filter((task) => task instanceof SyncbackMetadataTask)
           expect(metadataTasks.length).toEqual(this.draft.pluginMetadata.length);
           this.draft.pluginMetadata.forEach((pluginMetadatum, idx) => {
-            expect(metadataTasks[idx].clientId).toEqual(this.draft.clientId);
+            expect(metadataTasks[idx].headerMessageId).toEqual(this.draft.headerMessageId);
             expect(metadataTasks[idx].modelClassName).toEqual('Message');
             expect(metadataTasks[idx].pluginId).toEqual(pluginMetadatum.pluginId);
           });
@@ -418,7 +418,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       beforeEach(() => {
         this.draft = new Message({
           version: 1,
-          clientId: 'client-id',
+          headerMessageId: 'client-id',
           accountId: TEST_ACCOUNT_ID,
           from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
           subject: 'New Draft',
@@ -442,7 +442,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         waitsForPromise(() => this.task.performRemote().then(() => {
           expect(DBt.persistModel).toHaveBeenCalled();
           const model = DBt.persistModel.calls[0].args[0];
-          expect(model.clientId).toBe(this.draft.clientId);
+          expect(model.headerMessageId).toBe(this.draft.headerMessageId);
           expect(model.id).toBe(this.response.id);
           expect(model.draft).toBe(false);
         }));
@@ -453,7 +453,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       beforeEach(() => {
         this.draft = new Message({
           version: 1,
-          clientId: 'client-id',
+          headerMessageId: 'client-id',
           id: 'server-123',
           accountId: TEST_ACCOUNT_ID,
           from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
@@ -486,14 +486,14 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       });
 
       it("should locally convert the existing draft to a message on send", () => {
-        expect(this.draft.clientId).toBe(this.draft.clientId);
+        expect(this.draft.headerMessageId).toBe(this.draft.headerMessageId);
         expect(this.draft.id).toBe("server-123");
 
         this.task.performLocal();
         waitsForPromise(() => this.task.performRemote().then(() => {
           expect(DBt.persistModel).toHaveBeenCalled()
           const model = DBt.persistModel.calls[0].args[0];
-          expect(model.clientId).toBe(this.draft.clientId);
+          expect(model.headerMessageId).toBe(this.draft.headerMessageId);
           expect(model.id).toBe(this.response.id);
           expect(model.draft).toBe(false);
         }));
@@ -507,7 +507,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       this.task.allowMultiSend = true;
       this.task.draft = new Message({
         version: 1,
-        clientId: 'client-id',
+        headerMessageId: 'client-id',
         id: 'server-123',
         accountId: TEST_ACCOUNT_ID,
         from: [new Contact({email: TEST_ACCOUNT_EMAIL})],

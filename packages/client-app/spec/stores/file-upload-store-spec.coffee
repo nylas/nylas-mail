@@ -27,20 +27,20 @@ xdescribe 'FileUploadStore', ->
       callback(fpath)
 
   describe 'selectAttachment', ->
-    it "throws if no messageClientId is provided", ->
+    it "throws if no headerMessageId is provided", ->
       expect( -> Actions.selectAttachment()).toThrow()
 
-    it "throws if messageClientId is blank", ->
+    it "throws if headerMessageId is blank", ->
       expect( -> Actions.selectAttachment("")).toThrow()
 
     it "dispatches action to attach file", ->
       spyOn(Actions, "addAttachment")
 
-      Actions.selectAttachment(messageClientId: msgId)
+      Actions.selectAttachment(headerMessageId: msgId)
       expect(NylasEnv.showOpenDialog).toHaveBeenCalled()
       expect(Actions.addAttachment).toHaveBeenCalled()
       args = Actions.addAttachment.calls[0].args[0]
-      expect(args.messageClientId).toBe(msgId)
+      expect(args.headerMessageId).toBe(msgId)
       expect(args.filePath).toBe(fpath)
 
 
@@ -51,7 +51,7 @@ xdescribe 'FileUploadStore', ->
         isDirectory: -> false,
       }
       @upload = new Upload({
-        messageClientId: msgId,
+        headerMessageId: msgId,
         filePath: fpath,
         stats: @stats,
         id: 'u1',
@@ -62,7 +62,7 @@ xdescribe 'FileUploadStore', ->
       spyOn(FileUploadStore, '_copyUpload').andCallFake => Promise.resolve(@upload)
       spyOn(FileUploadStore, '_applySessionChanges').andCallThrough()
 
-    it "throws if no messageClientId or path is provided", ->
+    it "throws if no headerMessageId or path is provided", ->
       expect(-> Actions.addAttachment()).toThrow()
 
     it 'throws if upload is a directory', ->
@@ -70,7 +70,7 @@ xdescribe 'FileUploadStore', ->
         isDirectory: -> true
       }
       waitsForPromise ->
-        FileUploadStore._onAddAttachment({messageClientId: msgId, filePath: fpath})
+        FileUploadStore._onAddAttachment({headerMessageId: msgId, filePath: fpath})
         .then ->
           throw new Error('Expected test to land in catch.')
         .catch (error) ->
@@ -82,7 +82,7 @@ xdescribe 'FileUploadStore', ->
         isDirectory: -> false,
       }
       waitsForPromise ->
-        FileUploadStore._onAddAttachment({messageClientId: msgId, filePath: fpath})
+        FileUploadStore._onAddAttachment({headerMessageId: msgId, filePath: fpath})
         .then ->
           throw new Error('Expected test to land in catch.')
         .catch (error) ->
@@ -90,7 +90,7 @@ xdescribe 'FileUploadStore', ->
 
     it "executes the required steps and triggers", ->
       waitsForPromise ->
-        FileUploadStore._onAddAttachment({messageClientId: msgId, filePath: fpath})
+        FileUploadStore._onAddAttachment({headerMessageId: msgId, filePath: fpath})
 
       runs =>
         expect(FileUploadStore._getFileStats).toHaveBeenCalled()
@@ -103,7 +103,7 @@ xdescribe 'FileUploadStore', ->
   describe 'removeAttachment', ->
     beforeEach ->
       @upload = new Upload({
-        messageClientId: msgId,
+        headerMessageId: msgId,
         filePath: fpath,
         stats: {
           size: 1234,
@@ -133,7 +133,7 @@ xdescribe 'FileUploadStore', ->
   describe "when a draft is sent", ->
     it "should delete its uploads directory", ->
       spyOn(FileUploadStore, '_deleteUploadsForId')
-      Actions.ensureMessageInSentSuccess({messageClientId: '123'})
+      Actions.ensureMessageInSentSuccess({headerMessageId: '123'})
       expect(FileUploadStore._deleteUploadsForId).toHaveBeenCalledWith('123')
 
   describe '_getFileStats', ->
@@ -160,7 +160,7 @@ xdescribe 'FileUploadStore', ->
     beforeEach ->
       stream = require 'stream'
       @upload = new Upload({
-        messageClientId: msgId,
+        headerMessageId: msgId,
         filePath: fpath,
         stats: {
           size: 1234,

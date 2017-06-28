@@ -11,7 +11,7 @@ class MessageAttachments extends Component {
   static propTypes = {
     files: PropTypes.array,
     downloads: PropTypes.object,
-    messageClientId: PropTypes.string,
+    headerMessageId: PropTypes.string,
     filePreviewPaths: PropTypes.object,
     canRemoveAttachments: PropTypes.bool,
   }
@@ -26,10 +26,10 @@ class MessageAttachments extends Component {
   }
 
   onRemoveAttachment = (file) => {
-    const {messageClientId} = this.props
+    const {headerMessageId} = this.props
     Actions.removeFile({
       file: file,
-      messageClientId: messageClientId,
+      headerMessageId: headerMessageId,
     })
   }
 
