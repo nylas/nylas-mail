@@ -165,7 +165,6 @@ class N1SpecRunner {
     document.body.appendChild(div);
     document.querySelector('html').style.overflow = 'initial';
     document.querySelector('body').style.overflow = 'initial';
-    document.getElementById("application-loading-cover").remove();
   }
 
   _extendJasmineMethods() {

@@ -870,27 +870,10 @@ export default class NylasEnvConstructor {
 
   // Call this method when establishing a real application window.
   startRootWindow() {
-    const {safeMode, initializeInBackground} = this.getLoadSettings();
-
-    // Temporary. It takes five paint cycles for all the CSS in index.html to
-    // be applied. Remove if https://github.com/atom/brightray/issues/196 fixed!
-    return window.requestAnimationFrame(() => {
-      return window.requestAnimationFrame(() => {
-        return window.requestAnimationFrame(() => {
-          return window.requestAnimationFrame(() => {
-            return window.requestAnimationFrame(() => {
-              if (!initializeInBackground) { this.displayWindow(); }
-              return this.startWindow().then(() => {
-                // These don't need to wait for the window's stores and
-                // such to fully activate:
-                if (!safeMode) { this.requireUserInitScript(); }
-                this.showMainWindow();
-                return ipcRenderer.send('window-command', 'window:loaded');
-              });
-            });
-          });
-        });
-      });
+    this.restoreWindowDimensions();
+    this.getCurrentWindow().setMinimumSize(875, 250);
+    this.startWindow().then(() => {
+      ipcRenderer.send('window-command', 'window:loaded');
     });
   }
 
@@ -899,13 +882,10 @@ export default class NylasEnvConstructor {
   // hot windows), the packages won't be loaded until `populateHotWindow`
   // gets fired.
   startSecondaryWindow() {
-    const elt = document.getElementById("application-loading-cover");
-    if (elt) elt.remove();
-
-    return this.startWindow().then(() => {
+    this.startWindow().then(() => {
       this.initializeBasicSheet();
       ipcRenderer.on("load-settings-changed", this.populateHotWindow);
-      return ipcRenderer.send('window-command', 'window:loaded');
+      ipcRenderer.send('window-command', 'window:loaded');
     }
     );
   }
@@ -920,13 +900,6 @@ export default class NylasEnvConstructor {
         popout: ['Center'],
       });
     }
-  }
-
-  showMainWindow() {
-    document.getElementById("application-loading-cover").remove();
-    document.body.classList.add("window-loaded");
-    this.restoreWindowDimensions();
-    return this.getCurrentWindow().setMinimumSize(875, 250);
   }
 
   // Updates the window load settings - called when the app is ready to
@@ -1193,17 +1166,6 @@ export default class NylasEnvConstructor {
   getUserInitScriptPath() {
     const initScriptPath = fs.resolve(this.getConfigDirPath(), 'init', ['js', 'coffee']);
     return initScriptPath != null ? initScriptPath : path.join(this.getConfigDirPath(), 'init.coffee');
-  }
-
-  requireUserInitScript() {
-    const userInitScriptPath = this.getUserInitScriptPath();
-    if (userInitScriptPath) {
-      try {
-        if (fs.isFileSync(userInitScriptPath)) { require(userInitScriptPath); }
-      } catch (error) {
-        console.log(error);
-      }
-    }
   }
 
   // Require the module with the given globals.
