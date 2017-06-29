@@ -11,7 +11,6 @@ import {
   Utils,
   Actions,
   TaskQueue,
-  DatabaseStore,
   Label,
   SyncbackCategoryTask,
   ChangeLabelsTask,
@@ -105,26 +104,22 @@ export default class LabelPickerPopover extends Component {
     if (threads.length === 0) return;
 
     if (item.newCategoryItem) {
-      const category = new Label({
-        displayName: this.state.searchValue,
+      const syncbackTask = new SyncbackCategoryTask({
+        path: this.state.searchValue,
         accountId: account.id,
       })
-      const syncbackTask = new SyncbackCategoryTask({category})
 
-      TaskQueue.waitForPerformRemote(syncbackTask).then(() => {
-        DatabaseStore.findBy(category.constructor, {id: category.id})
-        .then((cat) => {
-          if (!cat) {
-            NylasEnv.showErrorDialog({title: "Error", message: `Could not create label.`})
-            return;
-          }
-          Actions.queueTask(new ChangeLabelsTask({
-            source: "Category Picker: New Category",
-            threads: threads,
-            labelsToRemove: [],
-            labelsToAdd: [category],
-          }));
-        })
+      TaskQueue.waitForPerformRemote(syncbackTask).then((finishedTask) => {
+        if (!finishedTask.created) {
+          NylasEnv.showErrorDialog({title: "Error", message: `Could not create label.`})
+          return;
+        }
+        Actions.queueTask(new ChangeLabelsTask({
+          source: "Category Picker: New Category",
+          threads: threads,
+          labelsToRemove: [],
+          labelsToAdd: [finishedTask.created],
+        }));
       })
       Actions.queueTask(syncbackTask);
     } else if (item.usage === threads.length) {

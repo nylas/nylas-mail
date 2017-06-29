@@ -61,7 +61,12 @@ onEditItem = (item, value) ->
     newDisplayName = value
   if newDisplayName is category.displayName
     return
-  Actions.queueTask(new SyncbackCategoryTask({category, displayName: newDisplayName}))
+
+  Actions.queueTask(new SyncbackCategoryTask({
+    accountId: category.accountId,
+    existingPath: category.path,
+    path: newDisplayName,
+  }))
 
 
 class SidebarItem

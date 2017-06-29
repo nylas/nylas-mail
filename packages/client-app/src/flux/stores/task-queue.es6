@@ -55,16 +55,18 @@ class TaskQueue extends NylasStore {
       const all = [].concat(this._queue, this._completed);
 
       this._waitingForLocal.filter(({task, resolve}) => {
-        if (all.find(t => task.id === t.id)) {
-          resolve();
+        const match = all.find(t => task.id === t.id);
+        if (match) {
+          resolve(match);
           return false;
         }
         return true;
       });
 
       this._waitingForRemote.filter(({task, resolve}) => {
-        if (this._completed.find(t => task.id === t.id)) {
-          resolve();
+        const match = this._completed.find(t => task.id === t.id);
+        if (match) {
+          resolve(match);
           return false;
         }
         return true;
@@ -142,7 +144,7 @@ class TaskQueue extends NylasStore {
     });
   }
 
-  waitForPerformLocal = (task) => {
+  waitForPerformRemote = (task) => {
     return new Promise((resolve) => {
       this._waitingForRemote.push({task, resolve});
     });

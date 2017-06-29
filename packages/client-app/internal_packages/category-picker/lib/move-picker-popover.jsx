@@ -11,8 +11,6 @@ import {
   Utils,
   Actions,
   TaskQueue,
-  DatabaseStore,
-  Category,
   CategoryStore,
   Folder,
   SyncbackCategoryTask,
@@ -137,37 +135,29 @@ export default class MovePickerPopover extends Component {
   }
 
   _onCreateCategory = () => {
-    const category = new Category({
-      displayName: this.state.searchValue,
+    const syncbackTask = new SyncbackCategoryTask({
+      path: this.state.searchValue,
       accountId: this.props.account.id,
-    })
-    const syncbackTask = new SyncbackCategoryTask({category})
+    });
 
-    TaskQueue.waitForPerformRemote(syncbackTask).then(() => {
-      DatabaseStore.findBy(category.constructor, {id: category.id})
-      .then((cat) => {
-        if (!cat) {
-          NylasEnv.showErrorDialog({title: "Error", message: `Could not create folder.`})
-          return;
-        }
-        Actions.queueTask(new ChangeFolderTask({
-          source: "Category Picker: New Category",
-          threads: this.props.threads,
-          folder: cat,
-        }));
-      })
-    })
-    Actions.queueTask(syncbackTask)
+    TaskQueue.waitForPerformRemote(syncbackTask).then((finishedTask) => {
+      if (!finishedTask.created) {
+        NylasEnv.showErrorDialog({title: "Error", message: `Could not create folder.`})
+        return;
+      }
+      this._onMoveToCategory({category: finishedTask.created});
+    });
+    Actions.queueTask(syncbackTask);
   }
-  
-  _onMoveToCategory = (item) => {
+
+  _onMoveToCategory = ({category}) => {
     const {threads} = this.props
 
-    if (item.category instanceof Folder) {
+    if (category instanceof Folder) {
       Actions.queueTask(new ChangeFolderTask({
         source: "Category Picker: New Category",
         threads: threads,
-        folder: item.category,
+        folder: category,
       }));
     } else {
       const all = [];
@@ -176,7 +166,7 @@ export default class MovePickerPopover extends Component {
       Actions.queueTask(new ChangeLabelsTask({
         source: "Category Picker: New Category",
         labelsToRemove: all,
-        labelsToAdd: [item.category],
+        labelsToAdd: [category],
         threads: threads,
       }));
     }

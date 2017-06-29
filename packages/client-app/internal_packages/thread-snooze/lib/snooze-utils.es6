@@ -4,7 +4,6 @@ import {
   Actions,
   Thread,
   Label,
-  Category,
   DateUtils,
   TaskFactory,
   AccountStore,
@@ -43,22 +42,15 @@ const SnoozeUtils = {
   },
 
   createSnoozeCategory(accountId, name = SNOOZE_CATEGORY_NAME) {
-    const category = new Category({
-      displayName: name,
+    const task = new SyncbackCategoryTask({
+      path: name,
       accountId: accountId,
     })
-    const task = new SyncbackCategoryTask({category})
 
     Actions.queueTask(task)
-    return TaskQueue.waitForPerformRemote(task).then(() => {
-      return DatabaseStore.findBy(Category, {id: category.id})
-      .then((updatedCat) => {
-        if (updatedCat && updatedCat.isSavedRemotely()) {
-          return Promise.resolve(updatedCat)
-        }
-        return Promise.reject(new Error('Could not create Snooze category'))
-      })
-    })
+    return TaskQueue.waitForPerformRemote(task).then((finishedTask) => {
+      return finishedTask.created;
+    });
   },
 
   getSnoozeCategory(accountId, categoryName = SNOOZE_CATEGORY_NAME) {
