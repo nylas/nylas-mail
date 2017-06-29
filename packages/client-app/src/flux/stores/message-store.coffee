@@ -30,11 +30,11 @@ class MessageStore extends NylasStore
 
     if viewingHiddenCategory
       return @_items.filter (item) ->
-        inHidden = item.folder in FolderNamesHiddenByDefault
+        inHidden = item.folder.role in FolderNamesHiddenByDefault
         return inHidden or item.draft is true
     else
       return @_items.filter (item) ->
-        inHidden = item.folder in FolderNamesHiddenByDefault
+        inHidden = item.folder.role in FolderNamesHiddenByDefault
         return not inHidden
 
   threadId: -> @_thread?.id
