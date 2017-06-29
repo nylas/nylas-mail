@@ -119,14 +119,6 @@ export default class Account extends ModelWithMetadata {
     return this.me()
   }
 
-  categoryLabel() {
-    return 'Unknown';
-  }
-
-  categoryIcon() {
-    return 'bla.png'
-  }
-
   // Public: Returns the localized, properly capitalized provider name,
   // like Gmail, Exchange, or Outlook 365
   displayProvider() {

@@ -3,6 +3,7 @@ _ = require 'underscore'
  SyncbackCategoryTask,
  DestroyCategoryTask,
  CategoryStore,
+ Label,
  Category,
  ExtensionRegistry,
  RegExpUtils} = require 'nylas-exports'
@@ -165,21 +166,27 @@ class SidebarSection
         items.push(item)
       seenItems[itemKey] = item
 
-
-    title ?= account.categoryLabel()
+    CategoryClass = CategoryStore.getInboxCategory(account).constructor
+    iconName = null
+    if CategoryClass == Label
+      title ?= "Labels"
+      iconName = "tag.png"
+    else
+      title ?= "Folders"
+      iconName = "folder.png"
     collapsed = isSectionCollapsed(title)
     if collapsible
       onCollapseToggled = toggleSectionCollapsed
 
     return {
       title: title
-      iconName: account.categoryIcon()
+      iconName: iconName
       items: items
       collapsed: collapsed
       onCollapseToggled: onCollapseToggled
       onItemCreated: (displayName) ->
         return unless displayName
-        category = new Category
+        category = new CategoryClass
           displayName: displayName
           accountId: account.id
         Actions.queueTask(new SyncbackCategoryTask({category}))

@@ -14,12 +14,10 @@ describe('MailboxPerspective', function mailboxPerspective() {
       a1: {
         id: 'a1',
         preferredRemovalDestination: () => ({displayName: 'archive'}),
-        categoryIcon: () => null,
       },
       a2: {
         id: 'a2',
         preferredRemovalDestination: () => ({displayName: 'trash2'}),
-        categoryIcon: () => null,
       },
     }
     this.perspective = new MailboxPerspective(this.accountIds)

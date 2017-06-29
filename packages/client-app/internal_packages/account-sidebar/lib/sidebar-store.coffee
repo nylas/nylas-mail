@@ -117,7 +117,7 @@ class SidebarStore extends NylasStore
       if multiAccount
         opts.title = acc.label
         opts.collapsible = true
-      SidebarSection.forUserCategories(acc, opts)
+      return SidebarSection.forUserCategories(acc, opts)
     @trigger()
 
 

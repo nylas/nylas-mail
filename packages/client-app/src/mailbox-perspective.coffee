@@ -253,12 +253,10 @@ class CategoryMailboxPerspective extends MailboxPerspective
     # Note: We pick the display name and icon assuming that you won't create a
     # perspective with Inbox and Sent or anything crazy like that... todo?
     @name = @_categories[0].displayName
-    if @_categories[0].name
-      @iconName = "#{@_categories[0].name}.png"
+    if @_categories[0].role
+      @iconName = "#{@_categories[0].role}.png"
     else
-      account = AccountStore.accountForId(@accountIds[0])
-      @iconName = "folder.png"
-      @iconName = account.categoryIcon() if account
+      @iconName = if @_categories[0] instanceof Label then "label.png" else "folder.png"
     @
 
   toJSON: =>
