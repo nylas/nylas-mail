@@ -42,7 +42,10 @@ onDeleteItem = (item) ->
   category = item.perspective.category()
   return unless category
 
-  Actions.queueTask(new DestroyCategoryTask({category}))
+  Actions.queueTask(new DestroyCategoryTask({
+    path: category.path,
+    accountId: category.accountId,
+  }))
 
 onEditItem = (item, value) ->
   return unless value
