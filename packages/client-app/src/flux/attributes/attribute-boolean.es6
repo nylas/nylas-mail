@@ -13,10 +13,10 @@ export default class AttributeBoolean extends Attribute {
     return val;
   }
   fromJSON(val) {
-    return ((val === 'true') || (val === 1) || (val === true)) || false;
+    return ((val === 'true') || (val / 1 >= 1) || (val === true)) || false;
   }
   fromColumn(val) {
-    return (val === 1) || false;
+    return (val >= 1) || false;
   }
   columnSQL() {
     const defaultValue = this.defaultValue ? 1 : 0;
