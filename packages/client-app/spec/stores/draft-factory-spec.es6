@@ -45,7 +45,6 @@ describe('DraftFactory', function draftFactory() {
       downloadData[file.id] = {
         fileId: file.id,
         filename: file.filename,
-        targetPath: file.filename,
       }
     })
 
@@ -385,12 +384,12 @@ describe('DraftFactory', function draftFactory() {
         expect(SanitizeTransformer.run).toHaveBeenCalled();
       });
 
-      it("should include the attached files as uploads", () => {
+      it("should include the attached files as files", () => {
         waitsForPromise(() => {
           return DraftFactory.createDraftForForward({thread: fakeThread, message: fakeMessageWithFiles}).then((draft) => {
-            expect(draft.uploads.length).toBe(2);
-            expect(draft.uploads[0].filename).toBe("test.jpg");
-            expect(draft.uploads[1].filename).toBe("test.pdj");
+            expect(draft.files.length).toBe(2);
+            expect(draft.files[0].filename).toBe("test.jpg");
+            expect(draft.files[1].filename).toBe("test.pdj");
           });
         });
       });

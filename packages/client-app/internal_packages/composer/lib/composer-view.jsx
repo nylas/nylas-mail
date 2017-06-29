@@ -5,6 +5,7 @@ import {
   Utils,
   Actions,
   DraftStore,
+  FileDownloadStore,
   DraftHelpers,
 } from 'nylas-exports'
 import {
@@ -302,60 +303,40 @@ export default class ComposerView extends React.Component {
   }
 
   _renderAttachments() {
+    const {files, headerMessageId} = this.props.draft;
+
+    const nonImageFiles = files
+      .filter(f => !Utils.shouldDisplayAsImage(f))
+      .map((file) =>
+        <AttachmentItem
+          key={file.id}
+          className="file-upload"
+          draggable={false}
+          filePath={FileDownloadStore.pathForFile(file)}
+          displayName={file.filename}
+          fileIconName={`file-${file.extension}.png`}
+          onRemoveAttachment={() => Actions.removeAttachment(headerMessageId, file)}
+        />
+      );
+    const imageFiles = files
+      .filter(f => Utils.shouldDisplayAsImage(f))
+      .filter(f => !f.contentId)
+      .map((file) =>
+        <ImageAttachmentItem
+          key={file.id}
+          className="file-upload"
+          draggable={false}
+          filePath={FileDownloadStore.pathForFile(file)}
+          displayName={file.filename}
+          onRemoveAttachment={() => Actions.removeAttachment(headerMessageId, file)}
+        />
+      );
+
     return (
       <div className="attachments-area">
-        {this._renderFileAttachments()}
-        {this._renderUploadAttachments()}
+        {nonImageFiles.concat(imageFiles)}
       </div>
     );
-  }
-
-  _renderFileAttachments() {
-    const {files, headerMessageId} = this.props.draft
-    return (
-      <InjectedComponent
-        matching={{role: 'MessageAttachments'}}
-        exposedProps={{files, headerMessageId, canRemoveAttachments: true}}
-      />
-    )
-  }
-
-  _imageFiles(files) {
-    return files.filter(f => Utils.shouldDisplayAsImage(f));
-  }
-
-  _nonImageFiles(files) {
-    return files.filter(f => !Utils.shouldDisplayAsImage(f));
-  }
-
-  _renderUploadAttachments() {
-    const {uploads} = this.props.draft;
-
-    const nonImageUploads = this._nonImageFiles(uploads)
-      .map((upload) =>
-        <AttachmentItem
-          key={upload.id}
-          className="file-upload"
-          draggable={false}
-          filePath={upload.targetPath}
-          displayName={upload.filename}
-          fileIconName={`file-${upload.extension}.png`}
-          onRemoveAttachment={() => Actions.removeAttachment(upload)}
-        />
-      );
-    const imageUploads = this._imageFiles(uploads)
-      .filter(u => !u.inline)
-      .map((upload) =>
-        <ImageAttachmentItem
-          key={upload.id}
-          className="file-upload"
-          draggable={false}
-          filePath={upload.targetPath}
-          displayName={upload.filename}
-          onRemoveAttachment={() => Actions.removeAttachment(upload)}
-        />
-      );
-    return nonImageUploads.concat(imageUploads);
   }
 
   _renderActionsWorkspaceRegion() {
@@ -511,21 +492,20 @@ export default class ComposerView extends React.Component {
     Actions.addAttachment({
       filePath: filePath,
       headerMessageId: this.props.draft.headerMessageId,
-      onUploadCreated: (upload) => {
-        if (Utils.shouldDisplayAsImage(upload)) {
+      onCreated: (file) => {
+        if (Utils.shouldDisplayAsImage(file)) {
           const {draft, session} = this.props;
+          const match = draft.files.find(f => f.id === file.id);
+          if (!match) { return; }
 
-          const uploads = [].concat(draft.uploads);
-          const matchingUpload = uploads.find(u => u.id === upload.id);
-          if (matchingUpload) {
-            matchingUpload.inline = true;
-            session.changes.add({uploads})
-
-            Actions.insertAttachmentIntoDraft({
-              headerMessageId: draft.headerMessageId,
-              uploadId: matchingUpload.id,
-            });
-          }
+          match.contentId = Utils.generateTempId();
+          session.changes.add({
+            files: [].concat(draft.files),
+          })
+          Actions.insertAttachmentIntoDraft({
+            headerMessageId: draft.headerMessageId,
+            fileId: match.id,
+          });
         }
       },
     });

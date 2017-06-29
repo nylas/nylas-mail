@@ -329,7 +329,7 @@ class DraftStore extends NylasStore {
         Actions.addAttachment({
           filePath: path,
           headerMessageId: headerMessageId,
-          onUploadCreated: callback,
+          onCreated: callback,
         });
       })
     });

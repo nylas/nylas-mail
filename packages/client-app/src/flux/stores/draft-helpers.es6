@@ -78,17 +78,17 @@ class DraftHelpers {
     return message
   }
 
-  async removeStaleUploads(draft) {
-    if (!(draft.uploads instanceof Array) || draft.uploads.length === 0) {
+  async pruneRemovedInlineFiles(draft) {
+    if (!(draft.files instanceof Array) || draft.files.length === 0) {
       // The async keyword makes it so this is returned as a promise, which
       // allows us to always treat the return value of this function as a
       // promise-like object.
       return draft;
     }
     return DatabaseStore.inTransaction(async (t) => {
-      // Inline uploads that are no longer referenced in the body are stale
-      draft.uploads = draft.uploads.filter(u => {
-        return !(u.inline && !draft.body.includes(`cid:${u.id}`))
+      // Inline files that are no longer referenced in the body are stale
+      draft.files = draft.files.filter(f => {
+        return !(f.contentId && !draft.body.includes(`cid:${f.id}`))
       });
 
       await t.persistModel(draft);
@@ -153,7 +153,7 @@ class DraftHelpers {
     } else {
       draft = await this.appendQuotedTextToDraft(transformed);
     }
-    draft = await this.removeStaleUploads(draft);
+    draft = await this.pruneRemovedInlineFiles(draft);
     await DatabaseStore.inTransaction((t) => t.persistModel(draft))
     return draft;
   }

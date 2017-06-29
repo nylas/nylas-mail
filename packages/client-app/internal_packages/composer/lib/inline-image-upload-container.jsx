@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import path from 'path';
-import {Actions} from 'nylas-exports'
+import {Actions, FileDownloadStore} from 'nylas-exports'
 import {ImageAttachmentItem} from 'nylas-component-kit'
 
 export default class InlineImageUploadContainer extends Component {
@@ -12,7 +12,7 @@ export default class InlineImageUploadContainer extends Component {
 
   static propTypes = {
     draft: PropTypes.object.isRequired,
-    uploadId: PropTypes.string.isRequired,
+    fileId: PropTypes.string.isRequired,
     session: PropTypes.object,
     isPreview: PropTypes.bool,
   }
@@ -89,14 +89,17 @@ export default class InlineImageUploadContainer extends Component {
       editorCanvas.toBlob((blob) => {
         const reader = new FileReader();
         reader.addEventListener('loadend', () => {
-          const {draft, session, uploadId} = this.props;
+          const {draft, session, fileId} = this.props;
           const buffer = new Buffer(new Uint8Array(reader.result));
-          const upload = draft.uploads.find(u =>
-            u.id === uploadId
+          const file = draft.files.find(u =>
+            u.id === fileId
           );
 
-          const nextTargetPath = path.join(path.dirname(upload.targetPath), `edited-${Date.now()}.png`);
-          fs.writeFile(nextTargetPath, buffer, (err) => {
+          const filepath = FileDownloadStore.pathForFile(file);
+          const nextFileName = `edited-${Date.now()}.png`;
+          const nextFilePath = path.join(path.dirname(filepath), nextFileName);
+
+          fs.writeFile(nextFilePath, buffer, (err) => {
             if (err) {
               NylasEnv.showErrorDialog(err.toString())
               return;
@@ -106,15 +109,15 @@ export default class InlineImageUploadContainer extends Component {
             img.style.height = `${rect.height}px`;
             img.src = `${img.src}?${Date.now()}`;
 
-            fs.unlink(upload.targetPath);
+            fs.unlink(filepath);
 
-            const nextUploads = [].concat(draft.uploads);
-            nextUploads.forEach((u) => {
-              if (u.targetPath === upload.targetPath) {
-                u.targetPath = nextTargetPath;
+            const nextFiles = [].concat(draft.files);
+            nextFiles.forEach((f) => {
+              if (f.id === file.id) {
+                f.filename = nextFileName;
               }
             });
-            session.changes.add({uploads: nextUploads});
+            session.changes.add({files: nextFiles});
           });
         });
         reader.readAsArrayBuffer(blob);
@@ -127,32 +130,32 @@ export default class InlineImageUploadContainer extends Component {
   }
 
   render() {
-    const {draft, uploadId, isPreview} = this.props;
-    const upload = draft.uploads.find(u => uploadId === u.id);
+    const {draft, fileId, isPreview} = this.props;
+    const file = draft.files.find(u => fileId === u.id);
 
-    if (!upload) {
+    if (!file) {
       return (
         <span />
       );
     }
     if (isPreview) {
       return (
-        <img src={`cid:${upload.id}`} alt={upload.name} />
+        <img src={`cid:${file.id}`} alt={file.name} />
       );
     }
 
     return (
       <div
-        data-src={`cid:${upload.id}`}
+        data-src={`cid:${file.id}`}
         className="inline-image-upload-container"
         onDoubleClick={this._onGoEdit}
       >
         <ImageAttachmentItem
           className="file-upload"
           draggable={false}
-          filePath={upload.targetPath}
-          displayName={upload.filename}
-          onRemoveAttachment={() => Actions.removeAttachment(upload)}
+          filePath={FileDownloadStore.pathForFile(file)}
+          displayName={file.filename}
+          onRemoveAttachment={() => Actions.removeAttachment(draft.headerMessageId, file)}
         />
       </div>
     )

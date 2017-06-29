@@ -27,9 +27,9 @@ class MessageAttachments extends Component {
 
   onRemoveAttachment = (file) => {
     const {headerMessageId} = this.props
-    Actions.removeFile({
-      file: file,
+    Actions.removeAttachment({
       headerMessageId: headerMessageId,
+      file: file,
     })
   }
 
@@ -42,7 +42,7 @@ class MessageAttachments extends Component {
   }
 
   renderAttachment(AttachmentRenderer, file) {
-    const {canRemoveAttachments, downloads, filePreviewPaths} = this.props
+    const {canRemoveAttachments, downloads, filePreviewPaths, headerMessageId} = this.props
     const download = downloads[file.id]
     const filePath = FileDownloadStore.pathForFile(file)
     const fileIconName = `file-${file.displayExtension()}.png`
@@ -67,7 +67,7 @@ class MessageAttachments extends Component {
         onOpenAttachment={() => this.onOpenAttachment(file)}
         onDownloadAttachment={() => this.onDownloadAttachment(file)}
         onAbortDownload={() => this.onAbortDownload(file)}
-        onRemoveAttachment={canRemoveAttachments ? () => this.onRemoveAttachment(file) : null}
+        onRemoveAttachment={canRemoveAttachments ? () => this.onRemoveAttachment(headerMessageId, file) : null}
       />
     )
   }

@@ -139,7 +139,6 @@ lazyLoadAndRegisterStore(`CategoryStore`, 'category-store');
 lazyLoadAndRegisterStore(`UndoRedoStore`, 'undo-redo-store');
 lazyLoadAndRegisterStore(`WorkspaceStore`, 'workspace-store');
 lazyLoadAndRegisterStore(`MailRulesStore`, 'mail-rules-store');
-lazyLoadAndRegisterStore(`FileUploadStore`, 'file-upload-store');
 lazyLoadAndRegisterStore(`SendActionsStore`, 'send-actions-store');
 lazyLoadAndRegisterStore(`FeatureUsageStore`, 'feature-usage-store');
 lazyLoadAndRegisterStore(`ThreadCountsStore`, 'thread-counts-store');

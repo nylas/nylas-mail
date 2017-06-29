@@ -142,6 +142,7 @@ class DraftFactory
       @createDraft(
         subject: subjectWithPrefix(message.subject, 'Fwd:')
         from: [@_fromContactForReply(message)],
+        files: message.files,
         threadId: thread.id,
         accountId: message.accountId,
         body: """
@@ -154,21 +155,7 @@ class DraftFactory
             <br><br>
             #{body}
           </div>"""
-      ).then (draft) =>
-        draft.uploads = message.files.map((f) =>
-          {fileId, filename, filesize, targetPath} = FileDownloadStore.getDownloadDataForFile(f.id)
-          # Return an object that can act as an Upload instance.
-          return (
-            messageId: draft.id,
-            id: fileId,
-            filename: filename,
-            size: filesize,
-            targetPath: targetPath,
-            targetDir: path.dirname(targetPath)
-          )
-        )
-        return draft
-
+      )
 
   candidateDraftForUpdating: (message, behavior) =>
     if behavior not in ['prefer-existing-if-pristine', 'prefer-existing']

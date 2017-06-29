@@ -21,26 +21,11 @@ const withoutWhitespace = (s) => s.replace(/[\n\r\s]/g, '');
 
 xdescribe('SendDraftTask', function sendDraftTask() {
   describe("assertDraftValidity", () => {
-    it("rejects if there are still uploads on the draft", () => {
-      const badTask = new SendDraftTask('1');
-      badTask.draft = new Message({
-        from: [new Contact({email: TEST_ACCOUNT_EMAIL})],
-        accountId: TEST_ACCOUNT_ID,
-        headerMessageId: '1',
-        uploads: ['123'],
-      });
-      badTask.assertDraftValidity().then(() => {
-        throw new Error("Shouldn't succeed");
-      })
-      .catch((err) => {
-        expect(err.message).toBe("Files have been added since you started sending this draft. Double-check the draft and click 'Send' again..");
-      });
-    });
 
     it("rejects if no from address is specified", () => {
       const badTask = new SendDraftTask('1');
       badTask.draft = new Message({from: [],
-        uploads: [],
+        files: [],
         accountId: TEST_ACCOUNT_ID,
         headerMessageId: '1',
       })
@@ -424,7 +409,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           subject: 'New Draft',
           draft: true,
           body: 'hello world',
-          uploads: [],
+          files: [],
         });
 
         this.draft.applyPluginMetadata('pluginIdA', {tracked: true});
@@ -464,7 +449,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
             name: 'Dummy',
             email: 'dummythis.nylas.com',
           })],
-          uploads: [],
+          files: [],
         });
 
         this.draft.applyPluginMetadata('pluginIdA', {tracked: true});
@@ -518,7 +503,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           name: 'Dummy',
           email: 'dummythis.nylas.com',
         })],
-        uploads: [],
+        files: [],
       });
       this.task.draft.applyPluginMetadata('open-tracking', true);
       this.task.draft.applyPluginMetadata('link-tracking', true);

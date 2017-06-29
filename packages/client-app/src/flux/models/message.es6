@@ -109,11 +109,6 @@ export default class Message extends ModelWithMetadata {
       itemClass: File,
     }),
 
-    uploads: Attributes.Object({
-      queryable: false,
-      modelKey: 'uploads',
-    }),
-
     unread: Attributes.Boolean({
       queryable: true,
       modelKey: 'unread',
@@ -193,7 +188,6 @@ export default class Message extends ModelWithMetadata {
     this.from = this.from || []
     this.replyTo = this.replyTo || []
     this.files = this.files || []
-    this.uploads = this.uploads || []
     this.events = this.events || []
   }
 

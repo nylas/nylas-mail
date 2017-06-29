@@ -303,7 +303,7 @@ xdescribe('DraftStore', function draftStore() {
         clientId: "local-123",
         threadId: "thread-123",
         replyToMessageId: "message-123",
-        uploads: ['stub'],
+        files: ['stub'],
       });
       DraftStore._draftSessions = {};
       DraftStore._draftsSending = {};
@@ -530,7 +530,7 @@ xdescribe('DraftStore', function draftStore() {
       const defaultMe = new Contact();
       spyOn(DraftStore, '_onPopoutDraftClientId');
       spyOn(Account.prototype, 'defaultMe').andReturn(defaultMe);
-      spyOn(Actions, 'addAttachment').andCallFake(({onUploadCreated}) => onUploadCreated());
+      spyOn(Actions, 'addAttachment').andCallFake(({onCreated}) => onCreated());
       DraftStore._onHandleMailFiles({}, ['/Users/ben/file1.png', '/Users/ben/file2.png']);
       waitsFor(() => DatabaseWriter.prototype.persistModel.callCount > 0);
       runs(() => {

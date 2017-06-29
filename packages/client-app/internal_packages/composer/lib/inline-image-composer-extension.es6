@@ -3,21 +3,21 @@ import {
   ComposerExtension,
 } from 'nylas-exports'
 
-export default class ImageUploadComposerExtension extends ComposerExtension {
+export default class InlineImageComposerExtension extends ComposerExtension {
 
   static editingActions() {
     return [{
       action: Actions.insertAttachmentIntoDraft,
-      callback: ImageUploadComposerExtension._onInsertAttachmentIntoDraft,
+      callback: InlineImageComposerExtension._onInsertAttachmentIntoDraft,
     }, {
       action: Actions.removeAttachment,
-      callback: ImageUploadComposerExtension._onRemovedAttachment,
+      callback: InlineImageComposerExtension._onRemovedAttachment,
     }]
   }
 
   static _onRemovedAttachment({editor, actionArg}) {
-    const upload = actionArg;
-    const el = editor.rootNode.querySelector(`.inline-container-${upload.id}`)
+    const file = actionArg;
+    const el = editor.rootNode.querySelector(`.inline-container-${file.id}`)
     if (el) {
       el.parentNode.removeChild(el);
     }
@@ -27,8 +27,8 @@ export default class ImageUploadComposerExtension extends ComposerExtension {
     if (editor.headerMessageId === actionArg.headerMessageId) { return }
 
     editor.insertCustomComponent("InlineImageUploadContainer", {
-      className: `inline-container-${actionArg.uploadId}`,
-      uploadId: actionArg.uploadId,
+      className: `inline-container-${actionArg.fileId}`,
+      fileId: actionArg.fileId,
     })
   }
 }

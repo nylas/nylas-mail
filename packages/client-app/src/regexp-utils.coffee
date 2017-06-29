@@ -178,6 +178,7 @@ RegExpUtils =
 
   illegalPathCharactersRegexp: ->
     #https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+    # Important: Do not modify this without also modifying the C++ codebase.
     /[\\\/:|?*><"#]/g
 
   # https://regex101.com/r/nC0qL2/2

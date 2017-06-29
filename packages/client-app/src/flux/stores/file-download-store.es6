@@ -5,22 +5,15 @@ import path from 'path';
 import {exec} from 'child_process';
 import {remote, shell} from 'electron';
 import mkdirp from 'mkdirp';
-import progress from 'request-progress';
 import NylasStore from 'nylas-store';
+import DraftStore from './draft-store';
 import Actions from '../actions';
-import NylasAPI from '../nylas-api';
-import NylasAPIRequest from '../nylas-api-request';
+import File from '../models/file';
+import Utils from '../models/utils';
 
 
 Promise.promisifyAll(fs);
 const mkdirpAsync = Promise.promisify(mkdirp);
-
-const State = {
-  Unstarted: 'unstarted',
-  Downloading: 'downloading',
-  Finished: 'finished',
-  Failed: 'failed',
-};
 
 // TODO make this list more exhaustive
 const NonPreviewableExtensions = [
@@ -40,162 +33,26 @@ const NonPreviewableExtensions = [
 
 const THUMBNAIL_WIDTH = 320
 
-
-// Expose the Download class for our tests, and possibly for other things someday
-export class Download {
-  static State = State
-
-  constructor({accountId, fileId, targetPath, filename, filesize, progressCallback, retryWithBackoff}) {
-    this.accountId = accountId;
-    this.fileId = fileId;
-    this.targetPath = targetPath;
-    this.filename = filename;
-    this.filesize = filesize;
-    this.progressCallback = progressCallback;
-    this.retryWithBackoff = retryWithBackoff || false;
-    this.timeout = 15000;
-    this.maxTimeout = 2 * 60 * 1000;
-    this.attempts = 0;
-    this.maxAttempts = 10;
-    if (!this.accountId) {
-      throw new Error("Download.constructor: You must provide a non-empty accountId.");
-    }
-    if (!this.filename || this.filename.length === 0) {
-      throw new Error("Download.constructor: You must provide a non-empty filename.");
-    }
-    if (!this.fileId) {
-      throw new Error("Download.constructor: You must provide a fileID to download.");
-    }
-    if (!this.targetPath) {
-      throw new Error("Download.constructor: You must provide a target path to download.");
-    }
-
-    this.percent = 0;
-    this.promise = null;
-    this.state = State.Unstarted;
-  }
-
-  // We need to pass a plain object so we can have fresh references for the
-  // React views while maintaining the single object with the running
-  // request.
-  data() {
-    return Object.freeze(_.clone({
-      state: this.state,
-      fileId: this.fileId,
-      percent: this.percent,
-      filename: this.filename,
-      filesize: this.filesize,
-      targetPath: this.targetPath,
-    }));
-  }
-
-  run() {
-    // If run has already been called, return the existing promise. Never
-    // initiate multiple downloads for the same file
-    if (this.promise) { return this.promise; }
-
-    // Note: we must resolve or reject with `this`
-    this.promise = new Promise((resolve, reject) => {
-      const stream = fs.createWriteStream(this.targetPath);
-      this.state = State.Downloading;
-
-      let startRequest = null;
-
-      const onFailed = (err) => {
-        this.request = null;
-        stream.end();
-        if (!this.retryWithBackoff || this.attempts >= this.maxAttempts) {
-          this.state = State.Failed;
-          if (fs.existsSync(this.targetPath)) {
-            fs.unlinkSync(this.targetPath);
-          }
-          reject(err);
-          return;
-        }
-
-        this.timeout = Math.min(this.maxTimeout, this.timeout * 2);
-        startRequest();
-      };
-
-      const onSuccess = () => {
-        this.request = null;
-        stream.end();
-        this.state = State.Finished;
-        this.percent = 100;
-        resolve(this);
-      };
-
-      startRequest = () => {
-        console.info(`starting download with ${this.timeout}ms timeout`);
-        const request = new NylasAPIRequest({
-          api: NylasAPI,
-          options: {
-            json: false,
-            path: `/files/${this.fileId}/download`,
-            accountId: this.accountId,
-            encoding: null, // Tell `request` not to parse the response data
-            timeout: this.timeout,
-            started: (req) => {
-              this.attempts += 1;
-              this.request = req;
-              return progress(this.request, {throtte: 250})
-              .on('progress', (prog) => {
-                this.percent = prog.percent;
-                this.progressCallback();
-              })
-
-              // This is a /socket/ error event, not an HTTP error event. It fires
-              // when the conn is dropped, user if offline, but not on HTTP status codes.
-              // It is sometimes called in place of "end", not before or after.
-              .on('error', onFailed)
-
-              .on('end', () => {
-                if (this.state === State.Failed) { return; }
-
-                const {response} = this.request
-                const statusCode = response ? response.statusCode : null;
-                if ([200, 202, 204].includes(statusCode)) {
-                  onSuccess();
-                } else {
-                  onFailed(new Error(`Server returned a ${statusCode}`));
-                }
-              })
-
-              .pipe(stream);
-            },
-          },
-        });
-
-        request.run()
-      };
-
-      startRequest();
-    });
-    return this.promise
-  }
-
-  ensureClosed() {
-    if (this.request) {
-      this.request.abort()
-    }
-  }
-}
-
-
 class FileDownloadStore extends NylasStore {
 
   constructor() {
     super()
+
+    // viewing messages
     this.listenTo(Actions.fetchFile, this._fetch);
     this.listenTo(Actions.fetchAndOpenFile, this._fetchAndOpen);
     this.listenTo(Actions.fetchAndSaveFile, this._fetchAndSave);
     this.listenTo(Actions.fetchAndSaveAllFiles, this._fetchAndSaveAll);
     this.listenTo(Actions.abortFetchFile, this._abortFetchFile);
 
-    this._downloads = {};
+    // sending
+    this.listenTo(Actions.addAttachment, this._onAddAttachment);
+    this.listenTo(Actions.selectAttachment, this._onSelectAttachment);
+    this.listenTo(Actions.removeAttachment, this._onRemoveAttachment);
+
     this._filePreviewPaths = {};
-    this._downloadDirectory = path.join(NylasEnv.getConfigDirPath(), 'downloads');
-    mkdirp(this._downloadDirectory);
+    this._filesDirectory = path.join(NylasEnv.getConfigDirPath(), 'files');
+    mkdirp(this._filesDirectory);
   }
 
   // Returns a path on disk for saving the file. Note that we must account
@@ -204,13 +61,13 @@ class FileDownloadStore extends NylasStore {
   //
   pathForFile(file) {
     if (!file) { return null; }
-    return path.join(this._downloadDirectory, file.id, file.safeDisplayName());
+    const id = file.id.toLowerCase();
+    return path.join(this._filesDirectory, id.substr(0, 2), id.substr(2, 2), id, file.safeDisplayName());
   }
 
-  getDownloadDataForFile(fileId) {
-    const download = this._downloads[fileId]
-    if (!download) { return null; }
-    return download.data()
+  getDownloadDataForFile() { // fileId
+    // if we ever support downloads again, put this back
+    return null;
   }
 
   // Returns a hash of download objects keyed by fileId
@@ -237,50 +94,10 @@ class FileDownloadStore extends NylasStore {
 
   // Returns a promise with a Download object, allowing other actions to be
   // daisy-chained to the end of the download operation.
-  _runDownload(file) {
-    const targetPath = this.pathForFile(file);
-
-    // is there an existing download for this file? If so,
-    // return that promise so users can chain to the end of it.
-    let download = this._downloads[file.id];
-    if (download) { return download.run(); }
-
-    // create a new download for this file
-    download = new Download({
-      accountId: file.accountId,
-      fileId: file.id,
-      filesize: file.size,
-      filename: file.displayName(),
-      targetPath,
-      progressCallback: () => this.trigger(),
-      retryWithBackoff: true,
-    });
-
-    // Do we actually need to queue and run the download? Queuing a download
-    // for an already-downloaded file has side-effects, like making the UI
-    // flicker briefly.
-    return this._prepareFolder(file).then(() => {
-      return this._checkForDownloadedFile(file)
-      .then((alreadyHaveFile) => {
-        if (alreadyHaveFile) {
-          // If we have the file, just resolve with a resolved download representing the file.
-          download.promise = Promise.resolve();
-          download.state = State.Finished;
-          return Promise.resolve(download);
-        }
-        this._downloads[file.id] = download;
-        this.trigger();
-        return download.run().finally(() => {
-          download.ensureClosed();
-          if (download.state === State.Failed) {
-            delete this._downloads[file.id];
-          }
-          this.trigger();
-        });
-      })
-      .then(() => this._generatePreview(file))
-      .then(() => Promise.resolve(download))
-    });
+  async _ensureFile(file) {
+    // If we ever support downloading files individually again, code goes back here!
+    this._generatePreview(file);
+    return file;
   }
 
   _generatePreview(file) {
@@ -334,46 +151,36 @@ class FileDownloadStore extends NylasStore {
   // Returns a promise that resolves with true or false. True if the file has
   // been downloaded, false if it should be downloaded.
   //
-  _checkForDownloadedFile(file) {
-    return fs.statAsync(this.pathForFile(file))
-    .then((stats) => {
-      return Promise.resolve(stats.size >= file.size);
-    })
-    .catch(() => {
-      return Promise.resolve(false);
-    })
+  async _checkForDownloadedFile(file) {
+    try {
+      const stats = await fs.statAsync(this.pathForFile(file));
+      return stats.size >= file.size;
+    } catch (err) {
+      return false;
+    }
   }
 
-  // Checks that the folder for the download is ready. Returns a promise that
-  // resolves when the download directory for the file has been created.
-  //
-  _prepareFolder(file) {
-    const targetFolder = path.join(this._downloadDirectory, file.id);
-    return fs.statAsync(targetFolder)
-    .catch(() => {
-      return mkdirpAsync(targetFolder);
-    });
-  }
+  // Section: Retrieval of Files
 
   _fetch = (file) => {
-    return this._runDownload(file)
+    return this._ensureFile(file)
     .catch(this._catchFSErrors)
     // Passively ignore
     .catch(() => {});
   }
 
   _fetchAndOpen = (file) => {
-    return this._runDownload(file)
-    .then((download) => shell.openItem(download.targetPath))
+    return this._ensureFile(file)
+    .then(() => shell.openItem(this.pathForFile(file)))
     .catch(this._catchFSErrors)
     .catch((error) => {
       return this._presentError({file, error});
     });
   }
 
-  _saveDownload = (download, savePath) => {
+  _writeToExternalPath = (file, savePath) => {
     return new Promise((resolve, reject) => {
-      const stream = fs.createReadStream(download.targetPath);
+      const stream = fs.createReadStream(this.pathForFile(file));
       stream.pipe(fs.createWriteStream(savePath));
       stream.on('error', err => reject(err));
       stream.on('end', () => resolve());
@@ -395,8 +202,8 @@ class FileDownloadStore extends NylasStore {
         actualSavePath += defaultExtension;
       }
 
-      this._runDownload(file)
-      .then((download) => this._saveDownload(download, actualSavePath))
+      this._ensureFile(file)
+      .then((download) => this._writeToExternalPath(download, actualSavePath))
       .then(() => {
         if (NylasEnv.savedState.lastDownloadDirectory !== newDownloadDirectory) {
           shell.showItemInFolder(actualSavePath);
@@ -429,8 +236,8 @@ class FileDownloadStore extends NylasStore {
         const lastSavePaths = [];
         const savePromises = files.map((file) => {
           const savePath = path.join(dirPath, file.safeDisplayName());
-          return this._runDownload(file)
-          .then((download) => this._saveDownload(download, savePath))
+          return this._ensureFile(file)
+          .then((download) => this._writeToExternalPath(download, savePath))
           .then(() => lastSavePaths.push(savePath));
         });
 
@@ -449,18 +256,9 @@ class FileDownloadStore extends NylasStore {
     });
   }
 
-  _abortFetchFile = (file) => {
-    const download = this._downloads[file.id];
-    if (!download) { return; }
-    download.ensureClosed();
-    this.trigger();
-
-    const downloadPath = this.pathForFile(file);
-    fs.exists(downloadPath, (exists) => {
-      if (exists) {
-        fs.unlink(downloadPath);
-      }
-    });
+  _abortFetchFile = () => { // file
+    // put this back if we ever support downloading individual files again
+    return;
   }
 
   _defaultSaveDir() {
@@ -521,6 +319,117 @@ class FileDownloadStore extends NylasStore {
       return Promise.resolve();
     }
     return Promise.reject(error);
+  }
+
+  // Section: Adding Files
+
+  _assertIdPresent(headerMessageId) {
+    if (!headerMessageId) {
+      throw new Error("You need to pass the headerID of the message (draft) this Action refers to");
+    }
+  }
+
+  _getFileStats(filepath) {
+    return fs.statAsync(filepath)
+    .catch(() => Promise.reject(new Error(`${filepath} could not be found, or has invalid file permissions.`)));
+  }
+
+  _copyToInternalPath(originPath, targetPath) {
+    return new Promise((resolve, reject) => {
+      const readStream = fs.createReadStream(originPath);
+      const writeStream = fs.createWriteStream(targetPath);
+
+      readStream.on('error', () => reject(new Error(`Could not read file at path: ${originPath}`)));
+      writeStream.on('error', () => reject(new Error(`Could not write ${path.basename(targetPath)} to files directory.`)));
+      readStream.on('end', () => resolve());
+      readStream.pipe(writeStream);
+    });
+  }
+
+  async _deleteFile(file) {
+    try {
+      // Delete the file and it's containing folder. Todo: possibly other empty dirs?
+      await fs.unlinkAsync(this.pathForFile(file))
+      await fs.rmdirAsync(path.dirname(this.pathForFile(file)))
+    } catch (err) {
+      throw new Error(`Error deleting file file ${file.filename}:\n\n${err.message}`);
+    }
+  }
+
+  async _applySessionChanges(headerMessageId, changeFunction) {
+    const session = await DraftStore.sessionForClientId(headerMessageId);
+    const files = changeFunction(session.draft().files);
+    session.changes.add({files});
+  }
+
+  // Handlers
+
+  _onSelectAttachment = ({headerMessageId}) => {
+    this._assertIdPresent(headerMessageId);
+
+    // When the dialog closes, it triggers `Actions.addAttachment`
+    return NylasEnv.showOpenDialog({properties: ['openFile', 'multiSelections']},
+      (paths) => {
+        if (paths == null) { return; }
+        let pathsToOpen = paths
+        if (_.isString(pathsToOpen)) {
+          pathsToOpen = [pathsToOpen];
+        }
+
+        pathsToOpen.forEach((filePath) => Actions.addAttachment({headerMessageId, filePath}));
+      }
+    );
+  }
+
+  _onAddAttachment = async ({headerMessageId, filePath, inline = false, onCreated = (() => {})}) => {
+    this._assertIdPresent(headerMessageId);
+
+    try {
+      const filename = path.basename(filePath);
+      const stats = await this._getFileStats(filePath);
+      if (stats.isDirectory()) {
+        throw new Error(`${filename} is a directory. Try compressing it and attaching it again.`);
+      } else if (stats.size > 15 * 1000000) {
+        throw new Error(`${filename} cannot be attached because it is larger than 5MB.`);
+      }
+
+      const file = new File({
+        filename: filename,
+        size: stats.size,
+        contentType: null,
+        messageId: null,
+        contentId: inline ? Utils.generateTempId() : null,
+      });
+
+      await mkdirpAsync(path.dirname(this.pathForFile(file)));
+      await this._copyToInternalPath(filePath, this.pathForFile(file));
+
+      await this._applySessionChanges(headerMessageId, (files) => {
+        if (files.reduce((c, f) => c + f.size, 0) >= 15 * 1000000) {
+          throw new Error(`Can't file more than 15MB of attachments`);
+        }
+        return files.concat([file]);
+      });
+      onCreated(file);
+    } catch (err) {
+      NylasEnv.showErrorDialog(err.message);
+    }
+  }
+
+  _onRemoveAttachment = async (headerMessageId, fileToRemove) => {
+    if (!fileToRemove) {
+      return;
+    }
+
+    await this._applySessionChanges(headerMessageId, (files) =>
+      files.filter(({id}) => id !== fileToRemove.id)
+    );
+
+    try {
+      await this._deleteFile(fileToRemove)
+    } catch (err) {
+      NylasEnv.showErrorDialog(err.message);
+    }
   }
 }
 

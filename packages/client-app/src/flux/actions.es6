@@ -434,18 +434,6 @@ class Actions {
   // Account Sidebar
   static setCollapsedSidebarItem = ActionScopeWindow;
 
-  /*
-  Public: Remove a file from a draft.
-
-  *Scope: Window*
-
-  ```
-  Actions.removeFile
-    file: fileObject
-    headerMessageId: headerMessageId
-  ```
-  */
-  static removeFile = ActionScopeWindow;
 
   // File Actions
   // Some file actions only need to be processed in their current window

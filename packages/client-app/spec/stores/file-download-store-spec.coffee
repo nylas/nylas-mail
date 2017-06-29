@@ -118,14 +118,14 @@ xdescribe 'FileDownloadStoreSpecs', ->
           FileDownloadStore._checkForDownloadedFile(f).then (downloaded) ->
             expect(downloaded).toBe(false)
 
-    describe "_runDownload", ->
+    describe "_ensureFile", ->
       beforeEach ->
         spyOn(Download.prototype, 'run').andCallFake -> Promise.resolve(@)
         spyOn(FileDownloadStore, '_prepareFolder').andCallFake -> Promise.resolve(true)
 
       it "should make sure that the download file path exists", ->
         waitsForPromise =>
-          FileDownloadStore._runDownload(@testfile).then ->
+          FileDownloadStore._ensureFile(@testfile).then ->
             expect(FileDownloadStore._prepareFolder).toHaveBeenCalled()
 
       it "should return the promise returned by download.run if the download already exists", ->
@@ -135,7 +135,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
             Promise.resolve(existing)
         FileDownloadStore._downloads[@testfile.id] = existing
 
-        promise = FileDownloadStore._runDownload(@testfile)
+        promise = FileDownloadStore._ensureFile(@testfile)
         expect(promise instanceof Promise).toBe(true)
         waitsForPromise ->
           promise.then ->
@@ -148,7 +148,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
 
         it "should resolve with a Download without calling download.run", ->
           waitsForPromise =>
-            FileDownloadStore._runDownload(@testfile).then (download) ->
+            FileDownloadStore._ensureFile(@testfile).then (download) ->
               expect(Download.prototype.run).not.toHaveBeenCalled()
               expect(download instanceof Download).toBe(true)
               expect(download.data()).toEqual({
@@ -166,7 +166,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
             Promise.resolve(false)
 
         it "should register the download with the right attributes", ->
-          FileDownloadStore._runDownload(@testfile)
+          FileDownloadStore._ensureFile(@testfile)
           advanceClock(0)
           expect(FileDownloadStore.getDownloadDataForFile(@testfile.id)).toEqual({
             state : 'unstarted',fileId : 'id',
@@ -178,13 +178,13 @@ xdescribe 'FileDownloadStoreSpecs', ->
 
         it "should call download.run", ->
           waitsForPromise =>
-            FileDownloadStore._runDownload(@testfile)
+            FileDownloadStore._ensureFile(@testfile)
           runs ->
             expect(Download.prototype.run).toHaveBeenCalled()
 
         it "should resolve with a Download", ->
           waitsForPromise =>
-            FileDownloadStore._runDownload(@testfile).then (download) ->
+            FileDownloadStore._ensureFile(@testfile).then (download) ->
               expect(download instanceof Download).toBe(true)
               expect(download.data()).toEqual({
                 state : 'unstarted',
@@ -197,14 +197,14 @@ xdescribe 'FileDownloadStoreSpecs', ->
 
     describe "_fetch", ->
       it "should call through to startDownload", ->
-        spyOn(FileDownloadStore, '_runDownload').andCallFake ->
+        spyOn(FileDownloadStore, '_ensureFile').andCallFake ->
           Promise.resolve(@testdownload)
         FileDownloadStore._fetch(@testfile)
-        expect(FileDownloadStore._runDownload).toHaveBeenCalled()
+        expect(FileDownloadStore._ensureFile).toHaveBeenCalled()
 
       it "should fail silently since it's called passively", ->
         spyOn(FileDownloadStore, '_presentError')
-        spyOn(FileDownloadStore, '_runDownload').andCallFake =>
+        spyOn(FileDownloadStore, '_ensureFile').andCallFake =>
           Promise.reject(@testdownload)
         FileDownloadStore._fetch(@testfile)
         expect(FileDownloadStore._presentError).not.toHaveBeenCalled()
@@ -215,7 +215,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
         download = {targetPath: @savePath}
         downloadResolve = null
 
-        spyOn(FileDownloadStore, '_runDownload').andCallFake =>
+        spyOn(FileDownloadStore, '_ensureFile').andCallFake =>
           new Promise (resolve, reject) ->
             downloadResolve = resolve
 
@@ -227,7 +227,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
 
       it "should open an error if the download fails", ->
         spyOn(FileDownloadStore, '_presentError')
-        spyOn(FileDownloadStore, '_runDownload').andCallFake =>
+        spyOn(FileDownloadStore, '_ensureFile').andCallFake =>
           Promise.reject(@testdownload)
         FileDownloadStore._fetchAndOpen(@testfile)
         advanceClock(1)
@@ -239,15 +239,15 @@ xdescribe 'FileDownloadStoreSpecs', ->
         spyOn(NylasEnv, 'showSaveDialog').andCallFake (options, callback) => callback(@userSelectedPath)
 
       it "should open a save dialog and prompt the user to choose a download path", ->
-        spyOn(FileDownloadStore, '_runDownload').andCallFake =>
+        spyOn(FileDownloadStore, '_ensureFile').andCallFake =>
           new Promise (resolve, reject) -> # never resolve
         FileDownloadStore._fetchAndSave(@testfile)
         expect(NylasEnv.showSaveDialog).toHaveBeenCalled()
-        expect(FileDownloadStore._runDownload).toHaveBeenCalledWith(@testfile)
+        expect(FileDownloadStore._ensureFile).toHaveBeenCalledWith(@testfile)
 
       it "should open an error if the download fails", ->
         spyOn(FileDownloadStore, '_presentError')
-        spyOn(FileDownloadStore, '_runDownload').andCallFake =>
+        spyOn(FileDownloadStore, '_ensureFile').andCallFake =>
           Promise.reject(@testdownload)
         FileDownloadStore._fetchAndSave(@testfile)
         advanceClock(1)
@@ -262,7 +262,7 @@ xdescribe 'FileDownloadStoreSpecs', ->
             on: (eventName, eventCallback) =>
               @onEndEventCallback = eventCallback
 
-          spyOn(FileDownloadStore, '_runDownload').andCallFake =>
+          spyOn(FileDownloadStore, '_ensureFile').andCallFake =>
             Promise.resolve(@download)
           spyOn(fs, 'createReadStream').andReturn(streamStub)
           spyOn(fs, 'createWriteStream')

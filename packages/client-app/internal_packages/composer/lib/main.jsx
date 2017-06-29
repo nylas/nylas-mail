@@ -14,7 +14,7 @@ import {
 import {OverlaidComposerExtension} from 'nylas-component-kit'
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
-import ImageUploadComposerExtension from './image-upload-composer-extension';
+import InlineImageComposerExtension from './inline-image-composer-extension';
 import InlineImageUploadContainer from "./inline-image-upload-container";
 
 
@@ -110,7 +110,7 @@ export function activate() {
   }
 
   ExtensionRegistry.Composer.register(OverlaidComposerExtension, {priority: 1})
-  ExtensionRegistry.Composer.register(ImageUploadComposerExtension);
+  ExtensionRegistry.Composer.register(InlineImageComposerExtension);
   CustomContenteditableComponents.register("InlineImageUploadContainer", InlineImageUploadContainer);
 }
 
@@ -123,7 +123,7 @@ export function deactivate() {
   }
 
   ExtensionRegistry.Composer.unregister(OverlaidComposerExtension)
-  ExtensionRegistry.Composer.unregister(ImageUploadComposerExtension);
+  ExtensionRegistry.Composer.unregister(InlineImageComposerExtension);
   CustomContenteditableComponents.unregister("InlineImageUploadContainer");
 }
 

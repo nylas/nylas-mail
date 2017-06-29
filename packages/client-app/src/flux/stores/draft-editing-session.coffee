@@ -153,7 +153,7 @@ class DraftEditingSession
     allRecipients = [].concat(@_draft.to, @_draft.cc, @_draft.bcc)
     bodyIsEmpty = @_draft.body is @draftPristineBody() or @_draft.body is "<br>"
     forwarded = DraftHelpers.isForwardedMessage(@_draft)
-    hasAttachment = @_draft.files?.length > 0 or @_draft.uploads?.length > 0
+    hasAttachment = @_draft.files?.length > 0
 
     for contact in allRecipients
       if not ContactStore.isValidContact(contact)

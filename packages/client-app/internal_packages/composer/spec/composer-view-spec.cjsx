@@ -13,7 +13,6 @@ ReactTestUtils = require('react-dom/test-utils')
  DatabaseStore,
  NylasTestUtils,
  AccountStore,
- FileUploadStore,
  ContactStore,
  FocusedContentStore,
  ComponentRegistry} = require "nylas-exports"
@@ -511,7 +510,7 @@ describe "ComposerView", ->
             getData: -> "application/json:filename.json:undefined"
         expect(@composer._nonNativeFilePathForDrop(event)).toBe(null)
 
-  describe "A draft with files (attachments) and uploads", ->
+  describe "A draft with files (attachments)", ->
     beforeEach ->
       @file1 = new File
         id: "f_1"
@@ -560,10 +559,10 @@ describe "when a file is received (via drag and drop or paste)", ->
     waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
     runs( =>
       makeComposer.call(@)
-      @upload = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
-      spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageId, onUploadCreated}) =>
-        @draft.uploads.push(@upload)
-        onUploadCreated(@upload)
+      @file = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
+      spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageId, onCreated}) =>
+        @draft.files.push(@file)
+        onCreated(@file)
       spyOn(Actions, 'insertAttachmentIntoDraft')
     )
 
@@ -571,20 +570,20 @@ describe "when a file is received (via drag and drop or paste)", ->
     @composer._onFileReceived('../../f.txt')
     expect(Actions.addAttachment.callCount).toBe(1)
     expect(Object.keys(Actions.addAttachment.calls[0].args[0])).toEqual([
-      'filePath', 'messageId', 'onUploadCreated',
+      'filePath', 'messageId', 'onCreated',
     ])
 
-  it "should call insertAttachmentIntoDraft if the upload looks like an image", ->
-    @upload = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
+  it "should call insertAttachmentIntoDraft if the file looks like an image", ->
+    @file = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
     @composer._onFileReceived('../../f.txt')
     advanceClock()
     expect(Actions.insertAttachmentIntoDraft).not.toHaveBeenCalled()
-    expect(@upload.inline).not.toEqual(true)
+    expect(!!@file.contentId).not.toEqual(true)
 
-    @upload = {targetPath: 'a/f.png', size: 1000, name: 'f.png', id: 'g'}
-    expect(Utils.shouldDisplayAsImage(@upload)).toBe(true) # sanity check
+    @file = {targetPath: 'a/f.png', size: 1000, name: 'f.png', id: 'g'}
+    expect(Utils.shouldDisplayAsImage(@file)).toBe(true) # sanity check
 
     @composer._onFileReceived('../../f.png')
     advanceClock()
     expect(Actions.insertAttachmentIntoDraft).toHaveBeenCalled()
-    expect(@upload.inline).toEqual(true)
+    expect(!!@file.contentId).toEqual(true)
