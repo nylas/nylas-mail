@@ -325,14 +325,14 @@ class CategoryMailboxPerspective extends MailboxPerspective
         currentCat = current.categories().find((c) -> c.accountId == accountId)
 
         if myCat instanceof Folder
+          # folder/label to folder
           return new ChangeFolderTask({
             threads: accountThreads,
             source: "Dragged into list",
             folder: myCat,
           })
-      
-        # We are a label!
-        if currentCat instanceof Folder
+        else if myCat instanceof Label and currentCat instanceof Folder
+          # folder to label
           # dragging from trash or spam into a label? We need to both apply the label and move.
           return [
             new ChangeFolderTask({
@@ -347,11 +347,13 @@ class CategoryMailboxPerspective extends MailboxPerspective
             })
           ]
         else
+          # label to label
           return [
             new ChangeLabelsTask({
               threads: accountThreads,
               source: "Dragged into list",
               labelsToAdd: [myCat],
+              labelsToRemove: [currentCat],
             })
           ]
       )
