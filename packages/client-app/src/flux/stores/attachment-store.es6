@@ -33,7 +33,7 @@ const NonPreviewableExtensions = [
 
 const THUMBNAIL_WIDTH = 320
 
-class FileDownloadStore extends NylasStore {
+class AttachmentStore extends NylasStore {
 
   constructor() {
     super()
@@ -433,4 +433,4 @@ class FileDownloadStore extends NylasStore {
   }
 }
 
-export default new FileDownloadStore()
+export default new AttachmentStore()

@@ -8,7 +8,7 @@ EmailFrame = require('./email-frame').default
   MessageUtils,
   MessageBodyProcessor,
   QuotedHTMLTransformer,
-  FileDownloadStore
+  AttachmentStore
 } = require 'nylas-exports'
 {
   InjectedComponentSet,
@@ -101,7 +101,7 @@ class MessageItemBody extends React.Component
         # (Necessary when attachment download mode is set to "manual")
         cidRegexp = new RegExp("cid:#{file.contentId}(['\"])", 'gi')
         body = body.replace cidRegexp, (text, quoteCharacter) ->
-          "file://#{FileDownloadStore.pathForFile(file)}#{quoteCharacter} data-nylas-file=\"#{encodedAttributeForFile(file)}\" "
+          "file://#{AttachmentStore.pathForFile(file)}#{quoteCharacter} data-nylas-file=\"#{encodedAttributeForFile(file)}\" "
 
     # Replace remaining cid: references - we will not display them since they'll
     # throw "unknown ERR_UNKNOWN_URL_SCHEME". Show a transparent pixel so that there's

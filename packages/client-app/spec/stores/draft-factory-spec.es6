@@ -9,7 +9,7 @@ import {
   DraftStore,
   AccountStore,
   DatabaseStore,
-  FileDownloadStore,
+  AttachmentStore,
   DatabaseWriter,
   SanitizeTransformer,
   InlineStyleTransformer,
@@ -32,7 +32,7 @@ describe('DraftFactory', function draftFactory() {
     // Out of the scope of these specs
     spyOn(InlineStyleTransformer, 'run').andCallFake((input) => Promise.resolve(input));
     spyOn(SanitizeTransformer, 'run').andCallFake((input) => Promise.resolve(input));
-    spyOn(FileDownloadStore, 'getDownloadDataForFile').andCallFake((fid) => {
+    spyOn(AttachmentStore, 'getDownloadDataForFile').andCallFake((fid) => {
       return downloadData[fid]
     });
 

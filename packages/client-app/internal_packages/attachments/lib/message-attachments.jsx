@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react'
-import {Actions, Utils, FileDownloadStore} from 'nylas-exports'
+import {Actions, Utils, AttachmentStore} from 'nylas-exports'
 import {AttachmentItem, ImageAttachmentItem} from 'nylas-component-kit'
 
 
@@ -44,7 +44,7 @@ class MessageAttachments extends Component {
   renderAttachment(AttachmentRenderer, file) {
     const {canRemoveAttachments, downloads, filePreviewPaths, headerMessageId} = this.props
     const download = downloads[file.id]
-    const filePath = FileDownloadStore.pathForFile(file)
+    const filePath = AttachmentStore.pathForFile(file)
     const fileIconName = `file-${file.displayExtension()}.png`
     const displayName = file.displayName()
     const displaySize = file.displayFileSize()

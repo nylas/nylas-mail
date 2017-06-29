@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import path from 'path';
-import {Actions, FileDownloadStore} from 'nylas-exports'
+import {Actions, AttachmentStore} from 'nylas-exports'
 import {ImageAttachmentItem} from 'nylas-component-kit'
 
 export default class InlineImageUploadContainer extends Component {
@@ -95,7 +95,7 @@ export default class InlineImageUploadContainer extends Component {
             u.id === fileId
           );
 
-          const filepath = FileDownloadStore.pathForFile(file);
+          const filepath = AttachmentStore.pathForFile(file);
           const nextFileName = `edited-${Date.now()}.png`;
           const nextFilePath = path.join(path.dirname(filepath), nextFileName);
 
@@ -153,7 +153,7 @@ export default class InlineImageUploadContainer extends Component {
         <ImageAttachmentItem
           className="file-upload"
           draggable={false}
-          filePath={FileDownloadStore.pathForFile(file)}
+          filePath={AttachmentStore.pathForFile(file)}
           displayName={file.filename}
           onRemoveAttachment={() => Actions.removeAttachment(draft.headerMessageId, file)}
         />

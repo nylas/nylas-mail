@@ -5,7 +5,7 @@ import {
   Utils,
   Actions,
   DraftStore,
-  FileDownloadStore,
+  AttachmentStore,
   DraftHelpers,
 } from 'nylas-exports'
 import {
@@ -312,7 +312,7 @@ export default class ComposerView extends React.Component {
           key={file.id}
           className="file-upload"
           draggable={false}
-          filePath={FileDownloadStore.pathForFile(file)}
+          filePath={AttachmentStore.pathForFile(file)}
           displayName={file.filename}
           fileIconName={`file-${file.extension}.png`}
           onRemoveAttachment={() => Actions.removeAttachment(headerMessageId, file)}
@@ -326,7 +326,7 @@ export default class ComposerView extends React.Component {
           key={file.id}
           className="file-upload"
           draggable={false}
-          filePath={FileDownloadStore.pathForFile(file)}
+          filePath={AttachmentStore.pathForFile(file)}
           displayName={file.filename}
           onRemoveAttachment={() => Actions.removeAttachment(headerMessageId, file)}
         />

@@ -1994,7 +1994,7 @@
 5304677: src/flux/tasks/change-unread-task.js
 5341333: src/flux/tasks/change-starred-task.js
 5350052: src/flux/stores/outbox-store.js
-5960988: src/flux/stores/file-download-store.js
+5960988: src/flux/stores/attachment-store.js
 5356198: src/flux/tasks/send-draft-task.js
 5417961: src/sound-registry.js
 5975123: node_modules/request-progress/package.json
@@ -2005,7 +2005,7 @@
 5431422: src/flux/tasks/syncback-model-task.js
 91991403: src/flux/tasks/notify-plugins-of-send-task.js
 91821594: src/flux/edgehill-api.js
-5960988: src/flux/stores/file-download-store.js
+5960988: src/flux/stores/attachment-store.js
 5459931: src/flux/tasks/syncback-draft-task.js
 5975123: node_modules/request-progress/package.json
 5976554: node_modules/request-progress/index.js
@@ -2260,7 +2260,7 @@
 5941725: src/flux/stores/file-upload-store.js
 1894875: node_modules/mkdirp/package.json
 1896279: node_modules/mkdirp/index.js
-5960988: src/flux/stores/file-download-store.js
+5960988: src/flux/stores/attachment-store.js
 5975123: node_modules/request-progress/package.json
 5976554: node_modules/request-progress/index.js
 3708754: static/index.less

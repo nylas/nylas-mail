@@ -6,7 +6,7 @@ ReactTestUtils = require('react-dom/test-utils')
 {Contact,
  Message,
  File,
- FileDownloadStore,
+ AttachmentStore,
  MessageBodyProcessor} = require "nylas-exports"
 
 EmailFrameStub = React.createClass({render: -> <div></div>})
@@ -82,7 +82,7 @@ MessageItemBody = proxyquire '../lib/message-item-body',
 
 xdescribe "MessageItem", ->
   beforeEach ->
-    spyOn(FileDownloadStore, 'pathForFile').andCallFake (f) ->
+    spyOn(AttachmentStore, 'pathForFile').andCallFake (f) ->
       return '/fake/path.png' if f.id is file.id
       return '/fake/path-inline.png' if f.id is file_inline.id
       return '/fake/path-downloading.png' if f.id is file_inline_downloading.id
@@ -151,12 +151,12 @@ xdescribe "MessageItem", ->
           body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
           expect(body.indexOf('cid')).toEqual(-1)
 
-      it "should replace cid:<file.contentId> with the FileDownloadStore's path for the file", ->
+      it "should replace cid:<file.contentId> with the AttachmentStore's path for the file", ->
         runs =>
           body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
           expect(body.indexOf('alt="A" src="file:///fake/path-inline.png"')).toEqual(@message.body.indexOf('alt="A"'))
 
-      it "should not replace cid:<file.contentId> with the FileDownloadStore's path if the download is in progress", ->
+      it "should not replace cid:<file.contentId> with the AttachmentStore's path if the download is in progress", ->
         runs =>
           body = ReactTestUtils.findRenderedComponentWithType(@component, EmailFrameStub).props.content
           expect(body.indexOf('/fake/path-downloading.png')).toEqual(-1)

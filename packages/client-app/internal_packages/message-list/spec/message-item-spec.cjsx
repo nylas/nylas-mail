@@ -9,7 +9,7 @@ ReactTestUtils = require 'react-dom/test-utils'
  Thread,
  Utils,
  QuotedHTMLTransformer,
- FileDownloadStore,
+ AttachmentStore,
  MessageBodyProcessor} = require "nylas-exports"
 
 MessageItemBody = React.createClass({render: -> <div></div>})
@@ -91,12 +91,12 @@ MessageTimestamp = require('../lib/message-timestamp').default
 
 xdescribe "MessageItem", ->
   beforeEach ->
-    spyOn(FileDownloadStore, 'pathForFile').andCallFake (f) ->
+    spyOn(AttachmentStore, 'pathForFile').andCallFake (f) ->
       return '/fake/path.png' if f.id is file.id
       return '/fake/path-inline.png' if f.id is file_inline.id
       return '/fake/path-downloading.png' if f.id is file_inline_downloading.id
       return null
-    spyOn(FileDownloadStore, 'getDownloadDataForFiles').andCallFake (ids) ->
+    spyOn(AttachmentStore, 'getDownloadDataForFiles').andCallFake (ids) ->
       return {'file_1_id': download, 'file_inline_downloading_id': download_inline}
 
     spyOn(MessageBodyProcessor, '_addToCache').andCallFake ->

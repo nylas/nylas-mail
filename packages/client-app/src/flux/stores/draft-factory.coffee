@@ -1,7 +1,7 @@
 _ = require 'underscore'
 path = require 'path'
 
-{FileDownloadStore} = require 'nylas-exports'
+{AttachmentStore} = require 'nylas-exports'
 
 Actions = require('../actions').default
 DatabaseStore = require('./database-store').default

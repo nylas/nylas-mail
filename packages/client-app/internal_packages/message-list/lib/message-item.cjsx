@@ -14,7 +14,7 @@ MessageControls = require './message-controls'
  MessageBodyProcessor,
  QuotedHTMLTransformer,
  ComponentRegistry,
- FileDownloadStore} = require 'nylas-exports'
+ AttachmentStore} = require 'nylas-exports'
 {RetinaImg,
  InjectedComponentSet,
  InjectedComponent} = require 'nylas-component-kit'
@@ -35,13 +35,13 @@ class MessageItem extends React.Component
     @state =
       # Holds the downloadData (if any) for all of our files. It's a hash
       # keyed by a fileId. The value is the downloadData.
-      downloads: FileDownloadStore.getDownloadDataForFiles(fileIds)
-      filePreviewPaths: FileDownloadStore.previewPathsForFiles(fileIds)
+      downloads: AttachmentStore.getDownloadDataForFiles(fileIds)
+      filePreviewPaths: AttachmentStore.previewPathsForFiles(fileIds)
       detailedHeaders: false
       detailedHeadersTogglePos: {top: 18}
 
   componentDidMount: =>
-    @_storeUnlisten = FileDownloadStore.listen(@_onDownloadStoreChange)
+    @_storeUnlisten = AttachmentStore.listen(@_onDownloadStoreChange)
     @_setDetailedHeadersTogglePos()
 
   componentDidUpdate: =>
@@ -269,7 +269,7 @@ class MessageItem extends React.Component
   _onDownloadStoreChange: =>
     fileIds = @props.message.fileIds()
     @setState
-      downloads: FileDownloadStore.getDownloadDataForFiles(fileIds)
-      filePreviewPaths: FileDownloadStore.previewPathsForFiles(fileIds)
+      downloads: AttachmentStore.getDownloadDataForFiles(fileIds)
+      filePreviewPaths: AttachmentStore.previewPathsForFiles(fileIds)
 
 module.exports = MessageItem
