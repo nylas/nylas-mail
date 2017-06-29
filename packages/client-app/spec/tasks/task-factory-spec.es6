@@ -2,7 +2,7 @@ import {
   TaskFactory,
   AccountStore,
   CategoryStore,
-  Category,
+  Label,
   Thread,
   ChangeFolderTask,
   ChangeLabelsTask,
@@ -13,14 +13,14 @@ describe('TaskFactory', function taskFactory() {
   beforeEach(() => {
     this.categories = {
       'ac-1': {
-        archive: new Category({name: 'archive'}),
-        inbox: new Category({name: 'inbox1'}),
-        trash: new Category({name: 'trash1'}),
+        archive: new Label({name: 'archive'}),
+        inbox: new Label({name: 'inbox1'}),
+        trash: new Label({name: 'trash1'}),
       },
       'ac-2': {
-        archive: new Category({name: 'all'}),
-        inbox: new Category({name: 'inbox2'}),
-        trash: new Category({name: 'trash2'}),
+        archive: new Label({name: 'all'}),
+        inbox: new Label({name: 'inbox2'}),
+        trash: new Label({name: 'trash2'}),
       },
     }
     this.accounts = {
@@ -59,9 +59,9 @@ describe('TaskFactory', function taskFactory() {
     it('creates the correct tasks', () => {
       const categoriesToRemove = (accId) => {
         if (accId === 'ac-1') {
-          return [new Category({displayName: 'folder1', accountId: 'ac-1'})]
+          return [new Label({displayName: 'folder1', accountId: 'ac-1'})]
         }
-        return [new Category({displayName: 'label2', accountId: 'ac-2'})]
+        return [new Label({displayName: 'label2', accountId: 'ac-2'})]
       }
       const categoriesToAdd = (accId) => [this.categories[accId].inbox]
       const taskDescription = 'dope'
@@ -120,9 +120,9 @@ describe('TaskFactory', function taskFactory() {
     it('does not create folder tasks if categoriesToAdd not present', () => {
       const categoriesToRemove = (accId) => {
         if (accId === 'ac-1') {
-          return [new Category({displayName: 'folder1', accountId: 'ac-1'})]
+          return [new Label({displayName: 'folder1', accountId: 'ac-1'})]
         }
-        return [new Category({displayName: 'label2', accountId: 'ac-2'})]
+        return [new Label({displayName: 'label2', accountId: 'ac-2'})]
       }
       const taskDescription = 'dope'
 

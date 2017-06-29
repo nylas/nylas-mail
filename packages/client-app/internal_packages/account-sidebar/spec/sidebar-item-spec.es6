@@ -1,10 +1,10 @@
-import {Category, Actions} from "nylas-exports"
+import {Folder, Actions} from "nylas-exports"
 import SidebarItem from "../lib/sidebar-item"
 
 describe("sidebar-item", function sidebarItemSpec() {
   it("preserves nested labels on rename", () => {
     spyOn(Actions, "queueTask")
-    const categories = [new Category({displayName: 'a.b/c', accountId: window.TEST_ACCOUNT_ID})]
+    const categories = [new Folder({displayName: 'a.b/c', accountId: window.TEST_ACCOUNT_ID})]
     NylasEnv.savedState.sidebarKeysCollapsed = {}
     const item = SidebarItem.forCategories(categories)
     item.onEdited(item, 'd')
@@ -13,7 +13,7 @@ describe("sidebar-item", function sidebarItemSpec() {
   })
   it("preserves labels on rename", () => {
     spyOn(Actions, "queueTask")
-    const categories = [new Category({displayName: 'a', accountId: window.TEST_ACCOUNT_ID})]
+    const categories = [new Folder({displayName: 'a', accountId: window.TEST_ACCOUNT_ID})]
     NylasEnv.savedState.sidebarKeysCollapsed = {}
     const item = SidebarItem.forCategories(categories)
     item.onEdited(item, 'b')

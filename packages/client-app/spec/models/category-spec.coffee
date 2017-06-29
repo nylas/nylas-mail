@@ -1,4 +1,4 @@
-{Category, Label} = require 'nylas-exports'
+{Folder, Label} = require 'nylas-exports'
 
 describe 'Category', ->
 
@@ -6,8 +6,8 @@ describe 'Category', ->
 
     it 'returns the name if all the categories on the perspective have the same role', ->
       expect(Category.categoriesSharedRole([
-        new Category({path: 'c1', role: 'c1', accountId: 'a1'}),
-        new Category({path: 'c1', role: 'c1', accountId: 'a2'}),
+        new Folder({path: 'c1', role: 'c1', accountId: 'a1'}),
+        new Folder({path: 'c1', role: 'c1', accountId: 'a2'}),
       ])).toEqual('c1')
 
     it 'returns null if there are no categories', ->
@@ -15,15 +15,15 @@ describe 'Category', ->
 
     it 'returns null if the categories have different roles', ->
       expect(Category.categoriesSharedRole([
-        new Category({path: 'c1', role: 'c1', accountId: 'a1'}),
-        new Category({path: 'c2', role: 'c2', accountId: 'a2'}),
+        new Folder({path: 'c1', role: 'c1', accountId: 'a1'}),
+        new Folder({path: 'c2', role: 'c2', accountId: 'a2'}),
       ])).toEqual(null)
 
   describe 'displayName', ->
     it "should strip the INBOX. prefix from FastMail folders", ->
-      foo = new Category({path: 'INBOX.Foo'})
+      foo = new Folder({path: 'INBOX.Foo'})
       expect(foo.displayName).toEqual('Foo')
-      foo = new Category({path: 'INBOX'})
+      foo = new Folder({path: 'INBOX'})
       expect(foo.displayName).toEqual('Inbox')
 
   describe 'category types', ->

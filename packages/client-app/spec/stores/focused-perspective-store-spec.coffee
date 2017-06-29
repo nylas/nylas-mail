@@ -1,7 +1,7 @@
 _ = require 'underscore'
 
 Actions = require('../../src/flux/actions').default
-Category = require('../../src/flux/models/category').default
+Folder = require('../../src/flux/models/folder').default
 MailboxPerspective = require '../../src/mailbox-perspective'
 
 CategoryStore = require '../../src/flux/stores/category-store'
@@ -14,9 +14,9 @@ describe "FocusedPerspectiveStore", ->
     FocusedPerspectiveStore._current = MailboxPerspective.forNothing()
     @account = AccountStore.accounts()[0]
 
-    @inboxCategory = new Category(id: 'id-123', name: 'inbox', displayName: "INBOX", accountId: @account.id)
+    @inboxCategory = new Folder(id: 'id-123', name: 'inbox', displayName: "INBOX", accountId: @account.id)
     @inboxPerspective = MailboxPerspective.forCategory(@inboxCategory)
-    @userCategory = new Category(id: 'id-456', name: null, displayName: "MyCategory", accountId: @account.id)
+    @userCategory = new Folder(id: 'id-456', name: null, displayName: "MyCategory", accountId: @account.id)
     @userPerspective = MailboxPerspective.forCategory(@userCategory)
 
     spyOn(CategoryStore, "getCategoryByRole").andReturn @inboxCategory

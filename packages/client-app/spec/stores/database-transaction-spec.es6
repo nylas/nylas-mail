@@ -1,5 +1,5 @@
 /* eslint dot-notation:0 */
-import Category from '../../src/flux/models/category';
+import Folder from '../../src/flux/models/folder';
 import TestModel from '../fixtures/db-test-model';
 import DatabaseWriter from '../../src/flux/stores/database-writer';
 
@@ -77,7 +77,7 @@ xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
     });
 
     it("should throw an exception if the models are not the same class, since it cannot be specified by the trigger payload", () =>
-      expect(() => this.transaction.persistModels([testModelInstanceA, new Category()])).toThrow()
+      expect(() => this.transaction.persistModels([testModelInstanceA, new Folder()])).toThrow()
     );
 
     it("should throw an exception if the models are not a subclass of Model", () =>
@@ -217,7 +217,7 @@ xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
           .then(() => {
             expect(this.performed.length).toBe(4);
             expect(this.performed[0].query).toBe("BEGIN IMMEDIATE TRANSACTION");
-            expect(this.performed[2].query).toBe("DELETE FROM `TestModelCategory` WHERE `id` = ?");
+            expect(this.performed[2].query).toBe("DELETE FROM `TestModelFolder` WHERE `id` = ?");
             expect(this.performed[2].values[0]).toBe('1234');
             expect(this.performed[3].query).toBe("COMMIT");
           });
@@ -291,16 +291,16 @@ xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
       beforeEach(() => {
         TestModel.configureWithCollectionAttribute();
         this.m = new TestModel({id: 'local-6806434c-b0cd', other: 'other'});
-        this.m.categories = [new Category({id: 'a'}), new Category({id: 'b'})];
+        this.m.categories = [new Folder({id: 'a'}), new Folder({id: 'b'})];
         this.transaction._writeModels([this.m]);
       });
 
       it("should delete all association records for the model from join tables", () => {
-        expect(this.performed[1].query).toBe('DELETE FROM `TestModelCategory` WHERE `id` IN (\'local-6806434c-b0cd\')');
+        expect(this.performed[1].query).toBe('DELETE FROM `TestModelFolder` WHERE `id` IN (\'local-6806434c-b0cd\')');
       });
 
       it("should insert new association records into join tables in a single query, and include queryableBy columns", () => {
-        expect(this.performed[2].query).toBe('INSERT OR IGNORE INTO `TestModelCategory` (`id`,`value`,`other`) VALUES (?,?,?),(?,?,?)');
+        expect(this.performed[2].query).toBe('INSERT OR IGNORE INTO `TestModelFolder` (`id`,`value`,`other`) VALUES (?,?,?),(?,?,?)');
         expect(this.performed[2].values).toEqual(['local-6806434c-b0cd', 'a', 'other', 'local-6806434c-b0cd', 'b', 'other']);
       });
     });
@@ -316,11 +316,11 @@ xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
         const iterable = __range__(0, 199, true);
         for (let j = 0; j < iterable.length; j++) {
           const i = iterable[j];
-          this.m.categories.push(new Category({id: `id-${i}`}));
+          this.m.categories.push(new Folder({id: `id-${i}`}));
         }
         this.transaction._writeModels([this.m]);
 
-        const collectionAttributeQueries = this.performed.filter(i => i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') === 0
+        const collectionAttributeQueries = this.performed.filter(i => i.query.indexOf('INSERT OR IGNORE INTO `TestModelFolder`') === 0
         );
 
         expect(collectionAttributeQueries.length).toBe(1);
@@ -331,11 +331,11 @@ xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
         const iterable = __range__(0, 200, true);
         for (let j = 0; j < iterable.length; j++) {
           const i = iterable[j];
-          this.m.categories.push(new Category({id: `id-${i}`}));
+          this.m.categories.push(new Folder({id: `id-${i}`}));
         }
         this.transaction._writeModels([this.m]);
 
-        const collectionAttributeQueries = this.performed.filter(i => i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') === 0
+        const collectionAttributeQueries = this.performed.filter(i => i.query.indexOf('INSERT OR IGNORE INTO `TestModelFolder`') === 0
         );
 
         expect(collectionAttributeQueries.length).toBe(2);
@@ -347,11 +347,11 @@ xdescribe("DatabaseWriter", function DatabaseWriterSpecs() {
         const iterable = __range__(0, 201, true);
         for (let j = 0; j < iterable.length; j++) {
           const i = iterable[j];
-          this.m.categories.push(new Category({id: `id-${i}`}));
+          this.m.categories.push(new Folder({id: `id-${i}`}));
         }
         this.transaction._writeModels([this.m]);
 
-        const collectionAttributeQueries = this.performed.filter(i => i.query.indexOf('INSERT OR IGNORE INTO `TestModelCategory`') === 0
+        const collectionAttributeQueries = this.performed.filter(i => i.query.indexOf('INSERT OR IGNORE INTO `TestModelFolder`') === 0
         );
 
         expect(collectionAttributeQueries.length).toBe(2);

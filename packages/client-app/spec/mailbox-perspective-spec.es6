@@ -2,7 +2,7 @@ import {
   AccountStore,
   MailboxPerspective,
   TaskFactory,
-  Category,
+  Label,
   CategoryStore,
 } from 'nylas-exports'
 
@@ -112,16 +112,16 @@ describe('MailboxPerspective', function mailboxPerspective() {
     beforeEach(() => {
       this.categories = {
         a1: {
-          archive: new Category({name: 'archive', displayName: 'archive', accountId: 'a1'}),
-          inbox: new Category({name: 'inbox', displayName: 'inbox1', accountId: 'a1'}),
-          trash: new Category({name: 'trash', displayName: 'trash1', accountId: 'a1'}),
-          category: new Category({name: null, displayName: 'folder1', accountId: 'a1'}),
+          archive: new Label({name: 'archive', displayName: 'archive', accountId: 'a1'}),
+          inbox: new Label({name: 'inbox', displayName: 'inbox1', accountId: 'a1'}),
+          trash: new Label({name: 'trash', displayName: 'trash1', accountId: 'a1'}),
+          category: new Label({name: null, displayName: 'folder1', accountId: 'a1'}),
         },
         a2: {
-          archive: new Category({name: 'all', displayName: 'all', accountId: 'a2'}),
-          inbox: new Category({name: 'inbox', displayName: 'inbox2', accountId: 'a2'}),
-          trash: new Category({name: 'trash', displayName: 'trash2', accountId: 'a2'}),
-          category: new Category({name: null, displayName: 'label2', accountId: 'a2'}),
+          archive: new Label({name: 'all', displayName: 'all', accountId: 'a2'}),
+          inbox: new Label({name: 'inbox', displayName: 'inbox2', accountId: 'a2'}),
+          trash: new Label({name: 'trash', displayName: 'trash2', accountId: 'a2'}),
+          category: new Label({name: null, displayName: 'label2', accountId: 'a2'}),
         },
       }
       this.threads = [
@@ -197,8 +197,8 @@ describe('MailboxPerspective', function mailboxPerspective() {
     it('does nothing when viewing spam or sent', () => {
       ['spam', 'sent'].forEach((invalid) => {
         const perspective = MailboxPerspective.forCategories([
-          new Category({name: invalid, accountId: 'a1'}),
-          new Category({name: invalid, accountId: 'a2'}),
+          new Label({name: invalid, accountId: 'a1'}),
+          new Label({name: invalid, accountId: 'a2'}),
         ])
         const tasks = perspective.tasksForRemovingItems(this.threads)
         expect(TaskFactory.tasksForApplyingCategories).not.toHaveBeenCalled()
@@ -221,9 +221,9 @@ describe('MailboxPerspective', function mailboxPerspective() {
   describe('CategoryMailboxPerspective', () => {
     beforeEach(() => {
       this.categories = [
-        new Category({displayName: 'c1', accountId: 'a1'}),
-        new Category({displayName: 'c2', accountId: 'a2'}),
-        new Category({displayName: 'c3', accountId: 'a2'}),
+        new Label({displayName: 'c1', accountId: 'a1'}),
+        new Label({displayName: 'c2', accountId: 'a2'}),
+        new Label({displayName: 'c3', accountId: 'a2'}),
       ]
       this.perspective = MailboxPerspective.forCategories(this.categories)
     });
@@ -241,7 +241,7 @@ describe('MailboxPerspective', function mailboxPerspective() {
 
       it('returns false if it is a locked category', () => {
         this.perspective._categories.push(
-          new Category({role: 'sent', path: 'c4', accountId: 'a1'})
+          new Label({role: 'sent', path: 'c4', accountId: 'a1'})
         )
         expect(this.perspective.canReceiveThreadsFromAccountIds(['a2'])).toBe(false)
       });

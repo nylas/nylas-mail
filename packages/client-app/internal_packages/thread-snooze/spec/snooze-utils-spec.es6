@@ -4,7 +4,7 @@ import {
   TaskQueue,
   TaskFactory,
   DatabaseStore,
-  Category,
+  Folder,
   Thread,
   CategoryStore,
   FolderSyncProgressStore,
@@ -60,7 +60,7 @@ xdescribe('Snooze Utils', function snoozeUtils() {
 
   describe('createSnoozeCategory', () => {
     beforeEach(() => {
-      this.category = new Category({
+      this.category = new Folder({
         displayName: this.name,
         accountId: this.accId,
         id: 321,
@@ -122,8 +122,8 @@ xdescribe('Snooze Utils', function snoozeUtils() {
   describe('getSnoozeCategory', () => {
     it('resolves category if it exists in the category store', () => {
       const categories = [
-        new Category({accountId: this.accId, name: 'inbox'}),
-        new Category({accountId: this.accId, displayName: this.name}),
+        new Folder({accountId: this.accId, name: 'inbox'}),
+        new Folder({accountId: this.accId, displayName: this.name}),
       ]
       spyOn(CategoryStore, 'categories').andReturn(categories)
       spyOn(SnoozeUtils, 'createSnoozeCategory')
@@ -139,9 +139,9 @@ xdescribe('Snooze Utils', function snoozeUtils() {
 
     it('creates category if it does not exist', () => {
       const categories = [
-        new Category({accountId: this.accId, name: 'inbox'}),
+        new Folder({accountId: this.accId, name: 'inbox'}),
       ]
-      const snoozeCat = new Category({accountId: this.accId, displayName: this.name})
+      const snoozeCat = new Folder({accountId: this.accId, displayName: this.name})
       spyOn(CategoryStore, 'categories').andReturn(categories)
       spyOn(SnoozeUtils, 'createSnoozeCategory').andReturn(Promise.resolve(snoozeCat))
 
@@ -159,12 +159,12 @@ xdescribe('Snooze Utils', function snoozeUtils() {
     beforeEach(() => {
       this.description = 'Snoozin';
       this.snoozeCatsByAccount = {
-        123: new Category({accountId: 123, displayName: this.name, id: 'sr-1'}),
-        321: new Category({accountId: 321, displayName: this.name, id: 'sr-2'}),
+        123: new Folder({accountId: 123, displayName: this.name, id: 'sr-1'}),
+        321: new Folder({accountId: 321, displayName: this.name, id: 'sr-2'}),
       }
       this.inboxCatsByAccount = {
-        123: new Category({accountId: 123, name: 'inbox', id: 'sr-3'}),
-        321: new Category({accountId: 321, name: 'inbox', id: 'sr-4'}),
+        123: new Folder({accountId: 123, name: 'inbox', id: 'sr-3'}),
+        321: new Folder({accountId: 321, name: 'inbox', id: 'sr-4'}),
       }
       this.threads = [
         new Thread({accountId: 123}),

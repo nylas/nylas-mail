@@ -1,6 +1,6 @@
 Message = require('../../src/flux/models/message').default
 Thread = require('../../src/flux/models/thread').default
-Category = require('../../src/flux/models/category').default
+Folder = require('../../src/flux/models/folder').default
 {Utils} = require 'nylas-exports'
 _ = require 'underscore'
 
@@ -23,7 +23,7 @@ describe 'Thread', ->
   describe 'sortedCategories', ->
     sortedForCategoryNames = (inputs) ->
       categories = inputs.map((i) ->
-        new Category(path: i, role: i)
+        new Folder(path: i, role: i)
       )
       thread = new Thread(labels: categories, folders: [])
       return thread.sortedCategories()

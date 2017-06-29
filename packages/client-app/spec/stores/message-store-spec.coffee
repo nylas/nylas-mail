@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Thread = require('../../src/flux/models/thread').default
-Category = require('../../src/flux/models/category').default
+Label = require('../../src/flux/models/label').default
 Message = require('../../src/flux/models/message').default
 FocusedContentStore = require '../../src/flux/stores/focused-content-store'
 FocusedPerspectiveStore = require('../../src/flux/stores/focused-perspective-store').default
@@ -59,9 +59,9 @@ describe "MessageStore", ->
     beforeEach ->
       MessageStore._showingHiddenItems = false
       MessageStore._items = [
-        new Message(categories: [new Category(displayName: 'bla'), new Category(name: 'trash')]),
-        new Message(categories: [new Category(name: 'inbox')]),
-        new Message(categories: [new Category(name: 'bla'), new Category(name: 'spam')]),
+        new Message(categories: [new Label(displayName: 'bla'), new Label(name: 'trash')]),
+        new Message(categories: [new Label(name: 'inbox')]),
+        new Message(categories: [new Label(name: 'bla'), new Label(name: 'spam')]),
         new Message(categories: []),
         new Message(categories: [], draft: true),
       ]

@@ -4,7 +4,7 @@ import {
   NylasAPIHelpers,
   Thread,
   Actions,
-  Category,
+  Folder,
 } from 'nylas-exports'
 import SnoozeUtils from '../lib/snooze-utils'
 import SnoozeStore from '../lib/snooze-store'
@@ -17,12 +17,12 @@ xdescribe('SnoozeStore', function snoozeStore() {
     this.accounts = [{id: 123}, {id: 321}]
 
     this.snoozeCatsByAccount = {
-      123: new Category({accountId: 123, displayName: this.name, id: 'sn-1'}),
-      321: new Category({accountId: 321, displayName: this.name, id: 'sn-2'}),
+      123: new Folder({accountId: 123, displayName: this.name, id: 'sn-1'}),
+      321: new Folder({accountId: 321, displayName: this.name, id: 'sn-2'}),
     }
     this.inboxCatsByAccount = {
-      123: new Category({accountId: 123, name: 'inbox', id: 'in-1'}),
-      321: new Category({accountId: 321, name: 'inbox', id: 'in-2'}),
+      123: new Folder({accountId: 123, name: 'inbox', id: 'in-1'}),
+      321: new Folder({accountId: 321, name: 'inbox', id: 'in-2'}),
     }
     this.threads = [
       new Thread({accountId: 123, id: 's-1'}),

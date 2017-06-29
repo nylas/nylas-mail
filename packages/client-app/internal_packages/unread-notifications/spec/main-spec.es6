@@ -1,7 +1,7 @@
 import Contact from '../../../src/flux/models/contact'
 import Message from '../../../src/flux/models/message'
 import Thread from '../../../src/flux/models/thread'
-import Category from '../../../src/flux/models/category'
+import Folder from '../../../src/flux/models/category'
 import CategoryStore from '../../../src/flux/stores/category-store'
 import DatabaseStore from '../../../src/flux/stores/database-store'
 import AccountStore from '../../../src/flux/stores/account-store'
@@ -13,8 +13,8 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
   beforeEach(() => {
     this.notifier = new Notifier();
 
-    const inbox = new Category({id: "l1", name: "inbox", displayName: "Inbox"})
-    const archive = new Category({id: "l2", name: "archive", displayName: "Archive"})
+    const inbox = new Folder({id: "l1", name: "inbox", displayName: "Inbox"})
+    const archive = new Folder({id: "l2", name: "archive", displayName: "Archive"})
 
     spyOn(CategoryStore, "getCategoryByRole").andReturn(inbox);
 
