@@ -7,7 +7,9 @@ import {
   NylasAPI,
   NylasAPIRequest,
   RegExpUtils,
+  MailsyncProcess,
 } from 'nylas-exports';
+
 
 const IMAP_FIELDS = new Set([
   "imap_host",
@@ -86,7 +88,7 @@ export function buildGmailAuthURL(sessionKey) {
   return `${N1CloudAPI.APIRoot}/auth/gmail?state=${sessionKey}`;
 }
 
-export function runAuthRequest(accountInfo) {
+export function runAuthValidation(accountInfo) {
   const {username, type, email, name} = accountInfo;
 
   const data = {
@@ -121,43 +123,37 @@ export function runAuthRequest(accountInfo) {
     }
   }
 
-  const noauth = {
-    user: '',
-    pass: '',
-    sendImmediately: true,
-  };
-
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
-  const n1CloudIMAPAuthRequest = new NylasAPIRequest({
-    api: N1CloudAPI,
-    options: {
-      path: '/auth',
-      method: 'POST',
-      timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
-      body: data,
-      auth: noauth,
-    },
-  })
-  return n1CloudIMAPAuthRequest.run().then((remoteJSON) => {
-    const localSyncIMAPAuthRequest = new NylasAPIRequest({
-      api: NylasAPI,
-      options: {
-        path: `/auth`,
-        method: 'POST',
-        timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
-        body: data,
-        auth: noauth,
-      },
-    })
-    return localSyncIMAPAuthRequest.run().then((localJSON) => {
-      const accountWithTokens = Object.assign({}, localJSON);
-      accountWithTokens.localToken = localJSON.account_token;
-      accountWithTokens.cloudToken = remoteJSON.account_token;
-      return accountWithTokens
-    })
-  })
+  data.settings.id = 'test';
+  const proc = new MailsyncProcess('test', data.settings);
+  return proc.test().then((accountJSON) => {
+    return accountJSON;
+  });
+
+  // TODO BG Re-enable cloud services
+  // return n1CloudIMAPAuthRequest.run().then((remoteJSON) => {
+  //   const localSyncIMAPAuthRequest = new NylasAPIRequest({
+  //     api: NylasAPI,
+  //     options: {
+  //       path: `/auth`,
+  //       method: 'POST',
+  //       timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
+  //       body: data,
+  //       auth: {
+  //         user: '',
+  //         pass: '',
+  //         sendImmediately: true,
+  //       },
+  //     },
+  //   })
+  // return localSyncIMAPAuthRequest.run().then((localJSON) => {
+  //   const accountWithTokens = Object.assign({}, localJSON);
+  //   accountWithTokens.localToken = localJSON.account_token;
+  //   accountWithTokens.cloudToken = '';//remoteJSON.account_token;
+  //   return accountWithTokens
+  // })
 }
 
 export function isValidHost(value) {

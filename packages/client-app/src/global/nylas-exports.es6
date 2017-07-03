@@ -61,7 +61,7 @@ lazyLoad(`EdgehillAPI`, 'flux/edgehill-api');
 lazyLoad(`LegacyEdgehillAPI`, 'flux/legacy-edgehill-api');
 lazyLoad(`NylasAPIHelpers`, 'flux/nylas-api-helpers');
 lazyLoad(`NylasAPIRequest`, 'flux/nylas-api-request');
-
+lazyLoad(`MailsyncProcess`, 'mailsync-process');
 // The Database
 lazyLoad(`Matcher`, 'flux/attributes/matcher');
 lazyLoad(`DatabaseStore`, 'flux/stores/database-store');

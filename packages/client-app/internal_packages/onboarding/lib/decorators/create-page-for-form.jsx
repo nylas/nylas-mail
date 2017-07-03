@@ -5,7 +5,7 @@ import {RetinaImg} from 'nylas-component-kit';
 import {NylasAPI, Actions} from 'nylas-exports';
 
 import OnboardingActions from '../onboarding-actions';
-import {runAuthRequest} from '../onboarding-helpers';
+import {runAuthValidation} from '../onboarding-helpers';
 import FormErrorMessage from '../form-error-message';
 import AccountTypes from '../account-types'
 
@@ -99,7 +99,7 @@ const CreatePageForForm = (FormComponent) => {
 
       this.setState({submitting: true});
 
-      runAuthRequest(accountInfo)
+      runAuthValidation(accountInfo)
       .then((json) => {
         OnboardingActions.moveToPage('account-onboarding-success')
         OnboardingActions.accountJSONReceived(json, json.localToken, json.cloudToken)
