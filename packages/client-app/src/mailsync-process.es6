@@ -23,21 +23,49 @@ const LocalizedErrorStrings = {
 };
 
 export default class MailsyncProcess {
-  constructor(mode, account) {
+  constructor(mode, account, resourcePath) {
     this.mode = mode;
     this.account = account;
+    this.binaryPath = path.join(resourcePath, 'MailSync');
   }
 
   _spawnProcess() {
-    const binaryPath = path.join(NylasEnv.getLoadSettings().resourcePath, 'MailSync');
-    const sync = spawn(binaryPath, [`--mode`, this.mode]);
-    if (this.mode !== 'migrate') {
+    const sync = spawn(this.binaryPath, [`--mode`, this.mode]);
+    if (this.account) {
       sync.stdout.once('data', () => {
-        console.log(this.account);
         sync.stdin.write(`${JSON.stringify(this.account)}\n`);
       });
     }
     return sync;
+  }
+
+  migrate() {
+    return new Promise((resolve, reject) => {
+      const sync = this._spawnProcess();
+      let buffer = Buffer.from([]);
+      sync.stdout.on('data', (data) => {
+        buffer += data;
+      });
+      sync.stderr.on('data', (data) => {
+        buffer += data;
+      });
+      sync.on('error', (err) => {
+        reject(err, buffer);
+      });
+      sync.on('close', (code) => {
+        try {
+          const lastLine = buffer.toString('UTF-8').split('\n').pop();
+          const response = JSON.parse(lastLine);
+          if (code === 0) {
+            resolve(response);
+          } else {
+            reject(new Error(LocalizedErrorStrings[response.error]))
+          }
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
   }
 
   test() {

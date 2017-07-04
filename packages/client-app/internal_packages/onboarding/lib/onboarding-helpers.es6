@@ -92,9 +92,10 @@ export function runAuthValidation(accountInfo) {
   const {username, type, email, name} = accountInfo;
 
   const data = {
+    id: 'temp',
     provider: type,
-    email: email,
     name: name,
+    emailAddress: email,
     settings: Object.assign({}, accountInfo),
   };
 
@@ -107,14 +108,8 @@ export function runAuthValidation(accountInfo) {
   if (data.settings.smtp_port) {
     data.settings.smtp_port /= 1;
   }
-  // if there's an account with this email, get the ID for it to notify the backend of re-auth
-  // const account = AccountStore.accountForEmail(accountInfo.email);
-  // const reauthParam = account ? `&reauth=${account.id}` : "";
 
-  /**
-   * Only include the required IMAP fields. Auth validation does not allow
-   * extra fields
-   */
+  // Only include the required IMAP fields. Auth validation does not allow extra fields
   if (type !== "gmail" && type !== "office365") {
     for (const key of Object.keys(data.settings)) {
       if (!IMAP_FIELDS.has(key)) {
@@ -126,8 +121,7 @@ export function runAuthValidation(accountInfo) {
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
-  data.settings.id = 'test';
-  const proc = new MailsyncProcess('test', data.settings);
+  const proc = new MailsyncProcess('test', data, NylasEnv.getLoadSettings().resourcePath);
   return proc.test().then((accountJSON) => {
     return accountJSON;
   });

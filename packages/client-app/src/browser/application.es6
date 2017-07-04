@@ -11,7 +11,6 @@ import {EventEmitter} from 'events';
 
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
-import DatabaseReader from './database-reader';
 import ConfigMigrator from './config-migrator';
 import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
@@ -19,6 +18,7 @@ import SystemTrayManager from './system-tray-manager';
 import DefaultClientHelper from '../default-client-helper';
 import NylasProtocolHandler from './nylas-protocol-handler';
 import ConfigPersistenceManager from './config-persistence-manager';
+import MailsyncProcess from '../mailsync-process';
 
 let clipboard = null;
 
@@ -40,21 +40,18 @@ export default class Application extends EventEmitter {
     this.fileListCache = new FileListCache();
     this.nylasProtocolHandler = new NylasProtocolHandler(this.resourcePath, this.safeMode);
 
-    this.databaseReader = new DatabaseReader({configDirPath, specMode});
     try {
-      await this.databaseReader.open();
+      const mailsync = new MailsyncProcess('migrate', null, this.resourcePath);
+      await mailsync.migrate();
     } catch (err) {
-      // We need to manually handle errors here because
-      // `handleUnrecoverableDatabaseError` will fail because global.app hasn't
-      // been defined at this point
       dialog.showMessageBox({
         type: 'warning',
         buttons: ['Okay'],
-        message: `We encountered a problem with your local email database. We will now attempt to rebuild it.`,
+        message: `We encountered a problem with your local email database. ${err.toString()}\n\nWe will now attempt to rebuild it.`,
       });
       this._deleteDatabase(() => {
-        app.relaunch()
-        app.quit()
+        app.relaunch();
+        app.quit();
       })
       return
     }
@@ -65,7 +62,7 @@ export default class Application extends EventEmitter {
     this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
     config.load();
 
-    this.configMigrator = new ConfigMigrator(this.config, this.databaseReader);
+    this.configMigrator = new ConfigMigrator(this.config);
     this.configMigrator.migrate()
 
     let initializeInBackground = options.background;
@@ -73,7 +70,7 @@ export default class Application extends EventEmitter {
       initializeInBackground = false;
     }
 
-    this.autoUpdateManager = new AutoUpdateManager(version, config, specMode, this.databaseReader);
+    this.autoUpdateManager = new AutoUpdateManager(version, config, specMode);
     this.applicationMenu = new ApplicationMenu(version);
     this.windowManager = new WindowManager({
       resourcePath: this.resourcePath,
@@ -86,8 +83,6 @@ export default class Application extends EventEmitter {
       initializeInBackground: initializeInBackground,
     });
     this.systemTrayManager = new SystemTrayManager(process.platform, this);
-
-    // TODO : Run database initialization
 
     this.setupJavaScriptArguments();
     this.handleEvents();
@@ -179,23 +174,17 @@ export default class Application extends EventEmitter {
   }
 
   openWindowsForTokenState() {
-    // const accounts = this.config.get('nylas.accounts');
-    // const hasAccount = accounts && accounts.length > 0;
-    // const hasN1ID = this._getNylasId();
+    const accounts = this.config.get('nylas.accounts');
+    const hasAccount = accounts && accounts.length > 0;
+    const hasN1ID = this.config.get('nylasid.id');
 
-    // TODO BEN
-    // if (hasAccount && hasN1ID) {
-    this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
-    // } else {
-    //   this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-    //     title: "Welcome to Nylas Mail",
-    //   });
-    // }
-  }
-
-  _getNylasId() {
-    const identity = this.databaseReader.getJSONBlob("NylasID") || {}
-    return identity.id
+    if (hasAccount && hasN1ID) {
+      this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
+    } else {
+      this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
+        title: "Welcome to Nylas Mail",
+      });
+    }
   }
 
   _relaunchToInitialWindows = ({resetConfig, resetDatabase} = {}) => {
@@ -288,10 +277,6 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:relaunch-to-initial-windows', this._relaunchToInitialWindows);
-
-    this.on('application:onIdentityChanged', () => {
-      this.autoUpdateManager.updateFeedURL()
-    });
 
     this.on('application:quit', () => {
       app.quit()

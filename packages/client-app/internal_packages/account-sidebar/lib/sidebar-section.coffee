@@ -165,9 +165,10 @@ class SidebarSection
         items.push(item)
       seenItems[itemKey] = item
 
-    CategoryClass = CategoryStore.getInboxCategory(account).constructor
+    inbox = CategoryStore.getInboxCategory(account)
     iconName = null
-    if CategoryClass == Label
+
+    if inbox && inbox.constructor == Label
       title ?= "Labels"
       iconName = "tag.png"
     else

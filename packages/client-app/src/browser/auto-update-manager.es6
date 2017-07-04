@@ -18,13 +18,12 @@ const preferredChannel = 'nylas-mail'
 
 export default class AutoUpdateManager extends EventEmitter {
 
-  constructor(version, config, specMode, databaseReader) {
+  constructor(version, config, specMode) {
     super();
 
     this.state = IdleState;
     this.version = version;
     this.config = config;
-    this.databaseReader = databaseReader
     this.specMode = specMode;
     this.preferredChannel = preferredChannel;
 
@@ -34,7 +33,7 @@ export default class AutoUpdateManager extends EventEmitter {
   }
 
   parameters = () => {
-    let updaterId = (this.databaseReader.getJSONBlob("NylasID") || {}).id
+    let updaterId = this.config.get('nylasid.id');
     if (!updaterId) {
       updaterId = "anonymous";
     }
