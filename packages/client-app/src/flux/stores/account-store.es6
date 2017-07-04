@@ -7,7 +7,6 @@ import KeyManager from '../../key-manager'
 import Actions from '../actions'
 import Account from '../models/account'
 import Utils from '../models/utils'
-import DatabaseStore from './database-store'
 
 const configAccountsKey = "nylas.accounts"
 const configVersionKey = "nylas.accountsVersion"
@@ -23,7 +22,7 @@ class AccountStore extends NylasStore {
 
   constructor(props) {
     super(props)
-    this._loadAccounts()
+    this._loadAccounts();
     this.listenTo(Actions.removeAccount, this._onRemoveAccount)
     this.listenTo(Actions.updateAccount, this._onUpdateAccount)
     this.listenTo(Actions.reorderAccount, this._onReorderAccount)
@@ -70,30 +69,22 @@ class AccountStore extends NylasStore {
     return false
   }
 
-  _onAPIAuthError = (apiError, apiOptions, apiName) => {
+  _onAPIAuthError = (apiError, apiOptions) => {
     // Prevent /auth errors from presenting auth failure notices
     const apiToken = apiOptions.auth.user
     if (!apiToken) {
       return Promise.resolve()
     }
 
-    const account = this.accounts().find((acc) => {
-      const tokens = this.tokensForAccountId(acc.id);
-      if (!tokens) return false
-      const localMatch = tokens.localSync === apiToken;
-      const cloudMatch = tokens.n1Cloud === apiToken;
-      return localMatch || cloudMatch;
-    })
+    const account = this.accounts().find((acc) =>
+      this.tokensForAccountId(acc.id) === apiToken
+    );
 
     if (account) {
-      if (apiName === "N1CloudAPI") {
-        const n1CloudState = Account.N1_CLOUD_STATE_AUTH_FAILED
-        this._onUpdateAccount(account.id, {n1CloudState})
-      } else {
-        const syncState = Account.SYNC_STATE_AUTH_FAILED
-        this._onUpdateAccount(account.id, {syncState})
-      }
+      const n1CloudState = Account.N1_CLOUD_STATE_AUTH_FAILED
+      this._onUpdateAccount(account.id, {n1CloudState})
     }
+
     return Promise.resolve()
   }
 
@@ -122,15 +113,7 @@ class AccountStore extends NylasStore {
       this._enforceAccountsValidity()
 
       for (const account of addedAccounts) {
-        const credentials = {
-          n1Cloud: KeyManager.getPassword(`${account.emailAddress}.n1Cloud`, {migrateFromService: "Nylas"}),
-          localSync: KeyManager.getPassword(`${account.emailAddress}.localSync`, {migrateFromService: "Nylas"}),
-        }
-        this._tokens[account.id] = credentials;
-
-        // TODO HACK. For some reason we're getting passed the wrong
-        // id. Figure this out after launch.
-        this._tokens[account.emailAddress] = credentials;
+        this._tokens[account.emailAddress] = this._tokens[account.id] = KeyManager.getPassword(`${account.emailAddress}`);
       }
       for (const removedAccount of removedAccounts) {
         const {id, emailAddress} = removedAccount
@@ -256,8 +239,8 @@ class AccountStore extends NylasStore {
     this._save()
   }
 
-  addAccountFromJSON = (json, localToken, cloudToken) => {
-    if (!json.email_address || !json.provider) {
+  addAccountFromJSON = (json, cloudToken) => {
+    if (!json.emailAddress || !json.provider) {
       console.error("Returned account data is invalid", json)
       console.log(JSON.stringify(json))
       throw new Error("Returned account data is invalid")
@@ -265,15 +248,11 @@ class AccountStore extends NylasStore {
 
     this._loadAccounts()
 
-    this._tokens[json.id] = {
-      n1Cloud: cloudToken,
-      localSync: localToken,
-    }
-    KeyManager.replacePassword(`${json.email_address}.n1Cloud`, cloudToken)
-    KeyManager.replacePassword(`${json.email_address}.localSync`, localToken)
+    this._tokens[json.id] = cloudToken;
+    KeyManager.replacePassword(`${json.emailAddress}`, cloudToken)
 
     const existingIdx = _.findIndex(this._accounts, (a) =>
-      a.id === json.id || a.emailAddress === json.email_address
+      a.id === json.id || a.emailAddress === json.emailAddress
     )
 
     if (existingIdx === -1) {
@@ -381,7 +360,7 @@ class AccountStore extends NylasStore {
   }
 
   // Private: This method is going away soon, do not rely on it.
-  tokensForAccountId(id) {
+  tokenForAccountId(id) {
     return this._tokens[id]
   }
 }

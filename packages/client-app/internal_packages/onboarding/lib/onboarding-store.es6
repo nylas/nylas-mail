@@ -155,12 +155,12 @@ class OnboardingStore extends NylasStore {
     }, 1000);
   }
 
-  _onAccountJSONReceived = async (json, localToken, cloudToken) => {
+  _onAccountJSONReceived = async (json, cloudToken) => {
     try {
       const isFirstAccount = AccountStore.accounts().length === 0;
 
-      AccountStore.addAccountFromJSON(json, localToken, cloudToken);
-      this._accountFromAuth = AccountStore.accountForEmail(json.email_address);
+      AccountStore.addAccountFromJSON(json, cloudToken);
+      this._accountFromAuth = AccountStore.accountForEmail(json.emailAddress);
 
       Actions.recordUserEvent('Email Account Auth Succeeded', {
         provider: this._accountFromAuth.provider,

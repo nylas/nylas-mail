@@ -21,7 +21,6 @@ class KeyManager {
       this.SERVICE_NAME = "Nylas Mail Dev";
     }
     this.KEY_NAME = "Nylas Mail Keys"
-    this._alreadyMigrated = new Set()
   }
 
   replacePassword(keyName, newVal) {
@@ -40,16 +39,8 @@ class KeyManager {
     })
   }
 
-  getPassword(keyName, {migrateFromService} = {}) {
+  getPassword(keyName) {
     const keys = this._getKeyHash();
-    if (!keys[keyName] && migrateFromService &&
-        !this._alreadyMigrated.has(migrateFromService)) {
-      const oldVal = keytar.getPassword(migrateFromService, keyName);
-      if (oldVal) {
-        this.replacePassword(keyName, oldVal)
-        this._alreadyMigrated.add(migrateFromService)
-      }
-    }
     return keys[keyName]
   }
 

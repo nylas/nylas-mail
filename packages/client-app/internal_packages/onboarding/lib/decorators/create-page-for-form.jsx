@@ -102,7 +102,7 @@ const CreatePageForForm = (FormComponent) => {
       runAuthValidation(accountInfo)
       .then((json) => {
         OnboardingActions.moveToPage('account-onboarding-success')
-        OnboardingActions.accountJSONReceived(json, json.localToken, json.cloudToken)
+        OnboardingActions.accountJSONReceived(json.account, json.cloudToken)
       })
       .catch((err) => {
         Actions.recordUserEvent('Email Account Auth Failed', {

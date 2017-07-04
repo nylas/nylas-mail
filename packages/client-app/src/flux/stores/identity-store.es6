@@ -1,24 +1,21 @@
-import Rx from 'rx-lite'
 import NylasStore from 'nylas-store';
-import {ipcRenderer, remote} from 'electron';
+import {remote} from 'electron';
 import request from 'request';
 import url from 'url'
 
 import Utils from '../models/utils';
 import Actions from '../actions';
-import {APIError} from '../errors'
-import KeyManager from '../../key-manager'
-import DatabaseStore from './database-store'
+import {APIError} from '../errors';
+import KeyManager from '../../key-manager';
 
-// Note this key name is used when migrating to Nylas Pro accounts from
-// old N1.
+// Note this key name is used when migrating to Nylas Pro accounts from old N1.
 const KEYCHAIN_NAME = 'Nylas Account';
 
 class IdentityStore extends NylasStore {
 
   constructor() {
     super();
-    this._identity = null
+    this._identity = null;
   }
 
   async activate() {
@@ -33,14 +30,10 @@ class IdentityStore extends NylasStore {
     NylasEnv.config.onDidChange('env', this._onEnvChanged);
     this._onEnvChanged();
 
+    NylasEnv.config.onDidChange('nylasid', this._onIdentityChanged);
+    this._onIdentityChanged();
+
     this.listenTo(Actions.logoutNylasIdentity, this._onLogoutNylasIdentity);
-
-    const q = DatabaseStore.findJSONBlob("NylasID");
-    this._disp = Rx.Observable.fromQuery(q).subscribe(this._onIdentityChanged)
-
-    const identity = await DatabaseStore.run(q)
-    this._onIdentityChanged(identity)
-
     this._fetchAndPollRemoteIdentity()
   }
 
@@ -84,38 +77,26 @@ class IdentityStore extends NylasStore {
    * once the database change comes back through
    */
   async saveIdentity(identity) {
+    this._identity = identity;
+
     if (identity && identity.token) {
-      KeyManager.replacePassword(KEYCHAIN_NAME, identity.token)
+      KeyManager.replacePassword(KEYCHAIN_NAME, identity.token);
       delete identity.token;
     }
     if (!identity) {
-      KeyManager.deletePassword(KEYCHAIN_NAME)
+      KeyManager.deletePassword(KEYCHAIN_NAME);
     }
-    await DatabaseStore.inTransaction((t) => {
-      return t.persistJSONBlob("NylasID", identity)
-    });
-    this._onIdentityChanged(identity)
+    NylasEnv.config.set('nylasid', identity);
   }
 
   /**
    * When the identity changes in the database, update our local store
    * cache and set the token from the keychain.
    */
-  _onIdentityChanged = (newIdentity) => {
-    const oldId = ((this._identity || {}).id)
-    this._identity = newIdentity
-    if (this._identity && this._identity.id) {
-      if (!this._identity.token) {
-        this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
-      }
-    } else {
-      // It's possible the identity exists as an empty object. If the
-      // object looks blank, set the identity to null.
-      this._identity = null
-    }
-    const newId = ((this._identity || {}).id);
-    if (oldId !== newId) {
-      ipcRenderer.send('command', 'onIdentityChanged');
+  _onIdentityChanged = () => {
+    this._identity = NylasEnv.config.get('nylasid') || {};
+    if (!this._identity.token) {
+      this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
     }
     this.trigger();
   }
