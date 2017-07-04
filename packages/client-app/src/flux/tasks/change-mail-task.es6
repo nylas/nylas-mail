@@ -38,6 +38,7 @@ export default class ChangeMailTask extends Task {
     // we actually only keep a small bit of data now
     this.threadIds = t.map(i => i.id);
     this.messageIds = m.map(i => i.id);
+    this.accountId = (t[0] || m[0] || {}).accountId;
   }
 
   // Task lifecycle

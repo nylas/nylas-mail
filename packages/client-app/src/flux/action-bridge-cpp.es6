@@ -1,13 +1,14 @@
-import net from 'net';
-import fs from 'fs';
 import DatabaseStore from './stores/database-store';
 import DatabaseChangeRecord from './stores/database-change-record';
 import DatabaseObjectRegistry from '../registries/database-object-registry';
+import MailsycProcess from '../mailsync-process';
 import Actions from './actions';
 import Utils from './models/utils';
 
-class ActionBridgeCPP {
+let AccountStore = null;
 
+
+class ActionBridgeCPP {
   constructor() {
     if (!NylasEnv.isMainWindow()) {
       // maybe bind as listener?
@@ -15,58 +16,46 @@ class ActionBridgeCPP {
     }
 
     Actions.queueTask.listen(this.onQueueTask, this);
-    Actions.queueTasks.listen((tasks) => {
-      if (!tasks || !tasks.length) { return; }
-      for (const task of tasks) { this.onQueueTask(task); }
-    });
+    Actions.queueTasks.listen(this.onQueueTasks, this);
     Actions.dequeueTask.listen(this.onDequeueTask, this);
+    Actions.fetchBodies.listen(this.onFetchBodies, this);
 
-    try {
-      fs.unlinkSync('/tmp/cmail.sock');
-    } catch (err) {
-      console.info(err);
+    this.clients = {};
+    
+    AccountStore = require('./stores/account-store').default;
+    AccountStore.listen(this.ensureClients, this);
+    this.ensureClients();
+  }
+
+  ensureClients() {
+    const toLaunch = [];
+    const clientsToStop = Object.assign({}, this.clients);
+
+    for (const acct of AccountStore.accounts()) {
+      console.log(JSON.stringify(acct));
+      if (!this.clients[acct.id]) {
+        toLaunch.push(acct);
+      } else {
+        delete clientsToStop[acct.id];
+      }
     }
 
-    this.clients = [];
-
-    // This server listens on a Unix socket at /var/run/mysocket
-    const unixServer = net.createServer((c) => {
-      console.log('client connected');
-      this.clients.push(c);
-      c.on('data', (d) => {
-        this.onIncomingMessage(d.toString());
-      });
-      c.on('error', (err) => {
-        console.log('client error', err);
-      });
-      c.on('timeout', () => {
-        console.log('client timeout');
-      });
-
-      c.on('end', () => {
-        console.log('client disconnected');
-        this.clients = this.clients.filter((o) => o !== c);
-      });
-    });
-
-    unixServer.listen('/tmp/cmail.sock', () => {
-      console.log('server bound');
-    });
-
-    function shutdown() {
-      unixServer.close(); // socket file is automatically removed here
-      process.exit();
+    for (const client of Object.values(clientsToStop)) {
+      client.kill();
     }
 
-    this._readBuffer = '';
-    process.on('SIGINT', shutdown);
+    toLaunch.forEach((acct) => {
+      const client = new MailsycProcess(acct, NylasEnv.getLoadSettings().resourcePath);
+      client.sync();
+      client.on('deltas', this.onIncomingMessages);
+      client.on('close', () => {
+        delete this.clients[acct.id];
+      });
+      this.clients[acct.id] = client;
+    });
   }
 
   onQueueTask(task) {
-    // if (!(task instanceof Task)) {
-    //   console.log(task);
-    //   throw new Error("You must queue a `Task` instance. Be sure you have the task registered with the DatabaseObjectRegistry. If this is a task for a custom plugin, you must export a `taskConstructors` array with your `Task` constructors in it. You must all subclass the base Nylas `Task`.");
-    // }
     if (!DatabaseObjectRegistry.isInRegistry(task.constructor.name)) {
       console.log(task);
       throw new Error("You must queue a `Task` instance which is registred with the DatabaseObjectRegistry")
@@ -75,23 +64,31 @@ class ActionBridgeCPP {
       console.log(task);
       throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
     }
+    if (!task.accountId) {
+      throw new Error("Tasks must have an accountId.");
+    }
+
     task.sequentialId = ++this._currentSequentialId;
     task.status = 'local';
+    this.sendMessageToAccount(task.accountId, {type: 'task-queued', task: task});
+  }
 
-    this.onTellClients({type: 'task-queued', task: task});
+  onQueueTasks(tasks) {
+    if (!tasks || !tasks.length) { return; }
+    for (const task of tasks) { this.onQueueTask(task); }
   }
 
   onDequeueTask() { // task
     throw new Error("Unimplemented");
   }
 
-  onIncomingMessage(message) {
-    this._readBuffer += message;
-    const msgs = this._readBuffer.split('\n');
-    this._readBuffer = msgs.pop();
-
+  onIncomingMessages(msgs) {
     for (const msg of msgs) {
       if (msg.length === 0) {
+        continue;
+      }
+      if (msg[0] !== '{') {
+        console.log(`Sync worker sent non-JSON formatted message: ${msg}`)
         continue;
       }
       const {type, object, objectClass} = JSON.parse(msg, Utils.registeredObjectReviver);
@@ -101,29 +98,22 @@ class ActionBridgeCPP {
     }
   }
 
-  onTellClients(json) {
-    const msg = JSON.stringify(json, Utils.registeredObjectReplacer);
-    const headerBuffer = new Buffer(4);
-    const contentBuffer = Buffer.from(msg);
-    headerBuffer.fill(0);
-    headerBuffer.writeUInt32LE(contentBuffer.length, 0);
-
-    for (const c of this.clients) {
-      c.write(headerBuffer);
-      c.write(contentBuffer);
+  onFetchBodies(messages) {
+    const byAccountId = {};
+    for (const msg of messages) {
+      byAccountId[msg.accountId] = byAccountId[msg.accountId] || [];
+      byAccountId[msg.accountId].push(msg.id);
+    }
+    for (const accountId of Object.keys(byAccountId)) {
+      this.sendMessageToAccount(accountId, {type: 'need-bodies', ids: byAccountId[accountId]});
     }
   }
 
-  onBeforeUnload(readyToUnload) {
-    // Unfortunately, if you call ipc.send and then immediately close the window,
-    // Electron won't actually send the message. To work around this, we wait an
-    // arbitrary amount of time before closing the window after the last IPC event
-    // was sent. https://github.com/atom/electron/issues/4366
-    if (this.ipcLastSendTime && Date.now() - this.ipcLastSendTime < 100) {
-      setTimeout(readyToUnload, 100);
-      return false;
+  sendMessageToAccount(accountId, json) {
+    if (!this.clients[accountId]) {
+      throw new Error(`No mailsync worker is running for account id ${accountId}.`);
     }
-    return true;
+    this.clients[accountId].sendMessage(json);
   }
 }
 

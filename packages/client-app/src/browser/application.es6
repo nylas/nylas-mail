@@ -41,7 +41,7 @@ export default class Application extends EventEmitter {
     this.nylasProtocolHandler = new NylasProtocolHandler(this.resourcePath, this.safeMode);
 
     try {
-      const mailsync = new MailsyncProcess('migrate', null, this.resourcePath);
+      const mailsync = new MailsyncProcess(null, this.resourcePath);
       await mailsync.migrate();
     } catch (err) {
       dialog.showMessageBox({

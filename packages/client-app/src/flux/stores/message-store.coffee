@@ -253,9 +253,9 @@ class MessageStore extends NylasStore
       @trigger(@)
 
   _fetchMissingBodies: (items) ->
-    missingIds = items.filter((i) -> i.body == null).map((i) -> i.id)
-    if missingIds.length > 0
-      NylasEnv.actionBridgeCpp.onTellClients({type: 'need-bodies', ids: missingIds})
+    missing = items.filter((i) -> i.body == null);
+    if missing.length > 0
+      Actions.fetchBodies(missing)
 
   _fetchExpandedAttachments: (items) ->
     policy = NylasEnv.config.get('core.attachments.downloadPolicy')

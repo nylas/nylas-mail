@@ -1,5 +1,9 @@
+/* eslint global-require: 0 */
 import { spawn } from 'child_process';
 import path from 'path';
+import {EventEmitter} from 'events';
+
+let Utils = null;
 
 const LocalizedErrorStrings = {
   ErrorConnection: "Connection Error",
@@ -22,78 +26,86 @@ const LocalizedErrorStrings = {
   ErrorAuthenticationRequired: "Authentication required.",
 };
 
-export default class MailsyncProcess {
-  constructor(mode, account, resourcePath) {
-    this.mode = mode;
+export default class MailsyncProcess extends EventEmitter {
+  constructor(account, resourcePath) {
+    super();
     this.account = account;
     this.binaryPath = path.join(resourcePath, 'MailSync');
+    this._proc = null;
   }
 
-  _spawnProcess() {
-    const sync = spawn(this.binaryPath, [`--mode`, this.mode]);
+  _spawnProcess(mode) {
+    this._proc = spawn(this.binaryPath, [`--mode`, mode]);
     if (this.account) {
-      sync.stdout.once('data', () => {
-        sync.stdin.write(`${JSON.stringify(this.account)}\n`);
+      this._proc.stdout.once('data', () => {
+        this._proc.stdin.write(`${JSON.stringify(this.account)}\n`);
       });
     }
-    return sync;
+  }
+
+  _spawnAndWait(mode) {
+    return new Promise((resolve, reject) => {
+      this._spawnProcess(mode);
+      let buffer = Buffer.from([]);
+      this._proc.stdout.on('data', (data) => {
+        buffer += data;
+      });
+      this._proc.stderr.on('data', (data) => {
+        buffer += data;
+      });
+      this._proc.on('error', (err) => {
+        reject(err, buffer);
+      });
+      this._proc.on('close', (code) => {
+        try {
+          const lastLine = buffer.toString('UTF-8').split('\n').pop();
+          const response = JSON.parse(lastLine);
+          if (code === 0) {
+            resolve(response);
+          } else {
+            reject(new Error(LocalizedErrorStrings[response.error]))
+          }
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
+  }
+
+  sync() {
+    this._spawnProcess('sync');
+    let buffer = "";
+    this._proc.stdout.on('data', (data) => {
+      buffer += data.toString();
+      const msgs = buffer.split('\n');
+      buffer = msgs.pop();
+      this.emit('deltas', msgs);
+    });
+    this._proc.stderr.on('data', (data) => {
+      console.log("Sync worker wrote to stderr: " + data.toString());
+    });
+    this._proc.on('error', (err) => {
+      console.log("Sync worker exited with " + err);
+      this.emit('error', err);
+    });
+    this._proc.on('close', (code) => {
+      this.emit('close', code);
+    });
+  }
+
+  sendMessage(json) {
+    if (!Utils) { Utils = require('nylas-exports').Utils; }
+
+    const msg = `${JSON.stringify(json, Utils.registeredObjectReplacer)}\n`;
+    const contentBuffer = Buffer.from(msg);
+    this._proc.stdin.write(contentBuffer);
   }
 
   migrate() {
-    return new Promise((resolve, reject) => {
-      const sync = this._spawnProcess();
-      let buffer = Buffer.from([]);
-      sync.stdout.on('data', (data) => {
-        buffer += data;
-      });
-      sync.stderr.on('data', (data) => {
-        buffer += data;
-      });
-      sync.on('error', (err) => {
-        reject(err, buffer);
-      });
-      sync.on('close', (code) => {
-        try {
-          const lastLine = buffer.toString('UTF-8').split('\n').pop();
-          const response = JSON.parse(lastLine);
-          if (code === 0) {
-            resolve(response);
-          } else {
-            reject(new Error(LocalizedErrorStrings[response.error]))
-          }
-        } catch (err) {
-          reject(err);
-        }
-      });
-    });
+    return this._spawnAndWait('migrate');
   }
 
   test() {
-    return new Promise((resolve, reject) => {
-      const sync = this._spawnProcess();
-      let buffer = Buffer.from([]);
-      sync.stdout.on('data', (data) => {
-        buffer += data;
-      });
-      sync.stderr.on('data', (data) => {
-        buffer += data;
-      });
-      sync.on('error', (err) => {
-        reject(err, buffer);
-      });
-      sync.on('close', (code) => {
-        try {
-          const lastLine = buffer.toString('UTF-8').split('\n').pop();
-          const response = JSON.parse(lastLine);
-          if (code === 0) {
-            resolve(response);
-          } else {
-            reject(new Error(LocalizedErrorStrings[response.error]))
-          }
-        } catch (err) {
-          reject(err);
-        }
-      });
-    });
+    return this._spawnAndWait('test');
   }
 }

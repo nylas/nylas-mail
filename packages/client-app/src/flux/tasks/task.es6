@@ -41,7 +41,7 @@ export default class Task extends Model {
     this.version = 1;
     this._rememberedToCallSuper = true;
     this.id = generateTempId();
-    this.accountId = "1"; //TODO BG hack
+    this.accountId = null;
     this.sequentialId = null; // set when queued
   }
 

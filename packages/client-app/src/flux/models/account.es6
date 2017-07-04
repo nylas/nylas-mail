@@ -52,6 +52,10 @@ export default class Account extends ModelWithMetadata {
       modelKey: 'emailAddress',
     }),
 
+    settings: Attributes.Object({
+      modelKey: 'settings',
+    }),
+
     label: Attributes.String({
       modelKey: 'label',
     }),

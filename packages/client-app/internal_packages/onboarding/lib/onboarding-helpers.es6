@@ -7,6 +7,7 @@ import {
   NylasAPI,
   NylasAPIRequest,
   RegExpUtils,
+  Utils,
   MailsyncProcess,
 } from 'nylas-exports';
 
@@ -92,7 +93,7 @@ export function runAuthValidation(accountInfo) {
   const {username, type, email, name} = accountInfo;
 
   const data = {
-    id: 'temp',
+    id: Utils.generateTempId(), // TODO BG: Server will decide account ids
     provider: type,
     name: name,
     emailAddress: email,
@@ -121,7 +122,7 @@ export function runAuthValidation(accountInfo) {
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
-  const proc = new MailsyncProcess('test', data, NylasEnv.getLoadSettings().resourcePath);
+  const proc = new MailsyncProcess(data, NylasEnv.getLoadSettings().resourcePath);
   return proc.test().then((accountJSON) => {
     return accountJSON;
   });
