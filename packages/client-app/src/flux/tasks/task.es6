@@ -27,6 +27,9 @@ export default class Task extends Model {
       queryable: true,
       modelKey: 'status',
     }),
+    error: Attributes.Object({
+      modelKey: 'error',
+    }),
   });
 
   // Public: Override the constructor to pass initial args to your Task and
@@ -115,5 +118,13 @@ export default class Task extends Model {
       this[key] = json[key];
     }
     return this;
+  }
+
+  onError(err) {
+    // noop
+  }
+
+  onSuccess() {
+    // noop
   }
 }

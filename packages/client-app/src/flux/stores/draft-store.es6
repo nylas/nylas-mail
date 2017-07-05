@@ -413,17 +413,13 @@ class DraftStore extends NylasStore {
       // We also need to delay because the old draft window needs to fully
       // close. It takes windows currently (June 2016) 100ms to close by
       setTimeout(() => {
-        this._notifyUserOfError({headerMessageId, threadId, errorMessage, errorDetail});
+        const focusedThread = FocusedContentStore.focused('thread');
+        if (threadId && focusedThread && focusedThread.id === threadId) {
+          NylasEnv.showErrorDialog(errorMessage, {detail: errorDetail});
+        } else {
+          Actions.composePopoutDraft(headerMessageId, {errorMessage, errorDetail});
+        }
       }, 300);
-    }
-  }
-
-  _notifyUserOfError({headerMessageId, threadId, errorMessage, errorDetail}) {
-    const focusedThread = FocusedContentStore.focused('thread');
-    if (threadId && focusedThread && focusedThread.id === threadId) {
-      NylasEnv.showErrorDialog(errorMessage, {detail: errorDetail});
-    } else {
-      Actions.composePopoutDraft(headerMessageId, {errorMessage, errorDetail});
     }
   }
 }

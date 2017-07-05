@@ -13,7 +13,6 @@ _ = require 'underscore'
  Task,
  Utils,
  ChangeMailTask,
- EnsureMessageInSentFolderTask,
 } = require 'nylas-exports'
 
 xdescribe "ChangeMailTask", ->

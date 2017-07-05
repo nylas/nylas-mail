@@ -31,7 +31,7 @@ class DraftFactory
       unread: false
       starred: false
       folderUID: 0
-      headerMessageId: Utils.generateTempId()
+      headerMessageId: Utils.generateTempId() + "@" + require('os').hostname()
       from: [account.defaultMe()]
       date: (new Date)
       draft: true

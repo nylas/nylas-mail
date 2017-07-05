@@ -100,7 +100,6 @@ lazyLoad(`IMAPSearchQueryBackend`, 'services/search/search-query-backend-imap');
 lazyLoad(`TaskFactory`, 'flux/tasks/task-factory');
 lazyLoadAndRegisterTask(`Task`, 'task');
 lazyLoadAndRegisterTask(`EventRSVPTask`, 'event-rsvp-task');
-lazyLoadAndRegisterTask(`BaseDraftTask`, 'base-draft-task');
 lazyLoadAndRegisterTask(`SendDraftTask`, 'send-draft-task');
 lazyLoadAndRegisterTask(`ChangeMailTask`, 'change-mail-task');
 lazyLoadAndRegisterTask(`DestroyDraftTask`, 'destroy-draft-task');
@@ -117,7 +116,6 @@ lazyLoadAndRegisterTask(`SyncbackCategoryTask`, 'syncback-category-task');
 lazyLoadAndRegisterTask(`SyncbackMetadataTask`, 'syncback-metadata-task');
 lazyLoadAndRegisterTask(`ReprocessMailRulesTask`, 'reprocess-mail-rules-task');
 lazyLoadAndRegisterTask(`SendFeatureUsageEventTask`, 'send-feature-usage-event-task');
-lazyLoadAndRegisterTask(`EnsureMessageInSentFolderTask`, 'ensure-message-in-sent-folder-task');
 
 // Stores
 // These need to be required immediately since some Stores are

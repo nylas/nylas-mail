@@ -6,6 +6,7 @@ import Actions from './actions';
 import Utils from './models/utils';
 
 let AccountStore = null;
+let Task = null;
 
 export default class MailsyncBridge {
   constructor() {
@@ -21,7 +22,8 @@ export default class MailsyncBridge {
 
     this.clients = {};
 
-    AccountStore = require('./stores/account-store').default;
+    Task = require('./tasks/task').default; //eslint-disable-line
+    AccountStore = require('./stores/account-store').default; //eslint-disable-line
     AccountStore.listen(this.ensureClients, this);
     this.ensureClients();
 
@@ -102,6 +104,14 @@ export default class MailsyncBridge {
       DatabaseStore.triggeringFromActionBridge = true;
       DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: [object]}));
       DatabaseStore.triggeringFromActionBridge = false;
+
+      if (object instanceof Task && object.status === 'complete') {
+        if (object.error != null) {
+          object.onError(object.error);
+        } else {
+          object.onSuccess();
+        }
+      }
     }
   }
 
