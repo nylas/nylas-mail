@@ -57,6 +57,7 @@ export default class MailsyncProcess extends EventEmitter {
         reject(err, buffer);
       });
       this._proc.on('close', (code) => {
+        console.log(`SyncWorker exited mode ${mode} with code ${code}`);
         try {
           const lastLine = buffer.toString('UTF-8').split('\n').pop();
           const response = JSON.parse(lastLine);
@@ -70,6 +71,10 @@ export default class MailsyncProcess extends EventEmitter {
         }
       });
     });
+  }
+
+  kill() {
+    this._proc.kill();
   }
 
   sync() {

@@ -2,9 +2,6 @@ import _ from 'underscore';
 import _str from 'underscore.string';
 import {Utils, AccountStore, FolderSyncProgressStore, React} from 'nylas-exports';
 
-const MONTH_SHORT_FORMATS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
-  'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 export default class InitialSyncActivity extends React.Component {
   static displayName = 'InitialSyncActivity';
 
@@ -36,32 +33,16 @@ export default class InitialSyncActivity extends React.Component {
     this.setState({syncState});
   }
 
-  renderFolderProgress(name, progress, oldestProcessedDate) {
+  renderFolderProgress(name, progress) {
     let status = 'busy';
-    let progressLabel = 'In Progress'
-    let syncedThrough = 'Syncing this past month';
+    let progressLabel = `In Progress (${Math.round(progress * 100)}%)`;
     if (progress === 1) {
       status = 'complete';
       progressLabel = '';
-      syncedThrough = 'Up to date'
-    } else {
-      let month = oldestProcessedDate.getMonth();
-      let year = oldestProcessedDate.getFullYear();
-      const currentDate = new Date();
-      if (month !== currentDate.getMonth() || year !== currentDate.getFullYear()) {
-        // We're currently syncing in `month`, which mean's we've synced through all
-        // of the month *after* it.
-        month++;
-        if (month === 12) {
-          month = 0;
-          year++;
-        }
-        syncedThrough = `Synced through ${MONTH_SHORT_FORMATS[month]} ${year}`;
-      }
     }
 
     return (
-      <div className={`model-progress ${status}`} key={name} title={syncedThrough}>
+      <div className={`model-progress ${status}`} key={name}>
         {_str.titleize(name)} <span className="progress-label">{progressLabel}</span>
       </div>
     )
@@ -80,8 +61,8 @@ export default class InitialSyncActivity extends React.Component {
       }
 
       const {folderSyncProgress} = accountSyncState
-      let folderStates = _.map(folderSyncProgress, ({progress, oldestProcessedDate}, name) => {
-        return this.renderFolderProgress(name, progress, oldestProcessedDate)
+      let folderStates = _.map(folderSyncProgress, ({progress}, name) => {
+        return this.renderFolderProgress(name, progress)
       })
 
       if (folderStates.length === 0) {

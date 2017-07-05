@@ -2,7 +2,7 @@ import _ from 'underscore'
 import NylasStore from 'nylas-store'
 import AccountStore from './account-store'
 import CategoryStore from './category-store'
-
+import Folder from '../models/folder';
 
 /**
  * FolderSyncProgressStore keeps track of the sync state per account, and will
@@ -34,49 +34,31 @@ class FolderSyncProgressStore extends NylasStore {
   }
 
   activate() {
-    this.listenTo(AccountStore, () => this._onAccountsChanged())
-    this.listenTo(CategoryStore, () => this._onCategoriesChanged())
-
-    this._onCategoriesChanged()
+    this.listenTo(AccountStore, () => this._onRefresh())
+    this.listenTo(CategoryStore, () => this._onRefresh())
+    this._onRefresh()
   }
 
-  _onAccountsChanged() {
-    const currentIds = Object.keys(this._statesByAccount)
-    const nextIds = AccountStore.accountIds()
-    const removedIds = _.difference(currentIds, nextIds)
+  _onRefresh() {
+    const accountIds = AccountStore.accountIds();
 
-    removedIds.forEach((accountId) => {
-      if (this._statesByAccount[accountId]) {
-        delete this._statesByAccount[accountId]
-        this._triggerDebounced()
-      }
-    })
-  }
+    this._statesByAccount = {};
 
-  _onCategoriesChanged() {
-    const accountIds = AccountStore.accountIds()
     for (const accountId of accountIds) {
-      const folders = CategoryStore.categories(accountId)
-      .filter(cat => cat.object === 'folder')
+      const folders = CategoryStore.categories(accountId).filter(cat => cat instanceof Folder)
+      const folderSyncProgress = {};
 
-      const updates = {}
       for (const folder of folders) {
-        const name = folder.name || folder.displayName
-        const {approxPercentComplete, approxTotal, oldestProcessedDate} = folder.syncProgress || {};
-        updates[name] = {
-          progress: approxPercentComplete || 0,
-          total: approxTotal || 0,
-          oldestProcessedDate: oldestProcessedDate ? new Date(oldestProcessedDate) : new Date(),
+        const name = folder.name || folder.displayName;
+        const {uidnext, syncedMinUID} = folder.localStatus || {};
+        folderSyncProgress[name] = {
+          progress: 1.0 - (syncedMinUID - 1) / uidnext,
+          total: uidnext,
         }
       }
-      this._updateState(accountId, {folderSyncProgress: updates})
-    }
-  }
 
-  _updateState(accountId, nextState) {
-    const currentState = this._statesByAccount[accountId] || {}
-    if (_.isEqual(currentState, nextState)) { return }
-    this._statesByAccount[accountId] = nextState
+      this._statesByAccount[accountId] = {folderSyncProgress};
+    }
     this._triggerDebounced()
   }
 

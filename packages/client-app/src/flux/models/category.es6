@@ -87,9 +87,8 @@ export default class Category extends Model {
       queryable: true,
       modelKey: 'path',
     }),
-    syncProgress: Attributes.Object({
-      modelKey: 'syncProgress',
-      jsonKey: 'sync_progress',
+    localStatus: Attributes.Object({
+      modelKey: 'localStatus',
     }),
     _refcount: Attributes.Number({
       modelKey: '_refcount',

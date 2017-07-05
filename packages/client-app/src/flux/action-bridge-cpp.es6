@@ -25,6 +25,8 @@ class ActionBridgeCPP {
     AccountStore = require('./stores/account-store').default;
     AccountStore.listen(this.ensureClients, this);
     this.ensureClients();
+
+    NylasEnv.onBeforeUnload(this.onBeforeUnload);
   }
 
   ensureClients() {
@@ -107,6 +109,14 @@ class ActionBridgeCPP {
     for (const accountId of Object.keys(byAccountId)) {
       this.sendMessageToAccount(accountId, {type: 'need-bodies', ids: byAccountId[accountId]});
     }
+  }
+
+  onBeforeUnload = () => {
+    for (const client of Object.values(this.clients)) {
+      client.kill();
+    }
+    this.clients = [];
+    return true;
   }
 
   sendMessageToAccount(accountId, json) {
