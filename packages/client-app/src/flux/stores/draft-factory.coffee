@@ -214,10 +214,7 @@ class DraftFactory
 
     draft.to = updated.to
     draft.cc = updated.cc
-
-    DatabaseStore.inTransaction (t) =>
-      t.persistModel(draft)
-    .thenReturn(draft)
+    return draft
 
   _fromContactForReply: (message) =>
     account = AccountStore.accountForId(message.accountId)

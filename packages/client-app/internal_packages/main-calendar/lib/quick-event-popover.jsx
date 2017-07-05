@@ -58,12 +58,13 @@ export default class QuickEventPopover extends React.Component {
         title: leftoverText,
       })
 
-      return DatabaseStore.inTransaction((t) => {
-        return t.persistModel(event)
-      }).then(() => {
-        const task = new SyncbackEventTask(event.id);
-        Actions.queueTask(task);
-      })
+      // todo bg
+      // return DatabaseStore.inTransaction((t) => {
+      //   return t.persistModel(event)
+      // }).then(() => {
+      //   const task = new SyncbackEventTask(event.id);
+      //   Actions.queueTask(task);
+      // })
     })
   }
 

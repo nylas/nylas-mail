@@ -1,7 +1,5 @@
 /* eslint global-require:0 */
-import _ from 'underscore'
 import Task from './task'
-import DatabaseStore from '../stores/database-store'
 
 export default class DestroyModelTask extends Task {
 
@@ -26,23 +24,6 @@ export default class DestroyModelTask extends Task {
   }
 
   validate() {
-    this.validateRequiredFields(["clientId", "accountId", "endpoint"])
-
-    const klass = this.getModelConstructor()
-    if (!_.isFunction(klass)) {
-      throw new Error(`Couldn't find the class for ${this.modelName}`)
-    }
-
-    return DatabaseStore.findBy(klass, {clientId: this.clientId}).then((model) => {
-      if (!model) {
-        throw new Error(`Couldn't find the model with clientId ${this.clientId}`)
-      }
-      this.serverId = model.serverId
-      this.oldModel = model.clone()
-      return DatabaseStore.inTransaction((t) => {
-        return t.unpersistModel(model)
-      });
-    })
   }
 
   canBeUndone() { return false }

@@ -10,16 +10,17 @@ Actions = require('../actions').default
 
 {ConditionMode, ConditionTemplates, ActionTemplates} = require '../../mail-rules-templates'
 
-RulesJSONBlobKey = "MailRules-V2"
+RulesJSONKey = "MailRules-V2"
 
 class MailRulesStore extends NylasStore
   constructor: ->
-    @_rules = []
-
-    query = DatabaseStore.findJSONBlob(RulesJSONBlobKey)
-    @_subscription = Rx.Observable.fromQuery(query).subscribe (rules) =>
-      @_rules = rules ? []
-      @trigger()
+    @_rules = [];
+    try
+      txt = window.localStorage.getItem(RulesJSONKey)
+      if txt
+        @_rules = JSON.parse()
+    catch e
+      console.warn("Could not load saved mail rules", e)
 
     @listenTo Actions.addMailRule, @_onAddMailRule
     @listenTo Actions.deleteMailRule, @_onDeleteMailRule
@@ -89,8 +90,7 @@ class MailRulesStore extends NylasStore
 
   _saveMailRules: =>
     @_saveMailRulesDebounced ?= _.debounce =>
-      DatabaseStore.inTransaction (t) =>
-        t.persistJSONBlob(RulesJSONBlobKey, @_rules)
+      window.localStorage.setItem(RulesJSONKey, JSON.stringify(@_rules))
     ,1000
     @_saveMailRulesDebounced()
 

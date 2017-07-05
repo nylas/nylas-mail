@@ -1,7 +1,4 @@
 import Task from './task';
-import Event from '../models/event';
-import Utils from '../models/utils';
-import DatabaseStore from '../stores/database-store';
 
 
 export default class EventRSVPTask extends Task {
@@ -13,20 +10,6 @@ export default class EventRSVPTask extends Task {
   }
 
   performLocal() {
-    return DatabaseStore.inTransaction((t) => {
-      return t.find(Event, this.event.id).then((updated) => {
-        this.event = updated || this.event;
-        this._previousParticipantsState = Utils.deepClone(this.event.participants);
-
-        for (const p of this.event.participants) {
-          if (p.email === this.RSVPEmail) {
-            p.status = this.RSVPResponse;
-          }
-        }
-
-        return t.persistModel(this.event);
-      })
-    });
   }
 
   onOtherError() {

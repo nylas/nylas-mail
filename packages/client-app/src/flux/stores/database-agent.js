@@ -11,7 +11,7 @@ const getDatabase = (dbpath) => {
 
   let openResolve = null;
 
-  dbs[dbpath] = new Sqlite3(dbpath, {});
+  dbs[dbpath] = new Sqlite3(dbpath, {readonly: true});
   dbs[dbpath].on('close', (err) => {
     console.error(err);
     process.exit(1);

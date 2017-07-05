@@ -2,11 +2,9 @@
 
 import NylasStore from 'nylas-store';
 import _ from 'underscore';
-
-import {Rx, DatabaseStore} from 'nylas-exports';
 import EmojiActions from './emoji-actions';
 
-const EmojiJSONBlobKey = 'emoji';
+const EmojiJSONKey = 'emoji';
 
 let emojiData;
 
@@ -17,11 +15,15 @@ class EmojiStore extends NylasStore {
   }
 
   activate = () => {
-    const query = DatabaseStore.findJSONBlob(EmojiJSONBlobKey);
-    this._subscription = Rx.Observable.fromQuery(query).subscribe((emoji) => {
-      this._emoji = emoji || [];
-      this.trigger();
-    });
+    this._emoji = [];
+    try {
+      const txt = window.localStorage.getItem(EmojiJSONKey);
+      if (txt) {
+        this._emoji = JSON.parse(txt);
+      }
+    } catch (err) {
+      console.warn('Could not load saved emoji', err);
+    }
     this.listenTo(EmojiActions.useEmoji, this._onUseEmoji);
   }
 
@@ -72,9 +74,7 @@ class EmojiStore extends NylasStore {
   }
 
   _saveEmoji = () => {
-    DatabaseStore.inTransaction((t) => {
-      return t.persistJSONBlob(EmojiJSONBlobKey, this._emoji);
-    });
+    window.localStorage.setItem(EmojiJSONKey, JSON.stringify(this._emoji));
   }
 
 }

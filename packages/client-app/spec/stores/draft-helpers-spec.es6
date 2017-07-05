@@ -28,9 +28,6 @@ xdescribe('DraftHelpers', function describeBlock() {
       }
       spyOn(session, 'ensureCorrectAccount')
       spyOn(DraftHelpers, 'applyExtensionTransforms').andCallFake(async (d) => d)
-      spyOn(DatabaseStore, 'inTransaction').andCallFake((f) => {
-        f({persistModel: m => m})
-      });
       spyOn(DraftHelpers, 'removeStaleUploads');
 
       waitsForPromise(async () => {
@@ -77,48 +74,6 @@ xdescribe('DraftHelpers', function describeBlock() {
         body: `<div>hello!</div>`,
       }
       expect(DraftHelpers.shouldAppendQuotedText(draft)).toBe(false)
-    })
-  })
-
-  describe('removeStaleUploads', () => {
-    describe('returns immediately when', () => {
-      beforeEach(() => {
-        spyOn(DatabaseStore, 'inTransaction').andReturn(Promise.resolve(null));
-      })
-
-      it('has 0 uploads', () => {
-        const draft = new Message({uploads: []});
-        waitsForPromise(async () => {
-          await DraftHelpers.removeStaleUploads(draft)
-          expect(DatabaseStore.inTransaction).not.toHaveBeenCalled();
-        })
-      })
-
-      it('has an invalid uploads field', () => {
-        const draft = new Message({uploads: "uploads"});
-        waitsForPromise(async () => {
-          await DraftHelpers.removeStaleUploads(draft)
-          expect(DatabaseStore.inTransaction).not.toHaveBeenCalled();
-        })
-      })
-    })
-
-    it('removes the proper uploads', () => {
-      const draft = new Message({
-        uploads: [
-          {inline: true, id: 1},
-          {inline: true, id: 2},
-          {inline: false, id: 3},
-        ],
-        body: 'aldkfjoe cid:2 adlfkobieejlkd',
-      })
-      waitsForPromise(async () => {
-        const {uploads} = await DraftHelpers.removeStaleUploads(draft)
-        expect(uploads.length).toEqual(2);
-        expect(uploads.find(u => u.id === 1)).not.toBeDefined();
-        expect(uploads.find(u => u.id === 2)).toBeDefined();
-        expect(uploads.find(u => u.id === 3)).toBeDefined();
-      })
     })
   })
 });

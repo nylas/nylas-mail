@@ -2,26 +2,23 @@
 import path from 'path';
 import createDebug from 'debug';
 import childProcess from 'child_process';
-import PromiseQueue from 'promise-queue';
 import LRU from "lru-cache";
+import Sqlite3 from 'better-sqlite3';
+import {remote} from 'electron';
 import {ExponentialBackoffScheduler} from '../../backoff-schedulers';
 
 import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
 import Query from '../models/query';
 import DatabaseChangeRecord from './database-change-record';
-import DatabaseWriter from './database-writer';
-import {openDatabase, handleUnrecoverableDatabaseError, databasePath} from '../../database-helpers'
 
-const debug = createDebug('app:RxDB')
-const debugVerbose = createDebug('app:RxDB:all')
+const debug = createDebug('app:RxDB');
+const debugVerbose = createDebug('app:RxDB:all');
 
 const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
 
 const BASE_RETRY_LOCK_DELAY = 50;
 const MAX_RETRY_LOCK_DELAY = 500;
-
-let JSONBlob = null;
 
 function trimTo(str, size) {
   const g = window || global || {}
@@ -33,6 +30,58 @@ function trimTo(str, size) {
   return trimed
 }
 
+function handleUnrecoverableDatabaseError(err = (new Error(`Manually called handleUnrecoverableDatabaseError`))) {
+  const fingerprint = ["{{ default }}", "unrecoverable database error", err.message];
+  NylasEnv.errorLogger.reportError(err, {fingerprint,
+    rateLimit: {
+      ratePerHour: 30,
+      key: `handleUnrecoverableDatabaseError:${err.message}`,
+    },
+  });
+  const app = remote.getGlobal('application');
+  if (!app) {
+    throw new Error('handleUnrecoverableDatabaseError: `app` is not ready!')
+  }
+  app.rebuildDatabase({detail: err.toString()});
+}
+
+async function openDatabase(dbPath) {
+  try {
+    const database = await new Promise((resolve, reject) => {
+      const db = new Sqlite3(dbPath, {readonly: true});
+      db.on('close', reject)
+      db.on('open', () => {
+        // https://www.sqlite.org/wal.html
+        // WAL provides more concurrency as readers do not block writers and a writer
+        // does not block readers. Reading and writing can proceed concurrently.
+        db.pragma(`journal_mode = WAL`);
+
+        // Note: These are properties of the connection, so they must be set regardless
+        // of whether the database setup queries are run.
+
+        // https://www.sqlite.org/intern-v-extern-blob.html
+        // A database page size of 8192 or 16384 gives the best performance for large BLOB I/O.
+        db.pragma(`main.page_size = 8192`);
+        db.pragma(`main.cache_size = 20000`);
+        db.pragma(`main.synchronous = NORMAL`);
+
+        resolve(db);
+      });
+    })
+    return database
+  } catch (err) {
+    handleUnrecoverableDatabaseError(err);
+    return null
+  }
+}
+
+function databasePath(configDirPath, specMode = false) {
+  let dbPath = path.join(configDirPath, 'edgehill.db');
+  if (specMode) {
+    dbPath = path.join(configDirPath, 'edgehill.test.db');
+  }
+  return dbPath
+}
 
 /*
 Public: N1 is built on top of a custom database layer modeled after
@@ -85,18 +134,14 @@ class DatabaseStore extends NylasStore {
   constructor() {
     super();
 
-    this._triggerPromise = null;
-    this._inflightTransactions = 0;
     this._open = false;
     this._waiting = [];
-
     this._preparedStatementCache = LRU({max: 500});
 
     this.setupEmitter();
     this._emitter.setMaxListeners(100);
 
     this._databasePath = databasePath(NylasEnv.getConfigDirPath(), NylasEnv.inSpecMode())
-    this._databaseMutationHooks = [];
 
     if (!NylasEnv.inSpecMode()) {
       this.open();
@@ -177,12 +222,6 @@ class DatabaseStore extends NylasStore {
         }
         resolve(results);
       } else {
-        const forbidden = ['INSERT ', 'UPDATE ', 'DELETE ', 'DROP ', 'ALTER ', 'CREATE '];
-        for (const key of forbidden) {
-          if (query.startsWith(key)) {
-            throw new Error("Transactional queries cannot be made in the background because they would not execute in the current transaction.")
-          }
-        }
         this._executeInBackground(query, values).then(({results, backgroundTime}) => {
           const msec = Date.now() - start;
           if (debugVerbose.enabled) {
@@ -445,253 +484,8 @@ class DatabaseStore extends NylasStore {
     });
   }
 
-  findJSONBlob(id) {
-    JSONBlob = JSONBlob || require('../models/json-blob').default;
-    return new JSONBlob.Query(JSONBlob, this).where({id}).one();
-  }
-
-  // Private: Mutation hooks allow you to observe changes to the database and
-  // add additional functionality before and after the REPLACE / INSERT queries.
-  //
-  // beforeDatabaseChange: Run queries, etc. and return a promise. The DatabaseStore
-  // will proceed with changes once your promise has finished. You cannot call
-  // persistModel or unpersistModel from this hook.
-  //
-  // afterDatabaseChange: Run queries, etc. after the REPLACE / INSERT queries
-  //
-  // Warning: this is very low level. If you just want to watch for changes, You
-  // should subscribe to the DatabaseStore's trigger events.
-  //
-  addMutationHook({beforeDatabaseChange, afterDatabaseChange}) {
-    if (!beforeDatabaseChange) {
-      throw new Error(`DatabaseStore:addMutationHook - You must provide a beforeDatabaseChange function`);
-    }
-    if (!afterDatabaseChange) {
-      throw new Error(`DatabaseStore:addMutationHook - You must provide a afterDatabaseChange function`);
-    }
-    this._databaseMutationHooks.push({beforeDatabaseChange, afterDatabaseChange});
-  }
-
-  removeMutationHook(hook) {
-    this._databaseMutationHooks = this._databaseMutationHooks.filter(h => h !== hook);
-  }
-
-  mutationHooks() {
-    return this._databaseMutationHooks;
-  }
-
-
-  // Public: Opens a new database transaction for writing changes.
-  // DatabaseStore.inTransacion makes the following guarantees:
-  //
-  // - No other calls to \`inTransaction\` will run until the promise has finished.
-  //
-  // - No other process will be able to write to sqlite while the provided function
-  //   is running. `BEGIN IMMEDIATE TRANSACTION` semantics are:
-  //     + No other connection will be able to write any changes.
-  //     + Other connections can read from the database, but they will not see
-  //       pending changes.
-  //
-  // this.param fn {function} callback that will be executed inside a database transaction
-  // Returns a {Promise} that resolves when the transaction has successfully
-  // completed.
   inTransaction(fn) {
-    const t = new DatabaseWriter(this);
-    this._transactionQueue = this._transactionQueue || new PromiseQueue(1, Infinity);
-    return this._transactionQueue.add(() =>
-      t.executeInTransaction(fn)
-    );
-  }
-
-  async write(fn) {
-    const t = new DatabaseWriter(this);
-    await t.execute(fn)
-  }
-
-  // _accumulateAndTrigger is a guarded version of trigger that can accumulate changes.
-  // This means that even if you're a bad person and call \`persistModel\` 100 times
-  // from 100 task objects queued at the same time, it will only create one
-  // \`trigger\` event. This is important since the database triggering impacts
-  // the entire application.
-  accumulateAndTrigger(change) {
-    this._triggerPromise = this._triggerPromise || new Promise((resolve) => {
-      this._resolve = resolve;
-    });
-
-    const flush = () => {
-      if (!this._changeAccumulated) {
-        return;
-      }
-      if (this._changeFireTimer) {
-        clearTimeout(this._changeFireTimer);
-      }
-      this.trigger(new DatabaseChangeRecord(this._changeAccumulated));
-      this._changeAccumulated = null;
-      this._changeAccumulatedLookup = null;
-      this._changeFireTimer = null;
-      if (this._resolve) {
-        this._resolve();
-      }
-      this._triggerPromise = null;
-    };
-
-    const set = (_change) => {
-      if (this._changeFireTimer) {
-        clearTimeout(this._changeFireTimer);
-      }
-      this._changeAccumulated = _change;
-      this._changeAccumulatedLookup = {};
-      this._changeAccumulated.objects.forEach((obj, idx) => {
-        this._changeAccumulatedLookup[obj.id] = idx;
-      });
-      this._changeFireTimer = setTimeout(flush, 10);
-    };
-
-    const concat = (_change) => {
-      // When we join new models into our set, replace existing ones so the same
-      // model cannot exist in the change record set multiple times.
-      for (const obj of _change.objects) {
-        const idx = this._changeAccumulatedLookup[obj.id]
-        if (idx) {
-          this._changeAccumulated.objects[idx] = obj;
-        } else {
-          this._changeAccumulatedLookup[obj.id] = this._changeAccumulated.objects.length
-          this._changeAccumulated.objects.push(obj);
-        }
-      }
-    };
-
-    if (!this._changeAccumulated) {
-      set(change);
-    } else if ((this._changeAccumulated.objectClass === change.objectClass) && (this._changeAccumulated.type === change.type)) {
-      concat(change);
-    } else {
-      flush();
-      set(change);
-    }
-
-    return this._triggerPromise;
-  }
-
-
-  // Search Index Operations
-
-  createSearchIndexSql(klass) {
-    if (!klass) {
-      throw new Error(`DatabaseStore::createSearchIndex - You must provide a class`);
-    }
-    if (!klass.searchFields) {
-      throw new Error(`DatabaseStore::createSearchIndex - ${klass.name} must expose an array of \`searchFields\``);
-    }
-    const searchTableName = `${klass.name}Search`;
-    const searchFields = klass.searchFields;
-    return (
-      `CREATE VIRTUAL TABLE IF NOT EXISTS \`${searchTableName}\` ` +
-      `USING fts5(
-        tokenize='porter unicode61',
-        content_id UNINDEXED,
-        ${searchFields.join(', ')}
-      )`
-    );
-  }
-
-  createSearchIndex(klass) {
-    const sql = this.createSearchIndexSql(klass);
-    return this._query(sql);
-  }
-
-  dropSearchIndex(klass) {
-    if (!klass) {
-      throw new Error(`DatabaseStore::createSearchIndex - You must provide a class`);
-    }
-    const searchTableName = `${klass.name}Search`
-    const dropSql = `DROP TABLE IF EXISTS \`${searchTableName}\``
-    const clearIsSearchIndexedSql = `UPDATE \`${klass.name}\` SET \`is_search_indexed\` = 0 WHERE \`is_search_indexed\` = 1`
-    return this._query(dropSql).then(() => {
-      return this._query(clearIsSearchIndexedSql);
-    });
-  }
-
-  isModelIndexed(model, isIndexed) {
-    if (isIndexed === true) {
-      return Promise.resolve(true);
-    }
-    return Promise.resolve(!!model.isSearchIndexed);
-  }
-
-  indexModel(model, indexData, isModelIndexed) {
-    const searchTableName = `${model.constructor.name}Search`;
-    return this.isModelIndexed(model, isModelIndexed).then((isIndexed) => {
-      if (isIndexed) {
-        return this.updateModelIndex(model, indexData, isIndexed);
-      }
-
-      const indexFields = Object.keys(indexData)
-      const keysSql = `content_id, ${indexFields.join(`, `)}`
-      const valsSql = `?, ${indexFields.map(() => '?').join(', ')}`
-      const values = [model.id].concat(indexFields.map(k => indexData[k]))
-      const sql = (
-        `INSERT INTO \`${searchTableName}\`(${keysSql}) VALUES (${valsSql})`
-      )
-      return this._query(sql, values).then(({lastInsertROWID}) => {
-        model.isSearchIndexed = true;
-        model.searchIndexId = lastInsertROWID;
-        return this.inTransaction((t) => t.persistModel(model, {silent: true, affectsJoins: false}))
-      });
-    });
-  }
-
-  updateModelIndex(model, indexData, isModelIndexed) {
-    const searchTableName = `${model.constructor.name}Search`;
-    this.isModelIndexed(model, isModelIndexed).then((isIndexed) => {
-      if (!isIndexed) {
-        return this.indexModel(model, indexData, isIndexed);
-      }
-
-      const indexFields = Object.keys(indexData);
-      const values = indexFields.map(key => indexData[key]).concat([model.searchIndexId]);
-      const setSql = (
-        indexFields
-        .map((key) => `\`${key}\` = ?`)
-        .join(', ')
-      );
-      const sql = (
-        `UPDATE \`${searchTableName}\` SET ${setSql} WHERE \`${searchTableName}\`.\`rowid\` = ?`
-      );
-      return this._query(sql, values);
-    });
-  }
-
-  // opts can have a boolean isBeingUnpersisted value, which when true prevents
-  // this function from re-persisting the model.
-  unindexModel(model, opts = {}) {
-    const searchTableName = `${model.constructor.name}Search`;
-    const sql = (
-      `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`rowid\` = ?`
-    );
-    const query = this._query(sql, [model.searchIndexId]);
-    if (opts.isBeingUnpersisted) {
-      return query;
-    }
-    return query.then(() => {
-      model.isSearchIndexed = false;
-      model.searchIndexId = 0;
-      return this.inTransaction((t) => t.persistModel(model, {silent: true, affectsJoins: false}))
-    });
-  }
-
-  unindexModelsForAccount() {
-    // const modelTable = modelKlass.name;
-    // const searchTableName = `${modelTable}Search`;
-    /* TODO: We don't correctly clean up the model tables right now, so we don't
-     * want to destroy the index until we do so.
-    const sql = (
-      `DELETE FROM \`${searchTableName}\` WHERE \`${searchTableName}\`.\`content_id\` IN
-      (SELECT \`id\` FROM \`${modelTable}\` WHERE \`${modelTable}\`.\`account_id\` = ?)`
-    );
-    return this._query(sql, [accountId])
-   */
-    return Promise.resolve()
+    throw new Error("The client-side database connection no longer permits writes");
   }
 }
 

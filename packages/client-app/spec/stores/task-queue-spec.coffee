@@ -42,7 +42,6 @@ xdescribe "TaskQueue", ->
   describe "restoreQueue", ->
     it "should fetch the queue from the database, reset flags and start processing", ->
       queue = [@processingTask, @unstartedTask, @retryInFutureTask]
-      spyOn(DatabaseStore, 'findJSONBlob').andCallFake => Promise.resolve(queue)
       spyOn(TaskQueue, '_updateSoon')
 
       waitsForPromise =>
@@ -55,7 +54,6 @@ xdescribe "TaskQueue", ->
 
     it "should remove any items in the queue which were not deserialized as tasks", ->
       queue = [@processingTask, {type: 'bla'}, @retryInFutureTask]
-      spyOn(DatabaseStore, 'findJSONBlob').andCallFake => Promise.resolve(queue)
       spyOn(TaskQueue, '_updateSoon')
       waitsForPromise =>
         TaskQueue._restoreQueue().then =>
