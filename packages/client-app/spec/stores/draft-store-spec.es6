@@ -332,7 +332,7 @@ xdescribe('DraftStore', function draftStore() {
 
     it("plays a sound immediately when sending draft", () => {
       spyOn(NylasEnv.config, "get").andReturn(true);
-      DraftStore._onSendDraft(this.draft.clientId);
+      DraftStore._onSendDraft(this.draft.headerMessageId);
       advanceClock();
       expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds");
       expect(SoundRegistry.playSound).toHaveBeenCalledWith("hit-send");
@@ -340,7 +340,7 @@ xdescribe('DraftStore', function draftStore() {
 
     it("doesn't plays a sound if the setting is off", () => {
       spyOn(NylasEnv.config, "get").andReturn(false);
-      DraftStore._onSendDraft(this.draft.clientId);
+      DraftStore._onSendDraft(this.draft.headerMessageId);
       advanceClock();
       expect(NylasEnv.config.get).toHaveBeenCalledWith("core.sending.sounds");
       expect(SoundRegistry.playSound).not.toHaveBeenCalled();
@@ -348,9 +348,9 @@ xdescribe('DraftStore', function draftStore() {
 
     it("sets the sending state when sending", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(true);
-      DraftStore._onSendDraft(this.draft.clientId);
+      DraftStore._onSendDraft(this.draft.headerMessageId);
       advanceClock();
-      expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(true);
+      expect(DraftStore.isSendingDraft(this.draft.headerMessageId)).toBe(true);
     });
 
     // Since all changes haven't been applied yet, we want to ensure that
@@ -359,7 +359,7 @@ xdescribe('DraftStore', function draftStore() {
     it("does NOT trigger until the latest changes have been applied", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(true);
       runs(() => {
-        DraftStore._onSendDraft(this.draft.clientId);
+        DraftStore._onSendDraft(this.draft.headerMessageId);
         expect(DraftStore.trigger).not.toHaveBeenCalled();
       });
       waitsFor(() => {
@@ -374,7 +374,7 @@ xdescribe('DraftStore', function draftStore() {
           objectClass: "Message",
           objects: [{draft: true}],
         });
-        expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(true);
+        expect(DraftStore.isSendingDraft(this.draft.headerMessageId)).toBe(true);
         expect(DraftStore.trigger).toHaveBeenCalled();
         expect(DraftStore.trigger.calls.length).toBe(1);
       });
@@ -382,7 +382,7 @@ xdescribe('DraftStore', function draftStore() {
 
     it("returns false if the draft hasn't been seen", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(true);
-      expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
+      expect(DraftStore.isSendingDraft(this.draft.headerMessageId)).toBe(false);
     });
 
     it("closes the window if it's a popout", () => {
@@ -390,7 +390,7 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(NylasEnv, "isMainWindow").andReturn(false);
       spyOn(NylasEnv, "close");
       runs(() => {
-        return DraftStore._onSendDraft(this.draft.clientId);
+        return DraftStore._onSendDraft(this.draft.headerMessageId);
       });
       waitsFor("N1 to close", () => NylasEnv.close.calls.length > 0);
     });
@@ -401,7 +401,7 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(NylasEnv, "close");
       spyOn(NylasEnv, "isComposerWindow").andCallThrough();
       runs(() => {
-        DraftStore._onSendDraft(this.draft.clientId);
+        DraftStore._onSendDraft(this.draft.headerMessageId);
       });
       waitsFor(() => NylasEnv.isComposerWindow.calls.length > 0);
       runs(() => {
@@ -411,10 +411,10 @@ xdescribe('DraftStore', function draftStore() {
 
     it("resets the sending state if there's an error", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(false);
-      DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.draftDeliveryFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
-      expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
-      expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.clientId);
+      DraftStore._draftsSending[this.draft.headerMessageId] = true;
+      Actions.draftDeliveryFailed({errorMessage: "boohoo", draftheaderMessageId: this.draft.headerMessageId});
+      expect(DraftStore.isSendingDraft(this.draft.headerMessageId)).toBe(false);
+      expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.headerMessageId);
     });
 
     it("displays a popup in the main window if there's an error", () => {
@@ -422,11 +422,11 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(FocusedContentStore, "focused").andReturn({id: "t1"});
       spyOn(remote.dialog, "showMessageBox");
       spyOn(Actions, "composePopoutDraft");
-      DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.draftDeliveryFailed({threadId: 't1', errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      DraftStore._draftsSending[this.draft.headerMessageId] = true;
+      Actions.draftDeliveryFailed({threadId: 't1', errorMessage: "boohoo", draftheaderMessageId: this.draft.headerMessageId});
       advanceClock(400);
-      expect(DraftStore.isSendingDraft(this.draft.clientId)).toBe(false);
-      expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.clientId);
+      expect(DraftStore.isSendingDraft(this.draft.headerMessageId)).toBe(false);
+      expect(DraftStore.trigger).toHaveBeenCalledWith(this.draft.headerMessageId);
       expect(remote.dialog.showMessageBox).toHaveBeenCalled();
       const dialogArgs = remote.dialog.showMessageBox.mostRecentCall.args[1];
       expect(dialogArgs.detail).toEqual("boohoo");
@@ -437,25 +437,25 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(NylasEnv, "isMainWindow").andReturn(true);
       spyOn(FocusedContentStore, "focused").andReturn({id: "t1"});
       spyOn(Actions, "composePopoutDraft");
-      DraftStore._draftsSending[this.draft.clientId] = true;
-      Actions.draftDeliveryFailed({threadId: 't2', errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      DraftStore._draftsSending[this.draft.headerMessageId] = true;
+      Actions.draftDeliveryFailed({threadId: 't2', errorMessage: "boohoo", draftheaderMessageId: this.draft.headerMessageId});
       advanceClock(400);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];
-      expect(call.args[0]).toBe(this.draft.clientId);
+      expect(call.args[0]).toBe(this.draft.headerMessageId);
       expect(call.args[1]).toEqual({errorMessage: "boohoo"});
     });
 
     it("re-opens the draft if there is no thread id", () => {
       spyOn(NylasEnv, "isMainWindow").andReturn(true);
       spyOn(Actions, "composePopoutDraft");
-      DraftStore._draftsSending[this.draft.clientId] = true;
+      DraftStore._draftsSending[this.draft.headerMessageId] = true;
       spyOn(FocusedContentStore, "focused").andReturn(null);
-      Actions.draftDeliveryFailed({errorMessage: "boohoo", draftClientId: this.draft.clientId});
+      Actions.draftDeliveryFailed({errorMessage: "boohoo", draftheaderMessageId: this.draft.headerMessageId});
       advanceClock(400);
       expect(Actions.composePopoutDraft).toHaveBeenCalled();
       const call = Actions.composePopoutDraft.calls[0];
-      expect(call.args[0]).toBe(this.draft.clientId);
+      expect(call.args[0]).toBe(this.draft.headerMessageId);
       expect(call.args[1]).toEqual({errorMessage: "boohoo"});
     });
   });

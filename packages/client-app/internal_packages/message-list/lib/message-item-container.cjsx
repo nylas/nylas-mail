@@ -87,6 +87,6 @@ class MessageItemContainer extends React.Component
       @setState(@_getStateFromStores())
 
   _getStateFromStores: (props = @props) ->
-    isSending: DraftStore.isSendingDraft(props.message.id)
+    isSending: DraftStore.isSendingDraft(props.message.headerMessageId)
 
 module.exports = MessageItemContainer
