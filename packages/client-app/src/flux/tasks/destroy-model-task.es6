@@ -1,8 +1,6 @@
 /* eslint global-require:0 */
 import _ from 'underscore'
 import Task from './task'
-import NylasAPI from '../nylas-api'
-import NylasAPIRequest from '../nylas-api-request'
 import DatabaseStore from '../stores/database-store'
 
 export default class DestroyModelTask extends Task {
@@ -27,7 +25,7 @@ export default class DestroyModelTask extends Task {
     return require('nylas-exports')[this.modelName]
   }
 
-  performLocal() {
+  validate() {
     this.validateRequiredFields(["clientId", "accountId", "endpoint"])
 
     const klass = this.getModelConstructor()

@@ -17,12 +17,6 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     this.labelsToAdd = options.labelsToAdd || [];
     this.labelsToRemove = options.labelsToRemove || [];
     this.taskDescription = options.taskDescription;
-
-    for (const l of [].concat(this.labelsToAdd, this.labelsToRemove)) {
-      if ((l instanceof Label) === false) {
-        throw new Error(`Assertion Failure: ChangeLabelsTask received a non-label: ${JSON.stringify(l)}`)
-      }
-    }
   }
 
   label() {
@@ -77,5 +71,14 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   _isArchive() {
     const toAdd = this.labelsToAdd.map(l => l.name)
     return toAdd.includes("all") || toAdd.includes("archive")
+  }
+
+  validate() {
+    for (const l of [].concat(this.labelsToAdd, this.labelsToRemove)) {
+      if ((l instanceof Label) === false) {
+        throw new Error(`Assertion Failure: ChangeLabelsTask received a non-label: ${JSON.stringify(l)}`)
+      }
+    }
+    super.validate();
   }
 }

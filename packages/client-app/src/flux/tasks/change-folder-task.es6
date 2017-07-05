@@ -46,18 +46,18 @@ export default class ChangeFolderTask extends ChangeMailTask {
     return `Moved${folderText}`;
   }
 
-  performLocal() {
+  validate() {
     if (!this.folder) {
-      return Promise.reject(new Error("Must specify a `folder`"))
+      throw new Error("Must specify a `folder`");
     }
     if (this.threadIds.length > 0 && this.messageIds.length > 0) {
-      return Promise.reject(new Error("ChangeFolderTask: You can move `threads` or `messages` but not both"))
+      throw new Error("ChangeFolderTask: You can move `threads` or `messages` but not both")
     }
     if (this.threadIds.length === 0 && this.messageIds.length === 0) {
-      return Promise.reject(new Error("ChangeFolderTask: You must provide a `threads` or `messages` Array of models or IDs."))
+      throw new Error("ChangeFolderTask: You must provide a `threads` or `messages` Array of models or IDs.")
     }
 
-    return super.performLocal();
+    super.validate();
   }
 
   _isArchive() {

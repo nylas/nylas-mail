@@ -70,6 +70,8 @@ class ActionBridgeCPP {
       throw new Error("Tasks must have an accountId.");
     }
 
+    task.validate();
+
     task.sequentialId = ++this._currentSequentialId;
     task.status = 'local';
     this.sendMessageToAccount(task.accountId, {type: 'task-queued', task: task});
@@ -80,7 +82,11 @@ class ActionBridgeCPP {
     for (const task of tasks) { this.onQueueTask(task); }
   }
 
-  onDequeueTask() { // task
+  onDequeueTask() { // taskOrId
+    // const task = this._resolveTaskArgument(taskOrId);
+    // if (!task) {
+    //   throw new Error("Couldn't find task in queue to dequeue");
+    // }
     throw new Error("Unimplemented");
   }
 

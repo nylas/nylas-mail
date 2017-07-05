@@ -45,6 +45,12 @@ export default class Task extends Model {
     this.sequentialId = null; // set when queued
   }
 
+  // Public: Override to raise exceptions if your task is missing required
+  // arguments. This logic used to go in performLocal.
+  validate() {
+
+  }
+
   // Public: It's up to you to determine how you want to indicate whether
   // or not you have an instance of an "Undo Task". We commonly use a
   // simple instance variable boolean flag.

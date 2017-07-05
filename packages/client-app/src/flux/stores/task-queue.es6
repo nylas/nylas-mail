@@ -120,24 +120,6 @@ class TaskQueue extends NylasStore {
     return matches;
   }
 
-  dequeue = (taskOrId) => {
-    const task = this._resolveTaskArgument(taskOrId);
-    if (!task) {
-      throw new Error("Couldn't find task in queue to dequeue");
-    }
-
-    if (task.queueState.isProcessing) {
-      // We cannot remove a task from the queue while it's running and pretend
-      // things have stopped. Ask the task to cancel. It's promise will resolve
-      // or reject, and then we'll end up back here.
-      task.cancel();
-    } else {
-      DatabaseStore.inTransaction((t) => {
-        return t.unpersistModel(task);
-      });
-    }
-  };
-
   waitForPerformLocal = (task) => {
     return new Promise((resolve) => {
       this._waitingForLocal.push({task, resolve});

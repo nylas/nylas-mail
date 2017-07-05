@@ -1,8 +1,6 @@
 /* eslint global-require: 0 */
-import {FolderSyncProgressStore} from 'nylas-exports';
 import Model from './model';
 import Attributes from '../attributes';
-let AccountStore = null
 
 // We look for a few standard categories and display them in the Mailboxes
 // portion of the left sidebar. Note that these may not all be present on

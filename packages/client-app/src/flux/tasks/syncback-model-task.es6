@@ -1,9 +1,4 @@
-import _ from 'underscore'
 import Task from './task'
-import NylasAPI from '../nylas-api'
-import NylasAPIRequest from '../nylas-api-request'
-import {APIError} from '../errors'
-import DatabaseStore from '../stores/database-store'
 
 export default class SyncbackModelTask extends Task {
 
@@ -22,7 +17,7 @@ export default class SyncbackModelTask extends Task {
     throw new Error("You must subclass and implement `getModelConstructor`. Return a constructor class")
   }
 
-  performLocal() {
+  validate() {
     this.validateRequiredFields(["clientId"])
     return Promise.resolve()
   }

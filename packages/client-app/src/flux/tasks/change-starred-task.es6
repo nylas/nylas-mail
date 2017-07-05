@@ -31,11 +31,11 @@ export default class ChangeStarredTask extends ChangeMailTask {
     return `${verb}`;
   }
 
-  performLocal() {
+  validate() {
     if (this.threadIds.length === 0) {
-      return Promise.reject(new Error("ChangeStarredTask: You must provide a `threads` Array of models or IDs."));
+      throw new Error("ChangeStarredTask: You must provide a `threads` Array of models or IDs.");
     }
-    return super.performLocal();
+    super.validate();
   }
 
   recordUserEvent() {
