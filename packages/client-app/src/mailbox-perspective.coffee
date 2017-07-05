@@ -8,6 +8,7 @@ DatabaseStore = require('./flux/stores/database-store').default
 OutboxStore = require('./flux/stores/outbox-store').default
 ThreadCountsStore = require './flux/stores/thread-counts-store'
 RecentlyReadStore = require('./flux/stores/recently-read-store').default
+FolderSyncProgressStore = require('./flux/stores/folder-sync-progress-store').default
 MutableQuerySubscription = require('./flux/models/mutable-query-subscription').default
 UnreadQuerySubscription = require('./flux/models/unread-query-subscription').default
 Matcher = require('./flux/attributes/matcher').default
@@ -297,10 +298,9 @@ class CategoryMailboxPerspective extends MailboxPerspective
     @_categories
 
   hasSyncingCategories: =>
-    for cat in @_categories
-      if not cat.isSyncComplete()
-        return true
-    return false
+    not @_categories.every (cat) =>
+      representedFolder = cat instanceof Folder ? cat : CategoryStore.getAllMailCategory(cat.accountId)
+      return FolderSyncProgressStore.isSyncCompleteForAccount(cat.accountId, representedFolder.path)
 
   isArchive: =>
     _.every(@_categories, (cat) -> cat.isArchive())

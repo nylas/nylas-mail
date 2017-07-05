@@ -10,19 +10,17 @@ import Folder from '../models/folder';
  *
  * The sync state for any given account has the following shape:
  *
- * {
- *   folderSyncProgress: {
- *     inbox: {
+ *   {
+ *     [Gmail]/Inbox: {
  *       progress: 0.5,
  *       total: 100,
  *     }
- *     archive: {
+ *     MyFunLabel: {
  *       progress: 0.2,
  *       total: 600,
  *     },
  *     ...
  *   }
- * }
  *
  */
 class FolderSyncProgressStore extends NylasStore {
@@ -40,24 +38,21 @@ class FolderSyncProgressStore extends NylasStore {
   }
 
   _onRefresh() {
-    const accountIds = AccountStore.accountIds();
-
     this._statesByAccount = {};
 
-    for (const accountId of accountIds) {
+    for (const accountId of AccountStore.accountIds()) {
       const folders = CategoryStore.categories(accountId).filter(cat => cat instanceof Folder)
-      const folderSyncProgress = {};
+      const state = {};
 
       for (const folder of folders) {
-        const name = folder.name || folder.displayName;
         const {uidnext, syncedMinUID} = folder.localStatus || {};
-        folderSyncProgress[name] = {
+        state[folder.path] = {
           progress: 1.0 - (syncedMinUID - 1) / uidnext,
           total: uidnext,
         }
       }
 
-      this._statesByAccount[accountId] = {folderSyncProgress};
+      this._statesByAccount[accountId] = state;
     }
     this._triggerDebounced()
   }
@@ -74,11 +69,9 @@ class FolderSyncProgressStore extends NylasStore {
    * of folders and labels
    */
   isCategoryListSynced(accountId) {
-    const state = this._statesByAccount[accountId]
+    const state = this._statesByAccount[accountId];
     if (!state) { return false }
-    const folderNames = Object.keys(state.folderSyncProgress || {})
-    if (folderNames.length === 0) { return false }
-    return folderNames.some((fname) => state.folderSyncProgress[fname].progress !== 0)
+    return Object.values(state).some((i) => i.progress > 0)
   }
 
   whenCategoryListSynced(accountId) {
@@ -95,20 +88,19 @@ class FolderSyncProgressStore extends NylasStore {
     })
   }
 
-  isSyncCompleteForAccount(accountId, folderName) {
+  isSyncCompleteForAccount(accountId, folderPath) {
     const state = this._statesByAccount[accountId]
-    if (!state) { return false }
 
-    if (!this.isCategoryListSynced(accountId)) {
+    if (!state || !this.isCategoryListSynced(accountId)) {
       return false
     }
 
-    if (folderName) {
-      return state.folderSyncProgress[folderName].progress >= 1
+    if (folderPath) {
+      return state[folderPath].progress >= 1
     }
-    const folderNames = Object.keys(state.folderSyncProgress)
-    for (const fname of folderNames) {
-      const syncProgress = state.folderSyncProgress[fname].progress
+    const folderPaths = Object.keys(state)
+    for (const fname of folderPaths) {
+      const syncProgress = state[fname].progress
       if (syncProgress < 1) {
         return false
       }
@@ -117,14 +109,9 @@ class FolderSyncProgressStore extends NylasStore {
   }
 
   isSyncComplete() {
-    const accountIds = Object.keys(this._statesByAccount)
-    if (accountIds.length === 0) { return false }
-    for (const accountId of accountIds) {
-      if (!this.isSyncCompleteForAccount(accountId)) {
-        return false
-      }
-    }
-    return true
+    return Object.keys(this._statesByAccount).every((accountId) =>
+      this.isSyncCompleteForAccount(accountId)
+    );
   }
 
   whenSyncComplete() {

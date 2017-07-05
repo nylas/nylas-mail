@@ -160,17 +160,4 @@ export default class Category extends Model {
   isArchive() {
     return ['all', 'archive'].includes(this.name);
   }
-
-  isSyncComplete() {
-    // We sync by folders, not labels. If the category is a label, or hasn't been
-    // assigned an object type yet, just return based on the sync status for the
-    // entire account.
-    if (this.object !== 'folder') {
-      return FolderSyncProgressStore.isSyncCompleteForAccount(this.accountId);
-    }
-    return FolderSyncProgressStore.isSyncCompleteForAccount(
-      this.accountId,
-      this.name || this.displayName
-    );
-  }
 }

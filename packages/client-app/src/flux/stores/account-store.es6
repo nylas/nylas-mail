@@ -317,15 +317,6 @@ class AccountStore extends NylasStore {
     return this._cachedGetter(`accountForId:${id}`, () => _.findWhere(this._accounts, {id}))
   }
 
-  accountIsSyncing(accountId) {
-    const account = this.accountForId(accountId)
-    return !account.hasSyncStateError()
-  }
-
-  accountsAreSyncing() {
-    return this.accounts().every(acc => !acc.hasSyncStateError())
-  }
-
   emailAddresses() {
     let addresses = _.pluck((this.accounts() ? this.accounts() : []), "emailAddress")
     addresses = addresses.concat(_.pluck((this.aliases() ? this.aliases() : []), "email"))
