@@ -173,7 +173,7 @@ export default class NylasEnvConstructor {
     const StyleManager = require('./style-manager');
     const MenuManager = require('./menu-manager').default;
     const ActionBridge = require('./flux/action-bridge').default;
-    const ActionBridgeCPP = require('./flux/action-bridge-cpp').default;
+    const MailsyncBridge = require('./flux/mailsync-bridge').default;
 
     const {devMode, benchmarkMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
 
@@ -228,7 +228,7 @@ export default class NylasEnvConstructor {
     this.globalWindowEmitter = new Emitter();
 
     if (!this.inSpecMode()) {
-      this.actionBridgeCpp = new ActionBridgeCPP();
+      this.mailsyncBridge = new MailsyncBridge();
       this.actionBridge = new ActionBridge(ipcRenderer);
     }
 

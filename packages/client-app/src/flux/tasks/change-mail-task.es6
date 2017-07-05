@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import Task from './task';
 import Thread from '../models/thread';
 import Message from '../models/message';

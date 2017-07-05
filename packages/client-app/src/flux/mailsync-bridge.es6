@@ -1,14 +1,13 @@
 import DatabaseStore from './stores/database-store';
 import DatabaseChangeRecord from './stores/database-change-record';
 import DatabaseObjectRegistry from '../registries/database-object-registry';
-import MailsycProcess from '../mailsync-process';
+import MailsyncProcess from '../mailsync-process';
 import Actions from './actions';
 import Utils from './models/utils';
 
 let AccountStore = null;
 
-
-class ActionBridgeCPP {
+export default class MailsyncBridge {
   constructor() {
     if (!NylasEnv.isMainWindow()) {
       // maybe bind as listener?
@@ -47,7 +46,7 @@ class ActionBridgeCPP {
     }
 
     toLaunch.forEach((acct) => {
-      const client = new MailsycProcess(acct, NylasEnv.getLoadSettings().resourcePath);
+      const client = new MailsyncProcess(acct, NylasEnv.getLoadSettings().resourcePath);
       client.sync();
       client.on('deltas', this.onIncomingMessages);
       client.on('close', () => {
@@ -132,5 +131,3 @@ class ActionBridgeCPP {
     this.clients[accountId].sendMessage(json);
   }
 }
-
-export default ActionBridgeCPP;
