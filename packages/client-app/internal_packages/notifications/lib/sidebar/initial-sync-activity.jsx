@@ -1,6 +1,5 @@
 import _ from 'underscore';
-import _str from 'underscore.string';
-import {Utils, AccountStore, FolderSyncProgressStore, React} from 'nylas-exports';
+import {AccountStore, FolderSyncProgressStore, React} from 'nylas-exports';
 
 export default class InitialSyncActivity extends React.Component {
   static displayName = 'InitialSyncActivity';
@@ -18,22 +17,16 @@ export default class InitialSyncActivity extends React.Component {
     this.unsub = FolderSyncProgressStore.listen(this.onDataChanged)
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return !Utils.isEqualReact(nextProps, this.props) ||
-      !Utils.isEqualReact(nextState, this.state);
-  }
-
   componentWillUnmount() {
     this.unsub();
     this.mounted = false;
   }
 
   onDataChanged = () => {
-    const syncState = Utils.deepClone(FolderSyncProgressStore.getSyncState())
-    this.setState({syncState});
+    this.setState({syncState: FolderSyncProgressStore.getSyncState()});
   }
 
-  renderFolderProgress(name, progress) {
+  renderFolderProgress(folderPath, progress) {
     let status = 'busy';
     let progressLabel = `In Progress (${Math.round(progress * 100)}%)`;
     if (progress === 1) {
@@ -42,27 +35,27 @@ export default class InitialSyncActivity extends React.Component {
     }
 
     return (
-      <div className={`model-progress ${status}`} key={name}>
-        {_str.titleize(name)} <span className="progress-label">{progressLabel}</span>
+      <div className={`model-progress ${status}`} key={folderPath}>
+        {folderPath} <span className="progress-label">{progressLabel}</span>
       </div>
     )
   }
 
   render() {
-    if (!AccountStore.accountsAreSyncing() || FolderSyncProgressStore.isSyncComplete()) {
+    if (FolderSyncProgressStore.isSyncComplete()) {
       return false;
     }
 
+
     let maxHeight = 0;
     let accounts = _.map(this.state.syncState, (accountSyncState, accountId) => {
-      const account = _.findWhere(AccountStore.accounts(), {id: accountId});
+      const account = AccountStore.accountForId(accountId);
       if (!account) {
         return false;
       }
 
-      const {folderSyncProgress} = accountSyncState
-      let folderStates = _.map(folderSyncProgress, ({progress}, name) => {
-        return this.renderFolderProgress(name, progress)
+      let folderStates = _.map(accountSyncState, ({progress}, folderPath) => {
+        return this.renderFolderProgress(folderPath, progress)
       })
 
       if (folderStates.length === 0) {

@@ -21,7 +21,7 @@ class ActionBridgeCPP {
     Actions.fetchBodies.listen(this.onFetchBodies, this);
 
     this.clients = {};
-    
+
     AccountStore = require('./stores/account-store').default;
     AccountStore.listen(this.ensureClients, this);
     this.ensureClients();

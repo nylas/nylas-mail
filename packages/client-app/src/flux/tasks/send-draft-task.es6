@@ -192,8 +192,6 @@ export default class SendDraftTask extends BaseDraftTask {
   onSuccess = () => {
     Actions.recordUserEvent("Draft Sent")
     Actions.draftDeliverySucceeded({message: this.message, messageId: this.message.id, headerMessageId: this.draft.headerMessageId});
-    // TODO we shouldn't need to do this anymore
-    NylasAPIHelpers.makeDraftDeletionRequest(this.draft);
 
     // Play the sending sound
     if (this.playSound && NylasEnv.config.get("core.sending.sounds")) {

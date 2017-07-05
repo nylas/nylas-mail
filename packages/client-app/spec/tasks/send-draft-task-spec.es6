@@ -72,9 +72,6 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         if (options.success) { options.success(this.response); }
         return Promise.resolve(this.response);
       })
-      spyOn(NylasAPI, 'incrementRemoteChangeLock');
-      spyOn(NylasAPI, 'decrementRemoteChangeLock');
-      spyOn(NylasAPIHelpers, 'makeDraftDeletionRequest');
       spyOn(DBt, 'unpersistModel').andReturn(Promise.resolve());
       spyOn(DBt, 'persistModel').andReturn(Promise.resolve());
       spyOn(SoundRegistry, "playSound");
@@ -462,27 +459,6 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       });
 
       sharedTests();
-
-      it("should call makeDraftDeletionRequest to delete the draft after sending", () => {
-        this.task.performLocal();
-        waitsForPromise(() => this.task.performRemote().then(() => {
-          expect(NylasAPIHelpers.makeDraftDeletionRequest).toHaveBeenCalled()
-        }));
-      });
-
-      it("should locally convert the existing draft to a message on send", () => {
-        expect(this.draft.headerMessageId).toBe(this.draft.headerMessageId);
-        expect(this.draft.id).toBe("server-123");
-
-        this.task.performLocal();
-        waitsForPromise(() => this.task.performRemote().then(() => {
-          expect(DBt.persistModel).toHaveBeenCalled()
-          const model = DBt.persistModel.calls[0].args[0];
-          expect(model.headerMessageId).toBe(this.draft.headerMessageId);
-          expect(model.id).toBe(this.response.id);
-          expect(model.draft).toBe(false);
-        }));
-      });
     });
   });
 

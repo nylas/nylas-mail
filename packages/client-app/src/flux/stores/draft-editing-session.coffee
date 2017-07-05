@@ -193,7 +193,8 @@ class DraftEditingSession
       return Promise.reject(new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account."))
 
     if account.id isnt @_draft.accountId
-      NylasAPIHelpers.makeDraftDeletionRequest(@_draft)
+      # todo bg decide what to do here to sync
+      # NylasAPIHelpers.makeDraftDeletionRequest(@_draft)
       @changes.add({
         accountId: account.id,
         version: null,
