@@ -66,34 +66,12 @@ class DraftHelpers {
     return (cleaned.indexOf("attach") >= 0);
   }
 
-  async refreshDraftReference(id) {
-    const message = await DatabaseStore
-      .findBy(Message, {id: id})
-      .include(Message.attributes.body)
-
-    if (!message || !message.draft) {
-      throw new this.DraftNotFoundError()
-    }
-
-    return message
-  }
-
   async pruneRemovedInlineFiles(draft) {
-    if (!(draft.files instanceof Array) || draft.files.length === 0) {
-      // The async keyword makes it so this is returned as a promise, which
-      // allows us to always treat the return value of this function as a
-      // promise-like object.
-      return draft;
-    }
-    return DatabaseStore.inTransaction(async (t) => {
-      // Inline files that are no longer referenced in the body are stale
-      draft.files = draft.files.filter(f => {
-        return !(f.contentId && !draft.body.includes(`cid:${f.id}`))
-      });
-
-      await t.persistModel(draft);
-      return draft;
+    draft.files = draft.files.filter(f => {
+      return !(f.contentId && !draft.body.includes(`cid:${f.id}`))
     });
+
+    return draft;
   }
 
   appendQuotedTextToDraft(draft) {
@@ -144,17 +122,15 @@ class DraftHelpers {
     });
   }
 
-  async prepareDraftForSyncback(session) {
+  async draftPreparedForSyncback(session) {
     await session.ensureCorrectAccount({noSyncback: true})
-    const transformed = await this.applyExtensionTransforms(session.draft())
-    let draft;
-    if (!transformed.replyToMessageId || !this.shouldAppendQuotedText(transformed)) {
-      draft = transformed;
-    } else {
-      draft = await this.appendQuotedTextToDraft(transformed);
-    }
+    let draft = session.draft();
+
+    draft = await this.applyExtensionTransforms(draft)
     draft = await this.pruneRemovedInlineFiles(draft);
-    await DatabaseStore.inTransaction((t) => t.persistModel(draft))
+    if (draft.replyToMessageId && this.shouldAppendQuotedText(draft)) {
+      draft = await this.appendQuotedTextToDraft(draft);
+    }
     return draft;
   }
 }

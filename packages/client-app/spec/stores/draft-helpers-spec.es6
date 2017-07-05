@@ -2,7 +2,6 @@ import {
   Actions,
   Message,
   DraftHelpers,
-  DatabaseStore,
 } from 'nylas-exports';
 
 import InlineStyleTransformer from '../../src/services/inline-style-transformer'

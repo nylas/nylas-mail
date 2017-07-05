@@ -54,7 +54,6 @@ class DraftStore extends NylasStore {
     // Remember that these two actions only fire in the current window and
     // are picked up by the instance of the DraftStore in the current
     // window.
-    this.listenTo(Actions.ensureDraftSynced, this._onEnsureDraftSynced);
     this.listenTo(Actions.sendDraft, this._onSendDraft);
     this.listenTo(Actions.destroyDraft, this._onDestroyDraft);
 
@@ -361,15 +360,6 @@ class DraftStore extends NylasStore {
     }
   }
 
-  _onEnsureDraftSynced = (headerMessageId) => {
-    return this.sessionForClientId(headerMessageId).then((session) => {
-      return DraftHelpers.prepareDraftForSyncback(session)
-      .then(() => {
-        Actions.queueTask(new SyncbackDraftTask(headerMessageId));
-      });
-    });
-  }
-
   _onSendDraft = async (headerMessageId, sendActionKey = DefaultSendActionKey) => {
     this._draftsSending[headerMessageId] = true;
 
@@ -383,8 +373,8 @@ class DraftStore extends NylasStore {
     }
 
     const session = await this.sessionForClientId(headerMessageId);
-    await DraftHelpers.prepareDraftForSyncback(session)
-    await sendAction.performSendAction({draft: session.draft()});
+    const draft = await DraftHelpers.draftPreparedForSyncback(session);
+    await sendAction.performSendAction({draft});
     this._doneWithSession(session);
 
     if (NylasEnv.isComposerWindow()) {
