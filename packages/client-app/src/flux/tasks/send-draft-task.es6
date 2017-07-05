@@ -1,27 +1,19 @@
 /* eslint global-require: 0 */
-import Task from './task';
-import Actions from '../actions';
-import Message from '../models/message';
-import Account from '../models/account';
-import NylasAPI from '../nylas-api';
-import * as NylasAPIHelpers from '../nylas-api-helpers';
-import {APIError, RequestEnsureOnceError} from '../errors';
-import SoundRegistry from '../../registries/sound-registry';
-import DatabaseStore from '../stores/database-store';
 import AccountStore from '../stores/account-store';
-import BaseDraftTask from './base-draft-task';
-import SyncbackMetadataTask from './syncback-metadata-task';
-import EnsureMessageInSentFolderTask from './ensure-message-in-sent-folder-task';
+import Task from './task';
 
 const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
 const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
-export default class SendDraftTask extends BaseDraftTask {
 
-  constructor(headerMessageId, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
-    super(headerMessageId);
-    this.draft = null;
-    this.message = null;
+export default class SendDraftTask extends Task {
+
+  constructor(draft, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
+    super();
+    this.draft = draft;
+    this.accountId = (draft || {}).accountId;
+    this.headerMessageId = (draft || {}).headerMessageId;
+
     this.emitError = emitError
     this.playSound = playSound
     this.allowMultiSend = allowMultiSend
@@ -29,16 +21,6 @@ export default class SendDraftTask extends BaseDraftTask {
 
   label() {
     return "Sending message";
-  }
-
-  performRemote() {
-    return this.refreshDraftReference()
-    .then(this.assertDraftValidity)
-    .then(this.sendMessage)
-    .then(this.ensureInSentFolder)
-    .then(this.updatePluginMetadata)
-    .then(this.onSuccess)
-    .catch(this.onError);
   }
 
   assertDraftValidity = () => {
@@ -62,99 +44,6 @@ export default class SendDraftTask extends BaseDraftTask {
       return false;
     }
     return (!!this.draft.metadataForPluginId(OPEN_TRACKING_ID) || !!this.draft.metadataForPluginId(LINK_TRACKING_ID)) || false;
-  }
-
-  hasCustomBodyPerRecipient = () => {
-    if (!this.allowMultiSend) {
-      return false;
-    }
-
-    // Sending individual bodies for too many participants can cause us
-    // to hit the smtp rate limit.
-    const participants = this.draft.participants({includeFrom: false, includeBcc: true})
-    if (participants.length === 1 || participants.length > 10) {
-      return false;
-    }
-
-    const providerCompatible = (AccountStore.accountForId(this.draft.accountId).provider !== "eas");
-    return this._trackingPluginsInUse() && providerCompatible;
-  }
-
-  sendMessage = async () => {
-    if (this.hasCustomBodyPerRecipient()) {
-      await this._sendPerRecipient();
-    } else {
-      await this._sendWithSingleBody()
-    }
-  }
-
-  ensureInSentFolder = () => {
-    const t = new EnsureMessageInSentFolderTask({
-      message: this.message,
-      customSentMessage: this.hasCustomBodyPerRecipient() || this._trackingPluginsInUse(),
-    })
-    Actions.queueTask(t)
-  }
-
-  _sendWithSingleBody = async () => {
-    let responseJSON = {}
-    if (this._syncbackRequestId) {
-      responseJSON = await SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
-    } else {
-      const task = new SyncbackTaskAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: "/send",
-          accountId: this.draft.accountId,
-          method: 'POST',
-          body: this.draft.toJSON(),
-          timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-          requestId: this.draft.id,
-          onSyncbackRequestCreated: (syncbackRequest) => {
-            this._syncbackRequestId = syncbackRequest.id
-          },
-        },
-      })
-      responseJSON = await task.run();
-    }
-    await this._createMessageFromResponse(responseJSON)
-  }
-
-  _sendPerRecipient = async () => {
-    let responseJSON = {}
-    if (this._syncbackRequestId) {
-      responseJSON = await SyncbackTaskAPIRequest.waitForQueuedRequest(this._syncbackRequestId)
-    } else {
-      const task = new SyncbackTaskAPIRequest({
-        api: NylasAPI,
-        options: {
-          path: "/send-per-recipient",
-          accountId: this.draft.accountId,
-          method: 'POST',
-          body: {
-            message: this.draft.toJSON(),
-            uses_open_tracking: this.draft.metadataForPluginId(OPEN_TRACKING_ID) != null,
-            uses_link_tracking: this.draft.metadataForPluginId(LINK_TRACKING_ID) != null,
-          },
-          timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
-          onSyncbackRequestCreated: (syncbackRequest) => {
-            this._syncbackRequestId = syncbackRequest.id
-          },
-        },
-      })
-      responseJSON = await task.run();
-    }
-    await this._createMessageFromResponse(responseJSON);
-  }
-
-  updatePluginMetadata = () => {
-    this.message.pluginMetadata.forEach((m) => {
-      const t1 = new SyncbackMetadataTask(this.message.id,
-          this.message.constructor.name, m.pluginId);
-      Actions.queueTask(t1);
-    });
-
-    return Promise.resolve();
   }
 
   _createMessageFromResponse = (responseJSON) => {
@@ -201,10 +90,6 @@ export default class SendDraftTask extends BaseDraftTask {
   }
 
   onError = (err) => {
-    if (err instanceof BaseDraftTask.DraftNotFoundError) {
-      return Promise.resolve(Task.Status.Continue);
-    }
-
     let message = err.message;
 
     // TODO Handle errors in a cleaner way
@@ -259,4 +144,5 @@ export default class SendDraftTask extends BaseDraftTask {
 
     return Promise.resolve([Task.Status.Failed, err]);
   }
+
 }

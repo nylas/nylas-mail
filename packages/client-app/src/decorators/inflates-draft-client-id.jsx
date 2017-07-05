@@ -80,7 +80,8 @@ function InflatesDraftClientId(ComposedComponent) {
         return;
       }
       if (this.state.draft.pristine) {
-        Actions.destroyDraft(this.props.headerMessageId);
+        const {accountId, headerMessageId} = this.state.draft;
+        Actions.destroyDraft(accountId, headerMessageId);
       }
     }
 

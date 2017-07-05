@@ -1,5 +1,10 @@
-import BaseDraftTask from './base-draft-task';
+import Task from './task';
 
-export default class SyncbackDraftTask extends BaseDraftTask {
-
+export default class SyncbackDraftTask extends Task {
+  constructor(draft) {
+    super();
+    this.draft = draft;
+    this.accountId = (draft || {}).accountId;
+    this.headerMessageId = (draft || {}).headerMessageId;
+  }
 }

@@ -559,7 +559,8 @@ export default class ComposerView extends React.Component {
   }
 
   _onDestroyDraft = () => {
-    Actions.destroyDraft(this.props.draft.headerMessageId);
+    const {draft} = this.props;
+    Actions.destroyDraft(draft.accountId, draft.headerMessageId);
   }
 
   _onSelectAttachment = () => {

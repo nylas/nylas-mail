@@ -7,8 +7,8 @@ import DraftFactory from './draft-factory';
 import DatabaseStore from './database-store';
 import SendActionsStore from './send-actions-store';
 import FocusedContentStore from './focused-content-store';
-import BaseDraftTask from '../tasks/base-draft-task';
 import SyncbackDraftTask from '../tasks/syncback-draft-task';
+import SendDraftTask from '../tasks/send-draft-task';
 import DestroyDraftTask from '../tasks/destroy-draft-task';
 import Thread from '../models/thread';
 import Message from '../models/message';
@@ -127,7 +127,7 @@ class DraftStore extends NylasStore {
     _.each(this._draftSessions, (session) => {
       const draft = session.draft()
       if (draft && draft.pristine) {
-        Actions.queueTask(new DestroyDraftTask(session.headerMessageId));
+        Actions.queueTask(new DestroyDraftTask(draft.accountId, draft.headerMessageId));
       } else {
         promises.push(session.changes.commit());
       }
@@ -335,7 +335,7 @@ class DraftStore extends NylasStore {
     });
   }
 
-  _onDestroyDraft = (headerMessageId) => {
+  _onDestroyDraft = (accountId, headerMessageId) => {
     const session = this._draftSessions[headerMessageId];
 
     // Immediately reset any pending changes so no saves occur
@@ -345,13 +345,16 @@ class DraftStore extends NylasStore {
 
     // Stop any pending tasks related ot the draft
     TaskQueue.queue().forEach((task) => {
-      if (task instanceof BaseDraftTask && task.headerMessageId === headerMessageId) {
+      if (task instanceof SyncbackDraftTask && task.headerMessageId === headerMessageId) {
+        Actions.dequeueTask(task.id);
+      }
+      if (task instanceof SendDraftTask && task.headerMessageId === headerMessageId) {
         Actions.dequeueTask(task.id);
       }
     })
 
     // Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask(headerMessageId));
+    Actions.queueTask(new DestroyDraftTask(accountId, headerMessageId));
 
     if (NylasEnv.isComposerWindow()) {
       NylasEnv.close();

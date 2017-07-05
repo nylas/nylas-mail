@@ -19,7 +19,7 @@ class DraftDeleteButton extends React.Component
 
   _destroySelected: =>
     for item in @props.selection.items()
-      Actions.destroyDraft(item.headerMessageId)
+      Actions.destroyDraft(item.accountId, item.headerMessageId)
     @props.selection.clear()
     return
 

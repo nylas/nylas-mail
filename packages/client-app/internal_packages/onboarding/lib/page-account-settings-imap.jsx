@@ -39,10 +39,11 @@ class AccountIMAPSettingsForm extends React.Component {
         errorMessage = "Please provide a valid hostname or IP adddress.";
         errorFieldNames.push(`${type}_host`);
       }
-      if (accountInfo[`${type}_host`] === 'imap.gmail.com') {
-        errorMessage = "Please link Gmail accounts by choosing 'Google' on the account type screen.";
-        errorFieldNames.push(`${type}_host`);
-      }
+      // todo bg
+      // if (accountInfo[`${type}_host`] === 'imap.gmail.com') {
+      //   errorMessage = "Please link Gmail accounts by choosing 'Google' on the account type screen.";
+      //   errorFieldNames.push(`${type}_host`);
+      // }
       if (!Number.isInteger(accountInfo[`${type}_port`] / 1)) {
         errorMessage = "Please provide a valid port number.";
         errorFieldNames.push(`${type}_port`);

@@ -371,7 +371,7 @@ export default class NylasEnvConstructor {
     if (event.defaultPrevented) { return; }
 
     this.lastUncaughtError = error;
-  
+
     try {
       extra.pluginIds = this._findPluginsFromError(error);
     } catch (err) {

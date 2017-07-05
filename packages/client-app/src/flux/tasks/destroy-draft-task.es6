@@ -1,8 +1,9 @@
-import BaseDraftTask from './base-draft-task';
+import Task from './task';
 
-export default class DestroyDraftTask extends BaseDraftTask {
-  constructor(headerMessageId) {
+export default class DestroyDraftTask extends Task {
+  constructor(accountId, headerMessageId) {
     super();
+    this.accountId = accountId;
     this.headerMessageId = headerMessageId;
   }
 }
