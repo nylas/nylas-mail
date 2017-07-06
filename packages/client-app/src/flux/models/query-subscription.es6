@@ -46,10 +46,7 @@ export default class QuerySubscription {
     this._callbacks.push(callback);
 
     if (this._lastResult) {
-      setTimeout(() => {
-        if (!this._lastResult) { return; }
-        callback(this._lastResult);
-      }, 0);
+      callback(this._lastResult);
     }
   }
 
