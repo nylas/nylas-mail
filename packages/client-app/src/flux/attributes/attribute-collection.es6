@@ -76,16 +76,10 @@ export default class AttributeCollection extends Attribute {
 
       if (this.ItemClass.prototype.fromJSON) {
         const obj = new this.ItemClass();
-        // Important: if no ids are in the JSON, don't make them up
-        // randomly.  This causes an object to be "different" each time it's
-        // de-serialized even if it's actually the same, makes React
-        // components re-render!
-        obj.id = undefined;
         obj.fromJSON(objJSON);
         objs.push(obj);
       } else {
         const obj = new this.ItemClass(objJSON);
-        obj.id = undefined;
         objs.push(obj);
       }
     }

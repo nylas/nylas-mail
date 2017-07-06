@@ -38,8 +38,6 @@ class Model
     for key in Object.keys(@constructor.attributes)
       continue unless values[key]?
       @[key] = values[key]
-
-    @id ?= Utils.generateTempId()
     @
 
   isSavedRemotely: ->

@@ -94,7 +94,6 @@ export default class MutableQueryResultSet extends QueryResultSet {
     }
 
     this._modelsHash[item.id] = item;
-    this._idToIndexHash = null;
   }
 
   removeModelAtOffset(item, offset) {
