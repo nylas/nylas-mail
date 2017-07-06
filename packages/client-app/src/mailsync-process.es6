@@ -54,7 +54,7 @@ export default class MailsyncProcess extends EventEmitter {
         buffer += data;
       });
       this._proc.on('error', (err) => {
-        reject(err, buffer);
+        reject(err);
       });
       this._proc.on('close', (code) => {
         console.log(`SyncWorker exited mode ${mode} with code ${code}`);
@@ -64,7 +64,7 @@ export default class MailsyncProcess extends EventEmitter {
           if (code === 0) {
             resolve(response);
           } else {
-            reject(new Error(LocalizedErrorStrings[response.error]))
+            reject(new Error(LocalizedErrorStrings[response.error] || response.error))
           }
         } catch (err) {
           reject(err);
@@ -81,10 +81,14 @@ export default class MailsyncProcess extends EventEmitter {
     this._spawnProcess('sync');
     let buffer = "";
     this._proc.stdout.on('data', (data) => {
-      buffer += data.toString();
-      const msgs = buffer.split('\n');
-      buffer = msgs.pop();
-      this.emit('deltas', msgs);
+      const added = data.toString();
+      buffer += added;
+
+      if (added.indexOf('\n') !== -1) {
+        const msgs = buffer.split('\n');
+        buffer = msgs.pop();
+        this.emit('deltas', msgs);
+      }
     });
     this._proc.stderr.on('data', (data) => {
       console.log("Sync worker wrote to stderr: " + data.toString());
