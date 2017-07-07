@@ -430,7 +430,7 @@ export default class TokenizingTextField extends React.Component {
     let items = null;
 
     try {
-      items = JSON.parse(json, Utils.registeredObjectReviver);
+      items = JSON.parse(json).map(Utils.convertToModel);
     } catch (err) {
       console.error(err)
       items = null;
@@ -663,7 +663,7 @@ export default class TokenizingTextField extends React.Component {
     if (tokens.length === 0) {
       tokens = [token];
     }
-    const json = JSON.stringify(tokens, Utils.registeredObjectReplacer);
+    const json = JSON.stringify(tokens);
     event.dataTransfer.setData('nylas-token-items', json);
     event.dataTransfer.setData('text/plain', tokens.map(t => t.toString()).join(', '));
     event.dataTransfer.dropEffect = "move";
@@ -755,7 +755,7 @@ export default class TokenizingTextField extends React.Component {
   _onAttachToClipboard = (event) => {
     const text = this.state.selectedKeys.join(', ')
     if (event.clipboardData) {
-      const json = JSON.stringify(this._selectedTokens(), Utils.registeredObjectReplacer);
+      const json = JSON.stringify(this._selectedTokens());
       event.clipboardData.setData('text/plain', text);
       event.clipboardData.setData('nylas-token-items', json);
 

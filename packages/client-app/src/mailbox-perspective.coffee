@@ -61,10 +61,10 @@ class MailboxPerspective
   @fromJSON: (json) =>
     try
       if json.type is CategoryMailboxPerspective.name
-        categories = JSON.parse(json.serializedCategories, Utils.registeredObjectReviver)
+        categories = JSON.parse(json.serializedCategories).map(Utils.convertToModel)
         return @forCategories(categories)
       else if json.type is UnreadMailboxPerspective.name
-        categories = JSON.parse(json.serializedCategories, Utils.registeredObjectReviver)
+        categories = JSON.parse(json.serializedCategories).map(Utils.convertToModel)
         return @forUnread(categories)
       else if json.type is StarredMailboxPerspective.name
         return @forStarred(json.accountIds)
@@ -262,7 +262,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
 
   toJSON: =>
     json = super
-    json.serializedCategories = JSON.stringify(@_categories, Utils.registeredObjectReplacer)
+    json.serializedCategories = JSON.stringify(@_categories)
     json
 
   isEqual: (other) =>

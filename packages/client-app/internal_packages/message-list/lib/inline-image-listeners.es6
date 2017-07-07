@@ -11,7 +11,7 @@ function safeDecode(str) {
 function _runOnImageNode(node) {
   if (node.src && node.dataset.nylasFile) {
     node.addEventListener('error', () => {
-      const file = JSON.parse(safeDecode(node.dataset.nylasFile), Utils.registeredObjectReviver);
+      const file = Utils.convertToModel(JSON.parse(safeDecode(node.dataset.nylasFile)));
       const initialDisplay = node.style.display;
       const downloadButton = document.createElement('a');
       downloadButton.classList.add('inline-download-prompt')
@@ -28,7 +28,7 @@ function _runOnImageNode(node) {
     });
 
     node.addEventListener('load', () => {
-      const file = JSON.parse(safeDecode(node.dataset.nylasFile), Utils.registeredObjectReviver);
+      const file = Utils.convertToModel(JSON.parse(safeDecode(node.dataset.nylasFile)));
       node.addEventListener('dblclick', () => {
         Actions.fetchAndOpenFile(file);
       });
@@ -37,7 +37,7 @@ function _runOnImageNode(node) {
 }
 
 export function encodedAttributeForFile(file) {
-  return safeEncode(JSON.stringify(file, Utils.registeredObjectReplacer));
+  return safeEncode(JSON.stringify(file));
 }
 
 export function addInlineImageListeners(doc) {

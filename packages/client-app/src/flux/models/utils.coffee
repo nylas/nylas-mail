@@ -32,7 +32,7 @@ Utils =
       html = html.slice(0, maxLength)
     (new DOMParser()).parseFromString(html, "text/html").body.innerText
 
-  registeredObjectReviver: (k,v) ->
+  modelTypesReviver: (k,v) ->
     type = v?.__cls
     return v unless type
 
@@ -40,13 +40,15 @@ Utils =
       return DatabaseObjectRegistry.deserialize(type, v)
 
     return v
-
-  registeredObjectReplacer: (k, v) ->
-    if _.isObject(v)
-      type = this[k].constructor.name
-      if DatabaseObjectRegistry.isInRegistry(type)
-        v.__cls = type
-    return v
+  
+  convertToModel: (json) ->
+    if not json
+      return null
+    if not json.__cls
+      throw new Error("convertToModel: no __cls found on object.")
+    if not DatabaseObjectRegistry.isInRegistry(json.__cls)
+      throw new Error("convertToModel: __cls is not a known class.")
+    return DatabaseObjectRegistry.deserialize(json.__cls, json)
 
   fastOmit: (props, without) ->
     otherProps = Object.assign({}, props)

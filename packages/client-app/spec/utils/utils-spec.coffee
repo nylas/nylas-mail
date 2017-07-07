@@ -18,7 +18,7 @@ class Bar extends Foo
 
 describe 'Utils', ->
 
-  describe "registeredObjectReviver / registeredObjectReplacer", ->
+  describe "modelTypesReviver", ->
     beforeEach ->
       @testThread = new Thread
         id: 'local-1'
@@ -33,18 +33,18 @@ describe 'Utils', ->
     it "should serialize and de-serialize models correctly", ->
       expectedString = '[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"is_search_indexed":false,"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"is_search_indexed":false,"id":"local-b"}],"in_all_mail":true,"is_search_indexed":false,"id":"local-1","__cls":"Thread"}]'
 
-      jsonString = JSON.stringify([@testThread], Utils.registeredObjectReplacer)
+      jsonString = JSON.stringify([@testThread])
       expect(jsonString).toEqual(expectedString)
-      revived = JSON.parse(jsonString, Utils.registeredObjectReviver)
+      revived = JSON.parse(jsonString, Utils.modelTypesReviver)
       expect(revived).toEqual([@testThread])
 
     it "should re-inflate Models in places they're not explicitly declared types", ->
       b = new JSONBlob({id: "ThreadsToProcess", json: [@testThread]})
-      jsonString = JSON.stringify(b, Utils.registeredObjectReplacer)
+      jsonString = JSON.stringify(b)
       expectedString = '{"client_id":"ThreadsToProcess","server_id":"ThreadsToProcess","json":[{"client_id":"local-1","account_id":"1","metadata":[],"subject":"Test 1234","participants":[{"client_id":"local-a","account_id":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"is_search_indexed":false,"id":"local-a"},{"client_id":"local-b","account_id":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"is_search_indexed":false,"id":"local-b"}],"in_all_mail":true,"is_search_indexed":false,"id":"local-1","__cls":"Thread"}],"id":"ThreadsToProcess","__cls":"JSONBlob"}'
 
       expect(jsonString).toEqual(expectedString)
-      revived = JSON.parse(jsonString, Utils.registeredObjectReviver)
+      revived = JSON.parse(jsonString, Utils.modelTypesReviver)
       expect(revived).toEqual(b)
       expect(revived.json[0] instanceof Thread).toBe(true)
       expect(revived.json[0].participants[0] instanceof Contact).toBe(true)

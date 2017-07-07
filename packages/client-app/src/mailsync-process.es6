@@ -105,7 +105,7 @@ export default class MailsyncProcess extends EventEmitter {
   sendMessage(json) {
     if (!Utils) { Utils = require('nylas-exports').Utils; }
 
-    const msg = `${JSON.stringify(json, Utils.registeredObjectReplacer)}\n`;
+    const msg = `${JSON.stringify(json)}\n`;
     const contentBuffer = Buffer.from(msg);
     this._proc.stdin.write(contentBuffer);
   }
