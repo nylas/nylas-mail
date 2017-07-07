@@ -18,7 +18,8 @@ export default class AttributeDateTime extends Attribute {
   }
 
   fromJSON(val) {
-    return val ? new Date(val * 1000) : null;
+    if (!val || val instanceof Date) { return val; }
+    return new Date(val * 1000);
   }
 
   columnSQL() {

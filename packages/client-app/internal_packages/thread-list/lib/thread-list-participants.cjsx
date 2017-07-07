@@ -42,7 +42,7 @@ class ThreadListParticipants extends React.Component
       if spacer
         accumulate('...')
       else
-        if contact.name.length > 0
+        if contact.name and contact.name.length > 0
           if items.length > 1
             short = contact.displayName(includeAccountLabel: false, compact: true)
           else
@@ -52,6 +52,9 @@ class ThreadListParticipants extends React.Component
         if idx < items.length-1 and not items[idx+1].spacer
           short += ", "
         accumulate(short, unread)
+    
+    if not @props.thread.__messages
+      throw new Error("ThreadListParticipants requires __messages.")
 
     messages = (@props.thread.__messages ? [])
     if messages.length > 1

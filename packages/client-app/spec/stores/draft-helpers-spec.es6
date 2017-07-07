@@ -9,7 +9,7 @@ import SanitizeTransformer from '../../src/services/sanitize-transformer';
 
 
 xdescribe('DraftHelpers', function describeBlock() {
-  describe('prepareDraftForSyncback', () => {
+  describe('draftPreparedForSyncback', () => {
     beforeEach(() => {
       spyOn(Actions, 'queueTask')
     });
@@ -30,7 +30,7 @@ xdescribe('DraftHelpers', function describeBlock() {
       spyOn(DraftHelpers, 'removeStaleUploads');
 
       waitsForPromise(async () => {
-        await DraftHelpers.prepareDraftForSyncback(session);
+        await DraftHelpers.draftPreparedForSyncback(session);
         expect(session.ensureCorrectAccount).toHaveBeenCalled();
         expect(DraftHelpers.applyExtensionTransforms).toHaveBeenCalled();
         expect(DraftHelpers.removeStaleUploads).toHaveBeenCalled();

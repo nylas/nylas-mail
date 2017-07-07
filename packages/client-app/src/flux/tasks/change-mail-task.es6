@@ -1,6 +1,4 @@
 import Task from './task';
-import Thread from '../models/thread';
-import Message from '../models/message';
 
 /*
 Public: The ChangeMailTask is a base class for all tasks that modify sets
@@ -68,16 +66,7 @@ export default class ChangeMailTask extends Task {
     return new this.constructor(this);
   }
 
-  objectIds() {
-    return [].concat(this.threadIds, this.messageIds);
-  }
-
-  objectClass() {
-    return (this.threadIds && this.threadIds.length) ? Thread : Message;
-  }
-
   numberOfImpactedItems() {
-    return this.objectIds().length;
+    return this.threadIds.length || this.messageIds.length;
   }
-
 }
