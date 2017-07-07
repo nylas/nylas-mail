@@ -88,9 +88,6 @@ export default class Category extends Model {
     localStatus: Attributes.Object({
       modelKey: 'localStatus',
     }),
-    _refcount: Attributes.Number({
-      modelKey: '_refcount',
-    }),
   });
 
   static Types = {

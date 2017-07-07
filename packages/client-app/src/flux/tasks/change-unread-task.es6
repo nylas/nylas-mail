@@ -2,15 +2,25 @@
 import _ from 'underscore';
 import Thread from '../models/thread';
 import Actions from '../actions'
+import Attributes from '../attributes';
 import DatabaseStore from '../stores/database-store';
 import ChangeMailTask from './change-mail-task';
 
 export default class ChangeUnreadTask extends ChangeMailTask {
-  constructor(options = {}) {
-    super(options);
-    this.source = options.source;
-    this.unread = options.unread;
-    this._canBeUndone = options.canBeUndone;
+
+  static attributes = Object.assign({}, ChangeMailTask.attributes, {
+    starred: Attributes.Boolean({
+      modelKey: 'unread',
+    }),
+    _canBeUndone: Attributes.Boolean({
+      modelKey: '_canBeUndone',
+    }),
+  });
+
+  constructor({unread, canBeUndone, ...rest} = {}) {
+    super(rest);
+    this.unread = unread;
+    this._canBeUndone = canBeUndone;
   }
 
   label() {

@@ -3,6 +3,8 @@ import AccountStore from '../stores/account-store';
 import Task from './task';
 import Actions from '../actions';
 import SoundRegistry from '../../registries/sound-registry';
+import Attributes from '../attributes';
+import Message from '../models/message';
 
 const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
 const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
@@ -10,12 +12,32 @@ const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
 
 export default class SendDraftTask extends Task {
 
-  constructor(draft, {playSound = true, emitError = true, allowMultiSend = true} = {}) {
-    super();
-    this.draft = draft;
+  static attributes = Object.assign({}, Task.attributes, {
+    draft: Attributes.Object({
+      modelKey: 'draft',
+      itemClass: Message,
+    }),
+    headerMessageId: Attributes.String({
+      modelKey: 'headerMessageId',
+    }),
+    emitError: Attributes.Boolean({
+      modelKey: 'emitError',
+    }),
+    playSound: Attributes.Boolean({
+      modelKey: 'playSound',
+    }),
+    allowMultiSend: Attributes.Boolean({
+      modelKey: 'allowMultiSend',
+    }),
+    perRecipientBodies: Attributes.Collection({
+      modelKey: 'perRecipientBodies',
+    }),
+  });
+
+  constructor({draft, playSound = true, emitError = true, allowMultiSend = true, ...rest} = {}) {
+    super(rest);
     this.accountId = (draft || {}).accountId;
     this.headerMessageId = (draft || {}).headerMessageId;
-
     this.emitError = emitError
     this.playSound = playSound
     this.allowMultiSend = allowMultiSend

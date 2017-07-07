@@ -40,7 +40,7 @@ export default class Model {
         this.fromJSON(data);
       } else {
         for (const key of Object.keys(this.constructor.attributes)) {
-          if (data[key]) {
+          if (data[key] !== undefined) {
             this[key] = data[key];
           }
         }
@@ -61,7 +61,7 @@ export default class Model {
   fromJSON(json) {
     for (const key of Object.keys(this.constructor.attributes)) {
       const attr = this.constructor.attributes[key];
-      const attrValue = json[attr.jsonKey];
+      const attrValue = json[attr.jsonKey || key];
       if (attrValue !== undefined) {
         this[key] = attr.fromJSON(attrValue);
       }
@@ -82,7 +82,7 @@ export default class Model {
       if (attrValue === undefined) {
         continue;
       }
-      json[attr.jsonKey] = attr.toJSON(attrValue);
+      json[attr.jsonKey || key] = attr.toJSON(attrValue);
     }
     json.__cls = this.constructor.name
     return json;

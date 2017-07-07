@@ -72,8 +72,6 @@ export default class MailsyncBridge {
     }
 
     task.validate();
-
-    task.sequentialId = ++this._currentSequentialId;
     task.status = 'local';
     this.sendMessageToAccount(task.accountId, {type: 'task-queued', task: task});
   }

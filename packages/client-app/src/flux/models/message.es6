@@ -168,10 +168,6 @@ export default class Message extends ModelWithMetadata {
       itemClass: Folder,
     }),
 
-    folderUID: Attributes.Number({
-      modelKey: 'folderUID',
-    }),
-
   });
 
   static naturalSortOrder() {

@@ -1,5 +1,6 @@
-import Category from '../models/category';
 import ChangeMailTask from './change-mail-task';
+import Attributes from '../attributes';
+import Folder from '../models/folder';
 
 // Public: Create a new task to apply labels to a message or thread.
 //
@@ -14,11 +15,15 @@ import ChangeMailTask from './change-mail-task';
 //
 export default class ChangeFolderTask extends ChangeMailTask {
 
-  constructor(options = {}) {
-    super(options);
-    this.source = options.source
-    this.taskDescription = options.taskDescription;
-    this.folder = options.folder;
+  static attributes = Object.assign({}, ChangeMailTask.attributes, {
+    folder: Attributes.Object({
+      modelKey: 'folder',
+      ItemClass: Folder,
+    }),
+  });
+
+  constructor(data = {}) {
+    super(data);
   }
 
   label() {
@@ -33,10 +38,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
       return this.taskDescription;
     }
 
-    let folderText = " to folder";
-    if (this.folder instanceof Category) {
-      folderText = ` to ${this.folder.displayName}`;
-    }
+    const folderText = ` to ${this.folder.displayName}`;
 
     if (this.threadIds.length > 1) {
       return `Moved ${this.threadIds.length} threads${folderText}`;

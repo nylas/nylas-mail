@@ -27,6 +27,9 @@ export default class Task extends Model {
       queryable: true,
       modelKey: 'status',
     }),
+    source: Attributes.String({
+      modelKey: 'source',
+    }),
     error: Attributes.Object({
       modelKey: 'error',
     }),
@@ -39,13 +42,10 @@ export default class Task extends Model {
   // `super`.
   //
   // On construction, all Tasks instances are given a unique `id`.
-  constructor() {
-    super();
-    this.version = 1;
-    this._rememberedToCallSuper = true;
-    this.id = generateTempId();
+  constructor(data) {
+    super(data);
+    this.id = this.id || generateTempId();
     this.accountId = null;
-    this.sequentialId = null; // set when queued
   }
 
   // Public: Override to raise exceptions if your task is missing required

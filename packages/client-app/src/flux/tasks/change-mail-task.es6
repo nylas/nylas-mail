@@ -1,4 +1,5 @@
 import Task from './task';
+import Attributes from '../attributes';
 
 /*
 Public: The ChangeMailTask is a base class for all tasks that modify sets
@@ -20,8 +21,20 @@ requests. It does not call {ChangeMailTask::changesToModel}.
 */
 export default class ChangeMailTask extends Task {
 
-  constructor({threads, thread, messages, message} = {}) {
-    super();
+  static attributes = Object.assign({}, ChangeMailTask.attributes, {
+    taskDescription: Attributes.String({
+      modelKey: 'taskDescription',
+    }),
+    threadIds: Attributes.Collection({
+      modelKey: 'threadIds',
+    }),
+    messageIds: Attributes.Collection({
+      modelKey: 'messageIds',
+    }),
+  });
+
+  constructor({threads, thread, messages, message, ...rest} = {}) {
+    super(rest);
 
     const t = threads || [];
     if (thread) {
