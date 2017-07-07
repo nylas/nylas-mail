@@ -46,44 +46,24 @@ export default class AttributeCollection extends Attribute {
       throw new Error(`AttributeCollection::toJSON: ${this.modelKey} is not an array.`);
     }
 
-    const json = []
-    for (const val of vals) {
+    return vals.map((val) => {
       if (!(val instanceof this.ItemClass)) {
         throw new Error(`AttributeCollection::toJSON: Value \`${val}\` in ${this.modelKey} is not an ${this.ItemClass.name}`);
       }
-      if (val.toJSON !== undefined) {
-        json.push(val.toJSON());
-      } else {
-        json.push(val);
-      }
-    }
-    return json;
+      return (val.toJSON !== undefined) ? val.toJSON() : val;
+    });
   }
 
   fromJSON(json) {
     if (!json || !(json instanceof Array)) {
       return [];
     }
-    const objs = [];
-
-    for (const objJSON of json) {
-      // Note: It's possible for a malformed API request to return an array
-      // of null values. N1 is tolerant to this type of error, but shouldn't
-      // happen on the API end.
-      if (!objJSON) {
-        continue;
+    return json.map((objJSON) => {
+      if (!objJSON || objJSON instanceof this.ItemClass) {
+        return objJSON;
       }
-
-      if (this.ItemClass.prototype.fromJSON) {
-        const obj = new this.ItemClass();
-        obj.fromJSON(objJSON);
-        objs.push(obj);
-      } else {
-        const obj = new this.ItemClass(objJSON);
-        objs.push(obj);
-      }
-    }
-    return objs;
+      return new this.ItemClass(objJSON);
+    });
   }
 
   // Public: Returns a {Matcher} for objects containing the provided value.

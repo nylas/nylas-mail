@@ -99,5 +99,4 @@ export default class ModelWithMetadata extends Model {
     })
     return this;
   }
-
 }

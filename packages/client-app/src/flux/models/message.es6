@@ -9,7 +9,6 @@ import Folder from './folder'
 import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
 
-
 /*
 Public: The Message model represents a Message object served by the Nylas Platform API.
 For more information about Messages on the Nylas Platform, read the
@@ -179,8 +178,8 @@ export default class Message extends ModelWithMetadata {
     return Message.attributes.date.ascending()
   }
 
-  constructor(args) {
-    super(args);
+  constructor(data) {
+    super(data);
     this.subject = this.subject || ""
     this.to = this.to || []
     this.cc = this.cc || []
@@ -303,7 +302,7 @@ export default class Message extends ModelWithMetadata {
 
   // Public: Returns an {Array} of {File} IDs
   fileIds() {
-    return _.map(this.files, (file) => file.id)
+    return this.files.map((file) => file.id)
   }
 
   // Public: Returns true if this message === from the current user's email

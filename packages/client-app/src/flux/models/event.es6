@@ -5,6 +5,7 @@ import Model from './model';
 import Attributes from '../attributes';
 import Contact from './contact';
 
+
 export default class Event extends Model {
 
   static attributes = Object.assign({}, Model.attributes, {

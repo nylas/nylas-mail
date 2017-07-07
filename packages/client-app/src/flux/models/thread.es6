@@ -7,7 +7,6 @@ import Attributes from '../attributes'
 import DatabaseStore from '../stores/database-store'
 import ModelWithMetadata from './model-with-metadata'
 
-
 /*
 Public: The Thread model represents a Thread object served by the Nylas Platform API.
 For more information about Threads on the Nylas Platform, read the
@@ -38,7 +37,7 @@ This class also inherits attributes from {Model}
 Section: Models
 @class Thread
 */
-class Thread extends ModelWithMetadata {
+export default class Thread extends ModelWithMetadata {
 
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {
     snippet: Attributes.String({ // TODO NONFUNCTIONAL
@@ -135,6 +134,10 @@ class Thread extends ModelWithMetadata {
     return [].concat(this.folders, this.labels);
   }
 
+  set categories(c) {
+    // noop
+  }
+
   /**
    * In the `clone` case, there are `categories` set, but no `folders` nor
    * `labels`
@@ -186,5 +189,3 @@ class Thread extends ModelWithMetadata {
     return out
   }
 }
-
-export default Thread;

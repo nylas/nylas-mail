@@ -7,7 +7,7 @@ FocusedPerspectiveStore = require('./focused-perspective-store').default
 MailboxPerspective = require '../../mailbox-perspective'
 Actions = require('../actions').default
 Thread = require('../models/thread').default
-Model = require '../models/model'
+Model = require('../models/model').default
 
 {Listener, Publisher} = require '../modules/reflux-coffee'
 CoffeeHelpers = require '../coffee-helpers'

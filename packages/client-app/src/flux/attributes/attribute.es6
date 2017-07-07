@@ -10,12 +10,11 @@ The Attribute class also exposes convenience methods for generating {Matcher} ob
 Section: Database
 */
 export default class Attribute {
-  constructor({modelKey, queryable, jsonKey, defaultValue, loadFromColumn}) {
+  constructor({modelKey, queryable, jsonKey, loadFromColumn}) {
     this.modelKey = modelKey;
     this.tableColumn = modelKey;
     this.jsonKey = jsonKey || modelKey;
     this.queryable = queryable;
-    this.defaultValue = defaultValue;
     if (loadFromColumn && !queryable) {
       throw new Error('loadFromColumn requires queryable');
     }

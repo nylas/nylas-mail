@@ -92,6 +92,9 @@ export default class MailsyncBridge {
   }
 
   onIncomingMessages(msgs) {
+    // todo bg
+    // dispatch the messages to other windows?
+
     for (const msg of msgs) {
       if (msg.length === 0) {
         continue;
@@ -100,16 +103,20 @@ export default class MailsyncBridge {
         console.log(`Sync worker sent non-JSON formatted message: ${msg}`)
         continue;
       }
-      const {type, object, objectClass} = JSON.parse(msg, Utils.registeredObjectReviver);
-      DatabaseStore.triggeringFromActionBridge = true;
-      DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: [object]}));
-      DatabaseStore.triggeringFromActionBridge = false;
 
-      if (object instanceof Task && object.status === 'complete') {
-        if (object.error != null) {
-          object.onError(object.error);
-        } else {
-          object.onSuccess();
+      const {type, objects, objectClass} = JSON.parse(msg);
+      const models = objects.map(Utils.convertToModel);
+      DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
+
+      if (objects[0] instanceof Task) {
+        for (const task of objects) {
+          if (task.status === 'complete') {
+            if (task.error != null) {
+              task.onError(task.error);
+            } else {
+              task.onSuccess();
+            }
+          }
         }
       }
     }

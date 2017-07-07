@@ -15,21 +15,9 @@ export default class AttributeObject extends Attribute {
   }
 
   fromJSON(val) {
-    if (!this.ItemClass) {
+    if (!this.ItemClass || val instanceof this.ItemClass) {
       return val || "";
     }
-    const obj = new this.ItemClass(val);
-
-    // Important: if no ids are in the JSON, don't make them up randomly.
-    // This causes an object to be "different" each time it's de-serialized
-    // even if it's actually the same, makes React components re-render!
-    obj.id = undefined;
-
-    // Warning: typeof null is object
-    if (obj.fromJSON && !!val && (typeof val === 'object')) {
-      obj.fromJSON(val);
-    }
-
-    return obj;
+    return new this.ItemClass(val);
   }
 }

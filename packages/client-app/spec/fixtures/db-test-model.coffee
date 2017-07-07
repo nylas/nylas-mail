@@ -1,4 +1,4 @@
-Model = require '../../src/flux/models/model'
+Model = require('../../src/flux/models/model').default
 Category = require('../../src/flux/models/category').default
 Attributes = require('../../src/flux/attributes').default
 

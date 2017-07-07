@@ -119,8 +119,8 @@ export default class Contact extends Model {
     });
   }
 
-  constructor(...args) {
-    super(...args);
+  constructor(data) {
+    super(data);
     this.thirdPartyData = this.thirdPartyData || {};
   }
 
