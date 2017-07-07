@@ -246,7 +246,7 @@ class GeneratedFieldset extends React.Component
       numCols = Math.max.apply(null, Object.keys(byCol))
 
       style = { zIndex: 1000-rowNum }
-      allHidden = _.every(itemsInRow, (item) -> item.type is "hidden")
+      allHidden = itemsInRow.every((item) -> item.type is "hidden")
       if allHidden then style.display = "none"
 
       <div className="row"

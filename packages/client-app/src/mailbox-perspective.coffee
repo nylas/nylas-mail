@@ -156,14 +156,14 @@ class MailboxPerspective
   canArchiveThreads: (threads) =>
     return false if @isArchive()
     accounts = AccountStore.accountsForItems(threads)
-    return _.every(accounts, (acc) -> acc.canArchiveThreads())
+    return accounts.every (acc) -> acc.canArchiveThreads()
 
   canTrashThreads: (threads) =>
     @canMoveThreadsTo(threads, 'trash')
 
   canMoveThreadsTo: (threads, standardCategoryName) =>
     return false if @categoriesSharedRole() is standardCategoryName
-    return _.every AccountStore.accountsForItems(threads), (acc) ->
+    return AccountStore.accountsForItems(threads).every (acc) ->
       CategoryStore.getCategoryByRole(acc, standardCategoryName)?
 
   tasksForRemovingItems: (threads) =>
@@ -303,10 +303,10 @@ class CategoryMailboxPerspective extends MailboxPerspective
       return FolderSyncProgressStore.isSyncCompleteForAccount(cat.accountId, representedFolder.path)
 
   isArchive: =>
-    _.every(@_categories, (cat) -> cat.isArchive())
+    @_categories.every((cat) -> cat.isArchive())
 
   canReceiveThreadsFromAccountIds: =>
-    super and not _.any @_categories, (c) -> c.isLockedCategory()
+    super and not @_categories.some((c) -> c.isLockedCategory())
 
   receiveThreads: (threadsOrIds) =>
     FocusedPerspectiveStore = require('./flux/stores/focused-perspective-store').default

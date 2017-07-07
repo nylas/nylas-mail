@@ -49,7 +49,7 @@ export default class Model {
   }
 
   clone() {
-    return new this.constructor(this.toJSON());
+    return new this.constructor(this);
   }
 
   // Public: Inflates the model object from JSON, using the defined attributes to

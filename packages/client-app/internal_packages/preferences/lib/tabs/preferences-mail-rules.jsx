@@ -267,9 +267,9 @@ class PreferencesMailRules extends React.Component {
   }
 
   render() {
-    const processDisabled = _.any(this.state.tasks, (task) => {
-      return (task.accountId === this.state.currentAccount.id);
-    });
+    const processDisabled = this.state.tasks.some((task) =>
+      task.accountId === this.state.currentAccount.id
+    );
 
     return (
       <div className="container-mail-rules">

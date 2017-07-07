@@ -128,9 +128,7 @@ export default class ThreadListContextMenu {
   }
 
   markAsReadItem() {
-    const unread = _.every(this.threads, (t) => {
-      return _.isMatch(t, {unread: false})
-    });
+    const unread = this.threads.every(t => t.unread === false);
     const dir = unread ? "Unread" : "Read"
 
     return {
@@ -145,9 +143,7 @@ export default class ThreadListContextMenu {
   }
 
   starItem() {
-    const starred = _.every(this.threads, (t) => {
-      return _.isMatch(t, {starred: false})
-    });
+    const starred = this.threads.every(t => t.starred === false);
 
     let dir = ""
     let star = "Star"

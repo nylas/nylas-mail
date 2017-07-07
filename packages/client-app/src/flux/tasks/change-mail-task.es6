@@ -75,10 +75,6 @@ export default class ChangeMailTask extends Task {
     return task;
   }
 
-  createIdenticalTask() {
-    return new this.constructor(this);
-  }
-
   numberOfImpactedItems() {
     return this.threadIds.length || this.messageIds.length;
   }

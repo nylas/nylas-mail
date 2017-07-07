@@ -18,7 +18,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
     folder: Attributes.Object({
       modelKey: 'folder',
-      ItemClass: Folder,
+      itemClass: Folder,
     }),
   });
 

@@ -62,7 +62,7 @@ class AccountStore extends NylasStore {
       emails = [emailOrEmails];
     }
     for (const email of emails) {
-      if (_.any(myEmails, (myEmail) => Utils.emailIsEquivalent(myEmail, email))) {
+      if (myEmails.find((myEmail) => Utils.emailIsEquivalent(myEmail, email))) {
         return true;
       }
     }
