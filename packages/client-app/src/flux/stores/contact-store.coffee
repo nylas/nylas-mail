@@ -12,8 +12,6 @@ AccountStore = require('./account-store').default
 ComponentRegistry = require('../../registries/component-registry')
 _ = require 'underscore'
 
-WindowBridge = require '../../window-bridge'
-
 ###
 Public: ContactStore provides convenience methods for searching contacts and
 formatting contacts. When Contacts become editable, this store will be expanded
