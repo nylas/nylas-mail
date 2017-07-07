@@ -47,7 +47,7 @@ export default class AttributeCollection extends Attribute {
     }
 
     return vals.map((val) => {
-      if (!(val instanceof this.ItemClass)) {
+      if (this.ItemClass && !(val instanceof this.ItemClass)) {
         throw new Error(`AttributeCollection::toJSON: Value \`${val}\` in ${this.modelKey} is not an ${this.ItemClass.name}`);
       }
       return (val.toJSON !== undefined) ? val.toJSON() : val;
@@ -59,7 +59,7 @@ export default class AttributeCollection extends Attribute {
       return [];
     }
     return json.map((objJSON) => {
-      if (!objJSON || objJSON instanceof this.ItemClass) {
+      if (!objJSON || !this.ItemClass || objJSON instanceof this.ItemClass) {
         return objJSON;
       }
       return new this.ItemClass(objJSON);
