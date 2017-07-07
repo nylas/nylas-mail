@@ -1,4 +1,5 @@
 import Attribute from './attribute';
+import Utils from '../models/utils';
 
 /*
 Public: An object that can be cast to `itemClass`
@@ -15,9 +16,15 @@ export default class AttributeObject extends Attribute {
   }
 
   fromJSON(val) {
-    if (!this.ItemClass || val instanceof this.ItemClass) {
-      return val || "";
+    if (!val || (this.ItemClass && val instanceof this.ItemClass)) {
+      return val;
     }
-    return new this.ItemClass(val);
+    if (this.ItemClass) {
+      return new this.ItemClass(val);
+    }
+    if (val.__cls) {
+      return Utils.convertToModel(val);
+    }
+    return val;
   }
 }
