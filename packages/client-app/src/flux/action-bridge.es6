@@ -1,7 +1,5 @@
 import _ from 'underscore';
 import Actions from './actions';
-import DatabaseStore from './stores/database-store';
-import DatabaseChangeRecord from './stores/database-change-record';
 
 import Utils from './models/utils';
 
@@ -15,29 +13,18 @@ const TargetWindows = {
   MAIN: 'default',
 };
 
-const Message = {
-  DATABASE_STORE_TRIGGER: 'db-store-trigger',
-};
-
 const printToConsole = false;
 
 // Public: ActionBridge
 //
-// The ActionBridge has two responsibilities:
-// 1. When you're in a secondary window, the ActionBridge observes all Root actions. When a
+//    When you're in a secondary window, the ActionBridge observes all Root actions. When a
 //    Root action is fired, it converts it's payload to JSON, tunnels it to the main window
 //    via IPC, and re-fires the Action in the main window. This means that calls to actions
 //    like Actions.queueTask(task) can be fired in secondary windows and consumed by the
 //    TaskQueue, which only lives in the main window.
 
-// 2. The ActionBridge listens to the DatabaseStore and re-broadcasts it's trigger() event
-//    into all of the windows of the application. This is important, because the DatabaseStore
-//    in all secondary windows is a read-replica. Only the DatabaseStore in the main window
-//    of the application consumes persistModel actions and writes changes to the database.
-
 class ActionBridge {
   static Role = Role;
-  static Message = Message;
   static TargetWindows = TargetWindows;
 
   constructor(ipc) {
@@ -67,14 +54,6 @@ class ActionBridge {
       const callback = (...args) => this.onRebroadcast(TargetWindows.ALL, name, args);
       return Actions[name].listen(callback, this);
     });
-
-    // Observe the database store (possibly other stores in the future), and
-    // rebroadcast it's trigger() event.
-    const databaseCallback = change => {
-      if (DatabaseStore.triggeringFromActionBridge) { return; }
-      this.onRebroadcast(TargetWindows.ALL, Message.DATABASE_STORE_TRIGGER, [change]);
-    };
-    DatabaseStore.listen(databaseCallback, this);
 
     if (this.role !== Role.MAIN) {
       // Observe all mainWindow actions fired in this window and re-broadcast
@@ -123,11 +102,7 @@ class ActionBridge {
 
       const args = JSON.parse(json, Utils.registeredObjectReviver);
 
-      if (name === Message.DATABASE_STORE_TRIGGER) {
-        DatabaseStore.triggeringFromActionBridge = true;
-        DatabaseStore.trigger(new DatabaseChangeRecord(args[0]));
-        DatabaseStore.triggeringFromActionBridge = false;
-      } else if (Actions[name]) {
+      if (Actions[name]) {
         Actions[name].firing = true;
         Actions[name](...args);
       } else if (this._isExtensionAction(name)) {
