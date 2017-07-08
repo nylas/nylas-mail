@@ -1,3 +1,28 @@
+Nylas Mail v3 [Unnamed]
+====
+
+High level Goals:
+---
+
+Fix longstanding issues that have always bugged me or stopped me from using the mail client personally. Primarily poor performance with multiple linked accounts and jank in the composer.
+
+- Replace JavaScript mail sync (client-sync package) and the Electron "worker window" with a new, high performance codebase written in C++ and based on Mailcore2. Make the Electron application just the UI layer.
+  + One C++ process per email account.
+  + C++ and JS communicate via the child process stdin/stdout streams.
+  + JS application queues tasks *but has read-only access to the database.*
+  + JS application should not install timers or wake /at all/ when idle. 0% battery impact when idle.
+- Improve performance of the thread list and composer contenteditable.
+- Make windows open faster by just having less code.
+- Bring back mail rules.
+
+New features:
+- Receipts
+- Templates with per-template performance tracking
+- Groups
+- Files
+
+----------------
+
 # Nylas Mail - the open-source, extensible mail client
 ![N1 Screenshot](https://nylas.com/static/img/nylas-mail/hero_graphic_mac@2x.png)
 
