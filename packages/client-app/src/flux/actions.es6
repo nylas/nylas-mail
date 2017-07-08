@@ -32,7 +32,7 @@ how it propogates between windows.
 ## Firing Actions
 
 ```coffee
-Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
+Actions.queueTask(new ChangeStarredTask(threads: [@_thread], starred: true))
 ```
 
 ## Listening for Actions

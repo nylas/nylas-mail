@@ -12,9 +12,9 @@ describe 'ChangeUnreadTask', ->
       ]
       task = new ChangeUnreadTask({threads, unread: true})
       expect(task.description()).toEqual("Marked 3 threads as unread")
-      task = new ChangeUnreadTask({thread: threads[0], unread: true})
+      task = new ChangeUnreadTask({threads: [threads[0]], unread: true})
       expect(task.description()).toEqual("Marked as unread")
       task = new ChangeUnreadTask({threads, unread: false})
       expect(task.description()).toEqual("Marked 3 threads as read")
-      task = new ChangeUnreadTask({thread: threads[0], unread: false})
+      task = new ChangeUnreadTask({threads: [threads[0]], unread: false})
       expect(task.description()).toEqual("Marked as read")

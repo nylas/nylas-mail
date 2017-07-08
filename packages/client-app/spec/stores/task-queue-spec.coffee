@@ -58,25 +58,3 @@ xdescribe "TaskQueue", ->
       waitsForPromise =>
         TaskQueue._restoreQueue().then =>
           expect(TaskQueue._queue).toEqual([@processingTask, @retryInFutureTask])
-
-  describe "findTask", ->
-    beforeEach ->
-      @subclassA = new TaskSubclassA()
-      @subclassB1 = new TaskSubclassB("B1")
-      @subclassB2 = new TaskSubclassB("B2")
-      TaskQueue._queue = [@subclassA, @subclassB1, @subclassB2]
-
-    it "accepts type as a string", ->
-      expect(TaskQueue.findTask('TaskSubclassB', {bProp: 'B1'})).toEqual(@subclassB1)
-
-    it "accepts type as a class", ->
-      expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B1'})).toEqual(@subclassB1)
-
-    it "works without a set of match criteria", ->
-      expect(TaskQueue.findTask(TaskSubclassA)).toEqual(@subclassA)
-
-    it "only returns a task that matches the criteria", ->
-      expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B1'})).toEqual(@subclassB1)
-      expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B2'})).toEqual(@subclassB2)
-      expect(TaskQueue.findTask(TaskSubclassB, {bProp: 'B3'})).toEqual(undefined)
-

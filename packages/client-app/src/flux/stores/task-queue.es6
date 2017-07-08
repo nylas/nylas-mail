@@ -26,7 +26,7 @@ main window via IPC.
 
 ```coffee
 if @_thread && @_thread.unread
-  Actions.queueTask(new ChangeStarredTask(thread: @_thread, starred: true))
+  Actions.queueTask(new ChangeStarredTask(threads: [@_thread], starred: true))
 ```
 
 ## Dequeueing a Task
@@ -50,8 +50,8 @@ class TaskQueue extends NylasStore {
     this._waitingForRemote = [];
 
     Rx.Observable.fromQuery(DatabaseStore.findAll(Task)).subscribe((tasks => {
-      this._queue = tasks.filter(t => t.status !== 'complete');
-      this._completed = tasks.filter(t => t.status === 'complete');
+      this._queue = tasks.filter(t => t.status !== Task.Status.Complete);
+      this._completed = tasks.filter(t => t.status === Task.Status.Complete);
       const all = [].concat(this._queue, this._completed);
 
       this._waitingForLocal.filter(({task, resolve}) => {
@@ -88,23 +88,6 @@ class TaskQueue extends NylasStore {
     return [].concat(this._queue, this._completed);
   }
 
-  /*
-  Public: Returns an existing task in the queue that matches the type you provide,
-  and any other match properties. Useful for checking to see if something, like
-  a "SendDraft" task is in-flight.
-
-  - `type`: The string name of the task class, or the Task class itself. (ie:
-    {SaveDraftTask} or 'SaveDraftTask')
-
-  - `matching`: Optional An {Object} with criteria to pass to _.isMatch. For a
-     SaveDraftTask, this could be {headerMessageId: "123123"}
-
-  Returns a matching {Task}, or null.
-  */
-  findTask(type, matching = {}) {
-    this.findTasks(type, matching).unshift();
-  }
-
   findTasks(typeOrClass, matching = {}, {includeCompleted} = {}) {
     const type = typeOrClass instanceof String ? typeOrClass : typeOrClass.name;
     const tasks = includeCompleted ? [].concat(this._queue, this._completed) : this._queue;
@@ -121,12 +104,18 @@ class TaskQueue extends NylasStore {
   }
 
   waitForPerformLocal = (task) => {
+    const upToDateTask = [].concat(this._queue, this._completed).find(t => t.id === task.id);
+    if (upToDateTask.status !== Task.Status.Local) { return Promise.resolve(upToDateTask); }
+
     return new Promise((resolve) => {
       this._waitingForLocal.push({task, resolve});
     });
   }
 
   waitForPerformRemote = (task) => {
+    const upToDateTask = [].concat(this._queue, this._completed).find(t => t.id === task.id);
+    if (upToDateTask.status === Task.Status.Complete) { return Promise.resolve(upToDateTask); }
+
     return new Promise((resolve) => {
       this._waitingForRemote.push({task, resolve});
     });
