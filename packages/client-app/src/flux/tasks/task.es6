@@ -6,15 +6,14 @@ import {generateTempId} from '../models/utils';
 import {PermanentErrorCodes} from '../nylas-api';
 import {APIError} from '../errors';
 
-const TaskStatus = {
-  Retry: "RETRY",
-  Success: "SUCCESS",
-  Continue: "CONTINUE",
-  Failed: "FAILED",
+const Status = {
+  Local: "local",
+  Remote: "remote",
+  Complete: "complete",
 };
 
 export default class Task extends Model {
-  static Status = TaskStatus;
+  static Status = Status;
   static SubclassesUseModelTable = Task;
 
   static attributes = Object.assign({}, Model.attributes, {
@@ -44,31 +43,14 @@ export default class Task extends Model {
   // On construction, all Tasks instances are given a unique `id`.
   constructor(data) {
     super(data);
+    this.status = this.status || Status.Local;
     this.id = this.id || generateTempId();
-    this.accountId = null;
   }
 
   // Public: Override to raise exceptions if your task is missing required
   // arguments. This logic used to go in performLocal.
   validate() {
 
-  }
-
-  // Public: It's up to you to determine how you want to indicate whether
-  // or not you have an instance of an "Undo Task". We commonly use a
-  // simple instance variable boolean flag.
-  //
-  // Returns `true` (is an Undo Task) or `false` (is not an Undo Task)
-  isUndo() {
-    return false;
-  }
-
-  // Public: Determines whether or not this task can be undone via the
-  // {UndoRedoStore}
-  //
-  // Returns `true` (can be undone) or `false` (can't be undone)
-  canBeUndone() {
-    return false;
   }
 
   // Public: Return from `createIdenticalTask` and set a flag so your
@@ -82,7 +64,9 @@ export default class Task extends Model {
   createIdenticalTask() {
     const json = this.toJSON();
     delete json.status;
-    return (new this.constructor()).fromJSON(json);
+    delete json.version;
+    delete json.id;
+    return new this.constructor(json);
   }
 
   // Public: code to run if (someone tries to dequeue your task while it is)
@@ -105,19 +89,6 @@ export default class Task extends Model {
   // task affected.
   numberOfImpactedItems() {
     return 1;
-  }
-
-  // Private: Allows for serialization of tasks
-  toJSON() {
-    return Object.assign(super.toJSON(), this);
-  }
-
-  // Private: Allows for deserialization of tasks
-  fromJSON(json) {
-    for (const key of Object.keys(json)) {
-      this[key] = json[key];
-    }
-    return this;
   }
 
   onError(err) {

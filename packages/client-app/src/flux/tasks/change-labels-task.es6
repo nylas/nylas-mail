@@ -15,16 +15,19 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
     labelsToAdd: Attributes.Collection({
       modelKey: 'labelsToAdd',
-      ItemClass: Label,
+      itemClass: Label,
     }),
     labelsToRemove: Attributes.Collection({
       modelKey: 'labelsToRemove',
-      ItemClass: Label,
+      itemClass: Label,
     }),
   });
 
-  constructor(options = {}) {
-    super(options);
+  constructor(data = {}) {
+    if (data.messages) {
+      throw new Error("ChangeLabelsTask: Changing individual message labels is unsupported");
+    }
+    super(data);
   }
 
   label() {
@@ -82,5 +85,13 @@ export default class ChangeLabelsTask extends ChangeMailTask {
       }
     }
     super.validate();
+  }
+
+  createUndoTask() {
+    const task = super.createUndoTask();
+    const {labelsToAdd, labelsToRemove} = task;
+    task.labelsToAdd = labelsToRemove;
+    task.labelsToRemove = labelsToAdd;
+    return task;
   }
 }

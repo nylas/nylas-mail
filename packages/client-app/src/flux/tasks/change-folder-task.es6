@@ -16,6 +16,10 @@ import Folder from '../models/folder';
 export default class ChangeFolderTask extends ChangeMailTask {
 
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
+    previousFolder: Attributes.Object({
+      modelKey: 'folder',
+      itemClass: Folder,
+    }),
     folder: Attributes.Object({
       modelKey: 'folder',
       itemClass: Folder,
@@ -23,7 +27,17 @@ export default class ChangeFolderTask extends ChangeMailTask {
   });
 
   constructor(data = {}) {
+    if (data.threads) {
+      data.threads = data.threads.filter(t => t.folder.id !== data.folder.id);
+    }
+    if (data.messages) {
+      data.messages = data.messages.filter(m => m.folder.id !== data.folder.id);
+    }
+
     super(data);
+
+    // grab the folder we'll revert to in case of undo/redo
+    this.previousFolder = this.previousFolder || [].concat(data.threads, data.messages).pop().folder;
   }
 
   label() {
@@ -64,5 +78,13 @@ export default class ChangeFolderTask extends ChangeMailTask {
 
   _isArchive() {
     return this.folder.name === "archive" || this.folder.name === "all"
+  }
+
+  createUndoTask() {
+    const task = super.createUndoTask();
+    const {folder, previousFolder} = task;
+    task.folder = previousFolder;
+    task.previousFolder = folder;
+    return task;
   }
 }

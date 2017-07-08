@@ -25,7 +25,4 @@ export default class DestroyModelTask extends Task {
 
   validate() {
   }
-
-  canBeUndone() { return false }
-
 }

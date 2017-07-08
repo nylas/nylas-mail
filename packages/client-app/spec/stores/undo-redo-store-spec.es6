@@ -1,20 +1,16 @@
 import {Actions, Task, UndoRedoStore} from 'nylas-exports'
 
 class Undoable extends Task {
-  canBeUndone() {
-    return true
-  }
-
-  createIdenticalTask() {
-    const t = new Undoable()
-    t.id = this.id
-    return t
+  constructor() {
+    super();
+    this.canBeUndone = true;
   }
 }
 
 class PermanentTask extends Task {
-  canBeUndone() {
-    return false
+  constructor() {
+    super();
+    this.canBeUndone = false;
   }
 }
 
@@ -73,7 +69,7 @@ describe("UndoRedoStore", function undoRedoStoreSpec() {
   it("doesn't refresh redo if our task is itself a redo task", () => {
     UndoRedoStore._redo = [[this.t1, this.t2], [this.t3]]
     const tr = new Undoable()
-    tr.isRedoTask = true
+    tr.source = 'redo'
     Actions.queueTask(tr)
     expect(UndoRedoStore._redo).toEqual([[this.t1, this.t2], [this.t3]])
     expect(UndoRedoStore._undo).toEqual([[tr]])
@@ -112,8 +108,8 @@ describe("UndoRedoStore", function undoRedoStoreSpec() {
     UndoRedoStore._undo = [[this.t3], [this.t1, this.t2]]
     UndoRedoStore.undo()
     UndoRedoStore.redo()
-    expect(Actions.queueTasks.calls[0].args[0][0].isRedoTask).toBe(true)
-    expect(Actions.queueTasks.calls[0].args[0][1].isRedoTask).toBe(true)
+    expect(Actions.queueTasks.calls[0].args[0][0].source).toEqual('redo')
+    expect(Actions.queueTasks.calls[0].args[0][1].source).toEqual('redo')
   });
 
   it("correctly follows the undo redo sequence of events", () => {

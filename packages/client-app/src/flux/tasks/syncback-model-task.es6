@@ -21,8 +21,4 @@ export default class SyncbackModelTask extends Task {
     this.validateRequiredFields(["clientId"])
     return Promise.resolve()
   }
-
-  canBeUndone() { return false }
-
-  isUndo() { return false }
 }

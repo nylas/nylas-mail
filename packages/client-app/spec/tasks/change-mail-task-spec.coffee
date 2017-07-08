@@ -80,18 +80,18 @@ xdescribe "ChangeMailTask", ->
       expect(clone.threads).toEqual([@threadA.id, @threadB.id])
 
   describe "createUndoTask", ->
-    it "should return a task initialized with _isUndoTask and _restoreValues", ->
+    it "should return a task initialized with isUndo and _restoreValues", ->
       task = new ChangeMailTask()
       task.messages = [@threadAMesage1, @threadAMesage2]
       task._restoreValues = {'A': 'bla'}
       undo = task.createUndoTask()
       expect(undo.messages).toEqual([@threadAMesage1.id, @threadAMesage2.id])
       expect(undo._restoreValues).toBe(task._restoreValues)
-      expect(undo._isUndoTask).toBe(true)
+      expect(undo.isUndo).toBe(true)
 
     it "should throw if you try to make an undo task of an undo task", ->
       task = new ChangeMailTask()
-      task._isUndoTask = true
+      task.isUndo = true
       expect( -> task.createUndoTask()).toThrow()
 
     it "should throw if _restoreValues are not availble", ->

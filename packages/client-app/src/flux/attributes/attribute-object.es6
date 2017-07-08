@@ -8,7 +8,7 @@ Section: Database
 export default class AttributeObject extends Attribute {
   constructor({modelKey, jsonKey, itemClass, queryable}) {
     super({modelKey, jsonKey, queryable});
-    this.ItemClass = itemClass;
+    this.itemClass = itemClass;
   }
 
   toJSON(val) {
@@ -16,11 +16,12 @@ export default class AttributeObject extends Attribute {
   }
 
   fromJSON(val) {
-    if (!val || (this.ItemClass && val instanceof this.ItemClass)) {
+    const Klass = this.itemClass;
+    if (!val || (Klass && val instanceof Klass)) {
       return val;
     }
-    if (this.ItemClass) {
-      return new this.ItemClass(val);
+    if (Klass) {
+      return new Klass(val);
     }
     if (val.__cls) {
       return Utils.convertToModel(val);

@@ -14,9 +14,14 @@ export default class ChangeStarredTask extends ChangeMailTask {
     }),
   });
 
-  constructor({starred, ...rest} = {}) {
-    super(rest);
-    this.starred = starred;
+  constructor(data = {}) {
+    if (data.threads) {
+      data.threads = data.threads.filter(t => t.starred !== data.starred);
+    }
+    if (data.messages) {
+      data.messages = data.messages.filter(m => m.starred !== data.starred);
+    }
+    super(data);
   }
 
   label() {
@@ -27,7 +32,7 @@ export default class ChangeStarredTask extends ChangeMailTask {
     const count = this.threadIds.length;
     const type = count > 1 ? "threads" : "thread";
 
-    if (this._isUndoTask) {
+    if (this.isUndo) {
       return `Undoing changes to ${count} ${type}`
     }
 
@@ -45,6 +50,12 @@ export default class ChangeStarredTask extends ChangeMailTask {
     super.validate();
   }
 
+  createUndoTask() {
+    const task = super.createUndoTask();
+    task.starred = !this.starred;
+    return task;
+  }
+
   recordUserEvent() {
     if (this.source === "Mail Rules") {
       return
@@ -54,7 +65,7 @@ export default class ChangeStarredTask extends ChangeMailTask {
       source: this.source,
       numThreads: this.threadIds.length,
       description: this.description(),
-      isUndo: this._isUndoTask,
+      isUndo: this.isUndo,
     })
   }
 }

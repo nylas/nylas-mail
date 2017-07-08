@@ -9,18 +9,19 @@ import ChangeMailTask from './change-mail-task';
 export default class ChangeUnreadTask extends ChangeMailTask {
 
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
-    starred: Attributes.Boolean({
+    unread: Attributes.Boolean({
       modelKey: 'unread',
-    }),
-    _canBeUndone: Attributes.Boolean({
-      modelKey: '_canBeUndone',
     }),
   });
 
-  constructor({unread, canBeUndone, ...rest} = {}) {
-    super(rest);
-    this.unread = unread;
-    this._canBeUndone = canBeUndone;
+  constructor(data = {}) {
+    if (data.threads) {
+      data.threads = data.threads.filter(t => t.unread !== data.unread);
+    }
+    if (data.messages) {
+      data.messages = data.messages.filter(m => m.unread !== data.unread);
+    }
+    super(data);
   }
 
   label() {
@@ -31,7 +32,7 @@ export default class ChangeUnreadTask extends ChangeMailTask {
     const count = this.threadIds.length;
     const type = count > 1 ? 'threads' : 'thread';
 
-    if (this._isUndoTask) {
+    if (this.isUndo) {
       return `Undoing changes to ${count} ${type}`;
     }
 
@@ -42,10 +43,9 @@ export default class ChangeUnreadTask extends ChangeMailTask {
     return `Marked as ${newState}`;
   }
 
-  canBeUndone() {
-    if (this._canBeUndone == null) {
-      return super.canBeUndone()
-    }
-    return this._canBeUndone
+  createUndoTask() {
+    const task = super.createUndoTask();
+    task.unread = !this.unread;
+    return task;
   }
 }

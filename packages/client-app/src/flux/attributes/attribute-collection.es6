@@ -32,7 +32,7 @@ Section: Database
 export default class AttributeCollection extends Attribute {
   constructor({modelKey, jsonKey, itemClass, joinOnField, joinQueryableBy, queryable}) {
     super({modelKey, jsonKey, queryable});
-    this.ItemClass = this.itemClass = itemClass;
+    this.itemClass = itemClass;
     this.joinOnField = joinOnField;
     this.joinQueryableBy = joinQueryableBy || [];
   }
@@ -47,22 +47,24 @@ export default class AttributeCollection extends Attribute {
     }
 
     return vals.map((val) => {
-      if (this.ItemClass && !(val instanceof this.ItemClass)) {
-        throw new Error(`AttributeCollection::toJSON: Value \`${val}\` in ${this.modelKey} is not an ${this.ItemClass.name}`);
+      if (this.itemClass && !(val instanceof this.itemClass)) {
+        throw new Error(`AttributeCollection::toJSON: Value \`${val}\` in ${this.modelKey} is not an ${this.itemClass.name}`);
       }
       return (val.toJSON !== undefined) ? val.toJSON() : val;
     });
   }
 
   fromJSON(json) {
+    const Klass = this.itemClass;
+
     if (!json || !(json instanceof Array)) {
       return [];
     }
     return json.map((objJSON) => {
-      if (!objJSON || !this.ItemClass || objJSON instanceof this.ItemClass) {
+      if (!objJSON || !Klass || objJSON instanceof Klass) {
         return objJSON;
       }
-      return new this.ItemClass(objJSON);
+      return new Klass(objJSON);
     });
   }
 

@@ -199,11 +199,11 @@ xdescribe('SyncbackModelTask', function syncbackModelTask() {
 
   describe("undo/redo", () => {
     it("cant be undone", () => {
-      expect(this.task.canBeUndone()).toBe(false)
+      expect(this.task.canBeUndone).toBe(false)
     });
 
     it("isn't an undo task", () => {
-      expect(this.task.isUndo()).toBe(false)
+      expect(this.task.isUndo).toBe(false)
     });
   });
 });

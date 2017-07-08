@@ -1,7 +1,7 @@
-import _ from 'underscore';
 import NylasStore from 'nylas-store';
-
 import Actions from '../actions';
+
+const TASK_SOURCE_REDO = 'redo';
 
 class UndoRedoStore extends NylasStore {
 
@@ -19,16 +19,15 @@ class UndoRedoStore extends NylasStore {
     NylasEnv.commands.add(document.body, {'core:redo': this.redo });
   }
 
-  _onQueue = (taskArg) => {
-    if (!taskArg) { return; }
-    let tasks = taskArg;
-    if (!(tasks instanceof Array)) { tasks = [tasks]; }
-    if (tasks.length <= 0) { return; }
-    const undoable = _.every(tasks, t => t.canBeUndone());
-    const isRedoTask = _.every(tasks, t => t.isRedoTask);
+  _onQueue = (taskOrTasks) => {
+    const tasks = taskOrTasks instanceof Array ? taskOrTasks : [taskOrTasks];
+    if (tasks.length === 0) { return; }
 
-    if (undoable) {
-      if (!isRedoTask) { this._redo = []; }
+    const isUndoableAndNotUndo = tasks.every(t => t.canBeUndone && !t.isUndo);
+    const isRedo = tasks.every(t => t.source === TASK_SOURCE_REDO);
+
+    if (isUndoableAndNotUndo) {
+      if (!isRedo) { this._redo = []; }
       this._undo.push(tasks);
       this._mostRecentTasks = tasks;
       this.trigger();
@@ -43,12 +42,12 @@ class UndoRedoStore extends NylasStore {
     this.trigger();
 
     for (const task of topTasks) {
-      Actions.queueTask(task.createUndoTask());
+      Actions.queueTask(task.createUndoTask())
     }
 
     const redoTasks = topTasks.map((t) => {
       const redoTask = t.createIdenticalTask();
-      redoTask.isRedoTask = true;
+      redoTask.source = TASK_SOURCE_REDO;
       return redoTask;
     });
     this._redo.push(redoTasks);
