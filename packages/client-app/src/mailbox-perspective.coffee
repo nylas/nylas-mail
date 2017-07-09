@@ -342,6 +342,7 @@ class CategoryMailboxPerspective extends MailboxPerspective
               threads: accountThreads,
               source: "Dragged into list",
               labelsToAdd: [myCat],
+              labelsToRemove: [],
             })
           ]
         else
@@ -393,10 +394,11 @@ class CategoryMailboxPerspective extends MailboxPerspective
         inboxCat = CategoryStore.getInboxCategory(accountId)
         return new ChangeLabelsTask({
           threads: accountThreads,
+          labelsToAdd: [],
           labelsToRemove: [cat, inboxCat],
           source: source,
         })
-      else 
+      else
         return new ChangeFolderTask({
           threads: accountThreads,
           folder: preferred,

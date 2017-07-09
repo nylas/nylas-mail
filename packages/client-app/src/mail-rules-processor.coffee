@@ -29,7 +29,7 @@ MailRulesActions =
       accountId: thread.accountId
     }).then (important) ->
       return Promise.reject(new Error("Could not find `important` label")) unless important
-      return new ChangeLabelsTask(labelsToAdd: [important], threads: [thread.id], source: "Mail Rules")
+      return new ChangeLabelsTask(labelsToAdd: [important], labelsToRemove: [], threads: [thread.id], source: "Mail Rules")
 
   moveToTrash: (message, thread) ->
     if AccountStore.accountForId(thread.accountId).usesLabels()
@@ -55,7 +55,7 @@ MailRulesActions =
     return Promise.reject(new Error("A label is required.")) unless value
     DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId }).then (label) ->
       return Promise.reject(new Error("The label could not be found.")) unless label
-      return new ChangeLabelsTask(labelsToAdd: [label], threads: [thread.id], source: "Mail Rules")
+      return new ChangeLabelsTask(labelsToAdd: [label], labelsToRemove: [], threads: [thread.id], source: "Mail Rules")
 
   # Should really be moveToArchive but stuck with legacy name
   applyLabelArchive: (message, thread) ->

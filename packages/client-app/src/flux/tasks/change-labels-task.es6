@@ -23,13 +23,6 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     }),
   });
 
-  constructor(data = {}) {
-    if (data.messages) {
-      throw new Error("ChangeLabelsTask: Changing individual message labels is unsupported");
-    }
-    super(data);
-  }
-
   label() {
     return "Applying labels";
   }
@@ -79,6 +72,15 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   }
 
   validate() {
+    if (this.messageIds.length) {
+      throw new Error("ChangeLabelsTask: Changing individual message labels is unsupported");
+    }
+    if (!this.labelsToAdd) {
+      throw new Error(`Assertion Failure: ChangeLabelsTask requires labelsToAdd`)
+    }
+    if (!this.labelsToRemove) {
+      throw new Error(`Assertion Failure: ChangeLabelsTask requires labelsToRemove`)
+    }
     for (const l of [].concat(this.labelsToAdd, this.labelsToRemove)) {
       if ((l instanceof Label) === false) {
         throw new Error(`Assertion Failure: ChangeLabelsTask received a non-label: ${JSON.stringify(l)}`)

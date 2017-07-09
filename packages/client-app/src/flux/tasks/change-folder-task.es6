@@ -28,7 +28,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
 
   constructor(data = {}) {
     if (data.threads) {
-      data.threads = data.threads.filter(t => t.folder.id !== data.folder.id);
+      data.threads = data.threads.filter(t => t.folders.find(f => f.id !== data.folder.id));
     }
     if (data.messages) {
       data.messages = data.messages.filter(m => m.folder.id !== data.folder.id);
