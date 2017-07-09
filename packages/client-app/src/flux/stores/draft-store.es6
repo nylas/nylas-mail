@@ -126,7 +126,10 @@ class DraftStore extends NylasStore {
     _.each(this._draftSessions, (session) => {
       const draft = session.draft()
       if (draft && draft.pristine) {
-        Actions.queueTask(new DestroyDraftTask(draft.accountId, draft.headerMessageId));
+        Actions.queueTask(new DestroyDraftTask({
+          accountId: draft.accountId,
+          headerMessageId: draft.headerMessageId,
+        }));
       } else {
         promises.push(session.changes.commit());
       }
@@ -353,7 +356,7 @@ class DraftStore extends NylasStore {
     })
 
     // Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask(accountId, headerMessageId));
+    Actions.queueTask(new DestroyDraftTask({accountId, headerMessageId}));
 
     if (NylasEnv.isComposerWindow()) {
       NylasEnv.close();
