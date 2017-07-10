@@ -1,6 +1,5 @@
 path = require 'path'
 _ = require 'underscore'
-_str = require 'underscore.string'
 {convertStackTrace} = require 'coffeestack'
 React = require 'react'
 ReactDOM = require 'react-dom'

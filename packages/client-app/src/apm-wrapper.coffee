@@ -1,7 +1,4 @@
-_ = require 'underscore'
-Q = require 'q'
 semver = require 'semver'
-
 BufferedProcess = require './buffered-process'
 
 module.exports =

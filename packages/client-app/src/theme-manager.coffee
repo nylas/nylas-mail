@@ -5,7 +5,6 @@ EmitterMixin = require('emissary').Emitter
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
 {File} = require 'pathwatcher'
 fs = require 'fs-plus'
-Q = require 'q'
 
 Package = require './package'
 

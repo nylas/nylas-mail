@@ -5,7 +5,6 @@ async = require 'async'
 fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {Emitter, CompositeDisposable} = require 'event-kit'
-Q = require 'q'
 
 ModuleCache = require './module-cache'
 

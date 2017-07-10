@@ -1,4 +1,3 @@
-Q = require 'q'
 Package = require './package'
 
 module.exports =

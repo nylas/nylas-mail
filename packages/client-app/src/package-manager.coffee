@@ -6,7 +6,6 @@ _ = require 'underscore'
 EmitterMixin = require('emissary').Emitter
 {Emitter} = require 'event-kit'
 fs = require 'fs-plus'
-Q = require 'q'
 
 Actions = require('./flux/actions').default
 Package = require './package'
