@@ -1,4 +1,3 @@
-Reflux = require 'reflux'
 Actions = require('../src/flux/actions').default
 Message = require('../src/flux/models/message').default
 DatabaseStore = require('../src/flux/stores/database-store').default

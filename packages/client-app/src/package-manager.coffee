@@ -554,7 +554,7 @@ class PackageManager
     for [activator, types] in @packageActivators
       packages = @getLoadedPackagesForTypes(types)
       promises = promises.concat(activator.activatePackages(packages))
-    Q.all(promises).then =>
+    Promise.all(promises).then =>
       @emit 'activated'
       @emitter.emit 'did-activate-initial-packages'
 
@@ -578,7 +578,7 @@ class PackageManager
   # Activate a single package by name
   activatePackage: (name) ->
     if pack = @getActivePackage(name)
-      Q(pack)
+      Promise.resolve(pack)
     else if pack = @loadPackage(name)
       pack.activate().then =>
         @activePackages[pack.name] = pack
@@ -586,7 +586,7 @@ class PackageManager
         @onPluginsChanged()
         pack
     else
-      Q.reject(new Error("Failed to load package '#{name}'"))
+      Promise.reject(new Error("Failed to load package '#{name}'"))
 
   # Deactivate all packages
   deactivatePackages: ->

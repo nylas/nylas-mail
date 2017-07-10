@@ -142,13 +142,12 @@ class Package
     @menus = []
 
   activate: ->
-    unless @activationDeferred?
-      @activationDeferred = Q.defer()
+    unless @isActivated
       @measure 'activateTime', =>
         @activateResources()
         @activateNow()
-
-    Q.all([@activationDeferred.promise])
+      @isActivated = true
+    return Promise.resolve()
 
   activateNow: ->
     try
@@ -162,8 +161,6 @@ class Package
       console.error e.message
       console.error e.stack
       console.warn "Failed to activate package named '#{@name}'", e.stack
-
-    @activationDeferred?.resolve()
 
   activateConfig: ->
     return if @configActivated
@@ -262,8 +259,7 @@ class Package
         console.error "Error serializing package '#{@name}'", e.stack
 
   deactivate: ->
-    @activationDeferred?.reject()
-    @activationDeferred = null
+    @isActivated = null
     @deactivateResources()
     @deactivateConfig()
     if @mainActivated

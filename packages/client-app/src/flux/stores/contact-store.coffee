@@ -1,6 +1,5 @@
 fs = require 'fs'
 path = require 'path'
-Reflux = require 'reflux'
 Rx = require 'rx-lite'
 Actions = require('../actions').default
 Contact = require('../models/contact').default

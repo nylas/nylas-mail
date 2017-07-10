@@ -52,7 +52,7 @@ class SanitizeTransformer {
     }
 
     if (!sanitizeHtml) {
-      sanitizeHtml = require('sanitize-html').default; //eslint-disable-line
+      sanitizeHtml = require('sanitize-html'); //eslint-disable-line
     }
     return Promise.resolve(sanitizeHtml(body, settings));
   }

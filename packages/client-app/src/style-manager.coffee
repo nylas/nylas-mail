@@ -1,4 +1,3 @@
-fs = require 'fs-plus'
 path = require 'path'
 {Emitter, Disposable} = require 'event-kit'
 

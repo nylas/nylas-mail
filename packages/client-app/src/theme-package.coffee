@@ -22,11 +22,9 @@ class ThemePackage extends Package
     this
 
   activate: ->
-    return @activationDeferred.promise if @activationDeferred?
-
-    @activationDeferred = Q.defer()
-    @measure 'activateTime', =>
-      @loadStylesheets()
-      @activateNow()
-
-    @activationDeferred.promise
+    unless @isActivated
+      @measure 'activateTime', =>
+        @loadStylesheets()
+        @activateNow()
+      @isActivated = true
+    return Promise.resolve()

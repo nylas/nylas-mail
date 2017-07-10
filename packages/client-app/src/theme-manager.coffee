@@ -233,32 +233,29 @@ class ThemeManager
     string.replace(/\\/g, '/')
 
   activateThemes: ->
-    deferred = Q.defer()
+    return new Promise (resolve) =>
+      # NylasEnv.config.observe runs the callback once, then on subsequent changes.
+      NylasEnv.config.observe 'core.themes', =>
+        @deactivateThemes()
 
-    # NylasEnv.config.observe runs the callback once, then on subsequent changes.
-    NylasEnv.config.observe 'core.themes', =>
-      @deactivateThemes()
+        # Refreshing the less cache is very expensive (hundreds of ms). It
+        # will be refreshed once the promise resolves after packages are
+        # activated.
 
-      # Refreshing the less cache is very expensive (hundreds of ms). It
-      # will be refreshed once the promise resolves after packages are
-      # activated.
+        promises = []
+        for themeName in @getEnabledThemeNames()
+          if @packageManager.resolvePackagePath(themeName)
+            promises.push(@packageManager.activatePackage(themeName))
+          else
+            console.warn("Failed to activate theme '#{themeName}' because it isn't installed.")
 
-      promises = []
-      for themeName in @getEnabledThemeNames()
-        if @packageManager.resolvePackagePath(themeName)
-          promises.push(@packageManager.activatePackage(themeName))
-        else
-          console.warn("Failed to activate theme '#{themeName}' because it isn't installed.")
-
-      Q.all(promises).then =>
-        @addActiveThemeClasses()
-        @refreshLessCache() # Update cache again now that @getActiveThemes() is populated
-        @reloadBaseStylesheets()
-        @initialLoadComplete = true
-        @emitter.emit 'did-change-active-themes'
-        deferred.resolve()
-
-    deferred.promise
+        Promise.all(promises).then =>
+          @addActiveThemeClasses()
+          @refreshLessCache() # Update cache again now that @getActiveThemes() is populated
+          @reloadBaseStylesheets()
+          @initialLoadComplete = true
+          @emitter.emit 'did-change-active-themes'
+          resolve()
 
   deactivateThemes: ->
     @removeActiveThemeClasses()

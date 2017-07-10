@@ -1,5 +1,4 @@
 proxyquire = require 'proxyquire'
-Reflux = require 'reflux'
 
 FocusedContactsStore = require '../../src/flux/stores/focused-contacts-store'
 

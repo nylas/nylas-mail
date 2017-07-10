@@ -1,5 +1,4 @@
 _ = require 'underscore'
-Reflux = require 'reflux'
 AccountStore = require('./account-store').default
 WorkspaceStore = require './workspace-store'
 DatabaseStore = require('./database-store').default

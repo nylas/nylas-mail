@@ -1,48 +1,7 @@
-_ = require('underscore')
-_str = require('underscore.string')
 EventEmitter = require('events').EventEmitter
 
 callbackName = (string) ->
   "on"+string.charAt(0).toUpperCase()+string.slice(1)
-
-###*
-# Extract child listenables from a parent from their
-# children property and return them in a keyed Object
-#
-# @param {Object} listenable The parent listenable
-###
-
-mapChildListenables = (listenable) ->
-  i = 0
-  children = {}
-  childName = undefined
-  while i < (listenable.children or []).length
-    childName = listenable.children[i]
-    if listenable[childName]
-      children[childName] = listenable[childName]
-    ++i
-  children
-
-###*
-# Make a flat dictionary of all listenables including their
-# possible children (recursively), concatenating names in camelCase.
-#
-# @param {Object} listenables The top-level listenables
-###
-
-flattenListenables = (listenables) ->
-  flattened = {}
-  for key of listenables
-    listenable = listenables[key]
-    childMap = mapChildListenables(listenable)
-    # recursively flatten children
-    children = flattenListenables(childMap)
-    # add the primary listenable and chilren
-    flattened[key] = listenable
-    for childKey of children
-      childListenable = children[childKey]
-      flattened[key + _str.capitalize(childKey)] = childListenable
-  flattened
 
 
 module.exports =
@@ -64,19 +23,10 @@ module.exports =
         ++i
       false
 
-    listenToMany: (listenables) ->
-      allListenables = flattenListenables(listenables)
-      for key of allListenables
-        cbname = callbackName(key)
-        localname = if @[cbname] then cbname else if @[key] then key else undefined
-        if localname
-          @listenTo allListenables[key], localname, @[cbname + 'Default'] or @[localname + 'Default'] or localname
-      return
-
     validateListening: (listenable) ->
       if listenable == this
         return 'Listener is not able to listen to itself'
-      if !_.isFunction(listenable.listen)
+      if not (listenable.listen instanceof Function)
         console.log require('util').inspect(listenable)
         console.log((new Error()).stack)
         return listenable + ' is missing a listen method'
@@ -138,9 +88,9 @@ module.exports =
     fetchInitialState: (listenable, defaultCallback) ->
       defaultCallback = defaultCallback and @[defaultCallback] or defaultCallback
       me = this
-      if _.isFunction(defaultCallback) and _.isFunction(listenable.getInitialState)
+      if defaultCallback instanceof Function and listenable.getInitialState instanceof Function
         data = listenable.getInitialState()
-        if data and _.isFunction(data.then)
+        if data and data.then instanceof Function
           data.then ->
             defaultCallback.apply me, arguments
             return
