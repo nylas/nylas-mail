@@ -97,7 +97,7 @@ class DraftHelpers {
     })
   }
 
-  applyExtensionTransforms(draft) {
+  async applyExtensionTransforms(draft) {
     const extensions = ExtensionRegistry.Composer.extensions();
 
     const fragment = document.createDocumentFragment();
@@ -105,21 +105,20 @@ class DraftHelpers {
     fragment.appendChild(draftBodyRootNode);
     draftBodyRootNode.innerHTML = draft.body;
 
-    return Promise.each(extensions, (ext) => {
+    for (const ext of extensions) {
       const extApply = ext.applyTransformsForSending;
       const extUnapply = ext.unapplyTransformsForSending;
 
       if (!extApply || !extUnapply) {
-        return Promise.resolve();
+        continue;
       }
 
-      return Promise.resolve(extUnapply({draft, draftBodyRootNode})).then(() => {
-        return Promise.resolve(extApply({draft, draftBodyRootNode}));
-      });
-    }).then(() => {
-      draft.body = draftBodyRootNode.innerHTML;
-      return draft;
-    });
+      await extUnapply({draft, draftBodyRootNode})
+      await extApply({draft, draftBodyRootNode});
+    }
+
+    draft.body = draftBodyRootNode.innerHTML;
+    return draft;
   }
 
   async draftPreparedForSyncback(session) {

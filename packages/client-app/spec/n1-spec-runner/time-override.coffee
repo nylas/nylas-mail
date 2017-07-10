@@ -44,12 +44,6 @@ class TimeOverride
     # spyOn(Date, "now").andCallFake => @now
     # spyOn(Date.prototype, "getTime").andCallFake => @now
 
-    @_setPromiseScheduler()
-
-  @_setPromiseScheduler: =>
-    @originalPromiseScheduler ?= Promise.setScheduler (fn) =>
-      window.originalSetTimeout(fn, 0)
-
   @disableSpies = =>
     window.advanceClock = null
 
@@ -59,9 +53,6 @@ class TimeOverride
     jasmine.unspy(window, 'clearInterval')
 
     jasmine.unspy(_._, "now")
-
-    Promise.setScheduler(@originalPromiseScheduler) if @originalPromiseScheduler
-    @originalPromiseScheduler = null
 
   @resetSpyData = ->
     window.setTimeout.reset?()

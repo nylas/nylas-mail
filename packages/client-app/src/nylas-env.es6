@@ -323,9 +323,6 @@ export default class NylasEnvConstructor {
       this._onUnhandledRejection(error, sourceMapCache)
     });
 
-    if (this.inSpecMode() || (this.inDevMode() && !this.inBenchmarkMode())) {
-      return Promise.config({longStackTraces: true});
-    }
     return null;
   }
 

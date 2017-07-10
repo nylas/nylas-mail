@@ -11,11 +11,8 @@
 // plugins. Once `NylasWindow::setLoadSettings` fires, the main NylasEnv in
 // the window will be notified via the `load-settings-changed` config
 //
-// Swap out Node's native Promise for Bluebird, which allows us to
-// do fancy things like handle exceptions inside promise blocks
-global.Promise = require('bluebird');
-const timeout = global.setTimeout;
-Promise.setScheduler((fn) => timeout(fn, 0));
+// Extend the standard promise class a bit
+import './promise-extensions';
 
 import './window';
 

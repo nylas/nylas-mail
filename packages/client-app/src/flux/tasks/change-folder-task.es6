@@ -27,17 +27,23 @@ export default class ChangeFolderTask extends ChangeMailTask {
   });
 
   constructor(data = {}) {
+    if (!data.previousFolders) {
+      data.previousFolders = {};
+    }
     if (data.threads) {
       data.threads = data.threads.filter(t => t.folders.find(f => f.id !== data.folder.id));
+      for (const t of data.threads) {
+        data.previousFolders[t.id] = t.folders.find(f => f.id !== data.folder.id);
+      }
     }
     if (data.messages) {
       data.messages = data.messages.filter(m => m.folder.id !== data.folder.id);
+      for (const m of data.messages) {
+        data.previousFolders[m.id] = m.folder;
+      }
     }
 
     super(data);
-
-    // grab the folder we'll revert to in case of undo/redo
-    this.previousFolder = this.previousFolder || [].concat(data.threads, data.messages).pop().folder;
   }
 
   label() {
