@@ -1,5 +1,4 @@
 import {remote} from 'electron';
-import {SpellCheckHandler} from 'electron-spellchecker';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,9 +7,6 @@ const customDictFilePath = path.join(NylasEnv.getConfigDirPath(), 'custom-dict.j
 
 class Spellchecker {
   constructor() {
-    this.handler = new SpellCheckHandler();
-    this.handler.switchLanguage('en-US'); // Start with US English
-    this.handler.attachToInput();
     this.isMisspelledCache = {};
 
     this._customDictLoaded = false;
@@ -19,7 +15,16 @@ class Spellchecker {
     this._saveAgain = false;
 
     this._customDict = {};
-    this._loadCustomDict();
+
+    // Nobody will notice if spellcheck isn't avaialable for a few seconds and it
+    // takes a considerable amount of time to startup (212ms in dev mode on my 2017 MBP)
+    setTimeout(() => {
+      const {SpellCheckHandler} = require('electron-spellchecker'); //eslint-disable-line
+      this.handler = new SpellCheckHandler();
+      this.handler.switchLanguage('en-US'); // Start with US English
+      this.handler.attachToInput();
+      this._loadCustomDict();
+    }, 5000);
   }
 
   _loadCustomDict = () => {
@@ -71,6 +76,9 @@ class Spellchecker {
   }
 
   isMisspelled = (word) => {
+    if (!this.handler) {
+      return false;
+    }
     if ({}.hasOwnProperty.call(this._customDict, word)) {
       return false
     }

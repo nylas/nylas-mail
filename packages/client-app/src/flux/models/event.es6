@@ -1,10 +1,11 @@
-import chrono from 'chrono-node';
 import moment from 'moment';
 
 import Model from './model';
 import Attributes from '../attributes';
 import Contact from './contact';
 
+// the Chrono node module is huge
+let chrono = null;
 
 export default class Event extends Model {
 
@@ -197,6 +198,9 @@ export default class Event extends Model {
   displayTitle() {
     const displayTitle = this.title.replace(/.*Invitation: /, "")
     const [displayTitleWithoutDate, date] = displayTitle.split(" @ ")
+    if (!chrono) {
+      chrono = require('chrono-node').default; //eslint-disable-line
+    }
     if (date && chrono.parseDate(date)) {
       return displayTitleWithoutDate
     }

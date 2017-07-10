@@ -1,4 +1,4 @@
-import sanitizeHtml from 'sanitize-html';
+let sanitizeHtml = null;
 
 const Preset = {
   Strict: {
@@ -51,6 +51,9 @@ class SanitizeTransformer {
       settings.allowedAttributes = attrMap;
     }
 
+    if (!sanitizeHtml) {
+      sanitizeHtml = require('sanitize-html').default; //eslint-disable-line
+    }
     return Promise.resolve(sanitizeHtml(body, settings));
   }
 }

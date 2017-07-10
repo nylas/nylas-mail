@@ -1,5 +1,4 @@
 import moment from 'moment-timezone'
-import chrono from 'chrono-node'
 import _ from 'underscore'
 
 // Init locale for moment
@@ -49,33 +48,51 @@ function isPastDate(inputDateObj, currentDate) {
   return inputMoment.isBefore(currentMoment)
 }
 
-const EnforceFutureDate = new chrono.Refiner();
-EnforceFutureDate.refine = (text, results) => {
-  results.forEach((result) => {
-    const current = _.extend({}, result.start.knownValues, result.start.impliedValues);
+let _chronoFuture = null;
+let _chrono = null;
 
-    if (result.start.isCertain('weekday') && !result.start.isCertain('day')) {
-      if (isPastDate(current, result.ref)) {
-        result.start.imply('day', result.start.impliedValues.day + 7);
-      }
-    }
+function getChrono() {
+  if (!_chrono) {
+    _chrono = require('chrono-node').default; //eslint-disable-line
+  }
+  return _chrono;
+}
 
-    if (result.start.isCertain('day') && !result.start.isCertain('month')) {
-      if (isPastDate(current, result.ref)) {
-        result.start.imply('month', result.start.impliedValues.month + 1);
-      }
-    }
-    if (result.start.isCertain('month') && !result.start.isCertain('year')) {
-      if (isPastDate(current, result.ref)) {
-        result.start.imply('year', result.start.impliedValues.year + 1);
-      }
-    }
-  });
-  return results;
-};
+function getChronoFuture() {
+  if (_chronoFuture) {
+    return _chronoFuture;
+  }
 
-const chronoFuture = new chrono.Chrono(chrono.options.casualOption());
-chronoFuture.refiners.push(EnforceFutureDate);
+  const chrono = getChrono();
+  const EnforceFutureDate = new chrono.Refiner();
+  EnforceFutureDate.refine = (text, results) => {
+    results.forEach((result) => {
+      const current = _.extend({}, result.start.knownValues, result.start.impliedValues);
+
+      if (result.start.isCertain('weekday') && !result.start.isCertain('day')) {
+        if (isPastDate(current, result.ref)) {
+          result.start.imply('day', result.start.impliedValues.day + 7);
+        }
+      }
+
+      if (result.start.isCertain('day') && !result.start.isCertain('month')) {
+        if (isPastDate(current, result.ref)) {
+          result.start.imply('month', result.start.impliedValues.month + 1);
+        }
+      }
+      if (result.start.isCertain('month') && !result.start.isCertain('year')) {
+        if (isPastDate(current, result.ref)) {
+          result.start.imply('year', result.start.impliedValues.year + 1);
+        }
+      }
+    });
+    return results;
+  };
+
+  _chronoFuture = new chrono.Chrono(chrono.options.casualOption());
+  _chronoFuture.refiners.push(EnforceFutureDate);
+  return _chronoFuture;
+}
 
 
 const DateUtils = {
@@ -160,7 +177,7 @@ const DateUtils = {
   },
 
   parseDateString(dateLikeString) {
-    const parsed = chrono.parse(dateLikeString)
+    const parsed = getChrono().parse(dateLikeString)
     const gotTime = {start: false, end: false};
     const gotDay = {start: false, end: false};
     const now = moment();
@@ -218,7 +235,7 @@ const DateUtils = {
    * @return {moment} - moment object representing date
    */
   futureDateFromString(dateLikeString) {
-    const date = chronoFuture.parseDate(dateLikeString)
+    const date = getChronoFuture().parseDate(dateLikeString)
     if (!date) {
       return null
     }
