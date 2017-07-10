@@ -1,5 +1,15 @@
 # Nylas Mail Changelog
 
+### 2.1.0 (7/9/2017)
+
+  + An NML (Nylas Mail Lives) Build
+  + Update docs (Issues #5, #14, #17)
+  + Update Slack URL to be auto-invite to NML (Nylas Mail Lives) Slack (Issue #14)
+  + Fix Travis CI builds (both Linux and Mac) (Issues #8 and #9)
+  + Fix issue with sending emails (Issue #19)
+  + Fix config.json saving/loading issues (Issue #15)
+  + Reverse mail order option (Issue #20)
+
 ### 2.0.32 (5/1/2017)
 
   + Remove unnecessary tracking events
