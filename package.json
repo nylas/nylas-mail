@@ -11,6 +11,7 @@
     "chalk": "1.x.x",
     "coffeelint-cjsx": "2.x.x",
     "commander": "^2.9.0",
+    "devtron": "^1.4.0",
     "electron-installer-dmg": "0.2.x",
     "electron-packager": "8.4.x",
     "electron-winstaller": "2.x.x",

@@ -1,7 +1,5 @@
 _ = require 'underscore'
 KeyManager = require('../../src/key-manager').default
-NylasAPI = require('../../src/flux/nylas-api').default
-NylasAPIRequest = require('../../src/flux/nylas-api-request').default
 AccountStore = require('../../src/flux/stores/account-store').default
 Account = require('../../src/flux/models/account').default
 Actions = require('../../src/flux/actions').default

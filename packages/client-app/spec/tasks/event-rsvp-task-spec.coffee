@@ -1,8 +1,6 @@
 _ = require 'underscore'
 
-{NylasAPI,
- NylasAPIRequest,
- Event,
+{Event,
  Actions,
  APIError,
  EventRSVPTask,

@@ -128,11 +128,6 @@ function props(obj) {
   });
 }
 
-setTimeout(function() {
-  new Promise((resolve, reject) => {
-    throw new Error("Sad!");
-  });
-}, 10000);
 global.Promise.each = each;
 global.Promise.props = props;
 global.Promise.promisify = promisify;

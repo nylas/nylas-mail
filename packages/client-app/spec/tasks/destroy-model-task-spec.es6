@@ -1,7 +1,5 @@
 import {
-  Task,
   Model,
-  NylasAPIRequest,
   DatabaseStore,
   DestroyModelTask,
   DatabaseWriter} from 'nylas-exports'

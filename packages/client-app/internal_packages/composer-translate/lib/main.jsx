@@ -6,8 +6,6 @@
 // TranslateButton is a simple React component that allows you to select
 // a language from a popup menu and translates draft text into that language.
 
-import request from 'request'
-
 import {
   React,
   ReactDOM,
@@ -61,7 +59,7 @@ class TranslateButton extends React.Component {
     dialog.showErrorBox('Language Conversion Failed', error.toString());
   }
 
-  _onTranslate = (lang) => {
+  _onTranslate = async (lang) => {
     Actions.closePopover()
 
     // Obtain the session for the current draft. The draft session provides us
@@ -74,21 +72,18 @@ class TranslateButton extends React.Component {
       language: YandexLanguages[lang],
     })
 
-    const query = {
-      key: YandexTranslationKey,
-      lang: YandexLanguages[lang],
-      text: text,
-      format: 'html',
-    };
+    const queryParams = new URLSearchParams();
+    queryParams.set('key', YandexTranslationKey);
+    queryParams.set('lang', YandexLanguages[lang]);
+    queryParams.set('text', text);
+    queryParams.set('format', 'html');
 
-    // Use Node's `request` library to perform the translation using the Yandex API.
-    request({url: YandexTranslationURL, qs: query}, (error, resp, data) => {
-      if (resp.statusCode !== 200) {
-        this._onError(error);
-        return;
+    try {
+      const resp = await fetch(YandexTranslationURL, {body: queryParams});
+      if (!resp.ok) {
+        throw new Error("Sorry, we were unable to complete the translation request.");
       }
-
-      const json = JSON.parse(data);
+      const json = await resp.json();
       let translated = json.text.join('');
 
       // The new text of the draft is our translated response, plus any quoted text
@@ -100,7 +95,9 @@ class TranslateButton extends React.Component {
       // the same draft are notified of changes.
       this.props.session.changes.add({body: translated});
       this.props.session.changes.commit();
-    });
+    } catch (error) {
+      this._onError(error);
+    }
   };
 
   _onClickTranslateButton = () => {

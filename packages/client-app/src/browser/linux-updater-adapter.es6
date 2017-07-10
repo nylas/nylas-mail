@@ -1,5 +1,5 @@
 import {EventEmitter} from 'events';
-import request from 'request';
+// import request from 'request';
 import _ from 'underscore';
 
 /*
@@ -18,6 +18,7 @@ class LinuxUpdaterAdapter {
     if (!this.feedURL) {
       return;
     }
+    // TODO BG I removed request!
     request(this.feedURL, () => {
     });
   }

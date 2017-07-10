@@ -1,6 +1,4 @@
-{NylasAPI,
- NylasAPIRequest,
- Category,
+{Category,
  AccountStore,
  DatabaseStore,
  SyncbackCategoryTask,

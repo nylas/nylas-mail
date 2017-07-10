@@ -5,8 +5,6 @@ _ = require 'underscore'
  Thread,
  Message,
  Actions,
- NylasAPI,
- NylasAPIRequest,
  Query,
  DatabaseStore,
  DatabaseWriter,

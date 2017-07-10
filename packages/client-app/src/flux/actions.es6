@@ -102,8 +102,6 @@ class Actions {
 
   *Scope: Main Window*
   */
-  static willMakeAPIRequest = ActionScopeMainWindow;
-  static didMakeAPIRequest = ActionScopeMainWindow;
   static checkOnlineStatus = ActionScopeWindow;
 
 

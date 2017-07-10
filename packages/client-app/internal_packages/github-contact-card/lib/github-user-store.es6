@@ -1,5 +1,4 @@
 import _ from 'underscore';
-import request from 'request';
 import NylasStore from 'nylas-store';
 import {FocusedContactsStore} from 'nylas-exports';
 
@@ -58,12 +57,11 @@ class GithubUserStore extends NylasStore {
     this.trigger(this);
   }
 
-  _githubFetchProfile(email) {
+  async _githubFetchProfile(email) {
     this._loading = true
-    this._githubRequest(`https://api.github.com/search/users?q=${email}`, (err, resp, data) => {
-      if (err || !data) {
-        return;
-      }
+
+    try {
+      const data = await this._githubRequest(`https://api.github.com/search/users?q=${email}`);
 
       if (data.message !== undefined) {
         console.warn(data.message);
@@ -80,26 +78,33 @@ class GithubUserStore extends NylasStore {
       // repositories.
       if (profile !== false) {
         profile.repos = [];
-        this._githubRequest(`https://api.github.com/search/repositories?q=user:${profile.login}&sort=stars&order=desc`, (reposErr, reposResp, repos) => {
-          // Sort the repositories by their stars (`-` for descending order)
-          profile.repos = _.sortBy(repos.items, (repo) => -repo.stargazers_count);
-          // Trigger so that our React components refresh their state and display
-          // the updated data.
-          this.trigger(this);
-        });
+        const repos = await this._githubRequest(`https://api.github.com/search/repositories?q=user:${profile.login}&sort=stars&order=desc`)
+        // Sort the repositories by their stars (`-` for descending order)
+        profile.repos = _.sortBy(repos.items, (repo) => -repo.stargazers_count);
+        // Trigger so that our React components refresh their state and display
+        // the updated data.
+        this.trigger(this);
       }
 
       this._loading = false;
       this._profile = this._cache[email] = profile;
       this.trigger(this);
-    });
+    } catch (err) {
+      // fail silently
+    }
   }
 
   // Wrap the Node `request` library and pass the User-Agent header, which is required
   // by Github's API. Also pass `json:true`, which causes responses to be automatically
   // parsed.
-  _githubRequest(url, callback) {
-    return request({url: url, headers: {'User-Agent': 'request'}, json: true}, callback);
+  async _githubRequest(url) {
+    const headers = new Headers();
+    headers.append("User-Agent", "fetch-request");
+    const resp = await fetch(url, {headers});
+    if (!resp.ok) {
+      throw new Error("Sorry, we were unable to complete the translation request.");
+    }
+    return resp.json();
   }
 }
 

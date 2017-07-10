@@ -1,8 +1,6 @@
 fs = require 'fs'
 path = require 'path'
 {shell} = require 'electron'
-NylasAPI = require('../../src/flux/nylas-api').default
-NylasAPIRequest = require('../../src/flux/nylas-api-request').default
 File = require('../../src/flux/models/file').default
 Message = require('../../src/flux/models/message').default
 AttachmentStore = require('../../src/flux/stores/attachment-store').default
@@ -11,40 +9,6 @@ AccountStore = require('../../src/flux/stores/account-store').default
 
 
 xdescribe 'AttachmentStoreSpecs', ->
-
-  describe "Download", ->
-    beforeEach ->
-      spyOn(fs, 'createWriteStream')
-      spyOn(NylasAPIRequest.prototype, 'run')
-
-    describe "constructor", ->
-      it "should require a non-empty filename", ->
-        expect(-> new Download(fileId: '123', targetPath: 'test.png')).toThrow()
-        expect(-> new Download(filename: null, fileId: '123', targetPath: 'test.png')).toThrow()
-        expect(-> new Download(filename: '', fileId: '123', targetPath: 'test.png')).toThrow()
-
-      it "should require a non-empty fileId", ->
-        expect(-> new Download(filename: 'test.png', fileId: null, targetPath: 'test.png')).toThrow()
-        expect(-> new Download(filename: 'test.png', fileId: '', targetPath: 'test.png')).toThrow()
-
-      it "should require a download path", ->
-        expect(-> new Download(filename: 'test.png', fileId: '123')).toThrow()
-        expect(-> new Download(filename: 'test.png', fileId: '123', targetPath: '')).toThrow()
-
-    describe "run", ->
-      beforeEach ->
-        account = AccountStore.accounts()[0]
-        @download = new Download(fileId: '123', targetPath: 'test.png', filename: 'test.png', accountId: account.id)
-        @download.run()
-        expect(NylasAPIRequest.prototype.run).toHaveBeenCalled()
-
-      it "should create a request with a null encoding to prevent the request library" +
-         " from attempting to parse the (potentially very large) response", ->
-        expect(NylasAPIRequest.prototype.run.mostRecentCall.object.options.json).toBe(false)
-        expect(NylasAPIRequest.prototype.run.mostRecentCall.object.options.encoding).toBe(null)
-
-      it "should create a request for /files/123/download", ->
-        expect(NylasAPIRequest.prototype.run.mostRecentCall.object.options.path).toBe("/files/123/download")
 
   describe "AttachmentStore", ->
     beforeEach ->

@@ -1,6 +1,5 @@
 import NylasStore from 'nylas-store';
 import {remote} from 'electron';
-import request from 'request';
 import url from 'url'
 
 import Utils from '../models/utils';
@@ -132,7 +131,7 @@ class IdentityStore extends NylasStore {
    * https://paper.dropbox.com/doc/Analytics-ID-Unification-oVDTkakFsiBBbk9aeuiA3
    * for the full list of utm_ labels.
    */
-  fetchSingleSignOnURL(path, {source, campaign, content} = {}) {
+  async fetchSingleSignOnURL(path, {source, campaign, content} = {}) {
     if (!this._identity) {
       return Promise.reject(new Error("fetchSingleSignOnURL: no identity set."));
     }
@@ -150,30 +149,29 @@ class IdentityStore extends NylasStore {
     })
 
     if (!pathWithUtm.startsWith('/')) {
-      return Promise.reject(new Error("fetchSingleSignOnURL: path must start with a leading slash."));
+      throw new Error("fetchSingleSignOnURL: path must start with a leading slash.");
     }
 
-    return new Promise((resolve) => {
-      request({
-        method: 'POST',
-        url: `${this.URLRoot}/n1/login-link`,
-        qs: qs,
-        json: true,
-        timeout: 1500,
-        body: {
-          next_path: pathWithUtm,
-          account_token: this._identity.token,
-        },
-      }, (error, response = {}, body) => {
-        if (error || !body.startsWith('http')) {
-          // Single-sign on attempt failed. Rather than churn the user right here,
-          // at least try to open the page directly in the browser.
-          resolve(`${this.URLRoot}${path}`);
-        } else {
-          resolve(body);
-        }
-      });
+    const body = new FormData();
+    for (const key of Object.keys(qs)) {
+      body.append(key, qs[key]);
+    }
+    body.append('next_path', pathWithUtm);
+    body.append('account_token', this._identity.token);
+
+    const resp = await fetch(`${this.URLRoot}/n1/login-link`, {
+      method: 'POST',
+      qs: qs,
+      timeout: 1500,
+      body: body,
     });
+    if (resp.ok) {
+      const text = await resp.text();
+      if (text.startsWith('http')) {
+        return text;
+      }
+    }
+    return `${this.URLRoot}${path}`;
   }
 
   async asyncRefreshIdentity() {
@@ -211,35 +209,15 @@ class IdentityStore extends NylasStore {
     }
   }
 
-  nylasIDRequest(options) {
-    return new Promise((resolve, reject) => {
-      options.formData = false
-      options.json = true
-      options.auth = {
-        username: this._identity.token,
-        password: '',
-        sendImmediately: true,
-      }
-      const requestId = Utils.generateTempId();
-      Actions.willMakeAPIRequest({
-        request: options,
-        requestId: requestId,
-      });
-      request(options, (error, response = {}, body) => {
-        Actions.didMakeAPIRequest({
-          request: options,
-          statusCode: response.statusCode,
-          error: error,
-          requestId: requestId,
-        });
-        if (error || response.statusCode > 299) {
-          const apiError = new APIError({
-            error, response, body, requestOptions: options});
-          return reject(apiError)
-        }
-        return resolve(body);
-      });
-    })
+  async nylasIDRequest(options) {
+    options.credentials = 'include';
+    options.headers = new Headers();
+    options.headers.set('Authorization', `Basic ${btoa(`${this._identity.token}:`)}`)
+    const resp = await fetch(options.url, options);
+    if (!resp.ok) {
+      throw new Error(resp.statusText);
+    }
+    return resp.json();
   }
 }
 

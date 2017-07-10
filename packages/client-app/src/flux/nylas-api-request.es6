@@ -1,6 +1,3 @@
-import request from 'request'
-import {remote} from 'electron'
-
 import Utils from './models/utils'
 import Actions from './actions'
 import {APIError} from './errors'
@@ -57,18 +54,11 @@ export default class NylasAPIRequest {
 
       // Blob requests can potentially contain megabytes of binary data.
       // it doesn't make sense to send them through the action bridge.
-      if (!options.blob) {
-        Actions.willMakeAPIRequest(reqTrackingArgs);
-      }
-
       const req = request(options, (error, response, body) => {
         this.response = response;
         const statusCode = (response || {}).statusCode;
 
         if (statusCode >= 200 && statusCode <= 299) {
-          if (!options.blob) {
-            Actions.didMakeAPIRequest({statusCode, ...reqTrackingArgs});
-          }
           return resolve(body)
         }
 
@@ -79,7 +69,6 @@ export default class NylasAPIRequest {
           statusCode: statusCode,
           requestOptions: options,
         });
-        Actions.didMakeAPIRequest({...reqTrackingArgs, statusCode, error: apiError});
         return reject(apiError)
       });
       req.on('abort', () => {
@@ -90,7 +79,6 @@ export default class NylasAPIRequest {
           statusCode,
           body: 'Request aborted by client',
         });
-        Actions.didMakeAPIRequest({...reqTrackingArgs, statusCode, error: abortedError});
         reject(abortedError);
       });
 
@@ -100,7 +88,6 @@ export default class NylasAPIRequest {
           statusCode,
           body: 'Request aborted by server',
         });
-        Actions.didMakeAPIRequest({...reqTrackingArgs, statusCode, error: abortedError});
         reject(abortedError);
       });
       options.started(req);

@@ -23,10 +23,12 @@ export default class SendFeatureUsageEventTask extends Task {
   }
 
   async performRemote() {
+    const body = new FormData();
+    body.append('feature_name', this.featureName);
     const options = {
       method: 'POST',
       url: `${IdentityStore.URLRoot}/n1/user/feature_usage_event`,
-      body: {feature_name: this.featureName},
+      body: body,
     };
     try {
       const updatedIdentity = await IdentityStore.nylasIDRequest(options);
