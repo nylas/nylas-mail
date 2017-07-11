@@ -29,7 +29,7 @@ export default class Application extends EventEmitter {
     const {resourcePath, configDirPath, version, devMode, specMode, benchmarkMode, safeMode} = options;
 
     // Normalize to make sure drive letter case is consistent on Windows
-    this.resourcePath = path.normalize(resourcePath);
+    this.resourcePath = resourcePath;
     this.configDirPath = configDirPath;
     this.version = version;
     this.devMode = devMode;
@@ -38,10 +38,10 @@ export default class Application extends EventEmitter {
     this.safeMode = safeMode;
 
     this.fileListCache = new FileListCache();
-    this.nylasProtocolHandler = new NylasProtocolHandler(this.resourcePath, this.safeMode);
+    this.nylasProtocolHandler = new NylasProtocolHandler({configDirPath, resourcePath, safeMode});
 
     try {
-      const mailsync = new MailsyncProcess(null, this.resourcePath);
+      const mailsync = new MailsyncProcess(options, null);
       await mailsync.migrate();
     } catch (err) {
       dialog.showMessageBox({

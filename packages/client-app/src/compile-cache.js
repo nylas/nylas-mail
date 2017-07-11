@@ -1,6 +1,7 @@
 /* eslint no-cond-assign: 0 */
 const path = require('path')
 const fs = require('fs')
+const mkdirp = require('mkdirp');
 
 const babelCompiler = require('./compile-support/babel')
 const coffeeCompiler = require('./compile-support/coffee-script')
@@ -30,8 +31,9 @@ function readCachedJavascript(relativeCachePath) {
 function writeCachedJavascript(relativeCachePath, code) {
   const cacheTmpPath = path.join(cacheDirectory, `${relativeCachePath}.${process.pid}`)
   const cachePath = path.join(cacheDirectory, relativeCachePath)
+  mkdirp.sync(path.dirname(cacheTmpPath));
   fs.writeFileSync(cacheTmpPath, code, 'utf8')
-  fs.renameSync(cacheTmpPath, cachePath)
+  fs.renameSync(cacheTmpPath, cachePath);
 }
 
 function addSourceURL(jsCode, filePath) {

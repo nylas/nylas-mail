@@ -48,7 +48,7 @@ export default class MailsyncBridge {
     }
 
     toLaunch.forEach((acct) => {
-      const client = new MailsyncProcess(acct, NylasEnv.getLoadSettings().resourcePath);
+      const client = new MailsyncProcess(NylasEnv.getLoadSettings(), acct);
       client.sync();
       client.on('deltas', this.onIncomingMessages);
       client.on('close', () => {

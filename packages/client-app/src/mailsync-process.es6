@@ -27,15 +27,20 @@ const LocalizedErrorStrings = {
 };
 
 export default class MailsyncProcess extends EventEmitter {
-  constructor(account, resourcePath) {
+  constructor({configDirPath, resourcePath}, account) {
     super();
+    this.configDirPath = configDirPath;
     this.account = account;
     this.binaryPath = path.join(resourcePath, 'MailSync');
     this._proc = null;
   }
 
   _spawnProcess(mode) {
-    this._proc = spawn(this.binaryPath, [`--mode`, mode]);
+    this._proc = spawn(this.binaryPath, [`--mode`, mode], {
+      env: {
+        CONFIG_DIR_PATH: this.configDirPath,
+      },
+    });
     if (this.account) {
       this._proc.stdout.once('data', () => {
         this._proc.stdin.write(`${JSON.stringify(this.account)}\n`);

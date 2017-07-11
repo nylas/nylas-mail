@@ -1,4 +1,4 @@
-import {app, protocol} from 'electron';
+import {protocol} from 'electron';
 import fs from 'fs';
 import path from 'path';
 
@@ -14,15 +14,13 @@ import path from 'path';
 //   * RESOURCE_PATH/node_modules
 //
 export default class NylasProtocolHandler {
-  constructor(resourcePath, safeMode) {
+  constructor({configDirPath, resourcePath, safeMode}) {
     this.loadPaths = [];
-    this.dotNylasDirectory = path.join(app.getPath('home'), '.nylas-mail');
 
     if (!safeMode) {
-      this.loadPaths.push(path.join(this.dotNylasDirectory, 'dev', 'packages'));
+      this.loadPaths.push(path.join(configDirPath, 'dev', 'packages'));
     }
-
-    this.loadPaths.push(path.join(this.dotNylasDirectory, 'packages'));
+    this.loadPaths.push(path.join(configDirPath, 'packages'));
     this.loadPaths.push(path.join(resourcePath, 'internal_packages'));
 
     this.registerNylasProtocol();
@@ -34,21 +32,11 @@ export default class NylasProtocolHandler {
       const relativePath = path.normalize(request.url.substr(7));
 
       let filePath = null;
-      if (relativePath.indexOf('assets/') === 0) {
-        const assetsPath = path.join(this.dotNylasDirectory, relativePath);
-        const assetsStats = fs.statSyncNoException(assetsPath);
-        if (assetsStats.isFile && assetsStats.isFile()) {
-          filePath = assetsPath;
-        }
-      }
-
-      if (!filePath) {
-        for (const loadPath of this.loadPaths) {
-          filePath = path.join(loadPath, relativePath);
-          const fileStats = fs.statSyncNoException(filePath);
-          if (fileStats.isFile && fileStats.isFile()) {
-            break;
-          }
+      for (const loadPath of this.loadPaths) {
+        filePath = path.join(loadPath, relativePath);
+        const fileStats = fs.statSyncNoException(filePath);
+        if (fileStats.isFile && fileStats.isFile()) {
+          break;
         }
       }
 

@@ -1,12 +1,10 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
+import fs from 'fs';
 import path from 'path';
-
-import { ipcRenderer, remote, shell } from 'electron';
-
+import { ipcRenderer, remote } from 'electron';
 import _ from 'underscore';
 import { Emitter } from 'event-kit';
-import fs from 'fs';
 import { convertStackTrace } from 'coffeestack';
 import { mapSourcePosition } from 'source-map-support';
 
@@ -193,14 +191,8 @@ export default class NylasEnvConstructor {
     // by default) to support these symlinked modules
     require('module').globalPaths.push(path.join(resourcePath, 'node_modules'));
 
-    // Still set NODE_PATH since tasks may need it.
-    process.env.NODE_PATH = globalPath;
-
     // Make react.js faster
     if (!devMode && process.env.NODE_ENV == null) process.env.NODE_ENV = 'production';
-
-    // Set NylasEnv's home so packages don't have to guess it
-    process.env.NYLAS_HOME = configDirPath;
 
     // Setup config and load it immediately so it's available to our singletons
     this.config = new Config({configDirPath, resourcePath});
@@ -223,8 +215,6 @@ export default class NylasEnvConstructor {
     this.spellchecker = require('./spellchecker').default;
 
     this.windowEventHandler = new WindowEventHandler();
-
-    this.globalWindowEmitter = new Emitter();
 
     if (!this.inSpecMode()) {
       this.mailsyncBridge = new MailsyncBridge();
@@ -402,15 +392,6 @@ export default class NylasEnvConstructor {
   /*
   Section: Event Subscription
   */
-
-  // Extended: Invoke the given callback whenever {::beep} is called.
-  //
-  // * `callback` {Function} to be called whenever {::beep} is called.
-  //
-  // Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onDidBeep(callback) {
-    return this.emitter.on('did-beep', callback);
-  }
 
   // Extended: Invoke the given callback when there is an unhandled error, but
   // before the devtools pop open
@@ -909,8 +890,6 @@ export default class NylasEnvConstructor {
   // This also means that the windowType has changed and a different set of
   // plugins needs to be loaded.
   populateHotWindow(event, loadSettings) {
-    console.log('populateHotWindow called')
-    console.log(loadSettings);
     this.loadSettings = loadSettings;
     this.constructor.loadSettings = loadSettings;
 
@@ -964,55 +943,6 @@ export default class NylasEnvConstructor {
     this.show();
     this.focus();
     if (maximize) this.maximize();
-  }
-
-  // Essential: Visually and audibly trigger a beep.
-  beep() {
-    if (this.config.get('core.audioBeep')) { shell.beep(); }
-    return this.emitter.emit('did-beep');
-  }
-
-  // Essential: A flexible way to open a dialog akin to an alert dialog.
-  //
-  // ## Examples
-  //
-  // ```coffee
-  // NylasEnv.confirm
-  //   message: 'How you feeling?'
-  //   detailedMessage: 'Be honest.'
-  //   buttons:
-  //     Good: -> window.alert('good to hear')
-  //     Bad: -> window.alert('bummer')
-  // ```
-  //
-  // * `options` An {Object} with the following keys:
-  //   * `message` The {String} message to display.
-  //   * `detailedMessage` (optional) The {String} detailed message to display.
-  //   * `buttons` (optional) Either an array of strings or an object where keys are
-  //     button names and the values are callbacks to invoke when clicked.
-  //
-  // Returns the chosen button index {Number} if the buttons option was an array.
-  confirm({message, detailedMessage, buttons} = {}) {
-    let buttonLabels;
-    if (_.isArray(buttons)) {
-      buttonLabels = buttons;
-    } else {
-      buttonLabels = Object.keys(buttons || {});
-    }
-
-    const chosen = remote.dialog.showMessageBox(this.getCurrentWindow(), {
-      type: 'info',
-      message,
-      detail: detailedMessage,
-      buttons: buttonLabels,
-    }
-    );
-
-    if (_.isArray(buttons)) {
-      return chosen;
-    }
-    const callback = buttons[buttonLabels[chosen]];
-    return callback ? callback() : undefined;
   }
 
   /*
@@ -1156,37 +1086,6 @@ export default class NylasEnvConstructor {
 
   crashRenderProcess() {
     return process.crash();
-  }
-
-  // Require the module with the given globals.
-  //
-  // The globals will be set on the `window` object and removed after the
-  // require completes.
-  //
-  // * `id` The {String} module name or path.
-  // * `globals` An optinal {Object} to set as globals during require.
-  requireWithGlobals(id, globals = {}) {
-    const existingGlobals = {};
-    for (const key of globals) {
-      const value = globals[key];
-      existingGlobals[key] = window[key];
-      window[key] = value;
-    }
-
-    require(id);
-
-    return (() => {
-      const result = [];
-      for (const key of existingGlobals) {
-        const value = existingGlobals[key];
-        if (value === undefined) {
-          result.push(delete window[key]);
-        } else {
-          result.push(window[key] = value);
-        }
-      }
-      return result;
-    })();
   }
 
   onUpdateAvailable(callback) {

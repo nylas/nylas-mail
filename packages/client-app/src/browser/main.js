@@ -16,26 +16,19 @@ if (typeof process.setFdLimit === 'function') {
 }
 
 const setupConfigDir = (args) => {
-  let defaultDirName = ".nylas-mail";
+  let defaultDirName = "nylas-mail";
   if (args.devMode) {
-    defaultDirName = ".nylas-dev";
+    defaultDirName = "nylas-dev";
   }
   if (args.specMode) {
-    defaultDirName = ".nylas-spec";
+    defaultDirName = "nylas-spec";
   }
   if (args.benchmarkMode) {
-    defaultDirName = ".nylas-bench";
+    defaultDirName = "nylas-bench";
   }
-  let configDirPath = path.join(app.getPath('home'), defaultDirName);
-
-  if (args.configDirPath) {
-    configDirPath = args.configDirPath;
-  } else if (process.env.NYLAS_HOME) {
-    configDirPath = process.env.NYLAS_HOME;
-  }
-
+  const configDirPath = path.join(app.getPath('appData'), defaultDirName);
   mkdirp.sync(configDirPath);
-  process.env.NYLAS_HOME = configDirPath;
+
   return configDirPath;
 };
 
@@ -99,7 +92,7 @@ const parseCommandLine = (argv) => {
   const specDirectory = args['spec-directory'];
   const specFilePattern = args['spec-file-pattern'];
   const showSpecsInWindow = specMode === "window";
-  const resourcePath = path.resolve(path.dirname(path.dirname(__dirname)));
+  const resourcePath = path.normalize(path.resolve(path.dirname(path.dirname(__dirname))));
   const urlsToOpen = [];
   const pathsToOpen = [];
 
