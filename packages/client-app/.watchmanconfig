@@ -1,7 +1,6 @@
 {
   "ignore_dirs": [
     "build/node_modules",
-    "apm/node_modules",
     "node_modules"
   ]
 }

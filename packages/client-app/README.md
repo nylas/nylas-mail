@@ -89,28 +89,6 @@ Great starting points for creating your own plugins!
 - [Personal Level Indicators](https://github.com/nylas/nylas-mail/tree/master/internal_packages/personal-level-indicators)
 - [Phishing Detection](https://github.com/nylas/nylas-mail/tree/master/internal_packages/phishing-detection)
 
-#### Community Plugins
-
-Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the Nylas Mail (N1) repo page. Thanks!
-
-- [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
-- [Weather](https://github.com/jackiehluo/n1-weather)
-- [Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)
-- [Unsubscribe](https://github.com/colinking/n1-unsubscribe)
-- [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
-- [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
-- In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
-- [Avatars](https://github.com/unity/n1-avatars)
-- [Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)
-- [Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)
-- [Evernote](https://github.com/grobgl/n1-evernote)
-- [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
-- [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
-- [GitHub](https://github.com/ForbesLindesay/N1-GitHub)
-
-When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Mail runs apm install on the command line to fetch dependencies listed in the package's package.json
-
-
 ## Building the docs
 
 Plugin SDK docs are available at [https://nylas.github.io/nylas-mail/](https://nylas.github.io/nylas-mail/). Here's how you build them:

@@ -70,9 +70,6 @@ async function lernaBootstrap(installTarget) {
 
 const npmEnvs = {
   system: process.env,
-  apm: Object.assign({}, process.env, {
-    NPM_CONFIG_TARGET: '0.10.40',
-  }),
   electron: Object.assign({}, process.env, {
     NPM_CONFIG_TARGET: '1.7.3',
     NPM_CONFIG_ARCH: process.arch,
@@ -93,14 +90,6 @@ async function npm(cmd, options) {
 }
 
 async function electronRebuild() {
-  if (!fs.existsSync(path.join("packages", "client-app", "apm"))) {
-    console.log("\n---> No client app to rebuild. Moving on")
-    return;
-  }
-  await npm('install', {
-    cwd: path.join('packages', 'client-app', 'apm'),
-    env: 'apm',
-  })
   await npm('rebuild', {
     cwd: path.join('packages', 'client-app'),
     env: 'electron',
@@ -136,7 +125,7 @@ async function main() {
         // `node-mac-notifier` get's correctly installed and included in the build
         // See https://github.com/lerna/lerna/issues/121
         console.log("\n---> Reinstalling client-app dependencies to include optional dependencies");
-        await npm('install', {cwd: 'packages/client-app'})
+        await npm('install', {cwd: 'packages/client-app', env: 'electron'})
       }
       await electronRebuild();
     }

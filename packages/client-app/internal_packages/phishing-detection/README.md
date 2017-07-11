@@ -5,18 +5,6 @@ a message's originating address is different from its return address. The warnin
 
 ![screenshot](./screenshot.png)
 
-#### Install this plugin
-
-1. Download and run N1
-
-2. From the menu, select `Developer > Install a Package Manually...`
-   The dialog will default to this examples directory. Just choose the
-   package to install it!
-
-   > When you install packages, they're moved to `~/.nylas-mail/packages`,
-   > and N1 runs `apm install` on the command line to fetch dependencies
-   > listed in the package's `package.json`
-
 #### Who is this for?
 
 This package is our slimmest example package. It's annotated for developers who have no experience with React, Flux, Electron, or N1.

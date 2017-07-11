@@ -22,6 +22,3 @@ NOTE: Run all of these from the N1 root folder.
 **Building:**
 
     `script/grunt build`
-
-The build folder has its own package.json and is isolated so we can use `npm`
-to compile against v8's headers instead of `apm`

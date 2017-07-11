@@ -50,4 +50,3 @@ script:
 cache:
   directories:
     - node_modules
-    - apm/node_modules
