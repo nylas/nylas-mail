@@ -31,7 +31,7 @@ export default class MailsyncProcess extends EventEmitter {
     super();
     this.configDirPath = configDirPath;
     this.account = account;
-    this.binaryPath = path.join(resourcePath, 'MailSync');
+    this.binaryPath = path.join(resourcePath, 'MailSync').replace('app.asar', 'app.asar.unpacked');
     this._proc = null;
   }
 
@@ -72,7 +72,7 @@ export default class MailsyncProcess extends EventEmitter {
             reject(new Error(LocalizedErrorStrings[response.error] || response.error))
           }
         } catch (err) {
-          reject(err);
+          reject(new Error(buffer.toString()));
         }
       });
     });
