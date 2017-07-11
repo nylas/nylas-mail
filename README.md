@@ -1,10 +1,11 @@
 Nylas Mail v3 [Unnamed]
 ====
 
+**Hello! This is a significant fork of Nylas Mail which completely replaces JavaScript mail sync with a C++ core built on Mailcore2. Unfortunately, it's not ready for use - check back soon!**
+
+
 High level Goals:
 ---
-
-Fix longstanding issues that have always bugged me or stopped me from using the mail client personally. Primarily poor performance with multiple linked accounts and jank in the composer.
 
 - Replace JavaScript mail sync (client-sync package) and the Electron "worker window" with a new, high performance codebase written in C++ and based on Mailcore2. Make the Electron application just the UI layer.
   + One C++ process per email account.
@@ -15,7 +16,28 @@ Fix longstanding issues that have always bugged me or stopped me from using the 
 - Make windows open faster by just having less code.
 - Bring back mail rules.
 
-New features:
+
+Technical Breakdown of Changes:
+---
+- Activity window and client-sync package removed.
+- MailsyncBridge, a new singleton in the main window, manages C++ sync workers.
+- DatabaseStore no longer provides an interface to write to the database from JavaScript and the following have moved to C++:
+  + Database setup and migration
+  + Search indexing of threads/contacts
+  + Delta processing
+  + Task processing
+- Heavy node modules removed:
+  + Bluebird
+  + Q
+  + request
+  + etc...
+- Package manager has been completely rewritten to be more performant and load packages in two phases.
+- Delta serialization / deserialization performance has been dramatically improved by removing the JSON reviver.
+- FileDownloadStore / FileUploadStore have been merged into AttachmentStore
+
+
+Future Features:
+----
 - Receipts
 - Templates with per-template performance tracking
 - Groups
