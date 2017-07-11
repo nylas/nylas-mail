@@ -104,8 +104,7 @@ export default ListensToFluxStore(PreferencesRoot, {
   getStateFromStores() {
     const tabs = PreferencesUIStore.tabs();
     const selection = PreferencesUIStore.selection();
-    const tabId = selection.get('tabId');
-    const tab = tabs.find((s) => s.tabId === tabId);
+    const tab = tabs.find((t) => t.tabId === selection.tabId);
     return {tabs, selection, tab}
   },
 });

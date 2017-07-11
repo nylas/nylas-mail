@@ -18,7 +18,7 @@ class EmailFrameStylesStore extends NylasStore
     @trigger()
 
   _listenToStyles: =>
-    target = document.getElementsByTagName('nylas-styles')[0]
+    target = document.getElementsByTagName('managed-styles')[0]
     @_mutationObserver = new MutationObserver(@_findStyles)
     @_mutationObserver.observe(target, attributes: true, subtree: true, childList: true)
 

@@ -9,7 +9,6 @@ import { convertStackTrace } from 'coffeestack';
 import { mapSourcePosition } from 'source-map-support';
 
 import WindowEventHandler from './window-event-handler';
-import StylesElement from './styles-element';
 import StoreRegistry from './registries/store-registry';
 
 import Utils from './flux/models/utils';
@@ -168,7 +167,7 @@ export default class NylasEnvConstructor {
     const CommandRegistry = require('./registries/command-registry').default;
     const PackageManager = require('./package-manager').default;
     const ThemeManager = require('./theme-manager');
-    const StyleManager = require('./style-manager');
+    const StyleManager = require('./style-manager').default;
     const MenuManager = require('./menu-manager').default;
     const ActionBridge = require('./flux/action-bridge').default;
     const MailsyncBridge = require('./flux/mailsync-bridge').default;
@@ -204,7 +203,6 @@ export default class NylasEnvConstructor {
     this.commands = new CommandRegistry();
     this.packages = new PackageManager({devMode, benchmarkMode, configDirPath, resourcePath, safeMode, specMode});
     this.styles = new StyleManager();
-    document.head.appendChild(new StylesElement());
     this.themes = new ThemeManager({packageManager: this.packages, configDirPath, resourcePath, safeMode});
     this.menu = new MenuManager({resourcePath});
     if (process.platform === 'win32') {

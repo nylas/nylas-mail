@@ -12,7 +12,7 @@ class Printer {
     const account = AccountStore.accountForId(thread.accountId)
 
     // Get the <nylas-styles> tag present in the document
-    const styleTag = document.getElementsByTagName('nylas-styles')[0];
+    const styleTag = document.getElementsByTagName('managed-styles')[0];
     // These iframes should correspond to the message iframes when a thread is
     // focused
     const iframes = document.getElementsByTagName('iframe');

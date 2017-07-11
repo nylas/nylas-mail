@@ -5,8 +5,6 @@ EmitterMixin = require('emissary').Emitter
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
 fs = require 'fs-plus'
 
-Package = require './package'
-
 # Extended: Handles loading and activating available themes.
 #
 # An instance of this class is always available as the `NylasEnv.themes` global.
@@ -19,12 +17,6 @@ class ThemeManager
     @styleSheetDisposablesBySourcePath = {}
     @lessCache = null
     @initialLoadComplete = false
-    @sheetsByStyleElement = new WeakMap
-
-    stylesElement = document.head.querySelector('nylas-styles')
-    stylesElement.onDidAddStyleElement @styleElementAdded.bind(this)
-    stylesElement.onDidRemoveStyleElement @styleElementRemoved.bind(this)
-    stylesElement.onDidUpdateStyleElement @styleElementUpdated.bind(this)
 
   baseThemeName: -> 'ui-light'
 
@@ -39,22 +31,6 @@ class ThemeManager
           @activateThemes()
     watchStylesIn("#{@resourcePath}/static")
     watchStylesIn("#{@resourcePath}/internal_packages")
-
-  styleElementAdded: (styleElement) ->
-    {sheet} = styleElement
-    @sheetsByStyleElement.set(styleElement, sheet)
-    @emitter.emit 'did-add-stylesheet', sheet
-    @emitter.emit 'did-change-stylesheets'
-
-  styleElementRemoved: (styleElement) ->
-    sheet = @sheetsByStyleElement.get(styleElement)
-    @emitter.emit 'did-remove-stylesheet', sheet
-    @emitter.emit 'did-change-stylesheets'
-
-  styleElementUpdated: ({sheet}) ->
-    @emitter.emit 'did-remove-stylesheet', sheet
-    @emitter.emit 'did-add-stylesheet', sheet
-    @emitter.emit 'did-change-stylesheets'
 
   ###
   Section: Event Subscription
@@ -115,7 +91,7 @@ class ThemeManager
   # Returns an array of theme names in the order that they should be activated.
   getEnabledThemeNames: ->
     themeNames = NylasEnv.config.get('core.themes') ? []
-    themeNames = [themeNames] unless _.isArray(themeNames)
+    themeNames = [themeNames] unless themeNames instanceof Array
     themeNames = themeNames.filter (themeName) ->
       if themeName and typeof themeName is 'string'
         return true if NylasEnv.packages.getPackageNamed(themeName)
@@ -177,7 +153,7 @@ class ThemeManager
       @requireStylesheet(nativeStylesheetPath)
 
   stylesheetElementForId: (id) ->
-    document.head.querySelector("nylas-styles style[source-path=\"#{id}\"]")
+    document.head.querySelector("managed-styles style[source-path=\"#{id}\"]")
 
   resolveStylesheet: (stylesheetPath) ->
     if path.extname(stylesheetPath).length > 0
