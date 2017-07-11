@@ -3,7 +3,7 @@ path = require 'path'
 fs = require 'fs-plus'
 temp = require 'temp'
 
-ThemeManager = require '../../src/theme-manager'
+ThemeManager = require('../../src/theme-manager').default
 Package = require '../../src/package'
 
 describe "ThemeManager", ->
@@ -34,8 +34,8 @@ describe "ThemeManager", ->
     beforeEach ->
       NylasEnv.packages.loadPackages()
 
-    it 'getLoadedThemes get all the loaded themes', ->
-      themes = themeManager.getLoadedThemes()
+    it 'getAvailableThemes get all the loaded themes', ->
+      themes = themeManager.getAvailableThemes()
       expect(themes.length).toEqual(2)
 
     it 'getActiveThemes get all the active themes', ->

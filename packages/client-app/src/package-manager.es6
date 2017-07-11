@@ -104,6 +104,10 @@ export default class PackageManager {
 
   }
 
+  getAvailablePacakges() {
+    return Object.values(this.available);
+  }
+
   getActivePackages() {
     return Object.values(this.active);
   }

@@ -6,6 +6,7 @@ export default class Package {
     this.directory = dir;
     this.json = json;
     this.name = this.json.name;
+    this.displayName = this.json.displayName || this.json.name;
     this.disposables = [];
     this.syncInit = this.json.syncInit;
     this.windowTypes = this.json.windowTypes || {'default': true};
@@ -57,6 +58,10 @@ export default class Package {
     return !!this.json.isDefault;
   }
 
+  getStylesheetsPath() {
+    return path.join(this.directory, 'styles');
+  }
+
   loadKeymaps() {
     let keymapPaths = [];
     const keymapsRoot = path.join(this.directory, 'keymaps');
@@ -76,7 +81,7 @@ export default class Package {
 
   loadStylesheets() {
     let stylesheets = [];
-    const stylesRoot = path.join(this.directory, 'styles');
+    const stylesRoot = this.getStylesheetsPath();
     try {
       const filenames = fs.readdirSync(stylesRoot);
       const index = filenames.find(fn => fn.startsWith('index.'));
@@ -91,7 +96,6 @@ export default class Package {
       // styles directory not found
     }
     for (const sourcePath of stylesheets) {
-      console.log(sourcePath);
       const source = NylasEnv.themes.loadStylesheet(sourcePath, true);
       this.disposables.push(NylasEnv.styles.addStyleSheet(source, {sourcePath, priority: 0, context: null}))
     }

@@ -166,13 +166,14 @@ export default class NylasEnvConstructor {
     const KeymapManager = require('./keymap-manager').default;
     const CommandRegistry = require('./registries/command-registry').default;
     const PackageManager = require('./package-manager').default;
-    const ThemeManager = require('./theme-manager');
+    const ThemeManager = require('./theme-manager').default;
     const StyleManager = require('./style-manager').default;
     const MenuManager = require('./menu-manager').default;
     const ActionBridge = require('./flux/action-bridge').default;
     const MailsyncBridge = require('./flux/mailsync-bridge').default;
 
     const {devMode, benchmarkMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
+    const specMode = this.inSpecMode();
 
     document.body.classList.add(`platform-${process.platform}`);
     document.body.classList.add(`window-type-${windowType}`);
@@ -191,30 +192,29 @@ export default class NylasEnvConstructor {
     require('module').globalPaths.push(path.join(resourcePath, 'node_modules'));
 
     // Make react.js faster
-    if (!devMode && process.env.NODE_ENV == null) process.env.NODE_ENV = 'production';
+    if (!devMode && process.env.NODE_ENV == null) {
+      process.env.NODE_ENV = 'production';
+    }
 
     // Setup config and load it immediately so it's available to our singletons
+    // and doesn't emit events later when it loads
     this.config = new Config({configDirPath, resourcePath});
+    this.loadConfig();
 
     this.keymaps = new KeymapManager({configDirPath, resourcePath});
-
-    const specMode = this.inSpecMode();
-
     this.commands = new CommandRegistry();
     this.packages = new PackageManager({devMode, benchmarkMode, configDirPath, resourcePath, safeMode, specMode});
     this.styles = new StyleManager();
     this.themes = new ThemeManager({packageManager: this.packages, configDirPath, resourcePath, safeMode});
+    this.spellchecker = require('./spellchecker').default;
     this.menu = new MenuManager({resourcePath});
     if (process.platform === 'win32') {
       this.getCurrentWindow().setMenuBarVisibility(false);
     }
 
-    // initialize spell checking
-    this.spellchecker = require('./spellchecker').default;
-
     this.windowEventHandler = new WindowEventHandler();
 
-    if (!this.inSpecMode()) {
+    if (!specMode) {
       this.mailsyncBridge = new MailsyncBridge();
       this.actionBridge = new ActionBridge(ipcRenderer);
     }
@@ -829,7 +829,6 @@ export default class NylasEnvConstructor {
   }
 
   async startWindow() {
-    this.loadConfig();
     const {windowType} = this.getLoadSettings();
 
     this.themes.loadBaseStylesheets();
@@ -843,7 +842,6 @@ export default class NylasEnvConstructor {
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => {
             this.keymaps.loadKeymaps();
-            this.watchThemes();
             this.menu.update();
 
             ipcRenderer.send('window-command', 'window:loaded');
@@ -892,7 +890,6 @@ export default class NylasEnvConstructor {
     this.constructor.loadSettings = loadSettings;
 
     this.packages.activatePackages(loadSettings.windowType);
-    this.watchThemes();
 
     this.emitter.emit('window-props-received',
       loadSettings.windowProps != null ? loadSettings.windowProps : {});
@@ -987,21 +984,6 @@ export default class NylasEnvConstructor {
   loadConfig() {
     this.config.setSchema(null, {type: 'object', properties: _.clone(require('./config-schema').default)});
     return this.config.load();
-  }
-
-  watchThemes() {
-    return this.themes.onDidChangeActiveThemes(() => {
-      // Only reload stylesheets from non-theme packages
-      for (const pack of Array.from(this.packages.getActivePackages())) {
-        if (pack.getType() !== 'theme') {
-          if (typeof pack.reloadStylesheets === 'function') {
-            pack.reloadStylesheets();
-          }
-        }
-      }
-      return null;
-    }
-    );
   }
 
   exit(status) {

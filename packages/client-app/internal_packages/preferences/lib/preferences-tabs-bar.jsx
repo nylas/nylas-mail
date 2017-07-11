@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes} from 'react';
 import fs from 'fs'
 import classNames from 'classnames';
 
@@ -10,8 +10,11 @@ class PreferencesTabItem extends React.Component {
   static displayName = 'PreferencesTabItem';
 
   static propTypes = {
-    selection: React.PropTypes.object.isRequired,
-    tabItem: React.PropTypes.instanceOf(PreferencesUIStore.TabItem).isRequired,
+    selection: PropTypes.shape({
+      accountId: PropTypes.string,
+      tabId: PropTypes.string,
+    }).isRequired,
+    tabItem: PropTypes.instanceOf(PreferencesUIStore.TabItem).isRequired,
   }
 
   _onClick = () => {
@@ -28,7 +31,7 @@ class PreferencesTabItem extends React.Component {
     const {tabId, displayName} = tabItem;
     const classes = classNames({
       item: true,
-      active: tabId === selection.get('tabId'),
+      active: tabId === selection.tabId,
     });
 
     let path = `icon-preferences-${displayName.toLowerCase().replace(" ", "-")}.png`
@@ -58,8 +61,11 @@ class PreferencesTabsBar extends React.Component {
   static displayName = 'PreferencesTabsBar';
 
   static propTypes = {
-    tabs: React.PropTypes.array.isRequired,
-    selection: React.PropTypes.object.isRequired,
+    tabs: PropTypes.array.isRequired,
+    selection: PropTypes.shape({
+      accountId: PropTypes.string,
+      tabId: PropTypes.string,
+    }).isRequired,
   }
 
   renderTabs() {

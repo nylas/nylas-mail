@@ -24,18 +24,10 @@ class ThemeOption extends React.Component {
   }
 
   _getImportPaths() {
-    const themes = [this.props.theme];
-    // Pulls the theme package for Light as the base theme
-    for (const theme of NylasEnv.themes.getActiveThemes()) {
-      if (theme.name === NylasEnv.themes.baseThemeName()) {
-        themes.push(theme);
-      }
-    }
-    const themePaths = [];
-    for (const theme of themes) {
-      themePaths.push(theme.getStylesheetsPath());
-    }
-    return themePaths.filter((themePath) => fs.isDirectorySync(themePath));
+    return [
+      this.props.theme.getStylesheetsPath(),
+      NylasEnv.themes.getBaseTheme().getStylesheetsPath(),
+    ];
   }
 
   _loadStylesheet(stylesheetPath) {

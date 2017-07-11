@@ -19,7 +19,7 @@ class PreferencesRoot extends React.Component {
 
   static propTypes = {
     tab: PropTypes.object,
-    tabs: PropTypes.object,
+    tabs: PropTypes.array,
     selection: PropTypes.object,
   }
 
@@ -87,7 +87,7 @@ class PreferencesRoot extends React.Component {
           <ScrollRegion className="preferences-content">
             <ConfigPropContainer ref="content">
               {tab ?
-                <tab.component accountId={selection.get('accountId')} /> :
+                <tab.component accountId={selection.accountId} /> :
                 false
               }
             </ConfigPropContainer>

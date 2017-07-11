@@ -11,7 +11,7 @@ const dark = new ThemePackage(`${resourcePath}/internal_packages/ui-dark`);
 
 describe('ThemePicker', function themePicker() {
   beforeEach(() => {
-    spyOn(NylasEnv.themes, 'getLoadedThemes').andReturn([light, dark]);
+    spyOn(NylasEnv.themes, 'getAvailableThemes').andReturn([light, dark]);
     spyOn(NylasEnv.themes, 'getActiveTheme').andReturn(light);
     this.component = ReactTestUtils.renderIntoDocument(<ThemePicker />);
   });

@@ -26,7 +26,7 @@ class ThemePicker extends React.Component {
 
   _getState() {
     return {
-      themes: this.themes.getLoadedThemes(),
+      themes: this.themes.getAvailableThemes(),
       activeTheme: this.themes.getActiveTheme().name,
     }
   }
