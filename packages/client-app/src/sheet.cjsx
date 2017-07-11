@@ -3,7 +3,7 @@ _ = require 'underscore'
 {Actions,ComponentRegistry, WorkspaceStore} = require "nylas-exports"
 RetinaImg = require('./components/retina-img').default
 Flexbox = require('./components/flexbox').default
-InjectedComponentSet = require './components/injected-component-set'
+InjectedComponentSet = require('./components/injected-component-set').default
 ResizableRegion = require './components/resizable-region'
 
 FLEX = 10000

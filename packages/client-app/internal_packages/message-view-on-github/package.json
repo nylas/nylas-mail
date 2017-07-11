@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "main": "./lib/main",
   "description": "View on Github button",
-  "isHiddenOnPluginsPage": true,
   "license": "GPL-3.0",
 
   "title":"View on GitHub",
   "description": "Add a \"View On GitHub\" button that appears when viewing GitHub emails.",
   "icon": "./icon.png",
+
   "isOptional": true,
+  "isHiddenOnPluginsPage": true,
 
   "engines": {
     "nylas": "*"

@@ -3,7 +3,7 @@ ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 
 {Utils, Actions} = require "nylas-exports"
-InjectedComponentSet = require './injected-component-set'
+InjectedComponentSet = require('./injected-component-set').default
 Flexbox = require('./flexbox').default
 
 ###

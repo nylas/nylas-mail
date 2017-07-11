@@ -4,13 +4,13 @@
   "main": "./lib/main",
   "title": "Markdown (Experimental)",
   "description": "Write emails using Markdown!",
-  "isHiddenOnPluginsPage": true,
   "license": "GPL-3.0",
   "icon": "./icon.png",
   "engines": {
     "nylas": "*"
   },
   "isOptional": true,
+  "isHiddenOnPluginsPage": true,
   "repository": {
     "type": "git",
     "url": ""

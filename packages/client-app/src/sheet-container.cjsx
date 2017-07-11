@@ -4,7 +4,7 @@ Sheet = require './sheet'
 Toolbar = require './sheet-toolbar'
 Flexbox = require('./components/flexbox').default
 RetinaImg = require('./components/retina-img').default
-InjectedComponentSet = require './components/injected-component-set'
+InjectedComponentSet = require('./components/injected-component-set').default
 _ = require 'underscore'
 
 {Actions,

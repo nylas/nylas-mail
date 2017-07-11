@@ -49,6 +49,14 @@ export default class Package {
     return !!this.json.theme;
   }
 
+  isOptional() {
+    return !!this.json.isOptional;
+  }
+
+  isDefault() {
+    return !!this.json.isDefault;
+  }
+
   loadKeymaps() {
     let keymapPaths = [];
     const keymapsRoot = path.join(this.directory, 'keymaps');

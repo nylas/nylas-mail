@@ -61,22 +61,27 @@ export default class PackageManager {
   }
 
   activatePackages(windowType) {
-    console.log(`ActivePackages for windowType ${windowType}`)
+    const disabled = NylasEnv.config.get('core.disabledPackages');
+
     for (const name of Object.keys(this.available)) {
       const pkg = this.available[name];
+
+      if (this.active[pkg.name]) {
+        continue;
+      }
 
       if (!pkg || pkg.isTheme()) {
         continue;
       }
 
-      console.log(`Found ${pkg.name}`)
+      if (pkg.isOptional() && disabled.includes(pkg.name)) {
+        continue;
+      }
 
       if (pkg.windowTypes[windowType]) {
         if (pkg.syncInit) {
-          console.log("Loading...")
           this.activatePackage(pkg);
         } else {
-          console.log("Loading later...")
           this.waiting.push(pkg);
         }
       }
@@ -91,6 +96,7 @@ export default class PackageManager {
   }
 
   activatePackage(pkg) {
+    this.active[pkg.name] = pkg;
     pkg.activate();
   }
 
