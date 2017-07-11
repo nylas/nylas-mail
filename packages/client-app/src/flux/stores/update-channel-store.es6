@@ -30,6 +30,8 @@ class UpdateChannelStore extends NylasStore {
   }
 
   refreshChannel() {
+    // TODO BG
+    return;
     LegacyEdgehillAPI.makeRequest({
       method: 'GET',
       path: `/update-channel`,

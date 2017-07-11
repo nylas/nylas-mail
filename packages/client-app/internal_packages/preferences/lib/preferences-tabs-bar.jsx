@@ -1,6 +1,5 @@
 import React from 'react';
 import fs from 'fs'
-import Immutable from 'immutable';
 import classNames from 'classnames';
 
 import {Flexbox, RetinaImg} from 'nylas-component-kit';
@@ -11,7 +10,7 @@ class PreferencesTabItem extends React.Component {
   static displayName = 'PreferencesTabItem';
 
   static propTypes = {
-    selection: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    selection: React.PropTypes.object.isRequired,
     tabItem: React.PropTypes.instanceOf(PreferencesUIStore.TabItem).isRequired,
   }
 
@@ -59,8 +58,8 @@ class PreferencesTabsBar extends React.Component {
   static displayName = 'PreferencesTabsBar';
 
   static propTypes = {
-    tabs: React.PropTypes.instanceOf(Immutable.List).isRequired,
-    selection: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    tabs: React.PropTypes.array.isRequired,
+    selection: React.PropTypes.object.isRequired,
   }
 
   renderTabs() {

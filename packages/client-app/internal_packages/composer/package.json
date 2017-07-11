@@ -5,6 +5,7 @@
   "description": "Nylas Composer Component",
   "license": "GPL-3.0",
   "private": true,
+  "syncInit": true,
   "scripts": {
   },
   "engines": {
@@ -13,7 +14,6 @@
   "windowTypes": {
     "default": true,
     "composer": true,
-    "composer-preload": true,
     "thread-popout": true
   }
 }

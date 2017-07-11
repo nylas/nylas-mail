@@ -123,7 +123,6 @@ export default class WindowLauncher {
 
   _hotWindowOpts() {
     const hotWindowOpts = Object.assign({}, this.defaultWindowOpts);
-    hotWindowOpts.packageLoadingDeferred = true;
     hotWindowOpts.hidden = DEBUG_SHOW_HOT_WINDOW;
     return hotWindowOpts
   }

@@ -59,10 +59,6 @@ class MasterBeforeEach {
     });
   }
 
-  _resetPackageManager = () => {
-    NylasEnv.packages.packageStates = {};
-  }
-
   _resetDatabase() {
     global.localStorage.clear();
     DatabaseStore._transactionQueue = undefined;

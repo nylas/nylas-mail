@@ -27,18 +27,22 @@ export default class NylasAPIRequest {
   }
 
   async run() {
-    if (NylasEnv.getLoadSettings().isSpec) return Promise.resolve([]);
-    try {
-      this.options.auth = this.options.auth || this._defaultAuth();
-      return await this._asyncRequest(this.options)
-    } catch (error) {
-      let apiError = error
-      if (!(apiError instanceof APIError)) {
-        apiError = new APIError({error: apiError, statusCode: 500})
-      }
-      this._notifyOfAPIError(apiError)
-      throw apiError
-    }
+    return null;
+    
+    // TODO BG: Promise.reject();
+
+    // if (NylasEnv.getLoadSettings().isSpec) return Promise.resolve([]);
+    // try {
+    //   this.options.auth = this.options.auth || this._defaultAuth();
+    //   return await this._asyncRequest(this.options)
+    // } catch (error) {
+    //   let apiError = error
+    //   if (!(apiError instanceof APIError)) {
+    //     apiError = new APIError({error: apiError, statusCode: 500})
+    //   }
+    //   this._notifyOfAPIError(apiError)
+    //   throw apiError
+    // }
   }
 
   /**

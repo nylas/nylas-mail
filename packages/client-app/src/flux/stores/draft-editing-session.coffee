@@ -62,7 +62,7 @@ class DraftChangeSet
 
   commit: ({noSyncback}={}) =>
     clearTimeout(@_timer) if @_timer
-    @_commitChain = @_commitChain.finally =>
+    commitSemaphored = =>
       if Object.keys(@_pending).length is 0
         return Promise.resolve(true)
 
@@ -72,6 +72,8 @@ class DraftChangeSet
         @_saving = {}
 
     return @_commitChain
+
+    @_commitChain = @_commitChain.then(commitSemaphored, commitSemaphored)
 
   applyToModel: (model) =>
     if model
@@ -273,7 +275,7 @@ class DraftEditingSession
       draft ?= inMemoryDraft
       updatedDraft = @changes.applyToModel(draft)
       console.log("Queueing SyncbackDraftTask")
-      Actions.queueTask(new SyncbackDraftTask(updatedDraft))
+      Actions.queueTask(new SyncbackDraftTask({draft: updatedDraft}))
 
   # Undo / Redo
 

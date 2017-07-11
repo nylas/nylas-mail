@@ -3,7 +3,6 @@ import _ from 'underscore';
 import React from 'react';
 import {
   Message,
-  Actions,
   DraftStore,
   WorkspaceStore,
   ComponentRegistry,
@@ -53,19 +52,6 @@ class ComposerWithWindowProps extends React.Component {
       if (this.state.errorMessage) {
         this._showInitialErrorDialog(this.state.errorMessage, this.state.errorDetail);
       }
-
-      // This will start loading the rest of the composer's plugins. This
-      // may take a while (hundreds of ms) depending on how many plugins
-      // you have installed. For some reason it takes two frames to
-      // reliably get the basic composer (Send button, etc) painted
-      // properly.
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          NylasEnv.getCurrentWindow().updateLoadSettings({
-            windowType: "composer",
-          })
-        })
-      })
     });
   }
 

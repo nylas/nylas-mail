@@ -28,7 +28,8 @@ export default class InjectedComponentLabel extends React.Component {
       if (key === 'matching') {
         continue;
       }
-      propDescriptions.push(`${key}:<${val.constructor ? val.constructor.name : typeof val}>`);
+      const desc = (val && val.constructor) ? val.constructor.name : typeof val;
+      propDescriptions.push(`${key}:<${desc}>`);
     }
 
     let description = ` ${matchingDescriptions.join(', ')}`;

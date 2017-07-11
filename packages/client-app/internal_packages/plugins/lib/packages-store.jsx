@@ -2,7 +2,6 @@ import _ from 'underscore';
 import Reflux from 'reflux';
 import path from 'path';
 import fs from 'fs-plus';
-import {APMWrapper} from 'nylas-exports';
 import {ipcRenderer, shell, remote} from 'electron';
 
 import PluginsActions from './plugins-actions';
@@ -12,85 +11,83 @@ const dialog = remote.dialog;
 
 const PackagesStore = Reflux.createStore({
   init: function init() {
-    this._apm = new APMWrapper();
+    // this._globalSearch = "";
+    // this._installedSearch = "";
+    // this._installing = {};
+    // this._featured = {
+    //   themes: [],
+    //   packages: [],
+    // };
+    // this._newerVersions = [];
+    // this._searchResults = null;
+    // this._refreshFeatured();
 
-    this._globalSearch = "";
-    this._installedSearch = "";
-    this._installing = {};
-    this._featured = {
-      themes: [],
-      packages: [],
-    };
-    this._newerVersions = [];
-    this._searchResults = null;
-    this._refreshFeatured();
+    // this.listenTo(PluginsActions.refreshFeaturedPackages, this._refreshFeatured);
+    // this.listenTo(PluginsActions.refreshInstalledPackages, this._refreshInstalled);
 
-    this.listenTo(PluginsActions.refreshFeaturedPackages, this._refreshFeatured);
-    this.listenTo(PluginsActions.refreshInstalledPackages, this._refreshInstalled);
+    // NylasEnv.commands.add(document.body,
+    //   'application:create-package',
+    //   () => this._onCreatePackage()
+    // );
 
-    NylasEnv.commands.add(document.body,
-      'application:create-package',
-      () => this._onCreatePackage()
-    );
+    // NylasEnv.commands.add(document.body,
+    //   'application:install-package',
+    //   () => this._onInstallPackage()
+    // );
 
-    NylasEnv.commands.add(document.body,
-      'application:install-package',
-      () => this._onInstallPackage()
-    );
+    // this.listenTo(PluginsActions.installNewPackage, this._onInstallPackage);
+    // this.listenTo(PluginsActions.createPackage, this._onCreatePackage);
+    // this.listenTo(PluginsActions.updatePackage, this._onUpdatePackage);
+    // this.listenTo(PluginsActions.setGlobalSearchValue, this._onGlobalSearchChange);
+    // this.listenTo(PluginsActions.setInstalledSearchValue, this._onInstalledSearchChange);
 
-    this.listenTo(PluginsActions.installNewPackage, this._onInstallPackage);
-    this.listenTo(PluginsActions.createPackage, this._onCreatePackage);
-    this.listenTo(PluginsActions.updatePackage, this._onUpdatePackage);
-    this.listenTo(PluginsActions.setGlobalSearchValue, this._onGlobalSearchChange);
-    this.listenTo(PluginsActions.setInstalledSearchValue, this._onInstalledSearchChange);
+    // this.listenTo(PluginsActions.showPackage, (pkg) => {
+    //   const dir = NylasEnv.packages.resolvePackagePath(pkg.name);
+    //   if (dir) shell.showItemInFolder(dir);
+    // });
 
-    this.listenTo(PluginsActions.showPackage, (pkg) => {
-      const dir = NylasEnv.packages.resolvePackagePath(pkg.name);
-      if (dir) shell.showItemInFolder(dir);
-    });
+    // this.listenTo(PluginsActions.installPackage, (pkg) => {
+    //   this._installing[pkg.name] = true;
+    //   this.trigger(this);
+    //   this._apm.install(pkg, (err) => {
+    //     if (err) {
+    //       delete this._installing[pkg.name];
+    //       this._displayMessage("Sorry, an error occurred", err.toString());
+    //     } else {
+    //       if (NylasEnv.packages.isPackageDisabled(pkg.name)) {
+    //         NylasEnv.packages.enablePackage(pkg.name);
+    //       }
+    //     }
+    //     this._onPackagesChanged();
+    //   });
+    // });
 
-    this.listenTo(PluginsActions.installPackage, (pkg) => {
-      this._installing[pkg.name] = true;
-      this.trigger(this);
-      this._apm.install(pkg, (err) => {
-        if (err) {
-          delete this._installing[pkg.name];
-          this._displayMessage("Sorry, an error occurred", err.toString());
-        } else {
-          if (NylasEnv.packages.isPackageDisabled(pkg.name)) {
-            NylasEnv.packages.enablePackage(pkg.name);
-          }
-        }
-        this._onPackagesChanged();
-      });
-    });
+    // this.listenTo(PluginsActions.uninstallPackage, (pkg) => {
+    //   if (NylasEnv.packages.isPackageLoaded(pkg.name)) {
+    //     NylasEnv.packages.disablePackage(pkg.name);
+    //     NylasEnv.packages.unloadPackage(pkg.name);
+    //   }
+    //   this._apm.uninstall(pkg, (err) => {
+    //     if (err) this._displayMessage("Sorry, an error occurred", err.toString())
+    //     this._onPackagesChanged();
+    //   })
+    // });
 
-    this.listenTo(PluginsActions.uninstallPackage, (pkg) => {
-      if (NylasEnv.packages.isPackageLoaded(pkg.name)) {
-        NylasEnv.packages.disablePackage(pkg.name);
-        NylasEnv.packages.unloadPackage(pkg.name);
-      }
-      this._apm.uninstall(pkg, (err) => {
-        if (err) this._displayMessage("Sorry, an error occurred", err.toString())
-        this._onPackagesChanged();
-      })
-    });
+    // this.listenTo(PluginsActions.enablePackage, (pkg) => {
+    //   if (NylasEnv.packages.isPackageDisabled(pkg.name)) {
+    //     NylasEnv.packages.enablePackage(pkg.name);
+    //     this._onPackagesChanged();
+    //   }
+    // });
 
-    this.listenTo(PluginsActions.enablePackage, (pkg) => {
-      if (NylasEnv.packages.isPackageDisabled(pkg.name)) {
-        NylasEnv.packages.enablePackage(pkg.name);
-        this._onPackagesChanged();
-      }
-    });
+    // this.listenTo(PluginsActions.disablePackage, (pkg) => {
+    //   if (!NylasEnv.packages.isPackageDisabled(pkg.name)) {
+    //     NylasEnv.packages.disablePackage(pkg.name);
+    //     this._onPackagesChanged();
+    //   }
+    // });
 
-    this.listenTo(PluginsActions.disablePackage, (pkg) => {
-      if (!NylasEnv.packages.isPackageDisabled(pkg.name)) {
-        NylasEnv.packages.disablePackage(pkg.name);
-        this._onPackagesChanged();
-      }
-    });
-
-    this._hasPrepared = false;
+    // this._hasPrepared = false;
   },
 
   // Getters

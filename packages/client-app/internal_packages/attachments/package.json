@@ -5,13 +5,13 @@
   "description": "View attachments on messages",
   "license": "GPL-3.0",
   "private": true,
+  "syncInit": true,
   "engines": {
     "nylas": "*"
   },
   "windowTypes": {
     "default": true,
     "composer": true,
-    "composer-preload": true,
     "thread-popout": true
   }
 }

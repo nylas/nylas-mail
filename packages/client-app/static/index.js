@@ -2,13 +2,11 @@ window.eval = global.eval = function() {
   throw new Error("Sorry, N1 does not support window.eval() for security reasons.");
 }
 
-var util = require('util')
-var path = require('path');
-var electron = require('electron');
-var remote = electron.remote;
+var util = null;
 
 console.inspect = function consoleInspect(val) {
-  console.log(util.inspect(val, true, depth=7, colorize=true));
+  util = util || require('util');
+  console.log(util.inspect(val, true, 7, true));
 }
 
 function setLoadTime (loadTime) {
@@ -20,7 +18,7 @@ function setLoadTime (loadTime) {
 }
 
 function handleSetupError (error) {
-  var currentWindow = remote.getCurrentWindow()
+  var currentWindow = require('electron').remote.getCurrentWindow()
   currentWindow.setSize(800, 600)
   currentWindow.center()
   currentWindow.show()
@@ -29,9 +27,8 @@ function handleSetupError (error) {
 }
 
 function copyEnvFromMainProcess() {
-  var _ = require('underscore');
-  var remote = require('electron').remote;
-  var newEnv = _.extend({}, process.env, remote.process.env);
+  const remote = require('electron').remote; //eslint-disable-line
+  const newEnv = Object({}, process.env, JSON.parse(JSON.stringify(remote.process.env)));
   process.env = newEnv;
 }
 
@@ -76,9 +73,6 @@ window.onload = function() {
   try {
     var startTime = Date.now();
 
-    var fs = require('fs');
-    var path = require('path');
-
     // Skip "?loadSettings=".
     var rawLoadSettings = decodeURIComponent(location.search.substr(14));
     var loadSettings;
@@ -90,6 +84,7 @@ window.onload = function() {
     }
 
     // Normalize to make sure drive letter case is consistent on Windows
+    var path = require('path');
     process.resourcesPath = path.normalize(process.resourcesPath);
 
     setupWindow(loadSettings)

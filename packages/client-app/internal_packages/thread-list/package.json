@@ -5,6 +5,7 @@
   "description": "View threads using React",
   "license": "GPL-3.0",
   "private": true,
+  "syncInit": true,
   "engines": {
     "nylas": "*"
   }

@@ -1,8 +1,8 @@
-import isOnline from 'is-online';
 import NylasStore from 'nylas-store';
 import {ExponentialBackoffScheduler} from '../../backoff-schedulers';
 import Actions from '../actions';
 
+let isOnlineModule = null;
 
 const CHECK_ONLINE_INTERVAL = 30 * 1000
 
@@ -19,8 +19,10 @@ class OnlineStatusStore extends NylasStore {
     this.setupEmitter()
 
     if (NylasEnv.isMainWindow()) {
-      Actions.checkOnlineStatus.listen(() => this._checkOnlineStatus())
-      this._checkOnlineStatus()
+      Actions.checkOnlineStatus.listen(() => this._checkOnlineStatus());
+      setTimeout(() => {
+        this._checkOnlineStatus();
+      }, 3000);
     }
   }
 
@@ -33,7 +35,9 @@ class OnlineStatusStore extends NylasStore {
   }
 
   async _setNextOnlineState() {
-    const nextIsOnline = await isOnline()
+    isOnlineModule = isOnlineModule || require('is-online'); //eslint-disable-line
+
+    const nextIsOnline = await isOnlineModule();
     if (this._isOnline !== nextIsOnline) {
       this._isOnline = nextIsOnline
       this.trigger()

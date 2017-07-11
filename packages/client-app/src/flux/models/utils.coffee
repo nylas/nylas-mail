@@ -1,7 +1,6 @@
 _ = require 'underscore'
 fs = require('fs-plus')
 path = require('path')
-moment = require('moment-timezone')
 
 DefaultResourcePath = null
 DatabaseObjectRegistry = require('../../registries/database-object-registry').default

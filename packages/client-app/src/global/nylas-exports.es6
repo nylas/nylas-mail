@@ -206,7 +206,6 @@ lazyLoadWithGetter(`APIError`, () => require('../flux/errors').APIError);
 lazyLoad(`DefaultClientHelper`, 'default-client-helper');
 lazyLoad(`BufferedProcess`, 'buffered-process');
 lazyLoad(`SystemStartService`, 'system-start-service');
-lazyLoadWithGetter(`APMWrapper`, () => require('../apm-wrapper'));
 
 // Testing
 lazyLoadWithGetter(`NylasTestUtils`, () => require('../../spec/nylas-test-utils'));

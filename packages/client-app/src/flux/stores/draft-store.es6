@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import {ipcRenderer} from 'electron';
 import NylasStore from 'nylas-store';
 import DraftEditingSession from './draft-editing-session';
@@ -111,7 +110,7 @@ class DraftStore extends NylasStore {
   }
 
   _cleanupAllSessions() {
-    _.each(this._draftSessions, (session) => {
+    Object.values(this._draftSessions).forEach((session) => {
       this._doneWithSession(session)
     })
   }
@@ -123,7 +122,7 @@ class DraftStore extends NylasStore {
     // fulfilled (nothing to save), but in this case we only want to
     // block window closing if we have to do real work. Calling
     // window.close() within on onbeforeunload could do weird things.
-    _.each(this._draftSessions, (session) => {
+    Object.values(this._draftSessions).forEach((session) => {
       const draft = session.draft()
       if (draft && draft.pristine) {
         Actions.queueTask(new DestroyDraftTask({
@@ -173,7 +172,7 @@ class DraftStore extends NylasStore {
       draft.body = `${body}\n\n${draft.body}`
       draft.pristine = false;
 
-      const t = new SyncbackDraftTask(draft)
+      const t = new SyncbackDraftTask({draft})
       Actions.queueTask(t)
       TaskQueue.waitForPerformLocal(t).then(() => {
         Actions.sendDraft(draft.headerMessageId);
@@ -249,7 +248,7 @@ class DraftStore extends NylasStore {
     // doesn't need to do a query for it a second from now when the composer wants it.
     this._createSession(draft.headerMessageId, draft);
 
-    const task = new SyncbackDraftTask(draft);
+    const task = new SyncbackDraftTask({draft});
     Actions.queueTask(task)
     
     return TaskQueue.waitForPerformLocal(task).then(() => {
@@ -297,8 +296,8 @@ class DraftStore extends NylasStore {
           title,
           hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
           windowKey: `composer-${headerMessageId}`,
-          windowType: 'composer-preload',
-          windowProps: _.extend(options, {headerMessageId, draftJSON}),
+          windowType: 'composer',
+          windowProps: Object.assign(options, {headerMessageId, draftJSON}),
         });
       });
     });

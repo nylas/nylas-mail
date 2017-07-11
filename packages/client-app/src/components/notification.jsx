@@ -55,20 +55,24 @@ export default class Notification extends React.Component {
     return NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName]
   }
 
-  _onClick(event, actionId, actionFn) {
+  async _onClick(event, actionId, actionFn) {
     const result = actionFn(event);
     if (result instanceof Promise) {
       this.setState({
         loadingActions: this.state.loadingActions.concat([actionId]),
-      })
+      });
 
-      result.finally(() => {
-        if (this.mounted) {
-          this.setState({
-            loadingActions: this.state.loadingActions.filter(f => f !== actionId),
-          })
-        }
-      })
+      try {
+        await result;
+      } catch (err) {
+        // ignored
+      }
+
+      if (this.mounted) {
+        this.setState({
+          loadingActions: this.state.loadingActions.filter(f => f !== actionId),
+        });
+      }
     }
   }
 

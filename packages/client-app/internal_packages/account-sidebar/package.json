@@ -5,6 +5,7 @@
   "description": "Sidebar view that shows your account and important tags",
   "license": "GPL-3.0",
   "private": true,
+  "syncInit": true,
   "engines": {
     "nylas": "*"
   }

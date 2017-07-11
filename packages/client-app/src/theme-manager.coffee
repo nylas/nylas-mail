@@ -3,7 +3,6 @@ path = require 'path'
 _ = require 'underscore'
 EmitterMixin = require('emissary').Emitter
 {Emitter, Disposable, CompositeDisposable} = require 'event-kit'
-{File} = require 'pathwatcher'
 fs = require 'fs-plus'
 
 Package = require './package'
@@ -20,7 +19,6 @@ class ThemeManager
     @styleSheetDisposablesBySourcePath = {}
     @lessCache = null
     @initialLoadComplete = false
-    @packageManager.registerPackageActivator(this, ['theme'])
     @sheetsByStyleElement = new WeakMap
 
     stylesElement = document.head.querySelector('nylas-styles')
@@ -120,7 +118,7 @@ class ThemeManager
     themeNames = [themeNames] unless _.isArray(themeNames)
     themeNames = themeNames.filter (themeName) ->
       if themeName and typeof themeName is 'string'
-        return true if NylasEnv.packages.resolvePackagePath(themeName)
+        return true if NylasEnv.packages.getPackageNamed(themeName)
         console.warn("Enabled theme '#{themeName}' is not installed.")
       false
 
@@ -243,7 +241,7 @@ class ThemeManager
 
         promises = []
         for themeName in @getEnabledThemeNames()
-          if @packageManager.resolvePackagePath(themeName)
+          if @packageManager.getPackageNamed(themeName)
             promises.push(@packageManager.activatePackage(themeName))
           else
             console.warn("Failed to activate theme '#{themeName}' because it isn't installed.")
@@ -283,7 +281,7 @@ class ThemeManager
     else
       themePaths = []
       for themeName in @getEnabledThemeNames()
-        if themePath = @packageManager.resolvePackagePath(themeName)
-          themePaths.push(path.join(themePath, 'styles'))
+        if pkg = @packageManager.getPackageNamed(themeName)
+          themePaths.push(path.join(pkg.directory, 'styles'))
 
     themePaths.filter (themePath) -> fs.isDirectorySync(themePath)

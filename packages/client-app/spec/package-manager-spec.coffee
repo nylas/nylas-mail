@@ -410,8 +410,6 @@ describe "PackageManager", ->
 
       runs ->
         NylasEnv.packages.deactivatePackages()
-        expect(NylasEnv.packages.packageStates['package-with-serialize-error']).toBeUndefined()
-        expect(NylasEnv.packages.packageStates['package-with-serialization']).toEqual someNumber: 1
         expect(console.error).toHaveBeenCalled()
 
     it "absorbs exceptions that are thrown by the package module's deactivate method", ->

@@ -53,17 +53,16 @@ export default class MetadataComposerToggleButton extends React.Component {
     return NylasEnv.config.get(this._configKey()) !== false;
   }
 
-  _setEnabled(enabled) {
+  async _setEnabled(enabled) {
     const {pluginId, pluginName, draft, session, metadataEnabledValue} = this.props;
 
     const metadataValue = enabled ? metadataEnabledValue : null;
     this.setState({pending: true});
 
-    NylasAPIHelpers.authPlugin(pluginId, pluginName, draft.accountId)
-    .then(() => {
+    try {
+      await NylasAPIHelpers.authPlugin(pluginId, pluginName, draft.accountId)
       session.changes.addPluginMetadata(pluginId, metadataValue);
-    })
-    .catch((error) => {
+    } catch (error) {
       const {stickyToggle, errorMessage} = this.props;
 
       if (stickyToggle) {
@@ -80,9 +79,9 @@ export default class MetadataComposerToggleButton extends React.Component {
       }
 
       NylasEnv.showErrorDialog({title, message: errorMessage(error)});
-    }).finally(() => {
-      this.setState({pending: false})
-    });
+    }
+
+    this.setState({pending: false});
   }
 
   _onClick = () => {

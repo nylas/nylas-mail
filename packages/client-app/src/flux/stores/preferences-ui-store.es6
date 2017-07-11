@@ -1,7 +1,6 @@
 import {ipcRenderer} from 'electron';
 import _ from 'underscore'
 import NylasStore from 'nylas-store'
-import Immutable from 'immutable'
 import WorkspaceStore from './workspace-store'
 import FocusedPerspectiveStore from './focused-perspective-store'
 import Actions from '../actions'
@@ -12,7 +11,7 @@ const MAIN_TAB_ITEM_ID = 'General'
 class TabItem {
   constructor(opts = {}) {
     opts.order = opts.order || Infinity;
-    _.extend(this, opts);
+    Object.assign(this, opts);
   }
 }
 
@@ -22,11 +21,11 @@ class PreferencesUIStore extends NylasStore {
     super();
 
     const perspective = FocusedPerspectiveStore.current()
-    this._tabs = Immutable.List();
-    this._selection = Immutable.Map({
+    this._tabs = [];
+    this._selection = {
       tabId: null,
       accountId: perspective.account ? perspective.account.id : null,
-    })
+    };
 
     this._triggerDebounced = _.debounce(() => this.trigger(), 20)
     this.setupListeners()
@@ -66,9 +65,9 @@ class PreferencesUIStore extends NylasStore {
   }
 
   switchPreferencesTab = (tabId, options = {}) => {
-    this._selection = this._selection.set('tabId', tabId);
+    this._selection.tabId = tabId;
     if (options.accountId) {
-      this._selection = this._selection.set('accountId', options.accountId);
+      this._selection.accountId = options.accountId;
     }
     this.trigger();
   }
@@ -88,11 +87,12 @@ class PreferencesUIStore extends NylasStore {
 
   */
   registerPreferencesTab = (tabItem) => {
-    this._tabs = this._tabs.push(tabItem).sort((a, b) =>
+    this._tabs.push(tabItem)
+    this._tabs.sort((a, b) =>
       a.order > b.order
     )
     if (tabItem.tabId === MAIN_TAB_ITEM_ID) {
-      this._selection = this._selection.set('tabId', tabItem.tabId);
+      this._selection.tabId = tabItem.tabId;
     }
     this._triggerDebounced();
   }

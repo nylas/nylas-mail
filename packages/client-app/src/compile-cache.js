@@ -1,6 +1,6 @@
 /* eslint no-cond-assign: 0 */
 const path = require('path')
-const fs = require('fs-plus')
+const fs = require('fs')
 
 const babelCompiler = require('./compile-support/babel')
 const coffeeCompiler = require('./compile-support/coffee-script')
@@ -19,14 +19,12 @@ let cacheDirectory = null
 
 function readCachedJavascript(relativeCachePath) {
   const cachePath = path.join(cacheDirectory, relativeCachePath)
-  if (fs.isFileSync(cachePath)) {
-    try {
-      return fs.readFileSync(cachePath, 'utf8')
-    } catch (error) {
-      //
-    }
+  try {
+    return fs.readFileSync(cachePath, 'utf8')
+  } catch (error) {
+    //
   }
-  return null
+  return null;
 }
 
 function writeCachedJavascript(relativeCachePath, code) {
@@ -70,7 +68,7 @@ require('source-map-support').install({
   // source-map-support module, but we've overridden it to read the javascript
   // code from our cache directory.
   retrieveSourceMap: (filePath) => {
-    if (!cacheDirectory || !fs.isFileSync(filePath)) {
+    if (!cacheDirectory) {
       return null
     }
 
@@ -79,7 +77,9 @@ require('source-map-support').install({
     try {
       sourceCode = fs.readFileSync(filePath, 'utf8')
     } catch (error) {
-      console.warn('Error reading source file', error.stack)
+      if (fs.existsSync(filePath)) {
+        console.warn('Error reading source file', error.stack);
+      }
       return null
     }
 

@@ -75,11 +75,12 @@ export default class ReprocessMailRulesTask extends Task {
           return Promise.resolve(null);
         }
 
-        return MailRulesProcessor.processMessages(messages).finally(() => {
+        const advance = () => {
           this._processed += messages.length;
           this._offset += threads.length;
           this._lastTimestamp = threads.pop().lastMessageReceivedTimestamp;
-        });
+        }
+        return MailRulesProcessor.processMessages(messages).catch(advance).then(advance)
       });
     })
     .delay(500)

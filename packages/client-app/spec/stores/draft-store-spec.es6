@@ -137,7 +137,7 @@ xdescribe('DraftStore', function draftStore() {
             title: 'Message',
             hidden: true,
             windowKey: `composer-A`,
-            windowType: "composer-preload",
+            windowType: "composer",
             windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
@@ -159,7 +159,7 @@ xdescribe('DraftStore', function draftStore() {
             title: 'Message',
             hidden: true,
             windowKey: `composer-A`,
-            windowType: "composer-preload",
+            windowType: "composer",
             windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });

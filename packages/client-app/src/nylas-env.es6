@@ -6,7 +6,7 @@ import { ipcRenderer, remote, shell } from 'electron';
 
 import _ from 'underscore';
 import { Emitter } from 'event-kit';
-import fs from 'fs-plus';
+import fs from 'fs';
 import { convertStackTrace } from 'coffeestack';
 import { mapSourcePosition } from 'source-map-support';
 
@@ -168,7 +168,7 @@ export default class NylasEnvConstructor {
     const Config = require('./config');
     const KeymapManager = require('./keymap-manager').default;
     const CommandRegistry = require('./registries/command-registry').default;
-    const PackageManager = require('./package-manager');
+    const PackageManager = require('./package-manager').default;
     const ThemeManager = require('./theme-manager');
     const StyleManager = require('./style-manager');
     const MenuManager = require('./menu-manager').default;
@@ -222,7 +222,6 @@ export default class NylasEnvConstructor {
     // initialize spell checking
     this.spellchecker = require('./spellchecker').default;
 
-    this.packages.onDidActivateInitialPackages(() => this.watchThemes());
     this.windowEventHandler = new WindowEventHandler();
 
     this.globalWindowEmitter = new Emitter();
@@ -478,7 +477,7 @@ export default class NylasEnvConstructor {
   }
 
   isComposerWindow() {
-    return ["composer", "composer-preload"].includes(this.getWindowType());
+    return this.getWindowType() === 'composer';
   }
 
   isThreadWindow() {
@@ -850,41 +849,45 @@ export default class NylasEnvConstructor {
     return this.savedState.columnWidths[id];
   }
 
-  startWindow() {
+  async startWindow() {
     this.loadConfig();
-    const {packageLoadingDeferred, windowType} = this.getLoadSettings();
-    return StoreRegistry.activateAllStores().then(() => {
-      this.keymaps.loadKeymaps();
-      this.themes.loadBaseStylesheets();
-      if (!packageLoadingDeferred) { this.packages.loadPackages(windowType); }
-      if (!packageLoadingDeferred) { this.deserializePackageStates(); }
-      this.initializeReactRoot();
-      if (!packageLoadingDeferred) { this.packages.activate(); }
-      return this.menu.update();
-    }
-    );
+    const {windowType} = this.getLoadSettings();
+
+    this.themes.loadBaseStylesheets();
+    await StoreRegistry.activateAllStores();
+    this.initializeBasicSheet();
+    this.initializeReactRoot();
+    this.packages.activatePackages(windowType);
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            this.keymaps.loadKeymaps();
+            this.watchThemes();
+            this.menu.update();
+
+            ipcRenderer.send('window-command', 'window:loaded');
+          });
+        });
+      });
+    });
   }
 
   // Call this method when establishing a real application window.
-  startRootWindow() {
+  async startRootWindow() {
     this.restoreWindowDimensions();
     this.getCurrentWindow().setMinimumSize(875, 250);
-    this.startWindow().then(() => {
-      ipcRenderer.send('window-command', 'window:loaded');
-    });
+    await this.startWindow()
   }
 
   // Initializes a secondary window.
   // NOTE: If the `packageLoadingDeferred` option is set (which is true for
   // hot windows), the packages won't be loaded until `populateHotWindow`
   // gets fired.
-  startSecondaryWindow() {
-    this.startWindow().then(() => {
-      this.initializeBasicSheet();
-      ipcRenderer.on("load-settings-changed", this.populateHotWindow);
-      ipcRenderer.send('window-command', 'window:loaded');
-    }
-    );
+  async startSecondaryWindow() {
+    await this.startWindow();
+    ipcRenderer.on("load-settings-changed", this.populateHotWindow);
   }
 
   // We setup the initial Sheet for hot windows. This is the default title
@@ -906,12 +909,13 @@ export default class NylasEnvConstructor {
   // This also means that the windowType has changed and a different set of
   // plugins needs to be loaded.
   populateHotWindow(event, loadSettings) {
+    console.log('populateHotWindow called')
+    console.log(loadSettings);
     this.loadSettings = loadSettings;
     this.constructor.loadSettings = loadSettings;
 
-    this.packages.loadPackages(loadSettings.windowType);
-    this.deserializePackageStates();
-    this.packages.activate();
+    this.packages.activatePackages(loadSettings.windowType);
+    this.watchThemes();
 
     this.emitter.emit('window-props-received',
       loadSettings.windowProps != null ? loadSettings.windowProps : {});
@@ -947,7 +951,6 @@ export default class NylasEnvConstructor {
 
   saveStateAndUnloadWindow() {
     this.packages.deactivatePackages();
-    this.savedState.packageStates = this.packages.packageStates;
     this.saveSync();
     this.windowState = null;
   }
@@ -1053,11 +1056,6 @@ export default class NylasEnvConstructor {
     return document.querySelector(this.workspaceViewParentSelector).appendChild(this.item);
   }
 
-  deserializePackageStates() {
-    this.packages.packageStates = this.savedState.packageStates || {};
-    return delete this.savedState.packageStates;
-  }
-
   loadConfig() {
     this.config.setSchema(null, {type: 'object', properties: _.clone(require('./config-schema').default)});
     return this.config.load();
@@ -1158,11 +1156,6 @@ export default class NylasEnvConstructor {
 
   crashRenderProcess() {
     return process.crash();
-  }
-
-  getUserInitScriptPath() {
-    const initScriptPath = fs.resolve(this.getConfigDirPath(), 'init', ['js', 'coffee']);
-    return initScriptPath != null ? initScriptPath : path.join(this.getConfigDirPath(), 'init.coffee');
   }
 
   // Require the module with the given globals.

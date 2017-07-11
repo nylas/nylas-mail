@@ -12,10 +12,6 @@ class MasterAfterEach {
       NylasEnv.packages.deactivatePackages();
       NylasEnv.menu.template = [];
 
-      if (NylasEnv.state) {
-        delete NylasEnv.state.packageStates;
-      }
-
       if (!window.debugContent) {
         document.getElementById('jasmine-content').innerHTML = '';
       }

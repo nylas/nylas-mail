@@ -105,7 +105,7 @@ class TaskQueue extends NylasStore {
 
   waitForPerformLocal = (task) => {
     const upToDateTask = [].concat(this._queue, this._completed).find(t => t.id === task.id);
-    if (upToDateTask.status !== Task.Status.Local) { return Promise.resolve(upToDateTask); }
+    if (upToDateTask && upToDateTask.status !== Task.Status.Local) { return Promise.resolve(upToDateTask); }
 
     return new Promise((resolve) => {
       this._waitingForLocal.push({task, resolve});
@@ -114,7 +114,7 @@ class TaskQueue extends NylasStore {
 
   waitForPerformRemote = (task) => {
     const upToDateTask = [].concat(this._queue, this._completed).find(t => t.id === task.id);
-    if (upToDateTask.status === Task.Status.Complete) { return Promise.resolve(upToDateTask); }
+    if (upToDateTask && upToDateTask.status === Task.Status.Complete) { return Promise.resolve(upToDateTask); }
 
     return new Promise((resolve) => {
       this._waitingForRemote.push({task, resolve});

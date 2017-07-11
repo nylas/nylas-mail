@@ -171,14 +171,16 @@ xdescribe('SnoozeStore', function snoozeStore() {
       jasmine.unspy(SnoozeUtils, 'moveThreadsToSnooze')
       spyOn(SnoozeUtils, 'moveThreadsToSnooze').andReturn(Promise.reject(new Error('Oh no!')))
 
-      waitsForPromise(() => {
-        return this.store.onSnoozeThreads(this.threads, 'date', 'label')
-        .finally(() => {
-          expect(SnoozeUtils.moveThreadsFromSnooze).toHaveBeenCalled()
-          expect(NylasEnv.reportError).toHaveBeenCalled()
-          expect(NylasEnv.showErrorDialog).toHaveBeenCalled()
-        })
-      })
+      waitsForPromise(async () => {
+        try {
+          await this.store.onSnoozeThreads(this.threads, 'date', 'label')
+        } catch (err) {
+          //
+        }
+        expect(SnoozeUtils.moveThreadsFromSnooze).toHaveBeenCalled()
+        expect(NylasEnv.reportError).toHaveBeenCalled()
+        expect(NylasEnv.showErrorDialog).toHaveBeenCalled()
+      });
     });
   });
 })
