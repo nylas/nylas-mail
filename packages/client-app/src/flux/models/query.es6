@@ -320,7 +320,8 @@ export default class ModelQuery {
 
   formatResult(inflated) {
     if (this._returnOne) {
-      return inflated[0];
+      // be careful not to return "undefined" if no items returned
+      return inflated.length > 0 ? inflated[0] : null;
     }
     if (this._count) {
       return inflated;

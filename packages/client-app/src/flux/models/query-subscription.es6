@@ -10,7 +10,7 @@ export default class QuerySubscription {
 
     this._set = null;
     this._callbacks = [];
-    this._lastResult = null;
+    this._lastResult = undefined; // null is a valid result!
     this._updateInFlight = false;
     this._queuedChangeRecords = [];
     this._queryVersion = 1;
@@ -44,8 +44,7 @@ export default class QuerySubscription {
       throw new Error(`QuerySubscription:addCallback - expects a function, received ${callback}`);
     }
     this._callbacks.push(callback);
-
-    if (this._lastResult) {
+    if (this._lastResult !== undefined) {
       callback(this._lastResult);
     }
   }
