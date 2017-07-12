@@ -59,9 +59,12 @@ class FocusedContactsStore extends NylasStore {
   }
 
   _clearCurrentParticipants() {
+    if (this._unsubFocusedContact) {
+      this._unsubFocusedContact.dispose();
+      this._unsubFocusedContact = null;
+    }
     this._contactScores = {};
     this._currentContacts = [];
-    if (this._unsubFocusedContact) this._unsubFocusedContact.dispose();
     this._unsubFocusedContact = null;
     this._currentFocusedContact = null;
     this._currentThread = null;
@@ -69,19 +72,24 @@ class FocusedContactsStore extends NylasStore {
   }
 
   _onFocusContact = (contact) => {
-    if (this._unsubFocusedContact) this._unsubFocusedContact.dispose();
-    this._unsubFocusedContact = null;
+    if (this._unsubFocusedContact) {
+      this._unsubFocusedContact.dispose();
+      this._unsubFocusedContact = null;
+    }
+
     this._currentParticipantThreads = [];
 
-    if (contact) {
+    if (contact && contact.email) {
       const query = DatabaseStore.findBy(Contact, {
         accountId: this._currentThread.accountId,
         email: contact.email,
-        name: contact.name,
       });
-      this._unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe(match => {
+      this._unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe((match) => {
+        if (match) {
+          match.name = contact.name; // always show the name from the current email
+        }
         this._currentFocusedContact = match || contact;
-        return this._triggerLater();
+        this._triggerLater();
       });
       this._loadCurrentParticipantThreads();
     } else {
@@ -96,9 +104,8 @@ class FocusedContactsStore extends NylasStore {
     if (!email) {
       return
     }
-    const parsedQuery = SearchQueryParser.parse(`from:${email}`);
     DatabaseStore.findAll(Thread)
-      .structuredSearch(parsedQuery)
+      .structuredSearch(SearchQueryParser.parse(`from:${email}`))
       .limit(100).background()
       .then((threads = []) => {
         if (currentContact.email !== email) {

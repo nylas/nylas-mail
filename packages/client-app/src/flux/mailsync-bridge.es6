@@ -35,7 +35,6 @@ export default class MailsyncBridge {
     const clientsToStop = Object.assign({}, this.clients);
 
     for (const acct of AccountStore.accounts()) {
-      console.log(JSON.stringify(acct));
       if (!this.clients[acct.id]) {
         toLaunch.push(acct);
       } else {
