@@ -116,12 +116,12 @@ class SearchStore extends NylasStore {
       role: "SearchBarResults",
     })
 
-    Promise.map(searchExtensions, (ext) => {
+    Promise.all(searchExtensions.map((ext) => {
       return Promise.props({
         label: ext.searchLabel(),
         suggestions: ext.fetchSearchSuggestions(this._searchQuery),
       })
-    }).then((extensionData = []) => {
+    })).then((extensionData = []) => {
       this._extensionData = extensionData;
       this._compileResults();
     })

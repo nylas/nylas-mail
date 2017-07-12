@@ -100,7 +100,7 @@ class ActionBridge {
     setTimeout(() => {
       console.debug(printToConsole, `ActionBridge: ${this.initiatorId} Action Bridge Received: ${name}`);
 
-      const args = JSON.parse(json, Utils.registeredObjectReviver);
+      const args = JSON.parse(json, Utils.modelTypesReviver);
 
       if (Actions[name]) {
         Actions[name].firing = true;

@@ -31,7 +31,6 @@ export default class MailsyncBridge {
   }
 
   ensureClients() {
-    return; //
     const toLaunch = [];
     const clientsToStop = Object.assign({}, this.clients);
 
