@@ -3,7 +3,7 @@ React = require "react"
 ReactDOM = require "react-dom"
 ReactTestUtils = require 'react-dom/test-utils'
 {Contact, Message, DOMUtils} = require "nylas-exports"
-MessageParticipants = require "../lib/message-participants"
+MessageParticipants = require("../lib/message-participants").default
 
 user_1 =
   name: "User One"

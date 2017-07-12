@@ -82,11 +82,11 @@ export default class MessageControls extends React.Component {
   }
 
   _onShowOriginal = () => {
-    const fs = require('fs');
-    const path = require('path');
-    const BrowserWindow = remote.BrowserWindow;
-    const app = remote.app;
-    const tmpfile = path.join(app.getPath('temp'), this.props.message.id);
+    // const fs = require('fs');
+    // const path = require('path');
+    // const BrowserWindow = remote.BrowserWindow;
+    // const app = remote.app;
+    // const tmpfile = path.join(app.getPath('temp'), this.props.message.id);
 
     // bg todo
     // .then((body) =>

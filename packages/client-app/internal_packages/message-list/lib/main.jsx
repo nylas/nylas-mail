@@ -25,7 +25,7 @@ export function activate() {
       location: WorkspaceStore.Location.MessageListSidebar,
     });
     ComponentRegistry.register(MessageListHiddenMessagesToggle, {
-      role: 'MessageListHeaders'
+      role: 'MessageListHeaders',
     });
   } else {
     // This is for the thread-popout window.

@@ -17,9 +17,9 @@ ReactTestUtils = require 'react-dom/test-utils'
  NylasTestUtils,
  ComponentRegistry} = require "nylas-exports"
 
-MessageParticipants = require "../lib/message-participants"
-MessageItemContainer = require "../lib/message-item-container"
-MessageList = require '../lib/message-list'
+MessageParticipants = require("../lib/message-participants").default
+MessageItemContainer = require("../lib/message-item-container").default
+MessageList = require('../lib/message-list').default
 
 # User_1 needs to be "me" so that when we calculate who we should reply
 # to, it properly matches the AccountStore

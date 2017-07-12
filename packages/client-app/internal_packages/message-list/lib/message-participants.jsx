@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React from "react";
 import classnames from 'classnames';
-import{Actions, Contact} from 'nylas-exports';
+import {Actions} from 'nylas-exports';
 import {remote} from 'electron';
 
 const {Menu, MenuItem} = remote;
@@ -33,11 +33,11 @@ export default class MessageParticipants extends React.Component {
   }
 
   _shortNames(contacts = [], max = MAX_COLLAPSED) {
-    const names = contacts.map((c) =>
+    let names = contacts.map((c) =>
       c.displayName({includeAccountLabel: true, compact: true})
     );
     if (names.length > max) {
-      extra = names.length - max;
+      const extra = names.length - max;
       names = names.slice(0, max);
       names.push(`and ${extra} more`);
     }
@@ -59,7 +59,7 @@ export default class MessageParticipants extends React.Component {
     menu.append(new MenuItem({role: 'copy'}));
     menu.append(new MenuItem({
       label: `Email ${contact.email}`,
-      click: () => Actions.composeNewDraftToRecipient(contact)
+      click: () => Actions.composeNewDraftToRecipient(contact),
     }));
     menu.popup(NylasEnv.getCurrentWindow());
   }
