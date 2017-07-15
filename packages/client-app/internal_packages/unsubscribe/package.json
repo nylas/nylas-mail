@@ -1,0 +1,24 @@
+{
+  "name": "unsubscribe",
+  "version": "2.0.0",
+  "main": "./lib/main",
+  "description": "Unsubscribe without leaving N1.",
+  "license": "GPL-3.0",
+  "title": "Unsubscribe",
+  "icon": "./icon.png",
+  "isOptional": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nylas/N1"
+  },
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "mailparser": "^0.6.1",
+    "mailto-parser": "^1.0.0",
+    "open": "0.0.5",
+    "underscore": "^1.8.3"
+  }
+}

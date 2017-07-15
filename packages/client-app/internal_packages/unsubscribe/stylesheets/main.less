@@ -1,0 +1,52 @@
+@import "ui-variables";
+@import "ui-mixins";
+@import "buttons";
+
+.action-unsubscribe,
+.toolbar-unsubscribe {
+  &.unsubscribe-disabled,
+  &.unsubscribe-loading,
+  &.unsubscribe-error {
+    opacity: 0.5;
+  }
+}
+
+// Fix for the opacity gradient behind the quick action icons:
+// See: https://github.com/nylas/N1/blob/81d1b36ef2baeb2d10f015b704c2825a39bfc409/internal_packages/ui-darkside/styles/darkside.less#L462
+
+//
+// Light Themes:
+//
+body.theme-ui-light .thread-list .list-item:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, rgba(245, 245, 246, 0) 0%, #f5f5f6 20%, #f5f5f6 100%);
+}
+body.theme-ui-taiga .thread-list .list-item:hover .list-column-HoverActions .inner {
+  background-image: -webkit-linear-gradient(left, rgba(242, 242, 242, 0) 0%, #f2f2f2 20%, #f2f2f2 100%);
+}
+
+//
+// Dark Themes:
+//
+
+.dark-theme-fix(@theme) {
+  body.@{theme} .thread-list .list-item:hover .list-column-HoverActions .inner {
+    background-image: -webkit-linear-gradient(left, rgba(38, 38, 38, 0) 0%, #262626 20%, #262626 100%);
+  }
+  body.@{theme} .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
+    background-color: RGB(198, 198, 198) !important;
+  }
+};
+
+// Supported dark themes
+.dark-theme-fix(theme-arc-dark);
+.dark-theme-fix(theme-ui-dark);
+.dark-theme-fix(theme-n1-monokai);
+.dark-theme-fix(theme-levelup);
+.dark-theme-fix(theme-N1-Predawn);
+
+body.theme-arc-dark .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
+  background-color: RGB(37, 143, 225) !important;
+}
+body.theme-N1-Ido .thread-list .list-item:hover .list-column-HoverActions .action.action-unsubscribe {
+  background-color: RGB(255, 255, 255) !important;
+}
