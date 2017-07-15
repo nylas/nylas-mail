@@ -2,14 +2,14 @@
   "name": "unsubscribe",
   "version": "2.0.0",
   "main": "./lib/main",
-  "description": "Unsubscribe without leaving N1.",
+  "description": "Unsubscribe without leaving Nylas Mail.",
   "license": "GPL-3.0",
   "title": "Unsubscribe",
   "icon": "./icon.png",
   "isOptional": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/nylas/N1"
+    "url": ""
   },
   "engines": {
     "nylas": "*"

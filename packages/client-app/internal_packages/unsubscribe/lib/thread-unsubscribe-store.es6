@@ -3,6 +3,7 @@ import {
   TaskFactory,
   FocusedPerspectiveStore,
   NylasAPI,
+  NylasAPIRequest,
 } from 'nylas-exports';
 import NylasStore from 'nylas-store';
 import {MailParser} from 'mailparser';
@@ -95,22 +96,26 @@ export default class ThreadUnsubscribeStore extends NylasStore {
         // instead of all messages based on the assumption that the first email will have
         // an unsubscribe link iff you can unsubscribe from that thread.
         const messagePath = `/messages/${this.messages[0].id}`;
-        NylasAPI.makeRequest({
-          path: messagePath,
-          accountId: this.thread.accountId,
-          headers: {Accept: "message/rfc822"},
-          json: false,
-          success: (rawEmail) => {
-            const mailparser = new MailParser();
-            mailparser.on('end', (parsedEmail) => {
-              callback(null, parsedEmail);
-            });
-            mailparser.write(rawEmail);
-            mailparser.end();
+        new NylasAPIRequest({
+          api: NylasAPI,
+          options: {
+            accountId: this.thread.accountId,
+            path: messagePath,
+            headers: {Accept: "message/rfc822"},
+            json: false,
           },
-          error: (error) => {
-            callback(error);
-          },
+        })
+        .run()
+        .then((rawEmail) => {
+          const mailparser = new MailParser();
+          mailparser.on('end', (parsedEmail) => {
+            callback(null, parsedEmail);
+          });
+          mailparser.write(rawEmail);
+          mailparser.end();
+        })
+        .catch((err) => {
+          callback(err)
         });
       }
     } else {
@@ -155,15 +160,18 @@ export default class ThreadUnsubscribeStore extends NylasStore {
       if ((!this.isForwarded && !this.settings.confirmForEmail) ||
         userConfirm(this.confirmText, `An email will be sent to:\n${shortenEmail(emailAddress)}`)) {
         logIfDebug(`Sending an email to: ${emailAddress}`);
-        NylasAPI.makeRequest({
-          path: '/send',
-          method: 'POST',
-          accountId: this.thread.accountId,
-          body: interpretEmail(emailAddress),
-          success: () => {},
-          error: (error) => {
-            NylasEnv.reportError(error, this);
+        new NylasAPIRequest({
+          api: NylasAPI,
+          options: {
+            accountId: this.thread.accountId,
+            path: '/send',
+            method: 'POST',
+            body: interpretEmail(emailAddress),
           },
+        })
+        .run()
+        .catch((err) => {
+          NylasEnv.reportError(err, this)
         });
         // Send the callback now so that emails are moved immediately
         // instead of waiting for the email to be sent.
