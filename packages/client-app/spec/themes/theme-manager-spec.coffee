@@ -32,7 +32,7 @@ describe "ThemeManager", ->
 
   describe "theme getters and setters", ->
     beforeEach ->
-      NylasEnv.packages.loadPackages()
+      NylasEnv.packages.activatePackage()
 
     it 'getAvailableThemes get all the loaded themes', ->
       themes = themeManager.getAvailableThemes()

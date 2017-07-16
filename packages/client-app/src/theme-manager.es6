@@ -4,6 +4,19 @@ import fs from 'fs-plus';
 
 const CONFIG_THEME_KEY = 'core.theme';
 
+/**
+ * The ThemeManager observes the user's theme selection and ensures that
+ * LESS stylesheets in packages are compiled to CSS with the theme's
+ * variables in the @import path. When the theme changes, the ThemeManager
+ * empties it's LESSCache and rebuilds all less stylesheets against the
+ * new theme.
+ *
+ * This class is loosely based on Atom's Theme Manager but:
+ *  - Only one theme is active at a time and always overrides ui-light
+ *  - Theme packages are never "activated" by the package manager,
+ *    they are only placed in the LESS import path.
+ *  - ThemeManager directly updates <style> tags when recompiling LESS.
+ */
 export default class ThemeManager {
   constructor({packageManager, resourcePath, configDirPath, safeMode}) {
     this.packageManager = packageManager;
@@ -116,7 +129,6 @@ export default class ThemeManager {
   }
 
   resolveStylesheet(stylesheetPath) {
-    console.log(stylesheetPath);
     if (path.extname(stylesheetPath).length > 0) {
       return fs.resolveOnLoadPath(stylesheetPath);
     }

@@ -379,12 +379,16 @@ export default class NylasEnvConstructor {
 
   _findPluginsFromError(error) {
     if (!error.stack) { return []; }
-    const left = error.stack.match(/((?:\/[\w-_]+)+)/g);
-    const stackPaths = left || [];
-    const stackTokens = _.uniq(_.flatten(stackPaths.map(p => p.split("/"))));
-    const pluginIdsByPathBase = this.packages.getPluginIdsByPathBase();
-    const tokens = _.intersection(Object.keys(pluginIdsByPathBase), stackTokens);
-    return tokens.map(tok => pluginIdsByPathBase[tok]);
+    const stackPaths = error.stack.match(/((?:\/[\w-_]+)+)/g) || [];
+    const stackPathComponents = _.uniq(_.flatten(stackPaths.map(p => p.split("/"))));
+
+    const names = [];
+    for (const pkg of this.packages.getActivePackages()) {
+      if (stackPathComponents.includes(path.basename(pkg.directory))) {
+        names.push(pkg.name);
+      }
+    }
+    return names;
   }
 
   /*
