@@ -53,7 +53,7 @@ class PreferencesMailRules extends React.Component {
       currentAccount: currentAccount,
       rules: rules,
       selectedRule: selectedRule,
-      tasks: TaskQueue.tasksMatching(ReprocessMailRulesTask, {}),
+      tasks: TaskQueue.findTasks(ReprocessMailRulesTask, {}),
       actionTemplates: ActionTemplatesForAccount(currentAccount),
       conditionTemplates: ConditionTemplatesForAccount(currentAccount),
     }
@@ -129,7 +129,7 @@ class PreferencesMailRules extends React.Component {
   }
 
   _onTasksChanged = () => {
-    this.setState({tasks: TaskQueue.tasksMatching(ReprocessMailRulesTask, {})})
+    this.setState({tasks: TaskQueue.findTasks(ReprocessMailRulesTask, {})})
   }
 
   _renderAccountPicker() {
