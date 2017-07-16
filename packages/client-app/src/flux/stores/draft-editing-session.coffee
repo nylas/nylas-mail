@@ -139,7 +139,7 @@ class DraftEditingSession
     @_draftPristineBody
 
   prepare: ->
-    @_draftPromise ?= DatabaseStore.findBy(Message, headerMessageId: @headerMessageId).include(Message.attributes.body).then (draft) =>
+    @_draftPromise ?= DatabaseStore.findBy(Message, {headerMessageId: @headerMessageId, draft: true}).include(Message.attributes.body).then (draft) =>
       return Promise.reject(new Error("Draft has been destroyed.")) if @_destroyed
       return Promise.reject(new Error("Assertion Failure: Draft #{@headerMessageId} not found.")) if not draft
       return @_setDraft(draft)
