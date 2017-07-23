@@ -39,7 +39,7 @@ class MovePicker extends React.Component
   _onOpenCategoryPopover: =>
     return unless @props.items.length > 0
     return unless @context.sheetDepth is WorkspaceStore.sheetStack().length - 1
-    buttonRect = ReactDOM.findDOMNode(@refs.button).getBoundingClientRect()
+    buttonRect = this._buttonEl.getBoundingClientRect()
     Actions.openPopover(
       <MovePickerPopover
         threads={@props.items}
@@ -65,7 +65,7 @@ class MovePicker extends React.Component
         >
         <button
           tabIndex={-1}
-          ref="button"
+          ref={(el) => this._buttonEl = el}
           title={"Move to Folder"}
           onClick={@_onOpenCategoryPopover}
           className={btnClasses} >

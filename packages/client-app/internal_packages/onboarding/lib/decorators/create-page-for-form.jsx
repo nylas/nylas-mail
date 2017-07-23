@@ -79,7 +79,7 @@ const CreatePageForForm = (FormComponent) => {
 
     onSubmit = () => {
       OnboardingActions.setAccountInfo(this.state.accountInfo);
-      this.refs.form.submit();
+      this._formEl.submit();
     }
 
     onFieldKeyPress = (event) => {
@@ -226,7 +226,7 @@ const CreatePageForForm = (FormComponent) => {
           />
           { this._renderCredentialsNote() }
           <FormComponent
-            ref="form"
+            ref={(el) => { this._formEl = el; }}
             accountInfo={accountInfo}
             errorFieldNames={errorFieldNames}
             submitting={submitting}

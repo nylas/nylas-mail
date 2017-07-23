@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react'
-import {findDOMNode} from 'react-dom'
 
 
 export default class SubjectTextField extends Component {
@@ -17,7 +16,7 @@ export default class SubjectTextField extends Component {
   }
 
   focus() {
-    findDOMNode(this.refs.input).focus()
+    this._el.focus()
   }
 
   render() {
@@ -26,7 +25,7 @@ export default class SubjectTextField extends Component {
     return (
       <div className="composer-subject subject-field">
         <input
-          ref="input"
+          ref={el => { this._el = el; }}
           type="text"
           name="subject"
           placeholder="Subject"

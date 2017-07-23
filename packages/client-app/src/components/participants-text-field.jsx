@@ -68,7 +68,7 @@ export default class ParticipantsTextField extends React.Component {
   // Public. Can be called by any component that has a ref to this one to
   // focus the input field.
   focus = () => {
-    this.refs.textField.focus();
+    this._textfieldEl.focus();
   }
 
   _completionNode = (p) => {
@@ -209,7 +209,7 @@ export default class ParticipantsTextField extends React.Component {
     return (
       <div className={this.props.className}>
         <InjectedComponent
-          ref="textField"
+          ref={(el) => { this._textfieldEl = el; }}
           matching={{role: 'Composer:ParticipantsTextField'}}
           fallback={TokenizingTextField}
           requiredMethods={['focus']}

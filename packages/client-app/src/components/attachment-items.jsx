@@ -130,12 +130,12 @@ export class AttachmentItem extends Component {
       // same as the last component of the filePath URL, or the download fails.
       const downloadURL = `${contentType}:${path.basename(filePath)}:file://${filePath}`
       event.dataTransfer.setData("DownloadURL", downloadURL)
-      event.dataTransfer.setData("text/nylas-file-url", downloadURL)
-      const fileIconImg = ReactDOM.findDOMNode(this.refs.fileIconImg)
-      const rect = fileIconImg.getBoundingClientRect()
+      event.dataTransfer.setData("text/nylas-file-url", downloadURL);
+      const el = ReactDOM.findDOMNode(this._fileIconComponent);
+      const rect = el.getBoundingClientRect()
       const x = window.devicePixelRatio === 2 ? rect.height / 2 : rect.height
       const y = window.devicePixelRatio === 2 ? rect.width / 2 : rect.width
-      event.dataTransfer.setDragImage(fileIconImg, x, y)
+      event.dataTransfer.setDragImage(el, x, y)
     } else {
       event.preventDefault()
     }
@@ -218,7 +218,7 @@ export class AttachmentItem extends Component {
           <Flexbox direction="row" style={{alignItems: 'center'}}>
             <div className="file-info-wrap">
               <RetinaImg
-                ref="fileIconImg"
+                ref={(cm) => { this._fileIconComponent = cm; }}
                 className="file-icon"
                 fallback="file-fallback.png"
                 mode={RetinaImg.Mode.ContentPreserve}

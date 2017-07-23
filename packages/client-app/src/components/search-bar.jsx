@@ -46,14 +46,13 @@ class SearchBar extends Component {
     const {onClearSearchQuery} = this.props
     onClearSearchQuery()
 
-    const inputEl = ReactDOM.findDOMNode(this.refs.searchInput);
-    if (inputEl) {
-      inputEl.blur();
+    if (this._searchInputEl) {
+      this._searchInputEl.blur();
     }
   }
 
   _onFocusSearch = () => {
-    ReactDOM.findDOMNode(this.refs.searchInput).focus();
+    this._searchInputEl.focus();
   }
 
   _onInputKeyDown = (event) => {
@@ -127,9 +126,9 @@ class SearchBar extends Component {
 
     const headerComponents = [
       <input
-        ref="searchInput"
         type="text"
         key="input"
+        ref={(el) => { this._searchInputEl = el; }}
         className={inputClass}
         placeholder={placeholder}
         value={query}
@@ -158,7 +157,6 @@ class SearchBar extends Component {
       >
         <div>
           <Menu
-            ref="menu"
             className={classnames({
               'showing-query': query && query.length > 0,
               'search-container': true,

@@ -51,7 +51,7 @@ export default class FindInThread extends React.Component {
       return event.shiftKey ? this._onPrevResult() : this._onNextResult()
     } else if (event.key === "Escape") {
       this._clearSearch()
-      ReactDOM.findDOMNode(this.refs.searchBox).blur()
+      this._searchBoxEl.blur()
     }
     return null
   }
@@ -80,9 +80,8 @@ export default class FindInThread extends React.Component {
   }
 
   _focusSearch = (event) => {
-    const cw = ReactDOM.findDOMNode(this.refs.controlsWrap)
-    if (!event || !(cw && cw.contains(event.target))) {
-      ReactDOM.findDOMNode(this.refs.searchBox).focus()
+    if (!event || !(this._controlsWrapEl && this._controlsWrapEl.contains(event.target))) {
+      this._searchBoxEl.focus()
     }
   }
 
@@ -95,12 +94,15 @@ export default class FindInThread extends React.Component {
     return (
       <div className={rootCls} onClick={this._focusSearch}>
         <KeyCommandsRegion globalHandlers={this._globalKeymapHandlers()}>
-          <div className="controls-wrap" ref="controlsWrap">
+          <div
+            className="controls-wrap"
+            ref={(el) => { this._controlsWrapEl = el; }}
+          >
             <div className="input-wrap">
 
               <input
                 type="text"
-                ref="searchBox"
+                ref={(el) => { this._searchBoxEl = el; }}
                 placeholder="Find in thread"
                 onChange={this._onFindChange}
                 onKeyDown={this._onFindKeyDown}

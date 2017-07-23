@@ -153,7 +153,6 @@ export default class PreferencesSignatures extends React.Component {
     const selectedBody = this.state.selectedSignature ? this.state.selectedSignature.body : ""
     return (
       <Contenteditable
-        ref="signatureInput"
         value={selectedBody}
         spellcheck={false}
         onChange={this._onEditSignature}

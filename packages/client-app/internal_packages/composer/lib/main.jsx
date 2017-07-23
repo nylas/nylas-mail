@@ -42,11 +42,11 @@ class ComposerWithWindowProps extends React.Component {
   }
 
   componentDidUpdate() {
-    this.refs.composer.focus()
+    this._composerComponent.focus()
   }
 
   _onDraftReady = () => {
-    this.refs.composer.focus().then(() => {
+    this._composerComponent.focus().then(() => {
       NylasEnv.displayWindow();
 
       if (this.state.errorMessage) {
@@ -58,7 +58,7 @@ class ComposerWithWindowProps extends React.Component {
   render() {
     return (
       <ComposerViewForDraftClientId
-        ref="composer"
+        ref={(cm) => { this._composerComponent = cm; }}
         onDraftReady={this._onDraftReady}
         headerMessageId={this.state.headerMessageId}
         className="composer-full-window"

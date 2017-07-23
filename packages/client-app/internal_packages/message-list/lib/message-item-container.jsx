@@ -47,7 +47,7 @@ export default class MessageItemContainer extends React.Component {
   }
 
   focus = () => {
-    this.refs.message.focus();
+    this._messageComponent.focus();
   }
 
   _classNames() {
@@ -75,7 +75,7 @@ export default class MessageItemContainer extends React.Component {
   _renderMessage({pending}) {
     return (
       <MessageItem
-        ref="message"
+        ref={(cm) => { this._messageComponent = cm }}
         pending={pending}
         thread={this.props.thread}
         message={this.props.message}
@@ -94,7 +94,7 @@ export default class MessageItemContainer extends React.Component {
     }
     return (
       <Composer
-        ref="message"
+        ref={(cm) => { this._messageComponent = cm }}
         headerMessageId={this.props.message.headerMessageId}
         className={this._classNames()}
         mode={"inline"}

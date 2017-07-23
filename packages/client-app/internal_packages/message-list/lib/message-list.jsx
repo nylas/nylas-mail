@@ -158,7 +158,7 @@ class MessageList extends React.Component {
     // so we block incoming childScrollRequests while we scroll to the new draft.
     this._draftScrollInProgress = true;
     draftElement.focus();
-    this.refs.messageWrap.scrollTo(draftElement, {
+    this._messageWrapEl.scrollTo(draftElement, {
       position: ScrollRegion.ScrollPosition.Top,
       settle: true,
       done: () => {
@@ -334,11 +334,11 @@ class MessageList extends React.Component {
       if (!messageElement) {
         return;
       }
-      this.refs.messageWrap.scrollTo(messageElement, {
+      this._messageWrapEl.scrollTo(messageElement, {
         position: position !== undefined ? position : ScrollRegion.ScrollPosition.Visible,
       });
     } else if (rect) {
-      this.refs.messageWrap.scrollToRect(rect, {
+      this._messageWrapEl.scrollToRect(rect, {
         position: ScrollRegion.ScrollPosition.CenterIfInvisible,
       });
     } else {
@@ -347,8 +347,8 @@ class MessageList extends React.Component {
   }
 
   _onScrollByPage = (direction) => {
-    const height = ReactDOM.findDOMNode(this.refs.messageWrap).clientHeight;
-    this.refs.messageWrap.scrollTop += height * direction;
+    const height = ReactDOM.findDOMNode(this._messageWrapEl).clientHeight;
+    this._messageWrapEl.scrollTop += height * direction;
   }
 
   _onChange = () => {
@@ -488,14 +488,14 @@ class MessageList extends React.Component {
         globalHandlers={this._globalKeymapHandlers()}
         globalMenuItems={this._globalMenuItems()}
       >
-        <FindInThread ref="findInThread" />
+        <FindInThread />
         <div className={messageListClass} id="message-list">
           <ScrollRegion
             tabIndex="-1"
             className={wrapClass}
             scrollbarTickProvider={SearchableComponentStore}
             scrollTooltipComponent={MessageListScrollTooltip}
-            ref="messageWrap"
+            ref={(el) => { this._messageWrapEl = el }}
           >
             {this._renderSubject()}
             <div className="headers" style={{position: 'relative'}}>

@@ -29,21 +29,21 @@ class DatePickerPopover extends Component {
   onSelectMenuOption = (optionKey) => {
     const {dateOptions} = this.props
     const date = dateOptions[optionKey]();
-    this.refs.dateInput.clearInput()
+    this._dateInputComponent.clearInput()
     this.selectDate(date, optionKey);
   };
 
   onCustomDateInterpreted = (date) => {
     const {shouldSelectDateWhenInterpreted} = this.props
     if (date && shouldSelectDateWhenInterpreted) {
-      this.refs.menu.clearSelection()
+      this._menuComponent.clearSelection()
       this.selectDate(date, "Custom");
     }
   }
 
   onCustomDateSelected = (date, inputValue) => {
     if (date) {
-      this.refs.menu.clearSelection()
+      this._menuComponent.clearSelection()
       this.selectDate(date, "Custom");
     } else {
       NylasEnv.showErrorDialog(`Sorry, we can't interpret ${inputValue} as a valid date.`);
@@ -73,7 +73,7 @@ class DatePickerPopover extends Component {
     let footerComponents = [
       <div key="divider" className="divider" />,
       <DateInput
-        ref="dateInput"
+        ref={(cm) => { this._dateInputComponent = cm; }}
         key="custom-section"
         className="section date-input-section"
         dateFormat={DATE_FORMAT_LONG}
@@ -92,7 +92,7 @@ class DatePickerPopover extends Component {
     return (
       <div className={`date-picker-popover ${className}`}>
         <Menu
-          ref="menu"
+          ref={(cm) => { this._menuComponent = cm; }}
           items={Object.keys(dateOptions)}
           itemKey={item => item}
           itemContent={this.renderMenuOption}

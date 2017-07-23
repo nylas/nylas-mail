@@ -46,6 +46,7 @@ export default class ComposerView extends React.Component {
 
   constructor(props) {
     super(props)
+    this._els = {};
     this.state = {
       showQuotedText: DraftHelpers.isForwardedMessage(props.draft),
       showQuotedTextControl: DraftHelpers.shouldAppendQuotedText(props.draft),
@@ -77,10 +78,10 @@ export default class ComposerView extends React.Component {
   }
 
   focus() {
-    if (this.refs.header.isFocused()) {
-      this.refs.header.focus();
+    if (this._els.header.isFocused()) {
+      this._els.header.focus();
     } else {
-      this.refs[Fields.Body].focus();
+      this._els[Fields.Body].focus();
     }
   }
 
@@ -92,9 +93,9 @@ export default class ComposerView extends React.Component {
           this._onDestroyDraft();
         }
       },
-      'composer:show-and-focus-bcc': () => this.refs.header.showAndFocusField(Fields.Bcc),
-      'composer:show-and-focus-cc': () => this.refs.header.showAndFocusField(Fields.Cc),
-      'composer:focus-to': () => this.refs.header.showAndFocusField(Fields.To),
+      'composer:show-and-focus-bcc': () => this._els.header.showAndFocusField(Fields.Bcc),
+      'composer:show-and-focus-cc': () => this._els.header.showAndFocusField(Fields.Cc),
+      'composer:focus-to': () => this._els.header.showAndFocusField(Fields.To),
       "composer:show-and-focus-from": () => {},
       "core:undo": (event) => {
         event.preventDefault();
@@ -123,14 +124,14 @@ export default class ComposerView extends React.Component {
     session._composerViewSelectionRetrieve = () => {
       // Selection updates /before/ the contenteditable emits it's change event,
       // so the selection that goes with the snapshot state is the previous one.
-      if (this.refs[Fields.Body].getPreviousSelection) {
-        return this.refs[Fields.Body].getPreviousSelection();
+      if (this._els[Fields.Body].getPreviousSelection) {
+        return this._els[Fields.Body].getPreviousSelection();
       }
       return null;
     }
 
     session._composerViewSelectionRestore = (selection) => {
-      this.refs[Fields.Body].setSelection(selection);
+      this._els[Fields.Body].setSelection(selection);
     }
 
     draft.files.forEach((file) => {
@@ -150,7 +151,10 @@ export default class ComposerView extends React.Component {
   _renderContentScrollRegion() {
     if (NylasEnv.isComposerWindow()) {
       return (
-        <ScrollRegion className="compose-body-scroll" ref="scrollregion">
+        <ScrollRegion
+          className="compose-body-scroll"
+          ref={(el) => { this._els.scrollregion = el; }}
+        >
           {this._renderContent()}
         </ScrollRegion>
       );
@@ -159,7 +163,7 @@ export default class ComposerView extends React.Component {
   }
 
   _onNewHeaderComponents = () => {
-    if (this.refs.header) {
+    if (this._els.header) {
       this.focus()
     }
   }
@@ -168,7 +172,7 @@ export default class ComposerView extends React.Component {
     return (
       <div className="composer-centered">
         <ComposerHeader
-          ref="header"
+          ref={(el) => { this._els.header = el; }}
           draft={this.props.draft}
           session={this.props.session}
           initiallyFocused={this.props.draft.to.length === 0}
@@ -176,7 +180,7 @@ export default class ComposerView extends React.Component {
         />
         <div
           className="compose-body"
-          ref="composeBody"
+          ref={(el) => { this._els.composeBody = el; }}
           onMouseUp={this._onMouseUpComposerBody}
           onMouseDown={this._onMouseDownComposerBody}
         >
@@ -193,7 +197,7 @@ export default class ComposerView extends React.Component {
       session: this.props.session,
     }
     return (
-      <div ref="composerBodyWrap" className="composer-body-wrap">
+      <div ref={(el) => { this._els.composerBodyWrap = el; }} className="composer-body-wrap">
         <OverlaidComponents exposedProps={exposedProps}>
           {this._renderEditor()}
         </OverlaidComponents>
@@ -217,7 +221,7 @@ export default class ComposerView extends React.Component {
 
     return (
       <InjectedComponent
-        ref={Fields.Body}
+        ref={(el) => { this._els[Fields.Body] = el; }}
         className="body-field"
         matching={{role: "Composer:Editor"}}
         fallback={ComposerEditor}
@@ -238,7 +242,7 @@ export default class ComposerView extends React.Component {
   // component. We provide it our boundingClientRect so it can calculate
   // this value.
   _getComposerBoundingRect = () => {
-    return ReactDOM.findDOMNode(this.refs.composerWrap).getBoundingClientRect()
+    return ReactDOM.findDOMNode(this._els.composerWrap).getBoundingClientRect()
   }
 
   _renderQuotedTextControl() {
@@ -386,7 +390,7 @@ export default class ComposerView extends React.Component {
 
 
         <InjectedComponent
-          ref="sendActionButton"
+          ref={(el) => { this._els.sendActionButton = el; }}
           tabIndex={-1}
           style={{order: -100}}
           matching={{role: "Composer:SendActionButton"}}
@@ -414,7 +418,7 @@ export default class ComposerView extends React.Component {
   // start and end target are both not in the contenteditable. This ensures
   // that this behavior doesn't interfear with a click and drag selection.
   _onMouseDownComposerBody = (event) => {
-    if (ReactDOM.findDOMNode(this.refs[Fields.Body]).contains(event.target)) {
+    if (ReactDOM.findDOMNode(this._els[Fields.Body]).contains(event.target)) {
       this._mouseDownTarget = null;
     } else {
       this._mouseDownTarget = event.target;
@@ -429,11 +433,11 @@ export default class ComposerView extends React.Component {
     if (event.target === this._mouseDownTarget && !this._inFooterRegion(event.target)) {
       // We don't set state directly here because we want the native
       // contenteditable focus behavior. When the contenteditable gets focused
-      const bodyRect = ReactDOM.findDOMNode(this.refs[Fields.Body]).getBoundingClientRect()
+      const bodyRect = ReactDOM.findDOMNode(this._els[Fields.Body]).getBoundingClientRect()
       if (event.pageY < bodyRect.top) {
-        this.refs[Fields.Body].focus()
+        this._els[Fields.Body].focus()
       } else {
-        this.refs[Fields.Body].focusAbsoluteEnd();
+        this._els[Fields.Body].focusAbsoluteEnd();
       }
     }
     this._mouseDownTarget = null;
@@ -555,7 +559,7 @@ export default class ComposerView extends React.Component {
   }
 
   _onPrimarySend = () => {
-    this.refs.sendActionButton.primarySend();
+    this._els.sendActionButton.primarySend();
   }
 
   _onDestroyDraft = () => {
@@ -575,8 +579,8 @@ export default class ComposerView extends React.Component {
         <KeyCommandsRegion
           localHandlers={this._keymapHandlers()}
           className={"message-item-white-wrap composer-outer-wrap"}
+          ref={(el) => { this._els.composerWrap = el; }}
           tabIndex="-1"
-          ref="composerWrap"
         >
           <TabGroupRegion className="composer-inner-wrap">
             <DropZone

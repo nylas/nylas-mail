@@ -19,7 +19,7 @@ export default class AccountContactField extends React.Component {
   _onChooseContact = (contact) => {
     this.props.onChange({from: [contact]});
     this.props.session.ensureCorrectAccount()
-    this.refs.dropdown.toggleDropdown();
+    this._dropdownComponent.toggleDropdown();
   }
 
   _renderAccountSelector() {
@@ -36,7 +36,7 @@ export default class AccountContactField extends React.Component {
     if (multipleAccounts || hasAliases) {
       return (
         <ButtonDropdown
-          ref="dropdown"
+          ref={(cm) => { this._dropdownComponent = cm; }}
           bordered={false}
           primaryItem={<span>{label}</span>}
           menu={this._renderAccounts(this.props.accounts)}

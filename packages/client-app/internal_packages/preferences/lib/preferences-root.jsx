@@ -68,7 +68,7 @@ class PreferencesRoot extends React.Component {
   // Focus the first thing with a tabindex when we update.
   // inside the content area. This makes it way easier to interact with prefs.
   _focusContent() {
-    const node = ReactDOM.findDOMNode(this.refs.content).querySelector('[tabindex]')
+    const node = ReactDOM.findDOMNode(this._contentComponent).querySelector('[tabindex]')
     if (node) {
       node.focus();
     }
@@ -85,7 +85,7 @@ class PreferencesRoot extends React.Component {
             selection={selection}
           />
           <ScrollRegion className="preferences-content">
-            <ConfigPropContainer ref="content">
+            <ConfigPropContainer ref={(el) => { this._contentComponent = el; }}>
               {tab ?
                 <tab.component accountId={selection.accountId} /> :
                 false

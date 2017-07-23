@@ -60,7 +60,7 @@ export default class CollapsedParticipants extends React.Component {
   }
 
   _setNumHiddenParticipants() {
-    const $wrap = ReactDOM.findDOMNode(this.refs.participantsWrap);
+    const $wrap = this._participantsWrapEl;
     const $regulars = Array.from($wrap.getElementsByClassName("regular-contact"));
     const $bccs = Array.from($wrap.getElementsByClassName("bcc-contact"));
 
@@ -160,7 +160,7 @@ export default class CollapsedParticipants extends React.Component {
       >
         <div
           tabIndex={0}
-          ref="participantsWrap"
+          ref={(el) => { this._participantsWrapEl = el; }}
           className="collapsed-composer-participants"
         >
           {this._renderNumRemaining()}

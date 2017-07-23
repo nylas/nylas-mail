@@ -1,6 +1,5 @@
 import _ from 'underscore'
 import React from 'react'
-import ReactDOM from 'react-dom'
 import Utils from '../../flux/models/utils'
 import CustomContenteditableComponents from './custom-contenteditable-components'
 import {IgnoreMutationClassName} from '../contenteditable/contenteditable'
@@ -86,12 +85,12 @@ export default class OverlaidComponents extends React.Component {
   _setupMutationObservers() {
     this.observeOverlays.disconnect()
     this.observeOverlays.observe(
-      ReactDOM.findDOMNode(this.refs.overlaidComponents),
+      this._overlaidComponentsEl,
       MUTATION_CONFIG
     )
     this.observeAnchors.disconnect()
     this.observeAnchors.observe(
-      ReactDOM.findDOMNode(this.refs.anchorContainer),
+      this._anchorContainerEl,
       MUTATION_CONFIG
     )
   }
@@ -105,12 +104,12 @@ export default class OverlaidComponents extends React.Component {
     this._teardownMutationObservers();
     const lastRects = _.clone(this._overlayData);
     this._overlayData = this._dataFromNodes({
-      root: this.refs.overlaidComponents,
+      root: this._overlaidComponentsEl,
       selector: `.${OverlaidComponents.WRAP_CLASS}`,
       dataFields: [],
     })
     if (_.isEqual(lastRects, this._overlayData)) { return }
-    this._adjustNodes("anchorContainer", this._overlayData, ["width", "height"]);
+    this._adjustNodes(this._anchorContainerEl, this._overlayData, ["width", "height"]);
     this._setupMutationObservers()
   }
 
@@ -118,20 +117,19 @@ export default class OverlaidComponents extends React.Component {
     this._teardownMutationObservers();
     const lastRects = _.clone(this._anchorData)
     this._anchorData = this._dataFromNodes({
-      root: this.refs.anchorContainer,
+      root: this._anchorContainerEl,
       selector: `.${ANCHOR_CLASS}`,
       dataFields: ["componentProps", "componentKey"],
     })
     if (_.isEqual(lastRects, this._anchorData)) { return }
-    this._adjustNodes("overlaidComponents", this._anchorData, ["top", "left"]);
+    this._adjustNodes(this._overlaidComponentsEl, this._anchorData, ["top", "left"]);
     this._setupMutationObservers();
     if (!_.isEqual(this.state.anchorRectIds, Object.keys(this._anchorData))) {
       this.setState({anchorRectIds: Object.keys(this._anchorData)})
     }
   }
 
-  _adjustNodes(ref, rects, dims) {
-    const root = ReactDOM.findDOMNode(this.refs[ref]);
+  _adjustNodes(root, rects, dims) {
     for (const id of Object.keys(rects)) {
       const node = root.querySelector(`[data-overlay-id=${id}]`);
       if (!node) { continue }
@@ -222,7 +220,7 @@ export default class OverlaidComponents extends React.Component {
     const toggle = (previewToggleVisible) ? this._renderPreviewToggle() : false;
 
     return (
-      <div ref="overlaidComponents" className="overlaid-components">
+      <div className="overlaid-components" ref={(el) => { this._overlaidComponentsEl = el; }}>
         {toggle}
         {els}
       </div>
@@ -233,7 +231,7 @@ export default class OverlaidComponents extends React.Component {
     const {className} = this.props
     return (
       <div className={`overlaid-components-wrap ${className || ''}`} style={{position: "relative"}}>
-        <div className="anchor-container" ref="anchorContainer">
+        <div className="anchor-container" ref={(el) => { this._anchorContainerEl = el; }} >
           {this.props.children}
         </div>
         {this._renderOverlaidComponents()}

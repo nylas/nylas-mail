@@ -241,7 +241,6 @@ export default class MovePickerPopover extends Component {
     return (
       <div className="category-picker-popover">
         <Menu
-          ref="menu"
           headerComponents={headerComponents}
           footerComponents={[]}
           items={this.state.categoryData}

@@ -96,9 +96,8 @@ export default class MessageItem extends React.Component {
   }
 
   _setDetailedHeadersTogglePos = () => {
-    const header = ReactDOM.findDOMNode(this.refs.header);
-    if (!header) { return; }
-    const fromNode = header.querySelector('.participant-name.from-contact,.participant-primary')
+    if (!this._headerEl) { return; }
+    const fromNode = this._headerEl.querySelector('.participant-name.from-contact,.participant-primary')
     if (!fromNode) { return; }
     const fromRect = fromNode.getBoundingClientRect()
     const topPos = Math.floor(fromNode.offsetTop + (fromRect.height / 2) - 10)
@@ -191,14 +190,17 @@ export default class MessageItem extends React.Component {
     });
 
     return (
-      <header ref="header" className={classes} onClick={this._onClickHeader}>
+      <header
+        ref={(el) => { this._headerEl = el }}
+        className={classes}
+        onClick={this._onClickHeader}
+      >
         <InjectedComponent
           matching={{role: "MessageHeader"}}
           exposedProps={{message: message, thread: thread, messages: messages}}
         />
         <div className="pending-spinner" style={{position: 'absolute', marginTop: -2}}>
           <RetinaImg
-            ref="spinner"
             name="sending-spinner.gif"
             mode={RetinaImg.Mode.ContentPreserve}
           />

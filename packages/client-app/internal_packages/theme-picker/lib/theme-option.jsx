@@ -59,8 +59,7 @@ class ThemeOption extends React.Component {
   }
 
   _writeContent() {
-    const domNode = ReactDOM.findDOMNode(this.refs.iframe);
-    const doc = domNode.contentDocument;
+    const doc = ReactDOM.findDOMNode(this._iframeComponent).contentDocument;
     if (!doc) return;
 
     const {resourcePath} = NylasEnv.getLoadSettings();
@@ -90,7 +89,7 @@ class ThemeOption extends React.Component {
     return (
       <div className="clickable-theme-option" onMouseDown={this.props.onSelect}>
         <EventedIFrame
-          ref="iframe"
+          ref={(cm) => { this._iframeComponent = cm; }}
           className={`theme-preview-${this.props.theme.name.replace(/\./g, '-')}`}
           frameBorder="0"
           width="115px"

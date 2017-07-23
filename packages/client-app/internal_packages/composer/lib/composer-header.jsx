@@ -44,6 +44,7 @@ export default class ComposerHeader extends React.Component {
 
   constructor(props = {}) {
     super(props)
+    this._els = {};
     this.state = this._initialStateForDraft(this.props.draft, props);
   }
 
@@ -57,7 +58,7 @@ export default class ComposerHeader extends React.Component {
 
   focus() {
     if (this.state.subjectFocused) {
-      this.refs.subject.focus();
+      this._els.subject.focus();
     } else if (this.state.participantsFocused) {
       this.showAndFocusField(Fields.To);
     }
@@ -69,8 +70,8 @@ export default class ComposerHeader extends React.Component {
     const enabledFields = _.uniq([].concat(this.state.enabledFields, [fieldName]));
     const participantsFocused = this.state.participantsFocused || Fields.ParticipantFields.includes(fieldName);
 
-    Utils.waitFor(() => this.refs[fieldName]).then(() =>
-      this.refs[fieldName].focus()
+    Utils.waitFor(() => this._els[fieldName]).then(() =>
+      this._els[fieldName].focus()
     ).catch(() => {
     })
 
@@ -78,7 +79,7 @@ export default class ComposerHeader extends React.Component {
   }
 
   hideField = (fieldName) => {
-    if (ReactDOM.findDOMNode(this.refs[fieldName]).contains(document.activeElement)) {
+    if (ReactDOM.findDOMNode(this._els[fieldName]).contains(document.activeElement)) {
       this.context.parentTabGroup.shiftFocus(-1)
     }
 
@@ -144,9 +145,9 @@ export default class ComposerHeader extends React.Component {
   _onFocusInParticipants = () => {
     const fieldName = this.state.participantsLastActiveField || Fields.To;
     Utils.waitFor(() =>
-      this.refs[fieldName]
+      this._els[fieldName]
     ).then(() =>
-      this.refs[fieldName].focus()
+      this._els[fieldName].focus()
     ).catch(() => {
     });
 
@@ -158,7 +159,7 @@ export default class ComposerHeader extends React.Component {
 
   _onFocusOutParticipants = (lastFocusedEl) => {
     const active = Fields.ParticipantFields.find((fieldName) => {
-      return this.refs[fieldName] ? ReactDOM.findDOMNode(this.refs[fieldName]).contains(lastFocusedEl) : false
+      return this._els[fieldName] ? ReactDOM.findDOMNode(this._els[fieldName]).contains(lastFocusedEl) : false
     }
     );
     this.setState({
@@ -213,7 +214,7 @@ export default class ComposerHeader extends React.Component {
     return (
       <KeyCommandsRegion
         tabIndex={-1}
-        ref="participantsContainer"
+        ref={(el) => { this._els.participantsContainer = el; }}
         className="expanded-participants"
         onFocusIn={this._onFocusInParticipants}
         onFocusOut={this._onFocusOutParticipants}
@@ -231,12 +232,12 @@ export default class ComposerHeader extends React.Component {
     return (
       <KeyCommandsRegion
         tabIndex={-1}
-        ref="subjectContainer"
+        ref={(el) => { this._els.subjectContainer = el; }}
         onFocusIn={this._onFocusInSubject}
         onFocusOut={this._onFocusOutSubject}
       >
         <InjectedComponent
-          ref={Fields.Subject}
+          ref={(el) => { this._els[Fields.Subject] = el; }}
           key="subject-wrap"
           matching={{role: 'Composer:SubjectTextField'}}
           exposedProps={{
@@ -263,7 +264,7 @@ export default class ComposerHeader extends React.Component {
 
     fields.push(
       <ParticipantsTextField
-        ref={Fields.To}
+        ref={(el) => { this._els[Fields.To] = el; }}
         key="to"
         field="to"
         change={this._onChangeParticipants}
@@ -277,7 +278,7 @@ export default class ComposerHeader extends React.Component {
     if (this.state.enabledFields.includes(Fields.Cc)) {
       fields.push(
         <ParticipantsTextField
-          ref={Fields.Cc}
+          ref={(el) => { this._els[Fields.Cc] = el; }}
           key="cc"
           field="cc"
           change={this._onChangeParticipants}
@@ -293,7 +294,7 @@ export default class ComposerHeader extends React.Component {
     if (this.state.enabledFields.includes(Fields.Bcc)) {
       fields.push(
         <ParticipantsTextField
-          ref={Fields.Bcc}
+          ref={(el) => { this._els[Fields.Bcc] = el; }}
           key="bcc"
           field="bcc"
           change={this._onChangeParticipants}
@@ -310,7 +311,7 @@ export default class ComposerHeader extends React.Component {
       fields.push(
         <ScopedFromField
           key="from"
-          ref={Fields.From}
+          ref={(el) => { this._els[Fields.From] = el; }}
           value={from[0]}
           draft={this.props.draft}
           session={this.props.session}

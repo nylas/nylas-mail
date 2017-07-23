@@ -125,7 +125,6 @@ class PreferencesTemplates extends React.Component {
   _renderEditableTemplate() {
     return (
       <Contenteditable
-        ref="templateInput"
         value={this.state.contents || ""}
         onChange={this._onEditTemplate}
         extensions={[TemplateEditor]}
@@ -137,7 +136,6 @@ class PreferencesTemplates extends React.Component {
   _renderHTMLTemplate() {
     return (
       <textarea
-        ref="templateHTMLInput"
         value={this.state.contents || ""}
         onChange={this._onEditTemplate}
       />
