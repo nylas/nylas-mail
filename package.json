@@ -6,7 +6,7 @@
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
     "babel-eslint": "7.1.0",
-    "babel-preset-electron": "1.4.15",
+    "babel-preset-electron": "bengotow/babel-preset-electron#00783dfc438f122997993ae597a41ec315ba121b",
     "babel-preset-react": "6.x.x",
     "chalk": "1.x.x",
     "coffeelint-cjsx": "2.x.x",
