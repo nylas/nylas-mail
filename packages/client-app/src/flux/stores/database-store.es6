@@ -484,7 +484,7 @@ class DatabaseStore extends NylasStore {
     });
   }
 
-  inTransaction(fn) {
+  inTransaction() {
     throw new Error("The client-side database connection no longer permits writes");
   }
 }

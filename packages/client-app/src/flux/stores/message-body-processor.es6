@@ -116,7 +116,7 @@ class MessageBodyProcessor {
   }
 
   _process(message) {
-    if (!_.isString(message.body)) {
+    if (typeof message.body !== 'string') {
       return Promise.resolve("");
     }
 

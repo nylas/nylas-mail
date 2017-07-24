@@ -4,8 +4,6 @@ import {RetinaImg} from 'nylas-component-kit';
 import {
   Actions,
   TaskFactory,
-  AccountStore,
-  CategoryStore,
   FocusedContentStore,
   FocusedPerspectiveStore,
 } from "nylas-exports";

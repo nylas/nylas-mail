@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
 
-import ThemePackage from '../../../src/theme-package';
+import Package from '../../../src/package';
 import ThemePicker from '../lib/theme-picker';
 
 const {resourcePath} = NylasEnv.getLoadSettings();
-const light = new ThemePackage(`${resourcePath}/internal_packages/ui-light`);
-const dark = new ThemePackage(`${resourcePath}/internal_packages/ui-dark`);
+const light = new Package(`${resourcePath}/internal_packages/ui-light`);
+const dark = new Package(`${resourcePath}/internal_packages/ui-dark`);
 
 describe('ThemePicker', function themePicker() {
   beforeEach(() => {

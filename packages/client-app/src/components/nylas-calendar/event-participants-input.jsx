@@ -94,7 +94,7 @@ export default class EventParticipantsInput extends React.Component {
     // an array of contact objects. For each email address wrapped in
     // parentheses, look for a preceding name, if one exists.
     let tokensPromise = null;
-    if (_.isString(values)) {
+    if (typeof values === 'string') {
       tokensPromise = this._tokensForString(values, options);
     } else {
       tokensPromise = Promise.resolve(values);

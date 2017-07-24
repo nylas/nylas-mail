@@ -41,11 +41,13 @@ class CategoryStore extends NylasStore
   #
   categories: (accountOrId = null) ->
     if accountOrId
-      _.values(@_categoryCache[asAccountId(accountOrId)]) ? []
+      cached = @_categoryCache[asAccountId(accountOrId)]
+      return [] unless cached
+      Object.values(cached)
     else
       all = []
       for accountId, categories of @_categoryCache
-        all = all.concat(_.values(categories))
+        all = all.concat(Object.values(categories))
       all
 
   # Public: Returns all of the standard categories for the given account.

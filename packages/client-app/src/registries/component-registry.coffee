@@ -144,8 +144,8 @@ class ComponentRegistry
     overlaps = (entry = [], search = []) ->
       _.intersection(entry, search).length > 0
 
-    entries = _.values @_registry
-    entries = _.filter entries, (entry) ->
+    entries = Object.values(@_registry)
+    entries = entries.filter (entry) ->
       if modes and entry.modes and not overlaps(modes, entry.modes)
         return false
       if locations and not overlaps(locations, entry.locations)
@@ -154,7 +154,7 @@ class ComponentRegistry
         return false
       return true
 
-    results = _.map entries, (entry) -> entry.component
+    results = entries.map (entry) -> entry.component
     @_cache[cacheKey] = results
 
     return [].concat(results)

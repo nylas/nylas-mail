@@ -174,7 +174,7 @@ class ListTabular extends Component {
     this._cleanupAnimationTimeout = null;
 
     const nextAnimatingOut = {};
-    _.each(this.state.animatingOut, (record, idx) => {
+    Object.entries(this.state.animatingOut).forEach(([idx, record]) => {
       if (Date.now() < record.end) {
         nextAnimatingOut[idx] = record;
       }
@@ -203,7 +203,7 @@ class ListTabular extends Component {
     // The ordering of the rows array is important. We want current rows to
     // slide over rows which are animating out, so we need to render them last.
     const rows = [];
-    _.each(animatingOut, (record, idx) => {
+    Object.entries(animatingOut).forEach(([idx, record]) => {
       const itemProps = itemPropsProvider(record.item, idx / 1)
       rows.push({item: record.item, idx: idx / 1, itemProps});
     })
@@ -281,25 +281,25 @@ class ListTabular extends Component {
     // last time but not allocate height to them. This allows us to animate them
     // being covered by other items, not just disappearing when others start to slide up.
     if (this.state && (start === this.state.renderedRangeStart)) {
-      const nextIds = _.pluck(_.values(items), 'id');
+      const nextIds = Object.values(items).map(a => a && a.id);
       animatingOut = {};
 
       // Keep items which are still animating out and are still not in the set
-      _.each(this.state.animatingOut, (record, recordIdx) => {
+      Object.entries(this.state.animatingOut).forEach(([recordIdx, record]) => {
         if ((Date.now() < record.end) && !(nextIds.includes(record.item.id))) {
           animatingOut[recordIdx] = record;
         }
-      })
+      });
 
       // Add items which are no longer found in the set
-      _.each(this.state.items, (previousItem, previousIdx) => {
+      Object.entries(this.state.items).forEach(([previousIdx, previousItem]) => {
         if (!previousItem || nextIds.includes(previousItem.id)) { return; }
         animatingOut[previousIdx] = {
           idx: previousIdx,
           item: previousItem,
           end: Date.now() + 125,
         };
-      })
+      });
 
       // If we think /all/ the items are animating out, or a lot of them,
       // the user probably switched to an entirely different perspective.

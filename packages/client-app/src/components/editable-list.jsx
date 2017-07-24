@@ -374,7 +374,7 @@ class EditableList extends Component {
    * pass to the input.
    */
   _renderCreateInput = () => {
-    const props = _.extend(this.props.createInputProps, {
+    const props = Object.assign(this.props.createInputProps, {
       autoFocus: true,
       type: 'text',
       onBlur: this._onCreateInputBlur,

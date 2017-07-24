@@ -28,7 +28,7 @@ export default class NylasAPIRequest {
 
   async run() {
     return null;
-    
+
     // TODO BG: Promise.reject();
 
     // if (NylasEnv.getLoadSettings().isSpec) return Promise.resolve([]);
@@ -53,9 +53,6 @@ export default class NylasAPIRequest {
    */
   async _asyncRequest(options = {}) {
     return new Promise((resolve, reject) => {
-      const requestId = Utils.generateTempId();
-      const reqTrackingArgs = {request: options, requestId}
-
       // Blob requests can potentially contain megabytes of binary data.
       // it doesn't make sense to send them through the action bridge.
       const req = request(options, (error, response, body) => {

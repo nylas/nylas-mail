@@ -1,5 +1,5 @@
 _ = require 'underscore'
-_ = _.extend(_, require('./config-utils'))
+_ = Object.assign(_, require('./config-utils'))
 {remote} = require 'electron'
 fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
@@ -534,7 +534,7 @@ class Config
         properties[key] ?= {}
         rootSchema = properties[key]
 
-    _.extend rootSchema, schema
+    Object.assign rootSchema, schema
     @setDefaults(keyPath, @extractDefaultsFromSchema(schema))
     @resetSettingsForSchemaChange()
 

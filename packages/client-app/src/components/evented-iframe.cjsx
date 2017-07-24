@@ -195,7 +195,7 @@ class EventedIFrame extends React.Component
       continue if key in ['webkitMovementX', 'webkitMovementY']
       eventAttrs[key] = event[key]
 
-    node.dispatchEvent(new MouseEvent(event.type, _.extend({}, eventAttrs, {
+    node.dispatchEvent(new MouseEvent(event.type, Object.assign({}, eventAttrs, {
       bubbles: true
       clientX: event.clientX + nodeRect.left
       clientY: event.clientY + nodeRect.top

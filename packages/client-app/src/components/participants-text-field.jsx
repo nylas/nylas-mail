@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'underscore';
 
 import {remote, clipboard} from 'electron';
 import {Utils, Contact, ContactStore, RegExpUtils} from 'nylas-exports';
@@ -100,8 +99,8 @@ export default class ParticipantsTextField extends React.Component {
   _remove = (values) => {
     const field = this.props.field;
     const updates = {};
-    updates[field] = _.reject(this.props.participants[field], (p) =>
-      values.includes(p.email) || values.map(o => o.email).includes(p.email)
+    updates[field] = this.props.participants[field].filter((p) =>
+      !(values.includes(p.email) || values.map(o => o.email).includes(p.email))
     );
     this.props.change(updates);
   }
@@ -130,7 +129,7 @@ export default class ParticipantsTextField extends React.Component {
     // an array of contact objects. For each email address wrapped in
     // parentheses, look for a preceding name, if one exists.
     let tokensPromise = null;
-    if (_.isString(values)) {
+    if (typeof values === 'string') {
       tokensPromise = this._tokensForString(values, options);
     } else {
       tokensPromise = Promise.resolve(values);
@@ -151,11 +150,11 @@ export default class ParticipantsTextField extends React.Component {
         // that drag and drop isn't "drag and copy." and you can't have the
         // same recipient in multiple places.
         for (const field of Object.keys(this.props.participants)) {
-          updates[field] = _.reject(updates[field], p => p.email === token.email)
+          updates[field] = updates[field].filter(p => p.email !== token.email)
         }
 
         // add the participant to field
-        updates[this.props.field] = _.union(updates[this.props.field], [token]);
+        updates[this.props.field] = [].concat(updates[this.props.field], [token]);
       }
 
       this.props.change(updates);

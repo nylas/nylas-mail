@@ -54,14 +54,12 @@ col, key}
 @class SelectableTable
 
 
-
 This function will be called when the selection needs to be set to the
 selection passed in as a parameter
 @callback props.onSetSelection
 @param {object} selection - selection object of the form {rowIdx, colIdx, key}
 @param {number} selection.rowIdx - rowIdx for selection
 @param {number} selection.colIdx - colIds for selection
-
 
 
 This function will be called when the selection row and col indices need to

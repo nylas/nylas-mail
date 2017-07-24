@@ -41,7 +41,7 @@ xdescribe "ChangeLabelsTask", ->
 
     testThreads = @testThreads =
       't1': new Thread(id: 't1', categories: [@testLabels['l1']])
-      't2': new Thread(id: 't2', categories: _.values(@testLabels))
+      't2': new Thread(id: 't2', categories: Object.values(@testLabels))
       't3': new Thread(id: 't3', categories: [@testLabels['l2'], @testLabels['l3']])
 
     @basicThreadTask = new ChangeLabelsTask

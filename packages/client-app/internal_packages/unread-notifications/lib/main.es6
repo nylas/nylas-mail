@@ -68,7 +68,7 @@ export class Notifier {
       canReply: true,
       tag: 'unread-update',
       onActivate: ({response, activationType}) => {
-        if ((activationType === 'replied') && response && _.isString(response)) {
+        if ((activationType === 'replied') && response && typeof response === 'string') {
           Actions.sendQuickReply({thread, message}, response);
         } else {
           NylasEnv.displayWindow()
@@ -114,7 +114,7 @@ export class Notifier {
       Promise.props(threads).then((resolvedThreads) => {
         const resolved = messages.filter((msg) => resolvedThreads[msg.threadId]);
         if (resolved.length > 0) {
-          this._onNewMailReceived({message: resolved, thread: _.values(resolvedThreads)});
+          this._onNewMailReceived({message: resolved, thread: Object.values(resolvedThreads)});
         }
       });
     }, 10000);
@@ -152,7 +152,7 @@ export class Notifier {
       // Using a map and ?= to avoid repeating work.
       const threads = {}
       for (const {threadId} of newUnread) {
-        threads[threadId] = threads[threadId] || _.findWhere(incomingThreads, {id: threadId})
+        threads[threadId] = threads[threadId] || incomingThreads.find(t => t.id === threadId)
         threads[threadId] = threads[threadId] || DatabaseStore.find(Thread, threadId);
       }
 

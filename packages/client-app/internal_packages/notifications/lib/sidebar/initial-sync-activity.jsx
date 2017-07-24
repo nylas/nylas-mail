@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import {AccountStore, FolderSyncProgressStore, React} from 'nylas-exports';
 
 export default class InitialSyncActivity extends React.Component {
@@ -48,13 +47,13 @@ export default class InitialSyncActivity extends React.Component {
 
 
     let maxHeight = 0;
-    let accounts = _.map(this.state.syncState, (accountSyncState, accountId) => {
+    let accounts = Object.entries(this.state.syncState).map(([accountId, accountSyncState]) => {
       const account = AccountStore.accountForId(accountId);
       if (!account) {
         return false;
       }
 
-      let folderStates = _.map(accountSyncState, ({progress}, folderPath) => {
+      let folderStates = Object.entries(accountSyncState).map(([folderPath, {progress}]) => {
         return this.renderFolderProgress(folderPath, progress)
       })
 

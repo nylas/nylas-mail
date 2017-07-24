@@ -81,7 +81,7 @@ export default class InjectedComponentSet extends React.Component {
   }
 
   componentDidMount() {
-    this._componentUnlistener = ComponentRegistry.listen(() => 
+    this._componentUnlistener = ComponentRegistry.listen(() =>
       this.setState(this._getStateFromStores())
     );
     if (this.props.containersRequired === false) {
@@ -90,7 +90,7 @@ export default class InjectedComponentSet extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (!this.props || (newProps.location !== this.props.location)) {
+    if (!this.props || !Utils.isEqualReact(newProps.matching, this.props.matching)) {
       this.setState(this._getStateFromStores(newProps));
     }
   }

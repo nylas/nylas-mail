@@ -9,7 +9,6 @@ RegExpUtils = require '../../regexp-utils'
 DatabaseStore = require('./database-store').default
 AccountStore = require('./account-store').default
 ComponentRegistry = require('../../registries/component-registry')
-_ = require 'underscore'
 
 ###
 Public: ContactStore provides convenience methods for searching contacts and
@@ -127,6 +126,6 @@ class ContactStore extends NylasStore
       existing = uniq[key]
       if not existing or (not existing.name or existing.name is existing.email)
         uniq[key] = contact
-    _.values(uniq)
+    Object.values(uniq)
 
 module.exports = new ContactStore()

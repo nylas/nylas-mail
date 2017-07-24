@@ -79,7 +79,7 @@ class NylasWindow
 
     @handleEvents()
 
-    loadSettings = _.extend({}, settings)
+    loadSettings = Object.assign({}, settings)
     loadSettings.windowState ?= '{}'
     loadSettings.appVersion = app.getVersion()
     loadSettings.resourcePath = @resourcePath

@@ -193,7 +193,7 @@ class GeneratedFieldset extends React.Component
     id: idPropType.isRequired
 
     formItems: React.PropTypes.arrayOf(React.PropTypes.shape(
-      _.extend(FormItem.propTypes,
+      Object.assign(FormItem.propTypes,
         row: React.PropTypes.number
         column: React.PropTypes.number
       )

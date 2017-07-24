@@ -102,7 +102,7 @@ class Contenteditable extends React.Component
     if not editor.currentSelection().isInScope() and extraArgsObj.methodName isnt 'onBlur'
       @_restoreSelection()
 
-    argsObj = _.extend(extraArgsObj, {editor})
+    argsObj = Object.assign(extraArgsObj, {editor})
 
     try
       editingFunction(argsObj)
@@ -169,7 +169,7 @@ class Contenteditable extends React.Component
 
   setInnerState: (innerState={}) =>
     return if _.isMatch(@innerState, innerState)
-    @innerState = _.extend @innerState, innerState
+    @innerState = Object.assign @innerState, innerState
     if @_broadcastInnerStateToToolbar
       @refs["toolbarController"]?.componentWillReceiveInnerProps(@innerState)
     @_refreshServices()
@@ -222,10 +222,10 @@ class Contenteditable extends React.Component
 
   _eventHandlers: =>
     handlers = {}
-    _.extend(handlers, service.eventHandlers()) for service in @_services
+    Object.assign(handlers, service.eventHandlers()) for service in @_services
 
     # NOTE: See {MouseService} for more handlers
-    handlers = _.extend handlers,
+    handlers = Object.assign handlers,
       onBlur: @_onBlur
       onFocus: @_onFocus
       onKeyDown: @_onKeyDown
@@ -255,7 +255,7 @@ class Contenteditable extends React.Component
   # to keymaps.
   _keymapHandlers: ->
     defaultKeymaps = {}
-    return _.extend(defaultKeymaps, @_boundExtensionKeymapHandlers())
+    return Object.assign(defaultKeymaps, @_boundExtensionKeymapHandlers())
 
   _setupNonMutationListeners: =>
     @_broadcastInnerStateToToolbar = true
@@ -436,7 +436,7 @@ class Contenteditable extends React.Component
   # called.  If any of the extensions calls event.stopPropagation(), it
   # will prevent any other extension handlers from being called.
   dispatchEventToExtensions: (method, event, args={}) =>
-    argsObj = _.extend(args, {event})
+    argsObj = Object.assign(args, {event})
     for extension in @props.extensions
       break if event?.isPropagationStopped()
       @_runExtensionMethod(extension, method, argsObj)
@@ -450,7 +450,7 @@ class Contenteditable extends React.Component
     return if @_inCompositionEvent
     return if not extension[method]?
     editingFunction = extension[method].bind(extension)
-    argsObj = _.extend(argsObj, {methodName: method})
+    argsObj = Object.assign(argsObj, {methodName: method})
     @atomicEdit(editingFunction, argsObj)
 
 

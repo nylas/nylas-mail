@@ -99,7 +99,7 @@ export default class SignatureComposerDropdown extends React.Component {
     const header = [<div className="item item-none" key="none" onMouseDown={this._onClickNoSignature}><span>No signature</span></div>]
     const footer = [<div className="item item-edit" key="edit" onMouseDown={this._onClickEditSignatures}><span>Edit Signatures...</span></div>]
 
-    const sigItems = _.values(this.state.signatures)
+    const sigItems = Object.values(this.state.signatures)
     return (
       <Menu
         headerComponents={header}
@@ -127,7 +127,7 @@ export default class SignatureComposerDropdown extends React.Component {
     const sigs = this.state.signatures;
     const icon = this._renderSignatureIcon()
 
-    if (!_.isEmpty(sigs)) {
+    if (Object.values(sigs).length > 0) {
       return (
         <div className="signature-button-dropdown">
           <ButtonDropdown

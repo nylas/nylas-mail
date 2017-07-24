@@ -175,7 +175,7 @@ class WorkspaceStore extends NylasStore
   # Public: Returns an {Array} of locations that have been hidden.
   #
   hiddenLocations: =>
-    _.values(@_hiddenLocations)
+    Object.values(@_hiddenLocations)
 
   # Public: Returns a {Boolean} indicating whether the location provided is hidden.
   # You should provide one of the WorkspaceStore.Location constant values.

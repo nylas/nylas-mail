@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import React from 'react';
 import {ipcRenderer} from 'electron';
 import {AccountStore, Actions} from 'nylas-exports';
@@ -28,7 +27,7 @@ class PreferencesAccounts extends React.Component {
     const accounts = AccountStore.accounts()
     let selectedAccount;
     if (selected) {
-      selectedAccount = _.findWhere(accounts, {id: selected.id})
+      selectedAccount = accounts.find(a => a.id === selected.id)
     }
     // If selected was null or no longer exists in the AccountStore,
     // just use the first account.

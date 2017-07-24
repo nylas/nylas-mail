@@ -84,7 +84,7 @@ class SnoozeStore {
       .then(snoozeCategories => this.groupUpdatedThreads(updatedThreads, snoozeCategories))
     })
     .then((updatedThreadsByAccountId) => {
-      _.each(updatedThreadsByAccountId, (update) => {
+      Object.values(updatedThreadsByAccountId).forEach((update) => {
         const {snoozeCategoryId, returnCategoryId} = update;
 
         // Get messages for those threads and metadata for those.

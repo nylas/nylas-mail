@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {DateUtils, Actions} from 'nylas-exports'
 import {RetinaImg, DateInput} from 'nylas-component-kit';
@@ -100,7 +99,7 @@ class SnoozePopover extends Component {
   };
 
   renderRow = (options, idx) => {
-    const items = _.map(options, this.renderItem);
+    const items = options.map(this.renderItem);
     return (
       <div key={`snooze-popover-row-${idx}`} className="snooze-row">
         {items}

@@ -5,8 +5,6 @@ const rimraf = require('rimraf');
 const fs = require('fs-plus');
 var fs_extra = require('fs-extra');
 
-const _ = require('underscore');
-
 const donna = require('donna');
 const joanna = require('joanna');
 const tello = require('tello');
@@ -28,7 +26,7 @@ module.exports = function(grunt) {
 
       let apiPath = path.join(path.dirname(modulePath), 'api.json');
       if (fs.isFileSync(apiPath)) {
-        _.extend(classes, grunt.file.readJSON(apiPath).classes);
+        Object.assign(classes, grunt.file.readJSON(apiPath).classes);
       }
       return true;
     });
@@ -185,7 +183,7 @@ module.exports = function(grunt) {
       }
 
       console.log('---- Done with Tello ----');
-      _.extend(api.classes, getClassesToInclude());
+      Object.assign(api.classes, getClassesToInclude());
 
       console.log(api.classes)
 

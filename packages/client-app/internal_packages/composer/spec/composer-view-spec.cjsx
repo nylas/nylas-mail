@@ -42,7 +42,7 @@ ComposerView = require("../lib/composer-view").default
 DRAFT_CLIENT_ID = "local-123"
 
 useDraft = (draftAttributes={}) ->
-  @draft = new Message _.extend({draft: true, body: ""}, draftAttributes)
+  @draft = new Message Object.assign({draft: true, body: ""}, draftAttributes)
   @draft.id = DRAFT_CLIENT_ID
   @session = new DraftEditingSession(DRAFT_CLIENT_ID, @draft)
   # spyOn().andCallFake wasn't working properly on ensureCorrectAccount for some reason

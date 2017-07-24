@@ -5,7 +5,6 @@ import {
   DatabaseStore,
   DateUtils,
   Event,
-  SyncbackEventTask,
 } from 'nylas-exports'
 
 export default class QuickEventPopover extends React.Component {
@@ -33,39 +32,40 @@ export default class QuickEventPopover extends React.Component {
     this.setState(DateUtils.parseDateString(event.target.value));
   };
 
-  createEvent = ({leftoverText, start, end}) => {
-    DatabaseStore.findAll(Calendar).then((allCalendars) => {
-      if (allCalendars.length === 0) {
-        throw new Error("Can't create an event, you have no calendars");
-      }
-      const cals = allCalendars.filter(c => !c.readOnly);
-      if (cals.length === 0) {
-        NylasEnv.showErrorDialog("This account has no editable calendars. We can't " +
-          "create an event for you. Please make sure you have an editable calendar " +
-          "with your account provider.");
-        return Promise.reject();
-      }
+  createEvent = async ({leftoverText, start, end}) => {
+    const allCalendars = await DatabaseStore.findAll(Calendar);
+    if (allCalendars.length === 0) {
+      throw new Error("Can't create an event, you have no calendars");
+    }
+    const cals = allCalendars.filter(c => !c.readOnly);
+    if (cals.length === 0) {
+      NylasEnv.showErrorDialog("This account has no editable calendars. We can't " +
+        "create an event for you. Please make sure you have an editable calendar " +
+        "with your account provider.");
+      return;
+    }
 
-      const event = new Event({
-        calendarId: cals[0].id,
-        accountId: cals[0].accountId,
-        start: start.unix(),
-        end: end.unix(),
-        when: {
-          start_time: start.unix(),
-          end_time: end.unix(),
-        },
-        title: leftoverText,
-      })
-
-      // todo bg
-      // return DatabaseStore.inTransaction((t) => {
-      //   return t.persistModel(event)
-      // }).then(() => {
-      //   const task = new SyncbackEventTask(event.id);
-      //   Actions.queueTask(task);
-      // })
+    const event = new Event({
+      calendarId: cals[0].id,
+      accountId: cals[0].accountId,
+      start: start.unix(),
+      end: end.unix(),
+      when: {
+        start_time: start.unix(),
+        end_time: end.unix(),
+      },
+      title: leftoverText,
     })
+
+    console.log(event);
+
+    // todo bg
+    // return DatabaseStore.inTransaction((t) => {
+    //   return t.persistModel(event)
+    // }).then(() => {
+    //   const task = new SyncbackEventTask(event.id);
+    //   Actions.queueTask(task);
+    // })
   }
 
 

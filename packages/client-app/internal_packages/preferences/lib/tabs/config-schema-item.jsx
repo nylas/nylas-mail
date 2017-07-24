@@ -49,7 +49,7 @@ class ConfigSchemaItem extends React.Component {
       return (
         <section>
           <h6>{_str.humanize(this.props.keyName)}</h6>
-          {_.pairs(this.props.configSchema.properties).map(([key, value]) =>
+          {Object.entries(this.props.configSchema.properties).map(([key, value]) =>
             <ConfigSchemaItem
               key={key}
               keyName={key}

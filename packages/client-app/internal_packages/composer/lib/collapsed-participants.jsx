@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {Utils} from 'nylas-exports';
 import {DropZone, InjectedComponentSet} from 'nylas-component-kit';
 

@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from 'react'
 
-
 export default class SubjectTextField extends Component {
   static displayName = 'SubjectTextField'
 

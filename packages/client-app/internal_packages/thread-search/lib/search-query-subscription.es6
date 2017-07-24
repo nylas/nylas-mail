@@ -1,7 +1,6 @@
 import _ from 'underscore'
 import {
   Actions,
-  NylasAPI,
   Thread,
   DatabaseStore,
   SearchQueryParser,
@@ -9,7 +8,7 @@ import {
   FocusedContentStore,
   MutableQuerySubscription,
 } from 'nylas-exports'
-import SearchActions from './search-actions'
+// import SearchActions from './search-actions'
 
 class SearchQuerySubscription extends MutableQuerySubscription {
 
@@ -22,7 +21,7 @@ class SearchQuerySubscription extends MutableQuerySubscription {
 
     this._connections = []
     this._unsubscribers = [
-      FocusedContentStore.listen(::this.onFocusedContentChanged),
+      FocusedContentStore.listen(() => this.onFocusedContentChanged()),
     ]
     this._extDisposables = []
 

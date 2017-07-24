@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
@@ -372,7 +371,7 @@ class AttachmentStore extends NylasStore {
       (paths) => {
         if (paths == null) { return; }
         let pathsToOpen = paths
-        if (_.isString(pathsToOpen)) {
+        if (typeof pathsToOpen === 'string') {
           pathsToOpen = [pathsToOpen];
         }
 

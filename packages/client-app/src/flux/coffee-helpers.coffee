@@ -14,7 +14,7 @@ module.exports = CoffeeHelpers =
     # Make a copy of the superclass with the same constructor and use it
     # instead of adding functions directly to the superclass.
     if @.__super__
-      tmpSuper = _.extend({}, @.__super__)
+      tmpSuper = Object.assign({}, @.__super__)
       tmpSuper.constructor = @.__super__.constructor
 
     @.__super__ = tmpSuper || {}

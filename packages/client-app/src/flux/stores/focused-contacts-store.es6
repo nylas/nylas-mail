@@ -53,8 +53,8 @@ class FocusedContactsStore extends NylasStore {
   // For now we take the last message
   _populateCurrentParticipants() {
     this._scoreAllParticipants();
-    const sorted = _.sortBy(_.values(this._contactScores), "score").reverse();
-    this._currentContacts = _.map(sorted, obj => obj.contact);
+    const sorted = _.sortBy(Object.values(this._contactScores), "score").reverse();
+    this._currentContacts = sorted.map(obj => obj.contact);
     return this._onFocusContact(this._currentContacts[0]);
   }
 

@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import {React, Utils} from 'nylas-exports';
 
 export default class SyncbackActivity extends React.Component {
@@ -29,7 +28,7 @@ export default class SyncbackActivity extends React.Component {
       <span key={`ellipsis${i}`} className={`ellipsis${i}`}>.</span>)
     );
 
-    const items = _.pairs(counts).map(([label, count]) => {
+    const items = Object.entries(counts).map(([label, count]) => {
       return (
         <div className="item" key={label}>
           <div className="inner">

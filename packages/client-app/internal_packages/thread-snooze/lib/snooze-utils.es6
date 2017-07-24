@@ -57,7 +57,7 @@ const SnoozeUtils = {
     return FolderSyncProgressStore.whenCategoryListSynced(accountId)
     .then(() => {
       const allCategories = CategoryStore.categories(accountId)
-      const category = _.findWhere(allCategories, {displayName: categoryName})
+      const category = allCategories.find(c => c.displayName === categoryName)
       if (category) {
         return Promise.resolve(category);
       }
@@ -100,7 +100,7 @@ const SnoozeUtils = {
     // Resolve with the updated threads
     return (
       Promise.all(promises).then(() => {
-        return DatabaseStore.modelify(Thread, _.pluck(threads, 'id'))
+        return DatabaseStore.modelify(Thread, threads.map(t => t.id))
       })
     )
   },

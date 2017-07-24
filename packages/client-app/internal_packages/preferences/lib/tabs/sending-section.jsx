@@ -24,7 +24,7 @@ function getExtendedSendingSchema(configSchema) {
   //   'title': "Default send behavior",
   // }
 
-  _.extend(configSchema.properties.sending.properties, {
+  Object.assign(configSchema.properties.sending.properties, {
     defaultAccountIdForSend,
   });
   return configSchema.properties.sending;

@@ -1,5 +1,4 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
-import _ from 'underscore'
 import React, {Component, PropTypes} from 'react'
 import {
   Menu,

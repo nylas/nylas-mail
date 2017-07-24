@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'underscore';
 import {
     Flexbox,
     RetinaImg,
@@ -125,7 +124,7 @@ export default class PreferencesSignatures extends React.Component {
   }
 
   _labelForAccountPicker() {
-    const sel = _.filter(this.state.accountsAndAliases, (accountOrAlias) => {
+    const sel = this.state.accountsAndAliases.filter((accountOrAlias) => {
       return this._isChecked(accountOrAlias)
     })
     const numSelected = sel.length;
@@ -170,7 +169,7 @@ export default class PreferencesSignatures extends React.Component {
   }
 
   _renderSignatures() {
-    const sigArr = _.values(this.state.signatures)
+    const sigArr = Object.values(this.state.signatures)
     if (sigArr.length === 0) {
       return (
         <div className="empty-list">

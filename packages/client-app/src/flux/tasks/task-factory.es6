@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import ChangeFolderTask from './change-folder-task'
 import ChangeLabelsTask from './change-labels-task'
 import ChangeUnreadTask from './change-unread-task'

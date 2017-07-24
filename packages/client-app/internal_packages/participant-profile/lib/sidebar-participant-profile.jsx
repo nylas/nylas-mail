@@ -92,8 +92,10 @@ export default class SidebarParticipantProfile extends React.Component {
   }
 
   _renderSocialProfiles() {
-    if (!this.state.socialProfiles) { return false }
-    const profiles = _.map(this.state.socialProfiles, (profile, type) => {
+    if (!this.state.socialProfiles) {
+      return false;
+    }
+    const profiles = Object.entries(this.state.socialProfiles).map(([type, profile]) => {
       return (
         <a
           className="social-profile-item"

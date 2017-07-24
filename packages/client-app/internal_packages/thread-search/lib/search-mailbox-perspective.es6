@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import {
   Folder,
   ChangeLabelsTask,
@@ -14,7 +13,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
 
   constructor(sourcePerspective, searchQuery) {
     super(sourcePerspective.accountIds)
-    if (!_.isString(searchQuery)) {
+    if (typeof searchQuery !== 'string') {
       throw new Error("SearchMailboxPerspective: Expected a `string` search query")
     }
 

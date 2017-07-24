@@ -68,7 +68,7 @@ class N1SpecLoader {
     const { specFilePattern } = this.loadSettings;
 
     let regex = /-spec\.(coffee|js|jsx|cjsx|es6|es)$/;
-    if (_.isString(specFilePattern) && specFilePattern.length > 0) {
+    if (typeof specFilePattern === 'string' && specFilePattern.length > 0) {
       regex = new RegExp(specFilePattern);
     }
 

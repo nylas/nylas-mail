@@ -72,12 +72,12 @@ class FloatingToolbar extends React.Component
   # We call these performance-optimized props & state innerProps and
   # innerState.
   componentWillReceiveInnerProps: (nextInnerProps={}) =>
-    fullProps = _.extend({}, @props, nextInnerProps)
-    @innerProps = _.extend @innerProps, nextInnerProps
+    fullProps = Object.assign({}, @props, nextInnerProps)
+    @innerProps = Object.assign @innerProps, nextInnerProps
     @setState(@_getStateFromProps(fullProps))
 
   componentWillReceiveProps: (nextProps) =>
-    fullProps = _.extend(@innerProps, nextProps)
+    fullProps = Object.assign(@innerProps, nextProps)
     @setState(@_getStateFromProps(fullProps))
 
   # The context menu, when activated, needs to make sure that the toolbar
@@ -108,7 +108,7 @@ class FloatingToolbar extends React.Component
       positionState = @_calculatePositionState(props, toolbarComponentState)
     else positionState = {}
 
-    return _.extend {}, toolbarComponentState, positionState
+    return Object.assign {}, toolbarComponentState, positionState
 
   # If this returns a `null` component, that means we don't want to show
   # anything.
@@ -185,7 +185,7 @@ class FloatingToolbar extends React.Component
   _toolbarClasses: =>
     classes = {}
     classes[@state.toolbarPos] = true
-    classNames _.extend classes,
+    classNames Object.assign classes,
       "floating-toolbar": true
       "toolbar": true
 

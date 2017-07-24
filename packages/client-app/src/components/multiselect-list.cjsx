@@ -71,7 +71,7 @@ class MultiselectList extends React.Component
     @unsubscribers.push WorkspaceStore.listen @_onChange
 
   _globalKeymapHandlers: ->
-    _.extend({}, @props.keymapHandlers, {
+    Object.assign({}, @props.keymapHandlers, {
       'core:focus-item': => @_onEnter()
       'core:select-item': => @_onSelectKeyboardItem()
       'core:next-item': => @_onShift(1)

@@ -47,7 +47,7 @@ export default function CalendarToggles(props) {
   const accountSections = []
   for (const accountId of Object.keys(calsByAccountId)) {
     const calendars = calsByAccountId[accountId]
-    const account = _.findWhere(props.accounts, {accountId})
+    const account = props.accounts.find(a => a.id === accountId);
     if (!account || !calendars || calendars.length === 0) {
       continue;
     }

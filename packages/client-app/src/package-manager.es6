@@ -27,6 +27,7 @@ export default class PackageManager {
   }
 
   pluginIdFor(packageName) {
+    // todo bg
     return null
   }
 

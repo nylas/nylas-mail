@@ -18,12 +18,12 @@ CategoryOperators =
         nameB = "ZZZ"+nameB if nameB[0] is '['
 
         nameA.localeCompare(nameB)
-    _.extend(obs, CategoryOperators)
+    Object.assign(obs, CategoryOperators)
 
   categoryFilter: (filter) ->
     obs = @.map (categories) ->
       return categories.filter filter
-    _.extend(obs, CategoryOperators)
+    Object.assign(obs, CategoryOperators)
 
 CategoryObservables =
 
@@ -31,7 +31,7 @@ CategoryObservables =
     folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
     labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label))
     joined = Rx.Observable.combineLatest(folders, labels, (f, l) => [].concat(f, l))
-    _.extend(joined, CategoryOperators)
+    Object.assign(joined, CategoryOperators)
     joined
 
   forAccount: (account) =>
@@ -43,7 +43,7 @@ CategoryObservables =
       folders = Rx.Observable.fromQuery(DatabaseStore.findAll(Folder))
       labels = Rx.Observable.fromQuery(DatabaseStore.findAll(Label))
       joined = Rx.Observable.combineLatest(folders, labels, (f, l) => [].concat(f, l))
-    _.extend(joined, CategoryOperators)
+    Object.assign(joined, CategoryOperators)
     joined
 
   standard: (account) =>
@@ -51,7 +51,7 @@ CategoryObservables =
       .flatMapLatest (showImportant) =>
         return CategoryObservables.forAccount(account).sort()
           .categoryFilter (cat) -> cat.isStandardCategory(showImportant)
-    _.extend(observable, CategoryOperators)
+    Object.assign(observable, CategoryOperators)
     observable
 
   user: (account) =>

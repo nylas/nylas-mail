@@ -86,7 +86,7 @@ class SearchableComponentStore extends NylasStore {
     const searchNodes = []
 
     if (this.searchTerm && this.searchTerm.length >= CHAR_THRESHOLD) {
-      _.each(this.searchRegions, (node) => {
+      Object.values(this.searchRegions).forEach((node) => {
         if (this.matches.length >= MAX_MATCHES) {
           return;
         }

@@ -66,7 +66,7 @@ class EmojiStore extends NylasStore {
       }
       savedEmoji.frequency++;
     } else {
-      _.extend(emoji, {frequency: 1});
+      Object.assign(emoji, {frequency: 1});
       this._emoji.push(emoji);
     }
     this._saveEmoji();

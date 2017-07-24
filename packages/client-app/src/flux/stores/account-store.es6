@@ -35,9 +35,9 @@ class AccountStore extends NylasStore {
         return;
       }
 
-      const oldAccountIds = _.pluck(this._accounts, 'id')
+      const oldAccountIds = this._accounts.map(a => a.id)
       this._loadAccounts()
-      const accountIds = _.pluck(this._accounts, 'id')
+      const accountIds = this._accounts.map(a => a.id)
       const newAccountIds = _.difference(accountIds, oldAccountIds)
 
       if (NylasEnv.isMainWindow() && newAccountIds.length > 0) {
@@ -94,19 +94,19 @@ class AccountStore extends NylasStore {
       this._tokens = this._tokens || {};
       this._version = NylasEnv.config.get(configVersionKey) || 0
 
-      const oldAccountIds = _.pluck(this._accounts, 'id')
+      const oldAccountIds = this._accounts ? this._accounts.map(a => a.id) : [];
       this._accounts = []
       for (const json of NylasEnv.config.get(configAccountsKey) || []) {
         this._accounts.push((new Account()).fromJSON(json))
       }
-      const accountIds = _.pluck(this._accounts, 'id')
+      const accountIds = this._accounts.map(a => a.id)
 
       // Loading passwords from the KeyManager is expensive so only do it if
       // we really have to (i.e. we're loading a new Account)
       const addedAccountIds = _.difference(accountIds, oldAccountIds);
-      const addedAccounts = _.filter(this._accounts, (a) => addedAccountIds.includes(a.id));
+      const addedAccounts = this._accounts.filter((a) => addedAccountIds.includes(a.id));
       const removedAccountIds = _.difference(oldAccountIds, accountIds);
-      const removedAccounts = _.filter(this._accounts, (a) => removedAccountIds.includes(a.id));
+      const removedAccounts = this._accounts.filter((a) => removedAccountIds.includes(a.id));
 
       // Run a few checks on account consistency. We want to display useful error
       // messages and these can result in very strange exceptions downstream otherwise.
@@ -185,10 +185,10 @@ class AccountStore extends NylasStore {
    * This will update the account with its updated sync state
    */
   _onUpdateAccount = (id, updated) => {
-    const idx = _.findIndex(this._accounts, (a) => a.id === id)
+    const idx = this._accounts.findIndex((a) => a.id === id)
     let account = this._accounts[idx]
     if (!account) return
-    account = _.extend(account, updated)
+    account = Object.assign(account, updated)
     this._caches = {}
     this._accounts[idx] = account
     this._save()
@@ -201,13 +201,13 @@ class AccountStore extends NylasStore {
    * delete the Account on the local sync side.
    */
   _onRemoveAccount = (id) => {
-    const account = _.findWhere(this._accounts, {id})
+    const account = this._accounts.find(a => a.id === id);
     if (!account) return
     KeyManager.deletePassword(account.emailAddress)
 
     this._caches = {}
 
-    const remainingAccounts = _.without(this._accounts, account)
+    const remainingAccounts = this._accounts.filter((a) => a !== account);
     // This action is called before saving because we need to unfocus the
     // perspective of the account that is being removed before removing the
     // account, otherwise when we trigger with the new set of accounts, the
@@ -230,7 +230,7 @@ class AccountStore extends NylasStore {
   }
 
   _onReorderAccount = (id, newIdx) => {
-    const existingIdx = _.findIndex(this._accounts, (a) => a.id === id)
+    const existingIdx = this._accounts.findIndex((a) => a.id === id);
     if (existingIdx === -1) return
     const account = this._accounts[existingIdx]
     this._caches = {}
@@ -251,9 +251,9 @@ class AccountStore extends NylasStore {
     this._tokens[json.id] = cloudToken;
     KeyManager.replacePassword(`${json.emailAddress}`, cloudToken)
 
-    const existingIdx = _.findIndex(this._accounts, (a) =>
+    const existingIdx = this._accounts.findIndex((a) =>
       a.id === json.id || a.emailAddress === json.emailAddress
-    )
+    );
 
     if (existingIdx === -1) {
       const account = (new Account()).fromJSON(json)
@@ -280,7 +280,7 @@ class AccountStore extends NylasStore {
   }
 
   accountIds = () => {
-    return _.pluck(this._accounts, 'id')
+    return this._accounts.map(a => a.id);
   }
 
   accountsForItems = (items) => {
@@ -288,7 +288,7 @@ class AccountStore extends NylasStore {
     items.forEach(({accountId}) => {
       accounts[accountId] = accounts[accountId] || this.accountForId(accountId)
     })
-    return _.compact(_.values(accounts))
+    return _.compact(Object.values(accounts))
   }
 
   accountForItems = (items) => {
@@ -314,12 +314,12 @@ class AccountStore extends NylasStore {
 
   // Public: Returns the {Account} for the given account id, or null.
   accountForId(id) {
-    return this._cachedGetter(`accountForId:${id}`, () => _.findWhere(this._accounts, {id}))
+    return this._cachedGetter(`accountForId:${id}`, () => this._accounts.find(a => a.id === id));
   }
 
   emailAddresses() {
-    let addresses = _.pluck((this.accounts() ? this.accounts() : []), "emailAddress")
-    addresses = addresses.concat(_.pluck((this.aliases() ? this.aliases() : []), "email"))
+    let addresses = (this.accounts() ? this.accounts() : []).map(a => a.emailAddress);
+    addresses = addresses.concat((this.aliases() ? this.aliases() : []).map(a => a.email));
     return _.unique(addresses)
   }
 

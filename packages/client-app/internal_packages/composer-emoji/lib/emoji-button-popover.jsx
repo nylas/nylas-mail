@@ -308,7 +308,7 @@ class EmojiButtonPopover extends React.Component {
             />
           </div>
           <canvas
-            ref={(el) => this._canvasEl = el}
+            ref={(el) => { this._canvasEl = el; }}
             width="400"
             height="2000"
             onMouseDown={this.onMouseDown}

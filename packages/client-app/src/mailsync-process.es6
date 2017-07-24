@@ -96,10 +96,10 @@ export default class MailsyncProcess extends EventEmitter {
       }
     });
     this._proc.stderr.on('data', (data) => {
-      console.log("Sync worker wrote to stderr: " + data.toString());
+      console.log(`Sync worker wrote to stderr: ${data.toString()}`);
     });
     this._proc.on('error', (err) => {
-      console.log("Sync worker exited with " + err);
+      console.log(`Sync worker exited with ${err}`);
       this.emit('error', err);
     });
     this._proc.on('close', (code) => {

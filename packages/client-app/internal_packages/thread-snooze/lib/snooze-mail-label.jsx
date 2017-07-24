@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import React, {Component, PropTypes} from 'react';
 import {FocusedPerspectiveStore} from 'nylas-exports';
 import {RetinaImg, MailLabel} from 'nylas-component-kit';
@@ -27,7 +26,7 @@ class SnoozeMailLabel extends Component {
     }
 
     const {thread} = this.props;
-    if (_.findWhere(thread.categories, {displayName: SNOOZE_CATEGORY_NAME})) {
+    if (thread.categories.find(c => c.displayName === SNOOZE_CATEGORY_NAME)) {
       const metadata = thread.metadataForPluginId(PLUGIN_ID);
       if (metadata) {
         // TODO this is such a hack

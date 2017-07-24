@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import _str from 'underscore.string'
 import NylasStore from 'nylas-store'
 import Actions from '../actions'
@@ -18,10 +17,10 @@ const DefaultSendAction = {
 
 function verifySendAction(sendAction = {}, extension = {}) {
   const {name} = extension
-  if (!_.isString(sendAction.title)) {
+  if (typeof sendAction.title !== 'string') {
     throw new Error(`${name}.sendActions must return objects containing a string "title"`);
   }
-  if (!_.isFunction(sendAction.performSendAction)) {
+  if (!(sendAction.performSendAction instanceof Function)) {
     throw new Error(`${name}.sendActions must return objects containing an "performSendAction" function that will be called when the action is selected`);
   }
   return true;
@@ -78,7 +77,7 @@ class SendActionsStore extends NylasStore {
   }
 
   sendActionForKey(configKey) {
-    return _.findWhere(this._sendActions, {configKey});
+    return this._sendActions.find(a => a.configKey === configKey);
   }
 
   availableSendActionsForDraft(draft) {
@@ -93,14 +92,13 @@ class SendActionsStore extends NylasStore {
       preferredKey = DefaultSendActionKey;
     }
 
-    let preferred = _.findWhere(this._sendActions, {configKey: preferredKey});
+    let preferred = this._sendActions.find(a => a.configKey === preferredKey);
     if (!preferred || !preferred.isAvailableForDraft({draft})) {
       preferred = DefaultSendAction
     }
-    const rest = (
-      _.without(this._sendActions, preferred)
-      .filter((sendAction) => sendAction.isAvailableForDraft({draft}))
-    )
+    const rest = this._sendActions.filter((action) =>
+      action !== preferred && action.isAvailableForDraft({draft})
+    );
 
     return {preferred, rest};
   }

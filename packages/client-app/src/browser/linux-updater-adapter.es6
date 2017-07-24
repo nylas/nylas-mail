@@ -28,6 +28,6 @@ class LinuxUpdaterAdapter {
   }
 }
 
-_.extend(LinuxUpdaterAdapter.prototype, EventEmitter.prototype);
+Object.assign(LinuxUpdaterAdapter.prototype, EventEmitter.prototype);
 const adapter = new LinuxUpdaterAdapter();
 export default adapter

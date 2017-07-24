@@ -26,7 +26,7 @@ module.exports = function(grunt) {
 
       let apiPath = path.join(path.dirname(modulePath), 'api.json');
       if (fs.isFileSync(apiPath)) {
-        _.extend(classes, grunt.file.readJSON(apiPath).classes);
+        Object.assign(classes, grunt.file.readJSON(apiPath).classes);
       }
       return true;
     });
@@ -163,7 +163,7 @@ module.exports = function(grunt) {
       }
 
       console.log('---- Done with Tello ----');
-      _.extend(api.classes, getClassesToInclude());
+      Object.assign(api.classes, getClassesToInclude());
       api.classes = sortClasses(api.classes);
 
       let apiJson = JSON.stringify(api, null, 2);

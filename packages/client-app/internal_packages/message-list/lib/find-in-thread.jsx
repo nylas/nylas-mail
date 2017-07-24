@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import {Actions, MessageStore, SearchableComponentStore} from 'nylas-exports'
 import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit'

@@ -24,7 +24,7 @@ DOMUtils = require '../../dom-utils'
 class DraftFactory
   createDraft: (fields = {}) =>
     account = @_accountForNewDraft()
-    Promise.resolve(new Message(_.extend({
+    Promise.resolve(new Message(Object.assign({
       body: ''
       subject: ''
       version: 0
@@ -95,7 +95,7 @@ class DraftFactory
       query.body = query.body.replace(/[\n\r]/g, '<br/>')
 
     Promise.props(contacts).then (contacts) =>
-      @createDraft(_.extend(query, contacts))
+      @createDraft(Object.assign(query, contacts))
 
   createOrUpdateDraftForReply: ({message, thread, type, behavior}) =>
     unless type in ['reply', 'reply-all']

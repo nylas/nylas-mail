@@ -5,7 +5,7 @@ import Attributes from '../src/flux/attributes';
 import DatabaseObjectRegistry from '../src/registries/database-object-registry';
 
 class GoodTest extends Model {
-  static attributes = _.extend({}, Model.attributes, {
+  static attributes = Object.assign({}, Model.attributes, {
     "foo": Attributes.String({
       modelKey: 'foo',
       jsonKey: 'foo',

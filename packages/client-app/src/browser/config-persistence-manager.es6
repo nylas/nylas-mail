@@ -4,7 +4,7 @@ import {BrowserWindow, dialog, app} from 'electron';
 import {atomicWriteFileSync} from '../fs-utils'
 
 let _ = require('underscore');
-_ = _.extend(_, require('../config-utils'));
+_ = Object.assign(_, require('../config-utils'));
 
 const RETRY_SAVES = 3
 

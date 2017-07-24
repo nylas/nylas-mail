@@ -932,7 +932,7 @@ export default class TokenizingTextField extends React.Component {
     const classSet = {};
     classSet[this.props.className] = true;
 
-    const classes = classNames(_.extend({}, classSet, (this.props.menuClassSet || {}), {
+    const classes = classNames(Object.assign({}, classSet, (this.props.menuClassSet || {}), {
       "tokenizing-field": true,
       "disabled": this.props.disabled,
       "focused": this.state.focus,

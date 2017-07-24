@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import {React} from 'nylas-exports';
 import GithubUserStore from "./github-user-store";
 
@@ -24,7 +23,7 @@ const GithubProfile = function GithubProfile(props) {
   const {profile} = props;
 
   // Transform the profile's array of repos into an array of React <GithubRepo> elements
-  const repoElements = _.map(profile.repos, (repo) => {
+  const repoElements = profile.repos.map((repo) => {
     return <GithubRepo key={repo.id} repo={repo} />
   });
 

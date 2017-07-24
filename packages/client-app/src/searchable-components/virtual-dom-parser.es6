@@ -134,7 +134,7 @@ export default class VirtualDOMParser extends UnifiedDOMParser {
         } else {
           newChildren = this.highlightSearch(children, matchNodeMap)
         }
-      } else if (!_.isString(children) && children.length > 0) {
+      } else if (children instanceof Array && children.length > 0) {
         for (let i = 0; i < children.length; i++) {
           const child = children[i];
           if (originalTextNode && originalTextNode.childOffset === i) {

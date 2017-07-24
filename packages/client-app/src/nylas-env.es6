@@ -330,7 +330,7 @@ export default class NylasEnvConstructor {
   }, 10)
 
   _createErrorCallbackEvent(error, extraArgs = {}) {
-    const event = _.extend({}, extraArgs, {
+    const event = Object.assign({}, extraArgs, {
       message: error.message,
       originalError: error,
       defaultPrevented: false,

@@ -57,7 +57,7 @@ xdescribe "DraftEditingSession Specs", ->
             expect(@onCommit).not.toHaveBeenCalled()
 
       it "should move changes to the saving set", ->
-        pendingBefore = _.extend({}, @changeSet._pending)
+        pendingBefore = Object.assign({}, @changeSet._pending)
         expect(@changeSet._saving).toEqual({})
         @changeSet.commit()
         advanceClock()

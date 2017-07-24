@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react'
-import ReactDOM from 'react-dom'
 import classnames from 'classnames'
 import Menu from './menu'
 import RetinaImg from './retina-img'

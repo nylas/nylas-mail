@@ -48,7 +48,7 @@ class DraftChangeSet
 
   add: (changes, {doesNotAffectPristine}={}) =>
     @callbacks.onWillAddChanges(changes)
-    @_pending = _.extend(@_pending, changes)
+    @_pending = Object.assign(@_pending, changes)
     @_pending.pristine = false unless doesNotAffectPristine
     @callbacks.onDidAddChanges(changes)
 
@@ -77,7 +77,7 @@ class DraftChangeSet
 
   applyToModel: (model) =>
     if model
-      changesToApply = _.pairs(@_saving).concat(_.pairs(@_pending))
+      changesToApply = Object.entries(@_saving).concat(Object.entries(@_pending))
       for [key, val] in changesToApply
         if key.startsWith(MetadataChangePrefix)
           model.applyPluginMetadata(key.split(MetadataChangePrefix).pop(), val)
@@ -246,7 +246,7 @@ class DraftEditingSession
 
     # If our draft has been changed, only accept values which are present.
     # If `body` is undefined, assume it's not loaded. Do not overwrite old body.
-    nextDraft = _.filter(change.objects, (obj) => obj.id is @_draft.id).pop()
+    nextDraft = change.objects.filter((obj) => obj.id is @_draft.id).pop()
     if nextDraft
       nextValues = {}
       for key, attr of Message.attributes

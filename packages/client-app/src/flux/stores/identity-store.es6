@@ -4,7 +4,6 @@ import url from 'url'
 
 import Utils from '../models/utils';
 import Actions from '../actions';
-import {APIError} from '../errors';
 import KeyManager from '../../key-manager';
 
 // Note this key name is used when migrating to Nylas Pro accounts from old N1.

@@ -1,7 +1,6 @@
 /* eslint global-require: 0 */
 import {ipcRenderer} from "electron";
 import crypto from 'crypto';
-import _ from 'underscore';
 
 import RegExpUtils from '../regexp-utils';
 
@@ -17,7 +16,7 @@ class InlineStyleTransformer {
   }
 
   run(html) {
-    if (!html || !_.isString(html) || html.length <= 0) {
+    if (!html || typeof html !== 'string' || html.length <= 0) {
       return Promise.resolve(html);
     }
     if (!RegExpUtils.looseStyleTag().test(html)) {

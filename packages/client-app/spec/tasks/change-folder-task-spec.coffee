@@ -37,7 +37,7 @@ xdescribe "ChangeFolderTask", ->
 
     testThreads = @testThreads =
       't1': new Thread(id: 't1', categories: [@testFolders['f1']])
-      't2': new Thread(id: 't2', categories: _.values(@testFolders))
+      't2': new Thread(id: 't2', categories: Object.values(@testFolders))
       't3': new Thread(id: 't3', categories: [@testFolders['f2'], @testFolders['f3']])
 
     testMessages = @testMessages =

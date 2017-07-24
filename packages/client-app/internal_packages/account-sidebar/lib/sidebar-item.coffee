@@ -77,7 +77,7 @@ class SidebarItem
   @forPerspective: (id, perspective, opts = {}) ->
     counterStyle = OutlineViewItem.CounterStyles.Alt if perspective.isInbox()
 
-    return _.extend({
+    return Object.assign({
       id: id
       name: perspective.name
       contextMenuLabel: perspective.name

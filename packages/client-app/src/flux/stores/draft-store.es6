@@ -245,7 +245,7 @@ class DraftStore extends NylasStore {
 
     const task = new SyncbackDraftTask({draft});
     Actions.queueTask(task)
-    
+
     return TaskQueue.waitForPerformLocal(task).then(() => {
       if (popout) {
         this._onPopoutDraftClientId(draft.headerMessageId);

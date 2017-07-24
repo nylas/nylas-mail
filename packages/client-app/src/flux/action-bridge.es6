@@ -1,6 +1,4 @@
-import _ from 'underscore';
 import Actions from './actions';
-
 import Utils from './models/utils';
 
 const Role = {
@@ -66,7 +64,7 @@ class ActionBridge {
   }
 
   registerGlobalActions({pluginName, actions}) {
-    return _.each(actions, (actionFn, name) => {
+    return Object.entries(actions).forEach(([name, actionFn]) => {
       this.globalActions.push({name, actionFn, scope: pluginName});
       const callback = (...args) => {
         const broadcastName = `${pluginName}::${name}`;
@@ -83,7 +81,8 @@ class ActionBridge {
 
   _globalExtensionAction(broadcastName) {
     const [scope, name] = broadcastName.split("::");
-    return (_.findWhere(this.globalActions, {scope, name}) || {}).actionFn
+    const action = this.globalActions.find(a => a.scope === scope && a.name === name);
+    return action ? action.actionFn : null;
   }
 
   onIPCMessage(event, initiatorId, name, json) {

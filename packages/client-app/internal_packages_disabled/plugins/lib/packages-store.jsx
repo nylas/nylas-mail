@@ -196,7 +196,7 @@ const PackagesStore = Reflux.createStore({
       const examples = available.filter(({isOptional, isHiddenOnPluginsPage}) =>
         isOptional && !isHiddenOnPluginsPage);
       packages.example = examples.map((pkg) =>
-        _.extend({}, pkg, {installed: true, category: 'example'})
+        Object.assign({}, pkg, {installed: true, category: 'example'})
       );
       this._installed = packages;
       this.trigger();
@@ -328,9 +328,9 @@ const PackagesStore = Reflux.createStore({
   },
 
   _addPackageStates: function _addPackageStates(pkgs) {
-    const installedNames = _.flatten(_.values(this._installed)).map((pkg) => pkg.name);
+    const installedNames = _.flatten(Object.values(this._installed)).map((pkg) => pkg.name);
 
-    _.flatten(_.values(pkgs)).forEach((pkg) => {
+    _.flatten(Object.values(pkgs)).forEach((pkg) => {
       pkg.enabled = !NylasEnv.packages.isPackageDisabled(pkg.name);
       pkg.installed = installedNames.indexOf(pkg.name) !== -1;
       pkg.installing = this._installing[pkg.name];

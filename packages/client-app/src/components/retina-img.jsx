@@ -102,7 +102,7 @@ class RetinaImg extends React.Component {
   }
 
   _pathFor = (name) => {
-    if (!name || !_.isString(name)) return null;
+    if (!name || typeof name !== 'string') return null;
     let pathName = name;
 
     const [basename, ext] = name.split('.');
