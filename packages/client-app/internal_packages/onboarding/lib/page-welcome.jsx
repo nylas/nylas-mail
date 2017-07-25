@@ -6,16 +6,7 @@ export default class WelcomePage extends React.Component {
   static displayName = "WelcomePage";
 
   _onContinue = () => {
-    // We don't have a NylasId yet and therefore can't track the "Welcome
-    // Page Finished" event.
-    //
-    // If a user already has a Nylas ID and gets to this page (which
-    // happens if they sign out of all of their accounts), then it would
-    // properly fire. This is a rare case though and we don't want
-    // analytics users thinking it's part of the full funnel.
-    //
-    // Actions.recordUserEvent('Welcome Page Finished');
-    OnboardingActions.moveToPage("tutorial");
+    OnboardingActions.moveToPage("account-choose");
   }
 
   render() {

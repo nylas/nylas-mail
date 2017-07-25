@@ -5,7 +5,6 @@ import OnboardingStore from './onboarding-store';
 import PageTopBar from './page-top-bar';
 
 import WelcomePage from './page-welcome';
-import TutorialPage from './page-tutorial';
 import AccountChoosePage from './page-account-choose';
 import AccountSettingsPage from './page-account-settings';
 import AccountSettingsPageGmail from './page-account-settings-gmail';
@@ -17,7 +16,6 @@ import InitialPreferencesPage from './page-initial-preferences';
 
 const PageComponents = {
   "welcome": WelcomePage,
-  "tutorial": TutorialPage,
   "account-choose": AccountChoosePage,
   "account-settings": AccountSettingsPage,
   "account-settings-gmail": AccountSettingsPageGmail,
