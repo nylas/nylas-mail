@@ -21,6 +21,7 @@
         "open-tracking",
         "link-tracking",
         "send-later",
+        "thread-snooze",
         "activity-list"
       ]
     }
