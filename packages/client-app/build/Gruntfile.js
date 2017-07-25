@@ -74,12 +74,11 @@ module.exports = (grunt) => {
       // The Windows electron-winstaller task must be run outside of grunt
     ]);
   } else if (grunt.option('platform') === 'darwin') {
-    const subTasks = process.env.SIGN_BUILD ? ["setup-mac-keychain"] : []
-    grunt.registerTask("build-client", subTasks.concat([
+    grunt.registerTask("build-client", [
       "package",
       "create-mac-zip",
       "create-mac-dmg",
-    ]));
+    ]);
   } else if (grunt.option('platform') === 'linux') {
     grunt.registerTask("build-client", [
       "package",
@@ -87,6 +86,4 @@ module.exports = (grunt) => {
       "create-rpm-installer",
     ]);
   }
-
-  grunt.registerTask("upload-client", ["upload"])
 }

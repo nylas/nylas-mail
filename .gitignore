@@ -8,20 +8,6 @@
 **/.arclint
 **/arclib
 
-##### Client Private Plugins (symlinked)
-**/client-app/src/error-logger-extensions
-**/client-app/src/nylas-private-*
-**/internal_packages/nylas-private-*
-**/internal_packages/activity-list
-**/internal_packages/composer-mail-merge
-**/internal_packages/composer-scheduler
-**/internal_packages/link-tracking
-**/internal_packages/open-tracking
-**/internal_packages/send-later
-**/internal_packages/send-reminders
-**/internal_packages/thread-sharing
-**/internal_packages/client-sync
-
 ##### Node modules
 node_modules
 !packages/client-app/spec/fixtures/packages/package-with-incompatible-native-module/node_modules
