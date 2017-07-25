@@ -1,7 +1,6 @@
 import Joi from 'joi';
 import Boom from 'boom';
 import google from 'googleapis';
-import Segment from 'analytics-node' // eslint-disable-line
 import {GmailOAuthHelpers as GAuth, DatabaseConnector} from 'cloud-core';
 import {
   AuthHelpers,
@@ -24,7 +23,6 @@ const upsertAccount = (accountParams, credentials) => {
   );
 }
 
-const analytics = new Segment("fVM35MqaTJ4M19kZnWbm3EelgTFnHtw2", {flushAt: 1})
 /**
  * How Gmail Auth works:
  *
@@ -178,17 +176,6 @@ export default function registerAuthRoutes(server) {
         } else {
           logger.error('Encountered unknown error while exchanging gmail oauth code for token')
         }
-
-        analytics.track({
-          event: "Email Account Auth Failed",
-          userId: nylasId,
-          properties: {
-            erroredEmail: account.emailAddress || profile.email,
-            errorMessage: err.message,
-            errorLocation: "cloud",
-            provider: "gmail",
-          },
-        })
 
         reply.view('gmail-auth-failure', res)
         return
