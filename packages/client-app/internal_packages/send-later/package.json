@@ -1,5 +1,5 @@
 {
-  "name": "n1-send-later",
+  "name": "send-later",
   "version": "1.0.0",
   "title": "Send Later",
   "description": "Choose to send emails at a specified time in the future.",

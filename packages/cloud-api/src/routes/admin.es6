@@ -25,7 +25,7 @@ export default function registerAdminRoutes(server) {
       const db = await DatabaseConnector.forShared();
       const TYPES = [
         {typeId: "thread-snooze", typeName: "Snooze"},
-        {typeId: "n1-send-later", typeName: "Send Later"},
+        {typeId: "send-later", typeName: "Send Later"},
         {typeId: "send-reminders", typeName: "Reminders"},
       ]
       const jobData = []

@@ -22,7 +22,7 @@ async function start() {
       WorkerClass: SnoozeWorker,
     }),
     new Foreman({db, logger,
-      pluginId: "n1-send-later",
+      pluginId: "send-later",
       WorkerClass: SendLaterWorker,
     }),
     new Foreman({db, logger,
