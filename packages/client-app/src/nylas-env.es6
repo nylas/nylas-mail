@@ -280,18 +280,6 @@ export default class NylasEnvConstructor {
 
     process.on('uncaughtException', e => this.reportError(e));
 
-    // We use the native Node 'unhandledRejection' instead of Bluebird's
-    // `Promise.onPossiblyUnhandledRejection`. Testing indicates that
-    // the Node process method is a strict superset of Bluebird's handler.
-    // With the introduction of transpiled async/await, it is now possible
-    // to get a native, non-Bluebird Promise. In that case, Bluebird's
-    // `onPossiblyUnhandledRejection` gets bypassed and we miss some
-    // errors. The Node process handler catches all Bluebird promises plus
-    // those created with a native Promise.
-    process.on('unhandledRejection', error => {
-      this._onUnhandledRejection(error, sourceMapCache)
-    });
-
     // Based on testing, there are some unhandled rejections that don't get
     // caught by `process.on('unhandledRejection')`, so we listen for unhandled
     // rejections on the`window` as well
@@ -333,7 +321,7 @@ export default class NylasEnvConstructor {
   // `process`, more often than not both of those will get called almost
   // immedaitely with the same error. To prevent double reporting the same
   // error, we debounce this function with a very small interval
-  _onUnhandledRejection = _.debounce((error, sourceMapCache) => {
+  _onUnhandledRejection = (error, sourceMapCache) => {
     if (this.inDevMode()) {
       error.stack = convertStackTrace(error.stack, sourceMapCache);
     }
@@ -343,7 +331,7 @@ export default class NylasEnvConstructor {
         key: `UnhandledRejection:${error.stack}`,
       },
     })
-  }, 10)
+  }
 
   _createErrorCallbackEvent(error, extraArgs = {}) {
     const event = _.extend({}, extraArgs, {
