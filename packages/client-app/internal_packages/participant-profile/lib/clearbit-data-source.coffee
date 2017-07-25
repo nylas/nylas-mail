@@ -1,5 +1,5 @@
 # This file is in coffeescript just to use the existential operator!
-{AccountStore, LegacyEdgehillAPI} = require 'nylas-exports'
+{AccountStore} = require 'nylas-exports'
 
 MAX_RETRY = 10
 
@@ -8,17 +8,8 @@ module.exports = class ClearbitDataSource
     return "https://person.clearbit.com/v2/combined"
 
   find: ({email, tryCount}) ->
-    if (tryCount ? 0) >= MAX_RETRY
-      return Promise.resolve(null)
-    new Promise (resolve, reject) =>
-      req = LegacyEdgehillAPI.makeRequest({
-        authWithNylasAPI: true
-        path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}",
-      })
-      req.run()
-      .then((body) =>
-        @parseResponse(body, req.response.statusCode, email, tryCount).then(resolve).catch(reject)
-      )
+    # TODO: If you have a Clearbit API key, insert the request to clearbit here!
+    return Promise.resolve({})
 
   # The clearbit -> Nylas adapater
   parseResponse: (body={}, statusCode, requestedEmail, tryCount=0) =>

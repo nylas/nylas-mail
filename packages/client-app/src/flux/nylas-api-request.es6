@@ -142,20 +142,6 @@ export default class NylasAPIRequest {
       }
 
       const identity = IdentityStore.identity();
-
-      if (!identity || !identity.token) {
-        const clickedIndex = remote.dialog.showMessageBox({
-          type: 'error',
-          message: 'Your NylasID is invalid. Please log out then log back in.',
-          detail: `Actions like sending and receiving mail require this token. Please log back into your Nylas ID to restore it—your email accounts will not be removed in this process.`,
-          buttons: ['Log out'],
-        })
-        if (clickedIndex === 0) {
-          Actions.logoutNylasIdentity()
-        }
-        throw new Error("No Identity")
-      }
-
       const accountToken = this.api.accessTokenForAccountId(this.options.accountId);
       if (!accountToken) {
         throw new Error(`Auth token missing for account`);
@@ -163,7 +149,7 @@ export default class NylasAPIRequest {
 
       return {
         user: accountToken,
-        pass: identity.token,
+        pass: identity && identity.token,
         sendImmediately: true,
       };
     } catch (error) {

@@ -3,7 +3,7 @@ path = require 'path'
 fs = require 'fs'
 _ = require 'underscore'
 {RetinaImg, Flexbox, ConfigPropContainer} = require 'nylas-component-kit'
-{EdgehillAPI, AccountStore} = require 'nylas-exports'
+{AccountStore} = require 'nylas-exports'
 OnboardingActions = require('./onboarding-actions').default
 
 # NOTE: Temporarily copied from preferences module
