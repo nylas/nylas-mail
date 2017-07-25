@@ -94,33 +94,6 @@ describe("the `NylasEnv` global", function nylasEnvSpec() {
     })
   );
 
-  describe("when an update becomes available", () => {
-    let subscription = null;
-
-    afterEach(() => {
-      if (subscription) { subscription.dispose(); }
-    });
-
-    it("invokes onUpdateAvailable listeners", () => {
-      if (process.platform === "linux") {
-        return;
-      }
-
-      const updateAvailableHandler = jasmine.createSpy("update-available-handler");
-      subscription = NylasEnv.onUpdateAvailable(updateAvailableHandler);
-
-      remote.autoUpdater.emit('update-downloaded', null, "notes", "version");
-
-      waitsFor(() => updateAvailableHandler.callCount > 0);
-
-      runs(() => {
-        const {releaseVersion, releaseNotes} = updateAvailableHandler.mostRecentCall.args[0];
-        expect(releaseVersion).toBe('version');
-        expect(releaseNotes).toBe('notes');
-      });
-    });
-  });
-
   describe("error handling", () => {
     beforeEach(() => {
       spyOn(NylasEnv, "inSpecMode").andReturn(false)

@@ -1235,14 +1235,6 @@ export default class NylasEnvConstructor {
     })();
   }
 
-  onUpdateAvailable(callback) {
-    return this.emitter.on('update-available', callback);
-  }
-
-  updateAvailable(details) {
-    return this.emitter.emit('update-available', details);
-  }
-
   // Lets multiple components register beforeUnload callbacks.
   // The callbacks are expected to return either true or false.
   //

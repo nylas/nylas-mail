@@ -15,7 +15,6 @@ import FileListCache from './file-list-cache';
 import DatabaseReader from './database-reader';
 import ConfigMigrator from './config-migrator';
 import ApplicationMenu from './application-menu';
-import AutoUpdateManager from './auto-update-manager';
 import SystemTrayManager from './system-tray-manager';
 import DefaultClientHelper from '../default-client-helper';
 import NylasProtocolHandler from './nylas-protocol-handler';
@@ -85,7 +84,6 @@ export default class Application extends EventEmitter {
       initializeInBackground = false;
     }
 
-    this.autoUpdateManager = new AutoUpdateManager(version, config, specMode, this.databaseReader);
     this.applicationMenu = new ApplicationMenu(version);
     this.windowManager = new WindowManager({
       resourcePath: this.resourcePath,
@@ -212,7 +210,6 @@ export default class Application extends EventEmitter {
 
   _relaunchToInitialWindows = ({resetConfig, resetDatabase} = {}) => {
     // This will re-fetch the NylasID to update the feed url
-    this.autoUpdateManager.updateFeedURL()
     this.setDatabasePhase('close');
     this.windowManager.destroyAllWindows();
 
@@ -327,10 +324,6 @@ export default class Application extends EventEmitter {
 
     this.on('application:relaunch-to-initial-windows', this._relaunchToInitialWindows);
 
-    this.on('application:onIdentityChanged', () => {
-      this.autoUpdateManager.updateFeedURL()
-    });
-
     this.on('application:quit', () => {
       app.quit()
     });
@@ -377,16 +370,6 @@ export default class Application extends EventEmitter {
 
     this.on('application:show-main-window', () => {
       this.openWindowsForTokenState();
-    });
-
-    this.on('application:check-for-update', () => {
-      this.autoUpdateManager.check();
-    });
-
-    this.on('application:install-update', () => {
-      this.quitting = true;
-      this.windowManager.cleanupBeforeAppQuit();
-      this.autoUpdateManager.install();
     });
 
     this.on('application:toggle-dev', () => {
