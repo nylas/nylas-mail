@@ -190,9 +190,8 @@ export default class Application extends EventEmitter {
   openWindowsForTokenState() {
     const accounts = this.config.get('nylas.accounts');
     const hasAccount = accounts && accounts.length > 0;
-    const hasN1ID = this._getNylasId();
 
-    if (hasAccount && hasN1ID) {
+    if (hasAccount) {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
     } else {
@@ -201,11 +200,6 @@ export default class Application extends EventEmitter {
       });
       this.windowManager.ensureWindow(WindowManager.WORK_WINDOW);
     }
-  }
-
-  _getNylasId() {
-    const identity = this.databaseReader.getJSONBlob("NylasID") || {}
-    return identity.id
   }
 
   _relaunchToInitialWindows = ({resetConfig, resetDatabase} = {}) => {
