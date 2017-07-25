@@ -1,5 +1,4 @@
 import request from 'request'
-import {remote} from 'electron'
 
 import Utils from './models/utils'
 import Actions from './actions'
@@ -149,7 +148,7 @@ export default class NylasAPIRequest {
 
       return {
         user: accountToken,
-        pass: identity && identity.token,
+        pass: identity ? identity.token : 'noop',
         sendImmediately: true,
       };
     } catch (error) {
