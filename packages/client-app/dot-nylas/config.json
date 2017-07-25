@@ -17,7 +17,11 @@
         "composer-scheduler",
         "composer-mail-merge",
         "send-and-archive",
-        "main-calendar"
+        "main-calendar",
+        "open-tracking",
+        "link-tracking",
+        "send-later",
+        "activity-list"
       ]
     }
   }
