@@ -50,7 +50,6 @@
     "test-client-window": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test=window",
     "test-client-junit": "",
     "build-client": "grunt build-client --gruntfile=packages/client-app/build/Gruntfile.js --base=./",
-    "upload-client": "grunt upload-client --gruntfile=packages/client-app/build/Gruntfile.js --base=./",
     "cloud": "pm2 stop all; pm2 delete all; pm2 start packages/cloud-core/pm2-dev.yml --no-daemon",
     "cloud-debug": "pm2 stop all; pm2 delete all; pm2 start packages/cloud-core/pm2-debug-cloud-api.yml --no-daemon",
     "test-cloud": "cd packages/cloud-api && npm test && cd ../cloud-core && npm test && cd ../cloud-workers && npm test && cd ../isomorphic-core && npm test",
