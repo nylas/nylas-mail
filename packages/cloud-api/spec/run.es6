@@ -4,6 +4,7 @@ import {getTestDatabase, destroyTestDatabase} from './helpers'
 
 executeJasmine({
   beforeEach: () => {
+    global.Logger = console;
     spyOn(DatabaseConnector, 'forShared').and.callFake(getTestDatabase)
   },
   afterEach: async () => {
