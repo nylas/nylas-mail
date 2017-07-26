@@ -163,9 +163,9 @@ describe('ActivityList', function activityList() {
         return items.length > 0;
       });
       runs(() => {
-        expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, "activity-list-item")[0].textContent).toBe("Someone opened:Apr 22Coffee?");
-        expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, "activity-list-item")[1].textContent).toBe("Jackie Luo opened:Apr 22Open me!");
-        expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, "activity-list-item")[2].textContent).toBe("Jackie Luo clicked:Apr 22(No Subject)");
+        expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, "activity-list-item")[0].textContent).toBe("Someone opened:Apr 22 2016Coffee?");
+        expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, "activity-list-item")[1].textContent).toBe("Jackie Luo opened:Apr 22 2016Open me!");
+        expect(ReactTestUtils.scryRenderedDOMComponentsWithClass(this.component, "activity-list-item")[2].textContent).toBe("Jackie Luo clicked:Apr 22 2016(No Subject)");
       });
     });
 

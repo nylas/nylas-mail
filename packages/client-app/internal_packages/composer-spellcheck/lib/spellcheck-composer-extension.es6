@@ -65,7 +65,7 @@ function unwrapWords(rootNode) {
 // Traverses all of the text nodes within the provided `editor`. If it finds a
 // text node with a misspelled word, it splits it, wraps the misspelled word
 // with a <spelling> node and updates the selection to account for the change.
-function wrapMisspelledWords(rootNode) {
+export function wrapMisspelledWords(rootNode) {
   whileApplyingSelectionChanges(rootNode, (selectionSnapshot) => {
     const treeWalker = document.createTreeWalker(rootNode, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
       acceptNode: (node) => {
