@@ -82,7 +82,7 @@ describe('IMAPHelpers', function describeBlock() {
       })
     })
 
-    it('removes all labels for each message if labelIds is empty', async () => {
+    xit('removes all labels for each message if labelIds is empty', async () => {
       const labelIds = []
       await IMAPHelpers.setLabelsForMessages({db: this.db, box: this.box, messages: this.messages, labelIds})
       for (const msg of this.messages) {
@@ -90,7 +90,7 @@ describe('IMAPHelpers', function describeBlock() {
       }
     });
 
-    it('does not remove the sent label from messages when removing all labels', async () => {
+    xit('does not remove the sent label from messages when removing all labels', async () => {
       await this.m3.addLabel(this.sentLabel)
       this.m3.labels.push(this.sentLabel.imapLabelIdentifier())
 

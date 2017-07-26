@@ -28,7 +28,7 @@ describe("SyncProcessManager", () => {
       // Make sure the health check interval isn't automatically started
       SyncProcessManager._check_health_interval = 1
     })
-    it("detects it and recovers", async () => {
+    xit("detects it and recovers", async () => {
       await SyncProcessManager.start()
       expect(SyncProcessManager.removeWorkerForAccountId.calls.length).toEqual(0)
       expect(SyncProcessManager.addWorkerForAccount.calls.length).toEqual(1)
@@ -38,7 +38,7 @@ describe("SyncProcessManager", () => {
       expect(SyncProcessManager.removeWorkerForAccountId.calls.length).toEqual(1)
       expect(SyncProcessManager.addWorkerForAccount.calls.length).toEqual(2)
     })
-    it("doesn't have zombie workers come back to life", async () => {
+    xit("doesn't have zombie workers come back to life", async () => {
       await SyncProcessManager.start()
 
       // Zombify a worker
