@@ -1,7 +1,9 @@
 # Nylas Mail - the open-source, extensible mail client
 ![N1 Screenshot](https://github.com/nylas/nylas-mail-all/raw/cleanup/screenshot/hero_graphic_mac%402x.png)
 
-**Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It was designed to be easy to extend, and many third-party plugins are available that add functionality to the client. Nylas Mail was initially released and open-sourced in Spring 2015 and was maintained by Nylas until Spring 2017. While Nylas no longer supports Nylas Mail, you can download the latest release or build it from source. There are also [several forks](#forks) that are being actively developed and maintained.
+**Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It was designed to be easy to extend, and many third-party plugins are available that add functionality to the client. 
+
+**Nylas Mail was initially released and open-sourced in early 2015 and was maintained by Nylas until Spring 2017.** While Nylas no longer supports Nylas Mail, you can download the latest release or build it from source. There are also **[several forks](#forks)** that are being actively developed and maintained.
 
 ### Exploring the Source
 
@@ -50,6 +52,11 @@ In early 2016, the Nylas Mail team wrote [extensive documentation](https://nylas
 
 - [Application Architecture](https://nylas.github.io/nylas-mail/guides/Architecture.html)
 - [Debugging Nylas Mail](https://nylas.github.io/nylas-mail/guides/Debugging.html)
+
+The team has also given conference talks about the client:
+
+- [How React & Flux Turn Apps Into Extensible Platforms](https://www.youtube.com/watch?v=Uu4Yz2HmCgE)
+- [ForwardJS: Electron, React & Pixel Perfect Experiences](https://www.youtube.com/watch?v=jRPUB-D1Wx0&list=PL7i8CwZBnlf7iUTn2JMVLLWofAhaiK7l3)
 
 ## Running the Cloud
 
@@ -121,5 +128,5 @@ When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Ma
 
 There are several forks of Nylas Mail that you should check out!
 
- - [Merra](https://gomerra.com) - Significant rewrite by one of the original authors
+ - [Merra](github.com/bengotow/N1) - Significant rewrite by one of the original authors focused on performance and cloud plugins
  - [Nylas Mail Lives](https://github.com/nylas-mail-lives/nylas-mail) - Community effort to fix bugs and improve the client!
