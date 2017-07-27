@@ -3,24 +3,7 @@
 
 **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It was designed to be easy to extend, and many third-party plugins are available that add functionality to the client. 
 
-**Nylas Mail was initially released and open-sourced in early 2015 and was maintained by Nylas until Spring 2017.** While Nylas no longer supports Nylas Mail, you can download the latest release or build it from source. There are also **[several forks](#forks)** that are being actively developed and maintained.
-
-### Exploring the Source
-
-This repository contains the full source code to the Nylas Mail client and it's backend services. It is divided into the following packages:
-
-1. [**Isomorphic Core**](https://github.com/nylas/nylas-mail-all/tree/master/packages/isomorphic-core): Shared code across local client and cloud servers
-1. [**Client App**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-app): The main Electron app for Nylas Mail
-   mirrored to open source repo.
-1. [**Client Sync**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-sync): The local mailsync engine integreated in Nylas Mail
-1. [**Client Private Plugins**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-private-plugins): Private Nylas Mail plugins (like SFDC)
-1. [**Cloud API**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-api): The cloud-based auth and metadata APIs for N1
-1. [**Cloud Core**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-core): Shared code used in all remote cloud services
-1. [**Cloud Workers**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-workers): Cloud workers for services like send later
-
-See `/packages` for the separate pieces. Each folder in `/packages` is
-designed to be its own stand-alone repository. They are all bundled here
-for the ease of source control management.
+**⚠️ Nylas Mail was initially released and open-sourced in early 2015 and was maintained by Nylas until Spring 2017.** While Nylas no longer supports Nylas Mail, you can download the latest release or build it from source. There are also **[several forks](#forks)** that are being actively developed and maintained.
 
 # Getting Started
 
@@ -45,6 +28,23 @@ benefit of letting us use subdomains.
 1. `npm run client`: Starts the app
 1. `npm run test-client`: Run the tests
 1. `npm run lint-client`: Lint the source (ESLint + Coffeelint + LESSLint)
+
+### Exploring the Source
+
+This repository contains the full source code to the Nylas Mail client and it's backend services. It is divided into the following packages:
+
+1. [**Isomorphic Core**](https://github.com/nylas/nylas-mail-all/tree/master/packages/isomorphic-core): Shared code across local client and cloud servers
+1. [**Client App**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-app): The main Electron app for Nylas Mail
+   mirrored to open source repo.
+1. [**Client Sync**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-sync): The local mailsync engine integreated in Nylas Mail
+1. [**Client Private Plugins**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-private-plugins): Private Nylas Mail plugins (like SFDC)
+1. [**Cloud API**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-api): The cloud-based auth and metadata APIs for N1
+1. [**Cloud Core**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-core): Shared code used in all remote cloud services
+1. [**Cloud Workers**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-workers): Cloud workers for services like send later
+
+See `/packages` for the separate pieces. Each folder in `/packages` is
+designed to be its own stand-alone repository. They are all bundled here
+for the ease of source control management.
 
 ## Digging Deeper
 
