@@ -68,7 +68,7 @@ In order to use these plugins and get the full Nylas Mail experience, you need t
 
 The Nylas Mail user interface is styled using CSS, which means it's easy to modify and extend. Nylas Mail comes stock with a few beautiful themes, and there are many more which have been built by community developers
 
-<center><img width=550 src="http://i.imgur.com/PWQ7NlY.jpg"></center>
+![N1 Themes](https://github.com/nylas/nylas-mail-all/raw/cleanup/screenshot/687474703a2f2f692e696d6775722e636f6d2f505751374e6c592e6a7067.jpg)
 
 #### Bundled Themes
 - [Dark](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-dark)
