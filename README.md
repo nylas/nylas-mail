@@ -81,7 +81,7 @@ The Nylas Mail user interface is styled using CSS, which means it's easy to modi
 |       |       |       |
 | ----- | ----- | ----- |
 | [ToogaBooga](https://github.com/brycedorn/N1-ToogaBooga) | [Material](https://github.com/jackiehluo/n1-material) | [Monokai](https://github.com/dcondrey/n1-monokai)  |
-| [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme | [Stripe](https://github.com/oeaeee/n1-stripe)| [Kleinstein] (https://github.com/diklein/Kleinstein)—Hide the account list sidebar|
+| [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme | [Stripe](https://github.com/oeaeee/n1-stripe)| [Kleinstein](https://github.com/diklein/Kleinstein)—Hides account sidebar|
 | [Arc Dark](https://github.com/varlesh/Nylas-Arc-Dark-Theme)| [Solarized Dark](https://github.com/NSHenry/N1-Solarized-Dark) | [Darkish](https://github.com/dyrnade/N1-Darkish)|
 | [Predawn](https://github.com/adambmedia/N1-Predawn)| [Ido](https://github.com/edipox/n1-ido)—Polymail-inspired theme|[Berend](https://github.com/Frique/N1-Berend) |
 | [ElementaryOS](https://github.com/edipox/elementary-nylas) | [LevelUp](https://github.com/stolinski/level-up-nylas-n1-theme)|[Sunrise](https://github.com/jackiehluo/n1-sunrise) |
@@ -114,11 +114,12 @@ Some plugins come pre-installed, and are a great starting points for creating yo
 #### Community Plugins
 
 Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the Nylas Mail (N1) repo page. Thanks!
+
 |       |       |       |
 | ----- | ----- | ----- |
 |[Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs|[Weather](https://github.com/jackiehluo/n1-weather)|[Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)|
 |[Unsubscribe](https://github.com/colinking/n1-unsubscribe)|[Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)|[Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window|
-|[Cypher](https://github.com/mbilker/cypher) (PGP Encryption, In Development)|[Avatars](https://github.com/unity/n1-avatars)|[Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)|
+|[Cypher](https://github.com/mbilker/cypher)—PGP Encryption|[Avatars](https://github.com/unity/n1-avatars)|[Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)|
 |[Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)|[Evernote](https://github.com/grobgl/n1-evernote)|[Wunderlist](https://github.com/miguelrs/n1-wunderlist)|
 |[Participants Display](https://github.com/kbruccoleri/nylas-participants-display)|[GitHub](https://github.com/ForbesLindesay/N1-GitHub)||
 
