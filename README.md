@@ -53,10 +53,20 @@ In early 2016, the Nylas Mail team wrote [extensive documentation](https://nylas
 - [Application Architecture](https://nylas.github.io/nylas-mail/guides/Architecture.html)
 - [Debugging Nylas Mail](https://nylas.github.io/nylas-mail/guides/Debugging.html)
 
-The team has also given conference talks about the client:
+The team has also given conference talks and published blog posts about the client:
 
-- [How React & Flux Turn Apps Into Extensible Platforms](https://www.youtube.com/watch?v=Uu4Yz2HmCgE)
+- [ReactEurope: How React & Flux Turn Apps Into Extensible Platforms](https://www.youtube.com/watch?v=Uu4Yz2HmCgE)
 - [ForwardJS: Electron, React & Pixel Perfect Experiences](https://www.youtube.com/watch?v=jRPUB-D1Wx0&list=PL7i8CwZBnlf7iUTn2JMVLLWofAhaiK7l3)
+
+- [Blog: Splitting from Atom](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/splitting-from-atom.pdf)
+- [Blog: Building Plugins for React Apps](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/plugins.pdf)
+- [Blog: Nylas Mail Build Process](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/build-process.pdf)
+- [Blog: Low level Electron Debugging](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/electron-debugging.pdf)
+- [Blog: A New Search Parser](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/search-parser.pdf)
+- [Blog: Developers Guide to Emoji](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/emoji.pdf)
+- [Blog: Nylas Pro](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/nylas-pro.pdf)
+- [Blog: Nylas Mail & PGP](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/pgp.pdf)
+- [Blog: Calendar Events and RRULEs](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/rrules.pdf)
 
 ## Running the Cloud
 
