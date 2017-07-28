@@ -10,6 +10,8 @@ const Raven = require('raven');
 
 let app;
 
+const sentryDSN = null; // "https://XXX:XXX@sentry.io/XXX";
+
 class ErrorReporter {
 
   constructor(modes) {
@@ -76,6 +78,9 @@ class ErrorReporter {
     }
 
     for (const obj of captureObjects) {
+      if (!sentryDSN) {
+        return;
+      }
       Raven.captureException(err, Object.assign(errData, obj))
     }
   }
@@ -117,8 +122,9 @@ class ErrorReporter {
 
   _setupSentry() {
     // Initialize the Sentry connector
-    const sentryDSN = "https://a556c0165bc74435952c95dccc5938ec:484978beb99f40208cb86610e66bead6@sentry.io/144447"
-
+    if (!sentryDSN) {
+      return;
+    }
     Raven.disableConsoleAlerts();
     Raven.config(sentryDSN, {
       name: this.deviceHash,
