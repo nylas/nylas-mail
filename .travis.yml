@@ -30,7 +30,7 @@ matrix:
 
 before_install:
 - if [ ${TRAVIS_PULL_REQUEST} = "false" ]; then openssl aes-256-cbc -K $encrypted_1670798fb6bd_key -iv $encrypted_1670798fb6bd_iv
-  -in ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12.enc -out ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12 -d
+  -in ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12.enc -out ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12 -d;
   fi
 
 install:
@@ -47,7 +47,7 @@ before_script:
   ~/Library/Keychains/nml-build.keychain -T /usr/bin/codesign; security import ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12
   -k ~/Library/Keychains/nml-build.keychain -P $NML_CERTIFICATE_PASSWORD -T /usr/bin/codesign;
   else
-  SIGN_BUILD=false
+  SIGN_BUILD=false;
   fi
 script:
 - npm install && npm run build-client
