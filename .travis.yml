@@ -29,22 +29,25 @@ matrix:
       INSTALL_TARGET=client
 
 before_install:
-- openssl aes-256-cbc -K $encrypted_1670798fb6bd_key -iv $encrypted_1670798fb6bd_iv
+- if [ ${TRAVIS_PULL_REQUEST} = "false" ]; then openssl aes-256-cbc -K $encrypted_1670798fb6bd_key -iv $encrypted_1670798fb6bd_iv
   -in ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12.enc -out ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12 -d
-  
+  fi
+
 install:
 - git clone https://github.com/creationix/nvm.git /tmp/.nvm
 - source /tmp/.nvm/nvm.sh
 - nvm install $NODE_VERSION
 - nvm use --delete-prefix $NODE_VERSION
 before_script:
-- if [ ${TRAVIS_OS_NAME} = "osx" ]; then security delete-keychain nml-build.keychain;
+- if [ ${TRAVIS_OS_NAME} = "osx" ] && [ ${TRAVIS_PULL_REQUEST} = "false" ]; then security delete-keychain nml-build.keychain;
   security create-keychain -p travis nml-build.keychain; security default-keychain
   -s nml-build.keychain; security unlock-keychain -p travis nml-build.keychain; security
   import ~/build/nylas-mail-lives/nylas-mail/certs/AppleWWDRCA.cer -k ~/Library/Keychains/nml-build.keychain
   -T /usr/bin/codesign; security import ~/build/nylas-mail-lives/nylas-mail/certs/nml.cer -k
   ~/Library/Keychains/nml-build.keychain -T /usr/bin/codesign; security import ~/build/nylas-mail-lives/nylas-mail/certs/nml.p12
   -k ~/Library/Keychains/nml-build.keychain -P $NML_CERTIFICATE_PASSWORD -T /usr/bin/codesign;
+  else
+  SIGN_BUILD=false
   fi
 script:
 - npm install && npm run build-client
