@@ -121,25 +121,35 @@ Want to dive in more? Try [creating your own theme](https://github.com/nylas/nyl
 
 Some plugins come pre-installed, and are a great starting points for creating your own:
 
-- [Translate](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/composer-translate)—Works with 10 languages
-- [Quick Replies](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/composer-templates)—Send emails faster with templates
-- [Emoji Keyboard](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
-- [GitHub Sidebar Info](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/github-contact-card)
-- [View on GitHub](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/message-view-on-github)
-- [Personal Level Indicators](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/personal-level-indicators)
-- [Phishing Detection](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/phishing-detection)
+
+#### Bundled Plugins
+Great starting points for creating your own plugins!
+- [Translate](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-translate)—Works with 10 languages
+- [Quick Replies](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-templates)—Send emails faster with templates
+- [Emoji Keyboard](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
+- [GitHub Sidebar Info](https://github.com/nylas/nylas-mail/tree/master/internal_packages/github-contact-card)
+- [View on GitHub](https://github.com/nylas/nylas-mail/tree/master/internal_packages/message-view-on-github)
+- [Personal Level Indicators](https://github.com/nylas/nylas-mail/tree/master/internal_packages/personal-level-indicators)
+- [Phishing Detection](https://github.com/nylas/nylas-mail/tree/master/internal_packages/phishing-detection)
+- [Unsubscribe](https://github.com/nylas/nylas-mail/tree/master/internal_packages/unsubscribe)
 
 #### Community Plugins
 
 Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the Nylas Mail (N1) repo page. Thanks!
 
-|       |       |       |
-| ----- | ----- | ----- |
-|[Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs|[Weather](https://github.com/jackiehluo/n1-weather)|[Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)|
-|[Unsubscribe](https://github.com/colinking/n1-unsubscribe)|[Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)|[Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window|
-|[Cypher](https://github.com/mbilker/cypher)—PGP Encryption|[Avatars](https://github.com/unity/n1-avatars)|[Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)|
-|[Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)|[Evernote](https://github.com/grobgl/n1-evernote)|[Wunderlist](https://github.com/miguelrs/n1-wunderlist)|
-|[Participants Display](https://github.com/kbruccoleri/nylas-participants-display)|[GitHub](https://github.com/ForbesLindesay/N1-GitHub)||
+- [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
+- [Weather](https://github.com/jackiehluo/n1-weather)
+- [Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)
+- [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
+- [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
+- In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
+- [Avatars](https://github.com/unity/n1-avatars)
+- [Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)
+- [Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)
+- [Evernote](https://github.com/grobgl/n1-evernote)
+- [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
+- [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
+- [GitHub](https://github.com/ForbesLindesay/N1-GitHub)
 
 When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Mail runs apm install on the command line to fetch dependencies listed in the package's package.json
 
