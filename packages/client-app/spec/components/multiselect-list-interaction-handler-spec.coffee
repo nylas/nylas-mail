@@ -1,6 +1,6 @@
 MultiselectListInteractionHandler = require '../../src/components/multiselect-list-interaction-handler'
 WorkspaceStore = require '../../src/flux/stores/workspace-store'
-FocusedContentStore = require '../../src/flux/stores/focused-content-store'
+FocusedContentStore = require('../../src/flux/stores/focused-content-store').default
 Thread = require('../../src/flux/models/thread').default
 Actions = require('../../src/flux/actions').default
 _ = require 'underscore'

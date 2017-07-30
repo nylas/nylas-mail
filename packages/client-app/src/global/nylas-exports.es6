@@ -3,20 +3,14 @@
 import StoreRegistry from '../registries/store-registry'
 import DatabaseObjectRegistry from '../registries/database-object-registry'
 
-const resolveExport = (requireValue) => {
-  return requireValue.default || requireValue;
-}
-
 // This module exports an empty object, with a ton of defined properties that
 // `require` files the first time they're called.
 module.exports = exports = window.$n = {};
 
-// Calling require() repeatedly isn't free! Even though it has it's own cache,
-// it still needs to resolve the path to a file based on the current __dirname,
-// match it against it's cache, etc. We can shortcut all this work.
-const RequireCache = {};
+const resolveExport = (requireValue) => {
+  return requireValue.default || requireValue;
+}
 
-// Will lazy load when requested
 const lazyLoadWithGetter = (prop, getter) => {
   const key = `${prop}`;
 
@@ -24,11 +18,13 @@ const lazyLoadWithGetter = (prop, getter) => {
     throw new Error(`Fatal error: Duplicate entry in nylas-exports: ${key}`)
   }
   Object.defineProperty(exports, prop, {
-    get: () => {
-      RequireCache[key] = RequireCache[key] || getter();
-      return RequireCache[key];
-    },
+    configurable: true,
     enumerable: true,
+    get: () => {
+      const value = getter();
+      Object.defineProperty(exports, prop, { enumerable: true, value });
+      return value;
+    },
   });
 }
 
@@ -196,7 +192,6 @@ lazyLoad(`SanitizeTransformer`, 'services/sanitize-transformer');
 lazyLoad(`QuotedHTMLTransformer`, 'services/quoted-html-transformer');
 lazyLoad(`InlineStyleTransformer`, 'services/inline-style-transformer');
 lazyLoad(`SearchableComponentMaker`, 'searchable-components/searchable-component-maker');
-lazyLoad(`QuotedPlainTextTransformer`, 'services/quoted-plain-text-transformer');
 lazyLoad(`BatteryStatusManager`, 'services/battery-status-manager');
 
 // Errors
@@ -204,7 +199,6 @@ lazyLoadWithGetter(`APIError`, () => require('../flux/errors').APIError);
 
 // Process Internals
 lazyLoad(`DefaultClientHelper`, 'default-client-helper');
-lazyLoad(`BufferedProcess`, 'buffered-process');
 lazyLoad(`SystemStartService`, 'system-start-service');
 
 // Testing

@@ -99,7 +99,7 @@ class MailRulesStore extends NylasStore {
 
     // Cancel all bulk processing jobs
     for (const task of TaskQueue.findTasks(ReprocessMailRulesTask, {})) {
-      Actions.dequeueTask(task.id);
+      Actions.cancelTask(task);
     }
 
     this.trigger();

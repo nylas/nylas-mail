@@ -2,9 +2,9 @@ _ = require 'underscore'
 
 Actions = require('../../src/flux/actions').default
 Folder = require('../../src/flux/models/folder').default
-MailboxPerspective = require '../../src/mailbox-perspective'
+MailboxPerspective = require('../../src/mailbox-perspective').default
 
-CategoryStore = require '../../src/flux/stores/category-store'
+CategoryStore = require('../../src/flux/stores/category-store').default
 AccountStore = require('../../src/flux/stores/account-store').default
 FocusedPerspectiveStore = require('../../src/flux/stores/focused-perspective-store').default
 

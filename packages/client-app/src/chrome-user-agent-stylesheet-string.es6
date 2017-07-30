@@ -1,10 +1,12 @@
-# This is the Chrome (Blink) default user-agent stylesheet. We need this
-# when we use `automatic/juice` to inline CSS since emails will be
-# assuming they're based off the default stylesheet instead of the Nylas
-# stylesheet.
-#
-# From: https://chromium.googlesource.com/chromium/blink/+/master/Source/core/css/html.css
-module.exports = """
+/**
+This is the Chrome (Blink) default user-agent stylesheet. We need this
+when we use `automatic/juice` to inline CSS since emails will be
+assuming they're based off the default stylesheet instead of the Nylas
+stylesheet.
+
+From: https://chromium.googlesource.com/chromium/blink/+/master/Source/core/css/html.css
+*/
+export default `
 @namespace "http://www.w3.org/1999/xhtml";
 html {
     display: block
@@ -894,4 +896,4 @@ dialog::backdrop {
 @media print {
     * { -webkit-columns: auto !important; }
 }
-"""
+`

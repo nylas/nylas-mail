@@ -29,7 +29,7 @@ collection name. To add an item to the bar created in the example above, registe
 
 ```coffee
 ComponentRegistry.register ThreadBulkTrashButton,
-  role: 'thread:Toolbar'
+  role: 'ThreadActionsToolbarButton'
 ```
 
 Section: Component Kit

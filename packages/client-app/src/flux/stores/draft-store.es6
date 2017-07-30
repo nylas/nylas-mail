@@ -342,10 +342,10 @@ class DraftStore extends NylasStore {
     // Stop any pending tasks related ot the draft
     TaskQueue.queue().forEach((task) => {
       if (task instanceof SyncbackDraftTask && task.headerMessageId === headerMessageId) {
-        Actions.dequeueTask(task.id);
+        Actions.cancelTask(task);
       }
       if (task instanceof SendDraftTask && task.headerMessageId === headerMessageId) {
-        Actions.dequeueTask(task.id);
+        Actions.cancelTask(task);
       }
     })
 

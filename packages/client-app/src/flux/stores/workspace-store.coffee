@@ -1,8 +1,8 @@
 _ = require 'underscore'
 Actions = require('../actions').default
 AccountStore = require('./account-store').default
-CategoryStore = require './category-store'
-MailboxPerspective = require '../../mailbox-perspective'
+CategoryStore = require('./category-store').default
+MailboxPerspective = require('../../mailbox-perspective').default
 NylasStore = require 'nylas-store'
 
 Sheet = {}
