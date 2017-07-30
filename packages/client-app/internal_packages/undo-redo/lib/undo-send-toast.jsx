@@ -13,7 +13,7 @@ function UndoSendToast(props) {
           if (!visible) { return }
           event.preventDefault();
           event.stopPropagation();
-          Actions.dequeueTask(sendActionTaskId)
+          Actions.cancelTask(sendActionTaskId)
         },
       }}
     >
@@ -22,7 +22,7 @@ function UndoSendToast(props) {
         className="undo-send-toast"
         undoMessage="Sending draft"
         visibleDuration={null}
-        onUndo={() => Actions.dequeueTask(sendActionTaskId)}
+        onUndo={() => Actions.cancelTask(sendActionTaskId)}
       />
     </KeyCommandsRegion>
   )

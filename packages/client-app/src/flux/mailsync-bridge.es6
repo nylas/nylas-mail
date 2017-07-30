@@ -17,7 +17,7 @@ export default class MailsyncBridge {
 
     Actions.queueTask.listen(this.onQueueTask, this);
     Actions.queueTasks.listen(this.onQueueTasks, this);
-    Actions.dequeueTask.listen(this.onDequeueTask, this);
+    Actions.cancelTask.listen(this.onCancelTask, this);
     Actions.fetchBodies.listen(this.onFetchBodies, this);
 
     this.clients = {};
@@ -72,7 +72,7 @@ export default class MailsyncBridge {
 
     task.validate();
     task.status = 'local';
-    this.sendMessageToAccount(task.accountId, {type: 'task-queued', task: task});
+    this.sendMessageToAccount(task.accountId, {type: 'queue-task', task: task});
   }
 
   onQueueTasks(tasks) {
@@ -80,12 +80,12 @@ export default class MailsyncBridge {
     for (const task of tasks) { this.onQueueTask(task); }
   }
 
-  onDequeueTask() { // taskOrId
-    // const task = this._resolveTaskArgument(taskOrId);
-    // if (!task) {
-    //   throw new Error("Couldn't find task in queue to dequeue");
-    // }
-    throw new Error("Unimplemented");
+  onCancelTask(taskOrId) {
+    const task = this._resolveTaskArgument(taskOrId);
+    if (!task) {
+      throw new Error("Couldn't find task in queue to cancel");
+    }
+    this.sendMessageToAccount(task.accountId, {type: 'cancel-task', taskId: task.id});
   }
 
   onIncomingMessages(msgs) {

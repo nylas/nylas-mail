@@ -26,7 +26,7 @@ class SendingCancelButton extends React.Component
       </div>
 
   _onClick: =>
-    Actions.dequeueTask(@props.taskId)
+    Actions.cancelTask(@props.taskId)
     @setState(cancelling: true)
 
 module.exports = SendingCancelButton

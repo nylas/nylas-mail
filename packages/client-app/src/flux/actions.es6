@@ -95,7 +95,7 @@ class Actions {
 
   *Scope: Main Window*
   */
-  static dequeueTask = ActionScopeMainWindow;
+  static cancelTask = ActionScopeMainWindow;
 
   /*
   Public: Dequeue a {Task} matching the description provided.

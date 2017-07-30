@@ -50,8 +50,9 @@ class TaskQueue extends NylasStore {
     this._waitingForRemote = [];
 
     Rx.Observable.fromQuery(DatabaseStore.findAll(Task)).subscribe((tasks => {
-      this._queue = tasks.filter(t => t.status !== Task.Status.Complete);
-      this._completed = tasks.filter(t => t.status === Task.Status.Complete);
+      const finished = [Task.Status.Complete, Task.Status.Cancelled];
+      this._queue = tasks.filter(t => !finished.includes(t.status));
+      this._completed = tasks.filter(t => finished.includes(t.status));
       const all = [].concat(this._queue, this._completed);
 
       this._waitingForLocal.filter(({task, resolve}) => {

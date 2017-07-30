@@ -10,6 +10,7 @@ const Status = {
   Local: "local",
   Remote: "remote",
   Complete: "complete",
+  Cancelled: "cancelled",
 };
 
 export default class Task extends Model {
