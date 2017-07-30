@@ -14,8 +14,6 @@
 // Extend the standard promise class a bit
 import './promise-extensions';
 
-import './window';
-
 import NylasEnvConstructor from './nylas-env';
 window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate();
 

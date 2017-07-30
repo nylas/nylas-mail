@@ -5,8 +5,6 @@ fs = require 'fs-plus'
 EmitterMixin = require('emissary').Emitter
 {CompositeDisposable, Disposable, Emitter} = require 'event-kit'
 
-Color = require './color'
-
 if process.type is 'renderer'
   app = remote.getGlobal('application')
   webContentsId = remote.getCurrentWebContents().getId()
@@ -216,21 +214,6 @@ else
 #         type: 'integer'
 #         minimum: 1.5
 #         maximum: 11.5
-# ```
-#
-# #### color
-#
-# Values will be coerced into a {Color} with `red`, `green`, `blue`, and `alpha`
-# properties that all have numeric values. `red`, `green`, `blue` will be in
-# the range 0 to 255 and `value` will be in the range 0 to 1. Values can be any
-# valid CSS color format such as `#abc`, `#abcdef`, `white`,
-# `rgb(50, 100, 150)`, and `rgba(25, 75, 125, .75)`.
-#
-# ```coffee
-# config:
-#   someSetting:
-#     type: 'color'
-#     default: 'white'
 # ```
 #
 # ### Other Supported Keys
@@ -593,9 +576,7 @@ class Config
         @_logError("Failed to set keypath to default: #{keyPath} = #{JSON.stringify(defaults)}", e)
 
   deepClone: (object) ->
-    if object instanceof Color
-      object.clone()
-    else if _.isArray(object)
+    if _.isArray(object)
       object.map (value) => @deepClone(value)
     else if isPlainObject(object)
       _.mapObject object, (value) => @deepClone(value)
@@ -725,13 +706,6 @@ Config.addSchemaEnforcers
       else
         value
 
-  'color':
-    coerce: (keyPath, value, schema) ->
-      color = Color.parse(value)
-      unless color?
-        throw new Error("Validation failed at #{keyPath}, #{JSON.stringify(value)} cannot be coerced into a color")
-      color
-
   '*':
     coerceMinimumAndMaximum: (keyPath, value, schema) ->
       return value unless typeof value is 'number'
@@ -752,7 +726,7 @@ Config.addSchemaEnforcers
       throw new Error("Validation failed at #{keyPath}, #{JSON.stringify(value)} is not one of #{JSON.stringify(possibleValues)}")
 
 isPlainObject = (value) ->
-  _.isObject(value) and not _.isArray(value) and not _.isFunction(value) and not _.isString(value) and not (value instanceof Color)
+  _.isObject(value) and not _.isArray(value) and not _.isFunction(value) and not _.isString(value)
 
 splitKeyPath = (keyPath) ->
   return [] unless keyPath?

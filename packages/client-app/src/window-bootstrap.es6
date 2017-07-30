@@ -3,9 +3,6 @@
 // Extend the standard promise class a bit
 import './promise-extensions';
 
-// Like sands through the hourglass, so are the days of our lives.
-import './window';
-
 import NylasEnvConstructor from './nylas-env';
 window.NylasEnv = NylasEnvConstructor.loadOrCreate();
 NylasEnv.initialize();

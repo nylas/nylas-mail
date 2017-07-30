@@ -120,9 +120,6 @@ class N1SpecRunner {
       NylasEnv.storeWindowDimensions();
       return NylasEnv.saveSync();
     });
-
-    // On load this will extend the window object
-    require('../../src/window');
   }
 
   _addReporters() {
