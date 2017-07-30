@@ -43,10 +43,6 @@ function setupWindow (loadSettings) {
   var CompileCache = require('../src/compile-cache')
   CompileCache.setHomeDirectory(loadSettings.configDirPath)
 
-  var ModuleCache = require('../src/module-cache')
-  ModuleCache.register(loadSettings)
-  ModuleCache.add(loadSettings.resourcePath)
-
   // Start the crash reporter before anything else.
   // require('crash-reporter').start({
   //   productName: 'N1',
