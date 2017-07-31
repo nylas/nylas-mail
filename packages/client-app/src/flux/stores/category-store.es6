@@ -90,7 +90,9 @@ class CategoryStore extends NylasStore {
     if (!Category.StandardRoles.includes(role)) {
       throw new Error(`'${role}' is not a standard category`);
     }
-    return this._standardCategories[asAccountId(accountOrId)].find(c => c.role === role);
+
+    const accountCategories = this._standardCategories[asAccountId(accountOrId)]
+    return accountCategories && accountCategories.find(c => c.role === role);
   }
 
   // Public: Returns the set of all standard categories that match the given

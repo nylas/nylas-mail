@@ -71,7 +71,7 @@ export default class BillingModal extends React.Component {
           Actions.closeModal()
         }
       })
-      await IdentityStore.asyncRefreshIdentity();
+      await IdentityStore.fetchIdentity();
     });
 
     /**

@@ -27,7 +27,7 @@ export default class SendFeatureUsageEventTask extends Task {
     body.append('feature_name', this.featureName);
     const options = {
       method: 'POST',
-      url: `${IdentityStore.URLRoot}/n1/user/feature_usage_event`,
+      path: `/api/feature_usage_event`,
       body: body,
     };
     try {

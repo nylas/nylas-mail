@@ -23,7 +23,7 @@ export default class PackageManager {
       }
     }
 
-    this.discoverPacakges();
+    this.discoverPackages();
   }
 
   pluginIdFor(packageName) {
@@ -31,7 +31,7 @@ export default class PackageManager {
     return null
   }
 
-  discoverPacakges() {
+  discoverPackages() {
     for (const dir of this.packageDirectories) {
       let filenames = [];
       try {

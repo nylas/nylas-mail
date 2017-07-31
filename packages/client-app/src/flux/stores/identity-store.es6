@@ -65,9 +65,9 @@ class IdentityStore extends NylasStore {
      * We also update from the server's version every
      * `SendFeatureUsageEventTask`
      */
-    setInterval(this._fetchIdentity.bind(this), 1000 * 60 * 10); // 10 minutes
+    setInterval(this.fetchIdentity.bind(this), 1000 * 60 * 10); // 10 minutes
     // Don't await for this!
-    this._fetchIdentity();
+    this.fetchIdentity();
   }
 
   /**
@@ -79,12 +79,13 @@ class IdentityStore extends NylasStore {
 
     if (identity && identity.token) {
       KeyManager.replacePassword(KEYCHAIN_NAME, identity.token);
-      delete identity.token;
-    }
-    if (!identity) {
+      const withoutToken = Object.assign({}, identity);
+      delete withoutToken.token;
+      NylasEnv.config.set('nylasid', withoutToken);
+    } else if (!identity) {
       KeyManager.deletePassword(KEYCHAIN_NAME);
+      NylasEnv.config.set('nylasid', null);
     }
-    NylasEnv.config.set('nylasid', identity);
   }
 
   /**
@@ -93,9 +94,7 @@ class IdentityStore extends NylasStore {
    */
   _onIdentityChanged = () => {
     this._identity = NylasEnv.config.get('nylasid') || {};
-    if (!this._identity.token) {
-      this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
-    }
+    this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
     this.trigger();
   }
 
@@ -110,13 +109,7 @@ class IdentityStore extends NylasStore {
   _onEnvChanged = () => {
     const env = NylasEnv.config.get('env')
     if (['development', 'local'].includes(env)) {
-      if (process.env.BILLING_URL) {
-        this.URLRoot = process.env.BILLING_URL;
-      } else {
-        this.URLRoot = "https://billing-staging.nylas.com";
-      }
-    } else if (env === 'experimental') {
-      this.URLRoot = "https://billing-experimental.nylas.com";
+      this.URLRoot = "http://localhost:5101";
     } else if (env === 'staging') {
       this.URLRoot = "https://billing-staging.nylas.com";
     } else {
@@ -156,33 +149,26 @@ class IdentityStore extends NylasStore {
       body.append(key, qs[key]);
     }
     body.append('next_path', pathWithUtm);
-    body.append('account_token', this._identity.token);
 
-    const resp = await fetch(`${this.URLRoot}/n1/login-link`, {
-      method: 'POST',
-      qs: qs,
-      timeout: 1500,
-      body: body,
-    });
-    if (resp.ok) {
-      const text = await resp.text();
-      if (text.startsWith('http')) {
-        return text;
-      }
+    try {
+      const json = await this.nylasIDRequest({
+        path: '/api/login-link',
+        qs: qs,
+        body: body,
+        timeout: 1500,
+        method: 'POST',
+      });
+      return `${this.URLRoot}${json.path}`;
+    } catch (err) {
+      return `${this.URLRoot}${path}`;
     }
-    return `${this.URLRoot}${path}`;
   }
 
-  async asyncRefreshIdentity() {
-    await this._fetchIdentity();
-    return true
-  }
-
-  async _fetchIdentity() {
+  async fetchIdentity() {
     if (!this._identity || !this._identity.token) {
       return Promise.resolve();
     }
-    const json = await this.fetchPath('/n1/user');
+    const json = await this.nylasIDRequest({path: '/api/me', method: 'GET'});
     if (!json || !json.id || json.id !== this._identity.id) {
       console.error(json)
       NylasEnv.reportError(new Error("Remote Identity returned invalid json"), json || {})
@@ -192,31 +178,24 @@ class IdentityStore extends NylasStore {
     return this.saveIdentity(nextIdentity);
   }
 
-  fetchPath = async (path) => {
-    const options = {
-      method: 'GET',
-      url: `${this.URLRoot}${path}`,
-      startTime: Date.now(),
-    };
+  async nylasIDRequest(options) {
     try {
-      const newIdentity = await this.nylasIDRequest(options);
-      return newIdentity
+      if (options.path) {
+        options.url = `${this.URLRoot}${options.path}`;
+      }
+      options.credentials = 'include';
+      options.headers = new Headers();
+      options.headers.set('Authorization', `Basic ${btoa(`${this._identity.token}:`)}`)
+      const resp = await fetch(options.url, options);
+      if (!resp.ok) {
+        throw new Error(resp.statusText);
+      }
+      return resp.json();
     } catch (err) {
-      const error = err || new Error(`IdentityStore.fetchPath: ${path} ${err.message}.`)
+      const error = err || new Error(`IdentityStore.nylasIDRequest: ${options.url} ${err.message}.`)
       NylasEnv.reportError(error)
       return null
     }
-  }
-
-  async nylasIDRequest(options) {
-    options.credentials = 'include';
-    options.headers = new Headers();
-    options.headers.set('Authorization', `Basic ${btoa(`${this._identity.token}:`)}`)
-    const resp = await fetch(options.url, options);
-    if (!resp.ok) {
-      throw new Error(resp.statusText);
-    }
-    return resp.json();
   }
 }
 

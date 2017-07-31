@@ -135,17 +135,17 @@ export default class Account extends ModelWithMetadata {
   }
 
   canArchiveThreads() {
-    CategoryStore = CategoryStore || require('../stores/category-store')
+    CategoryStore = CategoryStore || require('../stores/category-store').default
     return CategoryStore.getArchiveCategory(this)
   }
 
   canTrashThreads() {
-    CategoryStore = CategoryStore || require('../stores/category-store')
+    CategoryStore = CategoryStore || require('../stores/category-store').default
     return CategoryStore.getTrashCategory(this)
   }
 
   preferredRemovalDestination() {
-    CategoryStore = CategoryStore || require('../stores/category-store')
+    CategoryStore = CategoryStore || require('../stores/category-store').default
     const preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
     if (preferDelete || !CategoryStore.getArchiveCategory(this)) {
       return CategoryStore.getTrashCategory(this);

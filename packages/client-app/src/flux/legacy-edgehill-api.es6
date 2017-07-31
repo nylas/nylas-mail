@@ -7,8 +7,6 @@ class LegacyEdgehillAPI extends _EdgehillAPI {
     const env = NylasEnv.config.get('env')
     if (['development', 'local'].includes(env)) {
       this.APIRoot = "http://localhost:5009";
-    } else if (env === 'experimental') {
-      this.APIRoot = "https://edgehill-experimental.nylas.com";
     } else if (env === 'staging') {
       this.APIRoot = "https://edgehill-staging.nylas.com";
     } else {

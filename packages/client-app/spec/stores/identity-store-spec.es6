@@ -76,7 +76,7 @@ describe("IdentityStore", function identityStoreSpec() {
     const opts = IdentityStore.nylasIDRequest.calls[0].args[0]
     expect(opts).toEqual({
       method: "POST",
-      url: "https://billing.nylas.com/n1/user/feature_usage_event",
+      url: "https://billing.nylas.com/api/feature_usage_event",
       body: {
         feature_name: 'snooze',
       },
