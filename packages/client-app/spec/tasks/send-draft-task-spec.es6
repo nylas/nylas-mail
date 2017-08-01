@@ -8,8 +8,6 @@ import {
   Contact,
   Task,
   SendDraftTask,
-  NylasAPI,
-  NylasAPIHelpers,
   NylasAPIRequest,
   SoundRegistry,
   SyncbackMetadataTask,

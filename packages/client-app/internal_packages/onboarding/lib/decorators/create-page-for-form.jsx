@@ -2,7 +2,7 @@ import {shell} from 'electron'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {RetinaImg} from 'nylas-component-kit';
-import {NylasAPI, Actions} from 'nylas-exports';
+import {NylasAPIRequest, Actions} from 'nylas-exports';
 
 import OnboardingActions from '../onboarding-actions';
 import {runAuthValidation} from '../onboarding-helpers';
@@ -135,7 +135,7 @@ const CreatePageForForm = (FormComponent) => {
           errorFieldNames.push('email');
           errorFieldNames.push('username');
         }
-        if (NylasAPI.TimeoutErrorCodes.includes(err.statusCode)) { // timeout
+        if (NylasAPIRequest.TimeoutErrorCodes.includes(err.statusCode)) { // timeout
           errorMessage = "We were unable to reach your mail provider. Please try again."
         }
 

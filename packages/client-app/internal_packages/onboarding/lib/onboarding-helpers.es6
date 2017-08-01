@@ -3,14 +3,12 @@
 import crypto from 'crypto';
 import {CommonProviderSettings} from 'imap-provider-settings';
 import {
-  N1CloudAPI,
-  NylasAPI,
   NylasAPIRequest,
   RegExpUtils,
-  Utils,
   MailsyncProcess,
 } from 'nylas-exports';
 
+const {makeRequest, rootURLForServer} = NylasAPIRequest;
 
 const IMAP_FIELDS = new Set([
   "imap_host",
@@ -41,40 +39,32 @@ function base64url(inBuffer) {
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
 
-const NO_AUTH = { user: '', pass: '', sendImmediately: true };
-
-export async function makeGmailOAuthRequest(sessionKey) {
-  const remoteRequest = new NylasAPIRequest({
-    api: N1CloudAPI,
-    options: {
-      path: `/auth/gmail/token?key=${sessionKey}`,
-      method: 'GET',
-      auth: NO_AUTH,
-    },
+export function makeGmailOAuthRequest(sessionKey) {
+  return makeRequest({
+    server: 'accounts',
+    path: `/auth/gmail/token?key=${sessionKey}`,
+    method: 'GET',
+    auth: false,
   });
-  return remoteRequest.run()
 }
 
 export async function authIMAPForGmail(tokenData) {
-  const localRequest = new NylasAPIRequest({
-    api: NylasAPI,
-    options: {
-      path: `/auth`,
-      method: 'POST',
-      auth: NO_AUTH,
-      timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
-      body: {
-        email: tokenData.email_address,
-        name: tokenData.name,
-        provider: 'gmail',
-        settings: {
-          xoauth2: tokenData.resolved_settings.xoauth2,
-          expiry_date: tokenData.resolved_settings.expiry_date,
-        },
+  const localJSON = await makeRequest({
+    server: 'accounts',
+    path: `/auth`,
+    method: 'POST',
+    auth: false,
+    timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
+    body: {
+      email: tokenData.email_address,
+      name: tokenData.name,
+      provider: 'gmail',
+      settings: {
+        xoauth2: tokenData.resolved_settings.xoauth2,
+        expiry_date: tokenData.resolved_settings.expiry_date,
       },
     },
   })
-  const localJSON = await localRequest.run()
   const account = Object.assign({}, localJSON);
   account.localToken = localJSON.account_token;
   account.cloudToken = tokenData.account_token;
@@ -86,14 +76,14 @@ export function buildGmailSessionKey() {
 }
 
 export function buildGmailAuthURL(sessionKey) {
-  return `${N1CloudAPI.APIRoot}/auth/gmail?state=${sessionKey}`;
+  return `${rootURLForServer('accounts')}/auth/gmail?state=${sessionKey}`;
 }
 
-export function runAuthValidation(accountInfo) {
+export async function runAuthValidation(accountInfo) {
   const {username, type, email, name} = accountInfo;
 
   const data = {
-    id: Utils.generateTempId(), // TODO BG: Server will decide account ids
+    id: 'temp',
     provider: type,
     name: name,
     emailAddress: email,
@@ -123,32 +113,23 @@ export function runAuthValidation(accountInfo) {
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
   const proc = new MailsyncProcess(NylasEnv.getLoadSettings(), data);
-  return proc.test().then((accountJSON) => {
-    return accountJSON;
-  });
+  const {account} = await proc.test();
 
-  // TODO BG Re-enable cloud services
-  // return n1CloudIMAPAuthRequest.run().then((remoteJSON) => {
-  //   const localSyncIMAPAuthRequest = new NylasAPIRequest({
-  //     api: NylasAPI,
-  //     options: {
-  //       path: `/auth`,
-  //       method: 'POST',
-  //       timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
-  //       body: data,
-  //       auth: {
-  //         user: '',
-  //         pass: '',
-  //         sendImmediately: true,
-  //       },
-  //     },
-  //   })
-  // return localSyncIMAPAuthRequest.run().then((localJSON) => {
-  //   const accountWithTokens = Object.assign({}, localJSON);
-  //   accountWithTokens.localToken = localJSON.account_token;
-  //   accountWithTokens.cloudToken = '';//remoteJSON.account_token;
-  //   return accountWithTokens
-  // })
+  delete data.id;
+
+  const {id, account_token} = await makeRequest({
+    server: 'accounts',
+    path: `/auth`,
+    method: 'POST',
+    timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
+    body: data,
+    auth: false,
+  })
+
+  return {
+    account: Object.assign({}, account, {id}),
+    cloudToken: account_token,
+  };
 }
 
 export function isValidHost(value) {

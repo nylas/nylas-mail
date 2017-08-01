@@ -1,5 +1,5 @@
 import React from 'react';
-import {IdentityStore} from 'nylas-exports';
+import {NylasAPIRequest} from 'nylas-exports';
 import {Webview} from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 
@@ -12,18 +12,18 @@ export default class AuthenticatePage extends React.Component {
 
   _src() {
     const n1Version = NylasEnv.getVersion();
-    return `${IdentityStore.URLRoot}/onboarding?utm_medium=N1&utm_source=OnboardingPage&N1_version=${n1Version}&client_edition=basic`
+    return `${NylasAPIRequest.rootURLForServer('identity')}/onboarding?utm_medium=N1&utm_source=OnboardingPage&N1_version=${n1Version}&client_edition=basic`
   }
 
   _onDidFinishLoad = (webview) => {
     const receiveUserInfo = `
-      var a = document.querySelector('#pro-account');
+      var a = document.querySelector('#identity-result');
       result = a ? a.innerText : null;
     `;
     webview.executeJavaScript(receiveUserInfo, false, (result) => {
       this.setState({ready: true, webviewLoading: false});
       if (result !== null) {
-        OnboardingActions.authenticationJSONReceived(JSON.parse(result));
+        OnboardingActions.identityJSONReceived(JSON.parse(atob(result)));
       }
     });
 

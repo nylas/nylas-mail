@@ -1,5 +1,5 @@
 import Task from './task';
-import NylasAPI from '../nylas-api'
+import {makeRequest, PermanentErrorCodes} from '../nylas-api-request'
 import {APIError} from '../errors'
 import IdentityStore from '../stores/identity-store'
 
@@ -23,20 +23,20 @@ export default class SendFeatureUsageEventTask extends Task {
   }
 
   async performRemote() {
-    const body = new FormData();
-    body.append('feature_name', this.featureName);
-    const options = {
-      method: 'POST',
-      path: `/api/feature_usage_event`,
-      body: body,
-    };
     try {
-      const updatedIdentity = await IdentityStore.nylasIDRequest(options);
+      const updatedIdentity = await makeRequest({
+        server: 'identity',
+        method: 'POST',
+        path: `/api/feature_usage_event`,
+        body: {
+          feature_name: this.featureName,
+        },
+      });
       await IdentityStore.saveIdentity(updatedIdentity);
-      return Promise.resolve(Task.Status.Success)
+      return Task.Status.Success;
     } catch (err) {
       if (err instanceof APIError) {
-        if (NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
+        if (PermanentErrorCodes.includes(err.statusCode)) {
           this.revert()
           return Promise.resolve([Task.Status.Failed, err])
         }

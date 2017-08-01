@@ -5,7 +5,7 @@ const OnboardingActions = Reflux.createActions([
   "setAccountType",
   "moveToPreviousPage",
   "moveToPage",
-  "authenticationJSONReceived",
+  "identityJSONReceived",
   "accountJSONReceived",
 ]);
 

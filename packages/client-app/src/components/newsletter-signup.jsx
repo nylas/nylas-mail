@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React from 'react';
-import {LegacyEdgehillAPI} from "nylas-exports";
 import {RetinaImg, Flexbox} from 'nylas-component-kit';
+import {makeRequest} from '../flux/nylas-api-request';
 
 export default class NewsletterSignup extends React.Component {
   static displayName = 'NewsletterSignup';
@@ -35,53 +35,54 @@ export default class NewsletterSignup extends React.Component {
     this.setState(state);
   }
 
-  _onGetStatus = (props = this.props) => {
+  _onGetStatus = async (props = this.props) => {
     this._setState({status: 'Pending'});
-    LegacyEdgehillAPI.makeRequest({
-      method: 'GET',
-      path: this._path(props),
-    }).run().then((status) => {
+    try {
+      const status = await makeRequest({
+        server: 'identity',
+        method: 'GET',
+        path: this._path(props),
+      })
       if (status === 'Never Subscribed') {
         this._onSubscribe();
       } else {
         this._setState({status});
       }
-    })
-    .catch(() => {
+    } catch (err) {
       this._setState({status: "Error"});
-    })
+    }
   }
 
-  _onSubscribe = () => {
+  _onSubscribe = async () => {
     this._setState({status: 'Pending'});
-    LegacyEdgehillAPI.makeRequest({
-      method: 'POST',
-      path: this._path(),
-    }).run()
-    .then((status) => {
+    try {
+      const status = await makeRequest({
+        server: 'identity',
+        method: 'POST',
+        path: this._path(),
+      });
       this._setState({status});
-    })
-    .catch(() => {
+    } catch (err) {
       this._setState({status: "Error"});
-    })
+    }
   }
 
   _onUnsubscribe = () => {
     this._setState({status: 'Pending'});
-    LegacyEdgehillAPI.makeRequest({
-      method: 'DELETE',
-      path: this._path(),
-    }).run()
-    .then((status) => {
+    try {
+      const status = makeRequest({
+        server: 'identity',
+        method: 'DELETE',
+        path: this._path(),
+      });
       this._setState({status});
-    })
-    .catch(() => {
+    } catch (err) {
       this._setState({status: "Error"});
-    })
+    }
   }
 
   _path(props = this.props) {
-    return `/newsletter-subscription/${encodeURIComponent(props.emailAddress)}?name=${encodeURIComponent(props.name)}`;
+    return `/api/newsletter-subscription/${encodeURIComponent(props.emailAddress)}?name=${encodeURIComponent(props.name)}`;
   }
 
   _renderControl() {

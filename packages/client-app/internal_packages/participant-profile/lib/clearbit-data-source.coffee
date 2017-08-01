@@ -1,5 +1,5 @@
 # This file is in coffeescript just to use the existential operator!
-{AccountStore, LegacyEdgehillAPI} = require 'nylas-exports'
+{AccountStore} = require 'nylas-exports'
 
 MAX_RETRY = 10
 
@@ -12,7 +12,7 @@ module.exports = class ClearbitDataSource
       return Promise.resolve(null)
     new Promise (resolve, reject) =>
       return; # TODO BG 
-      req = LegacyEdgehillAPI.makeRequest({
+      req = LegacyEdXgehillAPI.makeRequest({
         authWithNylasAPI: true
         path: "/proxy/clearbit/#{@clearbitAPI()}/find?email=#{email}",
       })

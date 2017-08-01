@@ -1,7 +1,6 @@
 import NylasStore from 'nylas-store';
 import {remote} from 'electron';
-
-import {LegacyEdgehillAPI} from 'nylas-exports';
+import {makeRequest} from '../nylas-api-request';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
 const preferredChannel = autoUpdater.preferredChannel;
@@ -29,41 +28,44 @@ class UpdateChannelStore extends NylasStore {
     return this._available;
   }
 
-  refreshChannel() {
+  async refreshChannel() {
     // TODO BG
-    return;
-    LegacyEdgehillAPI.makeRequest({
-      method: 'GET',
-      path: `/update-channel`,
-      qs: Object.assign({preferredChannel: preferredChannel}, autoUpdater.parameters()),
-      json: true,
-    }).run()
-    .then(({current, available} = {}) => {
+    try {
+      const {current, available} = await makeRequest({
+        server: 'identity',
+        method: 'GET',
+        path: `/api/update-channel`,
+        qs: Object.assign({preferredChannel: preferredChannel}, autoUpdater.parameters()),
+        json: true,
+      });
       this._current = current || {name: "Edgehill API Not Available"};
       this._available = available || [];
       this.trigger();
-    });
-    return null;
+    } catch (err) {
+      // silent
+    }
+    return;
   }
 
-  setChannel(channelName) {
-    LegacyEdgehillAPI.makeRequest({
-      method: 'POST',
-      path: `/update-channel`,
-      qs: Object.assign({
-        channel: channelName,
-        preferredChannel: preferredChannel,
-      }, autoUpdater.parameters()),
-      json: true,
-    }).run()
-    .then(({current, available} = {}) => {
+  async setChannel(channelName) {
+    try {
+      const {current, available} = await makeRequest({
+        server: 'identity',
+        method: 'POST',
+        path: `/api/update-channel`,
+        qs: Object.assign({
+          channel: channelName,
+          preferredChannel: preferredChannel,
+        }, autoUpdater.parameters()),
+        json: true,
+      });
       this._current = current || {name: "Edgehill API Not Available"};
       this._available = available || [];
       this.trigger();
-    }).catch((err) => {
+    } catch (err) {
       NylasEnv.showErrorDialog(err.toString())
       this.trigger();
-    });
+    }
     return null;
   }
 }

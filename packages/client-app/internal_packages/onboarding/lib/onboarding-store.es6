@@ -18,13 +18,10 @@ class OnboardingStore extends NylasStore {
   constructor() {
     super();
 
-    NylasEnv.config.onDidChange('env', this._onEnvChanged);
-    this._onEnvChanged();
-
     this.listenTo(OnboardingActions.moveToPreviousPage, this._onMoveToPreviousPage)
     this.listenTo(OnboardingActions.moveToPage, this._onMoveToPage)
     this.listenTo(OnboardingActions.accountJSONReceived, this._onAccountJSONReceived)
-    this.listenTo(OnboardingActions.authenticationJSONReceived, this._onAuthenticationJSONReceived)
+    this.listenTo(OnboardingActions.identityJSONReceived, this._onIdentityJSONReceived)
     this.listenTo(OnboardingActions.setAccountInfo, this._onSetAccountInfo);
     this.listenTo(OnboardingActions.setAccountType, this._onSetAccountType);
     ipcRenderer.on('set-account-type', (e, type) => {
@@ -80,19 +77,6 @@ class OnboardingStore extends NylasStore {
     }
   }
 
-  _onEnvChanged = () => {
-    const env = NylasEnv.config.get('env')
-    if (['development', 'local'].includes(env)) {
-      this.welcomeRoot = "http://0.0.0.0:5555";
-    } else if (env === 'experimental') {
-      this.welcomeRoot = "https://www-experimental.nylas.com";
-    } else if (env === 'staging') {
-      this.welcomeRoot = "https://www-staging.nylas.com";
-    } else {
-      this.welcomeRoot = "https://nylas.com";
-    }
-  }
-
   _onOnboardingComplete = () => {
     // When account JSON is received, we want to notify external services
     // that it succeeded. Unfortunately in this case we're likely to
@@ -137,7 +121,7 @@ class OnboardingStore extends NylasStore {
     this.trigger();
   }
 
-  _onAuthenticationJSONReceived = async (json) => {
+  _onIdentityJSONReceived = async (json) => {
     const isFirstAccount = AccountStore.accounts().length === 0;
 
     await IdentityStore.saveIdentity(json);
@@ -145,8 +129,8 @@ class OnboardingStore extends NylasStore {
     setTimeout(() => {
       if (isFirstAccount) {
         this._onSetAccountInfo(Object.assign({}, this._accountInfo, {
-          name: `${json.firstname || ""} ${json.lastname || ""}`,
-          email: json.email,
+          name: `${json.firstName || ""} ${json.lastName || ""}`,
+          email: json.emailAddress,
         }));
         OnboardingActions.moveToPage('account-choose');
       } else {

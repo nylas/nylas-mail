@@ -5,6 +5,7 @@ import url from 'url'
 import Utils from '../models/utils';
 import Actions from '../actions';
 import KeyManager from '../../key-manager';
+import {makeRequest, rootURLForServer} from '../nylas-api-request';
 
 // Note this key name is used when migrating to Nylas Pro accounts from old N1.
 const KEYCHAIN_NAME = 'Nylas Account';
@@ -24,9 +25,6 @@ class IdentityStore extends NylasStore {
       })
       return
     }
-
-    NylasEnv.config.onDidChange('env', this._onEnvChanged);
-    this._onEnvChanged();
 
     NylasEnv.config.onDidChange('nylasid', this._onIdentityChanged);
     this._onIdentityChanged();
@@ -106,17 +104,6 @@ class IdentityStore extends NylasStore {
     remote.app.quit()
   }
 
-  _onEnvChanged = () => {
-    const env = NylasEnv.config.get('env')
-    if (['development', 'local'].includes(env)) {
-      this.URLRoot = "http://localhost:5101";
-    } else if (env === 'staging') {
-      this.URLRoot = "https://billing-staging.nylas.com";
-    } else {
-      this.URLRoot = "https://billing.nylas.com";
-    }
-  }
-
   /**
    * This passes utm_source, utm_campaign, and utm_content params to the
    * N1 billing site. Please reference:
@@ -151,16 +138,17 @@ class IdentityStore extends NylasStore {
     body.append('next_path', pathWithUtm);
 
     try {
-      const json = await this.nylasIDRequest({
+      const json = await makeRequest({
+        server: 'identity',
         path: '/api/login-link',
         qs: qs,
         body: body,
         timeout: 1500,
         method: 'POST',
       });
-      return `${this.URLRoot}${json.path}`;
+      return `${rootURLForServer('identity')}${json.path}`;
     } catch (err) {
-      return `${this.URLRoot}${path}`;
+      return `${rootURLForServer('identity')}${path}`;
     }
   }
 
@@ -168,7 +156,13 @@ class IdentityStore extends NylasStore {
     if (!this._identity || !this._identity.token) {
       return Promise.resolve();
     }
-    const json = await this.nylasIDRequest({path: '/api/me', method: 'GET'});
+
+    const json = await makeRequest({
+      server: 'identity',
+      path: '/api/me',
+      method: 'GET',
+    });
+
     if (!json || !json.id || json.id !== this._identity.id) {
       console.error(json)
       NylasEnv.reportError(new Error("Remote Identity returned invalid json"), json || {})
@@ -176,26 +170,6 @@ class IdentityStore extends NylasStore {
     }
     const nextIdentity = Object.assign({}, this._identity, json);
     return this.saveIdentity(nextIdentity);
-  }
-
-  async nylasIDRequest(options) {
-    try {
-      if (options.path) {
-        options.url = `${this.URLRoot}${options.path}`;
-      }
-      options.credentials = 'include';
-      options.headers = new Headers();
-      options.headers.set('Authorization', `Basic ${btoa(`${this._identity.token}:`)}`)
-      const resp = await fetch(options.url, options);
-      if (!resp.ok) {
-        throw new Error(resp.statusText);
-      }
-      return resp.json();
-    } catch (err) {
-      const error = err || new Error(`IdentityStore.nylasIDRequest: ${options.url} ${err.message}.`)
-      NylasEnv.reportError(error)
-      return null
-    }
   }
 }
 

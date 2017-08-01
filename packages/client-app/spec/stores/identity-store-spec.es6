@@ -1,6 +1,7 @@
 import {ipcRenderer} from 'electron';
 import {Utils, KeyManager, DatabaseWriter, SendFeatureUsageEventTask} from 'nylas-exports'
 import IdentityStore from '../../src/flux/stores/identity-store'
+import * as NylasAPIRequest from '../../src/flux/nylas-api-request'
 
 const TEST_NYLAS_ID = "icihsnqh4pwujyqihlrj70vh"
 const TEST_TOKEN = "test-token"
@@ -67,13 +68,13 @@ describe("IdentityStore", function identityStoreSpec() {
 
   it("can log a feature usage event", async () => {
     spyOn(IdentityStore, "saveIdentity").andReturn(Promise.resolve());
-    spyOn(IdentityStore, "nylasIDRequest");
+    spyOn(NylasAPIRequest, "makeRequest");
     IdentityStore._identity = this.identityJSON
     IdentityStore._identity.token = TEST_TOKEN;
     IdentityStore._onEnvChanged()
     const t = new SendFeatureUsageEventTask("snooze");
     await t.performRemote()
-    const opts = IdentityStore.nylasIDRequest.calls[0].args[0]
+    const opts = NylasAPIRequest.makeRequest.calls[0].args[0]
     expect(opts).toEqual({
       method: "POST",
       url: "https://billing.nylas.com/api/feature_usage_event",
@@ -104,7 +105,7 @@ describe("IdentityStore", function identityStoreSpec() {
     });
   });
 
-  describe("_fetchIdentity", () => {
+  describe("fetchIdentity", () => {
     beforeEach(() => {
       IdentityStore._identity = this.identityJSON;
       spyOn(IdentityStore, "saveIdentity")
@@ -115,12 +116,12 @@ describe("IdentityStore", function identityStoreSpec() {
     it("saves the identity returned", async () => {
       const resp = Utils.deepClone(this.identityJSON);
       resp.feature_usage.feat.quota = 5
-      spyOn(IdentityStore, "nylasIDRequest").andCallFake(() => {
+      spyOn(NylasAPIRequest, "makeRequest").andCallFake(() => {
         return Promise.resolve(resp)
       })
-      await IdentityStore._fetchIdentity();
-      expect(IdentityStore.nylasIDRequest).toHaveBeenCalled();
-      const options = IdentityStore.nylasIDRequest.calls[0].args[0]
+      await IdentityStore.fetchIdentity();
+      expect(NylasAPIRequest.makeRequest).toHaveBeenCalled();
+      const options = NylasAPIRequest.makeRequest.calls[0].args[0]
       expect(options.url).toMatch(/\/n1\/user/)
       expect(IdentityStore.saveIdentity).toHaveBeenCalled()
       const newIdent = IdentityStore.saveIdentity.calls[0].args[0]
@@ -129,10 +130,10 @@ describe("IdentityStore", function identityStoreSpec() {
     });
 
     it("errors if the json is invalid", async () => {
-      spyOn(IdentityStore, "nylasIDRequest").andCallFake(() => {
+      spyOn(NylasAPIRequest, "makeRequest").andCallFake(() => {
         return Promise.resolve({})
       })
-      await IdentityStore._fetchIdentity();
+      await IdentityStore.fetchIdentity();
       expect(NylasEnv.reportError).toHaveBeenCalled()
       expect(IdentityStore.saveIdentity).not.toHaveBeenCalled()
     });
@@ -140,10 +141,10 @@ describe("IdentityStore", function identityStoreSpec() {
     it("errors if the json doesn't match the ID", async () => {
       const resp = Utils.deepClone(this.identityJSON);
       resp.id = "THE WRONG ID"
-      spyOn(IdentityStore, "nylasIDRequest").andCallFake(() => {
+      spyOn(NylasAPIRequest, "makeRequest").andCallFake(() => {
         return Promise.resolve(resp)
       })
-      await IdentityStore._fetchIdentity();
+      await IdentityStore.fetchIdentity();
       expect(NylasEnv.reportError).toHaveBeenCalled()
       expect(IdentityStore.saveIdentity).not.toHaveBeenCalled()
     });

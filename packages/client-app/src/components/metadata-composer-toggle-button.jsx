@@ -1,4 +1,4 @@
-import {React, Actions, NylasAPI, NylasAPIHelpers, APIError} from 'nylas-exports'
+import {React, Actions, NylasAPIRequest, NylasAPIHelpers, APIError} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import classnames from 'classnames'
 import _ from 'underscore'
@@ -74,7 +74,7 @@ export default class MetadataComposerToggleButton extends React.Component {
         NylasEnv.reportError(error);
       } else if (error.statusCode === 400) {
         NylasEnv.reportError(error);
-      } else if (NylasAPI.TimeoutErrorCodes.includes(error.statusCode)) {
+      } else if (NylasAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
         title = "Offline"
       }
 

@@ -3,11 +3,14 @@ ReactDOM = require 'react-dom'
 {Utils,
  RegExpUtils,
  IdentityStore,
+ NylasAPIRequest,
  SearchableComponentMaker,
- SearchableComponentStore}= require 'nylas-exports'
+ SearchableComponentStore} = require 'nylas-exports'
 IFrameSearcher = require('../searchable-components/iframe-searcher').default
 url = require 'url'
 _ = require "underscore"
+
+{rootURLForServer} = NylasAPIRequest
 
 ###
 Public: EventedIFrame is a thin wrapper around the DOM's standard `<iframe>` element.
@@ -168,8 +171,8 @@ class EventedIFrame extends React.Component
 
       # If this is a link to our billing site, attempt single sign on instead of
       # just following the link directly
-      if rawHref.startsWith(IdentityStore.URLRoot)
-        path = rawHref.split(IdentityStore.URLRoot).pop()
+      if rawHref.startsWith(rootURLForServer('identity'))
+        path = rawHref.split(rootURLForServer('identity')).pop()
         IdentityStore.fetchSingleSignOnURL(path, {source: "SingleSignOnEmail"}).then (href) =>
           NylasEnv.windowEventHandler.openLink(href: href, metaKey: e.metaKey)
         return

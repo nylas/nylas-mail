@@ -67,7 +67,7 @@ class PreferencesIdentity extends React.Component {
 
   render() {
     const {identity} = this.state;
-    const {firstname, lastname, email} = identity;
+    const {firstName, lastName, emailAddress} = identity;
 
     const logout = () => Actions.logoutNylasIdentity()
 
@@ -83,8 +83,8 @@ class PreferencesIdentity extends React.Component {
               />
             </div>
             <div className="identity-info">
-              <div className="name">{firstname} {lastname}</div>
-              <div className="email">{email}</div>
+              <div className="name">{firstName} {lastName}</div>
+              <div className="email">{emailAddress}</div>
               <div className="identity-actions">
                 <OpenIdentityPageButton label="Account Details" path="/dashboard" source="Preferences" campaign="Dashboard" />
                 <div className="btn minor-width" onClick={logout}>Sign Out</div>

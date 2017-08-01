@@ -1,7 +1,7 @@
 import SyncbackModelTask from './syncback-model-task'
 import DatabaseObjectRegistry from '../../registries/database-object-registry'
 import N1CloudAPI from '../../n1-cloud-api'
-import NylasAPIRequest from '../nylas-api-request'
+import {makeRequest} from '../nylas-api-request'
 
 export default class SyncbackMetadataTask extends SyncbackModelTask {
 
@@ -38,10 +38,10 @@ export default class SyncbackMetadataTask extends SyncbackModelTask {
         messageIds: messageIds,
       },
     };
-    return new NylasAPIRequest({
+    return makeRequest({
       api: N1CloudAPI,
       options,
-    }).run()
+    });
   }
 
   applyRemoteChangesToModel = (model, {version}) => {

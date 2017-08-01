@@ -3,7 +3,6 @@ Folder = require('../../src/flux/models/folder').default
 Thread = require('../../src/flux/models/thread').default
 Message = require('../../src/flux/models/message').default
 Actions = require('../../src/flux/actions').default
-NylasAPI = require('../../src/flux/nylas-api').default
 Query = require('../../src/flux/models/query').default
 DatabaseStore = require('../../src/flux/stores/database-store').default
 ChangeFolderTask = require('../../src/flux/tasks/change-folder-task').default
