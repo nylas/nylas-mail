@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import React from 'react';
 import {AccountStore, SendActionsStore} from 'nylas-exports';
 import {ListensToFluxStore} from 'nylas-component-kit';

@@ -117,8 +117,8 @@ const EnhancedSendActionButton = ListensToFluxStore(SendActionButton, {
 // is already a bit of a hack.
 Object.assign(EnhancedSendActionButton.prototype, {
   primarySend() {
-    if (this.refs.composed) {
-      this.refs.composed.primarySend()
+    if (this._composedComponent) {
+      this._composedComponent.primarySend()
     }
   },
 })

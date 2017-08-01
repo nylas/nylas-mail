@@ -40,7 +40,7 @@ function ListensToFluxStore(ComposedComponent, {stores, getStateFromStores}) {
         ...this.state,
       }
       if (Component.isPrototypeOf(ComposedComponent)) {
-        props.ref = 'composed'
+        props.ref = (cm) => { this._composedComponent = cm; }
       }
       return <ComposedComponent {...props} />;
     }

@@ -5,6 +5,7 @@ import {Actions} from 'nylas-exports'
 import ConfigSchemaItem from './config-schema-item';
 import WorkspaceSection from './workspace-section';
 import SendingSection from './sending-section';
+
 class PreferencesGeneral extends React.Component {
   static displayName = 'PreferencesGeneral'
 

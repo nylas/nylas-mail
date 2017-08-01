@@ -48,7 +48,7 @@ class SystemStartServiceDarwin extends SystemStartServiceBase {
   }
 
   dontLaunchOnSystemStart() {
-    return fs.unlink(this._plistPath())
+    return fs.unlink(this._plistPath(), () => {})
   }
 
   _launcherPath() {
@@ -100,7 +100,7 @@ class SystemStartServiceWin32 extends SystemStartServiceBase {
   }
 
   dontLaunchOnSystemStart() {
-    return fs.unlink(this._shortcutPath())
+    return fs.unlink(this._shortcutPath(), () => {})
   }
 
   _launcherPath() {
@@ -140,7 +140,7 @@ class SystemStartServiceLinux extends SystemStartServiceBase {
   }
 
   dontLaunchOnSystemStart() {
-    return fs.unlink(this._shortcutPath())
+    return fs.unlink(this._shortcutPath(), () => {})
   }
 
   _launcherPath() {

@@ -106,11 +106,6 @@ module.exports = ErrorLogger = (function() {
     shell.openItem(this._logPath());
   };
 
-  ErrorLogger.prototype.apiDebug = function(error) {
-    this._appendLog(error, error.statusCode, error.message);
-    this._notifyExtensions("onDidLogAPIError", error);
-  }
-
 
   /////////////////////////////////////////////////////////////////////
   ////////////////////////// PRIVATE METHODS //////////////////////////
@@ -211,7 +206,7 @@ module.exports = ErrorLogger = (function() {
                 var lastModified = new Date(stats['mtime']);
                 var fileAge = Date.now() - lastModified.getTime();
                 if (fileAge > (1000 * 60 * 60 * 24 * 2)) { // two days
-                  fs.unlink(filepath);
+                  fs.unlink(filepath, () => {});
                 }
               }
             });

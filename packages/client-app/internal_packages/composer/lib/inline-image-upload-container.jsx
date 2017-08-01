@@ -109,7 +109,7 @@ export default class InlineImageUploadContainer extends Component {
             img.style.height = `${rect.height}px`;
             img.src = `${img.src}?${Date.now()}`;
 
-            fs.unlink(filepath);
+            fs.unlink(filepath, () => {});
 
             const nextFiles = [].concat(draft.files);
             nextFiles.forEach((f) => {

@@ -37,39 +37,41 @@ export function rootURLForServer(server) {
 }
 
 export async function makeRequest(options) {
-  try {
-    const root = rootURLForServer(options.server);
+  // for some reason when `fetch` completes, the stack trace has been lost.
+  // In case the request failsm capture the stack now.
+  const root = rootURLForServer(options.server);
 
-    options.headers = options.headers || new Headers();
-    options.headers.set('Accept', 'application/json');
-    options.credentials = 'include';
+  options.headers = options.headers || new Headers();
+  options.headers.set('Accept', 'application/json');
+  options.credentials = 'include';
 
-    if (!options.auth) {
-      if (options.server === 'identity') {
-        options.headers.set('Authorization', `Basic ${btoa(`${IdentityStore._identity.token}:`)}`)
-      }
+  if (!options.auth) {
+    if (options.server === 'identity') {
+      options.headers.set('Authorization', `Basic ${btoa(`${IdentityStore._identity.token}:`)}`)
     }
-
-    if (options.path) {
-      options.url = `${root}${options.path}`;
-    }
-
-    if (options.body && !(options.body instanceof FormData)) {
-      options.headers.set('Content-Type', 'application/json');
-      options.body = JSON.stringify(options.body);
-      console.log(options.body);
-    }
-
-    const resp = await fetch(options.url, options);
-    if (!resp.ok) {
-      throw new APIError(resp.statusText);
-    }
-    return resp.json();
-  } catch (err) {
-    const error = new APIError(err) || new APIError(`${options.url} returned ${err.message}.`)
-    NylasEnv.reportError(error);
-    return null;
   }
+
+  if (options.path) {
+    options.url = `${root}${options.path}`;
+  }
+
+  if (options.body && !(options.body instanceof FormData)) {
+    options.headers.set('Content-Type', 'application/json');
+    options.body = JSON.stringify(options.body);
+  }
+
+  const error = new APIError(`${options.method || "GET"} ${options.url} failed`);
+  let resp = null;
+  try {
+    resp = await fetch(options.url, options);
+  } catch (uselessFetchError) {
+    throw error;
+  }
+  if (!resp.ok) {
+    error.message = `${options.method || "GET"} ${options.url} returned ${resp.statusCode}: ${resp.statusText}`;
+    throw error;
+  }
+  return resp.json();
 }
 
 export default {

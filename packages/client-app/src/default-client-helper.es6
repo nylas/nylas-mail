@@ -129,7 +129,7 @@ class Mac {
           try {
             const json = JSON.parse(data)
             callback(json.LSHandlers, json)
-            fs.unlink(tmpPath)
+            fs.unlink(tmpPath, () => {})
           } catch (e) {
             callback(e);
           }
@@ -157,7 +157,7 @@ class Mac {
           return;
         }
         exec(`plutil -convert binary1 "${tmpPath}" -o "${plistPath}"`, () => {
-          fs.unlink(tmpPath);
+          fs.unlink(tmpPath, () => {});
           exec("/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user", (registerErr) => {
             callback(registerErr);
           });

@@ -980,7 +980,7 @@ export default class NylasEnvConstructor {
 
     const React = require("react");
     const ReactDOM = require("react-dom");
-    const SheetContainer = require('./sheet-container');
+    const SheetContainer = require('./sheet-container').default;
     ReactDOM.render(React.createElement(SheetContainer), this.item);
     return document.querySelector(this.workspaceViewParentSelector).appendChild(this.item);
   }
