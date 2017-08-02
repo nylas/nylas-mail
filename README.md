@@ -1,7 +1,7 @@
-Nylas Mail v3 [Unnamed]
+💌 Merani
 ====
 
-**Hello! This is a significant fork of Nylas Mail which completely replaces JavaScript mail sync with a C++ core built on Mailcore2. Unfortunately, it's not ready for use - check back soon!**
+**Hello! I'm one of the original authors of Nylas Mail and this is a significant fork of the app which completely replaces JavaScript mail sync with a C++ core built on Mailcore2. Unfortunately, it's not ready for use - check back soon!**
 
 
 High level Goals:
