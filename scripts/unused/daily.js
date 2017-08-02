@@ -1,4 +1,4 @@
-#!/usr/bin/env babel-node
+#!/usr/bin/env node
 const childProcess = require('child_process')
 const path = require('path')
 const mkdirp = require('mkdirp')

@@ -33,7 +33,6 @@
     "grunt-contrib-less": "0.8.x",
     "grunt-lesslint": "0.13.x",
     "jasmine": "2.x.x",
-    "lerna": "emorikawa/lerna#v2.0.0-beta.38.forked",
     "load-grunt-parent-tasks": "0.1.1",
     "mkdirp": "^0.5.1",
     "pm2": "2.4.0",
@@ -59,8 +58,8 @@
     "stop": "npm run stop-cloud",
     "stop-cloud": "pm2 stop all; pm2 delete all;",
     "build-cloud": "docker build .",
-    "postinstall": "babel-node scripts/postinstall.es6",
-    "daily": "babel-node scripts/daily.js"
+    "postinstall": "node scripts/postinstall.js",
+    "daily": "node scripts/daily.js"
   },
   "repository": {
     "type": "git",
