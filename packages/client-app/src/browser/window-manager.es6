@@ -9,7 +9,7 @@ const ONBOARDING_WINDOW = "onboarding"
 
 export default class WindowManager {
 
-  constructor({devMode, benchmarkMode, safeMode, specMode, resourcePath, configDirPath, initializeInBackground, config}) {
+  constructor({devMode, safeMode, specMode, resourcePath, configDirPath, initializeInBackground, config}) {
     this.initializeInBackground = initializeInBackground;
     this._windows = {};
 
@@ -17,7 +17,7 @@ export default class WindowManager {
       this._registerWindow(win);
       this._didCreateNewWindow(win);
     }
-    this.windowLauncher = new WindowLauncher({devMode, benchmarkMode, safeMode, specMode, resourcePath, configDirPath, config, onCreatedHotWindow});
+    this.windowLauncher = new WindowLauncher({devMode, safeMode, specMode, resourcePath, configDirPath, config, onCreatedHotWindow});
   }
 
   get(windowKey) {
@@ -215,7 +215,6 @@ export default class WindowManager {
       hidden: true,
       isSpec: true,
       devMode: true,
-      benchmarkMode: false,
       toolbar: false,
     }
 

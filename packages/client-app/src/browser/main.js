@@ -23,9 +23,6 @@ const setupConfigDir = (args) => {
   if (args.specMode) {
     defaultDirName = "nylas-spec";
   }
-  if (args.benchmarkMode) {
-    defaultDirName = "nylas-bench";
-  }
   const configDirPath = path.join(app.getPath('appData'), defaultDirName);
   mkdirp.sync(configDirPath);
 
@@ -42,7 +39,6 @@ const setupErrorLogger = (args = {}) => {
   const errorLogger = new ErrorLogger({
     inSpecMode: args.specMode,
     inDevMode: args.devMode,
-    inBenchmarkMode: args.benchmarkMode,
     resourcePath: args.resourcePath,
   });
   process.on('uncaughtException', errorLogger.reportError);
@@ -55,7 +51,6 @@ const declareOptions = (argv) => {
   const options = optimist(argv);
   options.usage("Nylas Mail v" + (app.getVersion()) + "\n\nUsage: nylas-mail [options]\n\nRun Nylas Mail: The open source extensible email client\n\n`nylas-mail --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
   options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
-  options.alias('b', 'benchmark').boolean('b').describe('b', 'Run in benchmark mode.');
   options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
   options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas-mail/packages or ~/.nylas/dev/packages.');
   options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.');
@@ -81,8 +76,7 @@ const parseCommandLine = (argv) => {
     process.stdout.write(version + "\n");
     process.exit(0);
   }
-  const devMode = args['dev'] || args['test'] || args['benchmark'];
-  const benchmarkMode = args['benchmark'];
+  const devMode = args['dev'] || args['test'];
   const logFile = args['log-file'];
   const specMode = args['test'];
   const jUnitXmlPath = args['junit-xml'];
@@ -130,7 +124,6 @@ const parseCommandLine = (argv) => {
     background,
     logFile,
     specMode,
-    benchmarkMode,
     jUnitXmlPath,
     safeMode,
     configDirPath,

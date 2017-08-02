@@ -96,6 +96,10 @@ We do have a few heuristics:
   changes that happened.
 - Read "[How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/)" if you haven't already (but don't be too prescriptivist about it!)
 
-# Running Against Open Source Sync Engine
+# CoffeeScript
 
-See [Configuration](https://github.com/nylas/nylas-mail/blob/master/CONFIGURATION.md)
+Nylas Mail was originally written in CoffeeScript. You can learn more about why [here](https://github.com/nylas/nylas-mail/issues/9).
+The codebase is slowly being converted to ES2016 JavaScript. To see progress
+check out [this spreadsheet](
+https://docs.google.com/spreadsheets/d/1DsZhrNEzCTBlsrPo82UkUxSgqj_fkGRcgTQ-lurnq7c/edit?usp=sharing
+)

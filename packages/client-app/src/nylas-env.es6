@@ -172,7 +172,7 @@ export default class NylasEnvConstructor {
     const ActionBridge = require('./flux/action-bridge').default;
     const MailsyncBridge = require('./flux/mailsync-bridge').default;
 
-    const {devMode, benchmarkMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
+    const {devMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
     const specMode = this.inSpecMode();
 
     document.body.classList.add(`platform-${process.platform}`);
@@ -203,7 +203,7 @@ export default class NylasEnvConstructor {
 
     this.keymaps = new KeymapManager({configDirPath, resourcePath});
     this.commands = new CommandRegistry();
-    this.packages = new PackageManager({devMode, benchmarkMode, configDirPath, resourcePath, safeMode, specMode});
+    this.packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode, specMode});
     this.styles = new StyleManager();
     this.themes = new ThemeManager({packageManager: this.packages, configDirPath, resourcePath, safeMode});
     this.spellchecker = require('./spellchecker').default;
@@ -474,10 +474,6 @@ export default class NylasEnvConstructor {
   // Public: Is the current window in development mode?
   inDevMode() {
     return this.getLoadSettings().devMode;
-  }
-
-  inBenchmarkMode() {
-    return this.getLoadSettings().benchmarkMode;
   }
 
   // Public: Is the current window in safe mode?

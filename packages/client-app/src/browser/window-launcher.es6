@@ -16,14 +16,13 @@ let winNum = 0;
 export default class WindowLauncher {
   static EMPTY_WINDOW = "emptyWindow"
 
-  constructor({devMode, benchmarkMode, safeMode, specMode, resourcePath, configDirPath, onCreatedHotWindow, config}) {
+  constructor({devMode, safeMode, specMode, resourcePath, configDirPath, onCreatedHotWindow, config}) {
     this.defaultWindowOpts = {
       frame: process.platform !== "darwin",
       hidden: false,
       toolbar: true,
       devMode,
       safeMode,
-      benchmarkMode,
       resizable: true,
       windowType: WindowLauncher.EMPTY_WINDOW,
       bootstrapScript: require.resolve("../secondary-window-bootstrap"),
