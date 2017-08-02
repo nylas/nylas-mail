@@ -1,6 +1,11 @@
 💌 Merani
 ====
 
+[![Travis Status](https://travis-ci.org/Foundry376/Merani.svg?branch=master)](https://travis-ci.org/Foundry376/Merani)
+[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/iuuuy6d65u3x6bj6?svg=true)](https://ci.appveyor.com/project/Foundry376/Merani)
+
+
+
 **Hello! I'm one of the original authors of Nylas Mail and this is a significant fork of the app which completely replaces JavaScript mail sync with a C++ core built on Mailcore2. Unfortunately, it's not ready for use - check back soon!**
 
 ![Merani Screenshot](https://github.com/Foundry376/Merani/raw/master/screenshots/hero_graphic_mac%402x.png)
@@ -48,7 +53,6 @@ Future Features:
 
 **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail/).
 
-[![Build Status](https://travis-ci.org/nylas/nylas-mail.svg?branch=master)](https://travis-ci.org/nylas/nylas-mail)
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
 
 #### Want to help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
