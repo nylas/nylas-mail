@@ -1,5 +1,5 @@
+/* eslint global-require: 0 */
 import {APIError} from './errors'
-import IdentityStore from './stores/identity-store'
 
 // A 0 code is when an error returns without a status code, like "ESOCKETTIMEDOUT"
 export const TimeoutErrorCodes = [0, 408, "ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ENETDOWN", "ENETUNREACH"]
@@ -7,18 +7,19 @@ export const PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 429, 500, "ENO
 export const CanceledErrorCodes = [-123, "ECONNABORTED"]
 export const SampleTemporaryErrorCode = 504
 
+let IdentityStore = null;
+
 // server option
 
 export function rootURLForServer(server) {
   const env = NylasEnv.config.get('env');
 
-  if (!['development', 'local', 'staging', 'production'].includes(env)) {
+  if (!['development', 'staging', 'production'].includes(env)) {
     throw new Error(`rootURLForServer: ${env} is not a valid environment.`);
   }
 
   if (server === 'identity') {
     return {
-      local: "http://localhost:5101",
       development: "http://localhost:5101",
       staging: "https://id-staging.nylas.com",
       production: "https://id.nylas.com",
@@ -26,7 +27,6 @@ export function rootURLForServer(server) {
   }
   if (server === 'accounts') {
     return {
-      local: "http://localhost:5100",
       development: "http://localhost:5100",
       staging: "https://accounts-staging.nylas.com",
       production: "https://accounts.nylas.com",
@@ -47,7 +47,9 @@ export async function makeRequest(options) {
 
   if (!options.auth) {
     if (options.server === 'identity') {
-      options.headers.set('Authorization', `Basic ${btoa(`${IdentityStore._identity.token}:`)}`)
+      IdentityStore = IdentityStore || require('./stores/identity-store').default;
+      const username = IdentityStore.identity().token;
+      options.headers.set('Authorization', `Basic ${btoa(`${username}:`)}`)
     }
   }
 

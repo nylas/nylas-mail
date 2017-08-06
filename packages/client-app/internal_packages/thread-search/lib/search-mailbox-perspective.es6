@@ -55,7 +55,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
 
   tasksForRemovingItems(threads) {
     return TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
-      const account = AccountStore.accountForId(accountId)
+      const account = AccountStore.accountForId(accountId);
       const dest = account.preferredRemovalDestination();
 
       if (dest instanceof Folder) {

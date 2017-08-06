@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import {CommonProviderSettings} from 'imap-provider-settings';
 import {
   NylasAPIRequest,
+  IdentityStore,
   RegExpUtils,
   MailsyncProcess,
 } from 'nylas-exports';
@@ -112,7 +113,7 @@ export async function runAuthValidation(accountInfo) {
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
-  const proc = new MailsyncProcess(NylasEnv.getLoadSettings(), data);
+  const proc = new MailsyncProcess(NylasEnv.getLoadSettings(), data, IdentityStore.identity());
   const {account} = await proc.test();
 
   delete data.id;

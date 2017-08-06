@@ -39,14 +39,14 @@ class WindowTitle extends React.Component {
   }
 
   componentDidMount() {
-    this.unlisten = NylasEnv.onWindowPropsReceived(() =>
+    this.disposable = NylasEnv.onWindowPropsReceived(() =>
       this.setState(NylasEnv.getLoadSettings())
     );
   }
 
   componentWillUnmount() {
-    if (this.unlisten) {
-      this.unlisten();
+    if (this.disposable) {
+      this.disposable.dispose();
     }
   }
 

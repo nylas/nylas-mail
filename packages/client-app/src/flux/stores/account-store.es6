@@ -26,7 +26,6 @@ class AccountStore extends NylasStore {
     this.listenTo(Actions.removeAccount, this._onRemoveAccount)
     this.listenTo(Actions.updateAccount, this._onUpdateAccount)
     this.listenTo(Actions.reorderAccount, this._onReorderAccount)
-    this.listenTo(Actions.apiAuthError, this._onAPIAuthError)
 
     NylasEnv.config.onDidChange(configVersionKey, async (change) => {
       // If we already have this version of the accounts config, it means we
@@ -69,29 +68,9 @@ class AccountStore extends NylasStore {
     return false
   }
 
-  _onAPIAuthError = (apiError, apiOptions) => {
-    // Prevent /auth errors from presenting auth failure notices
-    const apiToken = apiOptions.auth.user
-    if (!apiToken) {
-      return Promise.resolve()
-    }
-
-    const account = this.accounts().find((acc) =>
-      this.tokensForAccountId(acc.id) === apiToken
-    );
-
-    if (account) {
-      const n1CloudState = Account.N1_CLOUD_STATE_AUTH_FAILED
-      this._onUpdateAccount(account.id, {n1CloudState})
-    }
-
-    return Promise.resolve()
-  }
-
   _loadAccounts = () => {
     try {
       this._caches = {}
-      this._tokens = this._tokens || {};
       this._version = NylasEnv.config.get(configVersionKey) || 0
 
       const oldAccountIds = this._accounts ? this._accounts.map(a => a.id) : [];
@@ -105,24 +84,15 @@ class AccountStore extends NylasStore {
       // we really have to (i.e. we're loading a new Account)
       const addedAccountIds = _.difference(accountIds, oldAccountIds);
       const addedAccounts = this._accounts.filter((a) => addedAccountIds.includes(a.id));
-      const removedAccountIds = _.difference(oldAccountIds, accountIds);
-      const removedAccounts = this._accounts.filter((a) => removedAccountIds.includes(a.id));
 
       // Run a few checks on account consistency. We want to display useful error
       // messages and these can result in very strange exceptions downstream otherwise.
       this._enforceAccountsValidity()
 
       for (const account of addedAccounts) {
-        this._tokens[account.emailAddress] = this._tokens[account.id] = KeyManager.getPassword(`${account.emailAddress}`);
-      }
-      for (const removedAccount of removedAccounts) {
-        const {id, emailAddress} = removedAccount
-        if (this._tokens[id]) {
-          delete this._tokens[id]
-        }
-        if (this._tokens[emailAddress]) {
-          delete this._tokens[emailAddress]
-        }
+        account.settings.imap_password = KeyManager.getPassword(`${account.emailAddress}-imap`);
+        account.settings.smtp_password = KeyManager.getPassword(`${account.emailAddress}-smtp`);
+        account.cloudToken = KeyManager.getPassword(`${account.emailAddress}-cloud`);
       }
     } catch (error) {
       NylasEnv.reportError(error)
@@ -172,11 +142,16 @@ class AccountStore extends NylasStore {
   }
 
   _save = () => {
-    this._version += 1
-    const configAccounts = this._accounts.map(a => a.toJSON())
-    configAccounts.forEach(a => delete a.sync_error)
-    NylasEnv.config.set(configAccountsKey, configAccounts)
-    NylasEnv.config.set(configVersionKey, this._version)
+    this._version += 1;
+    const configAccounts = this._accounts.map(a => a.toJSON());
+    configAccounts.forEach(a => {
+      delete a.sync_error
+      delete a.settings.imap_password
+      delete a.settings.smtp_password
+      delete a.cloudToken
+    });
+    NylasEnv.config.set(configAccountsKey, configAccounts);
+    NylasEnv.config.set(configVersionKey, this._version);
     this._trigger()
   }
 
@@ -203,7 +178,7 @@ class AccountStore extends NylasStore {
   _onRemoveAccount = (id) => {
     const account = this._accounts.find(a => a.id === id);
     if (!account) return
-    KeyManager.deletePassword(account.emailAddress)
+    KeyManager.deletePassword(account.id)
 
     this._caches = {}
 
@@ -239,29 +214,28 @@ class AccountStore extends NylasStore {
     this._save()
   }
 
-  addAccountFromJSON = (json, cloudToken) => {
+  addAccountFromJSON = (json) => {
     if (!json.emailAddress || !json.provider) {
-      console.error("Returned account data is invalid", json)
-      console.log(JSON.stringify(json))
-      throw new Error("Returned account data is invalid")
+      throw new Error(`Returned account data is invalid: ${JSON.stringify(json)}`)
     }
 
     this._loadAccounts()
 
-    this._tokens[json.id] = cloudToken;
-    KeyManager.replacePassword(`${json.emailAddress}`, cloudToken)
+    KeyManager.replacePassword(`${json.emailAddress}-cloud`, json.cloudToken);
+    KeyManager.replacePassword(`${json.emailAddress}-imap`, json.settings.imap_password);
+    KeyManager.replacePassword(`${json.emailAddress}-smtp`, json.settings.smtp_passwowrd);
 
     const existingIdx = this._accounts.findIndex((a) =>
       a.id === json.id || a.emailAddress === json.emailAddress
     );
 
     if (existingIdx === -1) {
-      const account = (new Account()).fromJSON(json)
-      this._accounts.push(account)
+      const account = (new Account()).fromJSON(json);
+      this._accounts.push(account);
     } else {
-      const account = this._accounts[existingIdx]
-      account.syncState = Account.SYNC_STATE_RUNNING
-      account.fromJSON(json)
+      const account = this._accounts[existingIdx];
+      account.syncState = Account.SYNC_STATE_RUNNING;
+      account.fromJSON(json);
       // Restart the connection in case account credentials have changed
       // todo bg
     }
@@ -348,11 +322,6 @@ class AccountStore extends NylasStore {
   // Public: Returns the currently active {Account}.
   current() {
     throw new Error("AccountStore.current() has been deprecated.")
-  }
-
-  // Private: This method is going away soon, do not rely on it.
-  tokenForAccountId(id) {
-    return this._tokens[id]
   }
 }
 

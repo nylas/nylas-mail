@@ -8,7 +8,7 @@ class N1CloudAPI {
 
   _onConfigChanged = () => {
     const env = NylasEnv.config.get('env')
-    if (['development', 'local'].includes(env)) {
+    if (env === 'development') {
       this.APIRoot = "http://lvh.me:5100";
     } else if (env === 'staging') {
       this.APIRoot = "https://n1-staging.nylas.com";

@@ -6,6 +6,7 @@ import Actions from './actions';
 import Utils from './models/utils';
 
 let AccountStore = null;
+let IdentityStore = null;
 let Task = null;
 
 export default class MailsyncBridge {
@@ -23,8 +24,16 @@ export default class MailsyncBridge {
     this.clients = {};
 
     Task = require('./tasks/task').default; //eslint-disable-line
+
+    IdentityStore = require('./stores/identity-store').default;
+    IdentityStore.listen(() => {
+      Object.values(this.clients).each(c => c.kill());
+      this.ensureClients();
+    }, this);
+
     AccountStore = require('./stores/account-store').default; //eslint-disable-line
     AccountStore.listen(this.ensureClients, this);
+
     this.ensureClients();
 
     NylasEnv.onBeforeUnload(this.onBeforeUnload);
@@ -33,6 +42,7 @@ export default class MailsyncBridge {
   ensureClients() {
     const toLaunch = [];
     const clientsToStop = Object.assign({}, this.clients);
+    const identity = IdentityStore.identity();
 
     for (const acct of AccountStore.accounts()) {
       if (!this.clients[acct.id]) {
@@ -47,7 +57,7 @@ export default class MailsyncBridge {
     }
 
     toLaunch.forEach((acct) => {
-      const client = new MailsyncProcess(NylasEnv.getLoadSettings(), acct);
+      const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, acct);
       client.sync();
       client.on('deltas', this.onIncomingMessages);
       client.on('close', () => {

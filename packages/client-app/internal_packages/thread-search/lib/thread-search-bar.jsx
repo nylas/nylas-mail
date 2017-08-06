@@ -59,7 +59,7 @@ class ThreadSearchBar extends Component {
     if (this.props.perspective.isInbox()) {
       return 'Search all email';
     }
-    return `Search ${this.props.perspective.name}`;
+    return `Search ${this.props.perspective.name || ""}`;
   }
 
   render() {

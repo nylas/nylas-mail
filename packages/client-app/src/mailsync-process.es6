@@ -1,12 +1,16 @@
 /* eslint global-require: 0 */
+
+/*
+Warning! This file is imported from the main process as well as the renderer process
+*/
 import { spawn } from 'child_process';
 import path from 'path';
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 
 let Utils = null;
 
 const LocalizedErrorStrings = {
-  ErrorConnection: "Connection Error",
+  ErrorConnection: "Connection Error - Check that your internet connection is active.",
   ErrorInvalidAccount: "This account is invalid, or does not have an inbox or all folder.",
   ErrorTLSNotAvailable: "TLS Not Available",
   ErrorParse: "Parsing Error",
@@ -27,23 +31,32 @@ const LocalizedErrorStrings = {
 };
 
 export default class MailsyncProcess extends EventEmitter {
-  constructor({configDirPath, resourcePath}, account) {
+  constructor({configDirPath, resourcePath}, account, identity) {
     super();
     this.configDirPath = configDirPath;
     this.account = account;
+    this.identity = identity;
     this.binaryPath = path.join(resourcePath, 'MailSync').replace('app.asar', 'app.asar.unpacked');
     this._proc = null;
   }
 
   _spawnProcess(mode) {
-    this._proc = spawn(this.binaryPath, [`--mode`, mode], {
-      env: {
-        CONFIG_DIR_PATH: this.configDirPath,
-      },
-    });
+    const env = {
+      CONFIG_DIR_PATH: this.configDirPath,
+      IDENTITY_SERVER: 'unknown',
+      ACCOUNTS_SERVER: 'unknown',
+    };
+    if (process.type === 'renderer') {
+      const rootURLForServer = require('./flux/nylas-api-request').rootURLForServer;
+      env.IDENTITY_SERVER = rootURLForServer('identity');
+      env.ACCOUNTS_SERVER = rootURLForServer('accounts');
+    }
+
+    this._proc = spawn(this.binaryPath, [`--mode`, mode], {env});
     if (this.account) {
       this._proc.stdout.once('data', () => {
         this._proc.stdin.write(`${JSON.stringify(this.account)}\n`);
+        this._proc.stdin.write(`${JSON.stringify(this.identity)}\n`);
       });
     }
   }
