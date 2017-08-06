@@ -1,6 +1,14 @@
 import _ from 'underscore';
-import {FeatureUsageStore, Actions, AccountStore,
-  DatabaseStore, Message, CategoryStore} from 'nylas-exports';
+import {
+  FeatureUsageStore,
+  SyncbackMetadataTask,
+  Actions,
+  AccountStore,
+  DatabaseStore,
+  Message,
+  CategoryStore,
+} from 'nylas-exports';
+
 import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
@@ -10,7 +18,7 @@ class SnoozeStore {
   constructor(pluginId = PLUGIN_ID, pluginName = PLUGIN_NAME) {
     this.pluginId = pluginId
     this.pluginName = pluginName
-    this.accountIds = _.pluck(AccountStore.accounts(), 'id')
+    this.accountIds = AccountStore.accounts().map(a => a.id)
     this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
   }
 
@@ -56,7 +64,7 @@ class SnoozeStore {
   };
 
   onAccountsChanged = () => {
-    const nextIds = _.pluck(AccountStore.accounts(), 'id')
+    const nextIds = AccountStore.accounts().map(a => a.id)
     const isSameAccountIds = (
       this.accountIds.length === nextIds.length &&
       this.accountIds.length === _.intersection(this.accountIds, nextIds).length
@@ -92,8 +100,12 @@ class SnoozeStore {
           for (const message of messages) {
             const header = message.headerMessageId;
             const stableId = message.id;
-            Actions.setMetadata(message, this.pluginId,
-              {expiration: snoozeDate, header, stableId, snoozeCategoryId, returnCategoryId})
+
+            Actions.queueTask(new SyncbackMetadataTask({
+              model: message,
+              pluginId: this.pluginId,
+              value: {expiration: snoozeDate, header, stableId, snoozeCategoryId, returnCategoryId},
+            }));
           }
         });
       });

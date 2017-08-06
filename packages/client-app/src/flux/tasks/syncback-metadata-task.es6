@@ -1,53 +1,29 @@
-import SyncbackModelTask from './syncback-model-task'
-import DatabaseObjectRegistry from '../../registries/database-object-registry'
-import N1CloudAPI from '../../n1-cloud-api'
-import {makeRequest} from '../nylas-api-request'
+import Task from './task';
+import Attributes from '../attributes';
 
-export default class SyncbackMetadataTask extends SyncbackModelTask {
+export default class SyncbackMetadataTask extends Task {
 
-  constructor(modelId, modelClassName, pluginId) {
-    super({id: modelId});
-    this.modelClassName = modelClassName;
-    this.pluginId = pluginId;
-  }
+  static attributes = Object.assign({}, Task.attributes, {
+    pluginId: Attributes.String({
+      modelKey: 'pluginId',
+    }),
+    modelId: Attributes.String({
+      modelKey: 'modelId',
+    }),
+    modelClassName: Attributes.String({
+      modelKey: 'modelClassName',
+    }),
+    value: Attributes.Object({
+      modelKey: 'value',
+    }),
+  });
 
-  getModelConstructor() {
-    return DatabaseObjectRegistry.get(this.modelClassName);
-  }
-
-  makeRequest = async (model) => {
-    if (!model.serverId) {
-      throw new Error(`Can't syncback metadata for a ${this.modelClassName} instance that doesn't have a serverId`)
+  constructor(data = {}) {
+    super(data);
+    if (data.model) {
+      this.modelId = data.model.id;
+      this.modelClassName = data.model.constructor.name;
+      this.accountId = data.model.accountId;
     }
-    const metadata = model.metadataObjectForPluginId(this.pluginId);
-
-    const objectType = this.modelClassName.toLowerCase();
-    let messageIds;
-    if (objectType === 'thread') {
-      const messages = await model.messages();
-      messageIds = messages.map(message => message.id)
-    }
-    const options = {
-      accountId: model.accountId,
-      path: `/metadata/${model.serverId}/${this.pluginId}`,
-      method: 'POST',
-      body: {
-        version: metadata.version,
-        value: JSON.stringify(metadata.value),
-        objectType: objectType,
-        messageIds: messageIds,
-      },
-    };
-    return makeRequest({
-      api: N1CloudAPI,
-      options,
-    });
   }
-
-  applyRemoteChangesToModel = (model, {version}) => {
-    const metadata = model.metadataObjectForPluginId(this.pluginId);
-    metadata.version = version;
-    return model;
-  };
-
 }

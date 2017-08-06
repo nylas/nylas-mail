@@ -1,11 +1,9 @@
 import {Event} from 'nylas-exports';
-import SyncbackModelTask from './syncback-model-task'
 
-const EVENTS_ENDPOINT = "/events"
-
-export default class SyncbackEventTask extends SyncbackModelTask {
-  constructor(id) {
-    super({id, endpoint: EVENTS_ENDPOINT})
+export default class SyncbackEventTask {
+  constructor() { // id
+    throw new Error("Unimplemented!");
+    // super({id, endpoint: EVENTS_ENDPOINT})
   }
 
   getModelConstructor() {

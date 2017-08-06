@@ -49,7 +49,6 @@ xdescribe('SnoozeStore', function snoozeStore() {
     spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve())
     spyOn(SnoozeUtils, 'moveThreadsToSnooze').andReturn(Promise.resolve(this.threads))
     spyOn(SnoozeUtils, 'moveThreadsFromSnooze')
-    spyOn(Actions, 'setMetadata')
     spyOn(Actions, 'closePopover')
     spyOn(NylasEnv, 'reportError')
     spyOn(NylasEnv, 'showErrorDialog')
@@ -140,29 +139,28 @@ xdescribe('SnoozeStore', function snoozeStore() {
       })
     });
 
-    it('calls Actions.setMetadata with the correct metadata', () => {
+    it('calls Actions.queueTask with the correct metadata', () => {
       waitsForPromise(() => {
         return this.store.onSnoozeThreads(this.threads, 'date', 'label')
         .then(() => {
-          expect(Actions.setMetadata).toHaveBeenCalled()
-          expect(Actions.setMetadata.calls[0].args).toEqual([
-            this.updatedThreadsByAccountId['123'].threads,
-            'plug-id',
-            {
-              snoozeDate: 'date',
-              snoozeCategoryId: 'sn-1',
-              returnCategoryId: 'in-1',
-            },
-          ])
-          expect(Actions.setMetadata.calls[1].args).toEqual([
-            this.updatedThreadsByAccountId['321'].threads,
-            'plug-id',
-            {
-              snoozeDate: 'date',
-              snoozeCategoryId: 'sn-2',
-              returnCategoryId: 'in-2',
-            },
-          ])
+          expect(Actions.queueTask).toHaveBeenCalled()
+          const task1 = Actions.queueTask.calls[0].args[0];
+          expect(task1.pluginId).toEqual('plug-id');
+          expect(task1.modelId).toEqual(this.updatedThreadsByAccountId['123'].threads[0].id);
+          expect(task1.value).toEqual({
+            snoozeDate: 'date',
+            snoozeCategoryId: 'sn-1',
+            returnCategoryId: 'in-1',
+          });
+
+          const task2 = Actions.queueTask.calls[1].args[0];
+          expect(task2.pluginId).toEqual('plug-id');
+          expect(task2.modelId).toEqual(this.updatedThreadsByAccountId['321'].threads[0].id);
+          expect(task2.value).toEqual({
+            snoozeDate: 'date',
+            snoozeCategoryId: 'sn-2',
+            returnCategoryId: 'in-2',
+          });
         })
       })
     });

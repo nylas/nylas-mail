@@ -143,7 +143,6 @@ class Actions {
   ```
   */
   static updateAccount = ActionScopeWindow;
-  static apiAuthError = ActionScopeWindow;
 
   /*
   Public: Re-order the provided account in the account list.
@@ -495,16 +494,6 @@ class Actions {
 
   static openModal = ActionScopeWindow;
   static closeModal = ActionScopeWindow;
-
-  /*
-  Public: Set metadata for a specified model and pluginId.
-
-  *Scope: Window*
-
-  Receives an {Model} or {Array} of {Model}s, a plugin id, and an Object that
-  represents the metadata value.
-  */
-  static setMetadata = ActionScopeWindow;
 
   static draftParticipantsChanged = ActionScopeWindow;
 
