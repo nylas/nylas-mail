@@ -1,5 +1,4 @@
 import moment from 'moment';
-import _ from 'underscore';
 import {
   Actions,
   Thread,
@@ -79,7 +78,7 @@ const SnoozeUtils = {
       const snoozeCat = getSnoozeCategory(accountId);
       const inboxCat = getInboxCategory(accountId);
       if (snoozeCat instanceof Label) {
-        return ChangeLabelsTask({
+        return new ChangeLabelsTask({
           source: "Snooze Move",
           threads: accountThreads,
           taskDescription: description,
@@ -87,7 +86,7 @@ const SnoozeUtils = {
           labelsToRemove: snooze ? [inboxCat] : [snoozeCat],
         });
       }
-      return ChangeFolderTask({
+      return new ChangeFolderTask({
         source: "Snooze Move",
         threads: accountThreads,
         taskDescription: description,
@@ -108,8 +107,8 @@ const SnoozeUtils = {
   moveThreadsToSnooze(threads, snoozeCategoriesByAccountPromise, snoozeDate) {
     return snoozeCategoriesByAccountPromise
     .then((snoozeCategoriesByAccountId) => {
-      const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
-      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory(accId)]
+      const getSnoozeCategory = (accId) => snoozeCategoriesByAccountId[accId]
+      const getInboxCategory = (accId) => CategoryStore.getInboxCategory(accId)
       const description = SnoozeUtils.snoozedUntilMessage(snoozeDate)
       return SnoozeUtils.moveThreads(
         threads,
@@ -121,8 +120,8 @@ const SnoozeUtils = {
   moveThreadsFromSnooze(threads, snoozeCategoriesByAccountPromise) {
     return snoozeCategoriesByAccountPromise
     .then((snoozeCategoriesByAccountId) => {
-      const getSnoozeCategory = (accId) => [snoozeCategoriesByAccountId[accId]]
-      const getInboxCategory = (accId) => [CategoryStore.getInboxCategory(accId)]
+      const getSnoozeCategory = (accId) => snoozeCategoriesByAccountId[accId]
+      const getInboxCategory = (accId) => CategoryStore.getInboxCategory(accId)
       const description = 'Unsnoozed';
       return SnoozeUtils.moveThreads(
         threads,

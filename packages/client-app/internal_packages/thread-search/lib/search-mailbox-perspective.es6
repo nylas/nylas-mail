@@ -59,7 +59,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
       const dest = account.preferredRemovalDestination();
 
       if (dest instanceof Folder) {
-        return ChangeFolderTask({
+        return new ChangeFolderTask({
           threads: accountThreads,
           source: "Dragged out of list",
           folder: dest,
@@ -67,7 +67,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
       }
       if (dest.role === 'all') {
         // if you're searching and archive something, it really just removes the inbox label
-        return ChangeLabelsTask({
+        return new ChangeLabelsTask({
           threads: accountThreads,
           source: "Dragged out of list",
           labelsToRemove: [CategoryStore.getInboxCategory(accountId)],

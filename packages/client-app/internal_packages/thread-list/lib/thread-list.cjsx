@@ -290,7 +290,7 @@ class ThreadList extends React.Component
     return unless NylasEnv.config.get('core.workspace.showImportant')
 
     Actions.queueTasks(TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => 
-      return ChangeLabelsTask({
+      return new ChangeLabelsTask({
         threads: accountThreads,
         source: "Keyboard Shortcut"
         labelsToAdd: if important then [CategoryStore.getCategoryByRole(accountId, 'important')] else []
