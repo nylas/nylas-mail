@@ -22,7 +22,7 @@ export default class SyncbackMetadataTask extends Task {
     super(data);
     if (data.model) {
       this.modelId = data.model.id;
-      this.modelClassName = data.model.constructor.name;
+      this.modelClassName = data.model.constructor.name.toLowerCase();
       this.accountId = data.model.accountId;
     }
   }

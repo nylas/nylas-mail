@@ -60,9 +60,7 @@ class FeatureUsageStore extends NylasStore {
     super()
     this._waitForModalClose = []
     this.NoProAccess = NoProAccess
-  }
 
-  activate() {
     /**
      * The IdentityStore triggers both after we update it, and when it
      * polls for new data every several minutes or so.
@@ -153,20 +151,27 @@ class FeatureUsageStore extends NylasStore {
   }
 
   _isUsable(feature) {
+    return true;
+    /*
+    TODO BG
     const usage = this._featureUsage()
     if (!usage[feature]) {
       NylasEnv.reportError(new Error(`${feature} isn't supported`));
       return false
     }
     return usage[feature].used_in_period < usage[feature].quota
+    */
   }
 
   async _markFeatureUsed(featureName) {
+    /*
     const task = new SendFeatureUsageEventTask(featureName)
     Actions.queueTask(task);
     await TaskQueue.waitForPerformLocal(task)
     const feat = IdentityStore.identity().feature_usage[featureName]
     return feat.quota - feat.used_in_period
+    */
+    return true;
   }
 
   _featureUsage() {

@@ -9,7 +9,6 @@ import { convertStackTrace } from 'coffeestack';
 import { mapSourcePosition } from 'source-map-support';
 
 import WindowEventHandler from './window-event-handler';
-import StoreRegistry from './registries/store-registry';
 
 import Utils from './flux/models/utils';
 
@@ -160,6 +159,13 @@ export default class NylasEnvConstructor {
 
     this.setupErrorLogger();
 
+    const {devMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
+    const specMode = this.inSpecMode();
+
+    // Add 'src/global/' to module search path.
+    const globalPath = path.join(resourcePath, 'src', 'global');
+    require('module').globalPaths.push(globalPath);
+
     this.loadTime = null;
 
     const Config = require('./config');
@@ -169,27 +175,9 @@ export default class NylasEnvConstructor {
     const ThemeManager = require('./theme-manager').default;
     const StyleManager = require('./style-manager').default;
     const MenuManager = require('./menu-manager').default;
-    const ActionBridge = require('./flux/action-bridge').default;
-    const MailsyncBridge = require('./flux/mailsync-bridge').default;
-
-    const {devMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
-    const specMode = this.inSpecMode();
 
     document.body.classList.add(`platform-${process.platform}`);
     document.body.classList.add(`window-type-${windowType}`);
-
-    // Add 'src/global' to module search path.
-    const globalPath = path.join(resourcePath, 'src', 'global');
-    require('module').globalPaths.push(globalPath);
-
-    // Our client-private-plugins get sym-linked into internal_packages.
-    // However, when we require anything from those files, the require chain is
-    // relative to their original location. Their original location is a sibling
-    // (not a child) of the client-app repo. This means the node_modules that
-    // they should see aren't actually there due to the symlink. We manually add
-    // node_modules to the global require path (even though it's already there
-    // by default) to support these symlinked modules
-    require('module').globalPaths.push(path.join(resourcePath, 'node_modules'));
 
     // Make react.js faster
     if (!devMode && process.env.NODE_ENV == null) {
@@ -211,13 +199,7 @@ export default class NylasEnvConstructor {
     if (process.platform === 'win32') {
       this.getCurrentWindow().setMenuBarVisibility(false);
     }
-
     this.windowEventHandler = new WindowEventHandler();
-
-    if (!specMode) {
-      this.mailsyncBridge = new MailsyncBridge();
-      this.actionBridge = new ActionBridge(ipcRenderer);
-    }
 
     this.extendRxObservables();
 
@@ -831,8 +813,13 @@ export default class NylasEnvConstructor {
   async startWindow() {
     const {windowType} = this.getLoadSettings();
 
+    const ActionBridge = require('./flux/action-bridge').default;
+    this.actionBridge = new ActionBridge(ipcRenderer);
+
+    const MailsyncBridge = require('./flux/mailsync-bridge').default;
+    this.mailsyncBridge = new MailsyncBridge();
+
     this.themes.loadBaseStylesheets();
-    await StoreRegistry.activateAllStores();
     this.initializeBasicSheet();
     this.initializeReactRoot();
     this.packages.activatePackages(windowType);

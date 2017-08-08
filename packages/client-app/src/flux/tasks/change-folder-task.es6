@@ -27,6 +27,9 @@ export default class ChangeFolderTask extends ChangeMailTask {
   });
 
   constructor(data = {}) {
+    if (!(data.folder instanceof Folder)) {
+      throw new Error("ChangeFolderTask: You must provide a single folder.");
+    }
     if (!data.previousFolders) {
       data.previousFolders = {};
     }
