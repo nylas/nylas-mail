@@ -6,5 +6,7 @@
 
   "window:toggle-full-screen": "command+ctrl+f",
   "window:reload": "mod+alt+l",
-  "window:toggle-dev-tools": "meta+alt+i"
+  "window:toggle-dev-tools": "meta+alt+i",
+  "window:attach-to-xcode": "meta+alt+j",
+  "window:open-mailsync-logs": "meta+shift+j"
 }

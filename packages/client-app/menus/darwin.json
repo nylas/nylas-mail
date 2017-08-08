@@ -90,15 +90,17 @@
     "submenu": [
       { "label": "Run with Debug Flags", "type": "checkbox", "command": "application:toggle-dev" },
       { "type": "separator" },
+      { "label": "Create a Plugin...", "command": "application:create-package" },
+      { "label": "Install a Plugin...", "command": "application:install-package" },
+      { "type": "separator" },
       { "label": "Reload", "command": "window:reload" },
       { "label": "Toggle Developer Tools", "command": "window:toggle-dev-tools" },
       { "label": "Toggle Component Regions", "command": "window:toggle-component-regions" },
       { "label": "Toggle Screenshot Mode", "command": "window:toggle-screenshot-mode" },
+      { "label": "Open JavaScript Logs", "command": "window:open-js-logs" },
       { "type": "separator" },
-      { "label": "Create a Plugin...", "command": "application:create-package" },
-      { "label": "Install a Plugin...", "command": "application:install-package" },
-      { "type": "separator" },
-      { "label": "Open Detailed Logs", "command": "window:open-errorlogger-logs" }
+      { "label": "Attach Mailsync to Xcode", "command": "window:attach-to-xcode" },
+      { "label": "Open Mailsync Logs", "command": "window:open-mailsync-logs" }
     ]
   },
   {

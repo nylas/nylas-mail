@@ -71,8 +71,19 @@ export default class WindowEventHandler {
       NylasEnv.toggleDevTools()
     });
 
-    NylasEnv.commands.add(document.body, 'window:open-errorlogger-logs', () => {
+    NylasEnv.commands.add(document.body, 'window:open-js-logs', () => {
       NylasEnv.errorLogger.openLogs()
+    });
+
+    NylasEnv.commands.add(document.body, 'window:open-mailsync-logs', () => {
+      NylasEnv.mailsyncBridge.openLogs();
+    });
+
+    NylasEnv.commands.add(document.body, 'window:attach-to-xcode', () => {
+      const client = Object.values(NylasEnv.mailsyncBridge.clients()).pop();
+      if (client) {
+        client.attachToXcode();
+      }
     });
 
     NylasEnv.commands.add(document.body, 'window:toggle-component-regions', () => {

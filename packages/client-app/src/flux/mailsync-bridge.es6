@@ -1,13 +1,14 @@
+import path from 'path';
+import Task from './tasks/task';
+import IdentityStore from './stores/identity-store';
+import AccountStore from './stores/account-store';
 import DatabaseStore from './stores/database-store';
 import DatabaseChangeRecord from './stores/database-change-record';
 import DatabaseObjectRegistry from '../registries/database-object-registry';
 import MailsyncProcess from '../mailsync-process';
+import KeyManager from '../key-manager';
 import Actions from './actions';
 import Utils from './models/utils';
-
-let AccountStore = null;
-let IdentityStore = null;
-let Task = null;
 
 export default class MailsyncBridge {
   constructor() {
@@ -21,32 +22,40 @@ export default class MailsyncBridge {
     Actions.cancelTask.listen(this.onCancelTask, this);
     Actions.fetchBodies.listen(this.onFetchBodies, this);
 
-    this.clients = {};
+    this._clients = {};
 
-    Task = require('./tasks/task').default; //eslint-disable-line
-
-    IdentityStore = require('./stores/identity-store').default;
     IdentityStore.listen(() => {
-      Object.values(this.clients).each(c => c.kill());
+      Object.values(this._clients).forEach(c => c.kill());
       this.ensureClients();
     }, this);
 
-    AccountStore = require('./stores/account-store').default; //eslint-disable-line
     AccountStore.listen(this.ensureClients, this);
-
-    this.ensureClients();
-
     NylasEnv.onBeforeUnload(this.onBeforeUnload);
+
+    process.nextTick(() => {
+      this.ensureClients();
+    });
+  }
+
+  openLogs() {
+    const {configDirPath} = NylasEnv.getLoadSettings();
+    const logPath = path.join(configDirPath, 'mailsync.log');
+    require('electron').shell.openItem(logPath); // eslint-disable-line
+  }
+
+  clients() {
+    return this._clients;
   }
 
   ensureClients() {
     const toLaunch = [];
-    const clientsToStop = Object.assign({}, this.clients);
+    const clientsToStop = Object.assign({}, this._clients);
     const identity = IdentityStore.identity();
 
     for (const acct of AccountStore.accounts()) {
-      if (!this.clients[acct.id]) {
-        toLaunch.push(acct);
+      if (!this._clients[acct.id]) {
+        const fullAccountJSON = KeyManager.insertAccountSecrets(acct.toJSON());
+        toLaunch.push(fullAccountJSON);
       } else {
         delete clientsToStop[acct.id];
       }
@@ -60,10 +69,11 @@ export default class MailsyncBridge {
       const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, acct);
       client.sync();
       client.on('deltas', this.onIncomingMessages);
-      client.on('close', () => {
-        delete this.clients[acct.id];
+      client.on('close', ({code, error}) => {
+        console.log(`SyncWorker exited with code ${code} (${error || "No Error Provided"})`);
+        delete this._clients[acct.id];
       });
-      this.clients[acct.id] = client;
+      this._clients[acct.id] = client;
     });
   }
 
@@ -112,6 +122,10 @@ export default class MailsyncBridge {
       }
 
       const {type, objects, objectClass} = JSON.parse(msg);
+      if (!objects || !type || !objectClass) {
+        console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`)
+        continue;
+      }
       const models = objects.map(Utils.convertToModel);
       DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
 
@@ -141,17 +155,17 @@ export default class MailsyncBridge {
   }
 
   onBeforeUnload = () => {
-    for (const client of Object.values(this.clients)) {
+    for (const client of Object.values(this._clients)) {
       client.kill();
     }
-    this.clients = [];
+    this._clients = [];
     return true;
   }
 
   sendMessageToAccount(accountId, json) {
-    if (!this.clients[accountId]) {
+    if (!this._clients[accountId]) {
       throw new Error(`No mailsync worker is running for account id ${accountId}.`);
     }
-    this.clients[accountId].sendMessage(json);
+    this._clients[accountId].sendMessage(json);
   }
 }
