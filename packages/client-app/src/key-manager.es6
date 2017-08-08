@@ -23,11 +23,35 @@ class KeyManager {
     this.KEY_NAME = "Nylas Mail Keys"
   }
 
+  extractAccountSecrets(accountJSON) {
+    const next = Object.assign({}, accountJSON);
+    this._try(() => {
+      const keys = this._getKeyHash();
+      keys[`${accountJSON.emailAddress}-imap`] = next.settings.imap_password;
+      delete next.settings.imap_password;
+      keys[`${accountJSON.emailAddress}-smtp`] = next.settings.smtp_password;
+      delete next.settings.smtp_password;
+      keys[`${accountJSON.emailAddress}-cloud`] = next.cloudToken;
+      delete next.cloudToken;
+      return this._writeKeyHash(keys);
+    });
+    return next;
+  }
+
+  insertAccountSecrets(accountJSON) {
+    const next = Object.assign({}, accountJSON);
+    const keys = this._getKeyHash();
+    next.settings.imap_password = keys[`${accountJSON.emailAddress}-imap`];
+    next.settings.smtp_password = keys[`${accountJSON.emailAddress}-smtp`];
+    next.cloudToken = keys[`${accountJSON.emailAddress}-cloud`];
+    return next;
+  }
+
   replacePassword(keyName, newVal) {
     this._try(() => {
       const keys = this._getKeyHash();
       keys[keyName] = newVal;
-      return keytar.replacePassword(this.SERVICE_NAME, this.KEY_NAME, JSON.stringify(keys))
+      return this._writeKeyHash(keys);
     })
   }
 
@@ -35,7 +59,7 @@ class KeyManager {
     this._try(() => {
       const keys = this._getKeyHash();
       delete keys[keyName];
-      return keytar.replacePassword(this.SERVICE_NAME, this.KEY_NAME, JSON.stringify(keys))
+      return this._writeKeyHash(keys);
     })
   }
 
@@ -51,6 +75,11 @@ class KeyManager {
     } catch (err) {
       return {}
     }
+  }
+
+  _writeKeyHash(keys) {
+    // returns true if successful
+    return keytar.replacePassword(this.SERVICE_NAME, this.KEY_NAME, JSON.stringify(keys));
   }
 
   _try(fn) {

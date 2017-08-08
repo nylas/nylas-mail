@@ -113,7 +113,7 @@ export async function runAuthValidation(accountInfo) {
   // Send the form data directly to Nylas to get code
   // If this succeeds, send the received code to N1 server to register the account
   // Otherwise process the error message from the server and highlight UI as needed
-  const proc = new MailsyncProcess(NylasEnv.getLoadSettings(), data, IdentityStore.identity());
+  const proc = new MailsyncProcess(NylasEnv.getLoadSettings(), IdentityStore.identity(), data);
   const {account} = await proc.test();
 
   delete data.id;

@@ -3,9 +3,11 @@
 /*
 Warning! This file is imported from the main process as well as the renderer process
 */
-import { spawn } from 'child_process';
+import { spawn, exec } from 'child_process';
 import path from 'path';
+import os from 'os';
 import { EventEmitter } from 'events';
+import fs from 'fs';
 
 let Utils = null;
 
@@ -31,7 +33,7 @@ const LocalizedErrorStrings = {
 };
 
 export default class MailsyncProcess extends EventEmitter {
-  constructor({configDirPath, resourcePath}, account, identity) {
+  constructor({configDirPath, resourcePath}, identity, account) {
     super();
     this.configDirPath = configDirPath;
     this.account = account;
@@ -55,8 +57,7 @@ export default class MailsyncProcess extends EventEmitter {
     this._proc = spawn(this.binaryPath, [`--mode`, mode], {env});
     if (this.account) {
       this._proc.stdout.once('data', () => {
-        this._proc.stdin.write(`${JSON.stringify(this.account)}\n`);
-        this._proc.stdin.write(`${JSON.stringify(this.identity)}\n`);
+        this._proc.stdin.write(`${JSON.stringify(this.account)}\n${JSON.stringify(this.identity)}\n`);
       });
     }
   }
@@ -75,7 +76,6 @@ export default class MailsyncProcess extends EventEmitter {
         reject(err);
       });
       this._proc.on('close', (code) => {
-        console.log(`SyncWorker exited mode ${mode} with code ${code}`);
         try {
           const lastLine = buffer.toString('UTF-8').split('\n').pop();
           const response = JSON.parse(lastLine);
@@ -98,6 +98,8 @@ export default class MailsyncProcess extends EventEmitter {
   sync() {
     this._spawnProcess('sync');
     let buffer = "";
+    let lastStderr = null;
+
     this._proc.stdout.on('data', (data) => {
       const added = data.toString();
       buffer += added;
@@ -109,14 +111,32 @@ export default class MailsyncProcess extends EventEmitter {
       }
     });
     this._proc.stderr.on('data', (data) => {
-      console.log(`Sync worker wrote to stderr: ${data.toString()}`);
+      lastStderr = data.toString();
     });
     this._proc.on('error', (err) => {
       console.log(`Sync worker exited with ${err}`);
       this.emit('error', err);
     });
     this._proc.on('close', (code) => {
-      this.emit('close', code);
+      let error = null;
+
+      if (buffer.length) {
+        let lastJSON = null;
+        try {
+          lastJSON = JSON.parse(buffer);
+        } finally {
+          if (lastJSON && lastJSON.error) {
+            error = new Error(lastJSON.error);
+          } else {
+            this.emit('deltas', buffer);
+          }
+        }
+      }
+
+      if (lastStderr) {
+        error = new Error(lastStderr);
+      }
+      this.emit('close', {code, error});
     });
   }
 
@@ -134,5 +154,29 @@ export default class MailsyncProcess extends EventEmitter {
 
   test() {
     return this._spawnAndWait('test');
+  }
+
+  attachToXcode() {
+    const tmppath = path.join(os.tmpdir(), 'attach.applescript');
+    fs.writeFileSync(tmppath, `
+tell application "Xcode"
+  activate
+end tell
+
+tell application "System Events"
+  tell application process "Xcode"
+    click (menu item "Attach to Process by PID or Name…" of menu 1 of menu bar item "Debug" of menu bar 1)
+  end tell
+  tell application process "Xcode"
+    set value of text field 1 of sheet 1 of window 1 to "${this._proc.pid}"
+  end tell
+  delay 0.5
+  tell application process "Xcode"
+    click button "Attach" of sheet 1 of window 1
+  end tell
+  
+end tell
+    `);
+    exec(`osascript ${tmppath}`);
   }
 }

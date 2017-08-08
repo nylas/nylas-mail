@@ -72,28 +72,15 @@ class AccountStore extends NylasStore {
     try {
       this._caches = {}
       this._version = NylasEnv.config.get(configVersionKey) || 0
-
-      const oldAccountIds = this._accounts ? this._accounts.map(a => a.id) : [];
       this._accounts = []
       for (const json of NylasEnv.config.get(configAccountsKey) || []) {
         this._accounts.push((new Account()).fromJSON(json))
       }
-      const accountIds = this._accounts.map(a => a.id)
-
-      // Loading passwords from the KeyManager is expensive so only do it if
-      // we really have to (i.e. we're loading a new Account)
-      const addedAccountIds = _.difference(accountIds, oldAccountIds);
-      const addedAccounts = this._accounts.filter((a) => addedAccountIds.includes(a.id));
 
       // Run a few checks on account consistency. We want to display useful error
       // messages and these can result in very strange exceptions downstream otherwise.
       this._enforceAccountsValidity()
 
-      for (const account of addedAccounts) {
-        account.settings.imap_password = KeyManager.getPassword(`${account.emailAddress}-imap`);
-        account.settings.smtp_password = KeyManager.getPassword(`${account.emailAddress}-smtp`);
-        account.cloudToken = KeyManager.getPassword(`${account.emailAddress}-cloud`);
-      }
     } catch (error) {
       NylasEnv.reportError(error)
     }
@@ -220,10 +207,6 @@ class AccountStore extends NylasStore {
     }
 
     this._loadAccounts()
-
-    KeyManager.replacePassword(`${json.emailAddress}-cloud`, json.cloudToken);
-    KeyManager.replacePassword(`${json.emailAddress}-imap`, json.settings.imap_password);
-    KeyManager.replacePassword(`${json.emailAddress}-smtp`, json.settings.smtp_passwowrd);
 
     const existingIdx = this._accounts.findIndex((a) =>
       a.id === json.id || a.emailAddress === json.emailAddress
