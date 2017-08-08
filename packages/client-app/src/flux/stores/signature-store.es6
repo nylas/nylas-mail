@@ -6,23 +6,9 @@ const DefaultSignatureText = "Sent from <a href=\"https://nylas.com?ref=n1\">Nyl
 
 class SignatureStore extends NylasStore {
 
-  activate() {
-    this.unsubscribers = [
-      Actions.addSignature.listen(this._onAddSignature),
-      Actions.removeSignature.listen(this._onRemoveSignature),
-      Actions.updateSignature.listen(this._onEditSignature),
-      Actions.selectSignature.listen(this._onSelectSignature),
-      Actions.toggleAccount.listen(this._onToggleAccount),
-    ];
+  constructor() {
+    super();
 
-    NylasEnv.config.onDidChange(`nylas.signatures`, () => {
-      this.signatures = NylasEnv.config.get(`nylas.signatures`)
-      this.trigger()
-    });
-    NylasEnv.config.onDidChange(`nylas.defaultSignatures`, () => {
-      this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`)
-      this.trigger()
-    });
     this.signatures = NylasEnv.config.get(`nylas.signatures`) || {}
     this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`) || {}
 
@@ -44,8 +30,25 @@ class SignatureStore extends NylasStore {
     }
 
     this.selectedSignatureId = this._setSelectedSignatureId()
+  }
 
-    this.trigger()
+  activate() {
+    this.unsubscribers = [
+      Actions.addSignature.listen(this._onAddSignature),
+      Actions.removeSignature.listen(this._onRemoveSignature),
+      Actions.updateSignature.listen(this._onEditSignature),
+      Actions.selectSignature.listen(this._onSelectSignature),
+      Actions.toggleAccount.listen(this._onToggleAccount),
+    ];
+
+    NylasEnv.config.onDidChange(`nylas.signatures`, () => {
+      this.signatures = NylasEnv.config.get(`nylas.signatures`)
+      this.trigger()
+    });
+    NylasEnv.config.onDidChange(`nylas.defaultSignatures`, () => {
+      this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`)
+      this.trigger()
+    });
   }
 
   deactivate() {

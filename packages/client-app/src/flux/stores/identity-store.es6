@@ -15,13 +15,14 @@ class IdentityStore extends NylasStore {
   constructor() {
     super();
     this._identity = null;
-  }
 
-  async activate() {
     if (NylasEnv.isEmptyWindow()) {
+      /*
+      Hot windows don't receive any action-bridge-messages, which include DB updates.
+      Since the hot window loads first, it may have a stale verison of the Identity.
+      */
       NylasEnv.onWindowPropsReceived(() => {
-        this.deactivate();
-        this.activate();
+        this._onIdentityChanged();
       })
       return
     }
@@ -56,16 +57,8 @@ class IdentityStore extends NylasStore {
 
   _fetchAndPollRemoteIdentity() {
     if (!NylasEnv.isMainWindow()) return;
-    /**
-     * We only need to re-fetch the identity to synchronize ourselves
-     * with any changes a user did on a separate computer. Any updates
-     * they do on their primary computer will be optimistically updated.
-     * We also update from the server's version every
-     * `SendFeatureUsageEventTask`
-     */
-    setInterval(this.fetchIdentity.bind(this), 1000 * 60 * 10); // 10 minutes
-    // Don't await for this!
-    this.fetchIdentity();
+    setTimeout(() => { this.fetchIdentity(); }, 1000);
+    setInterval(() => { this.fetchIdentity(); }, 1000 * 60 * 10); // 10 minutes
   }
 
   /**

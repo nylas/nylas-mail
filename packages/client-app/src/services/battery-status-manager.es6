@@ -6,6 +6,7 @@ class BatteryStatusManager {
     this._callbacks = [];
     this._battery = null;
     this._lastChangeTime = Date.now();
+    this.activate();
   }
 
   async activate() {
@@ -46,6 +47,4 @@ class BatteryStatusManager {
   }
 }
 
-const manager = new BatteryStatusManager();
-manager.activate();
-export default manager;
+export default new BatteryStatusManager();

@@ -1,4 +1,6 @@
 import _ from 'underscore';
+import NylasStore from 'nylas-store';
+
 import {
   FeatureUsageStore,
   SyncbackMetadataTask,
@@ -13,11 +15,13 @@ import SnoozeUtils from './snooze-utils'
 import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
 
-class SnoozeStore {
+class SnoozeStore extends NylasStore {
 
   constructor(pluginId = PLUGIN_ID, pluginName = PLUGIN_NAME) {
-    this.pluginId = pluginId
-    this.pluginName = pluginName
+    super();
+
+    this.pluginId = pluginId;
+    this.pluginName = pluginName;
     this.accountIds = AccountStore.accounts().map(a => a.id)
     this.snoozeCategoriesPromise = SnoozeUtils.getSnoozeCategoriesByAccount(AccountStore.accounts())
   }
@@ -26,7 +30,11 @@ class SnoozeStore {
     this.unsubscribers = [
       AccountStore.listen(this.onAccountsChanged),
       SnoozeActions.snoozeThreads.listen(this.onSnoozeThreads),
-    ]
+    ];
+  }
+
+  deactivate() {
+    this.unsubscribers.forEach(unsub => unsub())
   }
 
   recordSnoozeEvent(threads, snoozeDate, label) {
@@ -44,8 +52,6 @@ class SnoozeStore {
   }
 
   groupUpdatedThreads = (threads, snoozeCategoriesByAccount) => {
-    const getSnoozeCategory = (accId) => snoozeCategoriesByAccount[accId]
-    const {getInboxCategory} = CategoryStore
     const threadsByAccountId = {}
 
     threads.forEach((thread) => {
@@ -53,8 +59,8 @@ class SnoozeStore {
       if (!threadsByAccountId[accId]) {
         threadsByAccountId[accId] = {
           threads: [thread],
-          snoozeCategoryId: getSnoozeCategory(accId).id,
-          returnCategoryId: getInboxCategory(accId).id,
+          snoozeCategoryId: () => snoozeCategoriesByAccount[accId].id,
+          returnCategoryId: () => CategoryStore.getInboxCategory(accId).id,
         }
       } else {
         threadsByAccountId[accId].threads.push(thread);
@@ -121,10 +127,6 @@ class SnoozeStore {
       return
     });
   };
-
-  deactivate() {
-    this.unsubscribers.forEach(unsub => unsub())
-  }
 }
 
 export default SnoozeStore;

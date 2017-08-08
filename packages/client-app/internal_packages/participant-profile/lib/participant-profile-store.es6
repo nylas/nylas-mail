@@ -8,9 +8,18 @@ const CACHE_SIZE = 100
 const contactCacheKeyIndex = []
 
 class ParticipantProfileStore extends NylasStore {
-  activate() {
+  constructor() {
+    super();
     this.cacheExpiry = 1000 * 60 * 60 * 24 // 1 day
     this.dataSource = new ClearbitDataSource()
+  }
+
+  activate() {
+
+  }
+
+  deactivate() {
+    // no op
   }
 
   dataForContact(contact) {
@@ -79,10 +88,6 @@ class ParticipantProfileStore extends NylasStore {
       return t.persistModel(contact)
     })
   }
-
-  deactivate() {
-    // no op
-  }
 }
-const store = new ParticipantProfileStore()
-export default store
+
+export default new ParticipantProfileStore()

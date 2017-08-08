@@ -29,9 +29,7 @@ class FolderSyncProgressStore extends NylasStore {
     super()
     this._statesByAccount = {}
     this._triggerDebounced = _.debounce(this.trigger, 100)
-  }
 
-  activate() {
     this.listenTo(AccountStore, () => this._onRefresh())
     this.listenTo(CategoryStore, () => this._onRefresh())
     this._onRefresh()

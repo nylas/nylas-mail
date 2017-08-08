@@ -20,17 +20,23 @@ class SystemTrayIconStore {
 
   constructor() {
     this._windowBlurred = false;
-    this._unsubscribers = [];
   }
 
   activate() {
-    this._updateIcon();
+    setTimeout(() => {
+      this._updateIcon();
+    }, 2000);
+    this._unsubscribers = [];
     this._unsubscribers.push(BadgeStore.listen(this._updateIcon));
 
     window.addEventListener('browser-window-blur', this._onWindowBlur);
     window.addEventListener('browser-window-focus', this._onWindowFocus);
     this._unsubscribers.push(() => window.removeEventListener('browser-window-blur', this._onWindowBlur))
     this._unsubscribers.push(() => window.removeEventListener('browser-window-focus', this._onWindowFocus))
+  }
+
+  deactivate() {
+    this._unsubscribers.forEach(unsub => unsub())
   }
 
   _getIconImageData(isInboxZero, isWindowBlurred) {
@@ -61,10 +67,6 @@ class SystemTrayIconStore {
     const {iconPath, isTemplateImg} = this._getIconImageData(isInboxZero, this._windowBlurred);
     ipcRenderer.send('update-system-tray', iconPath, unreadString, isTemplateImg);
   };
-
-  deactivate() {
-    this._unsubscribers.forEach(unsub => unsub())
-  }
 }
 
 export default SystemTrayIconStore;

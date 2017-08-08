@@ -4,14 +4,22 @@ import {Actions} from 'nylas-exports'
 
 class UndoSendStore extends NylasStore {
 
-  activate() {
+  constructor() {
+    super();
     this._showUndoSend = false
     this._sendActionTaskId = null
+  }
+
+  activate() {
     this._unlisteners = [
       Actions.willPerformSendAction.listen(this._onWillPerformSendAction),
       Actions.didPerformSendAction.listen(this._onDidPerformSendAction),
       Actions.didCancelSendAction.listen(this._onDidCancelSendAction),
     ]
+  }
+
+  deactivate() {
+    this._unlisteners.forEach((unsub) => unsub())
   }
 
   shouldShowUndoSend() {
@@ -38,10 +46,6 @@ class UndoSendStore extends NylasStore {
     this._showUndoSend = false
     this._sendActionTaskId = null
     this.trigger()
-  }
-
-  deactivate() {
-    this._unlisteners.forEach((unsub) => unsub())
   }
 }
 

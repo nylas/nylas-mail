@@ -1,6 +1,5 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
-import StoreRegistry from '../registries/store-registry'
 import DatabaseObjectRegistry from '../registries/database-object-registry'
 
 // This module exports an empty object, with a ton of defined properties that
@@ -32,9 +31,10 @@ const lazyLoad = (prop, path) => {
   lazyLoadWithGetter(prop, () => resolveExport(require(`../${path}`)));
 };
 
-const lazyLoadAndRegisterStore = (klassName, path) => {
-  lazyLoad(klassName, `flux/stores/${path}`);
-  StoreRegistry.register(klassName, () => exports[klassName]);
+const _resolveNow = [];
+const load = (klassName, path) => {
+  lazyLoad(klassName, path);
+  _resolveNow.push(klassName);
 }
 
 const lazyLoadAndRegisterModel = (klassName, path) => {
@@ -113,34 +113,34 @@ lazyLoadAndRegisterTask(`SendFeatureUsageEventTask`, 'send-feature-usage-event-t
 // These need to be required immediately since some Stores are
 // listen-only and not explicitly required from anywhere. Stores
 // currently set themselves up on require.
-lazyLoadAndRegisterStore(`TaskQueue`, 'task-queue');
-lazyLoadAndRegisterStore(`BadgeStore`, 'badge-store');
-lazyLoadAndRegisterStore(`DraftStore`, 'draft-store');
-lazyLoadAndRegisterStore(`ModalStore`, 'modal-store');
-lazyLoadAndRegisterStore(`OutboxStore`, 'outbox-store');
-lazyLoadAndRegisterStore(`PopoverStore`, 'popover-store');
-lazyLoadAndRegisterStore(`AccountStore`, 'account-store');
-lazyLoadAndRegisterStore(`SignatureStore`, 'signature-store');
-lazyLoadAndRegisterStore(`MessageStore`, 'message-store');
-lazyLoadAndRegisterStore(`ContactStore`, 'contact-store');
-lazyLoadAndRegisterStore(`IdentityStore`, 'identity-store');
-lazyLoadAndRegisterStore(`CategoryStore`, 'category-store');
-lazyLoadAndRegisterStore(`UndoRedoStore`, 'undo-redo-store');
-lazyLoadAndRegisterStore(`WorkspaceStore`, 'workspace-store');
-lazyLoadAndRegisterStore(`MailRulesStore`, 'mail-rules-store');
-lazyLoadAndRegisterStore(`SendActionsStore`, 'send-actions-store');
-lazyLoadAndRegisterStore(`FeatureUsageStore`, 'feature-usage-store');
-lazyLoadAndRegisterStore(`ThreadCountsStore`, 'thread-counts-store');
-lazyLoadAndRegisterStore(`AttachmentStore`, 'attachment-store');
-lazyLoadAndRegisterStore(`OnlineStatusStore`, 'online-status-store');
-lazyLoadAndRegisterStore(`UpdateChannelStore`, 'update-channel-store');
-lazyLoadAndRegisterStore(`PreferencesUIStore`, 'preferences-ui-store');
-lazyLoadAndRegisterStore(`FocusedContentStore`, 'focused-content-store');
-lazyLoadAndRegisterStore(`MessageBodyProcessor`, 'message-body-processor');
-lazyLoadAndRegisterStore(`FocusedContactsStore`, 'focused-contacts-store');
-lazyLoadAndRegisterStore(`FolderSyncProgressStore`, 'folder-sync-progress-store');
-lazyLoadAndRegisterStore(`FocusedPerspectiveStore`, 'focused-perspective-store');
-lazyLoadAndRegisterStore(`SearchableComponentStore`, 'searchable-component-store');
+load(`TaskQueue`, 'flux/stores/task-queue');
+load(`BadgeStore`, 'flux/stores/badge-store');
+load(`DraftStore`, 'flux/stores/draft-store');
+load(`ModalStore`, 'flux/stores/modal-store');
+load(`OutboxStore`, 'flux/stores/outbox-store');
+load(`PopoverStore`, 'flux/stores/popover-store');
+load(`AccountStore`, 'flux/stores/account-store');
+load(`SignatureStore`, 'flux/stores/signature-store');
+load(`MessageStore`, 'flux/stores/message-store');
+load(`ContactStore`, 'flux/stores/contact-store');
+load(`IdentityStore`, 'flux/stores/identity-store');
+load(`CategoryStore`, 'flux/stores/category-store');
+load(`UndoRedoStore`, 'flux/stores/undo-redo-store');
+load(`WorkspaceStore`, 'flux/stores/workspace-store');
+load(`MailRulesStore`, 'flux/stores/mail-rules-store');
+load(`SendActionsStore`, 'flux/stores/send-actions-store');
+load(`FeatureUsageStore`, 'flux/stores/feature-usage-store');
+load(`ThreadCountsStore`, 'flux/stores/thread-counts-store');
+load(`AttachmentStore`, 'flux/stores/attachment-store');
+load(`OnlineStatusStore`, 'flux/stores/online-status-store');
+load(`UpdateChannelStore`, 'flux/stores/update-channel-store');
+load(`PreferencesUIStore`, 'flux/stores/preferences-ui-store');
+load(`FocusedContentStore`, 'flux/stores/focused-content-store');
+load(`MessageBodyProcessor`, 'flux/stores/message-body-processor');
+load(`FocusedContactsStore`, 'flux/stores/focused-contacts-store');
+load(`FolderSyncProgressStore`, 'flux/stores/folder-sync-progress-store');
+load(`FocusedPerspectiveStore`, 'flux/stores/focused-perspective-store');
+load(`SearchableComponentStore`, 'flux/stores/searchable-component-store');
 lazyLoad(`CustomContenteditableComponents`, 'components/overlaid-components/custom-contenteditable-components');
 
 lazyLoad(`ServiceRegistry`, `registries/service-registry`);
@@ -199,3 +199,11 @@ lazyLoad(`SystemStartService`, 'system-start-service');
 
 // Testing
 lazyLoadWithGetter(`NylasTestUtils`, () => require('../../spec/nylas-test-utils'));
+
+process.nextTick(() => {
+  let c = 0;
+  for (const key of _resolveNow) {
+    c += exports[key] ? 1 : 0
+  }
+  return c;
+});
