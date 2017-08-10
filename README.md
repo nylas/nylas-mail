@@ -23,31 +23,9 @@ High level Goals:
 - Bring back mail rules.
 
 
-Technical Breakdown of Changes:
+Roadmap and Progress:
 ---
-- Activity window and client-sync package removed.
-- MailsyncBridge, a new singleton in the main window, manages C++ sync workers.
-- DatabaseStore no longer provides an interface to write to the database from JavaScript and the following have moved to C++:
-  + Database setup and migration
-  + Search indexing of threads/contacts
-  + Delta processing
-  + Task processing
-- Heavy node modules removed:
-  + Bluebird
-  + Q
-  + request
-  + etc...
-- Package manager has been completely rewritten to be more performant and load packages in two phases.
-- Delta serialization / deserialization performance has been dramatically improved by removing the JSON reviver.
-- FileDownloadStore / FileUploadStore have been merged into AttachmentStore
-
-
-Future Features:
-----
-- Receipts
-- Templates with per-template performance tracking
-- Groups
-- Files
+See [ROADMAP.md](https://github.com/Foundry376/Merani/blob/master/ROADMAP.md)
 
 ----------------
 
