@@ -57,7 +57,7 @@ before_install:
 
 script:
 # Checkout and build the (currently private) C++ codebase
-- GIT_SSH_COMMAND='ssh -i app/build/resources/mailsync-deploy-key' git submodule update mailsync
+- GIT_SSH_COMMAND='ssh -i app/build/resources/certs/mailsync-deploy-key' git submodule update --init mailsync
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then xcodebuild -scheme MailSync -configuration Release; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then echo "TODO"; fi
 # Build and package the Merani Electron application
