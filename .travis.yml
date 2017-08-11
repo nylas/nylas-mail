@@ -6,6 +6,7 @@ node_js:
 - '7.10'
 
 addons:
+  artifacts: true
   apt:
     sources:
     - ubuntu-toolchain-r-test
@@ -45,19 +46,15 @@ before_install:
 script:
 - npm run build
 
-deploy:
-- provider: s3
-  skip_cleanup: true
-  region: us-east-1
-  access_key_id: AKIAJQWOM4SPSY3TXI5Q
-  secret_access_key:
-    secure: wBeoAT24ke3hdijVgYl5dmUsrCobkNr5YCywlBsHQ8XEOkt4fJnYpAci2HM/gJMuhbUMKKvMW2nQhDXfBSicYZPYUqQcLl09s7LsOtl4UDULggiqF/VKARF81Ngffl0kMS5gAh5jWXeE3f+cO3hWw86dn3u6YjIlKCm3qrLnnktbIRddTv7gUBDXD4mHuKKa978Xq1iqJIezHYBX860dhGQ5Mp5tioiHgs5h+S85PJiX8TefeTdCgRzF3rlWG18pqlqAgji8OGuXmER8mgWZah40RUd5QASB2y818/NTrBy/H6jQdJ7gEhhB4TjYKkhfe5igSIQU7ABC2M9D8u/vc3UnCRG1LAhzJBKPki3yN0hjr01r3LltUjTMWZDVoFhSfAUCeDvJWoXErISFubIiANxQsZ6bXw0WYru3dQ55EagYjWNxcpWLwwapNKpmqzeZbVeT6vwoH4pf+tZKanHFdZtOCQEHQhF0QpegxBhuhwVrBTvzZUC2hZVghkhmmrOv5ClXlLyr20K0gopcHm6mBWtfcZRaK24TtIEs3VvMeDirkhtwV05g1tFOAkyJ23T33TqgSqWIcDvWWMWQN7mDEznzWiDaN5grFuZxWxmOM5h5wOHLpxQuHoCHFr0+Xf5qZlg/OzRjZeFT1ULRPwSrfHah3EgbAWWmkN6Y59JtmJY=
-  bucket: merani-builds
-  acl: public_read
-  upload-dir: builds/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
-  local-dir: app/dist
-  on:
-    branch: master
+addons:
+  artifacts:
+    working_dir: app/dist
+    target_paths: builds/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
+    paths:
+    - Merani.dmg
+    - Merani.zip
+    - "*.rpm"
+    - "*.deb"
 
 cache:
   directories:
