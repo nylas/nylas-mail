@@ -44,7 +44,6 @@ environment:
   matrix:
   - NODE_VERSION: 7.10
   global:
-    DEBUG: "electron-windows-installer:*,electron-packager:*"
     SIGN_BUILD: true
     CERTIFICATE_FILE: .\app\build\resources\certs\appveyor\win-nylas-n1.p12
     DECRYPTION_PASSWORD:
