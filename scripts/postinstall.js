@@ -20,7 +20,7 @@ function npm(cmd, options) {
   const {cwd, env} = Object.assign({cwd: '.', env: 'system'}, options);
 
   return new Promise((resolve, reject) => {
-    console.log(`\n-- Running npm ${cmd} in ./${cwd} with ${env} config --`)
+    console.log(`\n-- Running npm ${cmd} in ${cwd} with ${env} config --`)
 
     safeExec(`npm ${cmd}`, {
       cwd: path.resolve(__dirname, '..', cwd),
