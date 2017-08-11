@@ -18,11 +18,11 @@ FILE_MODE=755
 
 TARGET_ROOT="`mktemp -d`"
 chmod $FILE_MODE "$TARGET_ROOT"
-TARGET="$TARGET_ROOT/nylas-$VERSION-$ARCH"
+TARGET="$TARGET_ROOT/merani-$VERSION-$ARCH"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr"
 mkdir -m $FILE_MODE -p "$TARGET/usr/share"
-cp -r "$APP_CONTENTS_DIRECTORY" "$TARGET/usr/share/nylas-mail"
+cp -r "$APP_CONTENTS_DIRECTORY" "$TARGET/usr/share/merani"
 
 mkdir -m $FILE_MODE -p "$TARGET/DEBIAN"
 cp "$OUTPUT_PATH/control" "$TARGET/DEBIAN/control"
@@ -31,28 +31,28 @@ cp "$LINUX_ASSETS_DIRECTORY/debian/postinst" "$TARGET/DEBIAN/postinst"
 cp "$LINUX_ASSETS_DIRECTORY/debian/postrm" "$TARGET/DEBIAN/postrm"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/bin"
-ln -s "../share/nylas-mail/nylas" "$TARGET/usr/bin/nylas-mail"
-chmod +x "$TARGET/usr/bin/nylas-mail"
+ln -s "../share/merani/nylas" "$TARGET/usr/bin/merani"
+chmod +x "$TARGET/usr/bin/merani"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/applications"
-cp "$OUTPUT_PATH/nylas-mail.desktop" "$TARGET/usr/share/applications"
+cp "$OUTPUT_PATH/merani.desktop" "$TARGET/usr/share/applications"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/pixmaps"
-cp "$ICON_FILE" "$TARGET/usr/share/pixmaps/nylas-mail.png"
+cp "$ICON_FILE" "$TARGET/usr/share/pixmaps/merani.png"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/icons/hicolor"
 for i in 256 128 64 32 16; do
   mkdir -p "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps"
-  cp "$LINUX_ASSETS_DIRECTORY/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/nylas-mail.png"
+  cp "$LINUX_ASSETS_DIRECTORY/icons/${i}.png" "$TARGET/usr/share/icons/hicolor/${i}x${i}/apps/merani.png"
 done
 
-# Copy generated LICENSE.md to /usr/share/doc/nylas-mail/copyright
-mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/nylas-mail"
-cp "$TARGET/usr/share/nylas-mail/LICENSE" "$TARGET/usr/share/doc/nylas-mail/copyright"
+# Copy generated LICENSE.md to /usr/share/doc/merani/copyright
+mkdir -m $FILE_MODE -p "$TARGET/usr/share/doc/merani"
+cp "$TARGET/usr/share/merani/LICENSE" "$TARGET/usr/share/doc/merani/copyright"
 
 # Add lintian overrides
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/lintian/overrides"
-cp "$ROOT/build/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/nylas-mail"
+cp "$ROOT/build/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lintian/overrides/merani"
 
 # Remove group write from all files
 chmod -R g-w "$TARGET";
