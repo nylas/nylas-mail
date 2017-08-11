@@ -7,7 +7,7 @@ module.exports = (grunt) => {
   const {spawn} = grunt.config('taskHelpers');
 
   const outputDir = grunt.config.get('outputDir');
-  const contentsDir = path.join(grunt.config('outputDir'), `nylas-linux-${process.arch}`);
+  const contentsDir = path.join(grunt.config('outputDir'), `merani-linux-${process.arch}`);
   const linuxAssetsDir = path.resolve(path.join(grunt.config('buildDir'), 'resources', 'linux'));
   const arch = {
     ia32: 'i386',
