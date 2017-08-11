@@ -3,7 +3,7 @@ sudo: false
 language: node_js
 
 node_js:
-- '7.10'
+- '6.9'
 
 addons:
   artifacts: true
@@ -49,12 +49,12 @@ script:
 addons:
   artifacts:
     working_dir: app/dist
-    target_paths: builds/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
+    target_paths: client/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
     paths:
     - Merani.dmg
     - Merani.zip
-    - "*.rpm"
-    - "*.deb"
+    - $(ls . | grep ".deb")
+    - $(ls . | grep ".rpm")
 
 cache:
   directories:

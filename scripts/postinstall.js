@@ -34,26 +34,22 @@ function npm(cmd, options) {
   });
 }
 
-async function go() {
-  // For speed, we cache app/node_modules. However, we need to
-  // be sure to do a full rebuild of native node modules when the
-  // Electron version changes. To do this we check a marker file.
-  const cacheVersionPath = './app/node_modules/.postinstall-target-version';
-  const cacheElectronTarget = fs.existsSync(cacheVersionPath) && fs.readFileSync(cacheVersionPath).toString();
+// For speed, we cache app/node_modules. However, we need to
+// be sure to do a full rebuild of native node modules when the
+// Electron version changes. To do this we check a marker file.
+const cacheVersionPath = './app/node_modules/.postinstall-target-version';
+const cacheElectronTarget = fs.existsSync(cacheVersionPath) && fs.readFileSync(cacheVersionPath).toString();
 
-  if (cacheElectronTarget !== npmElectronTarget) {
-    console.log(`\n-- Clearing app/node_modules --`)
-    rimraf.sync(path.resolve(__dirname, '..', 'app', 'node_modules'));
-  }
-
-  // run `npm install` in ./app with Electron NPM config
-  await npm('install', {cwd: './app', env: 'electron'});
-
-  // run `npm dedupe` in ./app with Electron NPM config
-  await npm('dedupe', {cwd: './app', env: 'electron'});
-
-  // write the marker with the electron version
-  fs.writeFileSync(cacheVersionPath, npmElectronTarget);
+if (cacheElectronTarget !== npmElectronTarget) {
+  console.log(`\n-- Clearing app/node_modules --`)
+  rimraf.sync(path.resolve(__dirname, '..', 'app', 'node_modules'));
 }
 
-go();
+// run `npm install` in ./app with Electron NPM config
+npm('install', {cwd: './app', env: 'electron'}).then(() =>
+  // run `npm dedupe` in ./app with Electron NPM config
+  npm('dedupe', {cwd: './app', env: 'electron'}).then(() =>
+    // write the marker with the electron version
+    fs.writeFileSync(cacheVersionPath, npmElectronTarget)
+  )
+)
