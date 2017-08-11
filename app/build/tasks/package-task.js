@@ -139,11 +139,11 @@ module.exports = (grunt) => {
         linux: undefined,
       }[platform],
       'name': {
-        darwin: 'Nylas Mail',
-        win32: 'nylas',
-        linux: 'nylas',
+        darwin: 'Merani',
+        win32: 'merani',
+        linux: 'merani',
       }[platform],
-      'app-copyright': `Copyright (C) 2014-${new Date().getFullYear()} Nylas, Inc. All rights reserved.`,
+      'app-copyright': `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
       'derefSymlinks': false,
       'asar': {
         'unpack': "{" + [
@@ -205,10 +205,10 @@ module.exports = (grunt) => {
        */
       'osx-sign': !!process.env.SIGN_BUILD,
       'win32metadata': {
-        CompanyName: 'Nylas, Inc.',
-        FileDescription: 'Nylas Mail',
-        LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Nylas, Inc. All rights reserved.`,
-        ProductName: 'Nylas Mail',
+        CompanyName: 'Foundry 376, LLC',
+        FileDescription: 'Merani',
+        LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
+        ProductName: 'Merani',
       },
       // NOTE: The following plist keys can NOT be set in the
       // nylas-Info.plist since they are manually overridden by
@@ -234,7 +234,7 @@ module.exports = (grunt) => {
     },
   })
 
-  grunt.registerTask('package', 'Package Nylas Mail', function pack() {
+  grunt.registerTask('package', 'Package Merani', function pack() {
     const done = this.async();
     const start = Date.now();
 

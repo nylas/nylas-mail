@@ -17,14 +17,14 @@ const config = {
   iconUrl: 'http://edgehill.s3.amazonaws.com/static/nylas.ico',
   certificateFile: process.env.CERTIFICATE_FILE,
   certificatePassword: process.env.WINDOWS_CODESIGN_KEY_PASSWORD,
-  description: "Nylas Mail",
+  description: "Merani",
   version: version,
   title: "nylas",
   authors: 'Nylas Inc.',
   setupIcon: path.join(appDir, 'build', 'resources', 'win', 'nylas.ico'),
-  setupExe: 'NylasMailSetup.exe',
-  exe: 'nylas.exe',
-  name: 'NylasMail',
+  setupExe: 'MeraniSetup.exe',
+  exe: 'merani.exe',
+  name: 'Merani',
 }
 console.log(config);
 console.log("---> Starting")

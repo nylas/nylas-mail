@@ -112,16 +112,16 @@ module.exports = (grunt) => {
 
       if (process.platform === 'darwin') {
         uploads.push({
-          source: `${outputDir}/NylasMail.zip`,
-          key: `${s3PathCurrentVersion}/NylasMail.zip`,
+          source: `${outputDir}/Merani.zip`,
+          key: `${s3PathCurrentVersion}/Merani.zip`,
         });
         uploads.push({
-          source: `${outputDir}/NylasMail.zip`,
-          key: `${s3PathNextVersion}/NylasMail.zip`,
+          source: `${outputDir}/Merani.zip`,
+          key: `${s3PathNextVersion}/Merani.zip`,
         });
         uploads.push({
-          source: `${outputDir}/NylasMail.dmg`,
-          key: `${s3PathCurrentVersion}/NylasMail.dmg`,
+          source: `${outputDir}/Merani.dmg`,
+          key: `${s3PathCurrentVersion}/Merani.dmg`,
         });
       } else if (process.platform === 'win32') {
         uploads.push({
@@ -129,24 +129,24 @@ module.exports = (grunt) => {
           key: `${s3PathCurrentVersion}/RELEASES`,
         });
         uploads.push({
-          source: path.join(outputDir, "NylasMailSetup.exe"),
-          key: `${s3PathCurrentVersion}/NylasMailSetup.exe`,
+          source: path.join(outputDir, "MeraniSetup.exe"),
+          key: `${s3PathCurrentVersion}/MeraniSetup.exe`,
         });
         uploads.push({
-          source: path.join(outputDir, `NylasMail-${packageVersion}-full.nupkg`),
-          key: `${s3PathCurrentVersion}/nylasmail-${packageVersion}-full.nupkg`,
+          source: path.join(outputDir, `Merani-${packageVersion}-full.nupkg`),
+          key: `${s3PathCurrentVersion}/Merani-${packageVersion}-full.nupkg`,
         });
         uploads.push({
           source: path.join(outputDir, "RELEASES"),
           key: `${s3PathNextVersion}/RELEASES`,
         });
         uploads.push({
-          source: path.join(outputDir, "NylasMailSetup.exe"),
-          key: `${s3PathNextVersion}/NylasMailSetup.exe`,
+          source: path.join(outputDir, "MeraniSetup.exe"),
+          key: `${s3PathNextVersion}/MeraniSetup.exe`,
         });
         uploads.push({
-          source: path.join(outputDir, `NylasMail-${packageVersion}-full.nupkg`),
-          key: `${s3PathNextVersion}/nylasmail-${packageVersion}-full.nupkg`,
+          source: path.join(outputDir, `Merani-${packageVersion}-full.nupkg`),
+          key: `${s3PathNextVersion}/Merani-${packageVersion}-full.nupkg`,
         });
       } else if (process.platform === 'linux') {
         const files = fs.readdirSync(outputDir);
@@ -154,14 +154,14 @@ module.exports = (grunt) => {
           if (path.extname(file) === '.deb') {
             uploads.push({
               source: `${outputDir}/${file}`,
-              key: `${fullVersion}/${process.platform}-deb/${process.arch}/NylasMail.deb`,
+              key: `${fullVersion}/${process.platform}-deb/${process.arch}/Merani.deb`,
               options: {ContentType: "application/x-deb"},
             });
           }
           if (path.extname(file) === '.rpm') {
             uploads.push({
               source: `${outputDir}/${file}`,
-              key: `${fullVersion}/${process.platform}-rpm/${process.arch}/NylasMail.rpm`,
+              key: `${fullVersion}/${process.platform}-rpm/${process.arch}/Merani.rpm`,
               options: {ContentType: "application/x-rpm"},
             });
           }
