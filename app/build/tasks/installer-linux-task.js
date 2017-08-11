@@ -49,17 +49,17 @@ module.exports = (grunt) => {
       version: grunt.config('appJSON').version,
       description: grunt.config('appJSON').description,
       productName: grunt.config('appJSON').productName,
-      linuxShareDir: '/usr/local/share/nylas',
+      linuxShareDir: '/usr/local/share/merani',
       linuxAssetsDir: linuxAssetsDir,
       contentsDir: contentsDir,
     }
 
-    // This populates nylas.spec
-    const specInFilePath = path.join(linuxAssetsDir, 'redhat', 'nylas.spec.in')
+    // This populates merani.spec
+    const specInFilePath = path.join(linuxAssetsDir, 'redhat', 'merani.spec.in')
     writeFromTemplate(specInFilePath, templateData)
 
-    // This populates nylas.desktop
-    const desktopInFilePath = path.join(linuxAssetsDir, 'nylas-mail.desktop.in')
+    // This populates merani.desktop
+    const desktopInFilePath = path.join(linuxAssetsDir, 'merani.desktop.in')
     writeFromTemplate(desktopInFilePath, templateData)
 
     const cmd = path.join(grunt.config('appDir'), 'script', 'mkrpm')
@@ -92,14 +92,14 @@ module.exports = (grunt) => {
         name: grunt.config('appJSON').name,
         description: grunt.config('appJSON').description,
         productName: grunt.config('appJSON').productName,
-        linuxShareDir: '/usr/share/nylas-mail',
+        linuxShareDir: '/usr/share/merani',
         arch: arch,
         section: 'devel',
         maintainer: 'Nylas Team <support@nylas.com>',
         installedSize: installedSize,
       }
       writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data)
-      writeFromTemplate(path.join(linuxAssetsDir, 'nylas-mail.desktop.in'), data)
+      writeFromTemplate(path.join(linuxAssetsDir, 'merani.desktop.in'), data)
 
       const icon = path.join(grunt.config('appDir'), 'build', 'resources', 'nylas.png')
       const cmd = path.join(grunt.config('appDir'), 'script', 'mkdeb');
@@ -108,7 +108,7 @@ module.exports = (grunt) => {
         if (spawnError) {
           return done(spawnError);
         }
-        grunt.log.ok(`Created ${outputDir}/nylas-${version}-${arch}.deb`);
+        grunt.log.ok(`Created ${outputDir}/merani-${version}-${arch}.deb`);
         return done()
       });
     });

@@ -3,11 +3,11 @@
  * NOTE: Due to path issues, this script must be run outside of grunt
  * directly from a powershell command.
  */
-const path = require('path')
-const createWindowsInstaller = require('electron-winstaller').createWindowsInstaller
+const path = require('path');
+const {createWindowsInstaller} = require('electron-winstaller');
 
 const appDir = path.join(__dirname, "..");
-const version = require(path.join(appDir, 'package.json')).version;
+const {version} = require(path.join(appDir, 'package.json'));
 
 const config = {
   usePackageJson: false,

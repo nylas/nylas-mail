@@ -2,8 +2,8 @@
 Name=<%= productName %>
 Comment=<%= description %>
 GenericName=<%= productName %>
-Exec=/usr/bin/nylas-mail %U
-Icon=nylas-mail
+Exec=/usr/bin/merani %U
+Icon=merani
 Type=Application
 StartupNotify=true
 StartupWMClass=<%= productName %>
