@@ -9,19 +9,13 @@
 **/arclib
 
 ##### Client Private Plugins (symlinked)
-**/client-app/src/error-logger-extensions
-**/internal_packages/activity-list
+**/app/src/error-logger-extensions
 **/internal_packages/composer-mail-merge
 **/internal_packages/composer-scheduler
-**/internal_packages/link-tracking
-**/internal_packages/open-tracking
-**/internal_packages/send-later
-**/internal_packages/send-reminders
-**/internal_packages/thread-sharing
 
 ##### Node modules
 node_modules
-!packages/client-app/spec/fixtures/packages/package-with-incompatible-native-module/node_modules
+!app/spec/fixtures/packages/package-with-incompatible-native-module/node_modules
 **/npm-debug.log*
 **/lerna-debug.log*
 
@@ -41,7 +35,7 @@ node_modules
 n1_cloud_dist
 
 # Built Nylas Mail client
-packages/client-app/dist
+app/dist
 
 # Tests
 spec-saved-state.json
@@ -66,5 +60,5 @@ scripts/venv
 
 # OAuth client secret for talking to Google Sheets
 client_secret.json
-/packages/client-app/MailSync
+/app/MailSync
 /logfile.txt

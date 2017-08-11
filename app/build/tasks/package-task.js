@@ -158,8 +158,6 @@ module.exports = (grunt) => {
         ].join(',') + "}",
       },
       "ignore": [ // These are all relative to client-app
-        /.*\.watchmanconfig.*/,
-
         // top level dirs we never want
         /^\/build.*/,
         /^\/dist.*/,

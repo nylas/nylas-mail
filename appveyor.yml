@@ -27,7 +27,7 @@ build_script:
 deploy_script:
 - ps: |
     npm run build
-    node packages/client-app/build/create-signed-windows-installer.js
+    node app/build/create-signed-windows-installer.js
     npm run upload
 
 environment:

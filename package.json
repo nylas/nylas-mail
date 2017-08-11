@@ -42,13 +42,13 @@
     "underscore": "1.8.x"
   },
   "scripts": {
-    "start": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --dev",
-    "test": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test",
-    "test-window": "packages/client-app/node_modules/.bin/electron packages/client-app --enable-logging --test=window",
+    "start": "app/node_modules/.bin/electron ./app --enable-logging --dev",
+    "test": "app/node_modules/.bin/electron ./app --enable-logging --test",
+    "test-window": "app/node_modules/.bin/electron ./app --enable-logging --test=window",
     "test-junit": "",
-    "lint": "grunt lint --gruntfile=packages/client-app/build/Gruntfile.js --base=./",
-    "build": "grunt build-client --gruntfile=packages/client-app/build/Gruntfile.js --base=./",
-    "upload": "grunt upload-client --gruntfile=packages/client-app/build/Gruntfile.js --base=./",
+    "lint": "grunt lint --gruntfile=app/build/Gruntfile.js --base=./",
+    "build": "grunt build-client --gruntfile=app/build/Gruntfile.js --base=./",
+    "upload": "grunt upload-client --gruntfile=app/build/Gruntfile.js --base=./",
     "postinstall": "node scripts/postinstall.js"
   },
   "repository": {

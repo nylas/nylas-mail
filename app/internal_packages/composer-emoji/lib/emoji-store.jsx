@@ -14,7 +14,7 @@ class EmojiStore extends NylasStore {
     this._emoji = [];
   }
 
-  activate = () => {
+  activate() {
     this._emoji = [];
     try {
       const txt = window.localStorage.getItem(EmojiJSONKey);

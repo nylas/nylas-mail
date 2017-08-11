@@ -6,7 +6,7 @@ module.exports = (grunt) => {
     eslint: {
       options: {
         ignore: false,
-        configFile: '../../.eslintrc',
+        configFile: '../.eslintrc',
       },
       target: grunt.config('source:es6'),
     },

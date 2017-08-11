@@ -7,7 +7,7 @@ const safeExec = require('./utils/child-process-wrapper.js').safeExec;
 const npmEnvs = {
   system: process.env,
   electron: Object.assign({}, process.env, {
-    'npm_config_target': require('../packages/client-app/package.json').dependencies.electron,
+    'npm_config_target': require('../app/package.json').dependencies.electron,
     'npm_config_arch': process.arch,
     'npm_config_target_arch': process.arch,
     'npm_config_disturl': 'https://atom.io/download/atom-shell',
@@ -31,5 +31,5 @@ function npm(cmd, options) {
   });
 }
 
-npm('install', {cwd: './packages/client-app', env: 'electron'})
-.then(() => npm('dedupe', {cwd: './packages/client-app', env: 'electron'}))
+npm('install', {cwd: './app', env: 'electron'})
+.then(() => npm('dedupe', {cwd: './app', env: 'electron'}))

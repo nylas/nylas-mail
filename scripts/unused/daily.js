@@ -53,8 +53,8 @@ async function sliceFileLines(filepath, idx) {
 
 async function updateChangelogFile(changelogString) {
   mkdirp.sync(TMP_DIR)
-  await sliceFileLines('./packages/client-app/CHANGELOG.md', 2)
-  await prependToFile('./packages/client-app/CHANGELOG.md', changelogString)
+  await sliceFileLines('./app/CHANGELOG.md', 2)
+  await prependToFile('./app/CHANGELOG.md', changelogString)
 }
 
 function getFormattedLogs(mainLog) {
@@ -102,7 +102,7 @@ async function main(args) {
     process.exit(1)
   }
 
-  const pkg = require('../packages/client-app/package.json')  //eslint-disable-line
+  const pkg = require('../app/package.json')  //eslint-disable-line
   const currentVersion = pkg.version
   const nextVersion = semver.inc(currentVersion, 'patch')
 
@@ -143,7 +143,7 @@ async function main(args) {
   // Allow editing
   if (args.editChangelog) {
     try {
-      await spawn(process.env.EDITOR, ['./packages/client-app/CHANGELOG.md'], {stdio: 'inherit'})
+      await spawn(process.env.EDITOR, ['./app/CHANGELOG.md'], {stdio: 'inherit'})
     } catch (err) {
       console.error('Error editing CHANGELOG.md')
       console.error(err)
@@ -153,7 +153,7 @@ async function main(args) {
 
   // Bump patch version in package.json
   try {
-    await exec('npm --no-git-tag-version version patch', {cwd: 'packages/client-app'})
+    await exec('npm --no-git-tag-version version patch', {cwd: './app'})
   } catch (err) {
     console.error('Could not bump version in package.json')
     console.error(err)
@@ -205,10 +205,10 @@ async function main(args) {
   if (args.build) {
     try {
       await spawn('git', ['clean', '-xdf'])
-      await spawn('cp', ['-r', '../n1-keys-and-certificates', 'packages/client-app/build/resources/certs'])
+      await spawn('cp', ['-r', '../n1-keys-and-certificates', 'app/build/resources/certs'])
       await spawn('npm', ['install'], {env: {INSTALL_TARGET: 'client'}})
       await spawn('npm', ['run', 'build-client'], {env: {SIGN_BUILD: true}})
-      await spawn('codesign', ['--verify', '--deep', '--verbose=2', '"packages/client-app/dist/Nylas Mail-darwin-x64/Nylas Mail.app"'])
+      await spawn('codesign', ['--verify', '--deep', '--verbose=2', '"app/dist/Nylas Mail-darwin-x64/Nylas Mail.app"'])
       await spawn('npm', ['run', 'upload-client'])
     } catch (err) {
       console.error('Errored while running build')

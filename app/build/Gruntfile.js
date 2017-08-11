@@ -12,7 +12,7 @@ module.exports = (grunt) => {
    * is designed to be run from the npm-build-client task whose repo root is
    * the main nylas-mail-all package.
    */
-  const appDir = path.resolve(path.join('packages', 'client-app'));
+  const appDir = path.resolve(path.join('app'));
   const buildDir = path.join(appDir, 'build');
   const tasksDir = path.join(buildDir, 'tasks');
   const taskHelpers = require(path.join(tasksDir, 'task-helpers'))(grunt)
