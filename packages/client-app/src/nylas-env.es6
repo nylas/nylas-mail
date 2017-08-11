@@ -1,15 +1,14 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
+import _ from 'underscore';
 import fs from 'fs';
 import path from 'path';
 import { ipcRenderer, remote } from 'electron';
-import _ from 'underscore';
 import { Emitter } from 'event-kit';
 import { convertStackTrace } from 'coffeestack';
 import { mapSourcePosition } from 'source-map-support';
 
 import WindowEventHandler from './window-event-handler';
-
 import Utils from './flux/models/utils';
 
 function ensureInteger(f, fallback) {
@@ -26,9 +25,7 @@ function ensureInteger(f, fallback) {
 export default class NylasEnvConstructor {
   static initClass() {
     this.version = 1;
-
     this.prototype.workspaceViewParentSelector = 'body';
-    this.prototype.lastUncaughtError = null;
 
     /*
     Section: Properties
@@ -54,10 +51,6 @@ export default class NylasEnvConstructor {
 
     // Public: A {StyleManager} instance
     this.prototype.styles = null;  // Increment this when the serialization format changes
-  }
-
-  assert(bool, msg) {
-    if (!bool) { throw new Error(`Assertion error: ${msg}`); }
   }
 
   // Load or create the application environment
@@ -139,12 +132,6 @@ export default class NylasEnvConstructor {
 
   // Call .loadOrCreate instead
   constructor(savedState = {}) {
-    this.reportError = this.reportError.bind(this);
-    this.getConfigDirPath = this.getConfigDirPath.bind(this);
-    this.storeColumnWidth = this.storeColumnWidth.bind(this);
-    this.getColumnWidth = this.getColumnWidth.bind(this);
-    this.startWindow = this.startWindow.bind(this);
-    this.populateHotWindow = this.populateHotWindow.bind(this);
     this.savedState = savedState;
     ({version: this.version} = this.savedState);
     this.emitter = new Emitter();
@@ -201,7 +188,9 @@ export default class NylasEnvConstructor {
     }
     this.windowEventHandler = new WindowEventHandler();
 
-    this.extendRxObservables();
+    // We extend nylas observables with our own methods. This happens on
+    // require of nylas-observables
+    require('nylas-observables');
 
     // Nylas exports is designed to provide a lazy-loaded set of globally
     // accessible objects to all packages. Upon require, nylas-exports will
@@ -247,28 +236,18 @@ export default class NylasEnvConstructor {
       return this.reportError(originalError, {url, line: newLine, column: newColumn});
     };
 
-    process.on('uncaughtException', e => this.reportError(e));
-
-    // We use the native Node 'unhandledRejection' instead of Bluebird's
-    // `Promise.onPossiblyUnhandledRejection`. Testing indicates that
-    // the Node process method is a strict superset of Bluebird's handler.
-    // With the introduction of transpiled async/await, it is now possible
-    // to get a native, non-Bluebird Promise. In that case, Bluebird's
-    // `onPossiblyUnhandledRejection` gets bypassed and we miss some
-    // errors. The Node process handler catches all Bluebird promises plus
-    // those created with a native Promise.
-    process.on('unhandledRejection', error => {
-      this._onUnhandledRejection(error, sourceMapCache)
+    process.on('uncaughtException', e => {
+      this.reportError(e);
     });
 
-    // Based on testing, there are some unhandled rejections that don't get
-    // caught by `process.on('unhandledRejection')`, so we listen for unhandled
-    // rejections on the`window` as well
-    window.addEventListener('unhandledrejection', e => {
+    process.on('unhandledRejection', (error) => {
+      this._onUnhandledRejection(error, sourceMapCache);
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
       // This event is supposed to look like {reason, promise}, according to
       // https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
-      // In practice, it can have different shapes, so we try to make our best
-      // guess
+      // In practice, it can have different shapes, so we make our best guess
       if (!e) {
         const error = new Error(`Unknown window.unhandledrejection event.`)
         this._onUnhandledRejection(error, sourceMapCache)
@@ -295,49 +274,19 @@ export default class NylasEnvConstructor {
     return null;
   }
 
-  // Given that we listen to unhandled rejections on both the `window` and the
-  // `process`, more often than not both of those will get called almost
-  // immedaitely with the same error. To prevent double reporting the same
-  // error, we debounce this function with a very small interval
-  _onUnhandledRejection = _.debounce((error, sourceMapCache) => {
+  _onUnhandledRejection = (error, sourceMapCache) => {
     if (this.inDevMode()) {
       error.stack = convertStackTrace(error.stack, sourceMapCache);
     }
-    this.reportError(error, {
-      rateLimit: {
-        ratePerHour: 30,
-        key: `UnhandledRejection:${error.stack}`,
-      },
-    })
-  }, 10)
-
-  _createErrorCallbackEvent(error, extraArgs = {}) {
-    const event = Object.assign({}, extraArgs, {
-      message: error.message,
-      originalError: error,
-      defaultPrevented: false,
-    });
-    event.preventDefault = () => { event.defaultPrevented = true; return true };
-    return event;
+    this.reportError(error);
   }
 
   // Public: report an error through the `ErrorLogger`
   //
-  // Takes an error and an extra object to report. Hooks into the
-  // `onWillThrowError` and `onDidThrowError` callbacks. If someone
-  // registered with `onWillThrowError` calls `preventDefault` on the event
-  // object it's given, then no error will be reported.
-  //
   // The difference between this and `ErrorLogger.reportError` is that
-  // `NylasEnv.reportError` will hook into the event callbacks and handle
-  // test failures and dev tool popups.
+  // `NylasEnv.reportError` hooks into test failures and dev tool popups.
+  //
   reportError(error, extra = {}, {noWindows} = {}) {
-    const event = this._createErrorCallbackEvent(error, extra);
-    this.emitter.emit('will-throw-error', event);
-    if (event.defaultPrevented) { return; }
-
-    this.lastUncaughtError = error;
-
     try {
       extra.pluginIds = this._findPluginsFromError(error);
     } catch (err) {
@@ -355,8 +304,6 @@ export default class NylasEnvConstructor {
     }
 
     this.errorLogger.reportError(error, extra);
-
-    this.emitter.emit('did-throw-error', event);
   }
 
   _findPluginsFromError(error) {
@@ -376,38 +323,6 @@ export default class NylasEnvConstructor {
   /*
   Section: Event Subscription
   */
-
-  // Extended: Invoke the given callback when there is an unhandled error, but
-  // before the devtools pop open
-  //
-  // * `callback` {Function} to be called whenever there is an unhandled error
-  //   * `event` {Object}
-  //     * `originalError` {Object} the original error object
-  //     * `message` {String} the original error object
-  //     * `url` {String} Url to the file where the error originated.
-  //     * `line` {Number}
-  //     * `column` {Number}
-  //     * `preventDefault` {Function} call this to avoid popping up the dev tools.
-  //
-  // Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onWillThrowError(callback) {
-    return this.emitter.on('will-throw-error', callback);
-  }
-
-  // Extended: Invoke the given callback whenever there is an unhandled error.
-  //
-  // * `callback` {Function} to be called whenever there is an unhandled error
-  //   * `event` {Object}
-  //     * `originalError` {Object} the original error object
-  //     * `message` {String} the original error object
-  //     * `url` {String} Url to the file where the error originated.
-  //     * `line` {Number}
-  //     * `column` {Number}
-  //
-  // Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
-  onDidThrowError(callback) {
-    return this.emitter.on('did-throw-error', callback);
-  }
 
   // Extended: Run the Chromium content-tracing module for five seconds, and save
   // the output to a file which is printed to the command-line output of the app.
@@ -708,10 +623,6 @@ export default class NylasEnvConstructor {
     return this.setFullScreen(!this.isFullScreen());
   }
 
-  getAllWindowDimensions() {
-    return remote.getGlobal('application').getAllWindowDimensions();
-  }
-
   // Get the dimensions of this window.
   //
   // Returns an {Object} with the following keys:
@@ -891,12 +802,6 @@ export default class NylasEnvConstructor {
     }
   }
 
-  // We extend nylas observables with our own methods. This happens on
-  // require of nylas-observables
-  extendRxObservables() {
-    return require('nylas-observables');
-  }
-
   // Launches a new window via the browser/WindowLauncher.
   //
   // If you pass a `windowKey` in the options, and that windowKey already
@@ -974,8 +879,7 @@ export default class NylasEnvConstructor {
   }
 
   exit(status) {
-    const { app } = remote;
-    app.emit('will-exit');
+    remote.app.emit('will-exit');
     return remote.process.exit(status);
   }
 
@@ -1096,4 +1000,5 @@ export default class NylasEnvConstructor {
     this.actionBridge.registerGlobalActions(...args);
   }
 }
+
 NylasEnvConstructor.initClass();

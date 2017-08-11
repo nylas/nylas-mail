@@ -31,13 +31,7 @@ function trimTo(str, size) {
 }
 
 function handleUnrecoverableDatabaseError(err = (new Error(`Manually called handleUnrecoverableDatabaseError`))) {
-  const fingerprint = ["{{ default }}", "unrecoverable database error", err.message];
-  NylasEnv.errorLogger.reportError(err, {fingerprint,
-    rateLimit: {
-      ratePerHour: 30,
-      key: `handleUnrecoverableDatabaseError:${err.message}`,
-    },
-  });
+  NylasEnv.errorLogger.reportError(err);
   const app = remote.getGlobal('application');
   if (!app) {
     throw new Error('handleUnrecoverableDatabaseError: `app` is not ready!')

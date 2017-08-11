@@ -16,6 +16,7 @@ if (process.type === 'renderer') {
 }
 
 var crashReporter = require('electron').crashReporter
+var RavenErrorReporter = require('./error-logger-extensions/raven-error-reporter');
 
 // A globally available ErrorLogger that can report errors to various
 // sources and enhance error functionality.
@@ -40,13 +41,19 @@ module.exports = ErrorLogger = (function() {
     this.inDevMode = args.inDevMode
     this.resourcePath = args.resourcePath
 
-    this._startCrashReporter()
+    this._startCrashReporter();
 
-    this._extendErrorObject()
+    this._extendErrorObject();
 
-    this._extendNativeConsole()
+    this._extendNativeConsole();
 
-    this.extensions = this._setupErrorLoggerExtensions(args)
+    this.extensions = [
+      new RavenErrorReporter({
+        inSpecMode: args.inSpecMode,
+        inDevMode: args.inDevMode,
+        resourcePath: args.resourcePath,
+      }),
+    ]
 
     if (this.inSpecMode) { return }
 
@@ -113,9 +120,10 @@ module.exports = ErrorLogger = (function() {
 
   ErrorLogger.prototype._startCrashReporter = function(args) {
     crashReporter.start({
-      productName: 'Nylas Mail',
-      companyName: 'Nylas',
-      submitURL: 'https://electron-crash-report-server.herokuapp.com/',
+      productName: 'Merani',
+      companyName: 'Merani',
+      submitURL: 'http://merani_prod.bugsplat.com/post/bp/crash/postBP.php',
+      uploadToServer: true,
       autoSubmit: true,
     })
   }
@@ -144,36 +152,9 @@ module.exports = ErrorLogger = (function() {
 
         return alt;
       },
-      configurable: true
+      configurable: true,
     });
   }
-
-  ErrorLogger.prototype._setupErrorLoggerExtensions = function(args) {
-    var extension, extensionConstructor, extensionPath, extensions, extensionsPath, i, len, ref;
-    if (args == null) {
-      args = {};
-    }
-    extensions = [];
-    extensionsPath = path.join(args.resourcePath, 'src', 'error-logger-extensions');
-    ref = fs.listSync(extensionsPath);
-    for (i = 0, len = ref.length; i < len; i++) {
-      extensionPath = ref[i];
-      if (path.basename(extensionPath)[0] === '.') {
-        continue;
-      }
-      extensionConstructor = require(extensionPath);
-      if (!(typeof extensionConstructor === "function")) {
-        throw new Error("Logger Extensions must return an extension constructor");
-      }
-      extension = new extensionConstructor({
-        inSpecMode: args.inSpecMode,
-        inDevMode: args.inDevMode,
-        resourcePath: args.resourcePath
-      });
-      extensions.push(extension);
-    }
-    return extensions;
-  };
 
   ErrorLogger.prototype._logPath = function() {
     var tmpPath = app.getPath('temp');
@@ -203,7 +184,7 @@ module.exports = ErrorLogger = (function() {
             var filepath = path.join(tmpPath, file);
             fs.stat(filepath, function(err, stats) {
               if (!err && stats) {
-                var lastModified = new Date(stats['mtime']);
+                var lastModified = new Date(stats.mtime);
                 var fileAge = Date.now() - lastModified.getTime();
                 if (fileAge > (1000 * 60 * 60 * 24 * 2)) { // two days
                   fs.unlink(filepath, () => {});
@@ -218,7 +199,7 @@ module.exports = ErrorLogger = (function() {
 
   ErrorLogger.prototype._setupNewLogFile = function() {
     // Open a file write stream to log output from this process
-    console.log("Streaming log data to "+this._logPath());
+    console.log("Streaming log data to " + this._logPath());
 
     this.loghost = os.hostname();
     this.logstream = fs.createWriteStream(this._logPath(), {
@@ -260,9 +241,9 @@ module.exports = ErrorLogger = (function() {
     var command, args;
     command = arguments[0]
     args = 2 <= arguments.length ? Array.prototype.slice.call(arguments, 1) : [];
-    for (var i=0; i < this.extensions.length; i++) {
+    for (var i = 0; i < this.extensions.length; i++) {
       const extension = this.extensions[i]
-      extension[command].apply(this, args);
+      extension[command].apply(extension, args);
     }
   }
 
@@ -283,14 +264,14 @@ module.exports = ErrorLogger = (function() {
   }
 
   ErrorLogger.prototype._appendLog = function(obj) {
-    if (this.inSpecMode) { return };
+    if (this.inSpecMode) { return; }
 
     try {
       var message = JSON.stringify({
         host: this.loghost,
         timestamp: (new Date()).toISOString(),
         payload: obj
-      })+"\n";
+      }) + "\n";
 
       this.logstream.write(message, 'utf8', function (err) {
         if (err) {
@@ -303,5 +284,4 @@ module.exports = ErrorLogger = (function() {
   };
 
   return ErrorLogger;
-
 })();

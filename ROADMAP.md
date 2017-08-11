@@ -55,7 +55,7 @@ Target Ship Date: Late September
 #### Deployment
 - [x] Create a new AWS account for Merani project
 - [x] Register Merani domain(s)
-- [ ] Setup Sentry for JavaScript error reporting
+- [x] Setup Sentry for JavaScript error reporting
 - [x] Obtain Mac Developer Certificate for Merani
 - [ ] Obtain Windows Verisign Certificate for Merani
 - [ ] Deploy new identity API to id.getmerani.com

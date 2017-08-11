@@ -183,25 +183,6 @@ describe("the `NylasEnv` global", function nylasEnvSpec() {
         spyOn(console, "error")
       });
 
-      it("emits will-throw-error", () => {
-        spyOn(NylasEnv.emitter, "emit")
-        NylasEnv.reportError(this.testErr);
-        expect(NylasEnv.emitter.emit).toHaveBeenCalled();
-        expect(NylasEnv.emitter.emit.callCount).toBe(2);
-        expect(NylasEnv.emitter.emit.calls[0].args[0]).toBe("will-throw-error")
-        expect(NylasEnv.emitter.emit.calls[1].args[0]).toBe("did-throw-error")
-      });
-
-      it("returns if the event has its default prevented", () => {
-        spyOn(NylasEnv.emitter, "emit").andCallFake((name, event) => {
-          event.preventDefault()
-        })
-        NylasEnv.reportError(this.testErr);
-        expect(NylasEnv.emitter.emit).toHaveBeenCalled();
-        expect(NylasEnv.emitter.emit.callCount).toBe(1);
-        expect(NylasEnv.emitter.emit.calls[0].args[0]).toBe("will-throw-error")
-      });
-
       it("opens dev tools in dev mode", () => {
         jasmine.unspy(NylasEnv, "inDevMode")
         spyOn(NylasEnv, "inDevMode").andReturn(true);
@@ -215,16 +196,6 @@ describe("the `NylasEnv` global", function nylasEnvSpec() {
         expect(NylasEnv.errorLogger.reportError).toHaveBeenCalled();
         expect(NylasEnv.errorLogger.reportError.callCount).toBe(1);
         expect(NylasEnv.errorLogger.reportError.calls[0].args[0]).toBe(this.testErr);
-      });
-
-      it("emits did-throw-error", () => {
-        spyOn(NylasEnv.emitter, "emit")
-        NylasEnv.reportError(this.testErr);
-        expect(NylasEnv.openDevTools).not.toHaveBeenCalled();
-        expect(NylasEnv.executeJavaScriptInDevTools).not.toHaveBeenCalled();
-        expect(NylasEnv.emitter.emit.callCount).toBe(2);
-        expect(NylasEnv.emitter.emit.calls[0].args[0]).toBe("will-throw-error")
-        expect(NylasEnv.emitter.emit.calls[1].args[0]).toBe("did-throw-error")
       });
     });
   });
