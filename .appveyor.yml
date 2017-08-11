@@ -26,9 +26,9 @@ build_script:
 - cmd: node app/build/create-signed-windows-installer.js
 
 artifacts:
-- path: dist/MeraniSetup.exe
-- path: dist/RELEASES
-- path: dist/*.nupkg
+- path: app\dist\MeraniSetup.exe
+- path: app\dist\RELEASES
+- path: app\dist\*.nupkg
 
 deploy:
 - provider: S3
@@ -51,5 +51,5 @@ environment:
 
 cache:
   - node_modules -> package.json
-  - packages\client-app\node_modules -> packages\client-app\package.json
+  - app\node_modules -> app\package.json
   - '%USERPROFILE%\.npm'

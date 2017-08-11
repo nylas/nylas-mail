@@ -15,12 +15,6 @@ addons:
     - Merani.zip
     - $(find . -type f -name *.deb | tr "\n" ":")
     - $(find . -type f -name *.rpm | tr "\n" ":")
-    - (find . -type f -name *.deb | tr "\n" ":")
-    - (find . -type f -name *.rpm | tr "\n" ":")
-    - $(cd ./app/dist && find . -type f -name *.deb | tr "\n" ":")
-    - $(cd ./app/dist && find . -type f -name *.rpm | tr "\n" ":")
-    - (cd ./app/dist && find . -type f -name *.deb | tr "\n" ":")
-    - (cd ./app/dist && find . -type f -name *.rpm | tr "\n" ":")
   apt:
     sources:
     - ubuntu-toolchain-r-test
