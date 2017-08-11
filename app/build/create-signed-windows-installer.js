@@ -30,8 +30,10 @@ const config = {
 console.log(config);
 console.log("---> Starting")
 
-createWindowsInstaller(config).then(() =>
+createWindowsInstaller(config).then(() => {
   console.log("createWindowsInstaller succeeded.")
-).catch((e) =>
-  console.error(`createWindowsInstaller failed: ${e.message}`)
-);
+  process.exit(0);
+}).catch((e) => {
+  console.error(`createWindowsInstaller failed: ${e.message}`);
+  process.exit(1);
+});

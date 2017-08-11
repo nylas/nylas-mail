@@ -12,8 +12,8 @@ addons:
     paths:
     - Merani.dmg
     - Merani.zip
-    - $(ls . | grep ".deb")
-    - $(ls . | grep ".rpm")
+    - $(ls . | grep .deb | tr "\n" ":")
+    - $(ls ./rpm | grep .rpm | tr "\n" ":")
   apt:
     sources:
     - ubuntu-toolchain-r-test
