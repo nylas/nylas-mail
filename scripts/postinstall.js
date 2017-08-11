@@ -37,12 +37,13 @@ function npm(cmd, options) {
 // For speed, we cache app/node_modules. However, we need to
 // be sure to do a full rebuild of native node modules when the
 // Electron version changes. To do this we check a marker file.
-const cacheVersionPath = './app/node_modules/.postinstall-target-version';
+const appModulesPath = path.resolve(__dirname, '..', 'app', 'node_modules');
+const cacheVersionPath = path.join(appModulesPath, '.postinstall-target-version');
 const cacheElectronTarget = fs.existsSync(cacheVersionPath) && fs.readFileSync(cacheVersionPath).toString();
 
 if (cacheElectronTarget !== npmElectronTarget) {
   console.log(`\n-- Clearing app/node_modules --`)
-  rimraf.sync(path.resolve(__dirname, '..', 'app', 'node_modules'));
+  rimraf.sync(appModulesPath);
 }
 
 // run `npm install` in ./app with Electron NPM config

@@ -6,22 +6,22 @@ node_js:
 - '6.9'
 
 addons:
-  artifacts: true
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - build-essential
-    - clang
-    - fakeroot
-    - g++-4.8
-    - git
-    - libgnome-keyring-dev
-    - xvfb
-    - rpm
-    - libxext-dev
-    - libxtst-dev
-    - libxkbfile-dev
+- artifacts: true
+- apt:
+  sources:
+  - ubuntu-toolchain-r-test
+  packages:
+  - build-essential
+  - clang
+  - fakeroot
+  - g++-4.8
+  - git
+  - libgnome-keyring-dev
+  - xvfb
+  - rpm
+  - libxext-dev
+  - libxtst-dev
+  - libxkbfile-dev
 
 branches:
   only:
