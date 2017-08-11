@@ -6,22 +6,29 @@ node_js:
 - '6.9'
 
 addons:
-- artifacts: true
-- apt:
-  sources:
-  - ubuntu-toolchain-r-test
-  packages:
-  - build-essential
-  - clang
-  - fakeroot
-  - g++-4.8
-  - git
-  - libgnome-keyring-dev
-  - xvfb
-  - rpm
-  - libxext-dev
-  - libxtst-dev
-  - libxkbfile-dev
+  artifacts:
+    working_dir: app/dist
+    target_paths: client/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
+    paths:
+    - Merani.dmg
+    - Merani.zip
+    - $(ls . | grep ".deb")
+    - $(ls . | grep ".rpm")
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - build-essential
+    - clang
+    - fakeroot
+    - g++-4.8
+    - git
+    - libgnome-keyring-dev
+    - xvfb
+    - rpm
+    - libxext-dev
+    - libxtst-dev
+    - libxkbfile-dev
 
 branches:
   only:
@@ -45,16 +52,6 @@ before_install:
 
 script:
 - npm run build
-
-addons:
-  artifacts:
-    working_dir: app/dist
-    target_paths: client/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
-    paths:
-    - Merani.dmg
-    - Merani.zip
-    - $(ls . | grep ".deb")
-    - $(ls . | grep ".rpm")
 
 cache:
   directories:
