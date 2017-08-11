@@ -6,6 +6,9 @@ branches:
   - /ci.*/
   - /stable.*/
 
+init:
+- ps: $env:commit = $env:appveyor_repo_commit.SubString(0,8)
+
 # We need to only clone the main module because our submodule requires the
 # encrypted ssh key to access submodules
 install:
@@ -38,7 +41,7 @@ deploy:
     secure: XlLzz7sdvrtgi4g459NvxLfrH/+hOutb+0Osz29unfi4Zcw9N8H8SEaq6m3ZeWc+
   region: us-east-1
   bucket: merani-builds
-  folder: "client/$(env:appveyor_repo_commit.SubString(0,8))"
+  folder: "client/$(commit)"
   set_public: true
  
 environment:
