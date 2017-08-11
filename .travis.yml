@@ -9,11 +9,18 @@ addons:
   artifacts:
     working_dir: app/dist
     target_paths: client/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
+    permissions: public-read
     paths:
     - Merani.dmg
     - Merani.zip
-    - $(ls . | grep .deb | tr "\n" ":")
-    - $(ls ./rpm | grep .rpm | tr "\n" ":")
+    - $(find . -type f -name *.deb | tr "\n" ":")
+    - $(find . -type f -name *.rpm | tr "\n" ":")
+    - (find . -type f -name *.deb | tr "\n" ":")
+    - (find . -type f -name *.rpm | tr "\n" ":")
+    - $(cd ./app/dist && find . -type f -name *.deb | tr "\n" ":")
+    - $(cd ./app/dist && find . -type f -name *.rpm | tr "\n" ":")
+    - (cd ./app/dist && find . -type f -name *.deb | tr "\n" ":")
+    - (cd ./app/dist && find . -type f -name *.rpm | tr "\n" ":")
   apt:
     sources:
     - ubuntu-toolchain-r-test
