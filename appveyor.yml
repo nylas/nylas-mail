@@ -16,9 +16,9 @@ install:
 # We need to extract the encrypted private ssh key to clone the submodule.
 - ps: |
     if ($env:DECRYPTION_PASSWORD) {
-      secure-file\tools\secure-file -decrypt packages\client-private-plugins\encrypted_certificates\appveyor\win-nylas-n1.p12.enc -secret $env:DECRYPTION_PASSWORD
-      secure-file\tools\secure-file -decrypt packages\client-private-plugins\encrypted_certificates\appveyor\set_win_env.ps1.enc -secret $env:DECRYPTION_PASSWORD
-      . packages\client-private-plugins\encrypted_certificates\appveyor\set_win_env.ps1
+      secure-file\tools\secure-file -decrypt app\build\resources\certs\appveyor\win-nylas-n1.p12.enc -secret $env:DECRYPTION_PASSWORD
+      secure-file\tools\secure-file -decrypt app\build\resources\certs\appveyor\set_win_env.ps1.enc -secret $env:DECRYPTION_PASSWORD
+      . app\build\resources\certs\appveyor\set_win_env.ps1
     }
 
 build_script:
@@ -36,8 +36,7 @@ environment:
   global:
     DEBUG: "electron-windows-installer:*,electron-packager:*"
     SIGN_BUILD: true
-    INSTALL_TARGET: "client"
-    CERTIFICATE_FILE: .\packages\client-private-plugins\encrypted_certificates\appveyor\win-nylas-n1.p12
+    CERTIFICATE_FILE: .\app\build\resources\certs\appveyor\win-nylas-n1.p12
     DECRYPTION_PASSWORD:
       secure: 48VSzDtdBd52Xlo3TZ1NeR1yRRrZ3AU6Px5XjD5RDp44cFU5GYVspecGqX6DGCV7i0D7nldGMyEbXNrjM1t1Kw==
 

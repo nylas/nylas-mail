@@ -20,6 +20,9 @@ node_modules
 **/lerna-debug.log*
 
 ##### Certs for building
+certs
+**/*.p12
+**/*.cer
 **/build/resources/certs
 
 ##### Misc swap files

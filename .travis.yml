@@ -1,6 +1,9 @@
-# The private Nylas monorepo build script. This will build a full signed
-# release for the Nylas Mail client
 sudo: false
+
+language: node_js
+
+node_js:
+- '6.9'
 
 addons:
   apt:
@@ -22,36 +25,40 @@ addons:
 branches:
   only:
   - master
-  - /ci-.*/
-  - /stable.*/
+  - "/ci-.*/"
+  - "/stable.*/"
 
 matrix:
   include:
   - os: linux
-    env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 DEBUG="electron-packager:*" INSTALL_TARGET=client
+    env: CC=gcc-4.8 CXX=g++-4.8 DEBUG="electron-packager:*"
   - os: osx
-    env: NODE_VERSION=6.9 CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*" INSTALL_TARGET=client
+    env: CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*"
 
 before_install:
-- openssl aes-256-cbc
-  -K $encrypted_faf2708e46e2_key
-  -iv $encrypted_faf2708e46e2_iv
-  -in packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar.enc
-  -out packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar
-  -d;
+- openssl aes-256-cbc -K $encrypted_faf2708e46e2_key -iv $encrypted_faf2708e46e2_iv
+  -in app/build/resources/certs.tar.enc -out app/build/resources/certs.tar -d;
 - mkdir app/build/resources/certs;
-- tar xvf packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar
-  --directory=app/build/resources/;
+- tar xvf app/build/resources/certs.tar --directory=app/build/resources/;
 - source app/build/resources/certs/mac/set_unix_env.sh;
-
-install:
-- git clone https://github.com/creationix/nvm.git /tmp/.nvm
-- source /tmp/.nvm/nvm.sh
-- nvm install $NODE_VERSION
-- nvm use --delete-prefix $NODE_VERSION
 
 script:
 - npm install && npm run build && npm run upload
+
+deploy:
+  matrix:
+  - provider: s3
+    skip_cleanup: true
+    region: us-east-1
+    access_key_id: AKIAJQWOM4SPSY3TXI5Q
+    secret_access_key:
+      secure: wBeoAT24ke3hdijVgYl5dmUsrCobkNr5YCywlBsHQ8XEOkt4fJnYpAci2HM/gJMuhbUMKKvMW2nQhDXfBSicYZPYUqQcLl09s7LsOtl4UDULggiqF/VKARF81Ngffl0kMS5gAh5jWXeE3f+cO3hWw86dn3u6YjIlKCm3qrLnnktbIRddTv7gUBDXD4mHuKKa978Xq1iqJIezHYBX860dhGQ5Mp5tioiHgs5h+S85PJiX8TefeTdCgRzF3rlWG18pqlqAgji8OGuXmER8mgWZah40RUd5QASB2y818/NTrBy/H6jQdJ7gEhhB4TjYKkhfe5igSIQU7ABC2M9D8u/vc3UnCRG1LAhzJBKPki3yN0hjr01r3LltUjTMWZDVoFhSfAUCeDvJWoXErISFubIiANxQsZ6bXw0WYru3dQ55EagYjWNxcpWLwwapNKpmqzeZbVeT6vwoH4pf+tZKanHFdZtOCQEHQhF0QpegxBhuhwVrBTvzZUC2hZVghkhmmrOv5ClXlLyr20K0gopcHm6mBWtfcZRaK24TtIEs3VvMeDirkhtwV05g1tFOAkyJ23T33TqgSqWIcDvWWMWQN7mDEznzWiDaN5grFuZxWxmOM5h5wOHLpxQuHoCHFr0+Xf5qZlg/OzRjZeFT1ULRPwSrfHah3EgbAWWmkN6Y59JtmJY=
+    bucket: merani-builds
+    acl: public_read
+    upload-dir: builds/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
+    local-dir: app/dist
+    on:
+      branch: master
 
 cache:
   directories:

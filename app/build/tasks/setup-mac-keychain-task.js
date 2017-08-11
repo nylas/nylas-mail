@@ -9,7 +9,7 @@ const fs = require('fs-plus');
 // we need the certificate and private key to exist in the keychain
 //
 // In the case of Travis, we need to setup a temp keychain from encrypted
-// files in the repository.  # We'll decrypt and import our certificates,
+// files in the repository. We'll decrypt and import our certificates,
 // put them in a temporary keychain, and use that.
 //
 // If you want to verify the app was signed you can run the commands:
@@ -20,7 +20,7 @@ const fs = require('fs-plus');
 //
 // And:
 //
-//     codesign --verify --deep --verbose=2 /path/to/N1.app
+//     codesign -dvvv /path/to/N1.app
 //
 // Which should return "accepted"
 module.exports = (grunt) => {
@@ -75,8 +75,8 @@ module.exports = (grunt) => {
   getCertData = () => {
     const certs = path.resolve(path.join(grunt.config('buildDir'), 'resources', 'certs', 'mac'));
     const appleCert = path.join(certs, 'AppleWWDRCA.cer');
-    const nylasCert = path.join(certs, 'mac-nylas-n1.cer');
-    const nylasPrivateKey = path.join(certs, 'mac-nylas-n1.p12');
+    const nylasCert = path.join(certs, 'mac-merani.cer');
+    const nylasPrivateKey = path.join(certs, 'mac-merani.p12');
 
     const keyPass = process.env.APPLE_CODESIGN_KEY_PASSWORD;
 
