@@ -99,7 +99,7 @@ module.exports = function(grunt) {
           let transformed = require("babel-core").transform(fileStr, {
             plugins: ["transform-react-jsx",
                       "transform-class-properties"],
-            presets: ['react', 'stage-2']
+            presets: ['react', 'electron']
           });
 
           grunt.file.write(path.join(cjsxOutputDir, path.basename(file).slice(0, -3 || undefined)+'js'), transformed.code);
@@ -112,7 +112,7 @@ module.exports = function(grunt) {
           let transformed = require("babel-core").transform(fileStr, {
             plugins: ["transform-class-properties",
                       "transform-function-bind"],
-            presets: ['react', 'stage-2']
+            presets: ['react', 'electron']
 
           });
 

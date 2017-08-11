@@ -1,7 +1,17 @@
 {
-  "name": "nylas-mail-all",
+  "name": "merani-root",
   "version": "0.0.1",
-  "description": "All components required to run Nylas Mail",
+  "description": "Packages required to develop and build Merani",
+  "author": "Merani",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Foundry376/Merani.git"
+  },
+  "engines": {
+    "node": "6.9.1",
+    "npm": "3.10.8"
+  },
   "devDependencies": {
     "babel-cli": "6.x.x",
     "babel-core": "6.x.x",
@@ -12,6 +22,7 @@
     "coffeelint-cjsx": "2.x.x",
     "commander": "^2.9.0",
     "devtron": "^1.4.0",
+    "donna": "^1.0.16",
     "electron-installer-dmg": "0.2.x",
     "electron-packager": "8.4.x",
     "electron-winstaller": "2.x.x",
@@ -23,6 +34,12 @@
     "eslint_d": "4.2.0",
     "fs-extra": "2.x.x",
     "fs-plus": "2.x.x",
+    "gitbook-cli": "^2.3.2",
+    "gitbook-plugin-anchors": "^0.7.1",
+    "gitbook-plugin-editlink": "^1.0.2",
+    "gitbook-plugin-favicon": "0.0.2",
+    "gitbook-plugin-github": "^2.0.0",
+    "gitbook-plugin-theme-api": "^1.1.2",
     "glob": "7.x.x",
     "grunt": "0.4.x",
     "grunt-cli": "0.1.x",
@@ -32,35 +49,25 @@
     "grunt-contrib-csslint": "0.5.x",
     "grunt-contrib-less": "0.8.x",
     "grunt-lesslint": "0.13.x",
+    "handlebars": "^4.0.10",
     "jasmine": "2.x.x",
+    "joanna": "0.0.9",
     "load-grunt-parent-tasks": "0.1.1",
+    "meta-marked": "^0.4.2",
     "mkdirp": "^0.5.1",
     "pm2": "2.4.0",
     "request": "2.x.x",
+    "rimraf": "^2.6.1",
     "temp": "0.8.x",
     "underscore": "1.8.x"
   },
   "scripts": {
+    "postinstall": "node scripts/postinstall.js",
     "start": "app/node_modules/.bin/electron ./app --enable-logging --dev",
+    "lint": "grunt lint --gruntfile=app/build/Gruntfile.js --base=./",
     "test": "app/node_modules/.bin/electron ./app --enable-logging --test",
     "test-window": "app/node_modules/.bin/electron ./app --enable-logging --test=window",
-    "test-junit": "",
-    "lint": "grunt lint --gruntfile=app/build/Gruntfile.js --base=./",
     "build": "grunt build-client --gruntfile=app/build/Gruntfile.js --base=./",
-    "upload": "grunt upload-client --gruntfile=app/build/Gruntfile.js --base=./",
-    "postinstall": "node scripts/postinstall.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nylas/nylas-mail-all.git"
-  },
-  "author": "Nylas",
-  "license": "GPL-3.0",
-  "engines": {
-    "node": "6.9.1",
-    "npm": "3.10.8"
-  },
-  "dependencies": {
-    "rimraf": "^2.6.1"
+    "build-docs": "grunt docs --gruntfile=app/build/Gruntfile.js --base=./ && mkdir -p app/dist-docs && cp README.md ./app/build/docs_src/README.md && gitbook --gitbook=latest build . ./app/dist-docs --log=debug --debug && rm ./app/build/docs_src/README.md && rm -rf ./app/build/docs_src/classes"
   }
 }

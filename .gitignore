@@ -65,3 +65,4 @@ scripts/venv
 client_secret.json
 /app/MailSync
 /logfile.txt
+/app/dist-docs

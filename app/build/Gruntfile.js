@@ -23,7 +23,7 @@ module.exports = (grunt) => {
     'rootDir': path.resolve('./'),
     'buildDir': buildDir,
     'appDir': appDir,
-    'classDocsOutputDir': './docs_src/classes',
+    'classDocsOutputDir': path.join(buildDir, 'docs_src', 'classes'),
     'outputDir': path.join(appDir, 'dist'),
     'appJSON': grunt.file.readJSON(path.join(appDir, 'package.json')),
     'source:coffeescript': [
@@ -59,7 +59,11 @@ module.exports = (grunt) => {
   grunt.loadTasks(tasksDir);
   grunt.file.setBase(appDir);
 
-  grunt.registerTask('docs', ['docs-build', 'docs-render']);
+  grunt.registerTask('docs', [
+    'docs-build',
+    'docs-render',
+  ]);
+
   grunt.registerTask('lint', [
     'eslint',
     'lesslint',
