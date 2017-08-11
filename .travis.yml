@@ -1,5 +1,8 @@
 sudo: false
 
+git:
+  submodules: false
+
 language: node_js
 
 node_js:
@@ -11,6 +14,7 @@ addons:
     target_paths: client/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
     permissions: public-read
     paths:
+    - ../MailSync
     - Merani.dmg
     - Merani.zip
     - $(find . -type f -name *.deb | tr "\n" ":")
@@ -52,6 +56,11 @@ before_install:
 - source app/build/resources/certs/mac/set_unix_env.sh;
 
 script:
+# Checkout and build the (currently private) C++ codebase
+- GIT_SSH_COMMAND='ssh -i app/build/resources/mailsync-deploy-key' git submodule update mailsync
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then xcodebuild -scheme MailSync -configuration Release; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then echo "TODO"; fi
+# Build and package the Merani Electron application
 - npm run build
 
 cache:

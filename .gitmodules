@@ -1,0 +1,3 @@
+[submodule "mailsync"]
+	path = mailsync
+	url = git@github.com:Foundry376/Merani-Mailsync.git
