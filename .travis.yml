@@ -3,7 +3,7 @@ sudo: false
 language: node_js
 
 node_js:
-- '6.9'
+- '7.10'
 
 addons:
   apt:
@@ -43,7 +43,7 @@ before_install:
 - source app/build/resources/certs/mac/set_unix_env.sh;
 
 script:
-- npm run build && npm run upload
+- npm run build
 
 deploy:
 - provider: s3
@@ -62,3 +62,4 @@ deploy:
 cache:
   directories:
   - node_modules
+  - app/node_modules

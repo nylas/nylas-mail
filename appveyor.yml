@@ -32,7 +32,7 @@ deploy_script:
 
 environment:
   matrix:
-  - NODE_VERSION: 6.9
+  - NODE_VERSION: 7.10
   global:
     DEBUG: "electron-windows-installer:*,electron-packager:*"
     SIGN_BUILD: true
