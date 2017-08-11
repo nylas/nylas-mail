@@ -22,13 +22,8 @@ install:
     }
 
 build_script:
-- cmd: npm install
-
-deploy_script:
-- ps: |
-    npm run build
-    node app/build/create-signed-windows-installer.js
-    npm run upload
+- cmd: npm install && npm run build
+- ps: node app/build/create-signed-windows-installer.js
 
 environment:
   matrix:

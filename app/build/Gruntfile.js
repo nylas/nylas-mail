@@ -87,6 +87,4 @@ module.exports = (grunt) => {
       "create-rpm-installer",
     ]);
   }
-
-  grunt.registerTask("upload-client", ["upload"])
 }

@@ -37,7 +37,6 @@
     "mkdirp": "^0.5.1",
     "pm2": "2.4.0",
     "request": "2.x.x",
-    "s3": "4.x.x",
     "temp": "0.8.x",
     "underscore": "1.8.x"
   },
