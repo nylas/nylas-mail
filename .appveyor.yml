@@ -25,6 +25,21 @@ build_script:
 - cmd: npm install && npm run build
 - ps: node app/build/create-signed-windows-installer.js
 
+artifacts:
+- path: dist/merani-win32-ia32/MeraniSetup.exe
+- path: dist/merani-win32-ia32/RELEASES
+- path: dist/merani-win32-ia32/*.nupkg
+
+deploy:
+- provider: S3
+  access_key_id: AKIAJQWOM4SPSY3TXI5Q
+  secret_access_key:
+    secure: XlLzz7sdvrtgi4g459NvxLfrH/+hOutb+0Osz29unfi4Zcw9N8H8SEaq6m3ZeWc+
+  region: us-east-1
+  bucket: merani-builds
+  folder: client/$env:appveyor_repo_commit.SubString(0,8)/win-ia32
+  set_public: true
+ 
 environment:
   matrix:
   - NODE_VERSION: 7.10
