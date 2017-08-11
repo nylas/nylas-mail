@@ -26,6 +26,12 @@ const config = {
   exe: 'merani.exe',
   name: 'Merani',
 }
+
 console.log(config);
 console.log("---> Starting")
-createWindowsInstaller(config, console.log, console.error)
+
+createWindowsInstaller(config).then(() =>
+  console.log("createWindowsInstaller succeeded.")
+).catch((e) =>
+  console.error(`createWindowsInstaller failed: ${e.message}`)
+);
