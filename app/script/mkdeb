@@ -31,7 +31,7 @@ cp "$LINUX_ASSETS_DIRECTORY/debian/postinst" "$TARGET/DEBIAN/postinst"
 cp "$LINUX_ASSETS_DIRECTORY/debian/postrm" "$TARGET/DEBIAN/postrm"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/bin"
-ln -s "../share/merani/nylas" "$TARGET/usr/bin/merani"
+ln -s "../share/merani/merani" "$TARGET/usr/bin/merani"
 chmod +x "$TARGET/usr/bin/merani"
 
 mkdir -m $FILE_MODE -p "$TARGET/usr/share/applications"
@@ -61,5 +61,5 @@ chmod -R g-w "$TARGET";
 find "$TARGET" -type f -name "*.node" -exec chmod a-x {} \;
 
 fakeroot dpkg-deb -b "$TARGET"
-mv "$TARGET_ROOT/nylas-$VERSION-$ARCH.deb" "$OUTPUT_PATH"
+mv "$TARGET_ROOT/merani-$VERSION-$ARCH.deb" "$OUTPUT_PATH"
 rm -rf "$TARGET_ROOT"

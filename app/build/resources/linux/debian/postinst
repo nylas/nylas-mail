@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for Nylas
+# postinst script for merani
 #
 # see: dh_installdeb(1)
 
@@ -15,7 +15,7 @@
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-UBUNTU_CODENAMES="precise trusty utopic vivid" # "xenial is not yet available in nylas repos."
+UBUNTU_CODENAMES="precise trusty utopic vivid" # "xenial is not yet available in merani repos."
 DEBIAN_CODENAMES="squeeze wheezy jessie sid"
 
 case "$1" in
@@ -31,12 +31,12 @@ case "$1" in
           DISTS=$DEBIAN_CODENAMES
           DISTRO="debian"
         else
-          echo "You are not running Debian, Ubuntu, ElementaryOS or LinuxMint.  Not adding Nylas repository."
+          echo "You are not running Debian, Ubuntu, ElementaryOS or LinuxMint.  Not adding merani repository."
           DISTRO=""
         fi
 
         if [ -n "$DISTRO" ]; then
-          # Add the Nylas repository.
+          # Add the merani repository.
           # Copyright (c) 2009 The Chromium Authors. All rights reserved.
           # Use of this source code is governed by a BSD-style license.
 
@@ -92,7 +92,7 @@ KEYDATA
               fi
           done
 
-          REPOCONFIG="deb [arch=i386,amd64] http://apt.nylas.com/$DISTRO $REPO main"
+          REPOCONFIG="deb [arch=i386,amd64] http://apt.getmerani.com/$DISTRO $REPO main"
 
           APT_GET="`which apt-get 2> /dev/null`"
           APT_CONFIG="`which apt-config 2> /dev/null`"
@@ -113,7 +113,7 @@ KEYDATA
             APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
           }
 
-          # Add the Nylas repository to the apt sources.
+          # Add the merani repository to the apt sources.
           # Returns:
           # 0 - no update necessary
           # 1 - sources were updated
@@ -127,13 +127,13 @@ KEYDATA
 
             if [ -d "$APT_SOURCESDIR" ]; then
               # Nothing to do if it's already there.
-              SOURCELIST=$(grep -H "$REPOCONFIG" "$APT_SOURCESDIR/nylas.list" \
+              SOURCELIST=$(grep -H "$REPOCONFIG" "$APT_SOURCESDIR/merani.list" \
                 2>/dev/null | cut -d ':' -f 1)
               if [ -n "$SOURCELIST" ]; then
                 return 0
               fi
 
-              printf "$REPOCONFIG\n" > "$APT_SOURCESDIR/nylas.list"
+              printf "$REPOCONFIG\n" > "$APT_SOURCESDIR/merani.list"
               if [ $? -eq 0 ]; then
                 return 1
               fi

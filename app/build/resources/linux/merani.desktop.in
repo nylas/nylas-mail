@@ -8,4 +8,4 @@ Type=Application
 StartupNotify=true
 StartupWMClass=<%= productName %>
 Categories=GNOME;GTK;Network;Email;Utility;Development;
-MimeType=text/plain;x-scheme-handler/mailto;x-scheme-handler/nylas;
+MimeType=text/plain;x-scheme-handler/mailto;x-scheme-handler/merani;
