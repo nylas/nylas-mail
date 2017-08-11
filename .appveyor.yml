@@ -25,19 +25,20 @@ build_script:
 - cmd: npm install && npm run build
 - cmd: node app/build/create-signed-windows-installer.js
 
-artifacts:
-- path: app\dist\MeraniSetup.exe
-- path: app\dist\RELEASES
-- path: app\dist\*.nupkg
+before_deploy:
+  - ps: Get-ChildItem .\app\dist\*.exe | % { Push-AppveyorArtifact $_.FullName -FileName "win-ia32/$($_.Name)" -DeploymentName s3-deployment }
+  - ps: Get-ChildItem .\app\dist\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName "win-ia32/$($_.Name)" -DeploymentName s3-deployment }
+  - ps: Get-ChildItem .\app\dist\RELEASES | % { Push-AppveyorArtifact $_.FullName -FileName "win-ia32/$($_.Name)" -DeploymentName s3-deployment }
 
 deploy:
 - provider: S3
+  name: s3-deployment
   access_key_id: AKIAJQWOM4SPSY3TXI5Q
   secret_access_key:
     secure: XlLzz7sdvrtgi4g459NvxLfrH/+hOutb+0Osz29unfi4Zcw9N8H8SEaq6m3ZeWc+
   region: us-east-1
   bucket: merani-builds
-  folder: client/$env:appveyor_repo_commit.SubString(0,8)/win-ia32
+  folder: "client/$(env:appveyor_repo_commit.SubString(0,8))"
   set_public: true
  
 environment:
