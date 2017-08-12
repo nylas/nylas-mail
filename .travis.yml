@@ -25,15 +25,28 @@ addons:
     packages:
     - build-essential
     - clang
+    - cmake
     - fakeroot
     - g++-4.8
     - git
     - libgnome-keyring-dev
     - xvfb
     - rpm
+    - autoconf
+    - automake
+    - libtool
+    - libctemplate-dev
+    - libcurl4-openssl-dev
+    - libicu-dev
     - libxext-dev
+    - libsasl2-dev
+    - libssl-dev
+    - libtidy-dev
     - libxtst-dev
     - libxkbfile-dev
+    - libglib2.0-dev
+    - libxml2-dev
+    - uuid-dev
 
 branches:
   only:
@@ -58,8 +71,8 @@ before_install:
 script:
 # Checkout and build the (currently private) C++ codebase
 - GIT_SSH_COMMAND='ssh -i app/build/resources/certs/mailsync-deploy-key' git submodule update --init mailsync
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then xcodebuild -scheme MailSync -configuration Release; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then echo "TODO"; fi
+- mailsync/build.sh
+
 # Build and package the Merani Electron application
 - npm run build
 
