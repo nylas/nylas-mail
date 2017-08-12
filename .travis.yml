@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 
 git:
   submodules: false
@@ -27,7 +27,7 @@ addons:
     - clang
     - cmake
     - fakeroot
-    - g++-4.8
+    - g++-5
     - git
     - libgnome-keyring-dev
     - xvfb
@@ -57,7 +57,7 @@ branches:
 matrix:
   include:
   - os: linux
-    env: CC=gcc-4.8 CXX=g++-4.8 DEBUG="electron-packager:*"
+    env: CC=gcc-5 CXX=g++-5 DEBUG="electron-packager:*"
   - os: osx
     env: CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*"
 
