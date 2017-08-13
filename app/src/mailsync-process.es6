@@ -38,7 +38,7 @@ export default class MailsyncProcess extends EventEmitter {
     this.configDirPath = configDirPath;
     this.account = account;
     this.identity = identity;
-    this.binaryPath = path.join(resourcePath, 'MailSync').replace('app.asar', 'app.asar.unpacked');
+    this.binaryPath = path.join(resourcePath, 'mailsync').replace('app.asar', 'app.asar.unpacked');
     this._proc = null;
   }
 

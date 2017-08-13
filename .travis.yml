@@ -14,7 +14,7 @@ addons:
     target_paths: client/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
     permissions: public-read
     paths:
-    - ../MailSync
+    - ../mailsync
     - Merani.dmg
     - Merani.zip
     - $(find . -type f -name *.deb | tr "\n" ":")

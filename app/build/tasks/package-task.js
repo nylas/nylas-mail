@@ -147,8 +147,8 @@ module.exports = (grunt) => {
       'derefSymlinks': false,
       'asar': {
         'unpack': "{" + [
-          'MailSync',
-          'MailSync.exe',
+          'mailsync',
+          'mailsync.exe',
           '*.node',
           '**/vendor/**',
           'examples/**',
