@@ -15,6 +15,7 @@ addons:
     permissions: public-read
     paths:
     - mailsync
+    - mailsync.dSYM.zip
     - Merani.dmg
     - Merani.zip
     - $(find . -type f -name *.deb | tr "\n" ":")

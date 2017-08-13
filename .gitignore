@@ -66,3 +66,5 @@ client_secret.json
 /app/mailsync
 /logfile.txt
 /app/dist-docs
+/app/mailsync.dSYM.zip
+/app/package-lock.json
