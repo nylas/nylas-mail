@@ -70,7 +70,10 @@ before_install:
 
 script:
 # Checkout and build the (currently private) C++ codebase
-- GIT_SSH_COMMAND='ssh -i app/build/resources/certs/mailsync-deploy-key' git submodule update --init mailsync
+- GIT_SSH_COMMAND='ssh -i app/build/resources/certs/mailsync-deploy-key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+  SSH_ASKPASS=/Users/travis/build/Foundry376/Merani/app/build/resources/certs/ssh-askpass-fix
+  DISPLAY=nothing:0
+  git submodule update --init mailsync
 - mailsync/build.sh
 
 # Build and package the Merani Electron application
@@ -80,3 +83,4 @@ cache:
   directories:
   - node_modules
   - app/node_modules
+  - /tmp/mailsync-build-deps
