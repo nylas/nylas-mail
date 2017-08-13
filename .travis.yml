@@ -59,6 +59,7 @@ matrix:
   - os: linux
     env: CC=gcc-5 CXX=g++-5 DEBUG="electron-packager:*"
   - os: osx
+    osx_image: xcode8.3
     env: CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*"
 
 before_install:
