@@ -19,7 +19,7 @@ exports.safeExec = function(command, options, callback) {
     if (error && !options.ignoreStderr)
       process.exit(error.code || 1);
     else
-      callback(null);
+      callback(null, stdout);
   });
   child.stderr.pipe(process.stderr);
   if (!options.ignoreStdout)

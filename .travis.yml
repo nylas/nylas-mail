@@ -14,7 +14,7 @@ addons:
     target_paths: client/${TRAVIS_COMMIT:0:8}/${TRAVIS_OS_NAME}
     permissions: public-read
     paths:
-    - ../mailsync
+    - mailsync
     - Merani.dmg
     - Merani.zip
     - $(find . -type f -name *.deb | tr "\n" ":")
@@ -62,21 +62,20 @@ matrix:
     env: CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*"
 
 before_install:
+# Decrypt and uncompress code signing certs, etc.
 - openssl aes-256-cbc -K $encrypted_faf2708e46e2_key -iv $encrypted_faf2708e46e2_iv
   -in app/build/resources/certs.tar.enc -out app/build/resources/certs.tar -d;
 - mkdir app/build/resources/certs;
 - tar xvf app/build/resources/certs.tar --directory=app/build/resources/;
 - source app/build/resources/certs/mac/set_unix_env.sh;
-
-script:
-# Checkout and build the (currently private) C++ codebase
+# Checkout the (currently private) C++ Mailsync codebase
 - GIT_SSH_COMMAND='ssh -i app/build/resources/certs/mailsync-deploy-key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
   SSH_ASKPASS=/Users/travis/build/Foundry376/Merani/app/build/resources/certs/ssh-askpass-fix
   DISPLAY=nothing:0
   git submodule update --init mailsync
-- mailsync/build.sh
 
-# Build and package the Merani Electron application
+script:
+- mailsync/build.sh
 - npm run build
 
 cache:

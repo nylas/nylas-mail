@@ -2,9 +2,10 @@
 /* eslint global-require: 0 */
 /* eslint quote-props: 0 */
 const path = require('path');
+const https = require('https');
 const fs = require('fs');
 const rimraf = require('rimraf');
-const safeExec = require('./utils/child-process-wrapper.js').safeExec;
+const {safeExec} = require('./utils/child-process-wrapper.js');
 
 const npmElectronTarget = require('../app/package.json').dependencies.electron;
 const npmEnvs = {
@@ -34,6 +35,40 @@ function npm(cmd, options) {
   });
 }
 
+function downloadMailsync() {
+  safeExec('git rev-parse HEAD', (err, output) => {
+    const head = output.substr(0, 8);
+    const filename = process.platform === 'win32' ? 'mailsync.exe' : 'mailsync';
+    const distKey = `${process.platform}-${process.arch}`;
+    const distDir = {
+      "darwin-x64": 'osx',
+      "darwin-ia32": null,
+      "win32-x64": 'win-ia32', // serve 32-bit since backwards compatibility is great
+      "win32-ia32": 'win-ia32',
+      "linux-x64": 'linux',
+      "linux-ia32": null,
+    }[distKey];
+    if (!distDir) {
+      console.error(`\nSorry, a Merani Mailsync build for your machine (${distKey}) is not yet available.`)
+      return;
+    }
+
+    const distS3URL = `https://merani-builds.s3.amazonaws.com/client/${head}/${distDir}/${filename}`;
+    https.get(distS3URL, (response) => {
+      if (response.statusCode === 200) {
+        response.pipe(fs.createWriteStream(`app/${filename}`));
+        response.on('end', () => {
+          console.log(`\nDownloaded Merani Mailsync build ${distDir}-${head} to ./app\n`);
+        })
+      } else {
+        console.error(`Sorry, an error occurred while fetching the Merani Mailsync build for your machine\n(${distS3URL})\n`);
+        response.pipe(process.stderr);
+        response.on('end', () => console.error('\n'));
+      }
+    });
+  })
+}
+
 // For speed, we cache app/node_modules. However, we need to
 // be sure to do a full rebuild of native node modules when the
 // Electron version changes. To do this we check a marker file.
@@ -47,10 +82,17 @@ if (cacheElectronTarget !== npmElectronTarget) {
 }
 
 // run `npm install` in ./app with Electron NPM config
-npm('install', {cwd: './app', env: 'electron'}).then(() =>
+npm('install', {cwd: './app', env: 'electron'}).then(() => {
   // run `npm dedupe` in ./app with Electron NPM config
-  npm('dedupe', {cwd: './app', env: 'electron'}).then(() =>
+  npm('dedupe', {cwd: './app', env: 'electron'}).then(() => {
     // write the marker with the electron version
-    fs.writeFileSync(cacheVersionPath, npmElectronTarget)
-  )
-)
+    fs.writeFileSync(cacheVersionPath, npmElectronTarget);
+
+    // if the user hasn't cloned the private mailsync module, download
+    // the binary for their operating system that was shipped to S3.
+    // if (!fs.existsSync('./mailsync/build.sh')) {
+    //   console.log(`\n-- Downloading a compiled version of Merani mailsync --`)
+    //   downloadMailsync();
+    // }
+  });
+});
