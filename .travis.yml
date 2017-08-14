@@ -58,10 +58,10 @@ branches:
 matrix:
   include:
   - os: linux
-    env: CC=gcc-5 CXX=g++-5 DEBUG="electron-packager:*"
+    env: CC=gcc-5 CXX=g++-5
   - os: osx
     osx_image: xcode8.3
-    env: CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*"
+    env: CC=clang CXX=clang++ SIGN_BUILD=true
 
 before_install:
 # Decrypt and uncompress code signing certs, etc.
@@ -78,7 +78,7 @@ before_install:
 
 script:
 - mailsync/build.sh
-- npm run build
+- DEBUG=electron-packager npm run build
 
 cache:
   directories:
