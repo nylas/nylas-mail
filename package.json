@@ -24,7 +24,7 @@
     "devtron": "^1.4.0",
     "donna": "^1.0.16",
     "electron-installer-dmg": "0.2.x",
-    "electron-packager": "8.4.x",
+    "electron-packager": "8.7.x",
     "electron-winstaller": "2.x.x",
     "eslint": "3.10.1",
     "eslint-config-airbnb": "13.0.0",
