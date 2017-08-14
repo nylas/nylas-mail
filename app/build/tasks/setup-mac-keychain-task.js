@@ -69,7 +69,12 @@ module.exports = (grunt) => {
     .then(() => spawnP({cmd: "security", args: ["import", nylasCert, "-k", tmpKeychain, "-T", codesignBin]}))
 
     // Load the password for the private key from environment variables
-    .then(() => spawnP({cmd: "security", args: ["import", nylasPrivateKey, "-k", tmpKeychain, "-P", keyPass, "-T", codesignBin]}));
+    .then(() => spawnP({cmd: "security", args: ["import", nylasPrivateKey, "-k", tmpKeychain, "-P", keyPass, "-T", codesignBin]}))
+
+    // mark that the codesign utility should be allowed to access the keychain without
+    // prompting for access. (Needed for Mac OS Sierra and above)
+    // https://stackoverflow.com/questions/39868578/security-codesign-in-sierra-keychain-ignores-access-control-settings-and-ui-p
+    .then(() => spawnP({cmd: "security", args: ["set-key-partition-list", "-S", "apple-tool:,apple:,codesign:", "-k", tmpPass, tmpKeychain]}))
   };
 
   getCertData = () => {
