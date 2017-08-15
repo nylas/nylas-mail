@@ -78,6 +78,7 @@ before_install:
 
 script:
 - mailsync/build.sh
+- mv ./mailsync ./mailsync-src
 - DEBUG=electron-packager,electron-osx-sign npm run build
 
 cache:
