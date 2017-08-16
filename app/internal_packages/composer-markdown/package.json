@@ -7,7 +7,7 @@
   "license": "GPL-3.0",
   "icon": "./icon.png",
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "isOptional": true,
   "isHiddenOnPluginsPage": true,

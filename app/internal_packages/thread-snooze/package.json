@@ -12,7 +12,7 @@
     "url": "github.com/nylas/nylas-mail"
   },
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "license": "GPL-3.0"
 }

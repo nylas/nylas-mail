@@ -28,7 +28,7 @@ class NativeNotifications {
         this._macNotificationsByTag[tag].close();
       }
       notif = new MacNotifierNotification(title, {
-        bundleId: 'com.nylas.nylas-mail',
+        bundleId: 'com.merani.merani',
         canReply: canReply,
         subtitle: subtitle,
         body: body,

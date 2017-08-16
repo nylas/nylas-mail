@@ -123,7 +123,7 @@ class TemplatePicker extends React.Component {
         title="Insert quick reply…"
       >
         <RetinaImg
-          url="nylas://composer-templates/assets/icon-composer-templates@2x.png"
+          url="merani://composer-templates/assets/icon-composer-templates@2x.png"
           mode={RetinaImg.Mode.ContentIsMask}
         />
         &nbsp;

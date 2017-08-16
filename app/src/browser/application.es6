@@ -16,7 +16,7 @@ import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
 import SystemTrayManager from './system-tray-manager';
 import DefaultClientHelper from '../default-client-helper';
-import NylasProtocolHandler from './nylas-protocol-handler';
+import MeraniProtocolHandler from './merani-protocol-handler';
 import ConfigPersistenceManager from './config-persistence-manager';
 import MailsyncProcess from '../mailsync-process';
 
@@ -37,7 +37,7 @@ export default class Application extends EventEmitter {
     this.safeMode = safeMode;
 
     this.fileListCache = new FileListCache();
-    this.nylasProtocolHandler = new NylasProtocolHandler({configDirPath, resourcePath, safeMode});
+    this.meraniProtocolHandler = new MeraniProtocolHandler({configDirPath, resourcePath, safeMode});
 
     try {
       const mailsync = new MailsyncProcess(options, null);
@@ -88,9 +88,9 @@ export default class Application extends EventEmitter {
 
     if (process.platform === 'linux') {
       const helper = new DefaultClientHelper();
-      helper.registerForURLScheme('nylas');
+      helper.registerForURLScheme('merani');
     } else {
-      app.setAsDefaultProtocolClient('nylas');
+      app.setAsDefaultProtocolClient('merani');
     }
 
     if (process.platform === 'darwin') {
@@ -310,7 +310,7 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:view-help', () => {
-      const helpUrl = 'https://support.nylas.com/hc/en-us/categories/200419318-Help-for-N1-users';
+      const helpUrl = 'https://support.getmerani.com/hc/en-us/categories/200419318-Help-for-N1-users';
       require('electron').shell.openExternal(helpUrl);
     });
 
@@ -714,7 +714,7 @@ export default class Application extends EventEmitter {
 
     if (parts.protocol === 'mailto:') {
       main.sendMessage('mailto', urlToOpen);
-    } else if (parts.protocol === 'nylas:') {
+    } else if (parts.protocol === 'merani:') {
       // if (parts.host === 'calendar') {
       //   this.openCalendarURL(parts.path);
       if (parts.host === 'plugins') {

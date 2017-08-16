@@ -16,12 +16,12 @@ if (typeof process.setFdLimit === 'function') {
 }
 
 const setupConfigDir = (args) => {
-  let defaultDirName = "nylas-mail";
+  let defaultDirName = "Merani";
   if (args.devMode) {
-    defaultDirName = "nylas-dev";
+    defaultDirName = "Merani-dev";
   }
   if (args.specMode) {
-    defaultDirName = "nylas-spec";
+    defaultDirName = "Merani-spec";
   }
   const configDirPath = path.join(app.getPath('appData'), defaultDirName);
   mkdirp.sync(configDirPath);
@@ -49,10 +49,10 @@ const setupErrorLogger = (args = {}) => {
 const declareOptions = (argv) => {
   const optimist = require('optimist');
   const options = optimist(argv);
-  options.usage("Merani v" + (app.getVersion()) + "\n\nUsage: nylas-mail [options]\n\nRun Merani: The open source extensible email client\n\n`nylas-mail --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
+  options.usage("Merani v" + (app.getVersion()) + "\n\nUsage: merani [options]\n\nRun Merani: The open source extensible email client\n\n`merani --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
   options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
   options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
-  options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas-mail/packages or ~/.nylas/dev/packages.');
+  options.boolean('safe').describe('safe', 'Do not load packages from the settings `packages` or `dev/packages` folders.');
   options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.');
   options.alias('l', 'log-file').string('l').describe('l', 'Log all test output to file.');
   options.alias('c', 'config-dir-path').string('c').describe('c', 'Override the path to the Merani configuration directory');
@@ -91,7 +91,7 @@ const parseCommandLine = (argv) => {
   const pathsToOpen = [];
 
   // On Windows and Linux, mailto and file opens are passed in argv. Go through
-  // the items and pluck out things that look like mailto:, nylas:, file paths
+  // the items and pluck out things that look like mailto:, merani:, file paths
   let ignoreNext = false;
   // args._ is all of the non-hyphenated options.
   for (const arg of args._) {
@@ -107,7 +107,7 @@ const parseCommandLine = (argv) => {
     if (path.resolve(arg) === resourcePath) {
       continue;
     }
-    if (arg.startsWith('mailto:') || arg.startsWith('nylas:')) {
+    if (arg.startsWith('mailto:') || arg.startsWith('merani:')) {
       urlsToOpen.push(arg);
     } else if ((arg[0] !== '-') && (/[\/|\\]/.test(arg))) {
       pathsToOpen.push(arg);
@@ -180,7 +180,7 @@ const handleStartupEventWithSquirrel = () => {
 };
 
 const start = () => {
-  app.setAppUserModelId('com.squirrel.nylas.nylas');
+  app.setAppUserModelId('com.squirrel.merani.merani');
   if (handleStartupEventWithSquirrel()) {
     return;
   }

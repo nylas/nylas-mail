@@ -7,7 +7,7 @@
     "url": ""
   },
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
 
   "isOptional": true,

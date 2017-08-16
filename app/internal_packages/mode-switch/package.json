@@ -5,7 +5,7 @@
   "main": "./lib/main",
   "license": "GPL-3.0",
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "private": true
 }

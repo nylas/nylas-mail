@@ -9,6 +9,6 @@
     "all": true
   },
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   }
 }

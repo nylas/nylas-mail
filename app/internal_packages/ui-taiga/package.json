@@ -6,7 +6,7 @@
   "description": "A clean, Mailbox-inspired theme for Merani.",
   "license": "GPL-3.0",
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "styleSheets": ["controls", "email-frame", "sidebar", "threads", "notifications"],
   "private": true

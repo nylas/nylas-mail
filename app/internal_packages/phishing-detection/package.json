@@ -11,7 +11,7 @@
   "isOptional": true,
 
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "windowTypes": {
     "default": true,

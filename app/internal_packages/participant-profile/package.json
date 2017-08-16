@@ -11,7 +11,7 @@
     "default": true
   },
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "license": "GPL-3.0"
 }

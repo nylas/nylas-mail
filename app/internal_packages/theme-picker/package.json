@@ -6,6 +6,6 @@
   "license": "GPL-3.0",
   "private": true,
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   }
 }

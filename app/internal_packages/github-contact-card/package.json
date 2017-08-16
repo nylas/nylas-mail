@@ -12,7 +12,7 @@
 
   "license": "GPL-3.0",
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "repository": {
     "type": "git",

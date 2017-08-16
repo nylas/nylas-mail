@@ -76,7 +76,7 @@ export default class MessageItemBody extends React.Component {
         const inlineImgRegexp = new RegExp(`<\\s*img.*src=['"]cid:${file.contentId}['"][^>]*>`, 'gi')
         // Render a spinner
         merged = merged.replace(inlineImgRegexp, () =>
-          '<img alt="spinner.gif" src="nylas://message-list/assets/spinner.gif" style="-webkit-user-drag: none;">'
+          '<img alt="spinner.gif" src="merani://message-list/assets/spinner.gif" style="-webkit-user-drag: none;">'
         );
       } else {
         // Render the completed download. We include data-nylas-file so that if the image fails

@@ -6,7 +6,7 @@
   "description": "A minimal approach to email in Merani",
   "license": "MIT",
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "styleSheets": ["less-is-more"],
   "private": true

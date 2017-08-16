@@ -80,7 +80,7 @@ Target Ship Date: Late September
 ## Roadmap Past 1.0
 - [ ] Bring back Mail Rules!
 - [ ] Update documentation for creating plugins and themes
-- [ ] Create help site using existing content from support.nylas.com.
+- [ ] Create help site using existing content from support.getmerani.com.
   *Verify they are OK with this?*
 - [ ] Implement plugin / theme browser like the Chrome Web Store.
   + Decide whether to restore support for plugins that need native modules.

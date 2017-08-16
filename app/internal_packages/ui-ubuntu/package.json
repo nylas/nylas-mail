@@ -6,7 +6,7 @@
   "description": "The Ubuntu theme for N1.",
   "license": "Proprietary",
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "private": true
 }

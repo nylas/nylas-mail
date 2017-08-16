@@ -2,7 +2,7 @@ import {exec} from 'child_process';
 import fs from 'fs';
 import {remote, shell} from 'electron';
 
-const bundleIdentifier = 'com.nylas.nylas-mail';
+const bundleIdentifier = 'com.merani.merani';
 
 class Windows {
   available() {
@@ -34,7 +34,7 @@ class Windows {
       message: "Visit Windows Settings to change your default mail client",
       detail: "You'll find Merani, along with other options, listed in Default Apps > Mail.",
     }, () => {
-      shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648');
+      shell.openExternal('https://support.getmerani.com/hc/en-us/articles/229277648');
     });
   }
 
@@ -61,7 +61,7 @@ class Windows {
           message: "Visit Windows Settings to finish making Merani your mail client",
           detail: "Click 'Learn More' to view instructions in our knowledge base.",
         }, () => {
-          shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648');
+          shell.openExternal('https://support.getmerani.com/hc/en-us/articles/229277648');
         });
       }
       callback(null, null);

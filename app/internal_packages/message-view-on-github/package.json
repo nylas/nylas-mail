@@ -13,6 +13,6 @@
   "isHiddenOnPluginsPage": true,
 
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   }
 }

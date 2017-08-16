@@ -7,7 +7,7 @@
   "private": true,
   "syncInit": true,
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "windowTypes": {
     "default": true,

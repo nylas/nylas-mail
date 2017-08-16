@@ -6,7 +6,7 @@
   "description": "A customizable, dark sidebar theme for Merani.",
   "license": "MIT",
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "private": true
 }

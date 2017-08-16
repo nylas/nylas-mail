@@ -133,7 +133,7 @@ class OutlineView extends Component {
         onMouseUp={this._onCreateButtonClicked}
       >
         <RetinaImg
-          url="nylas://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
+          url="merani://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
           style={{height: 15, width: 14}}
           mode={RetinaImg.Mode.ContentIsMask}
         />

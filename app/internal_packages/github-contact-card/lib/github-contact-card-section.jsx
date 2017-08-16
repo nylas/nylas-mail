@@ -32,7 +32,7 @@ const GithubProfile = function GithubProfile(props) {
   // objects here that *represent* the DOM we want.
   return (
     <div className="profile">
-      <img className="logo" alt="github logo" src="nylas://github-contact-card/assets/github.png" />
+      <img className="logo" alt="github logo" src="merani://github-contact-card/assets/github.png" />
       <a href={profile.html_url}>{profile.login}</a>
       <div>{repoElements}</div>
     </div>

@@ -125,7 +125,7 @@ export default class TutorialPage extends React.Component {
             </div>
           </div>
           <div className="right">
-            <img src={`nylas://onboarding/assets/${current.image}`} style={{zoom: 0.5, margin: 'auto'}} role="presentation" />
+            <img src={`merani://onboarding/assets/${current.image}`} style={{zoom: 0.5, margin: 'auto'}} role="presentation" />
             <h2>{current.title}</h2>
             <p>{current.description}</p>
           </div>

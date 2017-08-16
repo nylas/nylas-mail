@@ -8,7 +8,7 @@
   "scripts": {
   },
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "windowTypes": {
     "calendar": true

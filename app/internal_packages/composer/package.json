@@ -9,7 +9,7 @@
   "scripts": {
   },
   "engines": {
-    "nylas": "*"
+    "merani": "*"
   },
   "windowTypes": {
     "default": true,

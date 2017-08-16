@@ -85,7 +85,7 @@ class SnoozeStore extends NylasStore {
     const lexicon = {
       displayName: "Snooze",
       usedUpHeader: "All Snoozes used",
-      iconUrl: "nylas://thread-snooze/assets/ic-snooze-modal@2x.png",
+      iconUrl: "merani://thread-snooze/assets/ic-snooze-modal@2x.png",
     }
 
     FeatureUsageStore.asyncUseFeature('snooze', {lexicon})

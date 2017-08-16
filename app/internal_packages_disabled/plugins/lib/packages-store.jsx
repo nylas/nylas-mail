@@ -293,7 +293,7 @@ const PackagesStore = Reflux.createStore({
             url: '',
           },
           engines: {
-            nylas: `>=${NylasEnv.getVersion().split('-')[0]}`,
+            merani: `>=${NylasEnv.getVersion().split('-')[0]}`,
           },
           windowTypes: {
             'default': true,

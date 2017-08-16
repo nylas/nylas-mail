@@ -121,8 +121,8 @@ module.exports = (grunt) => {
       'app-version': packageJSON.version,
       'platform': platform,
       'protocols': [{
-        name: "Nylas Protocol",
-        schemes: ["nylas"],
+        name: "Merani Protocol",
+        schemes: ["merani"],
       }, {
         name: "Mailto Protocol",
         schemes: ["mailto"],
@@ -225,7 +225,7 @@ module.exports = (grunt) => {
       // Electron.app/Contents/Info.plist. A majority of the defaults are
       // left in the Electron Info.plist file
       'extend-info': path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'nylas-Info.plist'),
-      'app-bundle-id': "com.nylas.nylas-mail",
+      'app-bundle-id': "com.merani.merani",
       'afterCopy': [
         runCopyPlatformSpecificResources,
         runCopySymlinkedPackages,
