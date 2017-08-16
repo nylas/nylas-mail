@@ -9,7 +9,6 @@ class PluginMetadata extends Model {
   static attributes = {
     pluginId: Attributes.String({
       modelKey: 'pluginId',
-      jsonKey: "plugin_id",
     }),
     version: Attributes.Number({
       jsonKey: 'v',

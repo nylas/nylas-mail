@@ -23,7 +23,7 @@ class KeyManager {
     this.KEY_NAME = "Nylas Mail Keys"
   }
 
-  extractAccountSecrets(accountJSON) {
+  extractAccountSecrets(accountJSON, cloudToken) {
     const next = Object.assign({}, accountJSON);
     this._try(() => {
       const keys = this._getKeyHash();
@@ -31,8 +31,7 @@ class KeyManager {
       delete next.settings.imap_password;
       keys[`${accountJSON.emailAddress}-smtp`] = next.settings.smtp_password;
       delete next.settings.smtp_password;
-      keys[`${accountJSON.emailAddress}-cloud`] = next.cloudToken;
-      delete next.cloudToken;
+      keys[`${accountJSON.emailAddress}-cloud`] = cloudToken;
       return this._writeKeyHash(keys);
     });
     return next;

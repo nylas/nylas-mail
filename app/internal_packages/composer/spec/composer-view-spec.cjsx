@@ -19,7 +19,7 @@ ReactTestUtils = require('react-dom/test-utils')
 
 {InjectedComponent, ParticipantsTextField} = require 'nylas-component-kit'
 
-DraftEditingSession = require '../../../src/flux/stores/draft-editing-session'
+DraftEditingSession = require('../../../src/flux/stores/draft-editing-session').default
 ComposerEditor = require('../lib/composer-editor').default
 Fields = require('../lib/fields').default
 

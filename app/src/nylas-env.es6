@@ -762,7 +762,7 @@ export default class NylasEnvConstructor {
   // gets fired.
   async startSecondaryWindow() {
     await this.startWindow();
-    ipcRenderer.on("load-settings-changed", this.populateHotWindow);
+    ipcRenderer.on("load-settings-changed", (...args) => this.populateHotWindow(...args));
   }
 
   // We setup the initial Sheet for hot windows. This is the default title

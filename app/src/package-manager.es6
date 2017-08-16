@@ -27,8 +27,8 @@ export default class PackageManager {
   }
 
   pluginIdFor(packageName) {
-    // todo bg
-    return null
+    // Plugin IDs are now package names - the ID concept was complicated and nobody got it.
+    return packageName
   }
 
   discoverPackages() {

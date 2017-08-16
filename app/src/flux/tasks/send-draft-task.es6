@@ -1,14 +1,11 @@
 /* eslint global-require: 0 */
+import url from 'url'
 import AccountStore from '../stores/account-store';
 import Task from './task';
 import Actions from '../actions';
 import SoundRegistry from '../../registries/sound-registry';
 import Attributes from '../attributes';
 import Message from '../models/message';
-
-const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
-const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
-
 
 export default class SendDraftTask extends Task {
 
@@ -29,32 +26,45 @@ export default class SendDraftTask extends Task {
     allowMultiSend: Attributes.Boolean({
       modelKey: 'allowMultiSend',
     }),
-    perRecipientBodies: Attributes.Collection({
+    perRecipientBodies: Attributes.Object({
       modelKey: 'perRecipientBodies',
     }),
   });
 
-  constructor({draft, playSound = true, emitError = true, allowMultiSend = true, ...rest} = {}) {
-    super(rest);
-    this.accountId = (draft || {}).accountId;
-    this.headerMessageId = (draft || {}).headerMessageId;
-    this.emitError = emitError
-    this.playSound = playSound
-    this.allowMultiSend = allowMultiSend
+  get accountId() {
+    return this.draft.accountId;
+  }
 
-    if (draft) {
-      // const pluginsAvailable = (OPEN_TRACKING_ID && LINK_TRACKING_ID);
-      // const pluginsInUse = pluginsAvailable && (!!this.draft.metadataForPluginId(OPEN_TRACKING_ID) || !!this.draft.metadataForPluginId(LINK_TRACKING_ID));
-      // if (pluginsInUse) {
-      this.perRecipientBodies = {
-        self: draft.body,
-      };
-      // perform transformations here
-      const ps = draft.participants({includeFrom: false, includeBcc: true});
-      ps.forEach((p) => {
-        this.perRecipientBodies[p.email] = draft.body + p.email;
-      })
-      // }
+  set accountId(a) {
+    // no-op
+  }
+
+  get headerMessageId() {
+    return this.draft.headerMessageId;
+  }
+
+  set headerMessageId(h) {
+    // no-op
+  }
+
+  constructor(...args) {
+    super(...args);
+
+    if (this.draft) {
+      const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking');
+      const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking');
+
+      const pluginsAvailable = (OPEN_TRACKING_ID && LINK_TRACKING_ID);
+      const pluginsInUse = pluginsAvailable && (!!this.draft.metadataForPluginId(OPEN_TRACKING_ID) || !!this.draft.metadataForPluginId(LINK_TRACKING_ID));
+      if (pluginsInUse) {
+        const bodies = {
+          self: this.draft.body,
+        };
+        this.draft.participants({includeFrom: false, includeBcc: true}).forEach((recipient) => {
+          bodies[recipient.email] = this.personalizeBodyForRecipient(this.draft.body, recipient);
+        })
+        this.perRecipientBodies = bodies;
+      }
     }
   }
 
@@ -104,6 +114,39 @@ export default class SendDraftTask extends Task {
       error: message,
       key: key,
     })
+  }
+
+
+  // note - this code must match what is used for send-later!
+
+  personalizeBodyForRecipient(_body, recipient) {
+    const addRecipientToUrl = (originalUrl, email) => {
+      const parsed = url.parse(originalUrl, true);
+      const query = parsed.query || {}
+      query.recipient = email;
+      parsed.query = query;
+      parsed.search = null // so the format will use the query. See url docs.
+      return parsed.format()
+    }
+
+    let body = _body;
+
+    // This adds a `recipient` param to the open tracking src url.
+    body = body.replace(/<img class="n1-open".*?src="(.*?)">/g, (match, src) => {
+      const newSrc = addRecipientToUrl(src, recipient.email)
+      return `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${newSrc}">`;
+    });
+    // This adds a `recipient` param to the link tracking tracking href url.
+    const trackedLinkRegexp = new RegExp(/(<a.*?href\s*?=\s*?['"])((?!mailto).+?)(['"].*?>)([\s\S]*?)(<\/a>)/gim);
+
+    body = body.replace(trackedLinkRegexp, (match, prefix, href, suffix, content, closingTag) => {
+      const newHref = addRecipientToUrl(href, recipient.email)
+      return `${prefix}${newHref}${suffix}${content}${closingTag}`;
+    });
+
+    body = body.replace('data-open-tracking-src=', 'src=');
+
+    return body;
   }
 
 }

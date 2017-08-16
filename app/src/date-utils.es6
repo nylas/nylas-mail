@@ -53,7 +53,7 @@ let _chrono = null;
 
 function getChrono() {
   if (!_chrono) {
-    _chrono = require('chrono-node').default; //eslint-disable-line
+    _chrono = require('chrono-node'); //eslint-disable-line
   }
   return _chrono;
 }

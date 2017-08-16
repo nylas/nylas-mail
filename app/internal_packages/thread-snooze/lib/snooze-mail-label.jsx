@@ -27,18 +27,24 @@ class SnoozeMailLabel extends Component {
 
     const {thread} = this.props;
     if (thread.categories.find(c => c.displayName === SNOOZE_CATEGORY_NAME)) {
-      const metadata = thread.metadataForPluginId(PLUGIN_ID);
+      let metadata = null;
+      for (const msg of thread.__messages) {
+        metadata = msg.metadataForPluginId(PLUGIN_ID);
+        if (metadata) {
+          break;
+        }
+      }
+
       if (metadata) {
-        // TODO this is such a hack
-        const {snoozeDate} = metadata;
-        const message = SnoozeUtils.snoozedUntilMessage(snoozeDate).replace('Snoozed', '')
         const content = (
           <span className="snooze-mail-label">
             <RetinaImg
               name="icon-snoozed.png"
               mode={RetinaImg.Mode.ContentIsMask}
             />
-            <span className="date-message">{message}</span>
+            <span className="date-message">
+              {SnoozeUtils.snoozedUntilMessage(metadata.expiration).replace('Snoozed', '')}
+            </span>
           </span>
         )
         const label = {

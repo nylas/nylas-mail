@@ -69,8 +69,8 @@ export default class MailsyncBridge {
       const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, acct);
       client.sync();
       client.on('deltas', this.onIncomingMessages);
-      client.on('close', ({code, error}) => {
-        console.log(`SyncWorker exited with code ${code} (${error || "No Error Provided"})`);
+      client.on('close', ({code, error, signal}) => {
+        console.log(`SyncWorker exited (${signal}) with code ${code}: ${error || "No Error Provided"}`);
         delete this._clients[acct.id];
       });
       this._clients[acct.id] = client;

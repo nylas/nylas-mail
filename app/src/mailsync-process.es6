@@ -98,7 +98,7 @@ export default class MailsyncProcess extends EventEmitter {
   sync() {
     this._spawnProcess('sync');
     let buffer = "";
-    let lastStderr = null;
+    let errBuffer = null;
 
     this._proc.stdout.on('data', (data) => {
       const added = data.toString();
@@ -111,7 +111,7 @@ export default class MailsyncProcess extends EventEmitter {
       }
     });
     this._proc.stderr.on('data', (data) => {
-      lastStderr = data.toString();
+      errBuffer += data.toString();
     });
     this._proc.on('error', (err) => {
       console.log(`Sync worker exited with ${err}`);
@@ -133,10 +133,10 @@ export default class MailsyncProcess extends EventEmitter {
         }
       }
 
-      if (lastStderr) {
-        error = new Error(lastStderr);
+      if (errBuffer) {
+        error = new Error(errBuffer);
       }
-      this.emit('close', {code, error});
+      this.emit('close', {code, error, signal: this._proc.signalCode});
     });
   }
 

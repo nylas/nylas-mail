@@ -13,6 +13,9 @@ export default class SyncbackMetadataTask extends Task {
     modelClassName: Attributes.String({
       modelKey: 'modelClassName',
     }),
+    modelHeaderMessageId: Attributes.String({
+      modelKey: 'modelHeaderMessageId',
+    }),
     value: Attributes.Object({
       modelKey: 'value',
     }),
@@ -23,6 +26,7 @@ export default class SyncbackMetadataTask extends Task {
     if (data.model) {
       this.modelId = data.model.id;
       this.modelClassName = data.model.constructor.name.toLowerCase();
+      this.modelHeaderMessageId = data.model.headerMessageId || null;
       this.accountId = data.model.accountId;
     }
   }
