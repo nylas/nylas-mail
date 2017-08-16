@@ -58,7 +58,7 @@ export default class BillingModal extends React.Component {
     webview.executeJavaScript(receiveUserInfo, false, async (result) => {
       if (!result) return;
       if (result !== IdentityStore.identityId()) {
-        NylasEnv.reportError(new Error("identity.getmerani.com/payment_success did not have a valid #payment-success-data field"))
+        NylasEnv.reportError(new Error("id.getmerani.com/payment_success did not have a valid #payment-success-data field"))
       }
       const listenForContinue = `
         var el = document.querySelector('#continue-btn');

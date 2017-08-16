@@ -24,7 +24,7 @@ export default class WelcomePage extends React.Component {
         <div className="steps-container">
           <div>
             <RetinaImg className="logo" style={{marginTop: 166}} url="merani://onboarding/assets/nylas-logo@2x.png" mode={RetinaImg.Mode.ContentPreserve} />
-            <p className="hero-text" style={{fontSize: 46, marginTop: 57}}>Welcome to Mail</p>
+            <p className="hero-text" style={{fontSize: 46, marginTop: 57}}>Welcome to Merani</p>
             <RetinaImg className="icons" url="merani://onboarding/assets/icons-bg@2x.png" mode={RetinaImg.Mode.ContentPreserve} />
           </div>
         </div>

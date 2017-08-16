@@ -315,7 +315,7 @@ class PreferencesTemplates extends React.Component {
             sent.
           </p>
           <p>
-            Reply templates are saved as HTML files in the <strong>~/.nylas-mail/templates</strong> directory on your computer. In raw HTML, variables are defined as HTML &lt;code&gt; tags with class &quot;var empty&quot;.
+            Reply templates are saved as HTML files in the <strong>{`${NylasEnv.getConfigDirPath()}/templates`}</strong> directory on your computer. In raw HTML, variables are defined as HTML &lt;code&gt; tags with class &quot;var empty&quot;.
           </p>
         </section>
       </div>

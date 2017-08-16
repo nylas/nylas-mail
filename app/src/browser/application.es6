@@ -756,8 +756,8 @@ export default class Application extends EventEmitter {
   //                        window
   //   :resourcePath - The path to include specs from.
   //   :specPath - The directory to load specs from.
-  //   :safeMode - A Boolean that, if true, won't run specs from ~/.nylas-mail/packages
-  //               and ~/.nylas-mail/dev/packages, defaults to false.
+  //   :safeMode - A Boolean that, if true, won't run specs from <config-dir>/packages
+  //               and <config-dir>/dev/packages, defaults to false.
   //   :jUnitXmlPath - The path to output jUnit XML reports to, if desired.
   runSpecs(specWindowOptionsArg) {
     const specWindowOptions = specWindowOptionsArg;

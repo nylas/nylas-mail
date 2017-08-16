@@ -8,9 +8,9 @@ import path from 'path';
 // custom resource loader for 'merani://' URLs.
 //
 // The following directories are searched in order:
-//   * ~/.nylas-mail/assets
-//   * ~/.nylas-mail/dev/packages (unless in safe mode)
-//   * ~/.nylas-mail/packages
+//   * <config-dir>/assets
+//   * <config-dir>/dev/packages (unless in safe mode)
+//   * <config-dir>/packages
 //   * RESOURCE_PATH/node_modules
 //
 export default class NylasProtocolHandler {
