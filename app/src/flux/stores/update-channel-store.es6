@@ -38,7 +38,7 @@ class UpdateChannelStore extends NylasStore {
         qs: Object.assign({preferredChannel: preferredChannel}, autoUpdater.parameters()),
         json: true,
       });
-      this._current = current || {name: "Edgehill API Not Available"};
+      this._current = current || {name: "Channel API Not Available"};
       this._available = available || [];
       this.trigger();
     } catch (err) {
@@ -59,7 +59,7 @@ class UpdateChannelStore extends NylasStore {
         }, autoUpdater.parameters()),
         json: true,
       });
-      this._current = current || {name: "Edgehill API Not Available"};
+      this._current = current || {name: "Channel API Not Available"};
       this._available = available || [];
       this.trigger();
     } catch (err) {

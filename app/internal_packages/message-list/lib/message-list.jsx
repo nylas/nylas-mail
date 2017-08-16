@@ -87,8 +87,13 @@ class MessageList extends React.Component {
     this._unsubscribers = [];
     this._unsubscribers.push(MessageStore.listen(this._onChange));
     this._unsubscribers.push(Actions.focusDraft.listen(async ({headerMessageId}) => {
-      await Utils.waitFor(() => this._getMessageContainer(headerMessageId) !== undefined)
-      this._focusDraft(this._getMessageContainer(headerMessageId))
+      Utils.waitFor(() =>
+        this._getMessageContainer(headerMessageId) !== undefined
+      ).then(() =>
+        this._focusDraft(this._getMessageContainer(headerMessageId))
+      ).catch(() => {
+        // may have been a popout composer
+      })
     }));
   }
 

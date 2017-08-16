@@ -38,7 +38,7 @@ export default class NewsletterSignup extends React.Component {
   _onGetStatus = async (props = this.props) => {
     this._setState({status: 'Pending'});
     try {
-      const status = await makeRequest({
+      const {status} = await makeRequest({
         server: 'identity',
         method: 'GET',
         path: this._path(props),
@@ -56,7 +56,7 @@ export default class NewsletterSignup extends React.Component {
   _onSubscribe = async () => {
     this._setState({status: 'Pending'});
     try {
-      const status = await makeRequest({
+      const {status} = await makeRequest({
         server: 'identity',
         method: 'POST',
         path: this._path(),
@@ -70,7 +70,7 @@ export default class NewsletterSignup extends React.Component {
   _onUnsubscribe = () => {
     this._setState({status: 'Pending'});
     try {
-      const status = makeRequest({
+      const {status} = makeRequest({
         server: 'identity',
         method: 'DELETE',
         path: this._path(),
@@ -90,9 +90,9 @@ export default class NewsletterSignup extends React.Component {
       return (<RetinaImg name="inline-loading-spinner.gif" mode={RetinaImg.Mode.ContentDark} style={{width: 14, height: 14}} />);
     }
     if (this.state.status === 'Error') {
-      return (<button onClick={this._onGetStatus} className="btn">Retry</button>);
+      return (<button onClick={() => this._onGetStatus()} className="btn">Retry</button>);
     }
-    if (['Subscribed', 'Active'].includes(this.state.status)) {
+    if (this.state.status === 'Subscribed') {
       return (<input id="subscribe-check" type="checkbox" checked style={{marginTop: 3}} onChange={this._onUnsubscribe} />);
     }
     return (<input id="subscribe-check" type="checkbox" checked={false} style={{marginTop: 3}} onChange={this._onSubscribe} />);
