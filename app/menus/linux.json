@@ -96,7 +96,7 @@
       "submenu": [
         { "label": "VERSION", "enabled": false },
         { "type": "separator" },
-        { "label": "Nylas Mail Help", "command": "application:view-help" }
+        { "label": "Merani Help", "command": "application:view-help" }
       ]
     }
   ]

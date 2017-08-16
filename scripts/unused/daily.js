@@ -71,7 +71,7 @@ function getFormattedLogs(mainLog) {
 function getChangelogHeader(nextVersion) {
   const date = new Date().toLocaleDateString()
   return (
-    `# Nylas Mail Changelog
+    `# Merani Changelog
 
 ### ${nextVersion} (${date})
 
@@ -208,7 +208,7 @@ async function main(args) {
       await spawn('cp', ['-r', '../n1-keys-and-certificates', 'app/build/resources/certs'])
       await spawn('npm', ['install'], {env: {}})
       await spawn('npm', ['run', 'build-client'], {env: {SIGN_BUILD: true}})
-      await spawn('codesign', ['--verify', '--deep', '--verbose=2', '"app/dist/Nylas Mail-darwin-x64/Nylas Mail.app"'])
+      await spawn('codesign', ['--verify', '--deep', '--verbose=2', '"app/dist/Merani-darwin-x64/Merani.app"'])
       // await spawn('npm', ['run', 'upload-client'])
     } catch (err) {
       console.error('Errored while running build')

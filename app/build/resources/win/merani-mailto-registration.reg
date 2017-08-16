@@ -1,0 +1,60 @@
+Windows Registry Editor Version 5.00
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Merani.Url.mailto]
+"FriendlyTypeName"="Merani Url"
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Merani.Url.mailto\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Merani.Url.mailto\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Merani.Url.mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart merani.exe --process-start-args %1"
+
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani]
+@="Merani"
+"LocalizedString"="@{{PATH_TO_ROOT_FOLDER}}\\Update.exe,-123"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\merani.exe,1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Capabilities]
+"ApplicationName"="Merani"
+"ApplicationDescription"="A fast, modern mail client designed to help you boost your productivity."
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Capabilities\StartMenu]
+"Mail"="Merani"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Capabilities\URLAssociations]
+"mailto"="Merani.Url.mailto"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Protocols]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Protocols\mailto]
+@="URL:MailTo Protocol"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Protocols\mailto\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\merani.exe,1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Protocols\mailto\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Protocols\mailto\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\Protocols\mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart merani.exe --process-start-args %1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Merani\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart merani.exe"
+
+[{{HKEY_ROOT}}\SOFTWARE\RegisteredApplications]
+"Merani"="Software\\Clients\\Mail\\Merani\\Capabilities"
+
+
+[HKEY_CURRENT_USER\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache]
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe"="Merani"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.FriendlyAppName"="Merani"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.ApplicationCompany"="Merani"

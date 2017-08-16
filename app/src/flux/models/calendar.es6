@@ -2,10 +2,7 @@ import Model from './model';
 import Attributes from '../attributes';
 
 /**
-Public: The Calendar model represents a Calendar object served by the
-Nylas Platform API.  For more information about Calendar on the Nylas
-Platform, read the [Calendar API
-Documentation](https://nylas.com/cloud/docs#calendars)
+Public: The Calendar model represents a Calendar object.
 
 ## Attributes
 

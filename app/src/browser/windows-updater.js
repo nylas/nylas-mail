@@ -5,7 +5,7 @@
  * Read: https://github.com/electron-archive/grunt-electron-installer#handling-squirrel-events
  * Read: https://github.com/electron/electron/blob/master/docs/api/auto-updater.md#windows
  *
- * When Nylas Mail gets installed on a Windows machine it gets put in:
+ * When Merani gets installed on a Windows machine it gets put in:
  * C:\Users\<USERNAME>\AppData\Local\NylasMail\app-x.x.x
  *
  * The `process.execPath` is:
@@ -112,7 +112,7 @@ function createRegistryEntries({allowEscalation, registerDefaultIfPossible}, cal
     spawnArgs = [regPath];
   }
 
-  fs.readFile(path.join(appFolder, 'resources', 'nylas-mailto-registration.reg'), (err, data) => {
+  fs.readFile(path.join(appFolder, 'resources', 'merani-mailto-registration.reg'), (err, data) => {
     if (err || !data) {
       callback(err);
       return;
@@ -126,7 +126,7 @@ function createRegistryEntries({allowEscalation, registerDefaultIfPossible}, cal
       importContents = importContents.replace(/{{HKEY_ROOT}}/g, 'HKEY_CURRENT_USER');
     }
 
-    const importTempPath = path.join(os.tmpdir(), `nylas-reg-${Date.now()}.reg`);
+    const importTempPath = path.join(os.tmpdir(), `merani-reg-${Date.now()}.reg`);
 
     fs.writeFile(importTempPath, importContents, (writeErr) => {
       if (writeErr) {
@@ -136,7 +136,7 @@ function createRegistryEntries({allowEscalation, registerDefaultIfPossible}, cal
 
       spawn(spawnPath, spawnArgs.concat(['import', escapeBackticks(importTempPath)]), (spawnErr) => {
         if (isWindows7 && registerDefaultIfPossible) {
-          const defaultReg = path.join(appFolder, 'resources', 'nylas-mailto-default.reg')
+          const defaultReg = path.join(appFolder, 'resources', 'merani-mailto-default.reg')
           spawn(spawnPath, spawnArgs.concat(['import', escapeBackticks(defaultReg)]), (spawnDefaultErr) => {
             callback(spawnDefaultErr, true);
           });

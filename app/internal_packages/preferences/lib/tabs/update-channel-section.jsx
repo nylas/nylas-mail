@@ -51,14 +51,6 @@ class UpdateChannelSection extends React.Component {
     });
 
     const displayNameForChannel = (channel) => {
-      if (channel.name === 'beta') {
-        return 'Beta (Unstable)';
-      } else if (channel.name === 'nylas-mail') {
-        return 'Nylas Mail (Stable)';
-      } else if (channel.name === 'stable') {
-        return 'Nylas Pro (Stable)';
-      }
-
       return channel.name[0].toUpperCase() + channel.name.substr(1)
     }
 

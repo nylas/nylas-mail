@@ -26,7 +26,7 @@ export default class AccountErrorNotification extends React.Component {
   }
 
   _onContactSupport = (erroredAccount) => {
-    let url = 'https://support.nylas.com/hc/en-us/requests/new'
+    let url = 'https://support.getmerani.com/hc/en-us/requests/new'
     if (erroredAccount) {
       url += `?email=${encodeURIComponent(erroredAccount.emailAddress)}`
       const {syncError} = erroredAccount
@@ -86,7 +86,7 @@ export default class AccountErrorNotification extends React.Component {
     } else {
       const erroredAccount = erroredAccounts[0];
       if (erroredAccount.hasN1CloudError()) {
-        title = `Cannot authenticate Nylas Mail Cloud Services with ${erroredAccount.emailAddress}`;
+        title = `Cannot authenticate Merani Cloud Services with ${erroredAccount.emailAddress}`;
         actions = [{
           label: checkAgainLabel,
           fn: (e) => this._onCheckAgain(e, erroredAccount),

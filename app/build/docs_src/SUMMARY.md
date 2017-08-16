@@ -1,6 +1,6 @@
-# Nylas Mail SDK
+# Merani SDK
 
-* Nylas Mail SDK Guides
+* Merani SDK Guides
 * [Introduction](/README.md)
 * [Getting Started](/guides/GettingStarted.md)
 * [Getting Started Part 2](/guides/GettingStarted-2.md)
@@ -8,7 +8,7 @@
 * [Interface Concepts](/guides/InterfaceConcepts.md)
 * [UI Components](/guides/React.md)
 * [Application Architecture](/guides/Architecture.md)
-* [Debugging Nylas Mail](/guides/Debugging.md)
+* [Debugging Merani](/guides/Debugging.md)
 * [Accessing the Database](/guides/Database.md)
 * [Extending the Composer](/guides/ComposerExtensions.md)
 * [Writing Tests](/guides/WritingSpecs.md)

@@ -20,7 +20,7 @@ export default class DevModeNotification extends React.Component {
     return (
       <Notification
         priority="0"
-        title="Nylas Mail is running in dev mode!"
+        title="Merani is running in dev mode!"
       />
     )
   }

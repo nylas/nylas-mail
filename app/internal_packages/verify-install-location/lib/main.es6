@@ -61,15 +61,15 @@ export function activate() {
     ]
   }
 
-  const msg = `We recommend that you move Nylas Mail to your Applications folder to get updates correctly and keep this folder uncluttered.`
+  const msg = `We recommend that you move Merani to your Applications folder to get updates correctly and keep this folder uncluttered.`
 
   const CANCEL_ID = 0;
 
   remote.dialog.showMessageBox({
     type: "warning",
     buttons: buttons,
-    title: "A Better Place to Install Nylas Mail",
-    message: "Please move Nylas Mail to your Applications folder",
+    title: "A Better Place to Install Merani",
+    message: "Please move Merani to your Applications folder",
     detail: msg,
     defaultId: 0,
     cancelId: CANCEL_ID,

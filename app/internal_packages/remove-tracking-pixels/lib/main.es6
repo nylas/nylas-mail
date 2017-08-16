@@ -142,7 +142,7 @@ export function removeTrackingPixels(message) {
     // Remove Nylas read receipt pixels for the current account. If this is a
     // reply, our read receipt could still be in the body and could trigger
     // additional opens. (isFromMe is not sufficient!)
-    if (imageURL.indexOf(`nylas.com/open/${message.accountId}`) >= 0) {
+    if (imageURL.indexOf(`getmerani.com/open/${message.accountId}`) >= 0) {
       return true;
     }
     return false;

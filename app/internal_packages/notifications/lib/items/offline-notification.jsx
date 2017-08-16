@@ -13,7 +13,7 @@ function OfflineNotification({isOnline, retryingInSeconds}) {
   return (
     <Notification
       className="offline"
-      title="Nylas Mail is offline"
+      title="Merani is offline"
       subtitle={subtitle}
       priority="5"
       icon="volstead-offline.png"

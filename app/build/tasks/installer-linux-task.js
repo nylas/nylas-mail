@@ -95,13 +95,13 @@ module.exports = (grunt) => {
         linuxShareDir: '/usr/share/merani',
         arch: arch,
         section: 'devel',
-        maintainer: 'Nylas Team <support@nylas.com>',
+        maintainer: 'Merani Team <support@getmerani.com>',
         installedSize: installedSize,
       }
       writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data)
       writeFromTemplate(path.join(linuxAssetsDir, 'merani.desktop.in'), data)
 
-      const icon = path.join(grunt.config('appDir'), 'build', 'resources', 'nylas.png')
+      const icon = path.join(grunt.config('appDir'), 'build', 'resources', 'merani.png')
       const cmd = path.join(grunt.config('appDir'), 'script', 'mkdeb');
       const args = [version, arch, icon, linuxAssetsDir, contentsDir, outputDir];
       spawn({cmd, args}, (spawnError) => {

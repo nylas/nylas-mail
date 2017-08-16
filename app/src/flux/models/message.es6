@@ -10,9 +10,7 @@ import Attributes from '../attributes'
 import ModelWithMetadata from './model-with-metadata'
 
 /*
-Public: The Message model represents a Message object served by the Nylas Platform API.
-For more information about Messages on the Nylas Platform, read the
-[Messages API Documentation](https://nylas.com/cloud/docs#messages)
+Public: The Message model represents an email message or draft.
 
 Messages are a sub-object of threads. The content of a message === immutable (with the
 exception being drafts). Nylas does not support operations such as move || delete on
@@ -335,7 +333,7 @@ export default class Message extends ModelWithMetadata {
     return (
       this.to.length === 1 && this.from.length === 1 &&
       this.to[0].email === this.from[0].email &&
-      (this.snippet || "").startsWith('Nylas Mail Reminder:')
+      (this.snippet || "").startsWith('Merani Reminder:')
     )
   }
 }

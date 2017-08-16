@@ -14,7 +14,7 @@ const UpdateAvailableState = 'update-available';
 const NoUpdateAvailableState = 'no-update-available';
 const UnsupportedState = 'unsupported';
 const ErrorState = 'error';
-const preferredChannel = 'nylas-mail'
+const preferredChannel = 'stable';
 
 export default class AutoUpdateManager extends EventEmitter {
 
@@ -60,9 +60,9 @@ export default class AutoUpdateManager extends EventEmitter {
   updateFeedURL = () => {
     const params = this.parameters();
 
-    let host = `edgehill.nylas.com`;
+    let host = `updates.getmerani.com`;
     if (this.config.get('env') === 'staging') {
-      host = `edgehill-staging.nylas.com`;
+      host = `updates-staging.getmerani.com`;
     }
 
     if (process.platform === 'win32') {
@@ -178,7 +178,7 @@ export default class AutoUpdateManager extends EventEmitter {
   }
 
   iconURL() {
-    const url = path.join(process.resourcesPath, 'app', 'nylas.png');
+    const url = path.join(process.resourcesPath, 'app', 'merani.png');
     if (!fs.existsSync(url)) {
       return undefined;
     }
@@ -193,7 +193,7 @@ export default class AutoUpdateManager extends EventEmitter {
       icon: this.iconURL(),
       message: 'No update available.',
       title: 'No Update Available',
-      detail: `You're running the latest version of Nylas Mail (${this.version}).`,
+      detail: `You're running the latest version of Merani (${this.version}).`,
     });
   };
 

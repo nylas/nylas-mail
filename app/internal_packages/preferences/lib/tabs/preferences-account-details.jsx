@@ -112,7 +112,7 @@ class PreferencesAccountDetails extends Component {
 
   _onContactSupport = () => {
     const {shell} = require("electron");
-    shell.openExternal("https://support.nylas.com/hc/en-us/requests/new");
+    shell.openExternal("https://support.getmerani.com/hc/en-us/requests/new");
   }
 
   // Renderers
@@ -148,14 +148,14 @@ class PreferencesAccountDetails extends Component {
       switch (account.syncState) {
         case Account.N1_Cloud_AUTH_FAILED:
           return this._renderErrorDetail(
-            `Nylas Mail can no longer authenticate N1 Cloud Services with
+            `Merani can no longer authenticate with Merani cloud services for
             ${account.emailAddress}. The password or authentication may
             have changed.`,
             "Reconnect",
             this._onReconnect);
         case Account.SYNC_STATE_AUTH_FAILED:
           return this._renderErrorDetail(
-            `Nylas Mail can no longer authenticate with ${account.emailAddress}. The password or
+            `Merani can no longer authenticate with ${account.emailAddress}. The password or
             authentication may have changed.`,
             "Reconnect",
             this._onReconnect);

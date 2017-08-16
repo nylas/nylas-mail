@@ -38,14 +38,14 @@ class PreferencesIdentity extends React.Component {
   }
 
   _renderBasic() {
-    const learnMore = () => shell.openExternal("https://nylas.com/nylas-pro")
+    const learnMore = () => shell.openExternal("https://getmerani.com/pro")
     return (
       <div className="row padded">
         <div>
-        You are using <strong>Nylas Mail Basic</strong>. Upgrade to Nylas Mail Pro to unlock a more powerful email experience.
+        You are using <strong>Merani Basic</strong>. Upgrade to Merani Pro to unlock a more powerful email experience.
         </div>
         <div className="subscription-actions">
-          <div className="btn btn-emphasis" onClick={this._onUpgrade} style={{verticalAlign: "top"}}>Upgrade to Nylas Mail Pro</div>
+          <div className="btn btn-emphasis" onClick={this._onUpgrade} style={{verticalAlign: "top"}}>Upgrade to Merani Pro</div>
           <div className="btn minor-width" onClick={learnMore}>Learn More</div>
         </div>
       </div>
@@ -56,7 +56,7 @@ class PreferencesIdentity extends React.Component {
     return (
       <div className="row padded">
         <div>
-        Thank you for using <strong>Nylas Mail Pro</strong>
+        Thank you for using <strong>Merani Pro</strong>
         </div>
         <div className="subscription-actions">
           <OpenIdentityPageButton label="Manage Billing" path="/dashboard#billing" source="Preferences Billing" campaign="Dashboard" />

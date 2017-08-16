@@ -29,7 +29,7 @@ export default class FeatureUsedUpModal extends React.Component {
   }
 
   render() {
-    const gotoFeatures = () => shell.openExternal("https://nylas.com/nylas-pro");
+    const gotoFeatures = () => shell.openExternal("https://getmerani.com/pro");
 
     const upgrade = (e) => {
       e.stopPropagation();

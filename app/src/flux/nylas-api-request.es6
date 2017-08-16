@@ -21,15 +21,15 @@ export function rootURLForServer(server) {
   if (server === 'identity') {
     return {
       development: "http://localhost:5101",
-      staging: "https://id-staging.nylas.com",
-      production: "https://id.nylas.com",
+      staging: "https://id-staging.getmerani.com",
+      production: "https://id.getmerani.com",
     }[env];
   }
   if (server === 'accounts') {
     return {
       development: "http://localhost:5100",
-      staging: "https://accounts-staging.nylas.com",
-      production: "https://accounts.nylas.com",
+      staging: "https://accounts-staging.getmerani.com",
+      production: "https://accounts.getmerani.com",
     }[env];
   }
 

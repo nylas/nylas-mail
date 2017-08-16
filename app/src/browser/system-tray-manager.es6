@@ -15,7 +15,7 @@ function _getMenuTemplate(platform, application) {
       type: 'separator',
     },
     {
-      label: 'Quit Nylas Mail',
+      label: 'Quit Merani',
       click: () => application.emit('application:quit'),
     },
   ];

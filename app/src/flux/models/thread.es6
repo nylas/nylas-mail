@@ -8,9 +8,7 @@ import DatabaseStore from '../stores/database-store'
 import ModelWithMetadata from './model-with-metadata'
 
 /*
-Public: The Thread model represents a Thread object served by the Nylas Platform API.
-For more information about Threads on the Nylas Platform, read the
-[Threads API Documentation](https://nylas.com/cloud/docs#threads)
+Public: The Thread model represents an email thread.
 
 Attributes
 

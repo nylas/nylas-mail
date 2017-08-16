@@ -29,36 +29,35 @@ See [ROADMAP.md](https://github.com/Foundry376/Merani/blob/master/ROADMAP.md)
 
 ----------------
 
-**Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail/).
+**Merani is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://Foundry376.github.io/Merani/).
 
-[![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](http://slack-invite.nylas.com)
+[![Slack Invite Button](http://slack-invite.getmerani.com/badge.svg)](http://slack-invite.getmerani.com)
 
-#### Want to help build the future of email? [Nylas is hiring](https://jobs.lever.co/nylas)!
 
-## Download Nylas Mail
+## Download Merani
 
-You can download compiled versions of Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run Nylas Mail (Previously N1) on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
+You can download compiled versions of Merani for Windows, Mac OS X, and Linux (.deb) from [https://getmerani.com/download](https://getmerani.com/download). You can also build and run Merani (Previously N1) on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
 
 ## Build A Plugin
 
-Plugins lie at the heart of Nylas Mail and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](https://nylas.github.io/nylas-mail/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](https://github.com/nylas/N1-theme-starter).
+Plugins lie at the heart of Merani and give it its powerful features. Building your own plugins allows you to integrate the app with other tools, experiment with new workflows, and more. Follow the [Getting Started guide](https://Foundry376.github.io/Merani/) to write your first plugin in five minutes. To create your own theme, go to our [Theme Starter guide](https://github.com/nylas/N1-theme-starter).
 
 If you would like to run the N1 source and contribute, check out our [contributing
-guide](https://github.com/nylas/nylas-mail/blob/master/CONTRIBUTING.md).
+guide](https://github.com/Foundry376/Merani/blob/master/CONTRIBUTING.md).
 
 ## Themes
 
-The Nylas Mail user interface is styled using CSS, which means it's easy to modify and extend. Nylas Mail comes stock with a few beautiful themes, and there are many more which have been built by community developers
+The Merani user interface is styled using CSS, which means it's easy to modify and extend. Merani comes stock with a few beautiful themes, and there are many more which have been built by community developers
 
 <center><img width=550 src="http://i.imgur.com/PWQ7NlY.jpg"></center>
 
 
 #### Bundled Themes
-- [Dark](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-dark)
-- [Darkside](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-darkside) (designed by [Jamie Wilson](https://github.com/jamiewilson))
-- [Taiga](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-taiga) (designed by [Noah Buscher](https://github.com/noahbuscher))
-- [Ubuntu](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-ubuntu) (designed by [Ahmed Elhanafy](https://github.com/ahmedlhanafy))
-- [Less Is More](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-less-is-more) (designed by [Alexander Adkins](https://github.com/P0WW0W))
+- [Dark](https://github.com/Foundry376/Merani/tree/master/internal_packages/ui-dark)
+- [Darkside](https://github.com/Foundry376/Merani/tree/master/internal_packages/ui-darkside) (designed by [Jamie Wilson](https://github.com/jamiewilson))
+- [Taiga](https://github.com/Foundry376/Merani/tree/master/internal_packages/ui-taiga) (designed by [Noah Buscher](https://github.com/noahbuscher))
+- [Ubuntu](https://github.com/Foundry376/Merani/tree/master/internal_packages/ui-ubuntu) (designed by [Ahmed Elhanafy](https://github.com/ahmedlhanafy))
+- [Less Is More](https://github.com/Foundry376/Merani/tree/master/internal_packages/ui-less-is-more) (designed by [Alexander Adkins](https://github.com/P0WW0W))
 
 
 
@@ -94,8 +93,8 @@ The Nylas Mail user interface is styled using CSS, which means it's easy to modi
 #### To install community themes:
 
 1. Download and unzip the repo
-2. In Nylas Mail, select `Developer > Install a Package Manually... `
-3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas-mail` folder for your convinence
+2. In Merani, select `Developer > Install a Package Manually... `
+3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the Merani settings folder for your convinence
 5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it!
 
 
@@ -103,21 +102,21 @@ Want to dive in more? Try [creating your own theme](https://github.com/nylas/nyl
 
 
 ## Plugin List
-We're working on building a plugin index that makes it super easy to add them to Nylas Mail. For now, check out the list below! (Feel free to submit a PR if you build a plugin and want it featured here.)
+We're working on building a plugin index that makes it super easy to add them to Merani. For now, check out the list below! (Feel free to submit a PR if you build a plugin and want it featured here.)
 
 
 #### Bundled Plugins
 Great starting points for creating your own plugins!
-- [Translate](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-translate)—Works with 10 languages
-- [Quick Replies](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-templates)—Send emails faster with templates
-- [Emoji Keyboard](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
-- [GitHub Sidebar Info](https://github.com/nylas/nylas-mail/tree/master/internal_packages/github-contact-card)
-- [View on GitHub](https://github.com/nylas/nylas-mail/tree/master/internal_packages/message-view-on-github)
-- [Personal Level Indicators](https://github.com/nylas/nylas-mail/tree/master/internal_packages/personal-level-indicators)
-- [Phishing Detection](https://github.com/nylas/nylas-mail/tree/master/internal_packages/phishing-detection)
+- [Translate](https://github.com/Foundry376/Merani/tree/master/internal_packages/composer-translate)—Works with 10 languages
+- [Quick Replies](https://github.com/Foundry376/Merani/tree/master/internal_packages/composer-templates)—Send emails faster with templates
+- [Emoji Keyboard](https://github.com/Foundry376/Merani/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
+- [GitHub Sidebar Info](https://github.com/Foundry376/Merani/tree/master/internal_packages/github-contact-card)
+- [View on GitHub](https://github.com/Foundry376/Merani/tree/master/internal_packages/message-view-on-github)
+- [Personal Level Indicators](https://github.com/Foundry376/Merani/tree/master/internal_packages/personal-level-indicators)
+- [Phishing Detection](https://github.com/Foundry376/Merani/tree/master/internal_packages/phishing-detection)
 
 ## Configuration
-You can configure Nylas Mail in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/nylas/nylas-mail/blob/master/CONFIGURATION.md)
+You can configure Merani in a few ways—for instance, pointing it to your self-hosted instance of the sync engine or changing the interface zoom level. [Learn more about how.](https://github.com/Foundry376/Merani/blob/master/CONFIGURATION.md)
 
 ## Feature Requests / Plugin Ideas
-Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](https://github.com/nylas/nylas-mail/issues) and join the conversation!
+Have an idea for a package or a feature you'd love to see in Merani? Search for existing [GitHub issues](https://github.com/Foundry376/Merani/issues) and join the conversation!

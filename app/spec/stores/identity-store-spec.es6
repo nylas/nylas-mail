@@ -77,7 +77,7 @@ describe("IdentityStore", function identityStoreSpec() {
     const opts = NylasAPIRequest.makeRequest.calls[0].args[0]
     expect(opts).toEqual({
       method: "POST",
-      url: "https://billing.nylas.com/api/feature_usage_event",
+      url: "https://identity.getmerani.com/api/feature_usage_event",
       body: {
         feature_name: 'snooze',
       },

@@ -1,4 +1,4 @@
-# Ubuntu Theme for Nylas Mail #
+# Ubuntu Theme for Merani #
 
 ![img](https://raw.githubusercontent.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1/master/Screenshot.png)
 

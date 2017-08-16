@@ -49,17 +49,17 @@ const setupErrorLogger = (args = {}) => {
 const declareOptions = (argv) => {
   const optimist = require('optimist');
   const options = optimist(argv);
-  options.usage("Nylas Mail v" + (app.getVersion()) + "\n\nUsage: nylas-mail [options]\n\nRun Nylas Mail: The open source extensible email client\n\n`nylas-mail --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
+  options.usage("Merani v" + (app.getVersion()) + "\n\nUsage: nylas-mail [options]\n\nRun Merani: The open source extensible email client\n\n`nylas-mail --dev` to start the client in dev mode.\n\n`n1 --test` to run unit tests.");
   options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
   options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
   options.boolean('safe').describe('safe', 'Do not load packages from ~/.nylas-mail/packages or ~/.nylas/dev/packages.');
   options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.');
   options.alias('l', 'log-file').string('l').describe('l', 'Log all test output to file.');
-  options.alias('c', 'config-dir-path').string('c').describe('c', 'Override the path to the Nylas Mail configuration directory');
+  options.alias('c', 'config-dir-path').string('c').describe('c', 'Override the path to the Merani configuration directory');
   options.alias('s', 'spec-directory').string('s').describe('s', 'Override the directory from which to run package specs');
   options.alias('f', 'spec-file-pattern').string('f').describe('f', 'Override the default file regex to determine which tests should run (defaults to "-spec\.(coffee|js|jsx|cjsx|es6|es)$" )');
   options.alias('v', 'version').boolean('v').describe('v', 'Print the version.');
-  options.alias('b', 'background').boolean('b').describe('b', 'Start Nylas Mail in the background');
+  options.alias('b', 'background').boolean('b').describe('b', 'Start Merani in the background');
   return options;
 };
 

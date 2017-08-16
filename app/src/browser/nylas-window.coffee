@@ -46,7 +46,7 @@ class NylasWindow
 
     browserWindowOptions =
       show: false
-      title: title ? 'Nylas Mail'
+      title: title ? 'Merani'
       frame: frame
       width: width
       height: height
@@ -68,9 +68,9 @@ class NylasWindow
     # taskbar's icon. See https://github.com/atom/atom/issues/4811 for more.
     if process.platform is 'linux'
       unless WindowIconPath
-        WindowIconPath = path.resolve(__dirname, '..', '..', 'nylas.png')
+        WindowIconPath = path.resolve(__dirname, '..', '..', 'merani.png')
         unless fs.existsSync(WindowIconPath)
-          WindowIconPath = path.resolve(__dirname, '..', '..', 'build', 'resources', 'nylas.png')
+          WindowIconPath = path.resolve(__dirname, '..', '..', 'build', 'resources', 'merani.png')
       browserWindowOptions.icon = WindowIconPath
 
     @browserWindow = new BrowserWindow(browserWindowOptions)
@@ -190,7 +190,7 @@ class NylasWindow
       chosen = dialog.showMessageBox @browserWindow,
         type: 'warning'
         buttons: ['Close', 'Keep Waiting']
-        message: 'Nylas Mail is not responding'
+        message: 'Merani is not responding'
         detail: 'Would you like to force close it or keep waiting?'
       @browserWindow.destroy() if chosen is 0
 
@@ -209,8 +209,8 @@ class NylasWindow
         chosen = dialog.showMessageBox @browserWindow,
           type: 'warning'
           buttons: ['Close Window', 'Reload', 'Keep It Open']
-          message: 'Nylas Mail has crashed'
-          detail: 'Please report this issue to us at support@nylas.com.'
+          message: 'Merani has crashed'
+          detail: 'Please report this issue to us at support@getmerani.com.'
         switch chosen
           when 0 then @browserWindow.destroy()
           when 1 then @browserWindow.reload()

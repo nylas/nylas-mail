@@ -1,17 +1,17 @@
 # Filing an Issue
 
-Thanks for checking out Nylas Mail! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/n1-open-source-roadmap). If someone has already requested
+Thanks for checking out Merani! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/n1-open-source-roadmap). If someone has already requested
 the feature you have in mind, you can upvote the card on Trello—to keep things organized, we
 often close feature requests on GitHub after creating Trello cards.
 
 If you've found a bug, try searching for similars issue before filing a new one. Please include
-the version of Nylas Mail you're using, the platform you're using (Mac / Windows / Linux), and the
+the version of Merani you're using, the platform you're using (Mac / Windows / Linux), and the
 type of email account. (Gmail, Outlook 365, etc.)
 
 # Pull requests
 
 We require all authors sign our [Contributor License
-Agreement](https://www.nylas.com/cla.html) before pull requests (even
+Agreement](https://www.getmerani.com/cla.html) before pull requests (even
 minor ones) can be accepted. (It's similar to other projects, like NodeJS
 Meteor, or React). I'm really sorry, but Legal made us do it.
 

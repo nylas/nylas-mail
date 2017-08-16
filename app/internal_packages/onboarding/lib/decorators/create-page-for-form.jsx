@@ -115,7 +115,7 @@ const CreatePageForForm = (FormComponent) => {
         const errorStatusCode = err.statusCode
 
         if (err.errorType === "setting_update_error") {
-          errorMessage = 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from Nylas Mail, then try logging in again.';
+          errorMessage = 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from Merani, then try logging in again.';
         }
         if (err.errorType && err.errorType.includes("autodiscover") && (accountInfo.type === 'exchange')) {
           errorFieldNames.push('eas_server_host')
@@ -178,10 +178,10 @@ const CreatePageForForm = (FormComponent) => {
       let articleURL;
       if (accountInfo.email.includes("@yahoo.com")) {
         message = "Have you enabled access through Yahoo?";
-        articleURL = "https://support.nylas.com/hc/en-us/articles/115001076128";
+        articleURL = "https://support.getmerani.com/hc/en-us/articles/115001076128";
       } else {
         message = "Some providers require an app password."
-        articleURL = "https://support.nylas.com/hc/en-us/articles/115001056608";
+        articleURL = "https://support.getmerani.com/hc/en-us/articles/115001056608";
       }
       // We don't use a FormErrorMessage component because the content
       // we need to display has HTML.

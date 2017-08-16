@@ -137,7 +137,7 @@ export default class Webview extends React.Component {
     if (httpResponseCode >= 400) {
       const error = `
         Could not reach Nylas. Please try again or contact
-        support@nylas.com if the issue persists.
+        support@getmerani.com if the issue persists.
         (${originalURL}: ${httpResponseCode})
       `;
       this.setState({ready: false, error: error, webviewLoading: false});

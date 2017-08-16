@@ -10,9 +10,6 @@ let Contact = null
  * Every object on the Nylas platform exists within a Account, which typically represents
  * an email account.
  *
- * For more information about Accounts on the Nylas Platform, read the
- * [Account API Documentation](https://nylas.com/cloud/docs#account)
- *
  * ## Attributes
  *
  * `name`: {AttributeString} The name of the Account.

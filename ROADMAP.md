@@ -5,7 +5,7 @@ Target Ship Date: Late September
 #### C++ MailSync
 *Goal: Reduce bugginess and battery impact, enable new controls over what mail data is synced, and dramatically improve performance by moving mailsync to a new C++ codebase based on MailCore2.*
 
-- [x] Build a lightweight C++ command-line application that syncs mail using `MailCore2` and `libcurl` and writes to the same sqlite3 database schema used by Nylas Mail.
+- [x] Build a lightweight C++ command-line application that syncs mail using `MailCore2` and `libcurl` and writes to the same sqlite3 database schema used by Merani.
 - [x] Remove the client-sync package and the Activity window and implement `MailsyncProcess`/`MailsyncBridge` wrappers around new C++ codebase. Broadcast database events from the C++ app into the JavaScript app so the UI updates as data changes.
 - [x] Remove thread and contact search indexing, perform indexing as data is retrieved from IMAP in C++.
 - [x] Remove migration support from JavaScript. Run the C++ app at launch with `--migrate` to run migrations before the main window is displayed.

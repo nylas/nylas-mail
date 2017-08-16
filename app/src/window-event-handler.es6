@@ -286,11 +286,11 @@ export default class WindowEventHandler {
     }
 
     if (!NylasEnv.inDevMode()) {
-      console.log(`%c Welcome to Nylas Mail! If you're exploring the source or building a
+      console.log(`%c Welcome to Merani! If you're exploring the source or building a
                    plugin, you should enable debug flags. It's slower, but
                    gives you better exceptions, the debug version of React,
                    and more. Choose %c Developer > Run with Debug Flags %c
-                   from the menu. Also, check out https://nylas.github.io/N1/docs/
+                   from the menu. Also, check out http://Foundry376.github.io/Merani/
                    for documentation and sample code!`,
                    "background-color: antiquewhite;",
                    "background-color: antiquewhite; font-weight:bold;",

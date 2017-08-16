@@ -180,7 +180,7 @@ export default class Application extends EventEmitter {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
     } else {
       this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-        title: "Welcome to Nylas Mail",
+        title: "Welcome to Merani",
       });
     }
   }
@@ -383,8 +383,8 @@ export default class Application extends EventEmitter {
 
     app.on('ready', () => {
       crashReporter.start({
-        productName: 'Nylas Mail',
-        companyName: 'Nylas, Inc.',
+        productName: 'Merani',
+        companyName: 'Foundry 376, LLC',
         submitURL: 'https://nylas-breakpad-sentry.herokuapp.com/crashreport',
         autoSubmit: true,
       });

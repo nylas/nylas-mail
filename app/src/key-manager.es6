@@ -16,11 +16,11 @@ class KeyManager {
      * the names of these keys. If you change them be sure that old N1 is
      * fully deprecated or updated as well.
      */
-    this.SERVICE_NAME = "Nylas Mail";
+    this.SERVICE_NAME = "Merani";
     if (NylasEnv.inDevMode()) {
-      this.SERVICE_NAME = "Nylas Mail Dev";
+      this.SERVICE_NAME = "Merani Dev";
     }
-    this.KEY_NAME = "Nylas Mail Keys"
+    this.KEY_NAME = "Merani Keys"
   }
 
   extractAccountSecrets(accountJSON, cloudToken) {
@@ -82,7 +82,7 @@ class KeyManager {
   }
 
   _try(fn) {
-    const ERR_MSG = "We couldn't store your password securely! For more information, visit https://support.nylas.com/hc/en-us/articles/223790028";
+    const ERR_MSG = "We couldn't store your password securely! For more information, visit https://support.getmerani.com/hc/en-us/articles/223790028";
     try {
       if (!fn()) {
         remote.dialog.showErrorBox("Password Management Error", ERR_MSG)

@@ -134,8 +134,8 @@ module.exports = (grunt) => {
         'win32': 'ia32',
       }[platform],
       'icon': {
-        darwin: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'nylas.icns'),
-        win32: path.resolve(grunt.config('appDir'), 'build', 'resources', 'win', 'nylas.ico'),
+        darwin: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'merani.icns'),
+        win32: path.resolve(grunt.config('appDir'), 'build', 'resources', 'win', 'merani.ico'),
         linux: undefined,
       }[platform],
       'name': {

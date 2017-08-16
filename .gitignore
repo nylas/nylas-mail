@@ -37,7 +37,7 @@ certs
 # Built cloud files
 n1_cloud_dist
 
-# Built Nylas Mail client
+# Built client
 app/dist
 
 # Tests

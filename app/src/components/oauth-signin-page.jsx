@@ -29,7 +29,7 @@ export default class OAuthSignInPage extends React.Component {
      * Once we have the token, we can use that to retrieve the full
      * account credentials or establish a direct connection ourselves.
      * Some Nylas backends vend all account credentials along with the
-     * token making this function unnecessary and a no-op. Nylas Mail
+     * token making this function unnecessary and a no-op. Merani
      * local sync needs to use the returned OAuth token to establish an
      * IMAP connection directly that may have its own set of failure
      * cases.
@@ -141,7 +141,7 @@ export default class OAuthSignInPage extends React.Component {
       return (
         <div>
           <h2>Successfully connected to {this.props.serviceName}!</h2>
-          <h3>Adding your account to Nylas Mail…</h3>
+          <h3>Adding your account to Merani…</h3>
         </div>
       )
     }
@@ -151,7 +151,7 @@ export default class OAuthSignInPage extends React.Component {
       <h2>Sorry, we had trouble logging you in</h2>
       <div className="error-region">
         <p className="message error error-message">{this.state.errorMessage}</p>
-        <p className="extra">Please <a onClick={this.props.onTryAgain}>try again</a>. If you continue to see this error contact support@nylas.com</p>
+        <p className="extra">Please <a onClick={this.props.onTryAgain}>try again</a>. If you continue to see this error contact support@getmerani.com</p>
       </div>
     </div>)
   }

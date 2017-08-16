@@ -32,7 +32,7 @@ class Windows {
       type: 'info',
       buttons: ['Learn More'],
       message: "Visit Windows Settings to change your default mail client",
-      detail: "You'll find Nylas Mail, along with other options, listed in Default Apps > Mail.",
+      detail: "You'll find Merani, along with other options, listed in Default Apps > Mail.",
     }, () => {
       shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648');
     });
@@ -58,7 +58,7 @@ class Windows {
           type: 'info',
           buttons: ['Learn More'],
           defaultId: 1,
-          message: "Visit Windows Settings to finish making Nylas Mail your mail client",
+          message: "Visit Windows Settings to finish making Merani your mail client",
           detail: "Click 'Learn More' to view instructions in our knowledge base.",
         }, () => {
           shell.openExternal('https://support.nylas.com/hc/en-us/articles/229277648');

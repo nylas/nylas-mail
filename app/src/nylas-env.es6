@@ -201,9 +201,9 @@ export default class NylasEnvConstructor {
     // the window starts loading.
     require('nylas-exports');
 
-    process.title = `Nylas Mail ${this.getWindowType()}`;
+    process.title = `Merani ${this.getWindowType()}`;
     return this.onWindowPropsReceived(() => {
-      process.title = `Nylas Mail ${this.getWindowType()}`;
+      process.title = `Merani ${this.getWindowType()}`;
       return process.title;
     });
   }
@@ -383,7 +383,7 @@ export default class NylasEnvConstructor {
     return this.getLoadSettings().isSpec;
   }
 
-  // Public: Get the version of Nylas Mail.
+  // Public: Get the version of Merani.
   //
   // Returns the version text {String}.
   getVersion() {
@@ -395,7 +395,7 @@ export default class NylasEnvConstructor {
     return !/\w{7}/.test(this.getVersion()); // Check if the release is a 7-character SHA prefix
   }
 
-  // Public: Get the directory path to Nylas Mail's configuration area.
+  // Public: Get the directory path to Merani's configuration area.
   getConfigDirPath() { return this.getLoadSettings().configDirPath; }
 
   // Public: Get the time taken to completely load the current window.

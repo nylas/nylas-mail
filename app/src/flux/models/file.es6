@@ -5,9 +5,7 @@ import Attributes from '../attributes';
 let RegExpUtils = null
 
 /**
-Public: File model represents a File object served by the Nylas Platform API.
-For more information about Files on the Nylas Platform, read the
-[Files API Documentation](https://nylas.com/cloud/docs#files)
+Public: File model represents an email attachment.
 
 #// Attributes
 
