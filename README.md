@@ -1,26 +1,32 @@
 # Nylas Mail - the open-source, extensible mail client
+
 ![N1 Screenshot](https://www.nylas.com/hs-fs/hubfs/%20Nylas%20May%202017%20/Images/hero_graphic_mac@2x.png?t=1496457553218&width=1572&name=hero_graphic_mac@2x.png)
 
-  **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail)
+**Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).**
+
+It is designed to be extensible, so it's easy to create new experiences and workflows around email.
+
+Want to learn more? Check out the [full documentation](https://nylas.github.io/nylas-mail).
 
 [![Slack Invite Button](http://slack-invite.nylas.com/badge.svg)](https://join.slack.com/nylasisalive/shared_invite/MjAzMDE1NTU0MDM2LTE0OTgyNzM3MTItODY4OWNlNTdkMw)
 
+## Download Nylas Mail
+
+> We are still figuring out our deploy options for this fork.
+
 You can download compiled versions of the original, no longer maintained Nylas Mail for Windows, Mac OS X, and Linux (.deb) from [https://nylas.com/download](https://nylas.com/download). You can also build and run Nylas Mail (Previously N1) on Fedora. On Arch Linux, you can install **[n1](https://aur.archlinux.org/packages/n1/)** or **[n1-git](https://aur.archlinux.org/packages/n1-git/)** from the aur.
 
-# This is a Fork
-This is a fork from the project currently hosted at [nylas/nylas-mail](https://github.com/nylas-mail-lives/nylas-mail). A bunch of developers who really liked this open source project got upset on [this issue thread](https://github.com/nylas/nylas-mail/issues/3564) and wondered if they could contribute to the project, as the main development team had stopped to look into issues and pull requests from the comunity.
+## This is a Fork
 
-Our main objective is to maintain this amazing project alive and actively accepting contributions from the comunity. We believe this is the true life behind any open source endevour.
+This is a fork from the project currently hosted at [nylas/nylas-mail](https://github.com/nylas-mail-lives/nylas-mail). A bunch of developers who really liked this open source project got upset on [this issue thread](https://github.com/nylas/nylas-mail/issues/3564) and wondered if they could contribute to the project, as the main development team had stopped to look into issues and pull requests from the community.
+
+Our main objective is to maintain this amazing project alive and actively accepting contributions from the community. We believe this is the true life behind any open source endeavour.
 
 We are still figuring out how to manage this fork, our relationship with the original repository maintainers, how to deploy and etc. We welcome contributions of all kinds as we try to get the house in order.
 
-We will, naturally, honor the licenses as they were writen by Nylas on the original project.
+We will, naturally, honor the licenses as they were written by Nylas on the original project.
 
 Please, feel free to contact any of the developers or, preferably, use our Slack team linked above to look into the discussions.
-
-## Download Nylas Mail
-
-We are still figuring out our deploy options for this fork. 
 
 ## Build A Plugin
 
@@ -86,47 +92,69 @@ In order to use these plugins and get the full Nylas Mail experience, you need t
 
 The Nylas Mail user interface is styled using CSS, which means it's easy to modify and extend. Nylas Mail comes stock with a few beautiful themes, and there are many more which have been built by community developers
 
-![N1 Themes](https://github.com/nylas/nylas-mail/raw/master/screenshot/687474703a2f2f692e696d6775722e636f6d2f505751374e6c592e6a7067.jpg)
+<p align="center">
+    <img width="550" src="http://i.imgur.com/PWQ7NlY.jpg">
+</p>
 
-#### Bundled Themes
-- [Dark](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/ui-dark)
-- [Darkside](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/ui-darkside) (designed by [Jamie Wilson](https://github.com/jamiewilson))
-- [Taiga](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/ui-taiga) (designed by [Noah Buscher](https://github.com/noahbuscher))
-- [Ubuntu](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/ui-ubuntu) (designed by [Ahmed Elhanafy](https://github.com/ahmedlhanafy))
-- [Less Is More](https://github.com/nylas/nylas-mail/tree/master/packages/client-app/internal_packages/ui-less-is-more) (designed by [Alexander Adkins](https://github.com/P0WW0W))
+### Bundled Themes
 
-#### Community Themes
-|       |       |       |
-| ----- | ----- | ----- |
-| [ToogaBooga](https://github.com/brycedorn/N1-ToogaBooga) | [Material](https://github.com/jackiehluo/n1-material) | [Monokai](https://github.com/dcondrey/n1-monokai)  |
-| [Agapanthus](https://github.com/taniadaniela/n1-agapanthus)—Inbox-inspired theme | [Stripe](https://github.com/oeaeee/n1-stripe)| [Kleinstein](https://github.com/diklein/Kleinstein)—Hides account sidebar|
-| [Arc Dark](https://github.com/varlesh/Nylas-Arc-Dark-Theme)| [Solarized Dark](https://github.com/NSHenry/N1-Solarized-Dark) | [Darkish](https://github.com/dyrnade/N1-Darkish)|
-| [Predawn](https://github.com/adambmedia/N1-Predawn)| [Ido](https://github.com/edipox/n1-ido)—Polymail-inspired theme|[Berend](https://github.com/Frique/N1-Berend) |
-| [ElementaryOS](https://github.com/edipox/elementary-nylas) | [LevelUp](https://github.com/stolinski/level-up-nylas-n1-theme)|[Sunrise](https://github.com/jackiehluo/n1-sunrise) |
-| [BoraBora](https://github.com/arimai/N1-BoraBora) | [Honeyduke](https://github.com/arimai/n1-honeyduke)| [Snow](https://github.com/Wattenberger/N1-snow-theme)|
-|[Hull](https://github.com/unity/n1-hull)|[Express](https://github.com/oeaeee/n1-express)|[DarkSoda](https://github.com/adambullmer/N1-theme-DarkSoda)|
-|[Bemind](https://github.com/bemindinteractive/Bemind-N1-Theme)|[Dracula](https://github.com/dracula/nylas-n1)|[MouseEatsCat](https://github.com/MouseEatsCat/MouseEatsCat-N1)|
-|[Sublime Dark](https://github.com/rishabhkesarwani/Nylas-Sublime-Dark-Theme)|[Firefox](https://github.com/darshandsoni/n1-firefox-theme)|[Gmail](https://github.com/dregitsky/n1-gmail-theme)|
+- [Dark](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-dark)
+- [Darkside](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-darkside) (designed by [Jamie Wilson](https://github.com/jamiewilson))
+- [Less Is More](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-less-is-more) (designed by [Alexander Adkins](https://github.com/P0WW0W))
+- [Taiga](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-taiga) (designed by [Noah Buscher](https://github.com/noahbuscher))
+- [Ubuntu](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-ubuntu) (designed by [Ahmed Elhanafy](https://github.com/ahmedlhanafy))
 
-#### To install community themes:
+### Community Themes
+
+- [Agapanthus](https://github.com/taniadaniela/n1-agapanthus) — Inbox-inspired theme
+- [Arc Dark](https://github.com/varlesh/Nylas-Arc-Dark-Theme)
+- [Bemind](https://github.com/bemindinteractive/Bemind-N1-Theme)
+- [Berend](https://github.com/Frique/N1-Berend)
+- [BoraBora](https://github.com/arimai/N1-BoraBora)
+- [Darkish](https://github.com/dyrnade/N1-Darkish)
+- [DarkSoda](https://github.com/adambullmer/N1-theme-DarkSoda)
+- [Dracula](https://github.com/dracula/nylas-n1)
+- [ElementaryOS](https://github.com/edipox/elementary-nylas)
+- [Express](https://github.com/oeaeee/n1-express)
+- [Firefox](https://github.com/darshandsoni/n1-firefox-theme)
+- [Gmail](https://github.com/dregitsky/n1-gmail-theme)
+- [Honeyduke](https://github.com/arimai/n1-honeyduke)
+- [Hull](https://github.com/unity/n1-hull)
+- [Ido](https://github.com/edipox/n1-ido) — Polymail-inspired theme
+- [Kleinstein](https://github.com/diklein/Kleinstein) — Hide the account list sidebar
+- [LevelUp](https://github.com/stolinski/level-up-nylas-n1-theme)
+- [Material](https://github.com/jackiehluo/n1-material)
+- [Monokai](https://github.com/dcondrey/n1-monokai)
+- [MouseEatsCat](https://github.com/MouseEatsCat/MouseEatsCat-N1)
+- [Predawn](https://github.com/adambmedia/N1-Predawn)
+- [Snow](https://github.com/Wattenberger/N1-snow-theme)
+- [Solarized Dark](https://github.com/NSHenry/N1-Solarized-Dark)
+- [Stripe](https://github.com/oeaeee/n1-stripe)
+- [Sublime Dark](https://github.com/rishabhkesarwani/Nylas-Sublime-Dark-Theme)
+- [Sunrise](https://github.com/jackiehluo/n1-sunrise)
+- [ToogaBooga](https://github.com/brycedorn/N1-ToogaBooga)
+>>>>>>> 5a1b14d... Improved formatting for README.md
+
+#### Installing Community Themes
 
 1. Download and unzip the repo
 2. In Nylas Mail, select `Developer > Install a Package Manually... `
-3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas-mail` folder for your convinence
-5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it!
+3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas-mail` folder for your convenience
+4. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it!
 
 Want to dive in more? Try [creating your own theme](https://github.com/nylas/nylas-mail-theme-starter)!
 
-## Plugins
+## Plugin List
 
-Some plugins come pre-installed, and are a great starting points for creating your own:
+We're working on building a plugin index that makes it super easy to add them to Nylas Mail. For now, check out the list below! (Feel free to submit a PR if you build a plugin and want it featured here.)
 
+### Bundled Plugins
 
-#### Bundled Plugins
 Great starting points for creating your own plugins!
-- [Translate](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-translate)—Works with 10 languages
-- [Quick Replies](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-templates)—Send emails faster with templates
-- [Emoji Keyboard](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-emoji)—Insert emoji by typing a colon (:) followed by the name of an emoji symbol
+
+- [Translate](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-translate) — Works with 10 languages
+- [Quick Replies](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-templates) — Send emails faster with templates
+- [Emoji Keyboard](https://github.com/nylas/nylas-mail/tree/master/internal_packages/composer-emoji) — Insert emoji by typing a colon `:` followed by the name of an emoji symbol
 - [GitHub Sidebar Info](https://github.com/nylas/nylas-mail/tree/master/internal_packages/github-contact-card)
 - [View on GitHub](https://github.com/nylas/nylas-mail/tree/master/internal_packages/message-view-on-github)
 - [Personal Level Indicators](https://github.com/nylas/nylas-mail/tree/master/internal_packages/personal-level-indicators)
@@ -135,32 +163,34 @@ Great starting points for creating your own plugins!
 
 #### Community Plugins
 
-Note these are not tested or officially supported by Nylas, but we still think they are really cool! If you find bugs with them, please open GitHub issues on their individual project pages, not the Nylas Mail (N1) repo page. Thanks!
+Note these are not tested or officially supported by Nylas, but we still think they are really cool!
 
-- [Jiffy](http://noahbuscher.github.io/N1-Jiffy/)—Insert animated GIFs
-- [Weather](https://github.com/jackiehluo/n1-weather)
-- [Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)
-- [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
-- [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage)—Opens a URL in separate window
-- In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
+If you find bugs with them, please open GitHub issues on their individual project pages, not the Nylas Mail (N1) repo page.
+
+Thanks!
+
 - [Avatars](https://github.com/unity/n1-avatars)
 - [Events Calendar (WIP)](https://github.com/nerdenough/n1-events-calendar)
-- [Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)
 - [Evernote](https://github.com/grobgl/n1-evernote)
-- [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
-- [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
 - [GitHub](https://github.com/ForbesLindesay/N1-GitHub)
+- [Jiffy](http://noahbuscher.github.io/N1-Jiffy/) — Insert animated GIFs
+- [Mail in Chat (WIP)](https://github.com/yjchen/mail_in_chat)
+- [Participants Display](https://github.com/kbruccoleri/nylas-participants-display)
+- [Squirt Speed Reader](https://github.com/HarleyKwyn/squirt-reader-N1-plugin/)
+- [Todoist](https://github.com/alexfruehwirth/N1TodoistIntegration)
+- [Weather](https://github.com/jackiehluo/n1-weather)
+- [Website Launcher](https://github.com/adriangrantdotorg/nylas-n1-background-webpage) — Opens a URL in separate window
+- [Wunderlist](https://github.com/miguelrs/n1-wunderlist)
+- In Development: [Cypher](https://github.com/mbilker/cypher) (PGP Encryption)
 
-When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Mail runs apm install on the command line to fetch dependencies listed in the package's package.json
-
-# Forks
-
-There are several forks of Nylas Mail that you should check out!
+When you install packages, they're moved to `~/.nylas-mail/packages`, and Nylas Mail runs apm install on the command line to fetch dependencies listed in the package's package.json
 
 ## Feature Requests / Plugin Ideas
 
-Have an idea for a package or a feature you'd love to see in Nylas Mail? Search for existing [GitHub issues](http://github.com/nylas-mail-lives/nylas-mail/issues) and join the conversation!
+Have an idea for a package or a feature you'd love to see in Nylas Mail?
+
+Search for existing [GitHub issues](http://github.com/nylas-mail-lives/nylas-mail/issues) and join the conversation!
 
 ## Contributing
-If you would like to contribute to the project, but aren't sure where to start, please take a look at the [Guide](docs/guide/README.md#contributing).
 
+If you would like to contribute to the project, but aren't sure where to start, please take a look at the [Guide](docs/guide/README.md#contributing).
