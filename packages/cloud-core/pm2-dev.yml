@@ -7,9 +7,9 @@ apps:
       PORT: 5100
       DB_NAME : "nylasmailclouddb"
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
-      DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
-      GMAIL_CLIENT_ID : "271342407743-nibas08fua1itr1utq9qjladbkv3esdm.apps.googleusercontent.com"
-      GMAIL_CLIENT_SECRET : "WhmxErj-ei6vJXLocNhBbfBF"
+      DB_ENCRYPTION_PASSWORD : "XXXXXX"
+      GMAIL_CLIENT_ID : "XXXXXXXXXXXXX"
+      GMAIL_CLIENT_SECRET : "XXXXXXXXXXXXX"
       GMAIL_REDIRECT_URL : "http://localhost:5100/auth/gmail/oauthcallback"
       NODE_ENV: 'development'
       HONEY_DATASET: 'n1-cloud-staging'
@@ -27,9 +27,9 @@ apps:
     env      :
       DB_NAME : "nylasmailclouddb"
       DB_ENCRYPTION_ALGORITHM : "aes-256-ctr"
-      DB_ENCRYPTION_PASSWORD : "d6F3Efeq"
-      GMAIL_CLIENT_ID : "271342407743-nibas08fua1itr1utq9qjladbkv3esdm.apps.googleusercontent.com"
-      GMAIL_CLIENT_SECRET : "WhmxErj-ei6vJXLocNhBbfBF"
+      DB_ENCRYPTION_PASSWORD : "XXXXXXX"
+      GMAIL_CLIENT_ID : "XXXXXXXXXXXXX"
+      GMAIL_CLIENT_SECRET : "XXXXXXXXXXXXX"
       GMAIL_REDIRECT_URL : "http://localhost:5100/auth/gmail/oauthcallback"
       NODE_ENV: 'development'
       BILLING_URL: 'https://billing-staging.nylas.com'

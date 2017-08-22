@@ -11,8 +11,6 @@ class ApplicationMenu
   constructor: (@version) ->
     @windowTemplates = new WeakMap()
     @setActiveTemplate(@getDefaultTemplate())
-    global.application.autoUpdateManager.on 'state-changed', (state) =>
-      @updateAutoupdateMenuItem(state)
 
   # Public: Updates the entire menu with the given keybindings.
   #
@@ -38,7 +36,6 @@ class ApplicationMenu
     @menu = Menu.buildFromTemplate(fullTemplate)
     Menu.setApplicationMenu(@menu)
 
-    @updateAutoupdateMenuItem(global.application.autoUpdateManager.getState())
     @updateFullscreenMenuItem(@lastFocusedWindow?.isFullScreen())
     @updateDevModeItem()
 
@@ -124,26 +121,6 @@ class ApplicationMenu
         w.focus()
       }
     windowMenu.submenu.splice(idx, 0, {type: 'separator'}, windowsItems...)
-
-  # Sets the proper visible state the update menu items
-  updateAutoupdateMenuItem: (state) ->
-    checkForUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Check for Update')
-    downloadingUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Downloading Update')
-    installUpdateItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Restart and Install Update')
-
-    return unless checkForUpdateItem? and downloadingUpdateItem? and installUpdateItem?
-
-    checkForUpdateItem.visible = false
-    downloadingUpdateItem.visible = false
-    installUpdateItem.visible = false
-
-    switch state
-      when 'idle', 'error', 'no-update-available'
-        checkForUpdateItem.visible = true
-      when 'checking', 'downloading'
-        downloadingUpdateItem.visible = true
-      when 'update-available'
-        installUpdateItem.visible = true
 
   updateFullscreenMenuItem: (fullscreen) ->
     enterItem = _.find(@flattenMenuItems(@menu), ({label}) -> label == 'Enter Full Screen')

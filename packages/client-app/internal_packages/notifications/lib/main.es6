@@ -9,7 +9,6 @@ import DefaultClientNotification from "./items/default-client-notif";
 import DevModeNotification from "./items/dev-mode-notif";
 import DisabledMailRulesNotification from "./items/disabled-mail-rules-notif";
 import OfflineNotification from "./items/offline-notification";
-import UpdateNotification from "./items/update-notification";
 
 const notifications = [
   AccountErrorNotification,
@@ -17,7 +16,6 @@ const notifications = [
   DevModeNotification,
   DisabledMailRulesNotification,
   OfflineNotification,
-  UpdateNotification,
 ]
 
 export function activate() {

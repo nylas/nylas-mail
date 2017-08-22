@@ -25,13 +25,6 @@ function unlinkIfExistsSync(p) {
   }
 }
 
-function copyErrorLoggerExtensions(privateDir) {
-  const from = path.join(privateDir, 'src')
-  const to = path.resolve(path.join('packages', 'client-app', 'src'))
-  unlinkIfExistsSync(path.join(to, 'error-logger-extensions'));
-  fs.copySync(from, to);
-}
-
 function installClientSyncPackage() {
   console.log("\n---> Linking client-sync")
   // link client-sync
@@ -39,25 +32,6 @@ function installClientSyncPackage() {
   const destination = path.resolve(path.join('packages', 'client-app', 'internal_packages', 'client-sync'));
   unlinkIfExistsSync(destination);
   fs.symlinkSync(clientSyncDir, destination, 'dir');
-}
-
-function installPrivateResources() {
-  console.log("\n---> Linking private plugins")
-  const privateDir = path.resolve(path.join('packages', 'client-private-plugins'))
-  if (!fs.existsSync(privateDir)) {
-    console.log("\n---> No client app to link. Moving on")
-    return;
-  }
-
-  copyErrorLoggerExtensions(privateDir)
-
-  // link private plugins
-  for (const plugin of fs.readdirSync(path.join(privateDir, 'packages'))) {
-    const from = path.resolve(path.join(privateDir, 'packages', plugin));
-    const to = path.resolve(path.join('packages', 'client-app', 'internal_packages', plugin));
-    unlinkIfExistsSync(to);
-    fs.symlinkSync(from, to, 'dir');
-  }
 }
 
 async function lernaBootstrap(installTarget) {
@@ -169,7 +143,6 @@ async function main() {
     console.log(`\n---> Installing for target ${installTarget}`);
 
     if ([TARGET_ALL, TARGET_CLIENT].includes(installTarget)) {
-      installPrivateResources()
       installClientSyncPackage()
     }
 

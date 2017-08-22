@@ -4,8 +4,7 @@
  Actions,
  RegExpUtils,
  IdentityStore,
- AccountStore,
- LegacyEdgehillAPI} = require 'nylas-exports'
+ AccountStore} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 EmailPopover = require './email-popover'
 PGPKeyStore = require './pgp-key-store'
@@ -13,45 +12,6 @@ KeybaseUser = require '../lib/keybase-user'
 Identity = require './identity'
 kb = require './keybase'
 _ = require 'underscore'
-
-class KeybaseInviteButton extends React.Component
-
-  constructor: (@props) ->
-    @state = {
-      loading: false,
-    }
-
-  _onGetKeybaseInvite: =>
-    @setState({loading: true})
-
-    errorHandler = (err) =>
-      @setState({loading: false})
-      NylasEnv.showErrorDialog(err.message)
-
-    req = LegacyEdgehillAPI.makeRequest({
-      authWithNylasAPI: true
-      path: "/keybase-invite",
-      method: "POST",
-      body:
-        n1_id: IdentityStore.identityId(),
-    })
-    req.run()
-    .then((body) =>
-      @setState({loading: false})
-      try
-        if not (body instanceof Object) or not body.invite_url
-          throw new Error("We were unable to retrieve an invitation.")
-      catch err
-        errorHandler(err)
-      require('electron').shell.openExternal(body.invite_url)
-    )
-    .catch(errorHandler)
-
-  render: =>
-    if @state.loading
-      <a>Processing...</a>
-    else
-      <a onClick={@_onGetKeybaseInvite}>We've got an invite for you!</a>
 
 module.exports =
 class KeybaseSearch extends React.Component
@@ -172,9 +132,6 @@ class KeybaseSearch extends React.Component
 
     if @state.loading
       loading = <RetinaImg style={width: 20, height: 20, marginTop: 2} name="inline-loading-spinner.gif" mode={RetinaImg.Mode.ContentPreserve} />
-
-    if @props.inPreferences and not loading and not badSearch and profiles.length is 0
-      empty = <p className="empty">Not a Keybase user yet? <KeybaseInviteButton /></p>
 
     <div className="keybase-search">
       <div className="searchbar">

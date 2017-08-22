@@ -68,8 +68,6 @@ lazyLoad(`Actions`, 'flux/actions');
 // API Endpoints
 lazyLoad(`NylasAPI`, 'flux/nylas-api');
 lazyLoad(`N1CloudAPI`, 'n1-cloud-api');
-lazyLoad(`EdgehillAPI`, 'flux/edgehill-api');
-lazyLoad(`LegacyEdgehillAPI`, 'flux/legacy-edgehill-api');
 lazyLoad(`NylasAPIHelpers`, 'flux/nylas-api-helpers');
 lazyLoad(`NylasAPIRequest`, 'flux/nylas-api-request');
 lazyLoad(`NylasLongConnection`, 'flux/nylas-long-connection');
@@ -158,7 +156,6 @@ lazyLoadAndRegisterStore(`FeatureUsageStore`, 'feature-usage-store');
 lazyLoadAndRegisterStore(`ThreadCountsStore`, 'thread-counts-store');
 lazyLoadAndRegisterStore(`FileDownloadStore`, 'file-download-store');
 lazyLoadAndRegisterStore(`OnlineStatusStore`, 'online-status-store');
-lazyLoadAndRegisterStore(`UpdateChannelStore`, 'update-channel-store');
 lazyLoadAndRegisterStore(`PreferencesUIStore`, 'preferences-ui-store');
 lazyLoadAndRegisterStore(`FocusedContentStore`, 'focused-content-store');
 lazyLoadAndRegisterStore(`MessageBodyProcessor`, 'message-body-processor');

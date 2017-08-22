@@ -8,7 +8,6 @@ import PreferencesAccounts from './tabs/preferences-accounts';
 import PreferencesAppearance from './tabs/preferences-appearance';
 import PreferencesKeymaps from './tabs/preferences-keymaps';
 // import PreferencesMailRules from './tabs/preferences-mail-rules';
-import PreferencesIdentity from './tabs/preferences-identity';
 
 export function activate() {
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
@@ -22,12 +21,6 @@ export function activate() {
     displayName: 'Accounts',
     component: PreferencesAccounts,
     order: 2,
-  }))
-  PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
-    tabId: 'Subscription',
-    displayName: 'Subscription',
-    component: PreferencesIdentity,
-    order: 3,
   }))
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
     tabId: 'Appearance',

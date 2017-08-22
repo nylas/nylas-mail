@@ -13,7 +13,6 @@
     "jasmine": "2.x.x"
   },
   "dependencies": {
-    "analytics-node": "2.x.x",
     "atob": "2.0.3",
     "babel-cli": "6.23.0",
     "boom": "4.2.0",

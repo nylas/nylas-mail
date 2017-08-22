@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {Spellchecker, Message} from 'nylas-exports';
 
-import SpellcheckComposerExtension from '../lib/spellcheck-composer-extension';
+import SpellcheckComposerExtension, {wrapMisspelledWords} from '../lib/spellcheck-composer-extension';
 
 const initialPath = path.join(__dirname, 'fixtures', 'california-with-misspellings-before.html');
 const initialHTML = fs.readFileSync(initialPath).toString();
@@ -22,17 +22,11 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
     })
   });
 
-  describe("onContentChanged", () => {
+  describe("wrapMisspelledWords", () => {
     it("correctly walks a DOM tree and surrounds mispelled words", () => {
       const node = document.createElement('div');
       node.innerHTML = initialHTML;
-
-      const editor = {
-        rootNode: node,
-        whilePreservingSelection: (cb) => cb(),
-      };
-
-      SpellcheckComposerExtension.onContentChanged({editor});
+      wrapMisspelledWords(node);
       advanceClock(1000) // Wait for debounce
       advanceClock(1) // Wait for defer
       expect(node.innerHTML).toEqual(afterHTML);
@@ -51,13 +45,7 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
       <br>
       This is back to normall.
       `;
-
-      const editor = {
-        rootNode: node,
-        whilePreservingSelection: (cb) => cb(),
-      };
-
-      SpellcheckComposerExtension.onContentChanged({editor});
+      wrapMisspelledWords(node);
       advanceClock(1000) // Wait for debounce
       advanceClock(1) // Wait for defer
       expect(node.innerHTML).toEqual(`

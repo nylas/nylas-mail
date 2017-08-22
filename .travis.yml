@@ -30,19 +30,7 @@ matrix:
   - os: linux
     env: NODE_VERSION=6.9 CC=gcc-4.8 CXX=g++-4.8 DEBUG="electron-packager:*" INSTALL_TARGET=client
   - os: osx
-    env: NODE_VERSION=6.9 CC=clang CXX=clang++ SIGN_BUILD=true DEBUG="electron-packager:*" INSTALL_TARGET=client
-
-before_install:
-- openssl aes-256-cbc
-  -K $encrypted_faf2708e46e2_key
-  -iv $encrypted_faf2708e46e2_iv
-  -in packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar.enc
-  -out packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar
-  -d;
-- mkdir packages/client-app/build/resources/certs;
-- tar xvf packages/client-private-plugins/encrypted_certificates/travis/travis-files.tar
-  --directory=packages/client-app/build/resources/;
-- source packages/client-app/build/resources/certs/mac/set_unix_env.sh;
+    env: NODE_VERSION=6.9 CC=clang CXX=clang++ DEBUG="electron-packager:*" INSTALL_TARGET=client
 
 install:
 - git clone https://github.com/creationix/nvm.git /tmp/.nvm
@@ -51,7 +39,7 @@ install:
 - nvm use --delete-prefix $NODE_VERSION
 
 script:
-- npm install && npm run build-client && npm run upload-client
+- npm install && npm run build-client
 
 cache:
   directories:

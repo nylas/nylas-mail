@@ -13,7 +13,6 @@
     "url": "https://github.com/nylas/nylas-mail/issues"
   },
   "dependencies": {
-    "analytics-node": "2.x.x",
     "async": "^0.9",
     "babel-core": "6.22.0",
     "babel-preset-electron": "1.4.15",

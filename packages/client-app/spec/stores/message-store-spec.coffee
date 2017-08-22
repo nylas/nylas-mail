@@ -130,7 +130,7 @@ describe "MessageStore", ->
         @focus = null
         MessageStore._onApplyFocusChange()
         testThread.unread = true
-        spyOn(Actions, 'queueTask')
+        spyOn(Actions, 'setUnreadThreads')
         spyOn(NylasEnv.config, 'get').andCallFake (key) =>
           if key is 'core.reading.markAsReadDelay'
             return 600
@@ -139,34 +139,33 @@ describe "MessageStore", ->
         @focus = testThread
         MessageStore._onApplyFocusChange()
         advanceClock(500)
-        expect(Actions.queueTask).not.toHaveBeenCalled()
+        expect(Actions.setUnreadThreads).not.toHaveBeenCalled()
         advanceClock(500)
-        expect(Actions.queueTask).toHaveBeenCalled()
-        expect(Actions.queueTask.mostRecentCall.args[0] instanceof ChangeUnreadTask).toBe(true)
+        expect(Actions.setUnreadThreads).toHaveBeenCalled()
 
       it "should not queue a task to mark the thread as read if the thread is no longer selected 500msec later", ->
         @focus = testThread
         MessageStore._onApplyFocusChange()
         advanceClock(500)
-        expect(Actions.queueTask).not.toHaveBeenCalled()
+        expect(Actions.setUnreadThreads).not.toHaveBeenCalled()
         @focus = null
         MessageStore._onApplyFocusChange()
         advanceClock(500)
-        expect(Actions.queueTask).not.toHaveBeenCalled()
+        expect(Actions.setUnreadThreads).not.toHaveBeenCalled()
 
       it "should not re-mark the thread as read when made unread", ->
         @focus = testThread
         testThread.unread = false
         MessageStore._onApplyFocusChange()
         advanceClock(500)
-        expect(Actions.queueTask).not.toHaveBeenCalled()
+        expect(Actions.setUnreadThreads).not.toHaveBeenCalled()
 
         # This simulates a DB change or some attribute changing on the
         # thread.
         testThread.unread = true
         MessageStore._fetchFromCache()
         advanceClock(500)
-        expect(Actions.queueTask).not.toHaveBeenCalled()
+        expect(Actions.setUnreadThreads).not.toHaveBeenCalled()
 
   describe "when toggling expansion of all messages", ->
     beforeEach ->

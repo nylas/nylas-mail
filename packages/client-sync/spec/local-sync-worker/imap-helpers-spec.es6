@@ -5,7 +5,7 @@ import {
 } from '../helpers'
 import IMAPHelpers from '../../src/local-sync-worker/imap-helpers'
 
-describe('IMAPHelpers', function describeBlock() {
+xdescribe('IMAPHelpers', function describeBlock() {
   describe('setLabelsForMessages', () => {
     beforeEach(async () => {
       this.db = await getTestDatabase()

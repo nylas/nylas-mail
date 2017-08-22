@@ -1,6 +1,6 @@
 /* eslint global-require: 0 */
 import React, {Component, PropTypes} from 'react';
-import {EditableList, NewsletterSignup} from 'nylas-component-kit';
+import {EditableList} from 'nylas-component-kit';
 import {RegExpUtils, Account} from 'nylas-exports';
 
 class PreferencesAccountDetails extends Component {
@@ -209,11 +209,6 @@ class PreferencesAccountDetails extends Component {
         />
 
         {this._renderDefaultAliasSelector(account)}
-
-        <div className="newsletter">
-          <NewsletterSignup emailAddress={account.emailAddress} name={account.name} />
-        </div>
-
       </div>
     );
   }

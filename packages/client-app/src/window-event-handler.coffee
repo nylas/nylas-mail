@@ -14,9 +14,6 @@ class WindowEventHandler
     _.defer =>
       @showDevModeMessages()
 
-    ipcRenderer.on 'update-available', (event, detail) ->
-      NylasEnv.updateAvailable(detail)
-
     ipcRenderer.on 'browser-window-focus', ->
       document.body.classList.remove('is-blurred')
       window.dispatchEvent(new Event('browser-window-focus'))

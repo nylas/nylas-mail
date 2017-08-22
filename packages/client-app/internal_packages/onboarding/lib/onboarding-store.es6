@@ -18,9 +18,6 @@ class OnboardingStore extends NylasStore {
   constructor() {
     super();
 
-    NylasEnv.config.onDidChange('env', this._onEnvChanged);
-    this._onEnvChanged();
-
     this.listenTo(OnboardingActions.moveToPreviousPage, this._onMoveToPreviousPage)
     this.listenTo(OnboardingActions.moveToPage, this._onMoveToPage)
     this.listenTo(OnboardingActions.accountJSONReceived, this._onAccountJSONReceived)
@@ -37,17 +34,7 @@ class OnboardingStore extends NylasStore {
     })
 
     const {existingAccount, addingAccount, accountType} = NylasEnv.getWindowProps();
-
-    const hasAccounts = (AccountStore.accounts().length > 0)
-    const identity = IdentityStore.identity();
-
-    if (identity) {
-      this._accountInfo = {
-        name: `${identity.firstname || ""} ${identity.lastname || ""}`,
-      };
-    } else {
-      this._accountInfo = {};
-    }
+    this._accountInfo = {};
 
     if (existingAccount) {
       // Used when re-adding an account after re-connecting
@@ -64,32 +51,9 @@ class OnboardingStore extends NylasStore {
       if (accountType) {
         this._onSetAccountType(accountType);
       }
-    } else if (identity) {
-      // Should only happen if config was edited to remove all accounts,
-      // but don't want to re-login to Nylas account. Very useful when
-      // switching environments.
-      this._pageStack = ['account-choose'];
-    } else if (hasAccounts) {
-      // Should only happen when the user has "signed out" of their Nylas ID,
-      // but already has accounts synced. Or is upgrading from a very old build.
-      // We used to show "Welcome Back", but now just jump to sign in.
-      this._pageStack = ['authenticate'];
     } else {
       // Standard new user onboarding flow.
       this._pageStack = ['welcome'];
-    }
-  }
-
-  _onEnvChanged = () => {
-    const env = NylasEnv.config.get('env')
-    if (['development', 'local'].includes(env)) {
-      this.welcomeRoot = "http://0.0.0.0:5555";
-    } else if (env === 'experimental') {
-      this.welcomeRoot = "https://www-experimental.nylas.com";
-    } else if (env === 'staging') {
-      this.welcomeRoot = "https://www-staging.nylas.com";
-    } else {
-      this.welcomeRoot = "https://nylas.com";
     }
   }
 
