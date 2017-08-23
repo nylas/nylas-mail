@@ -22,7 +22,13 @@ If you are looking to simply install Nylas-Mail on your system (and are not look
     ```bash
     npm install
     ```
-1. Assuming node was able to install the appropriate dependencies without error, you can build the client app with:
+1. If all packages installed without errors, you can run the app with:
+    ```bash
+    npm start
+    ```
+    * If an error was thrown during the build process, please make sure all of your dependencies were installed in step 2.
+    
+1. Furthermore, if all dependencies were installed successfully, you can the package the app for distribution on various platforms with:
     ```bash
     npm run build-client
     ```
@@ -30,8 +36,3 @@ If you are looking to simply install Nylas-Mail on your system (and are not look
       ```bash
       node -v
       ```  
-1. If the client built without errors, you can run it with:
-    ```bash
-    npm start
-    ```
-    * If an error was thrown during the build process, please make sure all of your dependencies were installed in step 2.
