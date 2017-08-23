@@ -392,7 +392,8 @@ export default class NylasEnvConstructor {
 
   // Public: Determine whether the current version is an official release.
   isReleasedVersion() {
-    return !/\w{7}/.test(this.getVersion()); // Check if the release is a 7-character SHA prefix
+    // Check if the release contains a 7-character SHA prefix
+    return !/\w{7}/.test(this.getVersion());
   }
 
   // Public: Get the directory path to Merani's configuration area.

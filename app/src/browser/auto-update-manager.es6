@@ -3,7 +3,6 @@ import {dialog} from 'electron';
 import {EventEmitter} from 'events';
 import path from 'path';
 import fs from 'fs';
-import qs from 'querystring';
 
 let autoUpdater = null;
 
@@ -32,47 +31,21 @@ export default class AutoUpdateManager extends EventEmitter {
     setTimeout(() => this.setupAutoUpdater(), 0);
   }
 
-  parameters = () => {
-    let updaterId = this.config.get('nylasid.id');
-    if (!updaterId) {
-      updaterId = "anonymous";
-    }
-
-    const emails = [];
-    const accounts = this.config.get('nylas.accounts') || [];
-    for (const account of accounts) {
-      if (account.email_address) {
-        emails.push(encodeURIComponent(account.email_address));
-      }
-    }
-    const updaterEmails = emails.join(',');
-
-    return {
+  updateFeedURL = () => {
+    const params = {
       platform: process.platform,
       arch: process.arch,
       version: this.version,
-      id: updaterId,
-      emails: updaterEmails,
+      id: this.config.get('identity.id') || 'anonymous',
       preferredChannel: this.preferredChannel,
     };
-  }
-
-  updateFeedURL = () => {
-    const params = this.parameters();
 
     let host = `updates.getmerani.com`;
     if (this.config.get('env') === 'staging') {
       host = `updates-staging.getmerani.com`;
     }
 
-    if (process.platform === 'win32') {
-      // Squirrel for Windows can't handle query params
-      // https://github.com/Squirrel/Squirrel.Windows/issues/132
-      this.feedURL = `https://${host}/update-check/win32/${params.arch}/${params.version}/${params.id}/${params.emails}`
-    } else {
-      this.feedURL = `https://${host}/update-check?${qs.stringify(params)}`;
-    }
-
+    this.feedURL = `https://${host}/check/${params.platform}/${params.arch}/${params.version}/${params.id}/${params.channel}`;
     if (autoUpdater) {
       autoUpdater.setFeedURL(this.feedURL)
     }
@@ -171,7 +144,7 @@ export default class AutoUpdateManager extends EventEmitter {
       // On windows the update has already been "installed" and shortcuts
       // already updated. You just need to restart the app to load the new
       // version.
-      autoUpdater.restartN1();
+      autoUpdater.restartMerani();
     } else {
       autoUpdater.quitAndInstall();
     }

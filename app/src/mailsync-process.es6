@@ -92,6 +92,7 @@ export default class MailsyncProcess extends EventEmitter {
   }
 
   kill() {
+    console.warn("Terminating mailsync...");
     this._proc.kill();
   }
 
@@ -142,10 +143,9 @@ export default class MailsyncProcess extends EventEmitter {
 
   sendMessage(json) {
     if (!Utils) { Utils = require('nylas-exports').Utils; }
-
+    console.log(`Sending to mailsync ${this.account.id}`, json);
     const msg = `${JSON.stringify(json)}\n`;
-    const contentBuffer = Buffer.from(msg);
-    this._proc.stdin.write(contentBuffer);
+    this._proc.stdin.write(msg, 'UTF8');
   }
 
   migrate() {

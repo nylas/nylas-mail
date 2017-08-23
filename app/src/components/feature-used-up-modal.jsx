@@ -16,11 +16,12 @@ export default class FeatureUsedUpModal extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
-    const start = Date.now()
-    IdentityStore.fetchSingleSignOnURL("/payment?embedded=true").then((url) => {
-      console.log("Done grabbing url", Date.now() - start)
-      if (!this._mounted) return
-      this.setState({upgradeUrl: url})
+
+    IdentityStore.fetchSingleSignOnURL("/payment?embedded=true").then((upgradeUrl) => {
+      if (!this._mounted) {
+        return;
+      }
+      this.setState({upgradeUrl})
     })
   }
 
@@ -29,7 +30,9 @@ export default class FeatureUsedUpModal extends React.Component {
   }
 
   render() {
-    const gotoFeatures = () => shell.openExternal("https://getmerani.com/pro");
+    const gotoFeatures = () => {
+      shell.openExternal("https://getmerani.com/pro");
+    };
 
     const upgrade = (e) => {
       e.stopPropagation();
@@ -58,9 +61,10 @@ export default class FeatureUsedUpModal extends React.Component {
         <div className="feature-cta">
           <h2>Want to <span className="feature-name">{this.props.featureName} more</span>?</h2>
           <div className="pro-description">
-            <h3>Nylas Pro includes:</h3>
+            <h3>Merani Pro includes:</h3>
             <ul>
               <li>Unlimited Snoozing</li>
+              <li>Unlimited Open &amp; Link Tracking</li>
               <li>Unlimited Reminders</li>
               <li>Unlimited Mail Merge</li>
             </ul>

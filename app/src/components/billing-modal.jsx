@@ -34,8 +34,7 @@ export default class BillingModal extends React.Component {
    * may push escape, click continue below, or click outside of the area.
    * Regardless of the method, Actions.closeModal will fire. The
    * FeatureUsageStore listens for Actions.closeModal and looks at the
-   * IdentityStore.hasProAccess to determine if the user succesffully paid
-   * us or not.
+   * to determine if the user succesffully paid us or not.
    */
   componentWillUnmount() {
     this._mounted = false;

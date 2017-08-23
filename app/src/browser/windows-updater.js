@@ -163,7 +163,7 @@ exports.createRegistryEntries = createRegistryEntries;
 exports.existsSync = () => fs.existsSync(updateDotExe)
 
 // Restart N1 using the version pointed to by the N1.cmd shim
-exports.restartN1 = (app) => {
+exports.restartMerani = (app) => {
   app.once('will-quit', () => {
     spawnUpdate(['--processStart', exeName], (() => {}), {detached: true});
   });

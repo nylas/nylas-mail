@@ -15,11 +15,10 @@ describe("IdentityStore", function identityStoreSpec() {
       free_until: 1500006814,
       email: "nylas050test@evanmorikawa.com",
       id: TEST_NYLAS_ID,
-      seen_welcome_page: true,
-      feature_usage: {
+      featureUsage: {
         feat: {
           quota: 10,
-          used_in_period: 1,
+          usedInPeriod: 1,
         },
       },
       token: "secret token",
@@ -54,7 +53,7 @@ describe("IdentityStore", function identityStoreSpec() {
 
     it("makes the Identity synchronously available for fetching right after saving the identity", async () => {
       const used = () => {
-        return IdentityStore.identity().feature_usage.feat.used_in_period
+        return IdentityStore.identity().featureUsage.feat.usedInPeriod
       }
       expect(used()).toBe(1)
       const t = new SendFeatureUsageEventTask('feat');
@@ -77,7 +76,7 @@ describe("IdentityStore", function identityStoreSpec() {
     const opts = NylasAPIRequest.makeRequest.calls[0].args[0]
     expect(opts).toEqual({
       method: "POST",
-      url: "https://id.getmerani.com/api/feature_usage_event",
+      url: "https://id.getmerani.com/api/featureUsage_event",
       body: {
         feature_name: 'snooze',
       },
@@ -115,7 +114,7 @@ describe("IdentityStore", function identityStoreSpec() {
 
     it("saves the identity returned", async () => {
       const resp = Utils.deepClone(this.identityJSON);
-      resp.feature_usage.feat.quota = 5
+      resp.featureUsage.feat.quota = 5
       spyOn(NylasAPIRequest, "makeRequest").andCallFake(() => {
         return Promise.resolve(resp)
       })
@@ -125,7 +124,7 @@ describe("IdentityStore", function identityStoreSpec() {
       expect(options.url).toMatch(/\/n1\/user/)
       expect(IdentityStore.saveIdentity).toHaveBeenCalled()
       const newIdent = IdentityStore.saveIdentity.calls[0].args[0]
-      expect(newIdent.feature_usage.feat.quota).toBe(5)
+      expect(newIdent.featureUsage.feat.quota).toBe(5)
       expect(NylasEnv.reportError).not.toHaveBeenCalled()
     });
 

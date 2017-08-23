@@ -24,10 +24,14 @@ export default class MailsyncBridge {
 
     this._clients = {};
 
-    IdentityStore.listen(() => {
-      Object.values(this._clients).forEach(c => c.kill());
-      this.ensureClients();
-    }, this);
+    // TODO. We currently reload the whole main window when your
+    // identity changes significantly (login / logout) and that's
+    // all the mailsync processes care about. Important: lots of
+    // minor things on the identity change and shouldn't kill.
+    // IdentityStore.listen(() => {
+    //   Object.values(this._clients).forEach(c => c.kill());
+    //   this.ensureClients();
+    // }, this);
 
     AccountStore.listen(this.ensureClients, this);
     NylasEnv.onBeforeUnload(this.onBeforeUnload);
@@ -87,7 +91,7 @@ export default class MailsyncBridge {
       throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
     }
     if (!task.accountId) {
-      throw new Error("Tasks must have an accountId.");
+      throw new Error(`Tasks must have an accountId. Check your instance of ${task.constructor.name}.`);
     }
 
     task.validate();

@@ -8,6 +8,7 @@ const fs = require('fs-plus');
 const coffeereact = require('coffee-react');
 const glob = require('glob');
 const babel = require('babel-core');
+const {execSync} = require('child_process');
 const symlinkedPackages = []
 
 module.exports = (grunt) => {
@@ -25,6 +26,14 @@ module.exports = (grunt) => {
     callback();
   }
 
+  function runWriteCommitHashIntoPackage(buildPath, electronVersion, platform, arch, callback) {
+    const commit = execSync('git rev-parse HEAD').toString();
+    const jsonPath = path.resolve(buildPath, 'package.json');
+    let jsonString = fs.readFileSync(jsonPath).toString();
+    jsonString = jsonString.replace('COMMIT_INSERTED_DURING_PACKAGING', commit.substr(0, 8));
+    fs.writeFileSync(jsonPath, jsonString);
+    callback();
+  }
   /**
    * We have to resolve the symlink paths (and cache the results) before
    * copying over the files since some symlinks may be relative paths (like
@@ -228,6 +237,7 @@ module.exports = (grunt) => {
       'app-bundle-id': "com.merani.merani",
       'afterCopy': [
         runCopyPlatformSpecificResources,
+        runWriteCommitHashIntoPackage,
         runCopySymlinkedPackages,
         runTranspilers,
       ],

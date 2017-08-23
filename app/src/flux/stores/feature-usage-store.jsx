@@ -7,7 +7,7 @@ import IdentityStore from './identity-store'
 import TaskQueue from './task-queue';
 import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task'
 
-class NoProAccess extends Error { }
+class NoProAccessError extends Error { }
 
 /**
  * FeatureUsageStore is backed by the IdentityStore
@@ -16,37 +16,28 @@ class NoProAccess extends Error { }
  * a usage hash that includes all supported features, their quotas for the
  * user, and the current usage of that user. We keep a cache locally
  *
- * The Identity object (aka Nylas ID or N1User) has a field called
- * `feature_usage`. The schema for `feature_usage` is computed dynamically
- * in `compute_feature_usage` here:
- * https://github.com/nylas/cloud-core/blob/master/redwood/models/n1.py#L175-207
- *
- * The schema of each feature is determined by the `FeatureUsage` model in
- * redwood here:
- * https://github.com/nylas/cloud-core/blob/master/redwood/models/feature_usage.py#L14-32
- *
  * The final schema looks like (Feb 7, 2017):
  *
  * NylasID = {
  *   ...
- *   "feature_usage": {
+ *   "featureUsage": {
  *     "snooze": {
  *       "quota": 15,
  *       "period": "monthly",
- *       "used_in_period": 10,
- *       "feature_limit_name": "snooze-experiment-A",
+ *       "usedInPeriod": 10,
+ *       "featureLimitName": "snooze-experiment-A",
  *     },
  *     "send-later": {
  *       "quota": 99999,
  *       "period": "unlimited",
- *       "used_in_period": 228,
- *       "feature_limit_name": "send-later-unlimited-A",
+ *       "usedInPeriod": 228,
+ *       "featureLimitName": "send-later-unlimited-A",
  *     },
  *     "reminders": {
  *       "quota": 10,
  *       "period": "daily",
- *       "used_in_period": 10,
- *       "feature_limit_name": null,
+ *       "usedInPeriod": 10,
+ *       "featureLimitName": null,
  *     },
  *   },
  *   ...
@@ -58,31 +49,35 @@ class NoProAccess extends Error { }
 class FeatureUsageStore extends NylasStore {
   constructor() {
     super()
-    this._waitForModalClose = []
-    this.NoProAccess = NoProAccess
+    this._waitForModalClose = [];
+    this.NoProAccessError = NoProAccessError;
 
     /**
      * The IdentityStore triggers both after we update it, and when it
      * polls for new data every several minutes or so.
      */
     this._disp = Rx.Observable.fromStore(IdentityStore).subscribe(() => {
-      this.trigger()
-    })
-    this._usub = Actions.closeModal.listen(this._onModalClose)
+      this.trigger();
+    });
+    this._usub = Actions.closeModal.listen(this._onModalClose);
   }
 
   deactivate() {
     this._disp.dispose();
-    this._usub()
+    this._usub();
   }
 
   async asyncUseFeature(feature, {lexicon = {}} = {}) {
-    if (IdentityStore.hasProAccess() || this._isUsable(feature)) {
-      return this._markFeatureUsed(feature)
+    if (this._isUsable(feature)) {
+      this._markFeatureUsed(feature);
+      return Promise.resolve();
     }
 
-    const {headerText, rechargeText} = this._modalText(feature, lexicon)
+    const {headerText, rechargeText} = this._modalText(feature, lexicon);
+
     Actions.openModal({
+      height: 575,
+      width: 412,
       component: (
         <FeatureUsedUpModal
           modalClass={feature}
@@ -92,9 +87,8 @@ class FeatureUsageStore extends NylasStore {
           rechargeText={rechargeText}
         />
       ),
-      height: 575,
-      width: 412,
-    })
+    });
+
     return new Promise((resolve, reject) => {
       this._waitForModalClose.push({resolve, reject, feature})
     })
@@ -102,21 +96,21 @@ class FeatureUsageStore extends NylasStore {
 
   _onModalClose = async () => {
     for (const {feature, resolve, reject} of this._waitForModalClose) {
-      if (IdentityStore.hasProAccess() || this._isUsable(feature)) {
-        await this._markFeatureUsed(feature)
-        resolve()
+      if (this._isUsable(feature)) {
+        this._markFeatureUsed(feature);
+        resolve();
       } else {
-        reject(new NoProAccess(feature))
+        reject(new NoProAccessError(feature));
       }
     }
-    this._waitForModalClose = []
+    this._waitForModalClose = [];
   }
 
   _modalText(feature, lexicon = {}) {
-    const featureData = this._featureData(feature);
+    const featureData = this._dataForFeature(feature);
 
     let headerText = "";
-    let rechargeText = ""
+    let rechargeText = "";
     if (!featureData.quota) {
       headerText = `${lexicon.displayName} not yet enabled`;
       rechargeText = `Upgrade to Pro to use ${lexicon.displayName}`
@@ -141,41 +135,30 @@ class FeatureUsageStore extends NylasStore {
     return {headerText, rechargeText}
   }
 
-  _featureData(feature) {
-    const usage = this._featureUsage()
+  _dataForFeature(feature) {
+    const usage = IdentityStore.identity().featureUsage || {};
     if (!usage[feature]) {
-      NylasEnv.reportError(new Error(`${feature} isn't supported`));
-      return {}
+      NylasEnv.reportError(new Error(`No usage information avaialble for ${feature}`));
+      return {};
     }
-    return usage[feature]
+    return usage[feature];
   }
 
   _isUsable(feature) {
-    return true;
-    /*
-    TODO BG
-    const usage = this._featureUsage()
-    if (!usage[feature]) {
-      NylasEnv.reportError(new Error(`${feature} isn't supported`));
-      return false
+    const {usedInPeriod, quota} = this._dataForFeature(feature);
+    if (!quota) {
+      return true;
     }
-    return usage[feature].used_in_period < usage[feature].quota
-    */
+    return usedInPeriod < quota;
   }
 
-  async _markFeatureUsed(featureName) {
-    /*
-    const task = new SendFeatureUsageEventTask(featureName)
-    Actions.queueTask(task);
-    await TaskQueue.waitForPerformLocal(task)
-    const feat = IdentityStore.identity().feature_usage[featureName]
-    return feat.quota - feat.used_in_period
-    */
-    return true;
-  }
-
-  _featureUsage() {
-    return Object.assign({}, IdentityStore.identity().feature_usage) || {}
+  _markFeatureUsed(feature) {
+    const next = JSON.parse(JSON.stringify(IdentityStore.identity()));
+    if (next.featureUsage[feature]) {
+      next.featureUsage[feature].usedInPeriod += 1;
+      IdentityStore.saveIdentity(next);
+    }
+    Actions.queueTask(new SendFeatureUsageEventTask({feature}));
   }
 }
 

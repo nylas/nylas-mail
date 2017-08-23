@@ -80,7 +80,7 @@ class NylasWindow
 
     loadSettings = Object.assign({}, settings)
     loadSettings.windowState ?= '{}'
-    loadSettings.appVersion = app.getVersion()
+    loadSettings.appVersion = global.application.version;
     loadSettings.resourcePath = @resourcePath
     loadSettings.devMode ?= false
     loadSettings.safeMode ?= false

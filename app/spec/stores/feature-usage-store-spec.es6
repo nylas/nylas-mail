@@ -1,25 +1,23 @@
 import {Actions, TaskQueue} from 'nylas-exports'
 import FeatureUsageStore from '../../src/flux/stores/feature-usage-store'
-import Task from '../../src/flux/tasks/task'
-import SendFeatureUsageEventTask from '../../src/flux/tasks/send-feature-usage-event-task'
 import IdentityStore from '../../src/flux/stores/identity-store'
 
 describe("FeatureUsageStore", function featureUsageStoreSpec() {
   beforeEach(() => {
     this.oldIdent = IdentityStore._identity;
     IdentityStore._identity = {id: 'foo'}
-    IdentityStore._identity.feature_usage = {
+    IdentityStore._identity.featureUsage = {
       "is-usable": {
         quota: 10,
         period: 'monthly',
-        used_in_period: 8,
-        feature_limit_name: 'Usable Group A',
+        usedInPeriod: 8,
+        featureLimitName: 'Usable Group A',
       },
       "not-usable": {
         quota: 10,
         period: 'monthly',
-        used_in_period: 10,
-        feature_limit_name: 'Unusable Group A',
+        usedInPeriod: 10,
+        featureLimitName: 'Unusable Group A',
       },
     }
   });
@@ -46,25 +44,26 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
 
   describe("_markFeatureUsed", () => {
     beforeEach(() => {
-      spyOn(SendFeatureUsageEventTask.prototype, "performRemote").andReturn(Promise.resolve(Task.Status.Success));
+      spyOn(Actions, 'queueTask');
       spyOn(IdentityStore, "saveIdentity").andCallFake((ident) => {
         IdentityStore._identity = ident
-      })
-      spyOn(TaskQueue, "waitForPerformLocal").andReturn(Promise.resolve())
-      spyOn(Actions, 'queueTask').andCallFake((task) => {
-        task.performLocal()
       })
     });
 
     afterEach(() => {
-      TaskQueue._queue = []
+      TaskQueue._queue = [];
     })
 
-    it("returns the num remaining if successful", async () => {
-      let numLeft = await FeatureUsageStore._markFeatureUsed('is-usable');
-      expect(numLeft).toBe(1)
-      numLeft = await FeatureUsageStore._markFeatureUsed('is-usable');
-      expect(numLeft).toBe(0)
+    it("immediately increments the identity counter", () => {
+      const before = IdentityStore._identity.featureUsage['is-usable'].usedInPeriod;
+      FeatureUsageStore._markFeatureUsed('is-usable');
+      const after = IdentityStore._identity.featureUsage['is-usable'].usedInPeriod;
+      expect(after).toEqual(before + 1);
+    })
+
+    it("queues a task to sync the optimistic changes to the server", () => {
+      FeatureUsageStore._markFeatureUsed('is-usable');
+      expect(Actions.queueTask).toHaveBeenCalled();
     });
   });
 
@@ -74,15 +73,7 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
       spyOn(Actions, "openModal")
     });
 
-    it("marks the feature used if you have pro access", async () => {
-      spyOn(IdentityStore, "hasProAccess").andReturn(true);
-      await FeatureUsageStore.asyncUseFeature('not-usable')
-      expect(FeatureUsageStore._markFeatureUsed).toHaveBeenCalled();
-      expect(FeatureUsageStore._markFeatureUsed.callCount).toBe(1);
-    });
-
     it("marks the feature used if it's usable", async () => {
-      spyOn(IdentityStore, "hasProAccess").andReturn(false);
       await FeatureUsageStore.asyncUseFeature('is-usable')
       expect(FeatureUsageStore._markFeatureUsed).toHaveBeenCalled();
       expect(FeatureUsageStore._markFeatureUsed.callCount).toBe(1);
@@ -90,10 +81,6 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
 
     describe("showing modal", () => {
       beforeEach(() => {
-        this.hasProAccess = false;
-        spyOn(IdentityStore, "hasProAccess").andCallFake(() => {
-          return this.hasProAccess;
-        })
         this.lexicon = {
           displayName: "Test Name",
           rechargeCTA: "recharge me",
@@ -104,7 +91,6 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
 
       it("resolves the modal if you upgrade", async () => {
         setImmediate(() => {
-          this.hasProAccess = true;
           FeatureUsageStore._onModalClose()
         })
         await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
@@ -114,7 +100,6 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
 
       it("pops open a modal with the correct text", async () => {
         setImmediate(() => {
-          this.hasProAccess = true;
           FeatureUsageStore._onModalClose()
         })
         await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
@@ -133,13 +118,12 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
       it("rejects if you don't upgrade", async () => {
         let caughtError = false;
         setImmediate(() => {
-          this.hasProAccess = false;
           FeatureUsageStore._onModalClose()
         })
         try {
           await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
         } catch (err) {
-          expect(err instanceof FeatureUsageStore.NoProAccess).toBe(true)
+          expect(err instanceof FeatureUsageStore.NoProAccessError).toBe(true)
           caughtError = true;
         }
         expect(caughtError).toBe(true)

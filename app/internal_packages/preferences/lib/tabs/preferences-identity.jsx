@@ -52,11 +52,11 @@ class PreferencesIdentity extends React.Component {
     )
   }
 
-  _renderPro() {
+  _renderPaidPlan(planName) {
     return (
       <div className="row padded">
         <div>
-        Thank you for using <strong>Merani Pro</strong>
+        Thank you for using <strong style={{textTransform: 'capitalize'}}>{`Merani ${planName}`}</strong>
         </div>
         <div className="subscription-actions">
           <OpenIdentityPageButton label="Manage Billing" path="/dashboard#billing" source="Preferences Billing" campaign="Dashboard" />
@@ -67,7 +67,7 @@ class PreferencesIdentity extends React.Component {
 
   render() {
     const {identity} = this.state;
-    const {firstName, lastName, emailAddress} = identity;
+    const {firstName, lastName, emailAddress, stripePlan} = identity;
 
     const logout = () => Actions.logoutNylasIdentity()
 
@@ -91,9 +91,7 @@ class PreferencesIdentity extends React.Component {
               </div>
             </div>
           </div>
-
-          {this.state.identity.has_pro_access ? this._renderPro() : this._renderBasic()}
-
+          {stripePlan === 'Basic' ? this._renderBasic() : this._renderPaidPlan(stripePlan)}
         </div>
       </div>
     );

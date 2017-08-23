@@ -66,7 +66,7 @@ class SnoozeStore extends NylasStore {
         threadsByAccountId[accId].threads.push(thread);
       }
     });
-    return Promise.resolve(threadsByAccountId);
+    return threadsByAccountId;
   };
 
   onAccountsChanged = () => {
@@ -81,52 +81,61 @@ class SnoozeStore extends NylasStore {
     }
   };
 
-  onSnoozeThreads = (threads, snoozeDate, label) => {
+  onSnoozeThreads = async (threads, snoozeDate, label) => {
     const lexicon = {
       displayName: "Snooze",
       usedUpHeader: "All Snoozes used",
       iconUrl: "merani://thread-snooze/assets/ic-snooze-modal@2x.png",
     }
 
-    FeatureUsageStore.asyncUseFeature('snooze', {lexicon})
-    .then(() => {
-      this.recordSnoozeEvent(threads, snoozeDate, label)
-      return SnoozeUtils.moveThreadsToSnooze(threads, this.snoozeCategoriesPromise, snoozeDate)
-    })
-    .then((updatedThreads) => {
-      return this.snoozeCategoriesPromise
-      .then(snoozeCategories => this.groupUpdatedThreads(updatedThreads, snoozeCategories))
-    })
-    .then((updatedThreadsByAccountId) => {
-      Object.values(updatedThreadsByAccountId).forEach((update) => {
+    // wait for the "snoozed categories" to become available
+    const snoozeCategories = await this.snoozeCategoriesPromise;
+
+    try {
+      // ensure the user is authorized to use this feature
+      await FeatureUsageStore.asyncUseFeature('snooze', {lexicon});
+
+      // log to analytics
+      this.recordSnoozeEvent(threads, snoozeDate, label);
+
+      const updatedThreads = await SnoozeUtils.moveThreadsToSnooze(threads, snoozeCategories, snoozeDate);
+      const updatedThreadsByAccountId = this.groupUpdatedThreads(updatedThreads, snoozeCategories);
+
+      // note we don't wait for this to complete currently
+      Object.values(updatedThreadsByAccountId).map(async (update) => {
         const {snoozeCategoryId, returnCategoryId} = update;
 
         // Get messages for those threads and metadata for those.
-        DatabaseStore.findAll(Message, {threadId: update.threads.map(t => t.id)}).then((messages) => {
-          for (const message of messages) {
-            const header = message.headerMessageId;
-            const stableId = message.id;
-
-            Actions.queueTask(new SyncbackMetadataTask({
-              model: message,
-              pluginId: this.pluginId,
-              value: {expiration: snoozeDate, header, stableId, snoozeCategoryId, returnCategoryId},
-            }));
-          }
+        const messages = await DatabaseStore.findAll(Message, {
+          threadId: update.threads.map(t => t.id),
         });
+
+        for (const message of messages) {
+          Actions.queueTask(new SyncbackMetadataTask({
+            model: message,
+            accountId: message.accountId,
+            pluginId: this.pluginId,
+            value: {
+              expiration: snoozeDate,
+              header: message.headerMessageId,
+              stableId: message.id,
+              snoozeCategoryId,
+              returnCategoryId,
+            },
+          }));
+        }
       });
-    })
-    .catch((error) => {
-      if (error instanceof FeatureUsageStore.NoProAccess) {
-        return
+    } catch (error) {
+      if (error instanceof FeatureUsageStore.NoProAccessError) {
+        return;
       }
-      SnoozeUtils.moveThreadsFromSnooze(threads, this.snoozeCategoriesPromise)
+      SnoozeUtils.moveThreadsFromSnooze(threads, snoozeCategories)
       Actions.closePopover();
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to save your snooze settings. ${error.message}`);
-      return
-    });
+    }
   };
 }
 
-export default SnoozeStore;
+export default new SnoozeStore();
+

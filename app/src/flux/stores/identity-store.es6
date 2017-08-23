@@ -8,7 +8,7 @@ import KeyManager from '../../key-manager';
 import {makeRequest, rootURLForServer} from '../nylas-api-request';
 
 // Note this key name is used when migrating to Nylas Pro accounts from old N1.
-const KEYCHAIN_NAME = 'Nylas Account';
+const KEYCHAIN_NAME = 'Merani Account';
 
 class IdentityStore extends NylasStore {
 
@@ -27,7 +27,7 @@ class IdentityStore extends NylasStore {
       return
     }
 
-    NylasEnv.config.onDidChange('nylasid', this._onIdentityChanged);
+    NylasEnv.config.onDidChange('identity', this._onIdentityChanged);
     this._onIdentityChanged();
 
     this.listenTo(Actions.logoutNylasIdentity, this._onLogoutNylasIdentity);
@@ -42,10 +42,6 @@ class IdentityStore extends NylasStore {
   identity() {
     if (!this._identity || !this._identity.id) return null
     return Utils.deepClone(this._identity);
-  }
-
-  hasProAccess() {
-    return this._identity && this._identity.has_pro_access
   }
 
   identityId() {
@@ -72,10 +68,10 @@ class IdentityStore extends NylasStore {
       KeyManager.replacePassword(KEYCHAIN_NAME, identity.token);
       const withoutToken = Object.assign({}, identity);
       delete withoutToken.token;
-      NylasEnv.config.set('nylasid', withoutToken);
+      NylasEnv.config.set('identity', withoutToken);
     } else if (!identity) {
       KeyManager.deletePassword(KEYCHAIN_NAME);
-      NylasEnv.config.set('nylasid', null);
+      NylasEnv.config.set('identity', null);
     }
   }
 
@@ -84,7 +80,7 @@ class IdentityStore extends NylasStore {
    * cache and set the token from the keychain.
    */
   _onIdentityChanged = () => {
-    this._identity = NylasEnv.config.get('nylasid') || {};
+    this._identity = NylasEnv.config.get('identity') || {};
     this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
     this.trigger();
   }

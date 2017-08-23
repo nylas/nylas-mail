@@ -43,15 +43,6 @@ function setupWindow (loadSettings) {
   var CompileCache = require('../src/compile-cache')
   CompileCache.setHomeDirectory(loadSettings.configDirPath)
 
-  // Start the crash reporter before anything else.
-  // require('crash-reporter').start({
-  //   productName: 'N1',
-  //   companyName: 'Nylas',
-  //   // By explicitly passing the app version here, we could save the call
-  //   // of "require('electron').remote.app.getVersion()".
-  //   extra: {_version: loadSettings.appVersion}
-  // })
-
   setupVmCompatibility()
 
   require(loadSettings.bootstrapScript)

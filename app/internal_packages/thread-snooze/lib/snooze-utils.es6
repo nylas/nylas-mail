@@ -18,9 +18,7 @@ import {SNOOZE_CATEGORY_NAME} from './snooze-constants'
 
 const {DATE_FORMAT_SHORT} = DateUtils
 
-
 const SnoozeUtils = {
-
   snoozedUntilMessage(snoozeDate, now = moment()) {
     let message = 'Snoozed'
     if (snoozeDate) {
@@ -40,28 +38,25 @@ const SnoozeUtils = {
     return message;
   },
 
-  createSnoozeCategory(accountId, name = SNOOZE_CATEGORY_NAME) {
+  async createSnoozeCategory(accountId, name = SNOOZE_CATEGORY_NAME) {
     const task = new SyncbackCategoryTask({
       path: name,
       accountId: accountId,
     })
 
     Actions.queueTask(task)
-    return TaskQueue.waitForPerformRemote(task).then((finishedTask) => {
-      return finishedTask.created;
-    });
+    const finishedTask = await TaskQueue.waitForPerformRemote(task);
+    return finishedTask.created;
   },
 
-  getSnoozeCategory(accountId, categoryName = SNOOZE_CATEGORY_NAME) {
-    return FolderSyncProgressStore.whenCategoryListSynced(accountId)
-    .then(() => {
-      const allCategories = CategoryStore.categories(accountId)
-      const category = allCategories.find(c => c.displayName === categoryName)
-      if (category) {
-        return Promise.resolve(category);
-      }
-      return SnoozeUtils.createSnoozeCategory(accountId, categoryName)
-    })
+  async getSnoozeCategory(accountId, categoryName = SNOOZE_CATEGORY_NAME) {
+    await FolderSyncProgressStore.whenCategoryListSynced(accountId)
+    const allCategories = CategoryStore.categories(accountId)
+    const category = allCategories.find(c => c.displayName === categoryName)
+    if (category) {
+      return category;
+    }
+    return SnoozeUtils.createSnoozeCategory(accountId, categoryName)
   },
 
   getSnoozeCategoriesByAccount(accounts = AccountStore.accounts()) {
@@ -73,10 +68,11 @@ const SnoozeUtils = {
     return Promise.props(snoozeCategoriesByAccountId)
   },
 
-  moveThreads(threads, {snooze, getSnoozeCategory, getInboxCategory, description} = {}) {
+  moveThreads(threads, {snooze, snoozeCategoriesByAccountId, description} = {}) {
     const tasks = TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
-      const snoozeCat = getSnoozeCategory(accountId);
-      const inboxCat = getInboxCategory(accountId);
+      const snoozeCat = snoozeCategoriesByAccountId[accountId];
+      const inboxCat = CategoryStore.getInboxCategory(accountId);
+
       if (snoozeCat instanceof Label) {
         return new ChangeLabelsTask({
           source: "Snooze Move",
@@ -96,6 +92,7 @@ const SnoozeUtils = {
 
     Actions.queueTasks(tasks);
     const promises = tasks.map(task => TaskQueue.waitForPerformRemote(task))
+
     // Resolve with the updated threads
     return (
       Promise.all(promises).then(() => {
@@ -104,29 +101,19 @@ const SnoozeUtils = {
     )
   },
 
-  moveThreadsToSnooze(threads, snoozeCategoriesByAccountPromise, snoozeDate) {
-    return snoozeCategoriesByAccountPromise
-    .then((snoozeCategoriesByAccountId) => {
-      const getSnoozeCategory = (accId) => snoozeCategoriesByAccountId[accId]
-      const getInboxCategory = (accId) => CategoryStore.getInboxCategory(accId)
-      const description = SnoozeUtils.snoozedUntilMessage(snoozeDate)
-      return SnoozeUtils.moveThreads(
-        threads,
-        {snooze: true, getSnoozeCategory, getInboxCategory, description}
-      )
+  moveThreadsToSnooze(threads, snoozeCategoriesByAccountId, snoozeDate) {
+    return SnoozeUtils.moveThreads(threads, {
+      snooze: true,
+      snoozeCategoriesByAccountId,
+      description: SnoozeUtils.snoozedUntilMessage(snoozeDate),
     })
   },
 
-  moveThreadsFromSnooze(threads, snoozeCategoriesByAccountPromise) {
-    return snoozeCategoriesByAccountPromise
-    .then((snoozeCategoriesByAccountId) => {
-      const getSnoozeCategory = (accId) => snoozeCategoriesByAccountId[accId]
-      const getInboxCategory = (accId) => CategoryStore.getInboxCategory(accId)
-      const description = 'Unsnoozed';
-      return SnoozeUtils.moveThreads(
-        threads,
-        {snooze: false, getSnoozeCategory, getInboxCategory, description}
-      )
+  moveThreadsFromSnooze(threads, snoozeCategoriesByAccountId) {
+    return SnoozeUtils.moveThreads(threads, {
+      snooze: false,
+      snoozeCategoriesByAccountId,
+      description: 'Unsnoozed',
     })
   },
 }
