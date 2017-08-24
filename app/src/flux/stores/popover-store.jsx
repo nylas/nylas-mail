@@ -9,7 +9,7 @@ const CONTAINER_ID = "nylas-popover-container";
 
 function createContainer(id) {
   const element = document.createElement(id);
-  document.body.appendChild(element);
+  document.body.insertBefore(element, document.body.children[0]);
   return element;
 }
 

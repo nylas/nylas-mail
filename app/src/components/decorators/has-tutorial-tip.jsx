@@ -10,7 +10,7 @@ const TipsBackgroundEl = document.createElement('tutorial-tip-background');
 
 const TipsContainerEl = document.createElement('div');
 TipsContainerEl.classList.add('tooltips-container');
-document.body.appendChild(TipsContainerEl);
+document.body.insertBefore(TipsContainerEl, document.body.children[0]);
 
 
 class TipsStoreCls extends NylasStore {

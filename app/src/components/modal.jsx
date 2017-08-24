@@ -19,11 +19,21 @@ class Modal extends React.Component {
     this.state = {
       offset: 0,
       dimensions: {},
+      animateClass: false,
     };
   }
 
   componentDidMount() {
     this._focusImportantElement();
+    this._mounted = true;
+    window.requestAnimationFrame(() => {
+      if (!this._mounted) { return; }
+      this.setState({animateClass: true});
+    });
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
   }
 
   _focusImportantElement = () => {
@@ -55,17 +65,7 @@ class Modal extends React.Component {
       boxShadow: "0 10px 20px rgba(0,0,0,0.19), inset 0 0 1px rgba(0,0,0,0.5)",
       borderRadius: "5px",
     };
-    const containerStyle = {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "100%",
-      width: "100%",
-      zIndex: 1000,
-      position: "absolute",
-      backgroundColor: "rgba(255,255,255,0.58)",
-    };
-    return {containerStyle, modalStyle};
+    return {modalStyle};
   };
 
   _onKeyDown = (event) => {
@@ -76,17 +76,16 @@ class Modal extends React.Component {
 
   render() {
     const {children, height, width} = this.props;
-    const {containerStyle, modalStyle} = this._computeModalStyles(height, width);
+    const {modalStyle} = this._computeModalStyles(height, width);
 
     return (
       <div
-        style={containerStyle}
-        className="modal-container"
+        className={`modal-container ${this.state.animateClass && 'animate'}`}
         onKeyDown={this._onKeyDown}
         onClick={() => Actions.closeModal()}
       >
         <div
-          className="modal nylas-modal-container"
+          className="modal"
           style={modalStyle}
           onClick={(event) => event.stopPropagation()}
         >

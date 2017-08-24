@@ -1,20 +1,39 @@
 @import "ui-variables";
 
-.nylas-modal-container {
+.modal-container {
+  perspective: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height:100%;
+  width: 100%;
+  z-index: 1000;
   position: absolute;
-  z-index: 40;
-
-  .modal-close {
-    margin: 6px;
-  }
+  background-color: rgba(255,255,255,0.0);
+  transition: background-color 100ms ease-out;
 
   .modal {
     position: absolute;
-    background-color: @background-primary;
-    border-radius: @border-radius-base;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.20), 0 0 1px rgba(0, 0, 0, 0.7);
+    transform-origin: top;
+    z-index: 40;
+    opacity: 0;
+    transform: translateY(10px) rotateX(-7deg);
+    transition: transform 360ms ease-out, opacity 240ms ease-out;
+
+    .modal-close {
+      margin: 6px;
+    }
+  }
+
+  &.animate {
+    background-color: rgba(255,255,255,0.58);
+    .modal {
+      opacity: 1;
+      transform: translateY(0) rotateX(0);
+    }
   }
 }
+
 
 @media (-webkit-min-device-pixel-ratio: 2) {
   .modal-close {

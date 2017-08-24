@@ -67,12 +67,7 @@ class FeatureUsageStore extends NylasStore {
     this._usub();
   }
 
-  async asyncUseFeature(feature, {lexicon = {}} = {}) {
-    if (this._isUsable(feature)) {
-      this._markFeatureUsed(feature);
-      return Promise.resolve();
-    }
-
+  displayUpgradeModal(feature, {lexicon}) {
     const {headerText, rechargeText} = this._modalText(feature, lexicon);
 
     Actions.openModal({
@@ -88,6 +83,15 @@ class FeatureUsageStore extends NylasStore {
         />
       ),
     });
+  }
+
+  async asyncUseFeature(feature, {lexicon = {}} = {}) {
+    if (this._isUsable(feature)) {
+      this._markFeatureUsed(feature);
+      return true;
+    }
+
+    this.displayUpgradeModal(feature, {lexicon});
 
     return new Promise((resolve, reject) => {
       this._waitForModalClose.push({resolve, reject, feature})

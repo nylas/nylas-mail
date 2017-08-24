@@ -28,23 +28,23 @@ export default class FeatureUsedUpModal extends React.Component {
   componentWillUnmount() {
     this._mounted = false;
   }
+  
+  onGoToFeatures = () => {
+    shell.openExternal("https://getmerani.com/pro");
+  };
+
+  onUpgrade = (e) => {
+    e.stopPropagation();
+    Actions.openModal({
+      component: (
+        <BillingModal source="feature-limit" upgradeUrl={this.state.upgradeUrl} />
+      ),
+      width: BillingModal.IntrinsicWidth,
+      height: BillingModal.IntrinsicHeight,
+    });
+  }
 
   render() {
-    const gotoFeatures = () => {
-      shell.openExternal("https://getmerani.com/pro");
-    };
-
-    const upgrade = (e) => {
-      e.stopPropagation();
-      Actions.openModal({
-        component: (
-          <BillingModal source="feature-limit" upgradeUrl={this.state.upgradeUrl} />
-        ),
-        height: 575,
-        width: 412,
-      })
-    }
-
     return (
       <div className={`feature-usage-modal ${this.props.modalClass}`}>
         <div className="feature-header">
@@ -68,10 +68,12 @@ export default class FeatureUsedUpModal extends React.Component {
               <li>Unlimited Reminders</li>
               <li>Unlimited Mail Merge</li>
             </ul>
-            <p>&hellip; plus <a onClick={gotoFeatures}>dozens of other features</a></p>
+            <p>&hellip; plus <a onClick={this.onGoToFeatures}>dozens of other features</a></p>
           </div>
 
-          <button className="btn btn-cta btn-emphasis" onClick={upgrade}>Upgrade</button>
+          <button className="btn btn-cta btn-emphasis" onClick={this.onUpgrade}>
+            Upgrade
+          </button>
         </div>
       </div>
     )

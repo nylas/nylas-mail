@@ -32,8 +32,8 @@ class PreferencesIdentity extends React.Component {
       component: (
         <BillingModal source="preferences" />
       ),
-      height: 575,
-      width: 412,
+      width: BillingModal.IntrinsicWidth,
+      height: BillingModal.IntrinsicHeight,
     })
   }
 
