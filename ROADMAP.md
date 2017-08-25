@@ -19,15 +19,16 @@ Target Ship Date: Late September
 - [x] Rewrite the SendDraftTask in C++
   - [x] Basic implementation
   - [ ] Ensure errors are presented in JavaScript and re-open the message window
-  - [ ] Ensure "multisend" works and metadata is transferred to the new message
-  - [ ] Ensure the message is saved to the Sent Folder
+  - [x] Ensure "multisend" works and metadata is transferred to the new message
+  - [x] Ensure the message is saved to the Sent Folder
 - [x] Store IMAP/SMTP credentials and the cloud API token in the keychain securely.
+- [x] Find a cross-platform solution for reliable C++ stack traces
 - [ ] Ensure C++ worker crashes are reported through Sentry or Backtrace
 - [ ] Restart C++ workers if they crash and alert the user to repeated errors.
 - [ ] Add support for Gmail authentication flow and XOAUTH2 [ until this is done, you need to use an "App Password" ]
 - [ ] Add more robust retry / failure handling logic to C++ code.
-- [ ] Decide what license to use for the C++ codebase / whether to open-source it or provide binaries.
-- [ ] Link the C++ codebase into Merani as a submodule, make Travis and AppVeyor CI build the C++ codebase.
+- [x] Decide what license to use for the C++ codebase / whether to open-source it or provide binaries. (Update: I've deciced to keep this closed source for now. [Here's why.](#why-is-mailsync-closed-source))
+- [x] Link the C++ codebase into Merani as a submodule, make Travis and AppVeyor CI build the C++ codebase.
 
 #### C++ MailSync Testing:
 - [x] Test with a Gmail account
@@ -44,8 +45,8 @@ Target Ship Date: Late September
 
 - [x] Re-implement Identity services (billing.nylas.com)
   + [x] Implement basic sign in / create your account pages and token-based auth
-  + [ ] Implement autoupdate and download endpoints for Mac, Win, Linux
-  + [ ] Implement billing dashboard for paid version
+  + [x] Implement autoupdate and download endpoints for Mac, Win, Linux
+  + [~] Implement billing dashboard for paid version
 
 - [x] Re-implement Accounts services ("Edgehill" API):
   + [x] Implement storage of key-value metadata for threads, messages and contacts.
@@ -54,11 +55,15 @@ Target Ship Date: Late September
 
 #### Deployment
 - [x] Create a new AWS account for Merani project
+- [x] Create a Stripe account
 - [x] Register Merani domain(s)
-- [x] Setup Sentry for JavaScript error reporting
+- [x] Setup Sentry for client error reporting
+- [x] Setup Sentry for server error reporting
 - [x] Obtain Mac Developer Certificate for Merani
 - [ ] Obtain Windows Verisign Certificate for Merani
-- [ ] Deploy new identity API to id.getmerani.com
+- [x] Setup Amazon VPC with public/private subnets, strong security group rules 
+- [x] Setup fast, reproducible deployments w/ Docker containers
+- [x] Deploy new identity API to id.getmerani.com
 - [ ] Deploy new accounts API to accounts.getmerani.com
 - [ ] Deploy cloud workers to a secured AWS VPC
   *Blocked: Waiting for Nylas to open-source the rest of the code.*
@@ -97,3 +102,16 @@ Target Ship Date: Late September
   + Templates with per-template performance tracking
   + Groups
   + Files
+
+## Why is Mailsync Closed Source?
+
+For the initial release I've decided to keep the new C++ codebase closed-source. When you pull this repository and run `npm install`, the correct Mailsync build for your platform is automatically downloaded and put in place so you can hack away on the Merani Electron app. For those of you who are interested, here's why it's closed-source:
+
+- **Open source is a commitment.** When I was the lead engineer of the Nylas Mail team at Nylas, I spent thousands of hours responding to GitHub issues, helping people build the source, and trying to give PR feedback that was actionable and kind. I'm expecting to spend about 30% of my time working with the open-source community on the JavaScript side of Merani, and I'd rather focus on improving existing documentation and hackability than expand code surface area past what I can support. Especially until it's past the ["bus factor"](https://en.wikipedia.org/wiki/Bus_factor) of one!
+
+- **Mailsync is hard to compile.** Mailsync is written in C++0x and uses new features like `shared_ptr` and `condition_variable`. It requires GCC 4.8 and has a ton of dependencies and required build flags. If `node-sqlite3` is any indication, open-sourcing it in it's current form would be a GitHub Issues disaster. (Compared to mailsync, `node-sqlite3` is pretty easy to build but a whopping *35%* of it's open issues are [compilation-related!](https://github.com/mapbox/node-sqlite3/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20compile) 😰).
+
+- **The odds of great PRs are low.** Mailsync is a multithreaded, cross-platform C++ application that interfaces with old, fragile protocols that have their own learning curves and are difficult to mock. For folks to contribute meaningful pull requests, I'd have to write great docs and tests. I'd also need to spend a /lot/ of time reviewing changes for side-effects, enforcing good C++ techniques, and checking changes for performance impact. Maybe I'll be able to support this in the future, but not yet!
+
+If you're interested in contributing to the Merani Mailsync codebase and have some time and skill to throw at it, please let me know!
+
