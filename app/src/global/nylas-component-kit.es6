@@ -31,7 +31,10 @@ const lazyLoad = (prop, path) => {
 };
 
 const lazyLoadFrom = (prop, path) => {
-  lazyLoadWithGetter(prop, () => resolveExport(require(`../components/${path}`))[prop]);
+  lazyLoadWithGetter(prop, () => {
+    const bare = require(`../components/${path}`);
+    return bare[prop] ? bare[prop] : bare.default[prop];
+  });
 };
 
 lazyLoad("Menu", 'menu');

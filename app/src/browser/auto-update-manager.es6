@@ -27,6 +27,7 @@ export default class AutoUpdateManager extends EventEmitter {
     this.preferredChannel = preferredChannel;
 
     this.updateFeedURL();
+    this.config.onDidChange('identity.id', this.updateFeedURL);
 
     setTimeout(() => this.setupAutoUpdater(), 0);
   }
@@ -37,7 +38,7 @@ export default class AutoUpdateManager extends EventEmitter {
       arch: process.arch,
       version: this.version,
       id: this.config.get('identity.id') || 'anonymous',
-      preferredChannel: this.preferredChannel,
+      channel: this.preferredChannel,
     };
 
     let host = `updates.getmerani.com`;

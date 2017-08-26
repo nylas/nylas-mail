@@ -114,13 +114,15 @@ class MasterBeforeEach {
 
   _resetConfig() {
     // reset config before each spec; don't load or save from/to `config.json`
-    let fakePersistedConfig = {env: 'production'};
+    let fakePersistedConfig = {
+      env: 'production',
+    };
+
     spyOn(Config.prototype, 'getRawValues').andCallFake(() => {
       return fakePersistedConfig;
-    }
-    );
-    spyOn(Config.prototype, 'setRawValue')
-    .andCallFake(function setRawValue(keyPath, value) {
+    });
+
+    spyOn(Config.prototype, 'setRawValue').andCallFake(function setRawValue(keyPath, value) {
       if (keyPath) {
         configUtils.setValueForKeyPath(fakePersistedConfig, keyPath, value);
       } else {
@@ -128,6 +130,7 @@ class MasterBeforeEach {
       }
       return this.load();
     });
+
     NylasEnv.config = new Config();
     NylasEnv.loadConfig();
   }

@@ -57,22 +57,22 @@ class IdentityStore extends NylasStore {
     setInterval(() => { this.fetchIdentity(); }, 1000 * 60 * 10); // 10 minutes
   }
 
-  /**
-   * Saves the identity to the database. The local cache will be updated
-   * once the database change comes back through
-   */
-  async saveIdentity(identity) {
+  saveIdentity(identity) {
     this._identity = identity;
 
-    if (identity && identity.token) {
-      KeyManager.replacePassword(KEYCHAIN_NAME, identity.token);
-      const withoutToken = Object.assign({}, identity);
-      delete withoutToken.token;
-      NylasEnv.config.set('identity', withoutToken);
-    } else if (!identity) {
+    if (identity) {
+      const {token, ...rest} = identity;
+      if (token) {
+        KeyManager.replacePassword(KEYCHAIN_NAME, token);
+      }
+      NylasEnv.config.set('identity', rest);
+    } else {
       KeyManager.deletePassword(KEYCHAIN_NAME);
       NylasEnv.config.set('identity', null);
     }
+
+    // Setting NylasEnv.config will trigger our onDidChange handler,
+    // no need to trigger here.
   }
 
   /**
@@ -80,13 +80,14 @@ class IdentityStore extends NylasStore {
    * cache and set the token from the keychain.
    */
   _onIdentityChanged = () => {
+    console.log('_onIdentityChanged')
     this._identity = NylasEnv.config.get('identity') || {};
     this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
     this.trigger();
   }
 
-  _onLogoutNylasIdentity = async () => {
-    await this.saveIdentity(null)
+  _onLogoutNylasIdentity = () => {
+    this.saveIdentity(null)
     // We need to relaunch the app to clear the webview session
     // and prevent the webview from re signing in with the same NylasID
     remote.app.relaunch()
@@ -143,7 +144,7 @@ class IdentityStore extends NylasStore {
 
   async fetchIdentity() {
     if (!this._identity || !this._identity.token) {
-      return Promise.resolve();
+      return null;
     }
 
     const json = await makeRequest({
@@ -153,12 +154,13 @@ class IdentityStore extends NylasStore {
     });
 
     if (!json || !json.id || json.id !== this._identity.id) {
-      console.error(json)
+      console.error(json);
       NylasEnv.reportError(new Error("Remote Identity returned invalid json"), json || {})
-      return Promise.resolve(this._identity)
+      return this._identity;
     }
     const nextIdentity = Object.assign({}, this._identity, json);
-    return this.saveIdentity(nextIdentity);
+    this.saveIdentity(nextIdentity);
+    return this._identity;
   }
 }
 

@@ -1,9 +1,8 @@
-import {Utils, KeyManager, SendFeatureUsageEventTask} from 'nylas-exports'
+import {Utils, KeyManager} from 'nylas-exports'
 import IdentityStore from '../../src/flux/stores/identity-store'
 import * as NylasAPIRequest from '../../src/flux/nylas-api-request'
 
 const TEST_NYLAS_ID = "icihsnqh4pwujyqihlrj70vh"
-const TEST_TOKEN = "test-token"
 
 describe("IdentityStore", function identityStoreSpec() {
   beforeEach(() => {
@@ -24,7 +23,7 @@ describe("IdentityStore", function identityStoreSpec() {
     }
   });
 
-  describe("testing saveIdentity", () => {
+  describe("saveIdentity", () => {
     beforeEach(() => {
       IdentityStore._identity = this.identityJSON;
       spyOn(KeyManager, "deletePassword")
@@ -34,47 +33,24 @@ describe("IdentityStore", function identityStoreSpec() {
       spyOn(NylasEnv.config, 'unset')
     });
 
-    it("logs out of nylas identity properly", async () => {
-      const promise = IdentityStore._onLogoutNylasIdentity()
-      IdentityStore._onIdentityChanged(null)
-      await promise
+    it("clears passwords if unsetting", async () => {
+      IdentityStore.saveIdentity(null)
       expect(KeyManager.deletePassword).toHaveBeenCalled()
       expect(KeyManager.replacePassword).not.toHaveBeenCalled()
       expect(NylasEnv.config.set).toHaveBeenCalled()
       const ident = NylasEnv.config.set.calls[0].args[1]
       expect(ident).toBe(null)
-      expect(IdentityStore.trigger).toHaveBeenCalled()
     });
 
-    it("makes the Identity synchronously available for fetching right after saving the identity", async () => {
-      const used = () => {
-        return IdentityStore.identity().featureUsage.feat.usedInPeriod
-      }
+    it("applies changes synchronously", async () => {
+      const used = () => IdentityStore.identity().featureUsage.feat.usedInPeriod;
       expect(used()).toBe(1)
-      const t = new SendFeatureUsageEventTask('feat');
-      await t.performLocal()
-      expect(used()).toBe(2)
-      expect(IdentityStore.trigger).toHaveBeenCalled()
+
+      const next = JSON.parse(JSON.stringify(this.identityJSON));
+      next.featureUsage.feat.usedInPeriod += 1;
+      IdentityStore.saveIdentity(next);
+      expect(used()).toBe(2);
     });
-  });
-
-
-  it("can log a feature usage event", async () => {
-    spyOn(IdentityStore, "saveIdentity").andReturn(Promise.resolve());
-    spyOn(NylasAPIRequest, "makeRequest");
-    IdentityStore._identity = this.identityJSON
-    IdentityStore._identity.token = TEST_TOKEN;
-    IdentityStore._onEnvChanged()
-    const t = new SendFeatureUsageEventTask("snooze");
-    await t.performRemote()
-    const opts = NylasAPIRequest.makeRequest.calls[0].args[0]
-    expect(opts).toEqual({
-      method: "POST",
-      url: "https://id.getmerani.com/api/featureUsage_event",
-      body: {
-        feature_name: 'snooze',
-      },
-    })
   });
 
   describe("returning the identity object", () => {
@@ -115,7 +91,7 @@ describe("IdentityStore", function identityStoreSpec() {
       await IdentityStore.fetchIdentity();
       expect(NylasAPIRequest.makeRequest).toHaveBeenCalled();
       const options = NylasAPIRequest.makeRequest.calls[0].args[0]
-      expect(options.url).toMatch(/\/n1\/user/)
+      expect(options.path).toEqual('/api/me')
       expect(IdentityStore.saveIdentity).toHaveBeenCalled()
       const newIdent = IdentityStore.saveIdentity.calls[0].args[0]
       expect(newIdent.featureUsage.feat.quota).toBe(5)

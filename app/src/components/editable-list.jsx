@@ -182,9 +182,9 @@ class EditableList extends Component {
    */
   _scrollTo = (idx) => {
     if (!idx) return;
-    const el = ReactDOM.findDOMNode(this._itemsWrapperEl);
-    const nodes = el.querySelectorAll('.list-item');
-    el.scrollTo(nodes[idx]);
+    const wrapperNode = ReactDOM.findDOMNode(this._itemsWrapperEl);
+    const nodes = wrapperNode.querySelectorAll('.list-item');
+    this._itemsWrapperEl.scrollTo(nodes[idx]);
   };
 
 

@@ -4,13 +4,12 @@ url = require 'url'
 describe "AutoUpdateManager", ->
   beforeEach ->
     @nylasIdentityId = null
-    @accounts = [{email_address: 'ben@nylas.com'},{email_address: 'mark@nylas.com'}]
     @specMode = true
     @config =
       set: jasmine.createSpy('config.set')
       get: (key) =>
-        if key is 'nylas.accounts'
-          return @accounts
+        if key is 'identity.id'
+          return @nylasIdentityId
         if key is 'env'
           return 'production'
       onDidChange: (key, callback) =>
@@ -20,43 +19,25 @@ describe "AutoUpdateManager", ->
     it "correctly sets the feedURL", ->
       m = new AutoUpdateManager("3.222.1-abc", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-
-      {query} = url.parse(m.feedURL, true)
-      expect(query.arch).toBe process.arch
-      expect(query.platform).toBe process.platform
-      expect(query.version).toBe "3.222.1-abc"
+      expect(m.feedURL).toEqual('https://updates.getmerani.com/check/darwin/x64/3.222.1-abc/anonymous/stable')
 
   describe "with no attached commit", ->
     it "correctly sets the feedURL", ->
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      {query} = url.parse(m.feedURL, true)
-      expect(query.arch).toBe process.arch
-      expect(query.platform).toBe process.platform
-      expect(query.version).toBe "3.222.1"
-
-  describe "when an update identity is not present", ->
-    it "should use anonymous", ->
-      m = new AutoUpdateManager("3.222.1", @config, @specMode)
-      spyOn(m, "setupAutoUpdater")
-      {query} = url.parse(m.feedURL, true)
-      expect(query.id).toEqual('anonymous')
+      expect(m.feedURL).toEqual('https://updates.getmerani.com/check/darwin/x64/3.222.1/anonymous/stable')
 
   describe "when an update identity is already set", ->
     it "should send it and not save any changes", ->
       @nylasIdentityId = "test-nylas-id"
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
-      spyOn(m, "setupAutoUpdater")
-      {query} = url.parse(m.feedURL, true)
-      expect(query.id).toEqual(@nylasIdentityId)
+      expect(m.feedURL).toEqual('https://updates.getmerani.com/check/darwin/x64/3.222.1/test-nylas-id/stable')
 
   describe "when an update identity is added", ->
     it "should update the feed URL", ->
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      {query} = url.parse(m.feedURL, true)
-      expect(query.id).toEqual('anonymous')
-      @nylasIdentityId = '1'
+      expect(m.feedURL.includes('anonymous')).toEqual(true);
+      @nylasIdentityId = 'test-nylas-id'
       m.updateFeedURL()
-      {query} = url.parse(m.feedURL, true)
-      expect(query.id).toEqual(@nylasIdentityId)
+      expect(m.feedURL.includes(@nylasIdentityId)).toEqual(true);

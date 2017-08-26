@@ -12,7 +12,9 @@ import {renderIntoDocument, simulateCommand} from '../nylas-test-utils'
 const {findDOMNode} = ReactDOM;
 
 const makeList = (items = [], props = {}) => {
-  const list = renderIntoDocument(<EditableList {...props} items={items} />);
+  const list = renderIntoDocument(
+    <EditableList {...props} items={items} />
+  );
   if (props.initialState) {
     list.setState(props.initialState)
   }

@@ -128,6 +128,25 @@ function props(obj) {
   });
 }
 
+async function getState() {
+  const t = {};
+  return await Promise.race([this, t]).then(v =>
+    ((v === t) ? "pending" : "fulfilled")
+  , () => "rejected");
+}
+
+async function isResolved() {
+  return await this.getState() === "fulfilled";
+}
+
+async function isRejected() {
+  return await this.getState() === "rejected";
+}
+
+global.Promise.prototype.getState = getState;
+global.Promise.prototype.isResolved = isResolved;
+global.Promise.prototype.isRejected = isRejected;
+
 global.Promise.each = each;
 global.Promise.props = props;
 global.Promise.promisify = promisify;
