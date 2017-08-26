@@ -1,11 +1,12 @@
 import _ from 'underscore'
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import classnames from 'classnames';
 import compose from './decorators/compose';
 import AutoFocuses from './decorators/auto-focuses';
 import ListensToMovementKeys from './decorators/listens-to-movement-keys';
 import Table, {TableRow, TableCell} from './table/table'
+import PropTypes from 'prop-types'
 
 
 /*

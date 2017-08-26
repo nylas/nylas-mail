@@ -1,6 +1,7 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import {ButtonDropdown, Menu} from 'nylas-component-kit'
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types'
 
 /*
 Renders a drop down of items that can have multiple selected

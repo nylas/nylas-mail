@@ -12,7 +12,7 @@ import Utils from './models/utils';
 
 export default class MailsyncBridge {
   constructor() {
-    if (!NylasEnv.isMainWindow()) {
+    if (!NylasEnv.isMainWindow() || !NylasEnv.inSpecMode()) {
       // maybe bind as listener?
       return;
     }

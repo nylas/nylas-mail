@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import {ListensToObservable, InjectedComponentSet} from 'nylas-component-kit'
 import ThreadListStore from './thread-list-store'
 

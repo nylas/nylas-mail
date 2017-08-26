@@ -1,6 +1,7 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {Event, DatabaseStore} from 'nylas-exports'
 import SearchBar from '../search-bar'
+import PropTypes from 'prop-types'
 
 
 class EventSearchBar extends Component {

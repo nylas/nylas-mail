@@ -54,8 +54,8 @@ class ActionBridge {
     });
 
     if (this.role !== Role.MAIN) {
-      // Observe all mainWindow actions fired in this window and re-broadcast
-      // them to other windows so the central application stores can take action
+      // Observe actions for the main window fired in this window and re-broadcast
+      // them to the main window.
       Actions.mainWindowActions.forEach(name => {
         const callback = (...args) => this.onRebroadcast(TargetWindows.MAIN, name, args);
         return Actions[name].listen(callback, this);

@@ -1,6 +1,8 @@
 import _ from 'underscore';
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import {findDOMNode} from 'react-dom';
+import PropTypes from 'prop-types'
+
 import Actions from '../flux/actions';
 import compose from './decorators/compose'
 import AutoFocuses from './decorators/auto-focuses'

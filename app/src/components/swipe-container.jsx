@@ -1,8 +1,9 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
 import {exec} from 'child_process';
 import {Utils} from 'nylas-exports';
+import PropTypes from 'prop-types'
 
 // This is a stripped down version of
 // https://github.com/michaelvillar/dynamics.js/blob/master/src/dynamics.coffee#L1179,

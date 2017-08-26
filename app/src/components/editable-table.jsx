@@ -1,6 +1,7 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {pickHTMLProps} from 'pick-react-known-prop'
 import ReactDOM from 'react-dom'
+import PropTypes from 'prop-types'
 
 import RetinaImg from './retina-img'
 import SelectableTable, {SelectableTableCell} from './selectable-table'

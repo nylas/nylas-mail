@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import {Actions, DateUtils} from 'nylas-exports'
 import DateInput from './date-input'
 import Menu from './menu'

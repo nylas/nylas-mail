@@ -1,6 +1,7 @@
 import {Utils} from 'nylas-exports'
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import PropTypes from 'prop-types'
 
 
 /*

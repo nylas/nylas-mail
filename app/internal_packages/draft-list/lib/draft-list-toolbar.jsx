@@ -1,5 +1,6 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import {ListensToObservable, MultiselectToolbar, InjectedComponentSet} from 'nylas-component-kit'
+import PropTypes from 'prop-types'
 
 import DraftListStore from './draft-list-store'
 

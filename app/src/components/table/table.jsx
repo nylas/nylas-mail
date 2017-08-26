@@ -1,5 +1,6 @@
 import classnames from 'classnames'
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import {pickHTMLProps} from 'pick-react-known-prop'
 import LazyRenderedList from '../lazy-rendered-list'
 import TableDataSource from './table-data-source'

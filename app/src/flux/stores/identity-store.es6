@@ -80,7 +80,6 @@ class IdentityStore extends NylasStore {
    * cache and set the token from the keychain.
    */
   _onIdentityChanged = () => {
-    console.log('_onIdentityChanged')
     this._identity = NylasEnv.config.get('identity') || {};
     this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
     this.trigger();

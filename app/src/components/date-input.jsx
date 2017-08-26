@@ -1,7 +1,8 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
 import classnames from 'classnames';
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import {DateUtils} from 'nylas-exports';
+import PropTypes from 'prop-types'
 
 
 class DateInput extends Component {

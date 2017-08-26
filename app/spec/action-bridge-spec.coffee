@@ -1,6 +1,5 @@
 Actions = require('../src/flux/actions').default
 Message = require('../src/flux/models/message').default
-DatabaseStore = require('../src/flux/stores/database-store').default
 AccountStore = require('../src/flux/stores/account-store').default
 ActionBridge = require('../src/flux/action-bridge').default
 _ = require 'underscore'
@@ -24,11 +23,6 @@ describe "ActionBridge", ->
       spyOn(@bridge, 'onRebroadcast')
       testAction = Actions[Actions.globalActions[0]]
       testAction('bla')
-      expect(@bridge.onRebroadcast).toHaveBeenCalled()
-
-    it "should rebroadcast when the DatabaseStore triggers", ->
-      spyOn(@bridge, 'onRebroadcast')
-      DatabaseStore.trigger({})
       expect(@bridge.onRebroadcast).toHaveBeenCalled()
 
     it "should not rebroadcast mainWindow actions since it is the main window", ->

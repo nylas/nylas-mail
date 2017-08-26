@@ -1,5 +1,7 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import classnames from 'classnames'
+import PropTypes from 'prop-types'
+
 import Menu from './menu'
 import RetinaImg from './retina-img'
 import KeyCommandsRegion from './key-commands-region'

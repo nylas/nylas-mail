@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import {Menu, SearchBar, ListensToFluxStore} from 'nylas-component-kit'
 import {FocusedPerspectiveStore} from 'nylas-exports'
 import SearchStore from './search-store'
