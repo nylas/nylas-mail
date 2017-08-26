@@ -135,7 +135,7 @@ export default class DraftEditingSession extends NylasStore {
     this.changes = new DraftChangeSet({
       onWillAddChanges: this.changeSetWillAddChanges,
       onDidAddChanges: this.changeSetDidAddChanges,
-      onCommit: this.changeSetCommit,
+      onCommit: () => this.changeSetCommit(), // for specs
     });
 
     if (draft) {
@@ -325,9 +325,9 @@ export default class DraftEditingSession extends NylasStore {
   }
 
   // TODO BG noSyncback is gone
-  changeSetCommit = async () => {
+  async changeSetCommit() {
     if (this._destroyed || !this._draft) {
-      return true;
+      return;
     }
 
     // Set a variable here to protect againg this._draft getting set from

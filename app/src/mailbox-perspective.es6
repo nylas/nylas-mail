@@ -205,7 +205,7 @@ export default class MailboxPerspective {
       return false;
     }
     return AccountStore.accountsForItems(threads).every((acc) =>
-      CategoryStore.getCategoryByRole(acc, standardCategoryName) !== undefined
+      CategoryStore.getCategoryByRole(acc, standardCategoryName) !== null
     );
   }
 
@@ -264,8 +264,8 @@ class StarredMailboxPerspective extends MailboxPerspective {
     return new MutableQuerySubscription(query, {emitResultSet: true});
   }
 
-  canReceiveThreadsFromAccountIds() {
-    return super.canReceiveThreadsFromAccountIds();
+  canReceiveThreadsFromAccountIds(...args) {
+    return super.canReceiveThreadsFromAccountIds(...args);
   }
 
   receiveThreads(threadsOrIds) {
@@ -379,8 +379,8 @@ class CategoryMailboxPerspective extends MailboxPerspective {
     return this._categories.every((cat) => cat.isArchive());
   }
 
-  canReceiveThreadsFromAccountIds() {
-    return super.canReceiveThreadsFromAccountIds() && !this._categories.some((c) => c.isLockedCategory());
+  canReceiveThreadsFromAccountIds(...args) {
+    return super.canReceiveThreadsFromAccountIds(...args) && !this._categories.some((c) => c.isLockedCategory());
   }
 
   receiveThreads(threadsOrIds) {

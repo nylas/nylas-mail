@@ -80,7 +80,6 @@ lazyLoadAndRegisterModel(`Message`, 'message');
 lazyLoadAndRegisterModel(`Contact`, 'contact');
 lazyLoadAndRegisterModel(`Category`, 'category');
 lazyLoadAndRegisterModel(`Calendar`, 'calendar');
-lazyLoadAndRegisterModel(`JSONBlob`, 'json-blob');
 lazyLoadAndRegisterModel(`ProviderSyncbackRequest`, 'provider-syncback-request');
 
 // Search Query Interfaces
@@ -101,7 +100,6 @@ lazyLoadAndRegisterTask(`ChangeUnreadTask`, 'change-unread-task');
 lazyLoadAndRegisterTask(`DestroyModelTask`, 'destroy-model-task');
 lazyLoadAndRegisterTask(`SyncbackDraftTask`, 'syncback-draft-task');
 lazyLoadAndRegisterTask(`ChangeStarredTask`, 'change-starred-task');
-lazyLoadAndRegisterTask(`SyncbackModelTask`, 'syncback-model-task');
 lazyLoadAndRegisterTask(`SyncbackEventTask`, 'syncback-event-task');
 lazyLoadAndRegisterTask(`DestroyCategoryTask`, 'destroy-category-task');
 lazyLoadAndRegisterTask(`SyncbackCategoryTask`, 'syncback-category-task');

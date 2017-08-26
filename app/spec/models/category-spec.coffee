@@ -1,20 +1,19 @@
 {Folder, Label} = require 'nylas-exports'
 
-describe 'Category', ->
-
+describe 'Category classes', ->
   describe '.categoriesSharedRole', ->
 
     it 'returns the name if all the categories on the perspective have the same role', ->
-      expect(Category.categoriesSharedRole([
+      expect(Folder.categoriesSharedRole([
         new Folder({path: 'c1', role: 'c1', accountId: 'a1'}),
         new Folder({path: 'c1', role: 'c1', accountId: 'a2'}),
       ])).toEqual('c1')
 
     it 'returns null if there are no categories', ->
-      expect(Category.categoriesSharedRole([])).toEqual(null)
+      expect(Folder.categoriesSharedRole([])).toEqual(null)
 
     it 'returns null if the categories have different roles', ->
-      expect(Category.categoriesSharedRole([
+      expect(Folder.categoriesSharedRole([
         new Folder({path: 'c1', role: 'c1', accountId: 'a1'}),
         new Folder({path: 'c2', role: 'c2', accountId: 'a2'}),
       ])).toEqual(null)

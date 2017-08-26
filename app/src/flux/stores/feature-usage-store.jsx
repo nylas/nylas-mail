@@ -4,7 +4,6 @@ import NylasStore from 'nylas-store'
 import {FeatureUsedUpModal} from 'nylas-component-kit'
 import Actions from '../actions'
 import IdentityStore from './identity-store'
-import TaskQueue from './task-queue';
 import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task'
 
 class NoProAccessError extends Error { }

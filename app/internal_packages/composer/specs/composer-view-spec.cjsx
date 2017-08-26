@@ -17,7 +17,10 @@ ReactTestUtils = require('react-dom/test-utils')
  FocusedContentStore,
  ComponentRegistry} = require "nylas-exports"
 
-{InjectedComponent, ParticipantsTextField} = require 'nylas-component-kit'
+{InjectedComponent,
+ AttachmentItem,
+ ImageAttachmentItem,
+ ParticipantsTextField} = require 'nylas-component-kit'
 
 DraftEditingSession = require('../../../src/flux/stores/draft-editing-session').default
 ComposerEditor = require('../lib/composer-editor').default
@@ -39,15 +42,15 @@ ComposerView = require("../lib/composer-view").default
 # This will setup the mocks necessary to make the composer element (once
 # mounted) think it's attached to the given draft. This mocks out the
 # proxy system used by the composer.
-DRAFT_CLIENT_ID = "local-123"
+DRAFT_ID = "local-123"
+DRAFT_HEADER_MSG_ID = "test-header@message-id"
 
 useDraft = (draftAttributes={}) ->
-  @draft = new Message Object.assign({draft: true, body: ""}, draftAttributes)
-  @draft.id = DRAFT_CLIENT_ID
-  @session = new DraftEditingSession(DRAFT_CLIENT_ID, @draft)
+  @draft = new Message(Object.assign({id: DRAFT_ID, draft: true, body: "", headerMessageId: DRAFT_HEADER_MSG_ID}, draftAttributes))
+  @session = new DraftEditingSession(DRAFT_HEADER_MSG_ID, @draft)
   # spyOn().andCallFake wasn't working properly on ensureCorrectAccount for some reason
   @session.ensureCorrectAccount = => Promise.resolve(@session)
-  DraftStore._draftSessions[DRAFT_CLIENT_ID] = @session
+  DraftStore._draftSessions[DRAFT_HEADER_MSG_ID] = @session
   @session._draftPromise
 
 useFullDraft = ->
@@ -100,7 +103,7 @@ describe "ComposerView", ->
         editableNode = ReactDOM.findDOMNode(@composer).querySelector('[contenteditable]')
         spyOn(@session.changes, "add")
         editableNode.innerHTML = "Hello <strong>world</strong>"
-        @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
+        @composer._els[Fields.Body]._onDOMMutated(["mutated"])
         expect(@session.changes.add).toHaveBeenCalled()
         expect(@session.changes.add.calls.length).toBe 1
         body = @session.changes.add.calls[0].args[0].body
@@ -163,7 +166,7 @@ describe "ComposerView", ->
 
     it 'saves the full new body, plus forwarded text', ->
       @editableNode.innerHTML = "Hello <strong>world</strong>#{@fwdBody}"
-      @composer.refs[Fields.Body]._onDOMMutated(["mutated"])
+      @composer._els[Fields.Body]._onDOMMutated(["mutated"])
       expect(@session.changes.add).toHaveBeenCalled()
       expect(@session.changes.add.calls.length).toBe 1
       body = @session.changes.add.calls[0].args[0].body
@@ -377,12 +380,12 @@ describe "ComposerView", ->
       waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
       runs( =>
         makeComposer.call(@)
-        sendBtn = @composer.refs.sendActionButton
+        sendBtn = @composer._els.sendActionButton
         sendBtn.primarySend()
-        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_HEADER_MSG_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
         # Delete the draft from _draftsSending so we can send it in other tests
-        delete DraftStore._draftsSending[DRAFT_CLIENT_ID]
+        delete DraftStore._draftsSending[DRAFT_HEADER_MSG_ID]
       )
 
     it "doesn't send twice if you double click", =>
@@ -393,13 +396,13 @@ describe "ComposerView", ->
       waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
       runs( =>
         makeComposer.call(@)
-        sendBtn = @composer.refs.sendActionButton
+        sendBtn = @composer._els.sendActionButton
         sendBtn.primarySend()
         sendBtn.primarySend()
-        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_HEADER_MSG_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
         # Delete the draft from _draftsSending so we can send it in other tests
-        delete DraftStore._draftsSending[DRAFT_CLIENT_ID]
+        delete DraftStore._draftsSending[DRAFT_HEADER_MSG_ID]
       )
 
     describe "when sending a message with keyboard inputs", ->
@@ -407,25 +410,25 @@ describe "ComposerView", ->
         sessionSetupComplete = false
         useFullDraft.apply(@).then =>
           makeComposer.call(@)
-          @$composer = @composer.refs.composerWrap
+          @$composer = @composer._els.composerWrap
           sessionSetupComplete = true
           waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
 
       afterEach ->
         # Delete the draft from _draftsSending so we can send it in other tests
-        delete DraftStore._draftsSending[DRAFT_CLIENT_ID]
+        delete DraftStore._draftsSending[DRAFT_HEADER_MSG_ID]
 
       it "sends the draft on cmd-enter", ->
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_HEADER_MSG_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
 
       it "doesn't let you send twice", ->
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_HEADER_MSG_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
         ReactDOM.findDOMNode(@$composer).dispatchEvent(new CustomEvent('composer:send-message'))
-        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_CLIENT_ID, 'send')
+        expect(Actions.sendDraft).toHaveBeenCalledWith(DRAFT_HEADER_MSG_ID, 'send')
         expect(Actions.sendDraft.calls.length).toBe 1
 
   describe "drag and drop", ->
@@ -544,11 +547,15 @@ describe "ComposerView", ->
         expect(Actions.fetchFile.calls.length).toBe(1)
         expect(Actions.fetchFile.calls[0].args[0]).toBe @file2
 
-    it 'injects a MessageAttachments component for any present attachments', ->
-      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, InjectedComponent, matching: {role: "MessageAttachments"})
+    it 'renders a AttachmentItem for any present attachments', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, AttachmentItem, {})
       expect(els.length).toBe 1
-      el = els[0]
-      expect(el.props.exposedProps.files).toEqual(@draft.files)
+      expect(els[0].props.displayName).toEqual(@draft.files[0].filename)
+
+    it 'renders an ImageAttachmentItem for any attachments that look like images', ->
+      els = ReactTestUtils.scryRenderedComponentsWithTypeAndProps(@composer, ImageAttachmentItem, {})
+      expect(els.length).toBe 1
+      expect(els[0].props.displayName).toEqual(@draft.files[1].filename)
 
 describe "when a file is received (via drag and drop or paste)", ->
   beforeEach ->
@@ -559,7 +566,7 @@ describe "when a file is received (via drag and drop or paste)", ->
     waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
     runs( =>
       makeComposer.call(@)
-      @file = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
+      @file = new File({size: 1000, filename: 'f.txt', id: 'f'})
       spyOn(Actions, 'addAttachment').andCallFake ({filePath, messageId, onCreated}) =>
         @draft.files.push(@file)
         onCreated(@file)
@@ -570,17 +577,17 @@ describe "when a file is received (via drag and drop or paste)", ->
     @composer._onFileReceived('../../f.txt')
     expect(Actions.addAttachment.callCount).toBe(1)
     expect(Object.keys(Actions.addAttachment.calls[0].args[0])).toEqual([
-      'filePath', 'messageId', 'onCreated',
+      'filePath', 'headerMessageId', 'onCreated',
     ])
 
   it "should call insertAttachmentIntoDraft if the file looks like an image", ->
-    @file = {targetPath: 'a/f.txt', size: 1000, name: 'f.txt', id: 'f'}
+    @file = new File({size: 1000, filename: 'f.txt', id: 'f'})
     @composer._onFileReceived('../../f.txt')
     advanceClock()
     expect(Actions.insertAttachmentIntoDraft).not.toHaveBeenCalled()
     expect(!!@file.contentId).not.toEqual(true)
 
-    @file = {targetPath: 'a/f.png', size: 1000, name: 'f.png', id: 'g'}
+    @file = new File({size: 1000, filename: 'f.png', id: 'g'})
     expect(Utils.shouldDisplayAsImage(@file)).toBe(true) # sanity check
 
     @composer._onFileReceived('../../f.png')

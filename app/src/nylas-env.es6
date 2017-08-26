@@ -295,7 +295,9 @@ export default class NylasEnvConstructor {
     }
 
     if (this.inSpecMode()) {
-      jasmine.getEnv().currentSpec.fail(error);
+      if (global.jasmine || window.jasmine) {
+        jasmine.getEnv().currentSpec.fail(error);
+      }
     } else if (this.inDevMode() && !noWindows) {
       if (!this.isDevToolsOpened()) {
         this.openDevTools();

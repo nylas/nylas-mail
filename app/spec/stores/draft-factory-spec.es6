@@ -10,7 +10,6 @@ import {
   AccountStore,
   DatabaseStore,
   AttachmentStore,
-  DatabaseWriter,
   SanitizeTransformer,
   InlineStyleTransformer,
 } from 'nylas-exports';
@@ -26,6 +25,10 @@ let msgWithReplyToDuplicates = null;
 let msgWithReplyToFromMe = null;
 let account = null;
 const downloadData = {}
+
+const expectContactsEqual = (a, b) => {
+  expect(a.map(c => c.email).sort()).toEqual(b.map(c => c.email).sort());
+}
 
 describe('DraftFactory', function draftFactory() {
   beforeEach(() => {
@@ -417,7 +420,11 @@ describe('DraftFactory', function draftFactory() {
   describe("createOrUpdateDraftForReply", () => {
     it("should throw an exception unless you provide `reply` or `reply-all`", () => {
       expect(() =>
-        DraftFactory.createOrUpdateDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'wrong'})
+        DraftFactory.createOrUpdateDraftForReply({
+          thread: fakeThread,
+          message: fakeMessage1,
+          type: 'wrong',
+        })
       ).toThrow();
     });
 
@@ -437,12 +444,7 @@ describe('DraftFactory', function draftFactory() {
         };
         spyOn(Actions, 'focusDraft')
         spyOn(DatabaseStore, 'run').andReturn(Promise.resolve([fakeMessage1, this.existingDraft]));
-        spyOn(DraftStore, 'sessionForId').andReturn(Promise.resolve(this.sessionStub));
-        spyOn(DatabaseWriter.prototype, 'persistModel').andReturn(Promise.resolve());
-
-        this.expectContactsEqual = (a, b) => {
-          expect(a.map(c => c.email).sort()).toEqual(b.map(c => c.email).sort());
-        }
+        spyOn(DraftStore, 'sessionForClientId').andReturn(Promise.resolve(this.sessionStub));
       });
 
       describe("when reply-all is passed", () => {
@@ -455,8 +457,8 @@ describe('DraftFactory', function draftFactory() {
             type: 'reply-all',
             behavior: 'prefer-existing',
           })
-          this.expectContactsEqual(to, fakeMessage1.participantsForReplyAll().to);
-          this.expectContactsEqual(cc, fakeMessage1.participantsForReplyAll().cc);
+          expectContactsEqual(to, fakeMessage1.participantsForReplyAll().to);
+          expectContactsEqual(cc, fakeMessage1.participantsForReplyAll().cc);
         });
 
         it("should not blow away other participants who have been added to the draft", async () => {
@@ -470,8 +472,8 @@ describe('DraftFactory', function draftFactory() {
             type: 'reply-all',
             behavior: 'prefer-existing',
           })
-          this.expectContactsEqual(to, fakeMessage1.participantsForReplyAll().to.concat([randomA]));
-          this.expectContactsEqual(cc, fakeMessage1.participantsForReplyAll().cc.concat([randomB]));
+          expectContactsEqual(to, fakeMessage1.participantsForReplyAll().to.concat([randomA]));
+          expectContactsEqual(cc, fakeMessage1.participantsForReplyAll().cc.concat([randomB]));
         });
       });
 
@@ -485,8 +487,8 @@ describe('DraftFactory', function draftFactory() {
             type: 'reply',
             behavior: 'prefer-existing',
           })
-          this.expectContactsEqual(to, fakeMessage1.participantsForReply().to);
-          this.expectContactsEqual(cc, fakeMessage1.participantsForReply().cc);
+          expectContactsEqual(to, fakeMessage1.participantsForReply().to);
+          expectContactsEqual(cc, fakeMessage1.participantsForReply().cc);
         });
 
         it("should not blow away other participants who have been added to the draft", async () => {
@@ -500,8 +502,8 @@ describe('DraftFactory', function draftFactory() {
             type: 'reply',
             behavior: 'prefer-existing',
           })
-          this.expectContactsEqual(to, fakeMessage1.participantsForReply().to.concat([randomA]));
-          this.expectContactsEqual(cc, fakeMessage1.participantsForReply().cc.concat([randomB]));
+          expectContactsEqual(to, fakeMessage1.participantsForReply().to.concat([randomA]));
+          expectContactsEqual(cc, fakeMessage1.participantsForReply().cc.concat([randomB]));
         });
       });
     });
@@ -573,30 +575,31 @@ describe('DraftFactory', function draftFactory() {
 
   describe("createDraftForMailto", () => {
     describe("parameters in the URL", () => {
+      let expected = null;
       beforeEach(() => {
-        this.expected = "EmailSubjectLOLOL";
+        expected = "EmailSubjectLOLOL";
       });
 
       it("works for lowercase", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?subject=${this.expected}`).then((draft) => {
-            expect(draft.subject).toBe(this.expected);
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?subject=${expected}`).then((draft) => {
+            expect(draft.subject).toBe(expected);
           });
         });
       });
 
       it("works for title case", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?Subject=${this.expected}`).then((draft) => {
-            expect(draft.subject).toBe(this.expected);
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?Subject=${expected}`).then((draft) => {
+            expect(draft.subject).toBe(expected);
           });
         });
       });
 
       it("works for uppercase", () => {
         waitsForPromise(() => {
-          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?SUBJECT=${this.expected}`).then((draft) => {
-            expect(draft.subject).toBe(this.expected);
+          return DraftFactory.createDraftForMailto(`mailto:asdf@asdf.com?SUBJECT=${expected}`).then((draft) => {
+            expect(draft.subject).toBe(expected);
           });
         });
       });

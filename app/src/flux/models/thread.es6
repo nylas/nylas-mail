@@ -129,7 +129,7 @@ export default class Thread extends ModelWithMetadata {
   }
 
   get categories() {
-    return [].concat(this.folders, this.labels);
+    return [].concat(this.folders || [], this.labels || []);
   }
 
   set categories(c) {

@@ -98,6 +98,8 @@ export default class Account extends ModelWithMetadata {
     Contact = Contact || require('./contact').default
 
     return new Contact({
+      // used to give them random strings, let's try for something consistent
+      id: `local-${this.id}-me`,
       accountId: this.id,
       name: this.name,
       email: this.emailAddress,
@@ -110,7 +112,9 @@ export default class Account extends ModelWithMetadata {
     if (!alias) {
       return this.me()
     }
-    return Contact.fromString(alias, {accountId: this.id})
+    return Contact.fromString(alias, {
+      accountId: this.id,
+    })
   }
 
   defaultMe() {

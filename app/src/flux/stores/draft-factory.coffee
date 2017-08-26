@@ -6,7 +6,7 @@ path = require 'path'
 Actions = require('../actions').default
 DatabaseStore = require('./database-store').default
 AccountStore = require('./account-store').default
-ContactStore = require './contact-store'
+ContactStore = require('./contact-store').default
 MessageStore = require './message-store'
 FocusedPerspectiveStore = require('./focused-perspective-store').default
 

@@ -1,29 +1,13 @@
 _ = require 'underscore'
-proxyquire = require 'proxyquire'
+fs = require 'fs'
+child_process = require 'child_process'
 
 stubDefaultsJSON = null
 execHitory = []
 
-ChildProcess =
-  exec: (command, callback) ->
-    execHitory.push(arguments)
-    callback(null, '', null)
+# spy on fs is not working
 
-fs =
-  exists: (path, callback) ->
-    callback(true)
-  readFile: (path, callback) ->
-    callback(null, JSON.stringify(stubDefaultsJSON))
-  readFileSync: (path) ->
-    JSON.stringify(stubDefaultsJSON)
-  writeFileSync: (path) ->
-    null
-  unlink: (path, callback) ->
-    callback(null) if callback
-
-DefaultClientHelper = proxyquire "../src/default-client-helper",
-  "child_process": ChildProcess
-  "fs": fs
+DefaultClientHelper = require "../src/default-client-helper"
 
 describe "DefaultClientHelper", ->
   beforeEach ->
@@ -118,6 +102,19 @@ describe "DefaultClientHelper", ->
           LSHandlerURLScheme: 'mailto'
       }
     ]
+    spyOn(child_process, 'exec').andCallFake (command, callback) ->
+        execHitory.push(arguments)
+        callback(null, '', null)
+    spyOn(fs, 'exists').andCallFake (path, callback) ->
+      callback(true)
+    spyOn(fs, 'readFile').andCallFake (path, callback) ->
+      callback(null, JSON.stringify(stubDefaultsJSON))
+    spyOn(fs, 'readFileSync').andCallFake (path) ->
+      JSON.stringify(stubDefaultsJSON)
+    spyOn(fs, 'writeFileSync').andCallFake (path) ->
+      null
+    spyOn(fs, 'unlink').andCallFake (path, callback) ->
+      callback(null) if callback
 
 
   describe "DefaultClientHelperMac", ->

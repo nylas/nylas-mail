@@ -41,21 +41,16 @@ export default class PackageManager {
       }
 
       for (const filename of filenames) {
-        let jsonString = null;
         let pkg = null;
         try {
-          jsonString = fs.readFileSync(path.join(dir, filename, 'package.json')).toString();
-        } catch (err) {
-          // silently fail, not a file
-        }
-        if (!jsonString) {
-          continue;
-        }
-        try {
-          pkg = new Package(path.join(dir, filename), JSON.parse(jsonString));
+          pkg = new Package(path.join(dir, filename));
           this.available[pkg.name] = pkg;
         } catch (err) {
-          throw new Error(`Unable to read package.json for ${filename}: ${err.toString()}`);
+          if (err instanceof Package.NoPackageJSONError) {
+            continue;
+          }
+          const wrapped = new Error(`Unable to read package.json for ${filename}: ${err.toString()}`);
+          NylasEnv.reportError(wrapped);
         }
       }
     }

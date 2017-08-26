@@ -30,7 +30,6 @@ class MasterBeforeEach {
 
       self._resetNylasEnv()
       self._resetDatabase()
-      self._resetPackageManager()
       self._resetTaskQueue()
       self._resetTimeOverride()
       self._resetAccountStore()

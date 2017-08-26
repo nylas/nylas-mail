@@ -15,35 +15,26 @@ class EmojiComposerExtension extends ComposerExtension {
     const {emojiOptions, triggerWord} = EmojiComposerExtension._findEmojiOptions(sel);
     if (sel.anchorNode && sel.isCollapsed) {
       if (emojiOptions.length > 0) {
-        const offset = sel.anchorOffset;
         if (!DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete")) {
           const anchorOffset = Math.max(sel.anchorOffset - triggerWord.length - 1, 0);
           editor.select(sel.anchorNode,
                         anchorOffset,
                         sel.focusNode,
                         sel.focusOffset)
-          editor.wrapSelection("n1-emoji-autocomplete");
-          editor.select(sel.anchorNode,
-                        offset,
-                        sel.anchorNode,
-                        offset);
+                        
+          DOMUtils.wrap(sel.getRangeAt(0), "n1-emoji-autocomplete");
+          editor.currentSelection().collapseToEnd();
         }
       } else {
         if (DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete")) {
           editor.unwrapNodeAndSelectAll(DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete"));
-          editor.select(sel.anchorNode,
-                        sel.anchorOffset + triggerWord.length + 1,
-                        sel.focusNode,
-                        sel.focusOffset + triggerWord.length + 1);
+          editor.currentSelection().collapseToEnd();
         }
       }
     } else {
       if (DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete")) {
         editor.unwrapNodeAndSelectAll(DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete"));
-        editor.select(sel.anchorNode,
-                      sel.anchorOffset + triggerWord.length,
-                      sel.focusNode,
-                      sel.focusOffset + triggerWord.length);
+        editor.currentSelection().collapseToEnd();
       }
     }
   };
@@ -64,9 +55,10 @@ class EmojiComposerExtension extends ComposerExtension {
     if (sel) {
       const {emojiOptions} = EmojiComposerExtension._findEmojiOptions(sel);
       if (emojiOptions.length > 0 && !toolbarState.dragging && !toolbarState.doubleDown) {
-        const locationRefNode = DOMUtils.closest(sel.anchorNode,
-                                                 "n1-emoji-autocomplete");
-        if (!locationRefNode) return null;
+        const locationRefNode = DOMUtils.closest(sel.anchorNode, "n1-emoji-autocomplete");
+        if (!locationRefNode) {
+          return null;
+        }
         const selectedEmoji = locationRefNode.getAttribute("selectedEmoji");
         return {
           component: EmojiPicker,

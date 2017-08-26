@@ -111,6 +111,8 @@ export default class Contact extends Model {
       name = name.substr(0, name.length - 1);
     }
     return new Contact({
+      // used to give them random strings, let's try for something consistent
+      id: `local-${accountId}-${email}`,
       accountId: accountId,
       name: name.trim(),
       email: email,

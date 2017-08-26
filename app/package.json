@@ -58,6 +58,7 @@
     "react": "15.6.1",
     "react-addons-css-transition-group": "15.6.0",
     "react-addons-perf": "15.6.0-rc.1",
+    "react-addons-test-utils": "15.6.0",
     "react-dom": "15.6.1",
     "react-test-renderer": "15.6.1",
     "reflux": "0.1.13",

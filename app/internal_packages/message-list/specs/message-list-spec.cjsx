@@ -9,6 +9,7 @@ ReactTestUtils = require 'react-dom/test-utils'
 {Thread,
  Contact,
  Actions,
+ Folder,
  Message,
  Account,
  DraftStore,
@@ -24,132 +25,138 @@ MessageList = require('../lib/message-list').default
 # User_1 needs to be "me" so that when we calculate who we should reply
 # to, it properly matches the AccountStore
 user_1 = new Contact
+  accountId: TEST_ACCOUNT_ID
   name: TEST_ACCOUNT_NAME
   email: TEST_ACCOUNT_EMAIL
 user_2 = new Contact
+  accountId: TEST_ACCOUNT_ID
   name: "User Two"
   email: "user2@nylas.com"
 user_3 = new Contact
+  accountId: TEST_ACCOUNT_ID
   name: "User Three"
   email: "user3@nylas.com"
 user_4 = new Contact
+  accountId: TEST_ACCOUNT_ID
   name: "User Four"
   email: "user4@nylas.com"
 user_5 = new Contact
+  accountId: TEST_ACCOUNT_ID
   name: "User Five"
   email: "user5@nylas.com"
 
-m1 = (new Message).fromJSON({
+m1 = new Message({
   "id"   : "111",
   "from" : [ user_1 ],
   "to"   : [ user_2 ],
   "cc"   : [ user_3, user_4 ],
   "bcc"  : null,
   "body"      : "Body One",
-  "date"      : 1415814587,
+  "date"      : new Date(1415814587),
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "__cls": "Message",
   "snippet"   : "snippet one...",
   "subject"   : "Subject One",
-  "thread_id" : "thread_12345",
-  "account_id" : TEST_ACCOUNT_ID
+  "threadId" : "thread_12345",
+  "accountId" : TEST_ACCOUNT_ID,
+  folder: new Folder({role: 'all', name: 'All Mail'}),
 })
-m2 = (new Message).fromJSON({
+m2 = new Message({
   "id"   : "222",
   "from" : [ user_2 ],
   "to"   : [ user_1 ],
   "cc"   : [ user_3, user_4 ],
   "bcc"  : null,
   "body"      : "Body Two",
-  "date"      : 1415814587,
+  "date"      : new Date(1415814587),
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "__cls": "Message",
   "snippet"   : "snippet Two...",
   "subject"   : "Subject Two",
-  "thread_id" : "thread_12345",
-  "account_id" : TEST_ACCOUNT_ID
+  "threadId" : "thread_12345",
+  "accountId" : TEST_ACCOUNT_ID,
+  folder: new Folder({role: 'all', name: 'All Mail'}),
 })
-m3 = (new Message).fromJSON({
+m3 = new Message({
   "id"   : "333",
   "from" : [ user_3 ],
   "to"   : [ user_1 ],
   "cc"   : [ user_2, user_4 ],
   "bcc"  : [],
   "body"      : "Body Three",
-  "date"      : 1415814587,
+  "date"      : new Date(1415814587),
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "__cls": "Message",
   "snippet"   : "snippet Three...",
   "subject"   : "Subject Three",
-  "thread_id" : "thread_12345",
-  "account_id" : TEST_ACCOUNT_ID
+  "threadId" : "thread_12345",
+  "accountId" : TEST_ACCOUNT_ID,
+  folder: new Folder({role: 'all', name: 'All Mail'}),
 })
-m4 = (new Message).fromJSON({
+m4 = new Message({
   "id"   : "444",
   "from" : [ user_4 ],
   "to"   : [ user_1 ],
   "cc"   : [],
   "bcc"  : [ user_5 ],
   "body"      : "Body Four",
-  "date"      : 1415814587,
+  "date"      : new Date(1415814587),
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "__cls": "Message",
   "snippet"   : "snippet Four...",
   "subject"   : "Subject Four",
-  "thread_id" : "thread_12345",
-  "account_id" : TEST_ACCOUNT_ID
+  "threadId" : "thread_12345",
+  "accountId" : TEST_ACCOUNT_ID,
+  folder: new Folder({role: 'all', name: 'All Mail'}),
 })
-m5 = (new Message).fromJSON({
+m5 = new Message({
   "id"   : "555",
   "from" : [ user_1 ],
   "to"   : [ user_4 ],
   "cc"   : [],
   "bcc"  : [],
   "body"      : "Body Five",
-  "date"      : 1415814587,
+  "date"      : new Date(1415814587),
   "draft"     : false
   "files"     : [],
   "unread"    : false,
-  "__cls": "Message",
   "snippet"   : "snippet Five...",
   "subject"   : "Subject Five",
-  "thread_id" : "thread_12345",
-  "account_id" : TEST_ACCOUNT_ID
+  "threadId" : "thread_12345",
+  "accountId" : TEST_ACCOUNT_ID,
+  folder: new Folder({role: 'all', name: 'All Mail'}),
 })
 testMessages = [m1, m2, m3, m4, m5]
 draftMessages = [
-  (new Message).fromJSON({
+  new Message({
     "id"   : "666",
+    "headerMessageId": "asdasd-asd@mbbp.local",
     "from" : [ user_1 ],
     "to"   : [ ],
     "cc"   : [ ],
     "bcc"  : null,
     "body"      : "Body One",
-    "date"      : 1415814587,
+    "date"      : new Date(1415814587),
     "draft"     : true
     "files"     : [],
     "unread"    : false,
-    "__cls": "Message",
     "snippet"   : "draft snippet one...",
     "subject"   : "Draft One",
-    "thread_id" : "thread_12345",
-    "account_id" : TEST_ACCOUNT_ID
+    "threadId" : "thread_12345",
+    "accountId" : TEST_ACCOUNT_ID,
+    folder: new Folder({role: 'all', name: 'All Mail'}),
   }),
 ]
 
-test_thread = (new Thread).fromJSON({
+testThread = new Thread({
   "id": "12345"
   "id" : "thread_12345"
   "subject" : "Subject 12345",
-  "account_id" : TEST_ACCOUNT_ID
+  "accountId" : TEST_ACCOUNT_ID
 })
 
 describe "MessageList", ->
@@ -177,7 +184,7 @@ describe "MessageList", ->
       MessageStore._items = testMessages
       MessageStore._expandItemsToDefault()
       MessageStore.trigger(MessageStore)
-      @messageList.setState(currentThread: test_thread)
+      @messageList.setState(currentThread: testThread)
       NylasTestUtils.loadKeymap("keymaps/base")
 
     it "renders all the correct number of messages", ->
@@ -205,7 +212,7 @@ describe "MessageList", ->
   describe "reply type", ->
     it "prompts for a reply when there's only one participant", ->
       MessageStore._items = [m3, m5]
-      MessageStore._thread = test_thread
+      MessageStore._thread = testThread
       MessageStore.trigger()
       expect(@messageList._replyType()).toBe "reply"
       cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
@@ -214,7 +221,7 @@ describe "MessageList", ->
     it "prompts for a reply-all when there's more than one participant and the default is reply-all", ->
       spyOn(NylasEnv.config, "get").andReturn "reply-all"
       MessageStore._items = [m5, m3]
-      MessageStore._thread = test_thread
+      MessageStore._thread = testThread
       MessageStore.trigger()
       expect(@messageList._replyType()).toBe "reply-all"
       cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
@@ -223,7 +230,7 @@ describe "MessageList", ->
     it "prompts for a reply-all when there's more than one participant and the default is reply", ->
       spyOn(NylasEnv.config, "get").andReturn "reply"
       MessageStore._items = [m5, m3]
-      MessageStore._thread = test_thread
+      MessageStore._thread = testThread
       MessageStore.trigger()
       expect(@messageList._replyType()).toBe "reply"
       cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
@@ -231,7 +238,7 @@ describe "MessageList", ->
 
     it "hides the reply type if the last message is a draft", ->
       MessageStore._items = [m5, m3, draftMessages[0]]
-      MessageStore._thread = test_thread
+      MessageStore._thread = testThread
       MessageStore.trigger()
       cs = ReactTestUtils.scryRenderedDOMComponentsWithClass(@messageList, "footer-reply-area")
       expect(cs.length).toBe 0

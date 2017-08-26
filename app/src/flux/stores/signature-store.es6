@@ -8,51 +8,36 @@ class SignatureStore extends NylasStore {
 
   constructor() {
     super();
-
-    this.signatures = NylasEnv.config.get(`nylas.signatures`) || {}
-    this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`) || {}
-
-    // backfill the new signatures structure with old signatures from < v0.4.45
-    let changed = false;
-    for (const account of AccountStore.accounts()) {
-      const signature = NylasEnv.config.get(`nylas.account-${account.id}.signature`)
-      if (signature) {
-        const newId = Utils.generateTempId();
-        this.signatures[newId] = {id: newId, title: account.label, body: signature};
-        this.defaultSignatures[account.emailAddress] = newId;
-        NylasEnv.config.unset(`nylas.account-${account.id}.signature`);
-        changed = true;
-      }
-    }
-    if (changed) {
-      this._saveSignatures();
-      this._saveDefaultSignatures();
-    }
-
-    this.selectedSignatureId = this._setSelectedSignatureId()
+    this.activate(); // for specs
   }
 
   activate() {
-    this.unsubscribers = [
-      Actions.addSignature.listen(this._onAddSignature),
-      Actions.removeSignature.listen(this._onRemoveSignature),
-      Actions.updateSignature.listen(this._onEditSignature),
-      Actions.selectSignature.listen(this._onSelectSignature),
-      Actions.toggleAccount.listen(this._onToggleAccount),
-    ];
+    this.signatures = NylasEnv.config.get(`nylas.signatures`) || {}
+    this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`) || {}
+    this._autoselectSignatureId()
 
-    NylasEnv.config.onDidChange(`nylas.signatures`, () => {
-      this.signatures = NylasEnv.config.get(`nylas.signatures`)
-      this.trigger()
-    });
-    NylasEnv.config.onDidChange(`nylas.defaultSignatures`, () => {
-      this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`)
-      this.trigger()
-    });
+    if (!this.unsubscribers) {
+      this.unsubscribers = [
+        Actions.addSignature.listen(this._onAddSignature),
+        Actions.removeSignature.listen(this._onRemoveSignature),
+        Actions.updateSignature.listen(this._onEditSignature),
+        Actions.selectSignature.listen(this._onSelectSignature),
+        Actions.toggleAccount.listen(this._onToggleAccount),
+      ];
+
+      NylasEnv.config.onDidChange(`nylas.signatures`, () => {
+        this.signatures = NylasEnv.config.get(`nylas.signatures`)
+        this.trigger()
+      });
+      NylasEnv.config.onDidChange(`nylas.defaultSignatures`, () => {
+        this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`)
+        this.trigger()
+      });
+    }
   }
 
   deactivate() {
-    this.unsubscribers.forEach(unsub => unsub());
+    throw new Error("Unimplemented - core stores shouldn't be deactivated.");
   }
 
   getSignatures() {
@@ -85,26 +70,15 @@ class SignatureStore extends NylasStore {
     this.trigger()
   }
 
-  _removeByKey = (obj, keyToDelete) => {
-    return Object.keys(obj)
-      .filter(key => key !== keyToDelete)
-      .reduce((result, current) => {
-        result[current] = obj[current];
-        return result;
-      }, {})
-  }
-
-  _setSelectedSignatureId() {
+  _autoselectSignatureId() {
     const sigIds = Object.keys(this.signatures)
-    if (sigIds.length) {
-      return sigIds[0]
-    }
-    return null
+    this.selectedSignatureId = sigIds.length ? sigIds[0] : null;
   }
 
   _onRemoveSignature = (signatureToDelete) => {
-    this.signatures = this._removeByKey(this.signatures, signatureToDelete.id)
-    this.selectedSignatureId = this._setSelectedSignatureId()
+    this.signatures = Object.assign({}, this.signatures);
+    delete this.signatures[signatureToDelete.id]
+    this._autoselectSignatureId()
     this.trigger()
     this._saveSignatures()
   }

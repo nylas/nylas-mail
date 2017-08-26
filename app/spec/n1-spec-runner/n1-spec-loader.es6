@@ -51,7 +51,7 @@ class N1SpecLoader {
 
     for (let j = 0; j < iterable1.length; j++) {
       const packagePath = iterable1[j];
-      this._loadSpecsInDir(path.join(packagePath, 'spec'));
+      this._loadSpecsInDir(path.join(packagePath, 'specs'));
     }
     this._setSpecType('bundled');
 
@@ -59,7 +59,7 @@ class N1SpecLoader {
     const iterable2 = packagePaths.user != null ? packagePaths.user : [];
     for (let k = 0; k < iterable2.length; k++) {
       const packagePath = iterable2[k];
-      this._loadSpecsInDir(path.join(packagePath, 'spec'));
+      this._loadSpecsInDir(path.join(packagePath, 'specs'));
     }
     return this._setSpecType('user');
   }

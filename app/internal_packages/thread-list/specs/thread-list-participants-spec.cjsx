@@ -10,12 +10,6 @@ describe "ThreadListParticipants", ->
   beforeEach ->
     @account = AccountStore.accounts()[0]
 
-  it "renders into the document", ->
-    @participants = ReactTestUtils.renderIntoDocument(
-      <ThreadListParticipants thread={new Thread}/>
-    )
-    expect(ReactTestUtils.isCompositeComponentWithType(@participants, ThreadListParticipants)).toBe true
-
   it "renders unread contacts with .unread-true", ->
     ben = new Contact(email: 'ben@nylas.com', name: 'ben')
     ben.unread = true
@@ -263,44 +257,3 @@ describe "ThreadListParticipants", ->
                        {contact: @kavya, unread: true},
                        {contact: @michael, unread: true}]
         expect(actualOut).toEqual expectedOut
-
-    describe "when thread.messages is not available", ->
-      it "correctly produces items for display in a wide range of scenarios", ->
-        me = @account.me()
-        scenarios = [{
-          name: 'one participant'
-          in: [@ben]
-          out: [{contact: @ben, unread: false}]
-        },{
-          name: 'one participant (me)'
-          in: [me]
-          out: [{contact: me, unread: false}]
-        },{
-          name: 'two participants'
-          in: [@evan, @ben]
-          out: [{contact: @evan, unread: false}, {contact: @ben, unread: false}]
-        },{
-          name: 'two participants (me)'
-          in: [@ben, me]
-          out: [{contact: @ben, unread: false}]
-        },{
-          name: 'lots of participants'
-          in: [@ben, @evan, @michael, @kavya]
-          out: [{contact: @ben, unread: false},
-                {spacer: true},
-                {contact: @michael, unread: false},
-                {contact: @kavya, unread: false}]
-        }]
-
-        for scenario in scenarios
-          thread = new Thread()
-          thread.participants = scenario.in
-          participants = ReactTestUtils.renderIntoDocument(
-            <ThreadListParticipants thread={thread}/>
-          )
-
-          expect(participants.getTokens()).toEqual(scenario.out)
-
-          # Slightly misuse jasmine to get the output we want to show
-          if (!_.isEqual(participants.getTokens(), scenario.out))
-            expect(scenario.name).toBe('correct')

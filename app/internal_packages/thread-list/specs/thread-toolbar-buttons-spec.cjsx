@@ -28,10 +28,10 @@ test_thread_starred = (new Thread).fromJSON({
 
 describe "ThreadToolbarButtons", ->
   beforeEach ->
-    spyOn Actions, "queueTask"
-    spyOn Actions, "queueTasks"
-    spyOn TaskFactory, "taskForInvertingStarred"
-    spyOn TaskFactory, "taskForInvertingUnread"
+    spyOn(Actions, "queueTask")
+    spyOn(Actions, "queueTasks")
+    spyOn(TaskFactory, "taskForInvertingStarred").andCallThrough()
+    spyOn(TaskFactory, "taskForInvertingUnread").andCallThrough()
 
   describe "Starring", ->
     it "stars a thread if the star button is clicked and thread is unstarred", ->
@@ -60,12 +60,12 @@ describe "ThreadToolbarButtons", ->
 
     it "queues a task to change unread status to true", ->
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(markUnreadBtn).childNodes[0]
-      expect(Actions.queueTask.mostRecentCall.args[0].threads).toEqual([thread])
+      expect(TaskFactory.taskForInvertingUnread.mostRecentCall.args[0].threads).toEqual([thread])
+      expect(Actions.queueTask).toHaveBeenCalled()
 
     it "returns to the thread list", ->
       spyOn Actions, "popSheet"
       ReactTestUtils.Simulate.click ReactDOM.findDOMNode(markUnreadBtn).childNodes[0]
-
       expect(Actions.popSheet).toHaveBeenCalled()
 
   describe "Marking as spam", ->
@@ -77,18 +77,18 @@ describe "ThreadToolbarButtons", ->
         thread = new Thread({
           id: "thread-id-lol-123",
           accountId: TEST_ACCOUNT_ID,
-          folders: [{name: 'spam'}]
+          folders: [{role: 'spam'}]
         })
         markSpamButton = ReactTestUtils.renderIntoDocument(
           <MarkAsSpamButton items={[thread]} />
         )
 
       it "queues a task to remove spam", ->
+        spyOn(TaskFactory, 'tasksForMarkingNotSpam')
         spyOn(CategoryStore, 'getSpamCategory').andReturn(thread.folders[0])
         ReactTestUtils.Simulate.click(ReactDOM.findDOMNode(markSpamButton))
-        {labelsToAdd, labelsToRemove} = Actions.queueTasks.mostRecentCall.args[0][0]
-        expect(labelsToAdd).toEqual([])
-        expect(labelsToRemove).toEqual([thread.folders[0]])
+        expect(TaskFactory.tasksForMarkingNotSpam.mostRecentCall.args[0].threads).toEqual([thread])
+        expect(Actions.queueTasks).toHaveBeenCalled()
 
     describe "when the thread can be moved to spam", ->
       beforeEach ->

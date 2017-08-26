@@ -22,7 +22,7 @@ describe "Composer Quoted Text", ->
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'
     @htmlWithQuote = 'Test <strong>HTML</strong><div id="n1-quoted-text-marker"></div><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
-    @draft = new Message(draft: true, id: "client-123")
+    @draft = new Message(draft: true, id: "client-123", headerMessageId: 'hmid')
     @session =
       trigger: ->
       changes:
@@ -48,9 +48,9 @@ describe "Composer Quoted Text", ->
       @composer.setState
         showQuotedText: false
         showQuotedTextControl: true
-      @contentEditable = @composer.refs[Fields.Body]
+      @contentEditable = @composer._els[Fields.Body]
       @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
-      @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
+      @$composerBodyWrap = ReactDOM.findDOMNode(@composer._els.composerBodyWrap)
 
     it 'should render the quoted-text-control toggle', ->
       toggles = ReactTestUtils.scryRenderedDOMComponentsWithClass(@composer, 'quoted-text-control')
@@ -65,9 +65,9 @@ describe "Composer Quoted Text", ->
       @composer.setState
         showQuotedText: true
         showQuotedTextControl: false
-      @contentEditable = @composer.refs[Fields.Body]
+      @contentEditable = @composer._els[Fields.Body]
       @$contentEditable = ReactDOM.findDOMNode(@contentEditable).querySelector('[contenteditable]')
-      @$composerBodyWrap = ReactDOM.findDOMNode(@composer.refs.composerBodyWrap)
+      @$composerBodyWrap = ReactDOM.findDOMNode(@composer._els.composerBodyWrap)
 
     it "should call add changes with the entire HTML string", ->
       textToAdd = "MORE <strong>TEXT</strong>!"

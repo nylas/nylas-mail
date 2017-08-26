@@ -111,7 +111,14 @@ class FocusedContentStore extends NylasStore {
     if (!collection) {
       throw new Error("focus() requires a collection");
     }
+
+    // same item
     if (item && this._focused[collection] && this._focused[collection].id === item.id) {
+      return;
+    }
+
+    // same nothing
+    if (!item && !this._focused[collection]) {
       return;
     }
 

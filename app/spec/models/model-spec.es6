@@ -1,8 +1,5 @@
 /* eslint quote-props: 0 */
-import _ from 'underscore';
-
 import Model from '../../src/flux/models/model';
-import Utils from '../../src/flux/models/utils';
 import Attributes from '../../src/flux/attributes';
 
 describe("Model", function modelSpecs() {
@@ -14,7 +11,7 @@ describe("Model", function modelSpecs() {
       };
       const m = new Model(attrs);
       expect(m.id).toBe(attrs.id);
-      return expect(m.accountId).toBe(attrs.accountId);
+      expect(m.accountId).toBe(attrs.accountId);
     });
 
     it("assigns id", () => {
@@ -24,25 +21,10 @@ describe("Model", function modelSpecs() {
       const m = new Model(attrs);
       expect(m.id).toBe(attrs.id);
     });
-
-    return it("automatically assigns an id to the model if no id is provided", () => {
-      const m = new Model();
-      expect(Utils.isTempId(m.id)).toBe(true);
-    });
   });
 
-  describe("attributes", () =>
-    it("should return the attributes of the class EXCEPT the id field", () => {
-      const m = new Model();
-      const retAttrs = _.clone(m.constructor.attributes);
-      delete retAttrs.id;
-      return expect(m.attributes()).toEqual(retAttrs);
-    })
-
-  );
-
   describe("clone", () =>
-    it("should return a deep copy of the object", () => {
+    it("should return a deep copy of the object (not reusing array members, etc.)", () => {
       class SubSubmodel extends Model {
         static attributes = Object.assign({}, Model.attributes, {
           'value': Attributes.Number({
@@ -76,7 +58,7 @@ describe("Model", function modelSpecs() {
       expect(old.testArray).not.toBe(clone.testArray);
       // Check classes
       expect(old.testArray[0]).not.toBe(clone.testArray[0]);
-      return expect(old.testArray[0].constructor.name).toEqual(clone.testArray[0].constructor.name);
+      expect(old.testArray[0].constructor.name).toEqual(clone.testArray[0].constructor.name);
     })
 
   );
@@ -121,7 +103,7 @@ describe("Model", function modelSpecs() {
       spyOn(Model.attributes.accountId, 'fromJSON').andCallFake(() => 'inflated value!');
       this.m.fromJSON(this.json);
       expect(Model.attributes.accountId.fromJSON.callCount).toBe(1);
-      return expect(this.m.accountId).toBe('inflated value!');
+      expect(this.m.accountId).toBe('inflated value!');
     });
 
     it("should not touch attributes that are missing in the json", () => {
@@ -130,18 +112,18 @@ describe("Model", function modelSpecs() {
 
       this.m.object = 'abc';
       this.m.fromJSON(this.json);
-      return expect(this.m.object).toBe('abc');
+      expect(this.m.object).toBe('abc');
     });
 
     it("should not do anything with extra JSON keys", () => {
       this.m.fromJSON(this.json);
-      return expect(this.m.daysOld).toBe(undefined);
+      expect(this.m.daysOld).toBe(undefined);
     });
 
     it("should maintain empty string as empty strings", () => {
       expect(this.m.accountId).toBe(undefined);
       this.m.fromJSON({aid: ''});
-      return expect(this.m.accountId).toBe('');
+      expect(this.m.accountId).toBe('');
     });
 
     describe("Attributes.Number", () =>
@@ -156,7 +138,7 @@ describe("Model", function modelSpecs() {
         expect(this.m.testNumber).toBe(null);
 
         this.m.fromJSON({'test_number': 0});
-        return expect(this.m.testNumber).toBe(0);
+        expect(this.m.testNumber).toBe(0);
       })
 
     );
@@ -170,7 +152,7 @@ describe("Model", function modelSpecs() {
         expect(this.m.testJoinedData).toBe('');
 
         this.m.fromJSON({'test_joined_data': 'lolz'});
-        return expect(this.m.testJoinedData).toBe('lolz');
+        expect(this.m.testJoinedData).toBe('lolz');
       })
 
     );
@@ -180,41 +162,47 @@ describe("Model", function modelSpecs() {
         this.m.fromJSON({'test_collection': [{id: '123'}]});
         expect(this.m.testCollection.length).toBe(1);
         expect(this.m.testCollection[0].id).toBe('123');
-        return expect(this.m.testCollection[0].constructor.name).toBe('SubmodelItem');
+        expect(this.m.testCollection[0].constructor.name).toBe('SubmodelItem');
       });
 
-      return it("should be fine with malformed arrays", () => {
-        this.m.fromJSON({'test_collection': [null]});
-        expect(this.m.testCollection.length).toBe(0);
+      it("should be fine with malformed arrays", () => {
+        this.m.testCollection = null;
         this.m.fromJSON({'test_collection': []});
         expect(this.m.testCollection.length).toBe(0);
+
+        this.m.testCollection = null;
         this.m.fromJSON({'test_collection': null});
-        return expect(this.m.testCollection.length).toBe(0);
+        expect(this.m.testCollection.length).toBe(0);
       });
     });
 
-    return describe("Attributes.Boolean", () =>
-      it("should read `true` or true and coerce everything else to false", () => {
+    describe("Attributes.Boolean", () =>
+      it("should read `true` or true or nonzero and coerce everything else to false", () => {
+        this.m.testBoolean = undefined;
         this.m.fromJSON({'test_boolean': true});
         expect(this.m.testBoolean).toBe(true);
-
+        this.m.testBoolean = undefined;
         this.m.fromJSON({'test_boolean': 'true'});
         expect(this.m.testBoolean).toBe(true);
 
+        // this case is important - there are several columns that Merani treats
+        // as booleans that are actually integers on the mailsync side for book keeping,.
+        this.m.testBoolean = undefined;
         this.m.fromJSON({'test_boolean': 4});
-        expect(this.m.testBoolean).toBe(false);
-
+        expect(this.m.testBoolean).toBe(true);
+        this.m.testBoolean = undefined;
         this.m.fromJSON({'test_boolean': '4'});
-        expect(this.m.testBoolean).toBe(false);
+        expect(this.m.testBoolean).toBe(true);
 
+        this.m.testBoolean = undefined;
         this.m.fromJSON({'test_boolean': false});
         expect(this.m.testBoolean).toBe(false);
-
+        this.m.testBoolean = undefined;
         this.m.fromJSON({'test_boolean': 0});
         expect(this.m.testBoolean).toBe(false);
-
+        this.m.testBoolean = undefined;
         this.m.fromJSON({'test_boolean': null});
-        return expect(this.m.testBoolean).toBe(false);
+        expect(this.m.testBoolean).toBe(false);
       })
 
     );
@@ -226,7 +214,6 @@ describe("Model", function modelSpecs() {
         id: "1234",
         accountId: "ACD",
       });
-      return;
     });
 
     it("should return a JSON object and call attribute toJSON functions to map values", () => {
@@ -235,18 +222,18 @@ describe("Model", function modelSpecs() {
       const json = this.model.toJSON();
       expect(json instanceof Object).toBe(true);
       expect(json.id).toBe('1234');
-      return expect(json.aid).toBe('inflated value!');
+      expect(json.aid).toBe('inflated value!');
     });
 
-    return it("should surface any exception one of the attribute toJSON functions raises", () => {
+    it("should surface any exception one of the attribute toJSON functions raises", () => {
       spyOn(Model.attributes.accountId, 'toJSON').andCallFake(() => {
         throw new Error("Can't convert value into JSON format");
       });
-      return expect(() => { return this.model.toJSON(); }).toThrow();
+      expect(() => { this.model.toJSON(); }).toThrow();
     });
   });
 
-  return describe("matches", () => {
+  describe("matches", () => {
     beforeEach(() => {
       this.model = new Model({
         id: "1234",
@@ -260,14 +247,14 @@ describe("Model", function modelSpecs() {
     it("should run the matchers and return true iff all matchers pass", () => {
       expect(this.model.matches([this.truthyMatcher, this.truthyMatcher])).toBe(true);
       expect(this.model.matches([this.truthyMatcher, this.falsyMatcher])).toBe(false);
-      return expect(this.model.matches([this.falsyMatcher, this.truthyMatcher])).toBe(false);
+      expect(this.model.matches([this.falsyMatcher, this.truthyMatcher])).toBe(false);
     });
 
-    return it("should pass itself as an argument to the matchers", () => {
+    it("should pass itself as an argument to the matchers", () => {
       spyOn(this.truthyMatcher, 'evaluate').andCallFake(param => {
-        return expect(param).toBe(this.model);
+        expect(param).toBe(this.model);
       });
-      return this.model.matches([this.truthyMatcher]);
+      this.model.matches([this.truthyMatcher]);
     });
   });
 });

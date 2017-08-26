@@ -52,17 +52,22 @@ class MultiselectDropdown extends Component {
   _renderItem = (item) => {
     const MenuItem = Menu.Item
     return (
-      <MenuItem onMouseDown={() => this._onItemClick(item)} checked={this.props.itemChecked(item)} key={this.props.itemKey(item)} content={this.props.itemContent(item)} />
+      <MenuItem
+        onMouseDown={() => this._onItemClick(item)}
+        checked={this.props.itemChecked(item)}
+        key={this.props.itemKey(item)}
+        content={this.props.itemContent(item)}
+      />
     )
   }
 
 
-  _renderMenu= (items) => {
+  _renderMenu = (items) => {
     return (
       <Menu
         items={items}
         itemContent={this._renderItem}
-        itemKey={item => item.id}
+        itemKey={item => this.props.itemKey(item)}
         onSelect={() => {}}
       />
     )

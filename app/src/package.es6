@@ -1,10 +1,26 @@
 import path from 'path';
 import fs from 'fs';
 
+class NoPackageJSONError extends Error {
+}
+
 export default class Package {
-  constructor(dir, json) {
+  static NoPackageJSONError = NoPackageJSONError;
+
+  constructor(dir) {
     this.directory = dir;
-    this.json = json;
+
+    let jsonString = null;
+    try {
+      jsonString = fs.readFileSync(path.join(dir, 'package.json')).toString();
+    } catch (err) {
+      // silently fail, not a file
+    }
+    if (!jsonString) {
+      throw new NoPackageJSONError();
+    }
+
+    this.json = JSON.parse(jsonString);
     this.name = this.json.name;
     this.displayName = this.json.displayName || this.json.name;
     this.disposables = [];

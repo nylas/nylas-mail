@@ -75,14 +75,14 @@ class ContactStore extends NylasStore {
       let email = match[0]
       let name = null
 
-      const startsWithQuote = email[0] in ['\'', '"']
-      const hasTrailingQuote = contactString[match.index + email.length] in ['\'', '"']
+      const startsWithQuote = ['\'', '"'].includes(email[0])
+      const hasTrailingQuote = ['\'', '"'].includes(contactString[match.index + email.length]);
       if (startsWithQuote && hasTrailingQuote) {
         email = email.slice(1, email.length - 1);
       }
 
-      const hasLeadingParen = contactString[match.index - 1] in ['(', '<']
-      const hasTrailingParen = contactString[match.index + email.length] in [')', '>']
+      const hasLeadingParen = ['(', '<'].includes(contactString[match.index - 1])
+      const hasTrailingParen = [')', '>'].includes(contactString[match.index + email.length]);
 
       if (hasLeadingParen && hasTrailingParen) {
         let nameStart = lastMatchEnd;

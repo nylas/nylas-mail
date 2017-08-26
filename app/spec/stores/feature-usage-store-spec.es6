@@ -35,10 +35,10 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
       expect(FeatureUsageStore._isUsable("not-usable")).toBe(false)
     });
 
-    it("warns if asking for an unsupported feature", () => {
-      spyOn(NylasEnv, "reportError")
-      expect(FeatureUsageStore._isUsable("unsupported")).toBe(false)
-      expect(NylasEnv.reportError).toHaveBeenCalled()
+    it("returns true if no quota is present for the feature", () => {
+      spyOn(NylasEnv, 'reportError')
+      expect(FeatureUsageStore._isUsable("unsupported")).toBe(true)
+      expect(NylasEnv.reportError).toHaveBeenCalled();
     });
   });
 
@@ -91,8 +91,9 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
 
       it("resolves the modal if you upgrade", async () => {
         setImmediate(() => {
-          FeatureUsageStore._onModalClose()
-        })
+          IdentityStore._identity.featureUsage["not-usable"].quota = 10000;
+          FeatureUsageStore._onModalClose();
+        });
         await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
         expect(Actions.openModal).toHaveBeenCalled();
         expect(Actions.openModal.calls.length).toBe(1)
@@ -100,7 +101,8 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
 
       it("pops open a modal with the correct text", async () => {
         setImmediate(() => {
-          FeatureUsageStore._onModalClose()
+          IdentityStore._identity.featureUsage["not-usable"].quota = 10000;
+          FeatureUsageStore._onModalClose();
         })
         await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
         expect(Actions.openModal).toHaveBeenCalled();

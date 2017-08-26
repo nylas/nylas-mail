@@ -1,5 +1,4 @@
-import {ipcRenderer} from 'electron';
-import {Utils, KeyManager, DatabaseWriter, SendFeatureUsageEventTask} from 'nylas-exports'
+import {Utils, KeyManager, SendFeatureUsageEventTask} from 'nylas-exports'
 import IdentityStore from '../../src/flux/stores/identity-store'
 import * as NylasAPIRequest from '../../src/flux/nylas-api-request'
 
@@ -30,25 +29,21 @@ describe("IdentityStore", function identityStoreSpec() {
       IdentityStore._identity = this.identityJSON;
       spyOn(KeyManager, "deletePassword")
       spyOn(KeyManager, "replacePassword")
-      spyOn(DatabaseWriter.prototype, "persistJSONBlob").andReturn(Promise.resolve())
-      spyOn(ipcRenderer, "send")
       spyOn(IdentityStore, "trigger")
+      spyOn(NylasEnv.config, 'set')
+      spyOn(NylasEnv.config, 'unset')
     });
 
     it("logs out of nylas identity properly", async () => {
-      spyOn(NylasEnv.config, 'unset')
       const promise = IdentityStore._onLogoutNylasIdentity()
       IdentityStore._onIdentityChanged(null)
-      return promise.then(() => {
-        expect(KeyManager.deletePassword).toHaveBeenCalled()
-        expect(KeyManager.replacePassword).not.toHaveBeenCalled()
-        expect(ipcRenderer.send).toHaveBeenCalled()
-        expect(ipcRenderer.send.calls[0].args[1]).toBe("onIdentityChanged")
-        expect(DatabaseWriter.prototype.persistJSONBlob).toHaveBeenCalled()
-        const ident = DatabaseWriter.prototype.persistJSONBlob.calls[0].args[1]
-        expect(ident).toBe(null)
-        expect(IdentityStore.trigger).toHaveBeenCalled()
-      })
+      await promise
+      expect(KeyManager.deletePassword).toHaveBeenCalled()
+      expect(KeyManager.replacePassword).not.toHaveBeenCalled()
+      expect(NylasEnv.config.set).toHaveBeenCalled()
+      const ident = NylasEnv.config.set.calls[0].args[1]
+      expect(ident).toBe(null)
+      expect(IdentityStore.trigger).toHaveBeenCalled()
     });
 
     it("makes the Identity synchronously available for fetching right after saving the identity", async () => {
@@ -59,7 +54,6 @@ describe("IdentityStore", function identityStoreSpec() {
       const t = new SendFeatureUsageEventTask('feat');
       await t.performLocal()
       expect(used()).toBe(2)
-      expect(ipcRenderer.send).not.toHaveBeenCalled()
       expect(IdentityStore.trigger).toHaveBeenCalled()
     });
   });

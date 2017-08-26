@@ -1,5 +1,6 @@
 _ = require 'underscore'
 Thread = require('../../src/flux/models/thread').default
+Folder = require('../../src/flux/models/folder').default
 Label = require('../../src/flux/models/label').default
 Message = require('../../src/flux/models/message').default
 FocusedContentStore = require('../../src/flux/stores/focused-content-store').default
@@ -10,9 +11,9 @@ ChangeUnreadTask = require('../../src/flux/tasks/change-unread-task').default
 Actions = require('../../src/flux/actions').default
 
 testThread = new Thread(id: '123', accountId: TEST_ACCOUNT_ID)
-testMessage1 = new Message(id: 'a', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
-testMessage2 = new Message(id: 'b', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
-testMessage3 = new Message(id: 'c', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
+testMessage1 = new Message(folder: new Folder(role: 'all'), id: 'a', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
+testMessage2 = new Message(folder: new Folder(role: 'all'), id: 'b', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
+testMessage3 = new Message(folder: new Folder(role: 'all'), id: 'c', body: '123', files: [], accountId: TEST_ACCOUNT_ID)
 
 describe "MessageStore", ->
   describe "when the receiving focus changes from the FocusedContentStore", ->
@@ -59,11 +60,11 @@ describe "MessageStore", ->
     beforeEach ->
       MessageStore._showingHiddenItems = false
       MessageStore._items = [
-        new Message(categories: [new Label(displayName: 'bla'), new Label(name: 'trash')]),
-        new Message(categories: [new Label(name: 'inbox')]),
-        new Message(categories: [new Label(name: 'bla'), new Label(name: 'spam')]),
-        new Message(categories: []),
-        new Message(categories: [], draft: true),
+        new Message(folder: new Folder(role: 'trash'), labels: [new Label(displayName: 'bla')]),
+        new Message(folder: new Folder(role: 'all'), labels: [new Label(role: 'inbox')]),
+        new Message(folder: new Folder(role: 'spam'), labels: [new Label(displayName: 'bla')]),
+        new Message(folder: new Folder(role: 'all'), labels: []),
+        new Message(folder: new Folder(role: 'all'), labels: [], draft: true),
       ]
 
     describe "when showing hidden items", ->

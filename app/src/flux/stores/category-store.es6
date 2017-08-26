@@ -92,7 +92,7 @@ class CategoryStore extends NylasStore {
     }
 
     const accountCategories = this._standardCategories[asAccountId(accountOrId)]
-    return accountCategories && accountCategories.find(c => c.role === role);
+    return accountCategories && accountCategories.find(c => c.role === role) || null;
   }
 
   // Public: Returns the set of all standard categories that match the given
