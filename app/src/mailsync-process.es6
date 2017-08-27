@@ -137,6 +137,7 @@ export default class MailsyncProcess extends EventEmitter {
       if (errBuffer) {
         error = new Error(errBuffer);
       }
+
       this.emit('close', {code, error, signal: this._proc.signalCode});
     });
   }

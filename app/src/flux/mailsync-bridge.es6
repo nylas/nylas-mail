@@ -1,4 +1,6 @@
 import path from 'path';
+import fs from 'fs';
+
 import Task from './tasks/task';
 import IdentityStore from './stores/identity-store';
 import AccountStore from './stores/account-store';
@@ -12,7 +14,7 @@ import Utils from './models/utils';
 
 export default class MailsyncBridge {
   constructor() {
-    if (!NylasEnv.isMainWindow() || !NylasEnv.inSpecMode()) {
+    if (!NylasEnv.isMainWindow() || NylasEnv.inSpecMode()) {
       // maybe bind as listener?
       return;
     }
@@ -69,15 +71,17 @@ export default class MailsyncBridge {
       client.kill();
     }
 
-    toLaunch.forEach((acct) => {
-      const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, acct);
+    toLaunch.forEach((account) => {
+      const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, account);
       client.sync();
       client.on('deltas', this.onIncomingMessages);
       client.on('close', ({code, error, signal}) => {
-        console.log(`SyncWorker exited (${signal}) with code ${code}: ${error || "No Error Provided"}`);
-        delete this._clients[acct.id];
+        if (signal !== 'SIGTERM') {
+          this.reportClientCrash(account, {code, error, signal})
+        }
+        delete this._clients[account.id];
       });
-      this._clients[acct.id] = client;
+      this._clients[account.id] = client;
     });
   }
 
@@ -168,8 +172,53 @@ export default class MailsyncBridge {
 
   sendMessageToAccount(accountId, json) {
     if (!this._clients[accountId]) {
-      throw new Error(`No mailsync worker is running for account id ${accountId}.`);
+      const err = new Error(`No mailsync worker is running.`);
+      err.accountId = accountId;
+      throw err;
     }
     this._clients[accountId].sendMessage(json);
+  }
+
+  reportClientCrash(account, {code, error, signal}) {
+    const overview = `SyncWorker crashed with ${signal} (code ${code})`;
+
+    let [message, stack] = (`${error}`).split('*** Stack trace');
+
+    if (message) {
+      const lines = message.split('\n')
+        .map(l => l.replace(/\*\*\*/g, '').trim())
+        .filter(l => !l.startsWith('[') && !l.startsWith('Error: null['));
+      message = `${overview}:\n${lines.join('\n')}`;
+    }
+    if (stack) {
+      const lines = stack.split('\n')
+        .map(l => l.replace(/\*\*\*/g, '').trim())
+      lines.shift();
+      message = `${message}${lines[0]}`;
+      stack = lines.join('\n');
+    }
+
+    const err = new Error(message);
+    err.stack = stack;
+
+    let log = "";
+    try {
+      const logpath = path.join(NylasEnv.getConfigDirPath(), 'mailsync.log')
+      const {size} = fs.statSync(logpath);
+      const tailSize = Math.min(1200, size);
+      const buffer = new Buffer(tailSize);
+      const fd = fs.openSync(logpath, 'r')
+      fs.readSync(fd, buffer, 0, tailSize, size - tailSize)
+      log = buffer.toString('UTF8');
+      log = log.substr(log.indexOf('\n') + 1);
+    } catch (logErr) {
+      console.warn(`Could not append mailsync.log to mailsync exception report: ${logErr}`);
+    }
+
+    NylasEnv.errorLogger.reportError(err, {
+      stack: stack,
+      log: log,
+      provider: account.provider,
+    });
   }
 }
