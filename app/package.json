@@ -7,6 +7,7 @@
   "license": "GPL-3.0",
   "main": "./src/browser/main.js",
   "dependencies": {
+    "@segment/loosely-validate-event": "^1.1.2",
     "async": "^0.9",
     "babel-core": "6.22.0",
     "babel-preset-electron": "bengotow/babel-preset-electron#00783dfc438f122997993ae597a41ec315ba121b",

@@ -1,0 +1,14 @@
+{
+  "name": "analytics",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Analytics",
+  "license": "Proprietary",
+  "private": true,
+  "windowTypes": {
+    "default": true
+  },
+  "engines": {
+    "merani": "*"
+  }
+}

@@ -354,10 +354,6 @@ export default class NylasEnvConstructor {
     return this.getWindowType() === 'emptyWindow';
   }
 
-  isWorkWindow() {
-    return this.getWindowType() === 'work';
-  }
-
   isComposerWindow() {
     return this.getWindowType() === 'composer';
   }

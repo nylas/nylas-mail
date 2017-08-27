@@ -1,0 +1,1 @@
+This folder contains a modified version of analytics-node. The original version uses `superagent`, which is both unnecessary (since we have both Browser and Node APIs and can use `fetch` and also added ~2.1MB of JavaScript to Merani.)
