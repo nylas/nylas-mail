@@ -70,7 +70,8 @@ export async function makeRequest(options) {
     throw error;
   }
   if (!resp.ok) {
-    error.message = `${options.method || "GET"} ${options.url} returned ${resp.statusCode}: ${resp.statusText}`;
+    error.statusCode = resp.status;
+    error.message = `${options.method || "GET"} ${options.url} returned ${resp.status} ${resp.statusText}`;
     throw error;
   }
   return resp.json();

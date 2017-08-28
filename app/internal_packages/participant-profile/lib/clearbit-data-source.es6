@@ -13,7 +13,7 @@ export default class ClearbitDataSource {
       method: 'GET',
       path: `/api/info-for-email/${email}`,
     });
-    return await this.parseResponse(body, email, tryCount)
+    return await this.parseResponse(body, email, tryCount);
   }
 
   parseResponse(body = {}, requestedEmail, tryCount = 0) {
