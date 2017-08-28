@@ -80,7 +80,7 @@ export default class PackageManager {
         continue;
       }
 
-      if (pkg.windowTypes[windowType]) {
+      if (pkg.windowTypes[windowType] || pkg.windowTypes.all) {
         if (pkg.syncInit) {
           this.activatePackage(pkg);
         } else {
