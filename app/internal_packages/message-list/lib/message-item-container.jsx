@@ -60,7 +60,7 @@ export default class MessageItemContainer extends React.Component {
     });
   }
 
-  _onSendingStateChanged = (headerMessageId) => {
+  _onSendingStateChanged = ({headerMessageId}) => {
     if (headerMessageId === this.props.message.headerMessageId) {
       this.setState(this._getStateFromStores());
     }

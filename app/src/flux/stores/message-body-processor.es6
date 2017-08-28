@@ -19,7 +19,9 @@ class MessageBodyProcessor {
 
     DatabaseStore.listen((change) => {
       if (change.objectClass === Message.name) {
-        change.objects.forEach(this.updateCacheForMessage);
+        change.objects
+          .filter(m => this._recentlyProcessedD[this._key(m)])
+          .forEach(this.updateCacheForMessage);
       }
     });
   }
@@ -35,17 +37,13 @@ class MessageBodyProcessor {
     });
   }
 
-  updateCacheForMessage = (changedMessage) => {
-    // check that the message exists in the cache
+  updateCacheForMessage = async (changedMessage) => {
     const changedKey = this._key(changedMessage);
-    if (!this._recentlyProcessedD[changedKey]) {
-      return;
-    }
 
-    // grab the old value
-    const oldOutput = this._recentlyProcessedD[changedKey].body;
+    // grab the old cached value if there is one
+    const oldCacheRecord = this._recentlyProcessedD[changedKey];
 
-    // remove the message from the cache
+    // remove the message from the cache so retrieve() will reprocess
     delete this._recentlyProcessedD[changedKey];
     this._recentlyProcessedA = this._recentlyProcessedA.filter(({key}) =>
       key !== changedKey
@@ -58,19 +56,20 @@ class MessageBodyProcessor {
       message.id === changedMessage.id
     );
 
-    if (subscriptions.length > 0) {
-      const updatedMessage = changedMessage.clone();
-      updatedMessage.body = updatedMessage.body || subscriptions[0].message.body;
+    const updatedMessage = changedMessage.clone();
+    updatedMessage.body = updatedMessage.body || (subscriptions[0] && subscriptions[0].message.body);
+    if (!updatedMessage.body) {
+      return;
+    }
 
-      this.retrieve(updatedMessage).then((output) => {
-        // only trigger if the output has really changed
-        if (output !== oldOutput) {
-          for (const subscription of subscriptions) {
-            subscription.callback(output);
-            subscription.message = updatedMessage;
-          }
-        }
-      });
+    const output = await this.retrieve(updatedMessage);
+
+    // only trigger if the body has really changed
+    if (!oldCacheRecord || output !== oldCacheRecord.body) {
+      for (const subscription of subscriptions) {
+        subscription.callback(output);
+        subscription.message = updatedMessage;
+      }
     }
   }
 
@@ -78,16 +77,18 @@ class MessageBodyProcessor {
     return this._version;
   }
 
-  subscribe(message, callback) {
+  subscribe(message, sendInitial, callback) {
     const sub = {message, callback};
 
-    // Extra defer to ensure that subscribe never calls it's callback synchronously,
-    // (In Node, callbacks should always be called after caller execution has finished)
-    _.defer(() => this.retrieve(message).then((output) => {
-      if (this._subscriptions.includes(sub)) {
-        callback(output);
-      }
-    }));
+    if (sendInitial) {
+      // Extra defer to ensure that subscribe never calls it's callback synchronously,
+      // (In Node, callbacks should always be called after caller execution has finished)
+      _.defer(() => this.retrieve(message).then((output) => {
+        if (this._subscriptions.includes(sub)) {
+          callback(output);
+        }
+      }));
+    }
 
     this._subscriptions.push(sub);
     return () => {
@@ -95,16 +96,23 @@ class MessageBodyProcessor {
     }
   }
 
-  retrieve(message) {
+  async retrieve(message) {
     const key = this._key(message);
     if (this._recentlyProcessedD[key]) {
-      return Promise.resolve(this._recentlyProcessedD[key].body);
+      return this._recentlyProcessedD[key].body;
     }
 
-    return this._process(message).then((body) => {
-      this._addToCache(key, body)
-      return body;
-    });
+    const body = await this._process(message);
+    this._addToCache(key, body)
+    return body;
+  }
+
+  retrieveCached(message) {
+    const key = this._key(message);
+    if (this._recentlyProcessedD[key]) {
+      return this._recentlyProcessedD[key].body;
+    }
+    return null;
   }
 
   // Private Methods

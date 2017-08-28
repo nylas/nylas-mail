@@ -201,6 +201,7 @@ export default class MessageItem extends React.Component {
         />
         <div className="pending-spinner" style={{position: 'absolute', marginTop: -2}}>
           <RetinaImg
+            width={18}
             name="sending-spinner.gif"
             mode={RetinaImg.Mode.ContentPreserve}
           />

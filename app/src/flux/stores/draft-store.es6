@@ -13,6 +13,7 @@ import Thread from '../models/thread';
 import Message from '../models/message';
 import Actions from '../actions';
 import TaskQueue from './task-queue';
+import MessageBodyProcessor from './message-body-processor';
 import SoundRegistry from '../../registries/sound-registry';
 import * as ExtensionRegistry from '../../registries/extension-registry';
 
@@ -36,7 +37,7 @@ class DraftStore extends NylasStore {
     this.listenTo(DatabaseStore, this._onDataChanged);
     this.listenTo(Actions.composeReply, this._onComposeReply);
     this.listenTo(Actions.composeForward, this._onComposeForward);
-    this.listenTo(Actions.composePopoutDraft, this._onPopoutDraftClientId);
+    this.listenTo(Actions.composePopoutDraft, this._onPopoutDraft);
     this.listenTo(Actions.composeNewBlankDraft, this._onPopoutBlankDraft);
     this.listenTo(Actions.composeNewDraftToRecipient, this._onPopoutNewDraftToRecipient);
     this.listenTo(Actions.draftDeliveryFailed, this._onSendDraftFailed);
@@ -59,21 +60,6 @@ class DraftStore extends NylasStore {
     NylasEnv.onBeforeUnload(this._onBeforeUnload);
 
     this._draftSessions = {};
-
-    // We would ideally like to be able to calculate the sending state
-    // declaratively from the existence of the SendDraftTask on the
-    // TaskQueue.
-    //
-    // Unfortunately it takes a while for the Task to end up on the Queue.
-    // Before it's there, the Draft session is fetched, changes are
-    // applied, it's saved to the DB, and performLocal is run. In the
-    // meantime, several triggers from the DraftStore may fire (like when
-    // it's saved to the DB). At the time of those triggers, the task is
-    // not yet on the Queue and the DraftStore incorrectly says
-    // `isSendingDraft` is false.
-    //
-    // As a result, we keep track of the intermediate time between when we
-    // request to queue something, and when it appears on the queue.
     this._draftsSending = {};
 
     ipcRenderer.on('mailto', this._onHandleMailtoLink);
@@ -82,9 +68,9 @@ class DraftStore extends NylasStore {
 
   /**
   Fetch a {DraftEditingSession} for displaying and/or editing the
-  draft with `clientId`.
+  draft with `headerMessageId`.
 
-  @param {String} clientId - The clientId of the draft.
+  @param {String} headerMessageId - The headerMessageId of the draft.
   @returns {Promise} - Resolves to an {DraftEditingSession} for the draft once it has been prepared
   */
   sessionForClientId(headerMessageId) {
@@ -102,7 +88,6 @@ class DraftStore extends NylasStore {
   isSendingDraft(headerMessageId) {
     return this._draftsSending[headerMessageId] || false;
   }
-
 
   _doneWithSession(session) {
     session.teardown();
@@ -248,7 +233,7 @@ class DraftStore extends NylasStore {
 
     return TaskQueue.waitForPerformLocal(task).then(() => {
       if (popout) {
-        this._onPopoutDraftClientId(draft.headerMessageId);
+        this._onPopoutDraft(draft.headerMessageId);
       } else {
         Actions.focusDraft({headerMessageId: draft.headerMessageId});
       }
@@ -271,12 +256,12 @@ class DraftStore extends NylasStore {
     Actions.recordUserEvent("Draft Created", {type: "new"});
     return DraftFactory.createDraft().then((draft) => {
       return this._finalizeAndPersistNewMessage(draft).then(({headerMessageId}) => {
-        return this._onPopoutDraftClientId(headerMessageId, {newDraft: true});
+        return this._onPopoutDraft(headerMessageId, {newDraft: true});
       });
     });
   }
 
-  _onPopoutDraftClientId = (headerMessageId, options = {}) => {
+  _onPopoutDraft = (headerMessageId, options = {}) => {
     if (headerMessageId == null) {
       throw new Error("DraftStore::onPopoutDraftId - You must provide a headerMessageId");
     }
@@ -317,7 +302,7 @@ class DraftStore extends NylasStore {
       const callback = () => {
         remaining -= 1;
         if (remaining === 0) {
-          this._onPopoutDraftClientId(headerMessageId);
+          this._onPopoutDraft(headerMessageId);
         }
       };
 
@@ -371,6 +356,15 @@ class DraftStore extends NylasStore {
 
     const session = await this.sessionForClientId(headerMessageId);
     const draft = await DraftHelpers.draftPreparedForSyncback(session);
+
+    // Directly update the message body cache so the user immediately sees
+    // the new message text (and never old draft text or blank text) sending.
+    await MessageBodyProcessor.updateCacheForMessage(draft);
+
+    // At this point the message UI enters the sending state.
+    this.trigger({headerMessageId});
+
+    // Now do the actual sending!
     await sendAction.performSendAction({draft});
     this._doneWithSession(session);
 
@@ -381,17 +375,17 @@ class DraftStore extends NylasStore {
 
   _onDidCancelSendAction = ({headerMessageId}) => {
     delete this._draftsSending[headerMessageId];
-    this.trigger(headerMessageId);
+    this.trigger({headerMessageId});
   }
 
   _onSendDraftSuccess = ({headerMessageId}) => {
     delete this._draftsSending[headerMessageId];
-    this.trigger(headerMessageId);
+    this.trigger({headerMessageId});
   }
 
   _onSendDraftFailed = ({headerMessageId, threadId, errorMessage, errorDetail}) => {
     this._draftsSending[headerMessageId] = false;
-    this.trigger(headerMessageId);
+    this.trigger({headerMessageId});
     if (NylasEnv.isMainWindow()) {
       // We delay so the view has time to update the restored draft. If we
       // don't delay the modal may come up in a state where the draft looks

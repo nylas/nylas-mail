@@ -297,8 +297,18 @@ export default class DraftEditingSession extends NylasStore {
     if (change === undefined) {
       return;
     }
+
     // We don't accept changes unless our draft object is loaded
     if (!this._draft) {
+      return;
+    }
+
+    // Some change events just tell us that the state of the draft (eg sending state)
+    // have changed and don't include a payload.
+    if (change.headerMessageId) {
+      if (change.headerMessageId === this.draft.headerMessageId) {
+        this.trigger();
+      }
       return;
     }
 

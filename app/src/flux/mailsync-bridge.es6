@@ -137,8 +137,8 @@ export default class MailsyncBridge {
       const models = objects.map(Utils.convertToModel);
       DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
 
-      if (objects[0] instanceof Task) {
-        for (const task of objects) {
+      if (models[0] instanceof Task) {
+        for (const task of models) {
           if (task.status === 'complete') {
             if (task.error != null) {
               task.onError(task.error);

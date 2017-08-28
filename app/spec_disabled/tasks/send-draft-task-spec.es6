@@ -138,7 +138,6 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       it("should notify the draft was sent", () => {
         waitsForPromise(() => this.task.performRemote().then(() => {
           const args = Actions.draftDeliverySucceeded.calls[0].args[0];
-          expect(args.message instanceof Message).toBe(true)
           expect(args.headerMessageId).toBe(this.draft.headerMessageId)
         }));
       });

@@ -28,12 +28,13 @@ export default class MessageItemBody extends React.Component {
     this._mounted = false;
     this.state = {
       showQuotedText: DraftHelpers.isForwardedMessage(this.props.message),
-      processedBody: null,
+      processedBody: MessageBodyProcessor.retrieveCached(this.props.message),
     };
   }
 
   componentWillMount() {
-    this._unsub = MessageBodyProcessor.subscribe(this.props.message, (processedBody) =>
+    const needInitialCallback = this.state.processedBody === null;
+    this._unsub = MessageBodyProcessor.subscribe(this.props.message, needInitialCallback, (processedBody) =>
       this.setState({processedBody})
     );
   }
@@ -45,7 +46,7 @@ export default class MessageItemBody extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.message.id !== this.props.message.id) {
       if (this._unsub) { this._unsub() }
-      this._unsub = MessageBodyProcessor.subscribe(nextProps.message, (processedBody) =>
+      this._unsub = MessageBodyProcessor.subscribe(nextProps.message, true, (processedBody) =>
         this.setState({processedBody})
       );
     }

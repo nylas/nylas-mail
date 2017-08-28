@@ -26,8 +26,8 @@ class TestExtension extends ComposerExtension {
 
 xdescribe('DraftStore', function draftStore() {
   beforeEach(() => {
-    this.fakeThread = new Thread({id: 'fake-thread', clientId: 'fake-thread'});
-    this.fakeMessage = new Message({id: 'fake-message', clientId: 'fake-message'});
+    this.fakeThread = new Thread({id: 'fake-thread', headerMessageId: 'fake-thread'});
+    this.fakeMessage = new Message({id: 'fake-message', headerMessageId: 'fake-message'});
 
     spyOn(NylasEnv, 'newWindow').andCallFake(() => {});
     spyOn(DatabaseWriter.prototype, "persistModel").andReturn(Promise.resolve());
@@ -38,8 +38,8 @@ xdescribe('DraftStore', function draftStore() {
       return Promise.reject(new Error(`Not Stubbed for class ${query._klass.name}`));
     });
 
-    for (const draftClientId of Object.keys(DraftStore._draftSessions)) {
-      const sess = DraftStore._draftSessions[draftClientId];
+    for (const headerMessageId of Object.keys(DraftStore._draftSessions)) {
+      const sess = DraftStore._draftSessions[headerMessageId];
       if (sess.teardown) {
         DraftStore._doneWithSession(sess);
       }
@@ -49,7 +49,7 @@ xdescribe('DraftStore', function draftStore() {
 
   describe("creating and opening drafts", () => {
     beforeEach(() => {
-      const draft = new Message({id: "A", subject: "B", clientId: "A", body: "123"});
+      const draft = new Message({id: "A", subject: "B", headerMessageId: "A", body: "123"});
       this.newDraft = draft;
       spyOn(DraftFactory, "createDraftForReply").andReturn(Promise.resolve(draft));
       spyOn(DraftFactory, "createOrUpdateDraftForReply").andReturn(Promise.resolve(draft));
@@ -138,7 +138,7 @@ xdescribe('DraftStore', function draftStore() {
             hidden: true,
             windowKey: `composer-A`,
             windowType: "composer",
-            windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
+            windowProps: { draftHeaderMessageId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
       });
@@ -160,7 +160,7 @@ xdescribe('DraftStore', function draftStore() {
             hidden: true,
             windowKey: `composer-A`,
             windowType: "composer",
-            windowProps: { draftClientId: "A", draftJSON: this.newDraft.toJSON() },
+            windowProps: { draftHeaderMessageId: "A", draftJSON: this.newDraft.toJSON() },
           });
         });
       });
@@ -300,7 +300,7 @@ xdescribe('DraftStore', function draftStore() {
   describe("sending a draft", () => {
     beforeEach(() => {
       this.draft = new Message({
-        clientId: "local-123",
+        headerMessageId: "local-123",
         threadId: "thread-123",
         replyToMessageId: "message-123",
         files: ['stub'],
@@ -322,7 +322,7 @@ xdescribe('DraftStore', function draftStore() {
         },
       };
 
-      DraftStore._draftSessions[this.draft.clientId] = session;
+      DraftStore._draftSessions[this.draft.headerMessageId] = session;
       spyOn(DraftStore, "_doneWithSession").andCallThrough();
       spyOn(DraftHelpers, "draftPreparedForSyncback").andReturn(Promise.resolve());
       spyOn(DraftStore, "trigger");
@@ -465,7 +465,7 @@ xdescribe('DraftStore', function draftStore() {
       spyOn(NylasEnv, 'isMainWindow').andReturn(true);
       this.draftTeardown = jasmine.createSpy('draft teardown');
       this.session = {
-        draftClientId: "abc",
+        headerMessageId: "abc",
         draft() {
           return {pristine: false};
         },
@@ -512,14 +512,14 @@ xdescribe('DraftStore', function draftStore() {
     });
 
     it("should call through to DraftFactory and popout a new draft", () => {
-      const draft = new Message({clientId: "A", body: '123'});
+      const draft = new Message({headerMessageId: "A", body: '123'});
       spyOn(DraftFactory, 'createDraftForMailto').andReturn(Promise.resolve(draft));
-      spyOn(DraftStore, '_onPopoutDraftClientId');
+      spyOn(DraftStore, '_onPopoutDraft');
       waitsForPromise(() => {
         return DraftStore._onHandleMailtoLink({}, 'mailto:bengotow@gmail.com').then(() => {
           const received = DatabaseWriter.prototype.persistModel.mostRecentCall.args[0];
           expect(received).toEqual(draft);
-          expect(DraftStore._onPopoutDraftClientId).toHaveBeenCalled();
+          expect(DraftStore._onPopoutDraft).toHaveBeenCalled();
         });
       });
     });
@@ -528,7 +528,7 @@ xdescribe('DraftStore', function draftStore() {
   describe("mailfiles handling", () => {
     it("should popout a new draft", () => {
       const defaultMe = new Contact();
-      spyOn(DraftStore, '_onPopoutDraftClientId');
+      spyOn(DraftStore, '_onPopoutDraft');
       spyOn(Account.prototype, 'defaultMe').andReturn(defaultMe);
       spyOn(Actions, 'addAttachment').andCallFake(({onCreated}) => onCreated());
       DraftStore._onHandleMailFiles({}, ['/Users/ben/file1.png', '/Users/ben/file2.png']);
@@ -536,7 +536,7 @@ xdescribe('DraftStore', function draftStore() {
       runs(() => {
         const {body, subject, from} = DatabaseWriter.prototype.persistModel.calls[0].args[0];
         expect({body, subject, from}).toEqual({body: '', subject: '', from: [defaultMe]});
-        expect(DraftStore._onPopoutDraftClientId).toHaveBeenCalled();
+        expect(DraftStore._onPopoutDraft).toHaveBeenCalled();
       });
     });
 
