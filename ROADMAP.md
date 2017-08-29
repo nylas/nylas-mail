@@ -18,14 +18,14 @@ Target Ship Date: Late September
 - [x] Rewrite the onboarding flow to spawn a C++ worker to check IMAP/SMTP credentials.
 - [x] Rewrite the SendDraftTask in C++
   - [x] Basic implementation
-  - [ ] Ensure errors are presented in JavaScript and re-open the message window
+  - [x] Ensure errors are presented in JavaScript and re-open the message window
   - [x] Ensure "multisend" works and metadata is transferred to the new message
   - [x] Ensure the message is saved to the Sent Folder
 - [x] Store IMAP/SMTP credentials and the cloud API token in the keychain securely.
 - [x] Find a cross-platform solution for reliable C++ stack traces
-- [ ] Ensure C++ worker crashes are reported through Sentry or Backtrace
+- [x] Ensure C++ worker crashes are reported through Sentry or Backtrace
 - [ ] Restart C++ workers if they crash and alert the user to repeated errors.
-- [ ] Add support for Gmail authentication flow and XOAUTH2 [ until this is done, you need to use an "App Password" ]
+- [x] Add support for Gmail authentication flow and XOAUTH2
 - [ ] Add more robust retry / failure handling logic to C++ code.
 - [x] Decide what license to use for the C++ codebase / whether to open-source it or provide binaries. (Update: I've deciced to keep this closed source for now. [Here's why.](#why-is-mailsync-closed-source))
 - [x] Link the C++ codebase into Merani as a submodule, make Travis and AppVeyor CI build the C++ codebase.
@@ -37,8 +37,8 @@ Target Ship Date: Late September
 - [ ] Test with an iCloud account
 - [ ] Test with a AOL account
 - [ ] Test with an insecure IMAP/SMTP account
-- [ ] Test that "multisend" works for open/link tracking
-- [ ] Test that sending errors are shown in JavaScript
+- [x] Test that "multisend" works for open/link tracking
+- [x] Test that sending errors are shown in JavaScript
 
 #### Cloud Services
 *Goal: Provide equivalent infrastructure that will allow snooze, send later, to continue working, autoupdating of the app, etc.*
