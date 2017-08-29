@@ -394,7 +394,7 @@ class CategoryMailboxPerspective extends MailboxPerspective {
     // attached to this perspective
     return DatabaseStore.modelify(Thread, threadsOrIds).then((threads) => {
       const tasks = TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
-        if (Category.LockedCategoryNames.includes(current.categoriesSharedRole())) {
+        if (Category.LockedRoles.includes(current.categoriesSharedRole())) {
           return null;
         }
 

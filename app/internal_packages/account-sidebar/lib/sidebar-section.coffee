@@ -35,23 +35,22 @@ class SidebarSection
     return @empty(account.label) if cats.length is 0
 
     items = _
-      .reject(cats, (cat) -> cat.name is 'drafts')
+      .reject(cats, (cat) -> cat.role is 'drafts')
       .map (cat) => SidebarItem.forCategories([cat], editable: false, deletable: false)
 
     unreadItem = SidebarItem.forUnread([account.id])
     starredItem = SidebarItem.forStarred([account.id])
     draftsItem = SidebarItem.forDrafts([account.id])
-    snoozedItem = SidebarItem.forSnoozed([account.id])
 
     extensionItems = ExtensionRegistry.AccountSidebar.extensions()
-    .filter((ext) => ext.sidebarItem?)
-    .map((ext) => ext.sidebarItem([account.id]))
-    .map(({id, name, iconName, perspective}) =>
-      SidebarItem.forPerspective(id, perspective, {name, iconName})
-    )
+      .filter((ext) => ext.sidebarItem?)
+      .map((ext) => ext.sidebarItem([account.id]))
+      .map(({id, name, iconName, perspective}) =>
+        SidebarItem.forPerspective(id, perspective, {name, iconName})
+      )
 
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
+    items.splice(1, 0, unreadItem, starredItem, extensionItems...)
     items.push(draftsItem)
 
     return {
@@ -100,9 +99,6 @@ class SidebarSection
     draftsItem = SidebarItem.forDrafts(accountIds,
       children: accounts.map (acc) -> SidebarItem.forDrafts([acc.id], name: acc.label)
     )
-    snoozedItem = SidebarItem.forSnoozed(accountIds,
-      children: accounts.map (acc) -> SidebarItem.forSnoozed([acc.id], name: acc.label)
-    )
 
     extensionItems =  ExtensionRegistry.AccountSidebar.extensions()
     .filter((ext) => ext.sidebarItem?)
@@ -123,7 +119,7 @@ class SidebarSection
     )
 
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, snoozedItem, extensionItems...)
+    items.splice(1, 0, unreadItem, starredItem, extensionItems...)
     items.push(draftsItem)
 
     return {

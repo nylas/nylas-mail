@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types'
 import {FocusedPerspectiveStore} from 'nylas-exports';
 import {RetinaImg, MailLabel} from 'nylas-component-kit';
-import {SNOOZE_CATEGORY_NAME, PLUGIN_ID} from './snooze-constants';
+import {PLUGIN_ID} from './snooze-constants';
 import SnoozeUtils from './snooze-utils';
 
 
@@ -19,7 +19,7 @@ class SnoozeMailLabel extends Component {
     const current = FocusedPerspectiveStore.current()
     const isSnoozedPerspective = (
       current.categories().length > 0 &&
-      current.categories()[0].displayName === SNOOZE_CATEGORY_NAME
+      current.categories()[0].role === 'snoozed'
     )
 
     if (!isSnoozedPerspective) {
@@ -27,7 +27,7 @@ class SnoozeMailLabel extends Component {
     }
 
     const {thread} = this.props;
-    if (thread.categories.find(c => c.displayName === SNOOZE_CATEGORY_NAME)) {
+    if (thread.categories.find(c => c.role === 'snoozed')) {
       let metadata = null;
       for (const msg of thread.__messages) {
         metadata = msg.metadataForPluginId(PLUGIN_ID);

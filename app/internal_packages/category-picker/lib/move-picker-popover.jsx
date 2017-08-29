@@ -70,7 +70,7 @@ export default class MovePickerPopover extends Component {
     const currentCategories = FocusedPerspectiveStore.current().categories() || [];
     const currentCategoryIds = currentCategories.map(c => c.id);
     const viewingAllMail = !currentCategories.find(c => c.role === 'spam' || c.role === 'trash');
-    const hidden = account ? ["drafts", "sent", "N1-Snoozed"] : [];
+    const hidden = account ? ["drafts", "sent", "snoozed"] : [];
 
     if (viewingAllMail) {
       hidden.push('all');
@@ -82,7 +82,7 @@ export default class MovePickerPopover extends Component {
       .concat(this._userCategories)
       .filter((cat) =>
         // remove categories that are part of the current perspective or locked
-        !hidden.includes(cat.role) && !hidden.includes(cat.displayName) && !currentCategoryIds.includes(cat.id)
+        !hidden.includes(cat.role) && !currentCategoryIds.includes(cat.id)
       )
       .filter((cat) =>
         Utils.wordSearchRegExp(searchValue).test(cat.displayName)

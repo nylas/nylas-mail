@@ -12,9 +12,10 @@ const ToObject = (arr) => {
   }, {});
 }
 
-const StandardCategories = ToObject([
+const StandardRoleMap = ToObject([
   "inbox",
   "important",
+  "snoozed",
   "sent",
   "drafts",
   "all",
@@ -23,20 +24,21 @@ const StandardCategories = ToObject([
   "trash",
 ]);
 
-const LockedCategories = ToObject([
+const LockedRoleMap = ToObject([
   "sent",
   "drafts",
-  "N1-Snoozed",
+  "snoozed",
 ]);
 
-const HiddenCategories = ToObject([
+const HiddenRoleMap = ToObject([
   "sent",
   "drafts",
   "all",
   "archive",
   "starred",
   "important",
-  "N1-Snoozed",
+  "snoozed",
+  "[Merani]",
 ]);
 
 /**
@@ -51,27 +53,27 @@ Folders and Labels have different semantics. The `Category` class only exists to
 
 ## Attributes
 
-`name`: {AttributeString} The internal name of the label or folder. Queryable.
+`role`: {AttributeString} The internal role of the label or folder. Queryable.
 
-`displayName`: {AttributeString} The display-friendly name of the label or folder. Queryable.
+`path`: {AttributeString} The IMAP path name of the label or folder. Queryable.
 
 Section: Models
 */
 export default class Category extends Model {
 
   get displayName() {
-    if (this.path && this.path.startsWith('INBOX.')) {
-      return this.path.substr(6);
+    for (const prefix of ['INBOX', '[Gmail]', '[Merani]']) {
+      if (this.path.startsWith(prefix) && this.path.length > prefix.length + 1) {
+        return this.path.substr(prefix.length + 1); // + delimiter
+      }
     }
-    if (this.path && this.path.startsWith('[Gmail]/')) {
-      return this.path.substr(8);
-    }
-    if (this.path && this.path === 'INBOX') {
+    if (this.path === 'INBOX') {
       return 'Inbox';
     }
     return this.path;
   }
 
+  /* Available for historical reasons, do not use. */
   get name() {
     return this.role;
   }
@@ -97,19 +99,19 @@ export default class Category extends Model {
     Hidden: 'hidden',
   }
 
-  static StandardRoles = Object.keys(StandardCategories)
-  static LockedCategoryNames = Object.keys(LockedCategories)
-  static HiddenCategoryNames = Object.keys(HiddenCategories)
+  static StandardRoles = Object.keys(StandardRoleMap)
+  static LockedRoles = Object.keys(LockedRoleMap)
+  static HiddenRoles = Object.keys(HiddenRoleMap)
 
   static categoriesSharedRole(cats) {
     if (!cats || cats.length === 0) {
       return null;
     }
-    const name = cats[0].name
-    if (!cats.every((cat) => cat.name === name)) {
+    const role = cats[0].role
+    if (!cats.every((cat) => cat.role === role)) {
       return null;
     }
-    return name;
+    return role;
   }
 
   displayType() {
@@ -135,17 +137,17 @@ export default class Category extends Model {
       showImportant = NylasEnv.config.get('core.workspace.showImportant');
     }
     if (showImportant === true) {
-      return !!StandardCategories[this.name];
+      return !!StandardRoleMap[this.role];
     }
-    return !!StandardCategories[this.name] && (this.name !== 'important');
+    return !!StandardRoleMap[this.role] && (this.role !== 'important');
   }
 
   isLockedCategory() {
-    return !!LockedCategories[this.name] || !!LockedCategories[this.displayName];
+    return !!LockedRoleMap[this.role] || !!LockedRoleMap[this.path];
   }
 
   isHiddenCategory() {
-    return !!HiddenCategories[this.name] || !!HiddenCategories[this.displayName];
+    return !!HiddenRoleMap[this.role] || !!HiddenRoleMap[this.path];
   }
 
   isUserCategory() {
@@ -153,6 +155,6 @@ export default class Category extends Model {
   }
 
   isArchive() {
-    return ['all', 'archive'].includes(this.name);
+    return ['all', 'archive'].includes(this.role);
   }
 }

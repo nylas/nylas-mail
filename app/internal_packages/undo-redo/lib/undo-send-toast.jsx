@@ -1,11 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {Actions} from 'nylas-exports'
-import {KeyCommandsRegion, UndoToast, ListensToFluxStore, TaskQueue} from 'nylas-component-kit'
+import {KeyCommandsRegion, UndoToast, ListensToFluxStore} from 'nylas-component-kit'
 import UndoSendStore from './undo-send-store'
 
 
 class UndoSendToast extends React.Component {
+  static displayName = 'UndoSendToast';
+
   static propTypes = {
     visible: PropTypes.bool,
     sendActionTaskId: PropTypes.string,
