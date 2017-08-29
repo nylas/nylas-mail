@@ -49,7 +49,9 @@ class QuotedHTMLTransformer {
       return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
     }
 
-    DOMUtils.Mutating.removeElements(quoteElements, options);
+    for (const el of quoteElements) {
+      el.remove();
+    }
 
     // It's possible that the entire body was quoted text anyway and we've
     // removed everything.
@@ -61,8 +63,12 @@ class QuotedHTMLTransformer {
       return this._outputHTMLFor(this._parseHTML(""), {initialHTML: html, asDOM});
     }
 
+    const quoteStringElements = quoteStringDetector(doc);
+    for (const el of quoteStringElements) {
+      el.remove();
+    }
     this.removeTrailingBr(doc);
-    DOMUtils.Mutating.removeElements(quoteStringDetector(doc));
+
     if (options.keepIfWholeBodyIsQuote && (!doc.children[0] || this._wholeNylasPlaintextBodyIsQuote(doc))) {
       return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
     }
@@ -70,20 +76,39 @@ class QuotedHTMLTransformer {
     return this._outputHTMLFor(doc, {initialHTML: html, asDOM});
   }
 
-  // Finds any trailing BR tags and removes them in place
   removeTrailingBr(doc) {
-    const { childNodes } = doc.body;
+    // Find back-to-back <br><br> at the top level and de-duplicate them
+    const { children } = doc.body;
     const extraTailBrTags = [];
-    for (let i = childNodes.length - 1; i >= 0; i--) {
-      const curr = childNodes[i];
-      const next = childNodes[i - 1];
+    for (let i = children.length - 1; i >= 0; i--) {
+      const curr = children[i];
+      const next = children[i - 1];
       if (curr && curr.nodeName === 'BR' && next && next.nodeName === 'BR') {
         extraTailBrTags.push(curr);
       } else {
         break;
       }
     }
-    return DOMUtils.Mutating.removeElements(extraTailBrTags);
+    for (const el of extraTailBrTags) {
+      el.remove();
+    }
+
+    // Remove any trailing <br> in the last leaf child of doc.body.
+    // This specific pattern occurs often when stripping Merani / gmail quotes.
+    let last = doc.body;
+    while (last.children.length) {
+      last = last.children[last.children.length - 1];
+    }
+    last = last.parentElement;
+
+    while (last.children.length > 0) {
+      const innerLast = last.children[last.children.length - 1];
+      if (innerLast.nodeName === 'BR') {
+        innerLast.remove();
+      } else {
+        break;
+      }
+    }
   }
 
   appendQuotedHTML(htmlWithoutQuotes, originalHTML) {

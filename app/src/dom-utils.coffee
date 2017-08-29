@@ -61,20 +61,10 @@ DOMUtils =
         for el in remaining
           while (el.childNodes.length > 0)
             anchor.appendChild(el.childNodes[0])
-        DOMUtils.Mutating.removeElements(remaining)
+          el.remove()
         anchors.push(anchor)
 
       return anchors
-
-    removeElements: (elements=[]) ->
-      for el in elements
-        try
-          if el.parentNode then el.parentNode.removeChild(el)
-        catch
-          # This can happen if we've already removed ourselves from the
-          # node or it no longer exists
-          continue
-      return elements
 
     applyTextInRange: (range, selection, newText) ->
       range.deleteContents()

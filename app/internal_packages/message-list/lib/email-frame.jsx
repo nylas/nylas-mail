@@ -65,27 +65,29 @@ export default class EmailFrame extends React.Component {
     if (styles) {
       doc.write(`<style>${styles}</style>`);
     }
-    doc.write(`<div id='inbox-html-wrapper'>${this._emailContent()}</div>`);
+    const c = this._emailContent();
+    console.log({cbefore: this.props.content, c});
+    doc.write(`<div id='inbox-html-wrapper'>${c}</div>`);
     doc.close();
 
-    autolink(doc, {async: true});
-    autoscaleImages(doc);
-    addInlineImageListeners(doc);
+    // autolink(doc, {async: true});
+    // autoscaleImages(doc);
+    // addInlineImageListeners(doc);
 
-    for (const extension of MessageStore.extensions()) {
-      if (!extension.renderedMessageBodyIntoDocument) {
-        continue;
-      }
-      try {
-        extension.renderedMessageBodyIntoDocument({
-          document: doc,
-          message: this.props.message,
-          iframe: iframeNode,
-        });
-      } catch (e) {
-        NylasEnv.reportError(e);
-      }
-    }
+    // for (const extension of MessageStore.extensions()) {
+    //   if (!extension.renderedMessageBodyIntoDocument) {
+    //     continue;
+    //   }
+    //   try {
+    //     extension.renderedMessageBodyIntoDocument({
+    //       document: doc,
+    //       message: this.props.message,
+    //       iframe: iframeNode,
+    //     });
+    //   } catch (e) {
+    //     NylasEnv.reportError(e);
+    //   }
+    // }
 
     // Notify the EventedIFrame that we've replaced it's document (with `open`)
     // so it can attach event listeners again.
