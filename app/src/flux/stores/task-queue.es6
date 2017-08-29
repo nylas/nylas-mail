@@ -121,18 +121,6 @@ class TaskQueue extends NylasStore {
       this._waitingForRemote.push({task, resolve});
     });
   }
-
-  // Helper Methods
-
-  _resolveTaskArgument(taskOrId) {
-    if (!taskOrId) {
-      return null;
-    }
-    if (taskOrId instanceof Task) {
-      return this._queue.find(task => task === taskOrId);
-    }
-    return this._queue.find(t => t.id === taskOrId);
-  }
 }
 
 export default new TaskQueue();

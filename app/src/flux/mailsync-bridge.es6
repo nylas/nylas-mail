@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 
 import Task from './tasks/task';
+import TaskQueue from './stores/task-queue';
 import IdentityStore from './stores/identity-store';
 import AccountStore from './stores/account-store';
 import DatabaseStore from './stores/database-store';
@@ -109,11 +110,13 @@ export default class MailsyncBridge {
   }
 
   onCancelTask(taskOrId) {
-    const task = this._resolveTaskArgument(taskOrId);
-    if (!task) {
-      throw new Error("Couldn't find task in queue to cancel");
+    let task = taskOrId;
+    if (typeof taskOrId === "string") {
+      task = TaskQueue.queue().find(t => t.id === taskOrId);
     }
-    this.sendMessageToAccount(task.accountId, {type: 'cancel-task', taskId: task.id});
+    if (task) {
+      this.sendMessageToAccount(task.accountId, {type: 'cancel-task', taskId: task.id});
+    }
   }
 
   onIncomingMessages(msgs) {
