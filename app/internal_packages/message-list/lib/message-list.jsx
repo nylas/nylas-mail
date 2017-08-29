@@ -240,8 +240,8 @@ class MessageList extends React.Component {
     const {messagesExpandedState, currentThread} = this.state;
     const elements = []
 
-    const lastMessage = this.state.messages[this.state.messages.length - 1];
-    const hasReplyArea = lastMessage && !lastMessage.draft;
+    const lastItem = this.state.messages[this.state.messages.length - 1];
+    const hasReplyArea = lastItem && !lastItem.draft;
     const messages = this._messagesWithMinification(this.state.messages)
 
     messages.forEach((message, idx) => {
@@ -251,8 +251,8 @@ class MessageList extends React.Component {
       }
 
       const collapsed = !messagesExpandedState[message.id];
-      const isLastMsg = (messages.length - 1 === idx);
-      const isBeforeReplyArea = isLastMsg && hasReplyArea;
+      const isLastItem = (messages.length - 1 === idx);
+      const isBeforeReplyArea = isLastItem && hasReplyArea;
 
       elements.push(
         <MessageItemContainer
@@ -262,7 +262,7 @@ class MessageList extends React.Component {
           message={message}
           messages={messages}
           collapsed={collapsed}
-          isLastMsg={isLastMsg}
+          isLastItem={isLastItem}
           isBeforeReplyArea={isBeforeReplyArea}
           scrollTo={this._scrollTo}
         />

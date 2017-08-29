@@ -269,8 +269,12 @@ class MessageStore extends NylasStore
   # Expand all unread messages, all drafts, and the last message
   _expandItemsToDefault: ->
     visibleItems = @items()
+    lastDraftIdx = -1
+    visibleItems.forEach (item, idx) ->
+      lastDraftIdx = idx if item.draft
+    
     for item, idx in visibleItems
-      if item.unread or item.draft or idx is visibleItems.length - 1
+      if item.unread or idx is lastDraftIdx or idx is visibleItems.length - 1
         @_itemsExpanded[item.id] = "default"
 
   _sortItemsForDisplay: (items) ->

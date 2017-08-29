@@ -16,7 +16,7 @@ export default class MessageItemContainer extends React.Component {
     message: React.PropTypes.object.isRequired,
     messages: React.PropTypes.array.isRequired,
     collapsed: React.PropTypes.bool,
-    isLastMsg: React.PropTypes.bool,
+    isLastItem: React.PropTypes.bool,
     isBeforeReplyArea: React.PropTypes.bool,
     scrollTo: React.PropTypes.func,
   };
@@ -82,7 +82,7 @@ export default class MessageItemContainer extends React.Component {
         messages={this.props.messages}
         className={this._classNames()}
         collapsed={this.props.collapsed}
-        isLastMsg={this.props.isLastMsg}
+        isLastItem={this.props.isLastItem}
       />
     );
   }
@@ -108,7 +108,7 @@ export default class MessageItemContainer extends React.Component {
     if (this.state.isSending) {
       return this._renderMessage({pending: true});
     }
-    if (this.props.message.draft) {
+    if (this.props.message.draft && !this.props.collapsed) {
       return this._renderComposer();
     }
     return this._renderMessage({pending: false});

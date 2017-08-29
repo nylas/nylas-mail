@@ -27,7 +27,7 @@ export default class MessageItem extends React.Component {
     messages: PropTypes.array.isRequired,
     collapsed: PropTypes.bool,
     pending: PropTypes.bool,
-    isLastMsg: PropTypes.bool,
+    isLastItem: PropTypes.bool,
     className: PropTypes.string,
   };
 
@@ -107,7 +107,7 @@ export default class MessageItem extends React.Component {
   }
 
   _onToggleCollapsed = () => {
-    if (this.props.isLastMsg) {
+    if (this.props.isLastItem) {
       return;
     }
     Actions.toggleMessageIdExpanded(this.props.message.id);
@@ -297,7 +297,7 @@ export default class MessageItem extends React.Component {
   }
 
   _renderCollapsed() {
-    const {message: {snippet, from, files, date}, className} = this.props;
+    const {message: {snippet, from, files, date, draft}, className} = this.props;
 
     const attachmentIcon = Utils.showIconForAttachments(files) ? (
       <div className="collapsed-attachment" />
@@ -313,6 +313,15 @@ export default class MessageItem extends React.Component {
             <div className="collapsed-snippet">
               {snippet}
             </div>
+            { draft && (
+              <div className="Collapsed-draft">
+                <RetinaImg
+                  name="icon-draft-pencil.png"
+                  className="draft-icon"
+                  mode={RetinaImg.Mode.ContentPreserve}
+                />
+              </div>
+            )}
             <div className="collapsed-timestamp">
               <MessageTimestamp date={date} />
             </div>
