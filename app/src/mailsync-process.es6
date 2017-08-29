@@ -11,7 +11,7 @@ import fs from 'fs';
 
 let Utils = null;
 
-const LocalizedErrorStrings = {
+export const LocalizedErrorStrings = {
   ErrorConnection: "Connection Error - Check that your internet connection is active.",
   ErrorInvalidAccount: "This account is invalid, or does not have an inbox or all folder.",
   ErrorTLSNotAvailable: "TLS Not Available",
@@ -30,6 +30,13 @@ const LocalizedErrorStrings = {
   ErrorNeedsConnectToWebmail: "The server said you must sign in via your webmail.",
   ErrorNoValidServerFound: "No valid server found.",
   ErrorAuthenticationRequired: "Authentication required.",
+
+  // sending related
+  ErrorSendMessageNotAllowed: "Sending is not enabled for this account.",
+  ErrorSendMessageIllegalAttachment: "The message contains an illegial attachment that is not allowed by the server.",
+  ErrorYahooSendMessageSpamSuspected: "The message has been blocked by Yahoo's outbound spam filter.",
+  ErrorYahooSendMessageDailyLimitExceeded: "The message has been blocked by Yahoo - you have exceeded your daily sending limit.",
+  ErrorNoSender: "The message has been blocked because no sender is configured.",
 };
 
 export default class MailsyncProcess extends EventEmitter {

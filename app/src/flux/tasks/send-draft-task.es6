@@ -3,9 +3,10 @@ import url from 'url'
 import AccountStore from '../stores/account-store';
 import Task from './task';
 import Actions from '../actions';
-import SoundRegistry from '../../registries/sound-registry';
 import Attributes from '../attributes';
 import Message from '../models/message';
+import SoundRegistry from '../../registries/sound-registry';
+import {LocalizedErrorStrings} from '../../mailsync-process';
 
 export default class SendDraftTask extends Task {
 
@@ -16,9 +17,6 @@ export default class SendDraftTask extends Task {
     }),
     headerMessageId: Attributes.String({
       modelKey: 'headerMessageId',
-    }),
-    emitError: Attributes.Boolean({
-      modelKey: 'emitError',
     }),
     playSound: Attributes.Boolean({
       modelKey: 'playSound',
@@ -97,23 +95,36 @@ export default class SendDraftTask extends Task {
   }
 
   onError({key, debuginfo}) {
-    let message = key;
+    let errorMessage = null;
+    let errorDetail = null;
+
     if (key === 'no-sent-folder') {
-      message = "We couldn't find a Sent folder in your account.";
+      errorMessage = "We couldn't find a Sent folder in your account.";
+      errorDetail = "In order to send mail through Merani, your email account must have a Sent Mail folder.";
+    } else if (key === 'no-trash-folder') {
+      errorMessage = "We couldn't find a Sent folder in your account.";
+      errorDetail = "In order to send mail through Merani, your email account must have a Trash folder.";
+    } else if (key === 'send-partially-failed') {
+      const [smtpError, emails] = debuginfo.split(':::');
+      errorMessage = "We were unable to deliver this message to some recipients. Click 'See Details' for more information."
+      errorDetail = `We encountered an SMTP Gateway error that prevented this message from being delivered to all recipients. The message was only sent successfully to these recipients:\n${emails}\n\nError: ${LocalizedErrorStrings[smtpError]}`;
+    } else if (key === 'send-failed') {
+      errorMessage = `We were unable to deliver this message. ${LocalizedErrorStrings[debuginfo]}`;
+      errorDetail = `We encountered an SMTP error that prevented this message from being delivered:\n\n${LocalizedErrorStrings[debuginfo]}`;
+    } else {
+      errorMessage = "We were unable to deliver this message.";
+      errorDetail = `An unknown error occurred: ${JSON.stringify({key, debuginfo})}`;
     }
 
-    if (this.emitError) {
-      Actions.draftDeliveryFailed({
-        threadId: this.draft.threadId,
-        headerMessageId: this.draft.headerMessageId,
-        errorMessage: message,
-        errorDetail: debuginfo,
-      });
-    }
+    Actions.draftDeliveryFailed({
+      threadId: this.draft.threadId,
+      headerMessageId: this.draft.headerMessageId,
+      errorMessage,
+      errorDetail,
+    });
     Actions.recordUserEvent("Draft Sending Errored", {
-      error: message,
       key: key,
-    })
+    });
   }
 
 

@@ -396,12 +396,8 @@ class Actions {
 
   Recieves the id of the message that was sent
   */
-  static draftDeliverySucceeded = ActionScopeGlobal;
-  static draftDeliveryFailed = ActionScopeGlobal;
-
-  static ensureMessageInSentSuccess = ActionScopeGlobal;
-
-  static sendManyDrafts = ActionScopeWindow;
+  static draftDeliverySucceeded = ActionScopeMainWindow;
+  static draftDeliveryFailed = ActionScopeMainWindow;
 
   /*
   Public: Destroys the draft with the given ID. This Action is handled by the {DraftStore},

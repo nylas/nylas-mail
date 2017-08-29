@@ -928,8 +928,8 @@ export default class NylasEnvConstructor {
         const {CodeSnippet} = require('nylas-component-kit');
         Actions.openModal({
           component: CodeSnippet({intro: message, code: detail, className: 'error-details'}),
-          height: 600,
-          width: 800,
+          width: 500,
+          height: 300,
         });
       }
     });

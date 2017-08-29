@@ -386,6 +386,7 @@ class DraftStore extends NylasStore {
   _onSendDraftFailed = ({headerMessageId, threadId, errorMessage, errorDetail}) => {
     this._draftsSending[headerMessageId] = false;
     this.trigger({headerMessageId});
+
     if (NylasEnv.isMainWindow()) {
       // We delay so the view has time to update the restored draft. If we
       // don't delay the modal may come up in a state where the draft looks

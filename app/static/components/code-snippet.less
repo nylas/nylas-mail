@@ -1,13 +1,18 @@
 .error-details {
-  height: 550px;
-  width: 750px;
-  margin: 5px 25px;
+  margin: 25px;
   display: flex;
+  position: absolute;
   flex-direction: column;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
 
   textarea {
     resize: none;
-    width: 100%;
-    height: 100%;
+    border: 0;
+    background: rgba(0,0,0,0.05);
+    padding: 10px;
+    flex: 1;
   }
 }
