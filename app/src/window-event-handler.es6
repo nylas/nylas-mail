@@ -79,6 +79,10 @@ export default class WindowEventHandler {
       NylasEnv.mailsyncBridge.openLogs();
     });
 
+    NylasEnv.commands.add(document.body, 'window:sync-mail-now', () => {
+      NylasEnv.mailsyncBridge.sendSyncMailNow();
+    });
+
     NylasEnv.commands.add(document.body, 'window:attach-to-xcode', () => {
       const client = Object.values(NylasEnv.mailsyncBridge.clients()).pop();
       if (client) {

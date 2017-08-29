@@ -28,6 +28,8 @@
   {
     "label": "File",
     "submenu": [
+      { "label": "Sync New Mail Now", "command": "window:sync-mail-now" },
+      { "type": "separator" },
       { "label": "New Message", "command": "application:new-message" },
       { "type": "separator" },
       { "label": "Close Window", "command": "window:close" },

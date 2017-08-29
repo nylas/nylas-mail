@@ -6,6 +6,7 @@ import TaskQueue from './stores/task-queue';
 import IdentityStore from './stores/identity-store';
 import AccountStore from './stores/account-store';
 import DatabaseStore from './stores/database-store';
+import OnlineStatusStore from './stores/online-status-store';
 import DatabaseChangeRecord from './stores/database-change-record';
 import DatabaseObjectRegistry from '../registries/database-object-registry';
 import MailsyncProcess from '../mailsync-process';
@@ -37,6 +38,7 @@ export default class MailsyncBridge {
     // }, this);
 
     AccountStore.listen(this.ensureClients, this);
+    OnlineStatusStore.listen(this.onOnlineStatusChanged, this);
     NylasEnv.onBeforeUnload(this.onBeforeUnload);
 
     process.nextTick(() => {
@@ -171,6 +173,19 @@ export default class MailsyncBridge {
     }
     this._clients = [];
     return true;
+  }
+
+  onOnlineStatusChanged = ({onlineDidChange}) => {
+    if (onlineDidChange && OnlineStatusStore.isOnline()) {
+      this.sendSyncMailNow();
+    }
+  }
+
+  sendSyncMailNow() {
+    console.warn("Sending `wake` to all mailsync workers...");
+    for (const client of Object.values(this._clients)) {
+      client.sendMessage({type: "wake-workers"});
+    }
   }
 
   sendMessageToAccount(accountId, json) {
