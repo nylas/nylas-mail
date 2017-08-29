@@ -8,8 +8,8 @@ import Actions from '../actions'
 import Account from '../models/account'
 import Utils from '../models/utils'
 
-const configAccountsKey = "nylas.accounts"
-const configVersionKey = "nylas.accountsVersion"
+const configAccountsKey = "accounts"
+const configVersionKey = "accountsVersion"
 
 
 /*

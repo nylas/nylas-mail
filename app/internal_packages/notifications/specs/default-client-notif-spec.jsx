@@ -17,7 +17,7 @@ const patched = proxyquire('../lib/items/default-client-notif',
   }
 )
 const DefaultClientNotification = patched.default;
-const SETTINGS_KEY = 'nylas.mailto.prompted-about-default';
+const SETTINGS_KEY = 'mailto.prompted-about-default';
 
 describe("DefaultClientNotif", function DefaultClientNotifTests() {
   describe("when N1 isn't the default mail client", () => {

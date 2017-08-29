@@ -36,8 +36,8 @@ describe "AccountStore", ->
 
       spyOn(NylasEnv.config, 'get').andCallFake (key) =>
         return 'production' if key is 'env'
-        return @configAccounts if key is 'nylas.accounts'
-        return @configVersion if key is 'nylas.accountsVersion'
+        return @configAccounts if key is 'accounts'
+        return @configVersion if key is 'accountsVersion'
         return null
 
   afterEach ->
@@ -107,9 +107,9 @@ describe "AccountStore", ->
       expect(@instance._accounts.length).toBe 1
       expect(@instance._accounts[0]).toEqual account
       expect(NylasEnv.config.set.calls.length).toBe 2
-      expect(NylasEnv.config.set.calls[0].args).toEqual(['nylas.accounts', [account.toJSON()]])
-      # Version must be updated last since it will trigger other windows to load nylas.accounts
-      expect(NylasEnv.config.set.calls[1].args).toEqual(['nylas.accountsVersion', 1])
+      expect(NylasEnv.config.set.calls[0].args).toEqual(['accounts', [account.toJSON()]])
+      # Version must be updated last since it will trigger other windows to load accounts
+      expect(NylasEnv.config.set.calls[1].args).toEqual(['accountsVersion', 1])
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()

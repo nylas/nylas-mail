@@ -31,6 +31,8 @@ class KeyManager {
       delete next.settings.imap_password;
       keys[`${accountJSON.emailAddress}-smtp`] = next.settings.smtp_password;
       delete next.settings.smtp_password;
+      keys[`${accountJSON.emailAddress}-refresh-token`] = next.settings.xoauth_refresh_token;
+      delete next.settings.xoauth_refresh_token;
       keys[`${accountJSON.emailAddress}-cloud`] = cloudToken;
       return this._writeKeyHash(keys);
     });
@@ -42,6 +44,7 @@ class KeyManager {
     const keys = this._getKeyHash();
     next.settings.imap_password = keys[`${accountJSON.emailAddress}-imap`];
     next.settings.smtp_password = keys[`${accountJSON.emailAddress}-smtp`];
+    next.settings.xoauth_refresh_token = keys[`${accountJSON.emailAddress}-refresh-token`];
     next.cloudToken = keys[`${accountJSON.emailAddress}-cloud`];
     return next;
   }

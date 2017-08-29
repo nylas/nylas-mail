@@ -1,7 +1,7 @@
 import {React, DefaultClientHelper} from 'nylas-exports';
 import {Notification} from 'nylas-component-kit';
 
-const SETTINGS_KEY = 'nylas.mailto.prompted-about-default'
+const SETTINGS_KEY = 'mailto.prompted-about-default'
 
 export default class DefaultClientNotification extends React.Component {
   static displayName = 'DefaultClientNotification';

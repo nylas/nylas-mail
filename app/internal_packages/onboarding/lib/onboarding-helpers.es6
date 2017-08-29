@@ -49,27 +49,26 @@ export function makeGmailOAuthRequest(sessionKey) {
   });
 }
 
-export async function authIMAPForGmail(tokenData) {
-  const localJSON = await makeRequest({
-    server: 'accounts',
-    path: `/auth`,
-    method: 'POST',
-    auth: false,
-    timeout: 1000 * 90, // Connecting to IMAP could take up to 90 seconds, so we don't want to hang up too soon
-    body: {
-      email: tokenData.email_address,
-      name: tokenData.name,
-      provider: 'gmail',
-      settings: {
-        xoauth2: tokenData.resolved_settings.xoauth2,
-        expiry_date: tokenData.resolved_settings.expiry_date,
-      },
+export async function authIMAPForGmail(serverTokenResponse) {
+  // At this point, the Merani server has retrieved the Gmail token,
+  // created an account object in the database and tested it. All we
+  // need to do is save it locally, since we're confident Gmail will be
+  // accessible from the local sync worker.
+  const {id, email_address, provider, connection_settings, account_token, xoauth_refresh_token, name} = serverTokenResponse;
+
+  // Todo: clean up the serialization so this translation from K2 JSON isn't necessary.
+  return {
+    account: {
+      id,
+      provider,
+      name,
+      emailAddress: email_address,
+      settings: Object.assign({}, connection_settings, {
+        xoauth_refresh_token,
+      }),
     },
-  })
-  const account = Object.assign({}, localJSON);
-  account.localToken = localJSON.account_token;
-  account.cloudToken = tokenData.account_token;
-  return account
+    cloudToken: account_token,
+  };
 }
 
 export function buildGmailSessionKey() {
@@ -110,9 +109,8 @@ export async function runAuthValidation(accountInfo) {
     }
   }
 
-  // Send the form data directly to Nylas to get code
-  // If this succeeds, send the received code to N1 server to register the account
-  // Otherwise process the error message from the server and highlight UI as needed
+  // Test the account locally - if it succeeds, send it to the server and test it there
+
   const proc = new MailsyncProcess(NylasEnv.getLoadSettings(), IdentityStore.identity(), data);
   const {account} = await proc.test();
 

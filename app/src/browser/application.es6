@@ -172,7 +172,7 @@ export default class Application extends EventEmitter {
   }
 
   openWindowsForTokenState() {
-    const accounts = this.config.get('nylas.accounts');
+    const accounts = this.config.get('accounts');
     const hasAccount = accounts && accounts.length > 0;
     const hasIdentity = this.config.get('identity.id');
 

@@ -52,8 +52,9 @@ class AnalyticsStore extends NylasStore {
     if (perspective && perspective.accountIds.length > 1) {
       currentProvider = 'Unified';
     } else {
+      // Warning: when you auth a new account there's a single moment where the account cannot be found
       const account = perspective ? AccountStore.accountForId(perspective.accountIds[0]) : AccountStore.accounts()[0];
-      currentProvider = account.displayProvider();
+      currentProvider = account && account.displayProvider();
     }
 
     return {
