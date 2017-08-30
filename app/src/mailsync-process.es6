@@ -12,7 +12,7 @@ import fs from 'fs';
 let Utils = null;
 
 export const LocalizedErrorStrings = {
-  ErrorConnection: "Connection Error - Check that your internet connection is active.",
+  ErrorConnection: "Connection Error - Unable to connect to the server / port you provided.",
   ErrorInvalidAccount: "This account is invalid, or does not have an inbox or all folder.",
   ErrorTLSNotAvailable: "TLS Not Available",
   ErrorParse: "Parsing Error",
@@ -89,7 +89,11 @@ export default class MailsyncProcess extends EventEmitter {
           if (code === 0) {
             resolve(response);
           } else {
-            reject(new Error(LocalizedErrorStrings[response.error] || response.error))
+            let msg = LocalizedErrorStrings[response.error] || response.error;
+            if (response.error_service) {
+              msg = `${msg} (${response.error_service.toUpperCase()})`;
+            }
+            reject(new Error(msg));
           }
         } catch (err) {
           reject(new Error(buffer.toString()));

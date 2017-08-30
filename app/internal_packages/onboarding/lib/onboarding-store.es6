@@ -40,7 +40,7 @@ class OnboardingStore extends NylasStore {
 
     if (identity) {
       this._accountInfo = {
-        name: `${identity.firstname || ""} ${identity.lastname || ""}`,
+        name: `${identity.firstName || ""} ${identity.lastName || ""}`,
       };
     } else {
       this._accountInfo = {};

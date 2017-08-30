@@ -101,10 +101,10 @@ export async function runAuthValidation(accountInfo) {
   }
 
   // Only include the required IMAP fields. Auth validation does not allow extra fields
-  if (type !== "gmail" && type !== "office365") {
+  if (type !== "gmail") {
     for (const key of Object.keys(data.settings)) {
       if (!IMAP_FIELDS.has(key)) {
-        delete data.settings[key]
+        delete data.settings[key];
       }
     }
   }
@@ -135,8 +135,8 @@ export function isValidHost(value) {
   return RegExpUtils.domainRegex().test(value) || RegExpUtils.ipAddressRegex().test(value);
 }
 
-export function accountInfoWithIMAPAutocompletions(existingAccountInfo) {
-  const {email, type} = existingAccountInfo;
+export function expandAccountInfoWithCommonSettings(accountInfo) {
+  const {email, type} = accountInfo;
   const domain = email.split('@').pop().toLowerCase();
   let template = CommonProviderSettings[domain] || CommonProviderSettings[type] || {};
   if (template.alias) {
@@ -157,16 +157,16 @@ export function accountInfoWithIMAPAutocompletions(existingAccountInfo) {
     imap_host: template.imap_host,
     imap_port: template.imap_port || 993,
     imap_username: usernameWithFormat(template.imap_user_format),
-    imap_password: existingAccountInfo.password,
+    imap_password: accountInfo.password,
     imap_security: template.imap_security || "SSL / TLS",
     imap_allow_insecure_ssl: template.imap_allow_insecure_ssl || false,
     smtp_host: template.smtp_host,
     smtp_port: template.smtp_port || 587,
     smtp_username: usernameWithFormat(template.smtp_user_format),
-    smtp_password: existingAccountInfo.password,
+    smtp_password: accountInfo.password,
     smtp_security: template.smtp_security || "STARTTLS",
     smtp_allow_insecure_ssl: template.smtp_allow_insecure_ssl || false,
   }
 
-  return Object.assign({}, existingAccountInfo, defaults);
+  return Object.assign({}, accountInfo, defaults);
 }

@@ -120,7 +120,7 @@ class AccountIMAPSettingsForm extends React.Component {
           >
             <option value="SSL / TLS" key="SSL">SSL / TLS</option>
             <option value="STARTTLS" key="STARTTLS">STARTTLS</option>
-            <option value="none" key="none">none</option>
+            <option value="none" key="none">None</option>
           </select>
         </span>
         <span style={{paddingLeft: '20px', paddingTop: '10px'}}>
