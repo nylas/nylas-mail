@@ -7,10 +7,8 @@ const TEST_NYLAS_ID = "icihsnqh4pwujyqihlrj70vh"
 describe("IdentityStore", function identityStoreSpec() {
   beforeEach(() => {
     this.identityJSON = {
-      valid_until: 1500093224,
-      firstname: "Nylas 050",
-      lastname: "Test",
-      free_until: 1500006814,
+      firstName: "Nylas 050",
+      lastName: "Test",
       email: "nylas050test@evanmorikawa.com",
       id: TEST_NYLAS_ID,
       featureUsage: {

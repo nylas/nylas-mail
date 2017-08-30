@@ -42,9 +42,15 @@ class FolderSyncProgressStore extends NylasStore {
       const folders = CategoryStore.categories(accountId).filter(cat => cat instanceof Folder)
       const state = {};
 
+      /*
+      `localStatus` is populated by C++ mailsync. We translate it to a simpler
+      representation that the JS side can rely on as the underlying
+      implementation changes.
+      */
       for (const folder of folders) {
-        const {uidnext, syncedMinUID} = folder.localStatus || {};
+        const {uidnext, syncedMinUID, busy} = folder.localStatus || {};
         state[folder.path] = {
+          busy: busy !== undefined ? busy : true,
           progress: 1.0 - (syncedMinUID - 1) / uidnext,
           total: uidnext,
         }
@@ -52,24 +58,25 @@ class FolderSyncProgressStore extends NylasStore {
 
       this._statesByAccount[accountId] = state;
     }
-    this._triggerDebounced()
+    this._triggerDebounced();
   }
 
   getSyncState() {
-    return this._statesByAccount
+    return this._statesByAccount;
   }
 
   /**
-   * Returns true if N1's local cache contains the entire list of available
+   * Returns true if Merani's local cache contains the entire list of available
    * folders and labels.
+   *
    * This will be true if any of the available folders have started syncing,
-   * given that K2 wont commence folder sync until it has fetched the whole list
-   * of folders and labels
+   * since mailsync doesn't start folder sync until it has fetched the whole list
+   * of folders and labels.
    */
   isCategoryListSynced(accountId) {
     const state = this._statesByAccount[accountId];
     if (!state) { return false }
-    return Object.values(state).some((i) => i.progress > 0)
+    return Object.values(state).some((i) => i.progress > 0);
   }
 
   whenCategoryListSynced(accountId) {
@@ -94,16 +101,18 @@ class FolderSyncProgressStore extends NylasStore {
     }
 
     if (folderPath) {
-      return state[folderPath].progress >= 1
+      return !state[folderPath].busy && state[folderPath].progress >= 1
     }
+
     const folderPaths = Object.keys(state)
-    for (const fname of folderPaths) {
-      const syncProgress = state[fname].progress
-      if (syncProgress < 1) {
-        return false
+    for (const aFolderPath of folderPaths) {
+      const {progress, busy} = state[aFolderPath];
+      if (busy || progress < 1) {
+        return false;
       }
     }
-    return true
+
+    return true;
   }
 
   isSyncComplete() {

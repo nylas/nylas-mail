@@ -25,12 +25,17 @@ export default class InitialSyncActivity extends React.Component {
     this.setState({syncState: FolderSyncProgressStore.getSyncState()});
   }
 
-  renderFolderProgress(folderPath, progress) {
-    let status = 'busy';
-    let progressLabel = `In Progress (${Math.round(progress * 100)}%)`;
-    if (progress === 1) {
-      status = 'complete';
-      progressLabel = '';
+  renderFolderProgress(folderPath, {progress, busy}) {
+    let status = 'complete';
+    let progressLabel = '';
+
+    if (busy) {
+      status = 'busy';
+      if (progress < 1) {
+        progressLabel = `Scanning folder (${Math.round(progress * 100)}%)`;
+      } else {
+        progressLabel = `Indexing messages...`;
+      }
     }
 
     return (
@@ -53,8 +58,8 @@ export default class InitialSyncActivity extends React.Component {
         return false;
       }
 
-      let folderStates = Object.entries(accountSyncState).map(([folderPath, {progress}]) => {
-        return this.renderFolderProgress(folderPath, progress)
+      let folderStates = Object.entries(accountSyncState).map(([folderPath, folderState]) => {
+        return this.renderFolderProgress(folderPath, folderState)
       })
 
       if (folderStates.length === 0) {
