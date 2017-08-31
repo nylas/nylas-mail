@@ -79,8 +79,7 @@ class AccountStore extends NylasStore {
 
       // Run a few checks on account consistency. We want to display useful error
       // messages and these can result in very strange exceptions downstream otherwise.
-      this._enforceAccountsValidity()
-
+      this._enforceAccountsValidity();
     } catch (error) {
       NylasEnv.reportError(error)
     }
@@ -133,9 +132,13 @@ class AccountStore extends NylasStore {
     const configAccounts = this._accounts.map(a => a.toJSON());
     configAccounts.forEach(a => {
       delete a.sync_error
-      delete a.settings.imap_password
-      delete a.settings.smtp_password
-      delete a.cloudToken
+
+      // this should not be necessary since this info is stripped when
+      // the account is added, but we want to be on the safe side.
+      delete a.settings.imap_password;
+      delete a.settings.smtp_password;
+      delete a.settings.xoauth_refresh_token;
+      delete a.cloudToken;
     });
     NylasEnv.config.set(configAccountsKey, configAccounts);
     NylasEnv.config.set(configVersionKey, this._version);
@@ -165,7 +168,7 @@ class AccountStore extends NylasStore {
   _onRemoveAccount = (id) => {
     const account = this._accounts.find(a => a.id === id);
     if (!account) return
-    KeyManager.deletePassword(account.id)
+    KeyManager.deleteAccountSecrets(account)
 
     this._caches = {}
 
@@ -201,29 +204,31 @@ class AccountStore extends NylasStore {
     this._save()
   }
 
-  addAccountFromJSON = (json) => {
+  addAccountFromJSON = (json, cloudToken) => {
     if (!json.emailAddress || !json.provider) {
       throw new Error(`Returned account data is invalid: ${JSON.stringify(json)}`)
     }
 
-    this._loadAccounts()
+    // send the account JSON and cloud token to the KeyManager,
+    // which gives us back a version with no secrets.
+    const cleanJSON = KeyManager.extractAccountSecrets(json, cloudToken);
+
+    this._loadAccounts();
 
     const existingIdx = this._accounts.findIndex((a) =>
-      a.id === json.id || a.emailAddress === json.emailAddress
+      a.id === cleanJSON.id || a.emailAddress === cleanJSON.emailAddress
     );
 
     if (existingIdx === -1) {
-      const account = (new Account()).fromJSON(json);
+      const account = (new Account()).fromJSON(cleanJSON);
       this._accounts.push(account);
     } else {
       const account = this._accounts[existingIdx];
-      account.syncState = Account.SYNC_STATE_RUNNING;
-      account.fromJSON(json);
-      // Restart the connection in case account credentials have changed
-      // todo bg
+      account.syncState = Account.SYNC_STATE_OK;
+      account.fromJSON(cleanJSON);
     }
 
-    this._save()
+    this._save();
   }
 
   _cachedGetter(key, fn) {

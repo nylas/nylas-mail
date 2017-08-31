@@ -50,23 +50,18 @@ export default class AccountErrorNotification extends React.Component {
     Actions.openPreferences()
   }
 
-  _onCheckAgain(event, account) {
-    clearTimeout(this._checkingTimeout)
-    this.setState({checking: true})
+  _onCheckAgain(accounts) {
+    clearTimeout(this._checkingTimeout);
+    this.setState({checking: true});
     this._checkingTimeout = setTimeout(() => this.setState({checking: false}), 10000)
 
-    if (account) {
-      Actions.wakeLocalSyncWorkerForAccount(account.id)
-      return
-    }
-    const erroredAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
-    erroredAccounts.forEach(acc => Actions.wakeLocalSyncWorkerForAccount(acc.id))
+    accounts.forEach((acct) =>
+      NylasEnv.mailsyncBridge.forceRelaunchClient(acct)
+    );
   }
 
   render() {
-    const erroredAccounts = this.state.accounts.filter(a =>
-      a.hasN1CloudError() || a.hasSyncStateError()
-    );
+    const erroredAccounts = this.state.accounts.filter(a => a.hasSyncStateError());
     const checkAgainLabel = this.state.checking ? 'Checking...' : 'Check Again'
     let title;
     let subtitle;
@@ -78,49 +73,30 @@ export default class AccountErrorNotification extends React.Component {
       title = "Several of your accounts are having issues";
       actions = [{
         label: checkAgainLabel,
-        fn: (e) => this._onCheckAgain(e),
+        fn: () => this._onCheckAgain(AccountStore.accounts().filter(a => a.hasSyncStateError())),
       }, {
         label: "Manage",
         fn: this._onOpenAccountPreferences,
       }];
     } else {
       const erroredAccount = erroredAccounts[0];
-      if (erroredAccount.hasN1CloudError()) {
-        title = `Cannot authenticate Merani Cloud Services with ${erroredAccount.emailAddress}`;
-        actions = [{
-          label: checkAgainLabel,
-          fn: (e) => this._onCheckAgain(e, erroredAccount),
-        }, {
-          label: 'Reconnect',
-          fn: () => this._onReconnect(erroredAccount),
-        }];
-      } else {
-        switch (erroredAccount.syncState) {
-          case Account.SYNC_STATE_AUTH_FAILED:
-            title = `Cannot authenticate with ${erroredAccount.emailAddress}`;
-            actions = [{
-              label: checkAgainLabel,
-              fn: (e) => this._onCheckAgain(e, erroredAccount),
-            }, {
-              label: 'Reconnect',
-              fn: () => this._onReconnect(erroredAccount),
-            }];
-            break;
-          default: {
-            title = `Encountered an error while syncing ${erroredAccount.emailAddress}`;
-            let label = this.state.checking ? 'Retrying...' : 'Try Again'
-            if (this.state.debugKeyPressed) {
-              label = 'Debug'
-            }
-            actions = [{
-              label,
-              fn: (e) => this._onCheckAgain(e, erroredAccount),
-              props: {
-                onMouseEnter: (e) => this.setState({debugKeyPressed: e.metaKey}),
-                onMouseLeave: () => this.setState({debugKeyPressed: false}),
-              },
-            }];
-          }
+      switch (erroredAccount.syncState) {
+        case Account.SYNC_STATE_AUTH_FAILED:
+          title = `Cannot authenticate with ${erroredAccount.emailAddress}`;
+          actions = [{
+            label: checkAgainLabel,
+            fn: () => this._onCheckAgain([erroredAccount]),
+          }, {
+            label: 'Reconnect',
+            fn: () => this._onReconnect(erroredAccount),
+          }];
+          break;
+        default: {
+          title = `Encountered an error while syncing ${erroredAccount.emailAddress}`;
+          actions = [{
+            label: this.state.checking ? 'Retrying...' : 'Try Again',
+            fn: () => this._onCheckAgain([erroredAccount]),
+          }];
         }
       }
     }

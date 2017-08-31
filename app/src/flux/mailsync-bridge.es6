@@ -4,6 +4,8 @@ import fs from 'fs';
 import Task from './tasks/task';
 import TaskQueue from './stores/task-queue';
 import IdentityStore from './stores/identity-store';
+
+import Account from './models/account';
 import AccountStore from './stores/account-store';
 import DatabaseStore from './stores/database-store';
 import OnlineStatusStore from './stores/online-status-store';
@@ -14,193 +16,34 @@ import KeyManager from '../key-manager';
 import Actions from './actions';
 import Utils from './models/utils';
 
-export default class MailsyncBridge {
+const MAX_CRASH_HISTORY = 10;
+
+/*
+This class keeps track of how often Mailsync workers crash. If a mailsync
+worker exits more than 5 times in <5 minutes, we consider it "too many failures"
+and won't relaunch it until:
+
+- the user restarts the app, clearing the history
+- the user changes the account's settings (updating password, etc.)
+- the user explicitly says "Try Again" in the UI
+
+*/
+class CrashTracker {
   constructor() {
-    if (!NylasEnv.isMainWindow() || NylasEnv.inSpecMode()) {
-      // maybe bind as listener?
-      return;
-    }
-
-    Actions.queueTask.listen(this.onQueueTask, this);
-    Actions.queueTasks.listen(this.onQueueTasks, this);
-    Actions.cancelTask.listen(this.onCancelTask, this);
-    Actions.fetchBodies.listen(this.onFetchBodies, this);
-
-    this._clients = {};
-
-    // TODO. We currently reload the whole main window when your
-    // identity changes significantly (login / logout) and that's
-    // all the mailsync processes care about. Important: lots of
-    // minor things on the identity change and shouldn't kill.
-    // IdentityStore.listen(() => {
-    //   Object.values(this._clients).forEach(c => c.kill());
-    //   this.ensureClients();
-    // }, this);
-
-    AccountStore.listen(this.ensureClients, this);
-    OnlineStatusStore.listen(this.onOnlineStatusChanged, this);
-    NylasEnv.onBeforeUnload(this.onBeforeUnload);
-
-    process.nextTick(() => {
-      this.ensureClients();
-    });
+    this._timestamps = {};
+    this._tooManyFailures = {};
   }
 
-  openLogs() {
-    const {configDirPath} = NylasEnv.getLoadSettings();
-    const logPath = path.join(configDirPath, 'mailsync.log');
-    require('electron').shell.openItem(logPath); // eslint-disable-line
+  forgetCrashes(fullAccountJSON) {
+    const key = this._keyFor(fullAccountJSON);
+    delete this._timestamps[key];
+    delete this._tooManyFailures[key];
   }
 
-  clients() {
-    return this._clients;
-  }
+  recordClientCrash(fullAccountJSON, {code, error, signal}) {
+    this._appendCrashToHistory(fullAccountJSON);
 
-  ensureClients() {
-    const toLaunch = [];
-    const clientsToStop = Object.assign({}, this._clients);
-    const identity = IdentityStore.identity();
-
-    for (const acct of AccountStore.accounts()) {
-      if (!this._clients[acct.id]) {
-        const fullAccountJSON = KeyManager.insertAccountSecrets(acct.toJSON());
-        toLaunch.push(fullAccountJSON);
-      } else {
-        delete clientsToStop[acct.id];
-      }
-    }
-
-    for (const client of Object.values(clientsToStop)) {
-      client.kill();
-    }
-
-    toLaunch.forEach((account) => {
-      const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, account);
-      client.sync();
-      client.on('deltas', this.onIncomingMessages);
-      client.on('close', ({code, error, signal}) => {
-        if (signal !== 'SIGTERM') {
-          this.reportClientCrash(account, {code, error, signal})
-        }
-        delete this._clients[account.id];
-      });
-      this._clients[account.id] = client;
-    });
-  }
-
-  onQueueTask(task) {
-    if (!DatabaseObjectRegistry.isInRegistry(task.constructor.name)) {
-      console.log(task);
-      throw new Error("You must queue a `Task` instance which is registred with the DatabaseObjectRegistry")
-    }
-    if (!task.id) {
-      console.log(task);
-      throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
-    }
-    if (!task.accountId) {
-      throw new Error(`Tasks must have an accountId. Check your instance of ${task.constructor.name}.`);
-    }
-
-    task.validate();
-    task.status = 'local';
-    this.sendMessageToAccount(task.accountId, {type: 'queue-task', task: task});
-  }
-
-  onQueueTasks(tasks) {
-    if (!tasks || !tasks.length) { return; }
-    for (const task of tasks) { this.onQueueTask(task); }
-  }
-
-  onCancelTask(taskOrId) {
-    let task = taskOrId;
-    if (typeof taskOrId === "string") {
-      task = TaskQueue.queue().find(t => t.id === taskOrId);
-    }
-    if (task) {
-      this.sendMessageToAccount(task.accountId, {type: 'cancel-task', taskId: task.id});
-    }
-  }
-
-  onIncomingMessages(msgs) {
-    // todo bg
-    // dispatch the messages to other windows?
-
-    for (const msg of msgs) {
-      if (msg.length === 0) {
-        continue;
-      }
-      if (msg[0] !== '{') {
-        console.log(`Sync worker sent non-JSON formatted message: ${msg}`)
-        continue;
-      }
-
-      const {type, objects, objectClass} = JSON.parse(msg);
-      if (!objects || !type || !objectClass) {
-        console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`)
-        continue;
-      }
-      const models = objects.map(Utils.convertToModel);
-      console.log(type, models);
-      DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
-
-      if (models[0] instanceof Task) {
-        for (const task of models) {
-          if (task.status === 'complete') {
-            if (task.error != null) {
-              task.onError(task.error);
-            } else {
-              task.onSuccess();
-            }
-          }
-        }
-      }
-    }
-  }
-
-  onFetchBodies(messages) {
-    const byAccountId = {};
-    for (const msg of messages) {
-      byAccountId[msg.accountId] = byAccountId[msg.accountId] || [];
-      byAccountId[msg.accountId].push(msg.id);
-    }
-    for (const accountId of Object.keys(byAccountId)) {
-      this.sendMessageToAccount(accountId, {type: 'need-bodies', ids: byAccountId[accountId]});
-    }
-  }
-
-  onBeforeUnload = () => {
-    for (const client of Object.values(this._clients)) {
-      client.kill();
-    }
-    this._clients = [];
-    return true;
-  }
-
-  onOnlineStatusChanged = ({onlineDidChange}) => {
-    if (onlineDidChange && OnlineStatusStore.isOnline()) {
-      this.sendSyncMailNow();
-    }
-  }
-
-  sendSyncMailNow() {
-    console.warn("Sending `wake` to all mailsync workers...");
-    for (const client of Object.values(this._clients)) {
-      client.sendMessage({type: "wake-workers"});
-    }
-  }
-
-  sendMessageToAccount(accountId, json) {
-    if (!this._clients[accountId]) {
-      const err = new Error(`No mailsync worker is running.`);
-      err.accountId = accountId;
-      throw err;
-    }
-    this._clients[accountId].sendMessage(json);
-  }
-
-  reportClientCrash(account, {code, error, signal}) {
     const overview = `SyncWorker crashed with ${signal} (code ${code})`;
-
     let [message, stack] = (`${error}`).split('*** Stack trace');
 
     if (message) {
@@ -237,7 +80,249 @@ export default class MailsyncBridge {
     NylasEnv.errorLogger.reportError(err, {
       stack: stack,
       log: log,
-      provider: account.provider,
+      provider: fullAccountJSON.provider,
     });
+  }
+
+  _keyFor({id, settings, cloudToken}) {
+    return JSON.stringify({id, settings, cloudToken});
+  }
+
+  _appendCrashToHistory(fullAccountJSON) {
+    const key = this._keyFor(fullAccountJSON);
+    this._timestamps[key] = this._timestamps[key] || [];
+    if (this._timestamps[key].unshift(Date.now()) > MAX_CRASH_HISTORY) {
+      this._timestamps[key].length = MAX_CRASH_HISTORY;
+    }
+
+    // has the client crashed more than 5 times in the last 5 minutes?
+    // If so, do not restart. We'll mark that the account is not syncing.
+    if (this._timestamps[key].length >= 5 && (Date.now() - this._timestamps[key][4] < 5 * 60 * 1000)) {
+      this._tooManyFailures[key] = true;
+    }
+  }
+
+  tooManyFailures(fullAccountJSON) {
+    const key = this._keyFor(fullAccountJSON);
+    return this._tooManyFailures[key];
+  }
+}
+
+
+export default class MailsyncBridge {
+  constructor() {
+    if (!NylasEnv.isMainWindow() || NylasEnv.inSpecMode()) {
+      // maybe bind as listener?
+      return;
+    }
+
+    Actions.queueTask.listen(this._onQueueTask, this);
+    Actions.queueTasks.listen(this._onQueueTasks, this);
+    Actions.cancelTask.listen(this._onCancelTask, this);
+    Actions.fetchBodies.listen(this._onFetchBodies, this);
+
+    this._crashTracker = new CrashTracker();
+    this._clients = {};
+
+    AccountStore.listen(this.ensureClients, this);
+    OnlineStatusStore.listen(this._onOnlineStatusChanged, this);
+    NylasEnv.onBeforeUnload(this._onBeforeUnload);
+
+    process.nextTick(() => {
+      this.ensureClients();
+    });
+  }
+
+  // Public
+
+  openLogs() {
+    const {configDirPath} = NylasEnv.getLoadSettings();
+    const logPath = path.join(configDirPath, 'mailsync.log');
+    require('electron').shell.openItem(logPath); // eslint-disable-line
+  }
+
+  clients() {
+    return this._clients;
+  }
+
+  ensureClients() {
+    const clientsWithoutAccounts = Object.assign({}, this._clients);
+
+    for (const acct of AccountStore.accounts()) {
+      if (!this._clients[acct.id]) {
+        // client for this account is missing, launch it!
+        this._launchClient(acct);
+      } else {
+        // client for this account exists
+        delete clientsWithoutAccounts[acct.id];
+      }
+    }
+
+    // Any clients left in the `clientsWithoutAccounts` after we looped
+    // through and deleted one for each accountId are ones representing
+    // deleted accounts.
+    for (const client of Object.values(clientsWithoutAccounts)) {
+      client.kill();
+    }
+  }
+
+  forceRelaunchClient(account) {
+    this._launchClient(account, {force: true});
+  }
+
+  sendSyncMailNow() {
+    console.warn("Sending `wake` to all mailsync workers...");
+    for (const client of Object.values(this._clients)) {
+      client.sendMessage({type: "wake-workers"});
+    }
+  }
+
+  sendMessageToAccount(accountId, json) {
+    if (!this._clients[accountId]) {
+      const err = new Error(`No mailsync worker is running.`);
+      err.accountId = accountId;
+      throw err;
+    }
+    this._clients[accountId].sendMessage(json);
+  }
+
+  // Private
+
+  _launchClient(account, {force} = {}) {
+    const fullAccountJSON = KeyManager.insertAccountSecrets(account.toJSON());
+    const identity = IdentityStore.identity();
+    const id = account.id;
+
+    if (force) {
+      this._crashTracker.forgetCrashes(fullAccountJSON);
+    } else if (this._crashTracker.tooManyFailures(fullAccountJSON)) {
+      return;
+    }
+
+    if (fullAccountJSON.syncState !== Account.SYNC_STATE_OK) {
+      Actions.updateAccount(id, {
+        syncState: Account.SYNC_STATE_OK,
+        syncError: null,
+      });
+    }
+
+    const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, fullAccountJSON);
+    client.sync();
+    client.on('deltas', this._onIncomingMessages);
+    client.on('close', ({code, error, signal}) => {
+      delete this._clients[id];
+      if (signal !== 'SIGTERM') {
+        this._crashTracker.recordClientCrash(fullAccountJSON, {code, error, signal})
+
+        const isAuthFailure = (
+          `${error}`.includes("Response Code: 401") || // merani services
+          `${error}`.includes("Response Code: 403") || // merani services
+          `${error}`.includes("ErrorAuthentication") // mailcore
+        );
+
+        if (this._crashTracker.tooManyFailures(fullAccountJSON)) {
+          Actions.updateAccount(id, {
+            syncState: isAuthFailure ? Account.SYNC_STATE_AUTH_FAILED : Account.SYNC_STATE_ERROR,
+            syncError: {code, error, signal},
+          });
+        } else {
+          this.ensureClients();
+        }
+      }
+    });
+    this._clients[id] = client;
+  }
+
+  _onQueueTask(task) {
+    if (!DatabaseObjectRegistry.isInRegistry(task.constructor.name)) {
+      console.log(task);
+      throw new Error("You must queue a `Task` instance which is registred with the DatabaseObjectRegistry")
+    }
+    if (!task.id) {
+      console.log(task);
+      throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
+    }
+    if (!task.accountId) {
+      throw new Error(`Tasks must have an accountId. Check your instance of ${task.constructor.name}.`);
+    }
+
+    task.validate();
+    task.status = 'local';
+    this.sendMessageToAccount(task.accountId, {type: 'queue-task', task: task});
+  }
+
+  _onQueueTasks(tasks) {
+    if (!tasks || !tasks.length) { return; }
+    for (const task of tasks) { this.onQueueTask(task); }
+  }
+
+  _onCancelTask(taskOrId) {
+    let task = taskOrId;
+    if (typeof taskOrId === "string") {
+      task = TaskQueue.queue().find(t => t.id === taskOrId);
+    }
+    if (task) {
+      this.sendMessageToAccount(task.accountId, {type: 'cancel-task', taskId: task.id});
+    }
+  }
+
+  _onIncomingMessages(msgs) {
+    // todo bg
+    // dispatch the messages to other windows?
+
+    for (const msg of msgs) {
+      if (msg.length === 0) {
+        continue;
+      }
+      if (msg[0] !== '{') {
+        console.log(`Sync worker sent non-JSON formatted message: ${msg}`)
+        continue;
+      }
+
+      const {type, objects, objectClass} = JSON.parse(msg);
+      if (!objects || !type || !objectClass) {
+        console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`)
+        continue;
+      }
+      const models = objects.map(Utils.convertToModel);
+      DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
+
+      if (models[0] instanceof Task) {
+        for (const task of models) {
+          if (task.status === 'complete') {
+            if (task.error != null) {
+              task.onError(task.error);
+            } else {
+              task.onSuccess();
+            }
+          }
+        }
+      }
+    }
+  }
+
+  _onFetchBodies(messages) {
+    const byAccountId = {};
+    for (const msg of messages) {
+      byAccountId[msg.accountId] = byAccountId[msg.accountId] || [];
+      byAccountId[msg.accountId].push(msg.id);
+    }
+    for (const accountId of Object.keys(byAccountId)) {
+      this.sendMessageToAccount(accountId, {type: 'need-bodies', ids: byAccountId[accountId]});
+    }
+  }
+
+  _onBeforeUnload = () => {
+    for (const client of Object.values(this._clients)) {
+      client.kill();
+    }
+    this._clients = [];
+    return true;
+  }
+
+  _onOnlineStatusChanged = ({onlineDidChange}) => {
+    if (onlineDidChange && OnlineStatusStore.isOnline()) {
+      this.sendSyncMailNow();
+    }
   }
 }

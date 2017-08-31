@@ -156,13 +156,14 @@ class PreferencesAccountDetails extends Component {
             this._onReconnect);
         case Account.SYNC_STATE_AUTH_FAILED:
           return this._renderErrorDetail(
-            `Merani can no longer authenticate with ${account.emailAddress}. The password or
-            authentication may have changed.`,
+            `Merani can no longer authenticate with ${account.emailAddress}. The password
+            or authentication may have changed.`,
             "Reconnect",
             this._onReconnect);
         default:
           return this._renderErrorDetail(
-            `Nylas encountered an error while syncing mail for ${account.emailAddress}. Contact Nylas support for details.`,
+            `Merani encountered an error while syncing mail for ${account.emailAddress}.
+            Try re-adding the account and contact Merani support if the problem persists.`,
             "Contact support",
             this._onContactSupport);
       }

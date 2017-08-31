@@ -25,15 +25,11 @@ let Contact = null
  */
 export default class Account extends ModelWithMetadata {
 
-  static SYNC_STATE_RUNNING = "running"
+  static SYNC_STATE_OK = "ok"
 
   static SYNC_STATE_AUTH_FAILED = "invalid"
 
   static SYNC_STATE_ERROR = "sync_error"
-
-  static N1_CLOUD_STATE_RUNNING = "n1_cloud_running"
-
-  static N1_CLOUD_STATE_AUTH_FAILED = "n1_cloud_auth_failed"
 
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {
     name: Attributes.String({
@@ -71,10 +67,6 @@ export default class Account extends ModelWithMetadata {
 
     syncError: Attributes.Object({
       modelKey: 'syncError',
-    }),
-
-    n1CloudState: Attributes.String({
-      modelKey: 'n1CloudState',
     }),
   });
 
@@ -131,6 +123,8 @@ export default class Account extends ModelWithMetadata {
       return 'Exchange'
     } else if (this.provider === 'gmail') {
       return 'Gmail'
+    } else if (this.provider === 'office365') {
+      return 'Office 365'
     }
     return this.provider
   }
@@ -154,11 +148,7 @@ export default class Account extends ModelWithMetadata {
     return CategoryStore.getArchiveCategory(this);
   }
 
-  hasN1CloudError() {
-    return this.n1CloudState === Account.N1_CLOUD_STATE_AUTH_FAILED
-  }
-
   hasSyncStateError() {
-    return this.syncState !== Account.SYNC_STATE_RUNNING
+    return this.syncState !== Account.SYNC_STATE_OK
   }
 }

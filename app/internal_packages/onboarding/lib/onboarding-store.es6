@@ -1,4 +1,4 @@
-import {AccountStore, Actions, IdentityStore, FolderSyncProgressStore, KeyManager} from 'nylas-exports';
+import {AccountStore, Actions, IdentityStore} from 'nylas-exports';
 import {ipcRenderer} from 'electron';
 import NylasStore from 'nylas-store';
 
@@ -142,8 +142,7 @@ class OnboardingStore extends NylasStore {
   _onAccountJSONReceived = async (json, cloudToken) => {
     try {
       const isFirstAccount = AccountStore.accounts().length === 0;
-      const clean = KeyManager.extractAccountSecrets(json, cloudToken);
-      AccountStore.addAccountFromJSON(clean);
+      AccountStore.addAccountFromJSON(json, cloudToken);
 
       Actions.recordUserEvent('Email Account Auth Succeeded', {
         provider: json.provider,
@@ -158,8 +157,11 @@ class OnboardingStore extends NylasStore {
           provider: json.provider,
         });
       } else {
-        await FolderSyncProgressStore.whenCategoryListSynced(json.id)
-        this._onOnboardingComplete();
+        // let them see the "success" screen for a moment
+        // before the window is closed.
+        setTimeout(() => {
+          this._onOnboardingComplete();
+        }, 2000);
       }
     } catch (e) {
       NylasEnv.reportError(e);

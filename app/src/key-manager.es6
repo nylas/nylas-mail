@@ -23,6 +23,17 @@ class KeyManager {
     this.KEY_NAME = "Merani Keys"
   }
 
+  deleteAccountSecrets(account) {
+    this._try(() => {
+      const keys = this._getKeyHash();
+      delete keys[`${account.emailAddress}-imap`];
+      delete keys[`${account.emailAddress}-smtp`];
+      delete keys[`${account.emailAddress}-refresh-token`];
+      delete keys[`${account.emailAddress}-cloud`];
+      return this._writeKeyHash(keys);
+    });
+  }
+
   extractAccountSecrets(accountJSON, cloudToken) {
     const next = Object.assign({}, accountJSON);
     this._try(() => {
