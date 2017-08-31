@@ -68,6 +68,7 @@
     "test": "app/node_modules/.bin/electron ./app --enable-logging --test",
     "test-window": "app/node_modules/.bin/electron ./app --enable-logging --test=window",
     "build": "grunt build-client --gruntfile=app/build/Gruntfile.js --base=./",
-    "build-docs": "grunt docs --gruntfile=app/build/Gruntfile.js --base=./ && mkdir -p app/dist-docs && cp README.md ./app/build/docs_src/README.md && gitbook --gitbook=latest build . ./app/dist-docs --log=debug --debug && rm ./app/build/docs_src/README.md && rm -rf ./app/build/docs_src/classes"
+    "build-docs": "grunt docs --gruntfile=app/build/Gruntfile.js --base=./ && mkdir -p app/dist-docs && cp README.md ./app/build/docs_src/README.md && gitbook --gitbook=latest build . ./app/dist-docs --log=debug --debug && rm ./app/build/docs_src/README.md && rm -rf ./app/build/docs_src/classes",
+    "ci-setup-mac-keychain": "grunt setup-mac-keychain --gruntfile=app/build/Gruntfile.js --base=./"
   }
 }
