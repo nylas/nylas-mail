@@ -18,14 +18,12 @@ export default class SendDraftTask extends Task {
     headerMessageId: Attributes.String({
       modelKey: 'headerMessageId',
     }),
-    playSound: Attributes.Boolean({
-      modelKey: 'playSound',
-    }),
-    allowMultiSend: Attributes.Boolean({
-      modelKey: 'allowMultiSend',
-    }),
     perRecipientBodies: Attributes.Object({
       modelKey: 'perRecipientBodies',
+    }),
+
+    silent: Attributes.Boolean({
+      modelKey: 'silent',
     }),
   });
 
@@ -89,7 +87,7 @@ export default class SendDraftTask extends Task {
     Actions.draftDeliverySucceeded({headerMessageId: this.draft.headerMessageId});
 
     // Play the sending sound
-    if (this.playSound && NylasEnv.config.get("core.sending.sounds")) {
+    if (NylasEnv.config.get("core.sending.sounds") && !this.silent) {
       SoundRegistry.playSound('send');
     }
   }

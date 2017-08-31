@@ -58,18 +58,25 @@ class IdentityStore extends NylasStore {
   }
 
   saveIdentity(identity) {
-    this._identity = identity;
-
-    if (identity) {
-      const {token, ...rest} = identity;
-      if (token) {
-        KeyManager.replacePassword(KEYCHAIN_NAME, token);
-      }
-      NylasEnv.config.set('identity', rest);
-    } else {
+    if (!identity) {
+      this._identity = null;
       KeyManager.deletePassword(KEYCHAIN_NAME);
       NylasEnv.config.set('identity', null);
+      return;
     }
+
+    const {token, ...rest} = identity;
+
+    // allow someone to call saveIdentity without the token,
+    // and only save it if it's been changed (expensive call.)
+    const nextToken = token || this._identity.token;
+    if (nextToken && nextToken !== this._identity.token) {
+      KeyManager.replacePassword(KEYCHAIN_NAME, nextToken);
+    }
+
+    this._identity = identity;
+    this._identity.token = nextToken;
+    NylasEnv.config.set('identity', rest);
 
     // Setting NylasEnv.config will trigger our onDidChange handler,
     // no need to trigger here.

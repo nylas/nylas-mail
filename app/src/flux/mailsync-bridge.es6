@@ -253,7 +253,7 @@ export default class MailsyncBridge {
 
   _onQueueTasks(tasks) {
     if (!tasks || !tasks.length) { return; }
-    for (const task of tasks) { this.onQueueTask(task); }
+    for (const task of tasks) { this._onQueueTask(task); }
   }
 
   _onCancelTask(taskOrId) {

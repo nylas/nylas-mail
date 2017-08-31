@@ -462,7 +462,6 @@ xdescribe('SendDraftTask', function sendDraftTask() {
   describe("hasCustomBodyPerRecipient", () => {
     beforeEach(() => {
       this.task = new SendDraftTask('client-id');
-      this.task.allowMultiSend = true;
       this.task.draft = new Message({
         version: 1,
         headerMessageId: 'client-id',
@@ -495,12 +494,6 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
     it("should return false if the provider is eas", () => {
       this.applySpies({"AccountStore.accountForId": "eas"})
-      expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
-    });
-
-    it("should return false if allowMultiSend is false", () => {
-      this.applySpies();
-      this.task.allowMultiSend = false;
       expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
