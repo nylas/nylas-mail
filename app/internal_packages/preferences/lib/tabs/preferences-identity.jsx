@@ -56,7 +56,7 @@ class PreferencesIdentity extends React.Component {
     return (
       <div className="row padded">
         <div>
-        Thank you for using <strong style={{textTransform: 'capitalize'}}>{`Merani ${planName}`}</strong>
+        Thank you for using <strong style={{textTransform: 'capitalize'}}>{`Merani ${planName}`}</strong> and supporting independent software.
         </div>
         <div className="subscription-actions">
           <OpenIdentityPageButton label="Manage Billing" path="/dashboard#billing" source="Preferences Billing" campaign="Dashboard" />

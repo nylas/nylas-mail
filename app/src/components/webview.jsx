@@ -166,6 +166,12 @@ export default class Webview extends React.Component {
     if (!this.props.onDidFinishLoad) return;
     const webview = ReactDOM.findDOMNode(this.refs.webview);
     this.props.onDidFinishLoad(webview)
+
+    // tweak the size of the webview to ensure it's contents have laid out
+    webview.style.bottom = '1px';
+    window.requestAnimationFrame(() => {
+      webview.style.bottom = '0';
+    })
   }
 
   render() {

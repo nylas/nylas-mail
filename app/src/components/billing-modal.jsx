@@ -5,7 +5,7 @@ import IdentityStore from '../flux/stores/identity-store'
 
 export default class BillingModal extends React.Component {
   static IntrinsicWidth = 412;
-  static IntrinsicHeight = 535;
+  static IntrinsicHeight = 540;
 
   static propTypes = {
     upgradeUrl: React.PropTypes.string,
@@ -30,6 +30,7 @@ export default class BillingModal extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
+
   }
 
   /**

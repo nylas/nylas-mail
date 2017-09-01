@@ -1,10 +1,13 @@
 .webview-wrap {
   flex: 1;
-  display: flex;
+  position: relative;
 
   webview {
-    display: flex;
-    flex: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   .webview-loading-spinner {

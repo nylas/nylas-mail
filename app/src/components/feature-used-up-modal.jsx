@@ -66,7 +66,6 @@ export default class FeatureUsedUpModal extends React.Component {
               <li>Unlimited Snoozing</li>
               <li>Unlimited Open &amp; Link Tracking</li>
               <li>Unlimited Reminders</li>
-              <li>Unlimited Mail Merge</li>
             </ul>
             <p>&hellip; plus <a onClick={this.onGoToFeatures}>dozens of other features</a></p>
           </div>
