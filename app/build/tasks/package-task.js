@@ -126,35 +126,35 @@ module.exports = (grunt) => {
 
   // See: https://github.com/electron-userland/electron-packager/blob/master/usage.txt
   grunt.config.merge({
-    'packager': {
-      'app-version': packageJSON.version,
-      'platform': platform,
-      'protocols': [{
+    packager: {
+      appVersion: packageJSON.version,
+      platform: platform,
+      protocols: [{
         name: "Merani Protocol",
         schemes: ["merani"],
       }, {
         name: "Mailto Protocol",
         schemes: ["mailto"],
       }],
-      'dir': grunt.config('appDir'),
-      'app-category-type': "public.app-category.business",
-      'tmpdir': tmpdir,
-      'arch': {
+      dir: grunt.config('appDir'),
+      appCategoryType: "public.app-category.business",
+      tmpdir: tmpdir,
+      arch: {
         'win32': 'ia32',
       }[platform],
-      'icon': {
+      icon: {
         darwin: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'merani.icns'),
         win32: path.resolve(grunt.config('appDir'), 'build', 'resources', 'win', 'merani.ico'),
         linux: undefined,
       }[platform],
-      'name': {
+      name: {
         darwin: 'Merani',
         win32: 'merani',
         linux: 'merani',
       }[platform],
-      'app-copyright': `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
-      'derefSymlinks': false,
-      'asar': {
+      appCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
+      derefSymlinks: false,
+      asar: {
         'unpack': "{" + [
           'mailsync',
           'mailsync.exe',
@@ -166,7 +166,7 @@ module.exports = (grunt) => {
           '**/node_modules/windows-shortcuts/**',
         ].join(',') + "}",
       },
-      "ignore": [ // These are all relative to client-app
+      ignore: [ // These are all relative to client-app
         // top level dirs we never want
         /^\/build.*/,
         /^\/dist.*/,
@@ -204,23 +204,23 @@ module.exports = (grunt) => {
         /node_modules[/].*[/]benchmark$/,
         /@paulbetts[/]+cld[/]+deps[/]+cld/,
       ],
-      'out': grunt.config('outputDir'),
-      'overwrite': true,
-      'prune': true,
+      out: grunt.config('outputDir'),
+      overwrite: true,
+      prune: true,
       /**
        * This will automatically look for the identity in the keychain. It
        * runs the `security find-identity` command. Note that
        * setup-mac-keychain-task needs to be run first
        */
-      'osx-sign': !!process.env.SIGN_BUILD,
-      'win32metadata': {
+      osxSign: !!process.env.SIGN_BUILD,
+      win32metadata: {
         CompanyName: 'Foundry 376, LLC',
         FileDescription: 'Merani',
         LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
         ProductName: 'Merani',
       },
       // NOTE: The following plist keys can NOT be set in the
-      // nylas-Info.plist since they are manually overridden by
+      // extra.plist since they are manually overridden by
       // electron-packager based on this config file:
       //
       // CFBundleDisplayName: 'name',
@@ -230,12 +230,12 @@ module.exports = (grunt) => {
       //
       // See https://github.com/electron-userland/electron-packager/blob/master/mac.js#L50
       //
-      // Our own nylas-Info.plist gets extended on top of the
+      // Our own extra.plist gets extended on top of the
       // Electron.app/Contents/Info.plist. A majority of the defaults are
       // left in the Electron Info.plist file
-      'extend-info': path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'nylas-Info.plist'),
-      'app-bundle-id': "com.merani.merani",
-      'afterCopy': [
+      extendInfo: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'extra.plist'),
+      appBundleId: "com.merani.merani",
+      afterCopy: [
         runCopyPlatformSpecificResources,
         runWriteCommitHashIntoPackage,
         runCopySymlinkedPackages,
