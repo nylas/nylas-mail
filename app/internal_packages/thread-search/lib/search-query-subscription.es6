@@ -8,10 +8,9 @@ import {
   FocusedContentStore,
   MutableQuerySubscription,
 } from 'nylas-exports'
-// import SearchActions from './search-actions'
+import SearchActions from './search-actions'
 
 class SearchQuerySubscription extends MutableQuerySubscription {
-
   constructor(searchQuery, accountIds) {
     super(null, {emitResultSet: true})
     this._searchQuery = searchQuery
@@ -55,7 +54,6 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     }
     try {
       const parsedQuery = SearchQueryParser.parse(this._searchQuery);
-      console.info('Successfully parsed and codegened search query', parsedQuery);
       dbQuery = dbQuery.structuredSearch(parsedQuery);
     } catch (e) {
       console.info('Failed to parse local search query, falling back to generic query', e);
@@ -64,8 +62,6 @@ class SearchQuerySubscription extends MutableQuerySubscription {
     dbQuery = dbQuery
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
       .limit(100)
-
-    console.info('dbQuery.sql() =', dbQuery.sql());
 
     dbQuery.then((results) => {
       if (results.length > 0) {
@@ -90,37 +86,16 @@ class SearchQuerySubscription extends MutableQuerySubscription {
   }
 
   performRemoteSearch() {
-    // const accountsSearched = new Set()
-    // const allAccountsSearched = () => accountsSearched.size === this._accountIds.length
-    // this._connections = this._accountIds.map((accountId) => {
-    //   const conn = new NylasLongConnection({
-    //     accountId,
-    //     api: NylasAPI,
-    //     path: `/threads/search/streaming?q=${encodeURIComponent(this._searchQuery)}`,
-    //     onResults: (results) => {
-    //       if (!this._remoteResultsReceivedAt) {
-    //         this._remoteResultsReceivedAt = Date.now();
-    //       }
-    //       const threads = results[0];
-    //       this._remoteResultsCount += threads.length;
-    //     },
-    //     onStatusChanged: (status) => {
-    //       const hasClosed = [
-    //         LongConnectionStatus.Closed,
-    //         LongConnectionStatus.Ended,
-    //       ].includes(status)
-
-    //       if (hasClosed) {
-    //         accountsSearched.add(accountId)
-    //         if (allAccountsSearched()) {
-    //           SearchActions.searchCompleted()
-    //         }
-    //       }
-    //     },
-    //   })
-
-    //   return conn.start()
-    // })
+    // TODO: Perform IMAP search here.
+    //
+    // This is temporarily disabled because we support Gmail's
+    // advanced syntax locally (eg: in: inbox, is:unread), and
+    // search message bodies, so local search is pretty much
+    // good enough for v1. Come back and implement this soon!
+    //
+    setTimeout(() => {
+      SearchActions.searchCompleted();
+    }, 400);
   }
 
   performExtensionSearch() {

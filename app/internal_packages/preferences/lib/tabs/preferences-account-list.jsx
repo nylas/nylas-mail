@@ -42,6 +42,7 @@ class PreferencesAccountList extends Component {
         <Flexbox direction="row" style={{alignItems: 'middle'}}>
           <div style={{textAlign: 'center'}}>
             <RetinaImg
+              style={{width: 50, height: 50}}
               name={syncError ? "ic-settings-account-error.png" : `ic-settings-account-${account.provider}.png`}
               fallback="ic-settings-account-imap.png"
               mode={RetinaImg.Mode.ContentPreserve}

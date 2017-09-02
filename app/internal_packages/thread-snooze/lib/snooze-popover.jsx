@@ -93,6 +93,7 @@ class SnoozePopover extends Component {
         <RetinaImg
           url={iconPath}
           mode={RetinaImg.Mode.ContentIsMask}
+          style={{width: 45, height: 45}}
         />
         {itemLabel}
       </div>

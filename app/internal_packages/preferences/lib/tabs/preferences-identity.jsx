@@ -52,11 +52,15 @@ class PreferencesIdentity extends React.Component {
     )
   }
 
-  _renderPaidPlan(planName) {
+  _renderPaidPlan(planName, effectivePlanName) {
+    const unpaidNote = (effectivePlanName !== planName) && (
+      <p>{`Note: Due to issues with your most recent payment, you've been temporarily downgraded to Merani ${effectivePlanName}. Click 'Billing' below to correct the issue.`}</p>
+    )
     return (
       <div className="row padded">
         <div>
         Thank you for using <strong style={{textTransform: 'capitalize'}}>{`Merani ${planName}`}</strong> and supporting independent software.
+        {unpaidNote}
         </div>
         <div className="subscription-actions">
           <OpenIdentityPageButton label="Manage Billing" path="/dashboard#billing" source="Preferences Billing" campaign="Dashboard" />
@@ -67,7 +71,7 @@ class PreferencesIdentity extends React.Component {
 
   render() {
     const {identity} = this.state;
-    const {firstName, lastName, emailAddress, stripePlan} = identity;
+    const {firstName, lastName, emailAddress, stripePlan, stripePlanEffective} = identity;
 
     const logout = () => Actions.logoutNylasIdentity()
 
@@ -91,7 +95,7 @@ class PreferencesIdentity extends React.Component {
               </div>
             </div>
           </div>
-          {stripePlan === 'Basic' ? this._renderBasic() : this._renderPaidPlan(stripePlan)}
+          {stripePlan === 'Basic' ? this._renderBasic() : this._renderPaidPlan(stripePlan, stripePlanEffective)}
         </div>
       </div>
     );
