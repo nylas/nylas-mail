@@ -15,7 +15,7 @@ install:
 
 # Extract the codesigning certs, encrypted private ssh key
 - ps: |
-    C:\OpenSSL-Win32\bin\openssl.exe aes-256-cbc -K $encrypted_faf2708e46e2_key -iv $encrypted_faf2708e46e2_iv -in app/build/resources/certs.tar.enc -out app/build/resources/certs.tar -d;
+    C:\OpenSSL-Win32\bin\openssl.exe aes-256-cbc -K $env:encrypted_faf2708e46e2_key -iv $env:encrypted_faf2708e46e2_iv -in app/build/resources/certs.tar.enc -out app/build/resources/certs.tar -d;
     mkdir app/build/resources/certs;
     tar xvf app/build/resources/certs.tar --directory=app/build/resources/;
 
