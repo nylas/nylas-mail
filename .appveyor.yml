@@ -22,7 +22,7 @@ install:
 # Clone the submodule
 - ps: |
     $env:GIT_SSH_COMMAND="ssh -i app/build/resources/certs/mailsync-deploy-key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
-    git submodule update --init mailsync
+    git submodule update --init mailsync 2>&1
 
 build_script:
 - cmd: cd .\mailsync && .\build.cmd && cd ..\
