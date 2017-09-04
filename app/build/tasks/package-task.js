@@ -158,6 +158,7 @@ module.exports = (grunt) => {
         'unpack': "{" + [
           'mailsync',
           'mailsync.exe',
+          '*.dll',
           '*.node',
           '**/vendor/**',
           'examples/**',
