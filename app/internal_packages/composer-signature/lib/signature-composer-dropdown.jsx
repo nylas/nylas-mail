@@ -96,8 +96,8 @@ export default class SignatureComposerDropdown extends React.Component {
   }
 
   _renderSignatures() {
-    const header = [<div className="item item-none" key="none" onMouseDown={this._onClickNoSignature}><span>No signature</span></div>]
-    const footer = [<div className="item item-edit" key="edit" onMouseDown={this._onClickEditSignatures}><span>Edit Signatures...</span></div>]
+    const header = [<div className="item item-none" key="none" onClick={this._onClickNoSignature}><span>No signature</span></div>]
+    const footer = [<div className="item item-edit" key="edit" onClick={this._onClickEditSignatures}><span>Edit Signatures...</span></div>]
 
     const sigItems = Object.values(this.state.signatures)
     return (

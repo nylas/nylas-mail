@@ -5,7 +5,7 @@ export function activate() {
   this.preferencesTab = new PreferencesUIStore.TabItem({
     tabId: "Plugins",
     displayName: "Plugins",
-    component: PluginsView,
+    componentClassFn: () => PluginsView,
   });
 
   PreferencesUIStore.registerPreferencesTab(this.preferencesTab);

@@ -77,6 +77,7 @@ class PreferencesRoot extends React.Component {
 
   render() {
     const {tab, selection, tabs} = this.props
+    const TabComponent = tab && tab.componentClassFn();
 
     return (
       <KeyCommandsRegion className="preferences-wrap" tabIndex="1" localHandlers={this._localHandlers()}>
@@ -88,7 +89,7 @@ class PreferencesRoot extends React.Component {
           <ScrollRegion className="preferences-content">
             <ConfigPropContainer ref={(el) => { this._contentComponent = el; }}>
               {tab ?
-                <tab.component accountId={selection.accountId} /> :
+                <TabComponent accountId={selection.accountId} /> :
                 false
               }
             </ConfigPropContainer>

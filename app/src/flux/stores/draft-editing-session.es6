@@ -236,10 +236,10 @@ export default class DraftEditingSession extends NylasStore {
   //
   // If the account is updated it makes a request to delete the draft with the
   // old accountId
-  ensureCorrectAccount({noSyncback} = {}) {
+  async ensureCorrectAccount({noSyncback} = {}) {
     const account = AccountStore.accountForEmail(this._draft.from[0].email);
     if (!account) {
-      return Promise.reject(new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account."))
+      throw new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account.");
     }
 
     if (account.id !== this._draft.accountId) {
@@ -251,12 +251,13 @@ export default class DraftEditingSession extends NylasStore {
         threadId: null,
         replyToMessageId: null,
       });
-      return this.changes.commit({noSyncback}).thenReturn(this);
+      await this.changes.commit({noSyncback});
     }
-    return Promise.resolve(this);
+
+    return this;
   }
 
-  _setDraft(draft) {
+  async _setDraft(draft) {
     if (draft.body === undefined) {
       throw new Error("DraftEditingSession._setDraft - new draft has no body!");
     }
@@ -269,28 +270,27 @@ export default class DraftEditingSession extends NylasStore {
     fragment.appendChild(draftBodyRootNode);
     draftBodyRootNode.innerHTML = draft.body;
 
-    return Promise.each(extensions, (ext) => {
+    for (const ext of extensions) {
       if (ext.applyTransformsForSending && ext.unapplyTransformsForSending) {
-        Promise.resolve(ext.unapplyTransformsForSending({
+        await ext.unapplyTransformsForSending({
           draftBodyRootNode: draftBodyRootNode,
           draft: draft,
-        }));
+        });
       }
-    }).then(() => {
-      draft.body = draftBodyRootNode.innerHTML;
-      this._draft = draft;
+    }
+    draft.body = draftBodyRootNode.innerHTML;
+    this._draft = draft;
 
-      // We keep track of the draft's initial body if it's pristine when the editing
-      // session begins. This initial value powers things like "are you sure you want
-      // to send with an empty body?"
-      if (draft.pristine) {
-        this._draftPristineBody = draft.body;
-        this._undoStack.save(this._snapshot());
-      }
+    // We keep track of the draft's initial body if it's pristine when the editing
+    // session begins. This initial value powers things like "are you sure you want
+    // to send with an empty body?"
+    if (draft.pristine) {
+      this._draftPristineBody = draft.body;
+      this._undoStack.save(this._snapshot());
+    }
 
-      this.trigger();
-      return Promise.resolve(this);
-    });
+    this.trigger();
+    return this;
   }
 
   _onDraftChanged = (change) => {

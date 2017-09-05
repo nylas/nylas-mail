@@ -7,8 +7,7 @@ import { Flexbox } from 'nylas-component-kit';
 import displayedKeybindings from './keymaps/displayed-keybindings';
 import CommandItem from './keymaps/command-item';
 
-class PreferencesKeymaps extends React.Component {
-
+export default class PreferencesKeymaps extends React.Component {
   static displayName = 'PreferencesKeymaps';
 
   static propTypes = {
@@ -135,7 +134,4 @@ class PreferencesKeymaps extends React.Component {
       </div>
     );
   }
-
 }
-
-export default PreferencesKeymaps;

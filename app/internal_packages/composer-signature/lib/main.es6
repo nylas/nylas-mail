@@ -2,13 +2,12 @@ import {PreferencesUIStore, ExtensionRegistry, ComponentRegistry} from 'nylas-ex
 
 import SignatureComposerExtension from './signature-composer-extension';
 import SignatureComposerDropdown from './signature-composer-dropdown';
-import PreferencesSignatures from "./preferences-signatures";
 
 export function activate() {
   this.preferencesTab = new PreferencesUIStore.TabItem({
     tabId: "Signatures",
     displayName: "Signatures",
-    component: PreferencesSignatures,
+    componentClassFn: () => require('./preferences-signatures').default, // eslint-disable-line
   });
 
   ExtensionRegistry.Composer.register(SignatureComposerExtension);

@@ -4,6 +4,7 @@
   "main": "./lib/main",
   "description": "Nylas Preferences Window Component",
   "license": "GPL-3.0",
+  "syncInit": true,
   "private": true,
   "engines": {
     "merani": "*"

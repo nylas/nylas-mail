@@ -1,50 +1,47 @@
-import {PreferencesUIStore,
+/* eslint global-require: 0 */
+import {
+  PreferencesUIStore,
   WorkspaceStore,
-  ComponentRegistry} from 'nylas-exports';
+  ComponentRegistry,
+} from 'nylas-exports';
 
 import PreferencesRoot from './preferences-root';
-import PreferencesGeneral from './tabs/preferences-general';
-import PreferencesAccounts from './tabs/preferences-accounts';
-import PreferencesAppearance from './tabs/preferences-appearance';
-import PreferencesKeymaps from './tabs/preferences-keymaps';
-import PreferencesMailRules from './tabs/preferences-mail-rules';
-import PreferencesIdentity from './tabs/preferences-identity';
 
 export function activate() {
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
     tabId: 'General',
     displayName: 'General',
-    component: PreferencesGeneral,
+    componentClassFn: () => require('./tabs/preferences-general').default,
     order: 1,
   }))
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
     tabId: 'Accounts',
     displayName: 'Accounts',
-    component: PreferencesAccounts,
+    componentClassFn: () => require('./tabs/preferences-accounts').default,
     order: 2,
   }))
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
     tabId: 'Subscription',
     displayName: 'Subscription',
-    component: PreferencesIdentity,
+    componentClassFn: () => require('./tabs/preferences-identity').default,
     order: 3,
   }))
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
     tabId: 'Appearance',
     displayName: 'Appearance',
-    component: PreferencesAppearance,
+    componentClassFn: () => require('./tabs/preferences-appearance').default,
     order: 4,
   }))
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
     tabId: 'Shortcuts',
     displayName: 'Shortcuts',
-    component: PreferencesKeymaps,
+    componentClassFn: () => require('./tabs/preferences-keymaps').default,
     order: 5,
   }))
   PreferencesUIStore.registerPreferencesTab(new PreferencesUIStore.TabItem({
     tabId: 'Mail Rules',
     displayName: 'Mail Rules',
-    component: PreferencesMailRules,
+    componentClassFn: () => require('./tabs/preferences-mail-rules').default,
     order: 6,
   }))
 

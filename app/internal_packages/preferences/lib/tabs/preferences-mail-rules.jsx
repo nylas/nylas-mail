@@ -158,7 +158,7 @@ class PreferencesMailRules extends React.Component {
             mode={RetinaImg.Mode.ContentDark}
           />
           <h2>No rules</h2>
-          <button className="btn btn-small" onMouseDown={this._onAddRule}>
+          <button className="btn btn-small" onClick={this._onAddRule}>
             Create a new rule
           </button>
         </div>
