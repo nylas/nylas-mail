@@ -1,3 +1,3 @@
 [submodule "mailsync"]
 	path = mailsync
-	url = git@github.com:Foundry376/Mailspring-Mailsync.git
+	url = git@github.com:Foundry376/Mailspring-Sync.git
