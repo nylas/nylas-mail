@@ -47,6 +47,6 @@ class DraftList extends React.Component
 
   _onRemoveFromView: =>
     drafts = DraftListStore.dataSource().selection.items()
-    Actions.destroyDraft(draft.accountId, draft.headerMessageId) for draft in drafts
+    Actions.destroyDraft(draft) for draft in drafts
 
 module.exports = DraftList

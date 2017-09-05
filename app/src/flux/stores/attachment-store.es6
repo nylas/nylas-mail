@@ -393,6 +393,7 @@ class AttachmentStore extends NylasStore {
       }
 
       const file = new File({
+        id: Utils.generateTempId(),
         filename: filename,
         size: stats.size,
         contentType: null,

@@ -148,12 +148,15 @@ export default class ComposerView extends React.Component {
     }
   }
 
+  _setSREl = (el) => {
+    this._els.scrollregion = el;
+  }
   _renderContentScrollRegion() {
     if (NylasEnv.isComposerWindow()) {
       return (
         <ScrollRegion
           className="compose-body-scroll"
-          ref={(el) => { this._els.scrollregion = el; }}
+          ref={(el) => { if (el) { this._els.scrollregion = el; } }}
         >
           {this._renderContent()}
         </ScrollRegion>
@@ -172,7 +175,7 @@ export default class ComposerView extends React.Component {
     return (
       <div className="composer-centered">
         <ComposerHeader
-          ref={(el) => { this._els.header = el; }}
+          ref={(el) => { if (el) { this._els.header = el; } }}
           draft={this.props.draft}
           session={this.props.session}
           initiallyFocused={this.props.draft.to.length === 0}
@@ -180,7 +183,7 @@ export default class ComposerView extends React.Component {
         />
         <div
           className="compose-body"
-          ref={(el) => { this._els.composeBody = el; }}
+          ref={(el) => { if (el) { this._els.composeBody = el; } }}
           onMouseUp={this._onMouseUpComposerBody}
           onMouseDown={this._onMouseDownComposerBody}
         >
@@ -197,7 +200,10 @@ export default class ComposerView extends React.Component {
       session: this.props.session,
     }
     return (
-      <div ref={(el) => { this._els.composerBodyWrap = el; }} className="composer-body-wrap">
+      <div
+        ref={(el) => { if (el) { this._els.composerBodyWrap = el; } }}
+        className="composer-body-wrap"
+      >
         <OverlaidComponents exposedProps={exposedProps}>
           {this._renderEditor()}
         </OverlaidComponents>
@@ -221,7 +227,7 @@ export default class ComposerView extends React.Component {
 
     return (
       <InjectedComponent
-        ref={(el) => { this._els[Fields.Body] = el; }}
+        ref={(el) => { if (el) { this._els[Fields.Body] = el; } }}
         className="body-field"
         matching={{role: "Composer:Editor"}}
         fallback={ComposerEditor}
@@ -390,7 +396,7 @@ export default class ComposerView extends React.Component {
 
 
         <InjectedComponent
-          ref={(el) => { this._els.sendActionButton = el; }}
+          ref={(el) => { if (el) { this._els.sendActionButton = el; } }}
           tabIndex={-1}
           style={{order: -100}}
           matching={{role: "Composer:SendActionButton"}}
@@ -564,7 +570,7 @@ export default class ComposerView extends React.Component {
 
   _onDestroyDraft = () => {
     const {draft} = this.props;
-    Actions.destroyDraft(draft.accountId, draft.headerMessageId);
+    Actions.destroyDraft(draft);
   }
 
   _onSelectAttachment = () => {
@@ -579,7 +585,7 @@ export default class ComposerView extends React.Component {
         <KeyCommandsRegion
           localHandlers={this._keymapHandlers()}
           className={"message-item-white-wrap composer-outer-wrap"}
-          ref={(el) => { this._els.composerWrap = el; }}
+          ref={(el) => { if (el) { this._els.composerWrap = el; } }}
           tabIndex="-1"
         >
           <TabGroupRegion className="composer-inner-wrap">

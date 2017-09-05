@@ -270,7 +270,7 @@ class ComposerEditor extends Component {
         shouldAcceptDrop={this._shouldAcceptDrop}
       >
         <Contenteditable
-          ref={(cm) => { this._contenteditableComponent = cm; }}
+          ref={(cm) => { if (cm) { this._contenteditableComponent = cm; } }}
           value={this.props.body}
           onChange={this.props.onBodyChanged}
           onFilePaste={this.props.onFilePaste}

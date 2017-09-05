@@ -212,12 +212,6 @@ xdescribe "DraftEditingSession Specs", ->
           @session.changes.commit().then =>
             expect(updated.body).toBe "123"
 
-      it "doesn't queues a SyncbackDraftTask if no Syncback is passed", ->
-        spyOn(DatabaseStore, "run").andReturn(Promise.resolve(@draft))
-        waitsForPromise =>
-          @session.changes.commit({noSyncback: true}).then =>
-            expect(Actions.queueTask).not.toHaveBeenCalled()
-
       describe "when findBy does not return a draft", ->
         it "continues and persists it's local draft reference, so it is resaved and draft editing can continue", ->
           spyOn(DatabaseStore, "run").andReturn(Promise.resolve(null))

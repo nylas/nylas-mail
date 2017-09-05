@@ -142,7 +142,7 @@ class ListTabular extends Component {
     // If our view has been swapped out for an entirely different one,
     // reset our scroll position to the top.
     if (prevProps.dataSource !== this.props.dataSource) {
-      this.refs.container.scrollTop = 0;
+      this._scrollRegion.scrollTop = 0;
     }
 
     if (!this.updateRangeStateFiring) {
@@ -222,16 +222,19 @@ class ListTabular extends Component {
   }
 
   scrollTo(node) {
-    this.refs.container.scrollTo(node);
+    if (!this._scrollRegion) { return; }
+    this._scrollRegion.scrollTo(node);
   }
 
   scrollByPage(direction) {
-    const height = ReactDOM.findDOMNode(this.refs.container).clientHeight;
-    this.refs.container.scrollTop += height * direction;
+    if (!this._scrollRegion) { return; }
+    const height = ReactDOM.findDOMNode(this._scrollRegion).clientHeight;
+    this._scrollRegion.scrollTop += height * direction;
   }
 
   updateRangeState() {
-    const {scrollTop} = this.refs.container;
+    if (!this._scrollRegion) { return; }
+    const {scrollTop} = this._scrollRegion;
     const {itemHeight} = this.props
 
     // Determine the exact range of rows we want onscreen
@@ -344,7 +347,7 @@ class ListTabular extends Component {
     return (
       <div className="list-container list-tabular #{@props.className}">
         <ScrollRegion
-          ref="container"
+          ref={(cm) => { this._scrollRegion = cm; }}
           onScroll={this.onScroll}
           tabIndex="-1"
           scrollTooltipComponent={scrollTooltipComponent}

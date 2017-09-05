@@ -181,7 +181,8 @@ export default class MailsyncBridge {
     if (!this._clients[accountId]) {
       const err = new Error(`No mailsync worker is running.`);
       err.accountId = accountId;
-      throw err;
+      NylasEnv.reportError(err);
+      return;
     }
     this._clients[accountId].sendMessage(json);
   }

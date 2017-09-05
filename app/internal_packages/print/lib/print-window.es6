@@ -12,7 +12,6 @@ export default class PrintWindow {
     // call window.print() after we've cleaned up the dom for printing
     const scriptPath = path.join(__dirname, '..', 'static', 'print.js');
     const stylesPath = path.join(__dirname, '..', 'static', 'print-styles.css');
-    const imgPath = path.join(__dirname, '..', 'assets', 'nylas-print-logo.png');
     const participantsHtml = participants.map((part) => {
       return (`<li class="participant"><span>${part.name} &lt;${part.email}&gt;</span></li>`);
     }).join('');
@@ -30,7 +29,6 @@ export default class PrintWindow {
               Print
             </div>
             <div class="logo-wrapper">
-              <img src="${imgPath}" alt="nylas-logo"/>
               <span class="account">${account.name} &lt;${account.email}&gt;</span>
             </div>
             <h1>${subject}</h1>

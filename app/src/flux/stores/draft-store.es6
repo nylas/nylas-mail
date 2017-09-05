@@ -112,7 +112,7 @@ class DraftStore extends NylasStore {
       if (draft && draft.pristine) {
         Actions.queueTask(new DestroyDraftTask({
           accountId: draft.accountId,
-          headerMessageId: draft.headerMessageId,
+          messageIds: [draft.headerMessageId],
         }));
       } else {
         promises.push(session.changes.commit());
@@ -316,7 +316,7 @@ class DraftStore extends NylasStore {
     });
   }
 
-  _onDestroyDraft = (accountId, headerMessageId) => {
+  _onDestroyDraft = ({accountId, headerMessageId, id}) => {
     const session = this._draftSessions[headerMessageId];
 
     // Immediately reset any pending changes so no saves occur
@@ -335,7 +335,7 @@ class DraftStore extends NylasStore {
     })
 
     // Queue the task to destroy the draft
-    Actions.queueTask(new DestroyDraftTask({accountId, headerMessageId}));
+    Actions.queueTask(new DestroyDraftTask({accountId, messageIds: [id]}));
 
     if (NylasEnv.isComposerWindow()) {
       NylasEnv.close();

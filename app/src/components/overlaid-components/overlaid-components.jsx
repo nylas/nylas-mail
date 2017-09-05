@@ -220,7 +220,10 @@ export default class OverlaidComponents extends React.Component {
     const toggle = (previewToggleVisible) ? this._renderPreviewToggle() : false;
 
     return (
-      <div className="overlaid-components" ref={(el) => { this._overlaidComponentsEl = el; }}>
+      <div
+        className="overlaid-components"
+        ref={(el) => { if (el) { this._overlaidComponentsEl = el; } }}
+      >
         {toggle}
         {els}
       </div>
@@ -231,7 +234,10 @@ export default class OverlaidComponents extends React.Component {
     const {className} = this.props
     return (
       <div className={`overlaid-components-wrap ${className || ''}`} style={{position: "relative"}}>
-        <div className="anchor-container" ref={(el) => { this._anchorContainerEl = el; }} >
+        <div
+          className="anchor-container"
+          ref={(el) => { if (el) { this._anchorContainerEl = el; } }}
+        >
           {this.props.children}
         </div>
         {this._renderOverlaidComponents()}

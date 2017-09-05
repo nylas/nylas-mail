@@ -2,6 +2,7 @@ import _ from 'underscore'
 import EventEmitter from 'events';
 import NylasStore from 'nylas-store';
 
+import TaskQueue from './task-queue';
 import Message from '../models/message'
 import Actions from '../actions'
 import AccountStore from './account-store'
@@ -11,6 +12,7 @@ import UndoStack from '../../undo-stack'
 import DraftHelpers from '../stores/draft-helpers'
 import {Composer as ComposerExtensionRegistry} from '../../registries/extension-registry'
 import SyncbackDraftTask from '../tasks/syncback-draft-task'
+import DestroyDraftTask from '../tasks/destroy-draft-task'
 
 const MetadataChangePrefix = 'metadata.';
 let DraftStore = null;
@@ -68,7 +70,7 @@ class DraftChangeSet extends EventEmitter {
     this.add(changes, {doesNotAffectPristine: true});
   }
 
-  commit({noSyncback} = {}) {
+  commit() {
     if (this._timer) {
       clearTimeout(this._timer);
     }
@@ -79,7 +81,7 @@ class DraftChangeSet extends EventEmitter {
 
       this._saving = this._pending;
       this._pending = {};
-      return this.callbacks.onCommit({noSyncback}).then(() => {
+      return this.callbacks.onCommit().then(() => {
         this._saving = {}
       });
     };
@@ -232,26 +234,51 @@ export default class DraftEditingSession extends NylasStore {
 
   // This function makes sure the draft is attached to a valid account, and changes
   // it's accountId if the from address does not match the account for the from
-  // address
+  // address.
   //
-  // If the account is updated it makes a request to delete the draft with the
-  // old accountId
-  async ensureCorrectAccount({noSyncback} = {}) {
-    const account = AccountStore.accountForEmail(this._draft.from[0].email);
+  async ensureCorrectAccount() {
+    const draft = this.draft();
+    const account = AccountStore.accountForEmail(draft.from[0].email);
     if (!account) {
       throw new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account.");
     }
 
-    if (account.id !== this._draft.accountId) {
-      // todo bg decide what to do here to sync
-      // NylasAPIHelpers.makeDraftDeletionRequest(this._draft)
-      this.changes.add({
-        accountId: account.id,
-        version: null,
-        threadId: null,
-        replyToMessageId: null,
+    if (account.id !== draft.accountId) {
+      // Create a new draft in the new account (with a new ID).
+      // Because we use the headerMessageId /exclusively/ as the
+      // identifier we'll be fine.
+      //
+      // Then destroy the old one, since it may be synced to the server
+      // and require cleanup!
+      //
+      const create = new SyncbackDraftTask({
+        headerMessageId: draft.headerMessageId,
+        draft: new Message({
+          from: draft.from,
+          version: 0,
+          to: draft.to,
+          cc: draft.cc,
+          bcc: draft.bcc,
+          body: draft.body,
+          files: draft.files,
+          replyTo: draft.replyTo,
+          subject: draft.subject,
+          headerMessageId: draft.headerMessageId,
+          accountId: account.id,
+          unread: false,
+          starred: false,
+          draft: true,
+        }),
       });
-      await this.changes.commit({noSyncback});
+
+      const destroy = new DestroyDraftTask({
+        messageIds: [draft.id],
+        accountId: draft.accountId,
+      });
+
+      Actions.queueTask(create);
+      await TaskQueue.waitForPerformLocal(create);
+      Actions.queueTask(destroy);
     }
 
     return this;
@@ -334,13 +361,12 @@ export default class DraftEditingSession extends NylasStore {
     }
   }
 
-  // TODO BG noSyncback is gone
   async changeSetCommit() {
     if (this._destroyed || !this._draft) {
       return;
     }
 
-    // Set a variable here to protect againg this._draft getting set from
+    // Set a variable here to protect against this._draft getting set from
     // underneath us
     const inMemoryDraft = this._draft;
     const draft = await DatabaseStore
@@ -356,7 +382,6 @@ export default class DraftEditingSession extends NylasStore {
     // by creating a new draft
     const baseDraft = draft || inMemoryDraft;
     const updatedDraft = this.changes.applyToModel(baseDraft);
-    console.log("Queueing SyncbackDraftTask");
     Actions.queueTask(new SyncbackDraftTask({draft: updatedDraft}));
   }
 
