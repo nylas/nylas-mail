@@ -9,7 +9,7 @@
   "scripts": {
   },
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "windowTypes": {
     "default": true,

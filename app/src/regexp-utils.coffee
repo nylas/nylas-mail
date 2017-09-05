@@ -36,7 +36,7 @@ RegExpUtils =
   # https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9780596802837/ch07s16.html
   ipAddressRegex: -> new RegExp(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/i)
 
-  meraniCommandRegex: -> new RegExp(/merani:\S+/i)
+  mailspringCommandRegex: -> new RegExp(/mailspring:\S+/i)
 
   # Test cases: https://regex101.com/r/pD7iS5/3
   urlRegex: ({matchEntireString} = {}) ->
@@ -48,10 +48,10 @@ RegExpUtils =
         '('
           # This OR block matches any TLD if the URL includes a scheme, and only
           # the top ten TLDs if the scheme is omitted.
-          # YES - https://getmerani.ai
+          # YES - https://getmailspring.ai
           # YES - https://10.2.3.1
-          # YES - getmerani.com
-          # NO  - getmerani.ai
+          # YES - getmailspring.com
+          # NO  - getmailspring.ai
           '('
             # scheme, ala https:// (mandatory)
             '([A-Za-z]{3,9}:(?:\\/\\/))'
@@ -141,12 +141,12 @@ RegExpUtils =
   imageTagRegex: -> /<img\s+[^>]*src="([^"]*)"[^>]*>/g
 
   # Regex that matches our link tracking urls, surrounded by quotes
-  # ("link.getmerani.com...?redirect=")
+  # ("link.getmailspring.com...?redirect=")
   # Test cases: https://regex101.com/r/rB4fO4/3
   # Returns the following capturing groups
   # 1.The redirect url: the actual url you want to visit by clicking a url
   # that matches this regex
-  trackedLinkRegex: -> /[\"|\']https:\/\/link\.getmerani\.com\/link\/.*?\?.*?redirect=([^&\"\']*).*?[\"|\']/g
+  trackedLinkRegex: -> /[\"|\']https:\/\/link\.getmailspring\.com\/link\/.*?\?.*?redirect=([^&\"\']*).*?[\"|\']/g
 
   punctuation: ({exclude}={}) ->
     exclude ?= []

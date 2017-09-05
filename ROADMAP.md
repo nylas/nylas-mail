@@ -5,7 +5,7 @@ Target Ship Date: Late September
 #### C++ MailSync
 *Goal: Reduce bugginess and battery impact, enable new controls over what mail data is synced, and dramatically improve performance by moving mailsync to a new C++ codebase based on MailCore2.*
 
-- [x] Build a lightweight C++ command-line application that syncs mail using `MailCore2` and `libcurl` and writes to the same sqlite3 database schema used by Merani.
+- [x] Build a lightweight C++ command-line application that syncs mail using `MailCore2` and `libcurl` and writes to the same sqlite3 database schema used by Mailspring.
 - [x] Remove the client-sync package and the Activity window and implement `MailsyncProcess`/`MailsyncBridge` wrappers around new C++ codebase. Broadcast database events from the C++ app into the JavaScript app so the UI updates as data changes.
 - [x] Remove thread and contact search indexing, perform indexing as data is retrieved from IMAP in C++.
 - [x] Remove migration support from JavaScript. Run the C++ app at launch with `--migrate` to run migrations before the main window is displayed.
@@ -28,7 +28,7 @@ Target Ship Date: Late September
 - [x] Add support for Gmail authentication flow and XOAUTH2
 - [ ] Add more robust retry / failure handling logic to C++ code.
 - [x] Decide what license to use for the C++ codebase / whether to open-source it or provide binaries. (Update: I've deciced to keep this closed source for now. [Here's why.](#why-is-mailsync-closed-source))
-- [x] Link the C++ codebase into Merani as a submodule, make Travis and AppVeyor CI build the C++ codebase.
+- [x] Link the C++ codebase into Mailspring as a submodule, make Travis and AppVeyor CI build the C++ codebase.
 
 #### C++ MailSync Testing:
 - [x] Test with a Gmail account
@@ -54,22 +54,22 @@ Target Ship Date: Late September
   + [x] Implement delta stream handling in the C++ codebase
 
 #### Deployment
-- [x] Create a new AWS account for Merani project
+- [x] Create a new AWS account for Mailspring project
 - [x] Create a Stripe account
-- [x] Register Merani domain(s)
+- [x] Register Mailspring domain(s)
 - [x] Setup Sentry for client error reporting
 - [x] Setup Sentry for server error reporting
-- [x] Obtain Mac Developer Certificate for Merani
-- [ ] Obtain Windows Verisign Certificate for Merani
+- [x] Obtain Mac Developer Certificate for Mailspring
+- [ ] Obtain Windows Verisign Certificate for Mailspring
 - [x] Setup Amazon VPC with public/private subnets, strong security group rules 
 - [x] Setup fast, reproducible deployments w/ Docker containers
-- [x] Deploy new identity API to id.getmerani.com
-- [ ] Deploy new accounts API to accounts.getmerani.com
+- [x] Deploy new identity API to id.getmailspring.com
+- [ ] Deploy new accounts API to accounts.getmailspring.com
 - [ ] Deploy cloud workers to a secured AWS VPC
   *Blocked: Waiting for Nylas to open-source the rest of the code.*
 
 #### General
-- [ ] Create a new logo / icon for Merani
+- [ ] Create a new logo / icon for Mailspring
 - [x] Bump Electron to 1.7.6
 - [x] Bump React to 15.x
 - [x] Remove "heavy" Node modules no longer needed in 2017 and contribute to slow launch time:
@@ -85,7 +85,7 @@ Target Ship Date: Late September
 ## Roadmap Past 1.0
 - [ ] Bring back Mail Rules!
 - [ ] Update documentation for creating plugins and themes
-- [ ] Create help site using existing content from support.getmerani.com.
+- [ ] Create help site using existing content from support.getmailspring.com.
   *Verify they are OK with this?*
 - [ ] Implement plugin / theme browser like the Chrome Web Store.
   + Decide whether to restore support for plugins that need native modules.
@@ -105,13 +105,13 @@ Target Ship Date: Late September
 
 ## Why is Mailsync Closed Source?
 
-For the initial release I've decided to keep the new C++ codebase closed-source. When you pull this repository and run `npm install`, the correct Mailsync build for your platform is automatically downloaded and put in place so you can hack away on the Merani Electron app. For those of you who are interested, here's why it's closed-source:
+For the initial release I've decided to keep the new C++ codebase closed-source. When you pull this repository and run `npm install`, the correct Mailsync build for your platform is automatically downloaded and put in place so you can hack away on the Mailspring Electron app. For those of you who are interested, here's why it's closed-source:
 
-- **Open source is a commitment.** When I was the lead engineer of the Nylas Mail team at Nylas, I spent thousands of hours responding to GitHub issues, helping people build the source, and trying to give PR feedback that was actionable and kind. I'm expecting to spend about 30% of my time working with the open-source community on the JavaScript side of Merani, and I'd rather focus on improving existing documentation and hackability than expand code surface area past what I can support. Especially until it's past the ["bus factor"](https://en.wikipedia.org/wiki/Bus_factor) of one!
+- **Open source is a commitment.** When I was the lead engineer of the Nylas Mail team at Nylas, I spent thousands of hours responding to GitHub issues, helping people build the source, and trying to give PR feedback that was actionable and kind. I'm expecting to spend about 30% of my time working with the open-source community on the JavaScript side of Mailspring, and I'd rather focus on improving existing documentation and hackability than expand code surface area past what I can support. Especially until it's past the ["bus factor"](https://en.wikipedia.org/wiki/Bus_factor) of one!
 
 - **Mailsync is hard to compile.** Mailsync is written in C++0x and uses new features like `shared_ptr` and `condition_variable`. It requires GCC 4.8 and has a ton of dependencies and required build flags. If `node-sqlite3` is any indication, open-sourcing it in it's current form would be a GitHub Issues disaster. (Compared to mailsync, `node-sqlite3` is pretty easy to build but a whopping *35%* of it's open issues are [compilation-related!](https://github.com/mapbox/node-sqlite3/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20compile) 😰).
 
 - **The odds of great PRs are low.** Mailsync is a multithreaded, cross-platform C++ application that interfaces with old, fragile protocols that have their own learning curves and are difficult to mock. For folks to contribute meaningful pull requests, I'd have to write great docs and tests. I'd also need to spend a /lot/ of time reviewing changes for side-effects, enforcing good C++ techniques, and checking changes for performance impact. Maybe I'll be able to support this in the future, but not yet!
 
-If you're interested in contributing to the Merani Mailsync codebase and have some time and skill to throw at it, please let me know!
+If you're interested in contributing to the Mailspring Mailsync codebase and have some time and skill to throw at it, please let me know!
 

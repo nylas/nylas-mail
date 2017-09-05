@@ -7,6 +7,6 @@
   "private": true,
   "syncInit": true,
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   }
 }

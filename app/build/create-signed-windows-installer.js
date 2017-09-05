@@ -12,19 +12,19 @@ const {version} = require(path.join(appDir, 'package.json'));
 const config = {
   usePackageJson: false,
   outputDirectory: path.join(appDir, 'dist'),
-  appDirectory: path.join(appDir, 'dist', 'merani-win32-ia32'),
+  appDirectory: path.join(appDir, 'dist', 'mailspring-win32-ia32'),
   loadingGif: path.join(appDir, 'build', 'resources', 'win', 'loading.gif'),
-  iconUrl: 'http://edgehill.s3.amazonaws.com/static/merani.ico',
+  iconUrl: 'http://edgehill.s3.amazonaws.com/static/mailspring.ico',
   certificateFile: process.env.CERTIFICATE_FILE,
   certificatePassword: process.env.WINDOWS_CODESIGN_KEY_PASSWORD,
-  description: "Merani",
+  description: "Mailspring",
   version: version,
-  title: "merani",
+  title: "mailspring",
   authors: 'Foundry 376, LLC',
-  setupIcon: path.join(appDir, 'build', 'resources', 'win', 'merani.ico'),
-  setupExe: 'MeraniSetup.exe',
-  exe: 'merani.exe',
-  name: 'Merani',
+  setupIcon: path.join(appDir, 'build', 'resources', 'win', 'mailspring.ico'),
+  setupExe: 'MailspringSetup.exe',
+  exe: 'mailspring.exe',
+  name: 'Mailspring',
 }
 
 console.log(config);

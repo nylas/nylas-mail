@@ -52,18 +52,18 @@ class SystemStartServiceDarwin extends SystemStartServiceBase {
   }
 
   _launcherPath() {
-    return path.join("/", "Applications", "Merani.app", "Contents",
-                     "MacOS", "Merani")
+    return path.join("/", "Applications", "Mailspring.app", "Contents",
+                     "MacOS", "Mailspring")
   }
 
   _plistPath() {
     return path.join(process.env.HOME, "Library",
-                     "LaunchAgents", "com.merani.plist");
+                     "LaunchAgents", "com.mailspring.plist");
   }
 
   _launchdPlist() {
     return {
-      Label: "com.merani.merani",
+      Label: "com.mailspring.mailspring",
       Program: this._launcherPath(),
       ProgramArguments: ["--background"],
       RunAtLoad: true,
@@ -91,7 +91,7 @@ class SystemStartServiceWin32 extends SystemStartServiceBase {
   configureToLaunchOnSystemStart() {
     ws.create(this._shortcutPath(), {
       target: this._launcherPath(),
-      args: "--processStart=merani.exe --process-start-args=--background",
+      args: "--processStart=mailspring.exe --process-start-args=--background",
       runStyle: ws.MIN,
       desc: "An extensible, open-source mail client built on the modern web.",
     }, (err) => {
@@ -104,12 +104,12 @@ class SystemStartServiceWin32 extends SystemStartServiceBase {
   }
 
   _launcherPath() {
-    return path.join(process.env.LOCALAPPDATA, "merani", "Update.exe")
+    return path.join(process.env.LOCALAPPDATA, "mailspring", "Update.exe")
   }
 
   _shortcutPath() {
     return path.join(process.env.APPDATA, "Microsoft", "Windows",
-                     "Start Menu", "Programs", "Startup", "Merani.lnk")
+                     "Start Menu", "Programs", "Startup", "Mailspring.lnk")
   }
 }
 
@@ -144,12 +144,12 @@ class SystemStartServiceLinux extends SystemStartServiceBase {
   }
 
   _launcherPath() {
-    return path.join('/', 'usr', 'share', 'applications', 'merani.desktop');
+    return path.join('/', 'usr', 'share', 'applications', 'mailspring.desktop');
   }
 
   _shortcutPath() {
     const configDir = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
-    return path.join(configDir, 'autostart', 'merani.desktop');
+    return path.join(configDir, 'autostart', 'mailspring.desktop');
   }
 }
 

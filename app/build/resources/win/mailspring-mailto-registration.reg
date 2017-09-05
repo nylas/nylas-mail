@@ -1,0 +1,60 @@
+Windows Registry Editor Version 5.00
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto]
+"FriendlyTypeName"="Mailspring Url"
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Classes\Mailspring.Url.mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart mailspring.exe --process-start-args %1"
+
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring]
+@="Mailspring"
+"LocalizedString"="@{{PATH_TO_ROOT_FOLDER}}\\Update.exe,-123"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\mailspring.exe,1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Capabilities]
+"ApplicationName"="Mailspring"
+"ApplicationDescription"="A fast, modern mail client designed to help you boost your productivity."
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Capabilities\StartMenu]
+"Mail"="Mailspring"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Capabilities\URLAssociations]
+"mailto"="Mailspring.Url.mailto"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto]
+@="URL:MailTo Protocol"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\DefaultIcon]
+@="{{PATH_TO_APP_FOLDER}}\\mailspring.exe,1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\Protocols\mailto\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart mailspring.exe --process-start-args %1"
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\shell]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\shell\open]
+
+[{{HKEY_ROOT}}\SOFTWARE\Clients\Mail\Mailspring\shell\open\command]
+@="\"{{PATH_TO_ROOT_FOLDER}}\\Update.exe\" --processStart mailspring.exe"
+
+[{{HKEY_ROOT}}\SOFTWARE\RegisteredApplications]
+"Mailspring"="Software\\Clients\\Mail\\Mailspring\\Capabilities"
+
+
+[HKEY_CURRENT_USER\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\Shell\MuiCache]
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe"="Mailspring"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.FriendlyAppName"="Mailspring"
+"{{PATH_TO_ROOT_FOLDER}}\\Update.exe.ApplicationCompany"="Mailspring"

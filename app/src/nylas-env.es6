@@ -201,9 +201,9 @@ export default class NylasEnvConstructor {
     // the window starts loading.
     require('nylas-exports');
 
-    process.title = `Merani ${this.getWindowType()}`;
+    process.title = `Mailspring ${this.getWindowType()}`;
     return this.onWindowPropsReceived(() => {
-      process.title = `Merani ${this.getWindowType()}`;
+      process.title = `Mailspring ${this.getWindowType()}`;
       return process.title;
     });
   }
@@ -381,7 +381,7 @@ export default class NylasEnvConstructor {
     return this.getLoadSettings().isSpec;
   }
 
-  // Public: Get the version of Merani.
+  // Public: Get the version of Mailspring.
   //
   // Returns the version text {String}.
   getVersion() {
@@ -394,7 +394,7 @@ export default class NylasEnvConstructor {
     return !/\w{7}/.test(this.getVersion());
   }
 
-  // Public: Get the directory path to Merani's configuration area.
+  // Public: Get the directory path to Mailspring's configuration area.
   getConfigDirPath() { return this.getLoadSettings().configDirPath; }
 
   // Public: Get the time taken to completely load the current window.

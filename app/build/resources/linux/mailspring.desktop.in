@@ -2,10 +2,10 @@
 Name=<%= productName %>
 Comment=<%= description %>
 GenericName=<%= productName %>
-Exec=/usr/bin/merani %U
-Icon=merani
+Exec=/usr/bin/mailspring %U
+Icon=mailspring
 Type=Application
 StartupNotify=true
 StartupWMClass=<%= productName %>
 Categories=GNOME;GTK;Network;Email;Utility;Development;
-MimeType=text/plain;x-scheme-handler/mailto;x-scheme-handler/merani;
+MimeType=text/plain;x-scheme-handler/mailto;x-scheme-handler/mailspring;

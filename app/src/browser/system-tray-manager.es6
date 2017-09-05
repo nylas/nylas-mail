@@ -15,7 +15,7 @@ function _getMenuTemplate(platform, application) {
       type: 'separator',
     },
     {
-      label: 'Quit Merani',
+      label: 'Quit Mailspring',
       click: () => application.emit('application:quit'),
     },
   ];

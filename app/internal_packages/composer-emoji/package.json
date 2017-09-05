@@ -7,7 +7,7 @@
     "url": ""
   },
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
 
   "isOptional": true,

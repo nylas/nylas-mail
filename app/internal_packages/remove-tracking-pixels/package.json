@@ -4,7 +4,7 @@
   "main": "./lib/main",
   "license": "GPL-3.0",
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "windowTypes": {
     "default": true,

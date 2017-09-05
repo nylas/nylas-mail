@@ -21,10 +21,10 @@ mkdir -p $RPM_BUILD_ROOT/RPMS
 
 cp -r "$APP_CONTENTS_DIRECTORY/"* "$RPM_BUILD_ROOT/BUILD"
 cp -r "$LINUX_ASSETS_DIRECTORY/icons" "$RPM_BUILD_ROOT/BUILD"
-cp "$BUILD_DIRECTORY/merani.spec" "$RPM_BUILD_ROOT/SPECS"
-cp "$BUILD_DIRECTORY/merani.desktop" "$RPM_BUILD_ROOT/BUILD"
+cp "$BUILD_DIRECTORY/mailspring.spec" "$RPM_BUILD_ROOT/SPECS"
+cp "$BUILD_DIRECTORY/mailspring.desktop" "$RPM_BUILD_ROOT/BUILD"
 
-rpmbuild -ba "$BUILD_DIRECTORY/merani.spec"
-cp $RPM_BUILD_ROOT/RPMS/$ARCH/merani-*.rpm "$BUILD_DIRECTORY"
+rpmbuild -ba "$BUILD_DIRECTORY/mailspring.spec"
+cp $RPM_BUILD_ROOT/RPMS/$ARCH/mailspring-*.rpm "$BUILD_DIRECTORY"
 
 rm -rf "$RPM_BUILD_ROOT"

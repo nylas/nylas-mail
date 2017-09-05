@@ -7,7 +7,7 @@
   "license": "GPL-3.0",
   "styleSheets": ["email-frame"],
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "private": true
 }

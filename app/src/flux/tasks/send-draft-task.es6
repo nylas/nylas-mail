@@ -98,10 +98,10 @@ export default class SendDraftTask extends Task {
 
     if (key === 'no-sent-folder') {
       errorMessage = "We couldn't find a Sent folder in your account.";
-      errorDetail = "In order to send mail through Merani, your email account must have a Sent Mail folder.";
+      errorDetail = "In order to send mail through Mailspring, your email account must have a Sent Mail folder.";
     } else if (key === 'no-trash-folder') {
       errorMessage = "We couldn't find a Sent folder in your account.";
-      errorDetail = "In order to send mail through Merani, your email account must have a Trash folder.";
+      errorDetail = "In order to send mail through Mailspring, your email account must have a Trash folder.";
     } else if (key === 'send-partially-failed') {
       const [smtpError, emails] = debuginfo.split(':::');
       errorMessage = "We were unable to deliver this message to some recipients. Click 'See Details' for more information."

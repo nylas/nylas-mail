@@ -219,7 +219,7 @@ export default class WindowEventHandler {
       return;
     }
 
-    if (['mailto:', 'merani:'].includes(protocol)) {
+    if (['mailto:', 'mailspring:'].includes(protocol)) {
       // We sometimes get mailto URIs that are not escaped properly, or have been only partially escaped.
       // (T1927) Be sure to escape them once, and completely, before we try to open them. This logic
       // *might* apply to http/https as well but it's unclear.
@@ -290,11 +290,11 @@ export default class WindowEventHandler {
     }
 
     if (!NylasEnv.inDevMode()) {
-      console.log("%c Welcome to Merani! If you're exploring the source or building a " +
+      console.log("%c Welcome to Mailspring! If you're exploring the source or building a " +
                   "plugin, you should enable debug flags. It's slower, but " +
                   "gives you better exceptions, the debug version of React, " +
                   "and more. Choose %c Developer > Run with Debug Flags %c " +
-                  "from the menu. Also, check out http://Foundry376.github.io/Merani/ " +
+                  "from the menu. Also, check out http://Foundry376.github.io/Mailspring/ " +
                   "for documentation and sample code!",
                   "background-color: antiquewhite;",
                   "background-color: antiquewhite; font-weight:bold;",

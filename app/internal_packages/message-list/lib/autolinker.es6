@@ -62,7 +62,7 @@ export function autolink(doc, {async} = {}) {
       exclude: [/\..*[/|?].*@/],
     }],
     ['tel:', RegExpUtils.phoneRegex()],
-    ['', RegExpUtils.meraniCommandRegex()],
+    ['', RegExpUtils.mailspringCommandRegex()],
     ['', RegExpUtils.urlRegex({matchEntireString: false})],
   ];
 

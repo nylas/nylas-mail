@@ -80,8 +80,8 @@ module.exports = (grunt) => {
   getCertData = () => {
     const certs = path.resolve(path.join(grunt.config('buildDir'), 'resources', 'certs', 'mac'));
     const appleCert = path.join(certs, 'AppleWWDRCA.cer');
-    const nylasCert = path.join(certs, 'mac-merani.cer');
-    const nylasPrivateKey = path.join(certs, 'mac-merani.p12');
+    const nylasCert = path.join(certs, 'mac-codesigning.cer');
+    const nylasPrivateKey = path.join(certs, 'mac-codesigning.p12');
 
     const keyPass = process.env.APPLE_CODESIGN_KEY_PASSWORD;
 

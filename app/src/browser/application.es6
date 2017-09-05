@@ -16,7 +16,7 @@ import ApplicationMenu from './application-menu';
 import AutoUpdateManager from './auto-update-manager';
 import SystemTrayManager from './system-tray-manager';
 import DefaultClientHelper from '../default-client-helper';
-import MeraniProtocolHandler from './merani-protocol-handler';
+import MailspringProtocolHandler from './mailspring-protocol-handler';
 import ConfigPersistenceManager from './config-persistence-manager';
 import MailsyncProcess from '../mailsync-process';
 
@@ -37,7 +37,7 @@ export default class Application extends EventEmitter {
     this.safeMode = safeMode;
 
     this.fileListCache = new FileListCache();
-    this.meraniProtocolHandler = new MeraniProtocolHandler({configDirPath, resourcePath, safeMode});
+    this.mailspringProtocolHandler = new MailspringProtocolHandler({configDirPath, resourcePath, safeMode});
 
     try {
       const mailsync = new MailsyncProcess(options, null);
@@ -88,9 +88,9 @@ export default class Application extends EventEmitter {
 
     if (process.platform === 'linux') {
       const helper = new DefaultClientHelper();
-      helper.registerForURLScheme('merani');
+      helper.registerForURLScheme('mailspring');
     } else {
-      app.setAsDefaultProtocolClient('merani');
+      app.setAsDefaultProtocolClient('mailspring');
     }
 
     if (process.platform === 'darwin') {
@@ -180,7 +180,7 @@ export default class Application extends EventEmitter {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
     } else {
       this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-        title: "Welcome to Merani",
+        title: "Welcome to Mailspring",
       });
     }
   }
@@ -310,7 +310,7 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:view-help', () => {
-      const helpUrl = 'https://support.getmerani.com/hc/en-us/categories/200419318-Help-for-N1-users';
+      const helpUrl = 'https://support.getmailspring.com/hc/en-us/categories/200419318-Help-for-N1-users';
       require('electron').shell.openExternal(helpUrl);
     });
 
@@ -705,7 +705,7 @@ export default class Application extends EventEmitter {
 
     if (parts.protocol === 'mailto:') {
       main.sendMessage('mailto', urlToOpen);
-    } else if (parts.protocol === 'merani:') {
+    } else if (parts.protocol === 'mailspring:') {
       // if (parts.host === 'calendar') {
       //   this.openCalendarURL(parts.path);
       if (parts.host === 'plugins') {

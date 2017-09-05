@@ -1,9 +1,9 @@
 {
   "menu": [
   {
-    "label": "Merani",
+    "label": "Mailspring",
     "submenu": [
-      { "label": "About Merani", "command": "application:about" },
+      { "label": "About Mailspring", "command": "application:about" },
       { "type": "separator" },
       { "label": "Preferences", "command": "application:open-preferences" },
       { "label": "Change Theme...", "command": "window:launch-theme-picker" },
@@ -18,7 +18,7 @@
       { "type": "separator" },
       { "label": "Services", "submenu": [] },
       { "type": "separator" },
-      { "label": "Hide Merani", "command": "application:hide" },
+      { "label": "Hide Mailspring", "command": "application:hide" },
       { "label": "Hide Others", "command": "application:hide-other-applications" },
       { "label": "Show All", "command": "application:unhide-all-applications" },
       { "type": "separator" },
@@ -119,7 +119,7 @@
   {
     "label": "Help",
     "submenu": [
-      { "label": "Merani Help", "command": "application:view-help" }
+      { "label": "Mailspring Help", "command": "application:view-help" }
     ]
   }
   ]

@@ -120,9 +120,9 @@ module.exports = ErrorLogger = (function() {
 
   ErrorLogger.prototype._startCrashReporter = function(args) {
     crashReporter.start({
-      productName: 'Merani',
-      companyName: 'Merani',
-      submitURL: 'http://merani_prod.bugsplat.com/post/bp/crash/postBP.php',
+      productName: 'Mailspring',
+      companyName: 'Mailspring',
+      submitURL: 'http://mailspring_prod.bugsplat.com/post/bp/crash/postBP.php',
       uploadToServer: true,
       autoSubmit: true,
     })

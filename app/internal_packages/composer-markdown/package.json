@@ -7,7 +7,7 @@
   "license": "GPL-3.0",
   "icon": "./icon.png",
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "isOptional": true,
   "isHiddenOnPluginsPage": true,

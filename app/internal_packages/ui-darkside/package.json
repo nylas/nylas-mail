@@ -3,10 +3,10 @@
   "displayName": "Darkside",
   "theme": "ui",
   "version": "1.0.0",
-  "description": "A customizable, dark sidebar theme for Merani.",
+  "description": "A customizable, dark sidebar theme for Mailspring.",
   "license": "MIT",
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "private": true
 }

@@ -12,7 +12,7 @@ export const name = 'SendAndArchiveExtension'
 export function sendActions() {
   return [{
     title: 'Send and Archive',
-    iconUrl: 'merani://send-and-archive/images/composer-archive@2x.png',
+    iconUrl: 'mailspring://send-and-archive/images/composer-archive@2x.png',
     isAvailableForDraft({draft}) {
       return draft.threadId != null
     },

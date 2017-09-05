@@ -216,8 +216,8 @@ export default class MailsyncBridge {
         this._crashTracker.recordClientCrash(fullAccountJSON, {code, error, signal})
 
         const isAuthFailure = (
-          `${error}`.includes("Response Code: 401") || // merani services
-          `${error}`.includes("Response Code: 403") || // merani services
+          `${error}`.includes("Response Code: 401") || // mailspring services
+          `${error}`.includes("Response Code: 403") || // mailspring services
           `${error}`.includes("ErrorAuthentication") // mailcore
         );
 

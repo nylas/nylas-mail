@@ -1,7 +1,7 @@
 # Composer Templates
 
 Create templates you can use to pre-fill the N1 composer - never type the same
-email again! Templates live in the templates folder inside the Merani config folder.
+email again! Templates live in the templates folder inside the Mailspring config folder.
 
 Each template is an HTML file - the name of the file is the name of the template,
 and it's contents are the default message body.

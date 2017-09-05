@@ -38,7 +38,7 @@ const HiddenRoleMap = ToObject([
   "starred",
   "important",
   "snoozed",
-  "[Merani]",
+  "[Mailspring]",
 ]);
 
 /**
@@ -62,7 +62,7 @@ Section: Models
 export default class Category extends Model {
 
   get displayName() {
-    for (const prefix of ['INBOX', '[Gmail]', '[Merani]']) {
+    for (const prefix of ['INBOX', '[Gmail]', '[Mailspring]']) {
       if (this.path.startsWith(prefix) && this.path.length > prefix.length + 1) {
         return this.path.substr(prefix.length + 1); // + delimiter
       }

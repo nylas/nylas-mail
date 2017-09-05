@@ -41,9 +41,9 @@ export default class AutoUpdateManager extends EventEmitter {
       channel: this.preferredChannel,
     };
 
-    let host = `updates.getmerani.com`;
+    let host = `updates.getmailspring.com`;
     if (this.config.get('env') === 'staging') {
-      host = `updates-staging.getmerani.com`;
+      host = `updates-staging.getmailspring.com`;
     }
 
     this.feedURL = `https://${host}/check/${params.platform}/${params.arch}/${params.version}/${params.id}/${params.channel}`;
@@ -145,14 +145,14 @@ export default class AutoUpdateManager extends EventEmitter {
       // On windows the update has already been "installed" and shortcuts
       // already updated. You just need to restart the app to load the new
       // version.
-      autoUpdater.restartMerani();
+      autoUpdater.restartMailspring();
     } else {
       autoUpdater.quitAndInstall();
     }
   }
 
   iconURL() {
-    const url = path.join(process.resourcesPath, 'app', 'merani.png');
+    const url = path.join(process.resourcesPath, 'app', 'mailspring.png');
     if (!fs.existsSync(url)) {
       return undefined;
     }
@@ -167,7 +167,7 @@ export default class AutoUpdateManager extends EventEmitter {
       icon: this.iconURL(),
       message: 'No update available.',
       title: 'No Update Available',
-      detail: `You're running the latest version of Merani (${this.version}).`,
+      detail: `You're running the latest version of Mailspring (${this.version}).`,
     });
   };
 

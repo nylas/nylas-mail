@@ -333,7 +333,7 @@ export default class Message extends ModelWithMetadata {
     return (
       this.to.length === 1 && this.from.length === 1 &&
       this.to[0].email === this.from[0].email &&
-      (this.snippet || "").startsWith('Merani Reminder:')
+      (this.snippet || "").startsWith('Mailspring Reminder:')
     )
   }
 }

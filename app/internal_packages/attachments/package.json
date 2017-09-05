@@ -7,7 +7,7 @@
   "private": true,
   "syncInit": true,
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "windowTypes": {
     "default": true,

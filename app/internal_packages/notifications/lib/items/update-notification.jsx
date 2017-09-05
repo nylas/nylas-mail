@@ -34,7 +34,7 @@ export default class UpdateNotification extends React.Component {
   }
 
   _onViewChangelog = () => {
-    shell.openExternal('https://github.com/Foundry376/Merani/releases/latest')
+    shell.openExternal('https://github.com/Foundry376/Mailspring/releases/latest')
   }
 
   render() {
@@ -45,7 +45,7 @@ export default class UpdateNotification extends React.Component {
     return (
       <Notification
         priority="4"
-        title={`An update to Merani is available ${version}`}
+        title={`An update to Mailspring is available ${version}`}
         subtitle="View changelog"
         subtitleAction={this._onViewChangelog}
         icon="volstead-upgrade.png"

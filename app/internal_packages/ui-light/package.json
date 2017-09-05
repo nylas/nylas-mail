@@ -6,7 +6,7 @@
   "description": "The N1 Client Theme",
   "license": "GPL-3.0",
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "private": true
 }

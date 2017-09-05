@@ -43,7 +43,7 @@ class DefaultMailClientItem extends React.Component {
           checked={this.state.defaultClient}
           onChange={this.toggleDefaultMailClient}
         />
-        <label htmlFor="default-client">Use Merani as default mail client</label>
+        <label htmlFor="default-client">Use Mailspring as default mail client</label>
       </div>
     );
   }

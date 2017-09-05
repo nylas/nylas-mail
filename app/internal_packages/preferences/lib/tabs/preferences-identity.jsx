@@ -38,14 +38,14 @@ class PreferencesIdentity extends React.Component {
   }
 
   _renderBasic() {
-    const learnMore = () => shell.openExternal("https://getmerani.com/pro")
+    const learnMore = () => shell.openExternal("https://getmailspring.com/pro")
     return (
       <div className="row padded">
         <div>
-        You are using <strong>Merani Basic</strong>. Upgrade to Merani Pro to unlock a more powerful email experience.
+        You are using <strong>Mailspring Basic</strong>. Upgrade to Mailspring Pro to unlock a more powerful email experience.
         </div>
         <div className="subscription-actions">
-          <div className="btn btn-emphasis" onClick={this._onUpgrade} style={{verticalAlign: "top"}}>Upgrade to Merani Pro</div>
+          <div className="btn btn-emphasis" onClick={this._onUpgrade} style={{verticalAlign: "top"}}>Upgrade to Mailspring Pro</div>
           <div className="btn minor-width" onClick={learnMore}>Learn More</div>
         </div>
       </div>
@@ -54,12 +54,12 @@ class PreferencesIdentity extends React.Component {
 
   _renderPaidPlan(planName, effectivePlanName) {
     const unpaidNote = (effectivePlanName !== planName) && (
-      <p>{`Note: Due to issues with your most recent payment, you've been temporarily downgraded to Merani ${effectivePlanName}. Click 'Billing' below to correct the issue.`}</p>
+      <p>{`Note: Due to issues with your most recent payment, you've been temporarily downgraded to Mailspring ${effectivePlanName}. Click 'Billing' below to correct the issue.`}</p>
     )
     return (
       <div className="row padded">
         <div>
-        Thank you for using <strong style={{textTransform: 'capitalize'}}>{`Merani ${planName}`}</strong> and supporting independent software.
+        Thank you for using <strong style={{textTransform: 'capitalize'}}>{`Mailspring ${planName}`}</strong> and supporting independent software.
         {unpaidNote}
         </div>
         <div className="subscription-actions">

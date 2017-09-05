@@ -3,10 +3,10 @@
   "displayName": "Less Is More",
   "theme": "ui-less-is-more",
   "version": "1.0.7",
-  "description": "A minimal approach to email in Merani",
+  "description": "A minimal approach to email in Mailspring",
   "license": "MIT",
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "styleSheets": ["less-is-more"],
   "private": true

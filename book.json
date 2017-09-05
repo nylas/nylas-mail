@@ -1,6 +1,6 @@
 {
     "gitbook": "3.2.2",
-    "title": "Merani Plugin SDK",
+    "title": "Mailspring Plugin SDK",
     "root": "./app/build/docs_src/",
     "plugins": [
         "search",
@@ -14,12 +14,12 @@
     ],
     "pluginsConfig": {
         "editlink": {
-          "base": "https://github.com/Foundry376/Merani/tree/master",
+          "base": "https://github.com/Foundry376/Mailspring/tree/master",
           "label": "Edit This Page",
           "multilingual": false
         },
         "github": {
-            "url": "https://github.com/Foundry376/Merani"
+            "url": "https://github.com/Foundry376/Mailspring"
         },
         "favicon": {
             "shortcut": "/img/favicon.png"

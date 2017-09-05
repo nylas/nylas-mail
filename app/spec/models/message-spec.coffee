@@ -31,7 +31,7 @@ describe "Message", ->
       {
         itMsg: "has plain br's and a signature"
         body: """
-        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><br><signature>Sent from <a href="https://getmerani.com/?ref=client">Merani</a>, the extensible, open source mail client.</signature></div>
+        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><br><signature>Sent from <a href="https://getmailspring.com/?ref=client">Mailspring</a>, the extensible, open source mail client.</signature></div>
       """
         isEmpty: true
       },
@@ -53,14 +53,14 @@ describe "Message", ->
       {
         itMsg: "has empty tags"
         body: """
-        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><div><p>  </p></div>\n\n\n\n<br><signature>Sent from <a href="https://getmerani.com/?ref=client">Merani</a>, the extensible, open source mail client.</signature></div>
+        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><div><p>  </p></div>\n\n\n\n<br><signature>Sent from <a href="https://getmailspring.com/?ref=client">Mailspring</a>, the extensible, open source mail client.</signature></div>
       """
         isEmpty: true
       },
       {
         itMsg: "has nested characters"
         body: """
-        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><div><p> 1</p></div>\n\n\n\n<br><signature>Sent from <a href="https://getmerani.com/?ref=client">Merani</a>, the extensible, open source mail client.</signature></div>
+        <div class="contenteditable no-open-link-events" contenteditable="true" spellcheck="false"><br><div><p> 1</p></div>\n\n\n\n<br><signature>Sent from <a href="https://getmailspring.com/?ref=client">Mailspring</a>, the extensible, open source mail client.</signature></div>
       """
         isEmpty: false
       },

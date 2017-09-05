@@ -6,7 +6,7 @@
   "license": "Proprietary",
   "private": true,
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "windowTypes": {
     "all": true

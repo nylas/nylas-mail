@@ -113,7 +113,7 @@ class PreferencesAccountDetails extends Component {
 
   _onContactSupport = () => {
     const {shell} = require("electron");
-    shell.openExternal("https://support.getmerani.com/hc/en-us/requests/new");
+    shell.openExternal("https://support.getmailspring.com/hc/en-us/requests/new");
   }
 
   // Renderers
@@ -149,21 +149,21 @@ class PreferencesAccountDetails extends Component {
       switch (account.syncState) {
         case Account.N1_Cloud_AUTH_FAILED:
           return this._renderErrorDetail(
-            `Merani can no longer authenticate with Merani cloud services for
+            `Mailspring can no longer authenticate with Mailspring cloud services for
             ${account.emailAddress}. The password or authentication may
             have changed.`,
             "Reconnect",
             this._onReconnect);
         case Account.SYNC_STATE_AUTH_FAILED:
           return this._renderErrorDetail(
-            `Merani can no longer authenticate with ${account.emailAddress}. The password
+            `Mailspring can no longer authenticate with ${account.emailAddress}. The password
             or authentication may have changed.`,
             "Reconnect",
             this._onReconnect);
         default:
           return this._renderErrorDetail(
-            `Merani encountered an error while syncing mail for ${account.emailAddress}.
-            Try re-adding the account and contact Merani support if the problem persists.`,
+            `Mailspring encountered an error while syncing mail for ${account.emailAddress}.
+            Try re-adding the account and contact Mailspring support if the problem persists.`,
             "Contact support",
             this._onContactSupport);
       }

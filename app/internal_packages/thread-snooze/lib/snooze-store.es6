@@ -64,7 +64,7 @@ class SnoozeStore extends NylasStore {
     const lexicon = {
       displayName: "Snooze",
       usedUpHeader: "All Snoozes used",
-      iconUrl: "merani://thread-snooze/assets/ic-snooze-modal@2x.png",
+      iconUrl: "mailspring://thread-snooze/assets/ic-snooze-modal@2x.png",
     }
 
     try {

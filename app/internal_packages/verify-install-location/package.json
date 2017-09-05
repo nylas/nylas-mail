@@ -5,7 +5,7 @@
   "description": "Verifies the install location for N1",
   "license": "GPL-3.0",
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "windowTypes": {
     "default": true

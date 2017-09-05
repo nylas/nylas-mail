@@ -74,9 +74,9 @@ export default class PackageManager {
         continue;
       }
 
-      if (!pkg.json.engines.merani) {
+      if (!pkg.json.engines.mailspring) {
         // don't use NylasEnv.reportError, I don't want to know about these.
-        console.error(`The package ${pkg.name} does not list "merani" in it's package.json's "engines" field. Ask the developer to test the plugin with Merani and add it.`);
+        console.error(`The package ${pkg.name} does not list "mailspring" in it's package.json's "engines" field. Ask the developer to test the plugin with Mailspring and add it.`);
         continue;
       }
 

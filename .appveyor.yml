@@ -41,7 +41,7 @@ deploy:
   secret_access_key:
     secure: XlLzz7sdvrtgi4g459NvxLfrH/+hOutb+0Osz29unfi4Zcw9N8H8SEaq6m3ZeWc+
   region: us-east-1
-  bucket: merani-builds
+  bucket: mailspring-builds
   folder: "client/$(commit)"
   set_public: true
  

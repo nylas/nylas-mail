@@ -5,7 +5,7 @@ import path from 'path';
 // Handles requests with 'nylas' protocol.
 //
 // It's created by {N1Application} upon instantiation and is used to create a
-// custom resource loader for 'merani://' URLs.
+// custom resource loader for 'mailspring://' URLs.
 //
 // The following directories are searched in order:
 //   * <config-dir>/assets
@@ -28,7 +28,7 @@ export default class NylasProtocolHandler {
 
   // Creates the 'Nylas' custom protocol handler.
   registerNylasProtocol() {
-    protocol.registerFileProtocol('merani', (request, callback) => {
+    protocol.registerFileProtocol('mailspring', (request, callback) => {
       const relativePath = path.normalize(request.url.substr(7));
 
       let filePath = null;

@@ -21,15 +21,15 @@ export function rootURLForServer(server) {
   if (server === 'identity') {
     return {
       development: "http://localhost:5101",
-      staging: "https://id-staging.getmerani.com",
-      production: "https://id.getmerani.com",
+      staging: "https://id-staging.getmailspring.com",
+      production: "https://id.getmailspring.com",
     }[env];
   }
   if (server === 'accounts') {
     return {
       development: "http://localhost:5100",
-      staging: "https://accounts-staging.getmerani.com",
-      production: "https://accounts.getmerani.com",
+      staging: "https://accounts-staging.getmailspring.com",
+      production: "https://accounts.getmailspring.com",
     }[env];
   }
 

@@ -13,7 +13,7 @@ function OfflineNotification({isOnline, retryingInSeconds}) {
   return (
     <Notification
       className="offline"
-      title="Merani is offline"
+      title="Mailspring is offline"
       subtitle={subtitle}
       priority="5"
       icon="volstead-offline.png"

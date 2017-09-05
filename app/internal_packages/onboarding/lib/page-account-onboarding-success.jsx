@@ -26,7 +26,7 @@ class AccountOnboardingSuccess extends Component { // eslint-disable-line
         </div>
         <div>
           <h2>Successfully connected to {accountType.displayName}!</h2>
-          <h3>Adding your account to Merani…</h3>
+          <h3>Adding your account to Mailspring…</h3>
         </div>
       </div>
     )

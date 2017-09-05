@@ -149,7 +149,7 @@ class TranslateButton extends React.Component {
       >
         <RetinaImg
           mode={RetinaImg.Mode.ContentIsMask}
-          url="merani://composer-translate/assets/icon-composer-translate@2x.png"
+          url="mailspring://composer-translate/assets/icon-composer-translate@2x.png"
         />
         &nbsp;
         <RetinaImg

@@ -16,8 +16,8 @@ addons:
     paths:
     - mailsync
     - mailsync.dSYM.zip
-    - Merani.dmg
-    - Merani.zip
+    - Mailspring.dmg
+    - Mailspring.zip
     - $(find . -type f -name *.deb | tr "\n" ":")
     - $(find . -type f -name *.rpm | tr "\n" ":")
   apt:
@@ -72,7 +72,7 @@ before_install:
 - source app/build/resources/certs/mac/set_unix_env.sh;
 # Checkout the (currently private) C++ Mailsync codebase
 - GIT_SSH_COMMAND='ssh -i app/build/resources/certs/mailsync-deploy-key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-  SSH_ASKPASS=/Users/travis/build/Foundry376/Merani/app/build/resources/certs/ssh-askpass-fix
+  SSH_ASKPASS=/Users/travis/build/Foundry376/Mailspring/app/build/resources/certs/ssh-askpass-fix
   DISPLAY=nothing:0
   git submodule update --init mailsync
 

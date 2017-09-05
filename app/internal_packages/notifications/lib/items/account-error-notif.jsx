@@ -26,7 +26,7 @@ export default class AccountErrorNotification extends React.Component {
   }
 
   _onContactSupport = (erroredAccount) => {
-    let url = 'https://support.getmerani.com/hc/en-us/requests/new'
+    let url = 'https://support.getmailspring.com/hc/en-us/requests/new'
     if (erroredAccount) {
       url += `?email=${encodeURIComponent(erroredAccount.emailAddress)}`
       const {syncError} = erroredAccount

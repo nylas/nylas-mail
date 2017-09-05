@@ -76,7 +76,7 @@ class RetinaImg extends React.Component {
    - `mode` (required) One of the RetinaImg.Mode constants. See above for details.
    - `name` (optional) A {String} image name to display.
    - `url` (optional) A {String} url of an image to display.
-      May be an http, https, or `merani://<packagename>/<path within package>` URL.
+      May be an http, https, or `mailspring://<packagename>/<path within package>` URL.
    - `fallback` (optional) A {String} image name to use when `name` cannot be found.
    - `selected` (optional) Appends "-selected" to the end of the image name when when true
    - `active` (optional) Appends "-active" to the end of the image name when when true

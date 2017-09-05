@@ -30,7 +30,7 @@ export default class FeatureUsedUpModal extends React.Component {
   }
   
   onGoToFeatures = () => {
-    shell.openExternal("https://getmerani.com/pro");
+    shell.openExternal("https://getmailspring.com/pro");
   };
 
   onUpgrade = (e) => {
@@ -61,7 +61,7 @@ export default class FeatureUsedUpModal extends React.Component {
         <div className="feature-cta">
           <h2>Want to <span className="feature-name">{this.props.featureName} more</span>?</h2>
           <div className="pro-description">
-            <h3>Merani Pro includes:</h3>
+            <h3>Mailspring Pro includes:</h3>
             <ul>
               <li>Unlimited Snoozing</li>
               <li>Unlimited Open &amp; Link Tracking</li>

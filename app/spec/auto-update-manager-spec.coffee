@@ -19,19 +19,19 @@ describe "AutoUpdateManager", ->
     it "correctly sets the feedURL", ->
       m = new AutoUpdateManager("3.222.1-abc", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      expect(m.feedURL).toEqual('https://updates.getmerani.com/check/darwin/x64/3.222.1-abc/anonymous/stable')
+      expect(m.feedURL).toEqual('https://updates.getmailspring.com/check/darwin/x64/3.222.1-abc/anonymous/stable')
 
   describe "with no attached commit", ->
     it "correctly sets the feedURL", ->
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      expect(m.feedURL).toEqual('https://updates.getmerani.com/check/darwin/x64/3.222.1/anonymous/stable')
+      expect(m.feedURL).toEqual('https://updates.getmailspring.com/check/darwin/x64/3.222.1/anonymous/stable')
 
   describe "when an update identity is already set", ->
     it "should send it and not save any changes", ->
       @nylasIdentityId = "test-nylas-id"
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
-      expect(m.feedURL).toEqual('https://updates.getmerani.com/check/darwin/x64/3.222.1/test-nylas-id/stable')
+      expect(m.feedURL).toEqual('https://updates.getmailspring.com/check/darwin/x64/3.222.1/test-nylas-id/stable')
 
   describe "when an update identity is added", ->
     it "should update the feed URL", ->

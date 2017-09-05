@@ -28,7 +28,7 @@ class NativeNotifications {
         this._macNotificationsByTag[tag].close();
       }
       notif = new MacNotifierNotification(title, {
-        bundleId: 'com.merani.merani',
+        bundleId: 'com.mailspring.mailspring',
         canReply: canReply,
         subtitle: subtitle,
         body: body,

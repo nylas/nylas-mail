@@ -1,12 +1,12 @@
 {
-  "name": "merani-root",
+  "name": "mailspring-root",
   "version": "0.0.1",
-  "description": "Packages required to develop and build Merani",
-  "author": "Merani",
+  "description": "Packages required to develop and build Mailspring",
+  "author": "Mailspring",
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Foundry376/Merani.git"
+    "url": "git+https://github.com/Foundry376/Mailspring.git"
   },
   "engines": {
     "node": "6.9.1",

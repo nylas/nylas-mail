@@ -104,7 +104,7 @@ export default class SidebarParticipantProfile extends React.Component {
           href={profile.url}
         >
           <RetinaImg
-            url={`merani://participant-profile/assets/${type}-sidebar-icon@2x.png`}
+            url={`mailspring://participant-profile/assets/${type}-sidebar-icon@2x.png`}
             mode={RetinaImg.Mode.ContentPreserve}
           />
         </a>
@@ -170,7 +170,7 @@ export default class SidebarParticipantProfile extends React.Component {
     return (
       <p className="location">
         <RetinaImg
-          url={`merani://participant-profile/assets/location-icon@2x.png`}
+          url={`mailspring://participant-profile/assets/location-icon@2x.png`}
           mode={RetinaImg.Mode.ContentPreserve}
           style={{"float": "left"}}
         />

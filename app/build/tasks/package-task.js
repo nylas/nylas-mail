@@ -130,8 +130,8 @@ module.exports = (grunt) => {
       appVersion: packageJSON.version,
       platform: platform,
       protocols: [{
-        name: "Merani Protocol",
-        schemes: ["merani"],
+        name: "Mailspring Protocol",
+        schemes: ["mailspring"],
       }, {
         name: "Mailto Protocol",
         schemes: ["mailto"],
@@ -143,14 +143,14 @@ module.exports = (grunt) => {
         'win32': 'ia32',
       }[platform],
       icon: {
-        darwin: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'merani.icns'),
-        win32: path.resolve(grunt.config('appDir'), 'build', 'resources', 'win', 'merani.ico'),
+        darwin: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'mailspring.icns'),
+        win32: path.resolve(grunt.config('appDir'), 'build', 'resources', 'win', 'mailspring.ico'),
         linux: undefined,
       }[platform],
       name: {
-        darwin: 'Merani',
-        win32: 'merani',
-        linux: 'merani',
+        darwin: 'Mailspring',
+        win32: 'mailspring',
+        linux: 'mailspring',
       }[platform],
       appCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
       derefSymlinks: false,
@@ -216,9 +216,9 @@ module.exports = (grunt) => {
       osxSign: !!process.env.SIGN_BUILD,
       win32metadata: {
         CompanyName: 'Foundry 376, LLC',
-        FileDescription: 'Merani',
+        FileDescription: 'Mailspring',
         LegalCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
-        ProductName: 'Merani',
+        ProductName: 'Mailspring',
       },
       // NOTE: The following plist keys can NOT be set in the
       // extra.plist since they are manually overridden by
@@ -235,7 +235,7 @@ module.exports = (grunt) => {
       // Electron.app/Contents/Info.plist. A majority of the defaults are
       // left in the Electron Info.plist file
       extendInfo: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'extra.plist'),
-      appBundleId: "com.merani.merani",
+      appBundleId: "com.mailspring.mailspring",
       afterCopy: [
         runCopyPlatformSpecificResources,
         runWriteCommitHashIntoPackage,
@@ -245,7 +245,7 @@ module.exports = (grunt) => {
     },
   })
 
-  grunt.registerTask('package', 'Package Merani', function pack() {
+  grunt.registerTask('package', 'Package Mailspring', function pack() {
     const done = this.async();
     const start = Date.now();
 

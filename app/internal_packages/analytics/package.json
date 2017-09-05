@@ -9,6 +9,6 @@
     "default": true
   },
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   }
 }

@@ -38,10 +38,10 @@ export default class MyMessageSidebar extends React.Component {
 
   _renderContent() {
     // Want to include images or other static assets in your components?
-    // Reference them using the merani:// URL scheme:
+    // Reference them using the mailspring:// URL scheme:
     //
     // <RetinaImg
-    //    url="merani://<<package.name>>/assets/checkmark_templatethis.2x.png"
+    //    url="mailspring://<<package.name>>/assets/checkmark_templatethis.2x.png"
     //    mode={RetinaImg.Mode.ContentIsMask}/>
     //
     return (

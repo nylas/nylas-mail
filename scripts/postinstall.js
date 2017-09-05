@@ -49,19 +49,19 @@ function downloadMailsync() {
       "linux-ia32": null,
     }[distKey];
     if (!distDir) {
-      console.error(`\nSorry, a Merani Mailsync build for your machine (${distKey}) is not yet available.`)
+      console.error(`\nSorry, a Mailspring Mailsync build for your machine (${distKey}) is not yet available.`)
       return;
     }
 
-    const distS3URL = `https://merani-builds.s3.amazonaws.com/client/${head}/${distDir}/${filename}`;
+    const distS3URL = `https://mailspring-builds.s3.amazonaws.com/client/${head}/${distDir}/${filename}`;
     https.get(distS3URL, (response) => {
       if (response.statusCode === 200) {
         response.pipe(fs.createWriteStream(`app/${filename}`));
         response.on('end', () => {
-          console.log(`\nDownloaded Merani Mailsync build ${distDir}-${head} to ./app\n`);
+          console.log(`\nDownloaded Mailspring Mailsync build ${distDir}-${head} to ./app\n`);
         })
       } else {
-        console.error(`Sorry, an error occurred while fetching the Merani Mailsync build for your machine\n(${distS3URL})\n`);
+        console.error(`Sorry, an error occurred while fetching the Mailspring Mailsync build for your machine\n(${distS3URL})\n`);
         response.pipe(process.stderr);
         response.on('end', () => console.error('\n'));
       }
@@ -91,7 +91,7 @@ npm('install', {cwd: './app', env: 'electron'}).then(() => {
     // if the user hasn't cloned the private mailsync module, download
     // the binary for their operating system that was shipped to S3.
     // if (!fs.existsSync('./mailsync/build.sh')) {
-    //   console.log(`\n-- Downloading a compiled version of Merani mailsync --`)
+    //   console.log(`\n-- Downloading a compiled version of Mailspring mailsync --`)
     //   downloadMailsync();
     // }
   });

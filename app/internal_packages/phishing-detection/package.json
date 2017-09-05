@@ -11,7 +11,7 @@
   "isOptional": true,
 
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "windowTypes": {
     "default": true,

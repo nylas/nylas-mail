@@ -70,7 +70,7 @@ class TabInstalled extends React.Component {
         {`You don't have any packages installed in ${NylasEnv.getConfigDirPath()}/dev/packages. `}
         These plugins are only loaded when you run the app with debug flags
         enabled (via the Developer menu).<br /><br />Learn more about building
-        plugins with <a href="http://Foundry376.github.io/Merani/">our docs</a>.
+        plugins with <a href="http://Foundry376.github.io/Mailspring/">our docs</a>.
       </span>);
       devCTA = (<div className="btn btn-small" onClick={this._onCreatePackage}>Create New Plugin...</div>);
     }

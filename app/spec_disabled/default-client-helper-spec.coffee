@@ -150,7 +150,7 @@ describe "DefaultClientHelper", ->
             "LSHandlerContentTagClass": "public.filename-extension",
             "LSHandlerRoleAll": "com.sublimetext.2"
           }, {
-            "LSHandlerRoleAll": "com.merani.merani",
+            "LSHandlerRoleAll": "com.mailspring.mailspring",
             "LSHandlerURLScheme": "mailto"
           }])
         @helper.isRegisteredForURLScheme 'mailto', (registered) ->
@@ -166,7 +166,7 @@ describe "DefaultClientHelper", ->
             LSHandlerContentTagClass: "public.filename-extension",
             LSHandlerRoleAll: "com.sublimetext.2"
           },{
-            LSHandlerRoleAll: "com.merani.merani",
+            LSHandlerRoleAll: "com.mailspring.mailspring",
             LSHandlerURLScheme: "atom"
           }])
         @helper.isRegisteredForURLScheme 'mailto', (registered) ->
@@ -198,7 +198,7 @@ describe "DefaultClientHelper", ->
         @helper.registerForURLScheme 'mailto', =>
           @helper.readDefaults (defaults) ->
             match = _.find defaults, (d) ->
-              d.LSHandlerURLScheme is 'mailto' and d.LSHandlerRoleAll is 'com.merani.merani'
+              d.LSHandlerURLScheme is 'mailto' and d.LSHandlerRoleAll is 'com.mailspring.mailspring'
             expect(match).not.toBe(null)
 
       it "should write the new defaults", ->

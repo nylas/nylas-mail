@@ -98,7 +98,7 @@
       "submenu": [
         { "label": "VERSION", "enabled": false },
         { "type": "separator" },
-        { "label": "Merani Help", "command": "application:view-help" }
+        { "label": "Mailspring Help", "command": "application:view-help" }
       ]
     }
   ]

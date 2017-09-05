@@ -94,7 +94,7 @@ class QuotedHTMLTransformer {
     }
 
     // Remove any trailing <br> in the last leaf child of doc.body.
-    // This specific pattern occurs often when stripping Merani / gmail quotes.
+    // This specific pattern occurs often when stripping Mailspring / gmail quotes.
     let last = doc.body;
     while (last.children.length) {
       last = last.children[last.children.length - 1];

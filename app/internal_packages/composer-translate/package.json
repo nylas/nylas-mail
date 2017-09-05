@@ -11,7 +11,7 @@
 
   "license": "GPL-3.0",
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "repository": {
     "type": "git",

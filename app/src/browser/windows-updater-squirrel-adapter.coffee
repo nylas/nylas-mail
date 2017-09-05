@@ -7,9 +7,9 @@ class WindowsUpdaterSquirrelAdapter
 
   setFeedURL: (@updateUrl) ->
 
-  restartMerani: ->
+  restartMailspring: ->
     if WindowsUpdater.existsSync()
-      WindowsUpdater.restartMerani(require('electron').app)
+      WindowsUpdater.restartMailspring(require('electron').app)
     else
       console.error("SquirrelUpdate does not exist")
 

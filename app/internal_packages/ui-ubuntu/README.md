@@ -1,4 +1,4 @@
-# Ubuntu Theme for Merani #
+# Ubuntu Theme for Mailspring #
 
 ![img](https://raw.githubusercontent.com/ahmedlhanafy/Ubuntu-Ui-Theme-for-Nylas-N1/master/Screenshot.png)
 

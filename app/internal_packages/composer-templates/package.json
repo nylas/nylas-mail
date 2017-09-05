@@ -12,7 +12,7 @@
   "license": "GPL-3.0",
   "private": true,
   "engines": {
-    "merani": "*"
+    "mailspring": "*"
   },
   "windowTypes": {
     "default": true,

@@ -50,7 +50,7 @@ export function makeGmailOAuthRequest(sessionKey) {
 }
 
 export async function authIMAPForGmail(serverTokenResponse) {
-  // At this point, the Merani server has retrieved the Gmail token,
+  // At this point, the Mailspring server has retrieved the Gmail token,
   // created an account object in the database and tested it. All we
   // need to do is save it locally, since we're confident Gmail will be
   // accessible from the local sync worker.

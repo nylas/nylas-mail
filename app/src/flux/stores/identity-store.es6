@@ -8,7 +8,7 @@ import KeyManager from '../../key-manager';
 import {makeRequest, rootURLForServer} from '../nylas-api-request';
 
 // Note this key name is used when migrating to Nylas Pro accounts from old N1.
-const KEYCHAIN_NAME = 'Merani Account';
+const KEYCHAIN_NAME = 'Mailspring Account';
 
 class IdentityStore extends NylasStore {
 

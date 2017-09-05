@@ -22,7 +22,7 @@ class AnalyticsStore extends NylasStore {
     // Allow requests to be grouped together if they're fired back-to-back,
     // but generally report each event as it happens. This segment library
     // is intended for a server where the user doesn't quit...
-    this.analytics = new AnalyticsSink("merani", {
+    this.analytics = new AnalyticsSink("mailspring", {
       host: `${NylasAPIRequest.rootURLForServer('identity')}/api/s`,
       flushInterval: 500,
       flushAt: 5,

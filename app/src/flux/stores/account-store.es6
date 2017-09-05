@@ -160,7 +160,7 @@ class AccountStore extends NylasStore {
   }
 
   /**
-   * When an account is removed from Merani, the AccountStore
+   * When an account is removed from Mailspring, the AccountStore
    * triggers. The local-sync/src/local-sync-worker/index.js listens to
    * the AccountStore and runs `ensureK2Consistency`. This will actually
    * delete the Account on the local sync side.
