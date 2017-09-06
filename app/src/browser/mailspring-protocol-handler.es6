@@ -13,7 +13,7 @@ import path from 'path';
 //   * <config-dir>/packages
 //   * RESOURCE_PATH/node_modules
 //
-export default class NylasProtocolHandler {
+export default class MailspringProtocolHandler {
   constructor({configDirPath, resourcePath, safeMode}) {
     this.loadPaths = [];
 
@@ -23,13 +23,14 @@ export default class NylasProtocolHandler {
     this.loadPaths.push(path.join(configDirPath, 'packages'));
     this.loadPaths.push(path.join(resourcePath, 'internal_packages'));
 
-    this.registerNylasProtocol();
+    this.registerProtocol();
   }
 
-  // Creates the 'Nylas' custom protocol handler.
-  registerNylasProtocol() {
-    protocol.registerFileProtocol('mailspring', (request, callback) => {
-      const relativePath = path.normalize(request.url.substr(7));
+  // Creates the 'Mailspring' custom protocol handler.
+  registerProtocol() {
+    const scheme = 'mailspring'
+    protocol.registerFileProtocol(scheme, (request, callback) => {
+      const relativePath = path.normalize(request.url.substr(scheme.length + 1));
 
       let filePath = null;
       for (const loadPath of this.loadPaths) {
