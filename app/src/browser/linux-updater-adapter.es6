@@ -1,14 +1,8 @@
 import {EventEmitter} from 'events';
 import https from 'https';
-import shell from 'electron';
+import {shell} from 'electron';
 import url from 'url';
 
-/*
-Currently, this class doesn't do much. We don't display update notices within
-the app because we can't provide a consistent upgrade path for linux users.
-However, we still want the app to report to our autoupdate service so we know
-how many Linux users exist.
-*/
 class LinuxUpdaterAdapter extends EventEmitter {
   setFeedURL(feedURL) {
     this.feedURL = feedURL;
@@ -50,8 +44,8 @@ class LinuxUpdaterAdapter extends EventEmitter {
             this.onError(new Error(`Autoupdater response did not include URL: ${data}`));
             return;
           }
-          this.downloadURL = url;
-          this.emit('update-downloaded', 'Click to download.', null);
+          this.downloadURL = json.url;
+          this.emit('update-downloaded', null, 'manual-download', json.version);
         } catch (err) {
           this.onError(err);
         }
@@ -60,9 +54,7 @@ class LinuxUpdaterAdapter extends EventEmitter {
   }
 
   quitAndInstall() {
-    if (this.downloadURL) {
-      shell.openExternal(this.downloadURL);
-    }
+    shell.openExternal(this.downloadURL || "https://getmailspring.com/download");
   }
 }
 

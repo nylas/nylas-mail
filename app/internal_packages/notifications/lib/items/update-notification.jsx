@@ -22,10 +22,12 @@ export default class UpdateNotification extends React.Component {
 
   getStateFromStores() {
     const updater = remote.getGlobal('application').autoUpdateManager;
-
+    const updateAvailable = updater.getState() === 'update-available';
+    const info = updateAvailable ? updater.getReleaseDetails() : {};
     return {
-      updateAvailable: updater.getState() === 'update-available',
-      version: updater.releaseVersion,
+      updateAvailable,
+      updateIsManual: info.releaseNotes === 'manual-download',
+      version: info.releaseVersion,
     }
   }
 
@@ -38,19 +40,20 @@ export default class UpdateNotification extends React.Component {
   }
 
   render() {
-    if (!this.state.updateAvailable) {
+    const {updateAvailable, version, updateIsManual} = this.state;
+
+    if (!updateAvailable) {
       return <span />
     }
-    const version = this.state.version ? `(${this.state.version})` : '';
     return (
       <Notification
         priority="4"
-        title={`An update to Mailspring is available ${version}`}
+        title={`An update to Mailspring is available ${version ? `(${version})` : ''}`}
         subtitle="View changelog"
         subtitleAction={this._onViewChangelog}
         icon="volstead-upgrade.png"
         actions={[{
-          label: "Update",
+          label: updateIsManual ? 'Download Now' : 'Install Update',
           fn: this._onUpdate,
         }]}
       />

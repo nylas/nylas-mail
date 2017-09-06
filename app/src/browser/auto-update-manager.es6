@@ -89,6 +89,7 @@ export default class AutoUpdateManager extends EventEmitter {
     });
 
     this.check({hidePopups: true});
+
     setInterval(() => {
       if ([UpdateAvailableState, UnsupportedState].includes(this.state)) {
         console.log("Skipping update check... update ready to install, or updater unavailable.");
@@ -106,10 +107,7 @@ export default class AutoUpdateManager extends EventEmitter {
     if (!this.releaseVersion) {
       return;
     }
-    global.application.windowManager.sendToAllWindows("update-available", {}, {
-      releaseVersion: this.releaseVersion,
-      releaseNotes: this.releaseNotes,
-    });
+    global.application.windowManager.sendToAllWindows("update-available", {}, this.getReleaseDetails());
   }
 
   setState(state) {
@@ -122,6 +120,13 @@ export default class AutoUpdateManager extends EventEmitter {
 
   getState() {
     return this.state;
+  }
+
+  getReleaseDetails() {
+    return {
+      releaseVersion: this.releaseVersion,
+      releaseNotes: this.releaseNotes,
+    };
   }
 
   check({hidePopups} = {}) {
