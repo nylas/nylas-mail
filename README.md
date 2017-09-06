@@ -1,5 +1,5 @@
 # Nylas Mail - the open-source, extensible mail client
-![N1 Screenshot](https://github.com/nylas/nylas-mail-all/raw/cleanup/screenshot/hero_graphic_mac%402x.png)
+![N1 Screenshot](https://github.com/nylas/nylas-mail/raw/master/screenshot/hero_graphic_mac%402x.png)
 
 **Nylas Mail is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It was designed to be easy to extend, and many third-party plugins are available that add functionality to the client. 
 
@@ -33,14 +33,14 @@ benefit of letting us use subdomains.
 
 This repository contains the full source code to the Nylas Mail client and it's backend services. It is divided into the following packages:
 
-1. [**Isomorphic Core**](https://github.com/nylas/nylas-mail-all/tree/master/packages/isomorphic-core): Shared code across local client and cloud servers
-1. [**Client App**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-app): The main Electron app for Nylas Mail
+1. [**Isomorphic Core**](https://github.com/nylas/nylas-mail/tree/master/packages/isomorphic-core): Shared code across local client and cloud servers
+1. [**Client App**](https://github.com/nylas/nylas-mail/tree/master/packages/client-app): The main Electron app for Nylas Mail
    mirrored to open source repo.
-1. [**Client Sync**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-sync): The local mailsync engine integreated in Nylas Mail
-1. [**Client Private Plugins**](https://github.com/nylas/nylas-mail-all/tree/master/packages/client-private-plugins): Private Nylas Mail plugins (like SFDC)
-1. [**Cloud API**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-api): The cloud-based auth and metadata APIs for N1
-1. [**Cloud Core**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-core): Shared code used in all remote cloud services
-1. [**Cloud Workers**](https://github.com/nylas/nylas-mail-all/tree/master/packages/cloud-workers): Cloud workers for services like send later
+1. [**Client Sync**](https://github.com/nylas/nylas-mail/tree/master/packages/client-sync): The local mailsync engine integreated in Nylas Mail
+1. [**Client Private Plugins**](https://github.com/nylas/nylas-mail/tree/master/packages/client-private-plugins): Private Nylas Mail plugins (like SFDC)
+1. [**Cloud API**](https://github.com/nylas/nylas-mail/tree/master/packages/cloud-api): The cloud-based auth and metadata APIs for N1
+1. [**Cloud Core**](https://github.com/nylas/nylas-mail/tree/master/packages/cloud-core): Shared code used in all remote cloud services
+1. [**Cloud Workers**](https://github.com/nylas/nylas-mail/tree/master/packages/cloud-workers): Cloud workers for services like send later
 
 See `/packages` for the separate pieces. Each folder in `/packages` is
 designed to be its own stand-alone repository. They are all bundled here
@@ -58,27 +58,27 @@ The team has also given conference talks and published blog posts about the clie
 - [ReactEurope: How React & Flux Turn Apps Into Extensible Platforms](https://www.youtube.com/watch?v=Uu4Yz2HmCgE)
 - [ForwardJS: Electron, React & Pixel Perfect Experiences](https://www.youtube.com/watch?v=jRPUB-D1Wx0&list=PL7i8CwZBnlf7iUTn2JMVLLWofAhaiK7l3)
 
-- [Blog: Splitting from Atom](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/splitting-from-atom.pdf)
-- [Blog: Building Plugins for React Apps](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/plugins.pdf)
-- [Blog: Nylas Mail Build Process](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/build-process.pdf)
-- [Blog: Low level Electron Debugging](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/electron-debugging.pdf)
-- [Blog: A New Search Parser](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/search-parser.pdf)
-- [Blog: Developers Guide to Emoji](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/emoji.pdf)
-- [Blog: Nylas Pro](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/nylas-pro.pdf)
-- [Blog: Nylas Mail & PGP](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/pgp.pdf)
-- [Blog: Calendar Events and RRULEs](https://github.com/nylas/nylas-mail-all/raw/cleanup/blog-posts/rrules.pdf)
+- [Blog: Splitting from Atom](https://github.com/nylas/nylas-mail/raw/master/blog-posts/splitting-from-atom.pdf)
+- [Blog: Building Plugins for React Apps](https://github.com/nylas/nylas-mail/raw/master/blog-posts/plugins.pdf)
+- [Blog: Nylas Mail Build Process](https://github.com/nylas/nylas-mail/raw/master/blog-posts/build-process.pdf)
+- [Blog: Low level Electron Debugging](https://github.com/nylas/nylas-mail/raw/master/blog-posts/electron-debugging.pdf)
+- [Blog: A New Search Parser](https://github.com/nylas/nylas-mail/raw/master/blog-posts/search-parser.pdf)
+- [Blog: Developers Guide to Emoji](https://github.com/nylas/nylas-mail/raw/master/blog-posts/emoji.pdf)
+- [Blog: Nylas Pro](https://github.com/nylas/nylas-mail/raw/master/blog-posts/nylas-pro.pdf)
+- [Blog: Nylas Mail & PGP](https://github.com/nylas/nylas-mail/raw/master/blog-posts/pgp.pdf)
+- [Blog: Calendar Events and RRULEs](https://github.com/nylas/nylas-mail/raw/master/blog-posts/rrules.pdf)
 
 ## Running the Cloud
 
 When you download and build Nylas Mail from source it runs without its cloud components. The concept of a "Nylas ID" / subscription has been removed, and plugins that require server-side processing are disabled by default. (Plugins like Snooze, Send Later, etc.)
 
-In order to use these plugins and get the full Nylas Mail experience, you need to deploy the backend infrastructure located in the `cloud-*` packages. Deploying these services is challenging because they are implemented as microservices and designed to be run at enterprise scale with Redis, Postgres, etc. Because these backend services must access your email account, it is also important to use security best-practices (at the very least, SSL, encryption at rest, and a partitioned VPC). For more information about building and deploying this part of the stack, check out the [cloud-core README](https://github.com/nylas/nylas-mail-all/blob/master/packages/cloud-core/README.md).
+In order to use these plugins and get the full Nylas Mail experience, you need to deploy the backend infrastructure located in the `cloud-*` packages. Deploying these services is challenging because they are implemented as microservices and designed to be run at enterprise scale with Redis, Postgres, etc. Because these backend services must access your email account, it is also important to use security best-practices (at the very least, SSL, encryption at rest, and a partitioned VPC). For more information about building and deploying this part of the stack, check out the [cloud-core README](https://github.com/nylas/nylas-mail/blob/master/packages/cloud-core/README.md).
 
 ## Themes
 
 The Nylas Mail user interface is styled using CSS, which means it's easy to modify and extend. Nylas Mail comes stock with a few beautiful themes, and there are many more which have been built by community developers
 
-![N1 Themes](https://github.com/nylas/nylas-mail-all/raw/cleanup/screenshot/687474703a2f2f692e696d6775722e636f6d2f505751374e6c592e6a7067.jpg)
+![N1 Themes](https://github.com/nylas/nylas-mail/raw/master/screenshot/687474703a2f2f692e696d6775722e636f6d2f505751374e6c592e6a7067.jpg)
 
 #### Bundled Themes
 - [Dark](https://github.com/nylas/nylas-mail/tree/master/internal_packages/ui-dark)
@@ -139,5 +139,5 @@ When you install packages, they're moved to ~/.nylas-mail/packages, and Nylas Ma
 
 There are several forks of Nylas Mail that you should check out!
 
- - [Merra](github.com/bengotow/N1) - Significant rewrite by one of the original authors focused on performance and cloud plugins
+ - [Mailspring](http://www.getmailspring.com/) - Significant rewrite by one of the original authors focused on performance and cloud plugins
  - [Nylas Mail Lives](https://github.com/nylas-mail-lives/nylas-mail) - Community effort to fix bugs and improve the client!
