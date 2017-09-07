@@ -43,7 +43,7 @@ export default class ConfigPersistenceManager {
 
   _showLoadErrorDialog(error) {
     const message = `Failed to load "${path.basename(this.configFilePath)}"`;
-    let detail = (error.location) ? error.stack : error.message;
+    let detail = error.message;
 
     if (error instanceof SyntaxError) {
       detail += `\n\nThe file ${this.configFilePath} has incorrect JSON formatting or is empty. Fix the formatting to resolve this error, or reset your settings to continue using N1.`

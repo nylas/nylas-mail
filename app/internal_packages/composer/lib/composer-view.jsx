@@ -459,7 +459,7 @@ export default class ComposerView extends React.Component {
     // Ensure that you can't pick up a file and drop it on the same draft
     const nonNativeFilePath = this._nonNativeFilePathForDrop(event);
 
-    const hasNativeFile = event.dataTransfer.files.length > 0;
+    const hasNativeFile = event.dataTransfer.types.includes('Files');
     const hasNonNativeFilePath = nonNativeFilePath !== null;
 
     return hasNativeFile || hasNonNativeFilePath;

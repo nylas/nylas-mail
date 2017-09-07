@@ -450,7 +450,7 @@ describe "ComposerView", ->
         event =
           dataTransfer:
             files:[{'pretend':'imafile'}]
-            types:[]
+            types:['Files']
         expect(@composer._shouldAcceptDrop(event)).toBe(true)
 
       it "should return true if the event is carrying a non-native file URL", ->
