@@ -88,6 +88,7 @@ class ListTabular extends Component {
   static propTypes = {
     footer: PropTypes.node,
     draggable: PropTypes.bool,
+    className: PropTypes.string,
     columns: PropTypes.array.isRequired,
     dataSource: PropTypes.object,
     itemPropsProvider: PropTypes.func,
@@ -330,6 +331,7 @@ class ListTabular extends Component {
     const {
       footer,
       columns,
+      className,
       draggable,
       itemHeight,
       EmptyComponent,
@@ -345,7 +347,7 @@ class ListTabular extends Component {
     const innerStyles = {height: count * itemHeight}
 
     return (
-      <div className="list-container list-tabular #{@props.className}">
+      <div className={`list-container list-tabular ${className}`}>
         <ScrollRegion
           ref={(cm) => { this._scrollRegion = cm; }}
           onScroll={this.onScroll}

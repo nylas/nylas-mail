@@ -117,7 +117,7 @@ export default class ThemeManager {
   requireStylesheet(stylesheetPath) {
     const sourcePath = this.resolveStylesheet(stylesheetPath);
     if (!sourcePath) {
-      throw new Error("Could not find a file at path '#{stylesheetPath}'")
+      throw new Error(`Could not find a file at path '${stylesheetPath}'`)
     }
     const content = this.loadStylesheet(sourcePath);
     this.styleSheetDisposablesBySourcePath[sourcePath] = NylasEnv.styles.addStyleSheet(content, {sourcePath})

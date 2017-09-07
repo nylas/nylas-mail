@@ -27,7 +27,7 @@ export default class ToolbarButtons extends React.Component {
       const icon = ((config.iconUrl || '').length > 0) ? (
         <RetinaImg
           mode={RetinaImg.Mode.ContentIsMask}
-          url="#{config.iconUrl}"
+          url={`${config.iconUrl}`}
         />
       ) : null;
 

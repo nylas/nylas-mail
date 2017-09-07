@@ -39,7 +39,7 @@ this.unsubscribe = FocusedContentStore.listen(this._onFocusChanged, this)
 _onFocusChanged: =>
   thread = FocusedContentStore.focused('thread')
   if thread
-    console.log("#{thread.subject} is selected!")
+    console.log(`${thread.subject} is selected!`)
   else
     console.log("No thread is selected!")
 ```

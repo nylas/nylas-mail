@@ -95,7 +95,7 @@ class ToolbarBack extends React.Component {
       title = _str.titleize(this.state.categoryName);
     }
     return (
-      <div className="item-back" onClick={this._onClick} title="Return to #{title}">
+      <div className="item-back" onClick={this._onClick} title={`Return to ${title}`}>
         <RetinaImg name="sheet-back.png" mode={RetinaImg.Mode.ContentIsMask} />
         <div className="item-back-title">{title}</div>
       </div>
@@ -141,7 +141,7 @@ class ToolbarWindowControls extends React.Component {
 
   render() {
     return (
-      <div name="ToolbarWindowControls" className="toolbar-window-controls alt-#{this.state.alt}">
+      <div name="ToolbarWindowControls" className={`toolbar-window-controls alt-${this.state.alt}`}>
         <button tabIndex={-1} className="close" onClick={() => NylasEnv.close()} />
         <button tabIndex={-1} className="minimize" onClick={() => NylasEnv.minimize()} />
         <button tabIndex={-1} className="maximize" onClick={this._onMaximize} />
@@ -354,7 +354,7 @@ export default class Toolbar extends React.Component {
     return (
       <div
         style={style}
-        className={"sheet-toolbar-container mode-#{this.state.mode}"}
+        className={`sheet-toolbar-container mode-${this.state.mode}`}
         data-id={this.props.data.id}
       >
         {toolbars}

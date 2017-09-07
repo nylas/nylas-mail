@@ -61,7 +61,7 @@ class ComponentRegistry extends NylasStore {
     }
 
     if (this._registry[component.displayName] && this._registry[component.displayName].component !== component) {
-      throw new Error("ComponentRegistry.register(): A different component was already registered with the name #{component.displayName}");
+      throw new Error(`ComponentRegistry.register(): A different component was already registered with the name ${component.displayName}`);
     }
 
     this._cache = {};

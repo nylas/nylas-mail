@@ -53,7 +53,7 @@ export default class ModeToggle extends React.Component {
   render() {
     return (
       <button
-        className="btn btn-toolbar mode-toggle mode-#{this.state.hidden}"
+        className={`btn btn-toolbar mode-toggle mode-${this.state.hidden}`}
         style={{order: 500}}
         title={this.state.hidden ? "Show sidebar" : "Hide sidebar"}
         onClick={this._onToggleMode}
