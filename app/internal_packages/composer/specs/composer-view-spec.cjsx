@@ -62,7 +62,7 @@ useFullDraft = ->
     files: [f1, f2]
     subject: "Test Message 1"
     body: "Hello <b>World</b><br/> This is a test"
-    replyToMessageId: null
+    replyToHeaderMessageId: null
 
 makeComposer = (props={}) ->
   @composer = NylasTestUtils.renderIntoDocument(
@@ -118,7 +118,7 @@ describe "ComposerView", ->
         to: [u2]
         subject: "Test Reply Message 1"
         body: ""
-        replyToMessageId: "1")
+        replyToHeaderMessageId: "1")
       .then( =>
         sessionSetupComplete = true
       )

@@ -302,7 +302,7 @@ xdescribe('DraftStore', function draftStore() {
       this.draft = new Message({
         headerMessageId: "local-123",
         threadId: "thread-123",
-        replyToMessageId: "message-123",
+        replyToHeaderMessageId: "message-123@localhost",
         files: ['stub'],
       });
       DraftStore._draftSessions = {};

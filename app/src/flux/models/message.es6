@@ -56,8 +56,7 @@ All messages are part of a thread, even if that thread has only one message.
 
 `threadId`: {AttributeString} The ID of the Message's parent {Thread}. Queryable.
 
-`replyToMessageId`: {AttributeString} The ID of a {Message} that this message
- === in reply to.
+`replyToHeaderMessageId`: {AttributeString} The headerMessageID of a {Message} that this message is in reply to.
 
 This class also inherits attributes from {Model}
 
@@ -156,8 +155,9 @@ export default class Message extends ModelWithMetadata {
       queryable: true,
     }),
 
-    replyToMessageId: Attributes.String({
-      modelKey: 'replyToMessageId',
+    replyToHeaderMessageId: Attributes.String({
+      jsonKey: 'rthMsgId',
+      modelKey: 'replyToHeaderMessageId',
     }),
 
     folder: Attributes.Object({

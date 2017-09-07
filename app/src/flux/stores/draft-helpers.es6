@@ -37,10 +37,10 @@ class DraftHelpers {
     return bodyForwarded || bodyFwd || subjectFwd
   }
 
-  shouldAppendQuotedText({body = '', replyToMessageId = false} = {}) {
-    return replyToMessageId &&
+  shouldAppendQuotedText({body = '', replyToHeaderMessageId = false} = {}) {
+    return replyToHeaderMessageId &&
       !body.includes('<div id="n1-quoted-text-marker">') &&
-      !body.includes(`nylas-quote-id-${replyToMessageId}`)
+      !body.includes(`nylas-quote-id-${replyToHeaderMessageId}`)
   }
 
   prepareBodyForQuoting(body = "") {
@@ -75,7 +75,10 @@ class DraftHelpers {
   }
 
   appendQuotedTextToDraft(draft) {
-    const query = DatabaseStore.find(Message, draft.replyToMessageId).include(Message.attributes.body);
+    const query = DatabaseStore.findBy(Message, {
+      headerMessageId: draft.replyToHeaderMessageId,
+      accountId: draft.accountId,
+    }).include(Message.attributes.body);
 
     return query.then((prevMessage) => {
       if (!prevMessage) {
@@ -83,7 +86,7 @@ class DraftHelpers {
       }
       return this.prepareBodyForQuoting(prevMessage.body).then((prevBodySanitized) => {
         draft.body = `${draft.body}
-          <div class="gmail_quote nylas-quote nylas-quote-id-${draft.replyToMessageId}">
+          <div class="gmail_quote nylas-quote nylas-quote-id-${draft.replyToHeaderMessageId}">
             <br>
             ${DOMUtils.escapeHTMLCharacters(prevMessage.replyAttributionLine())}
             <br>
@@ -127,7 +130,7 @@ class DraftHelpers {
 
     draft = await this.applyExtensionTransforms(draft)
     draft = await this.pruneRemovedInlineFiles(draft);
-    if (draft.replyToMessageId && this.shouldAppendQuotedText(draft)) {
+    if (draft.replyToHeaderMessageId && this.shouldAppendQuotedText(draft)) {
       draft = await this.appendQuotedTextToDraft(draft);
     }
     return draft;

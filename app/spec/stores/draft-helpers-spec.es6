@@ -54,7 +54,7 @@ xdescribe('DraftHelpers', function describeBlock() {
   describe('shouldAppendQuotedText', () => {
     it('returns true if message is reply and has no marker', () => {
       const draft = {
-        replyToMessageId: 1,
+        replyToHeaderMessageId: 1,
         body: `<div>hello!</div>`,
       }
       expect(DraftHelpers.shouldAppendQuotedText(draft)).toBe(true)
@@ -62,7 +62,7 @@ xdescribe('DraftHelpers', function describeBlock() {
 
     it('returns false if message is reply and has marker', () => {
       const draft = {
-        replyToMessageId: 1,
+        replyToHeaderMessageId: 1,
         body: `<div>hello!</div><div id="n1-quoted-text-marker"></div>Quoted Text`,
       }
       expect(DraftHelpers.shouldAppendQuotedText(draft)).toBe(false)

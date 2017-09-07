@@ -60,6 +60,7 @@ describe('DraftFactory', function draftFactory() {
 
     fakeMessage1 = new Message({
       id: 'fake-message-1',
+      headerMessageId: 'fake-message-1@localhost',
       accountId: account.id,
       to: [new Contact({email: 'ben@nylas.com'}), new Contact({email: 'evan@nylas.com'})],
       cc: [new Contact({email: 'mg@nylas.com'}), account.me()],
@@ -73,6 +74,7 @@ describe('DraftFactory', function draftFactory() {
 
     fakeMessageWithFiles = new Message({
       id: 'fake-message-with-files',
+      headerMessageId: 'fake-message-with-files@localhost',
       accountId: account.id,
       to: [new Contact({email: 'ben@nylas.com'}), new Contact({email: 'evan@nylas.com'})],
       cc: [new Contact({email: 'mg@nylas.com'}), account.me()],
@@ -87,6 +89,7 @@ describe('DraftFactory', function draftFactory() {
 
     msgFromMe = new Message({
       id: 'fake-message-3',
+      headerMessageId: 'fake-message-3@localhost',
       accountId: account.id,
       to: [new Contact({email: '1@1.com'}), new Contact({email: '2@2.com'})],
       cc: [new Contact({email: '3@3.com'}), new Contact({email: '4@4.com'})],
@@ -100,6 +103,7 @@ describe('DraftFactory', function draftFactory() {
 
     msgWithReplyTo = new Message({
       id: 'fake-message-reply-to',
+      headerMessageId: 'fake-message-reply-to@localhost',
       accountId: account.id,
       to: [new Contact({email: '1@1.com'}), new Contact({email: '2@2.com'})],
       cc: [new Contact({email: '3@3.com'}), new Contact({email: '4@4.com'})],
@@ -122,6 +126,7 @@ describe('DraftFactory', function draftFactory() {
 
     msgWithReplyToDuplicates = new Message({
       id: 'fake-message-reply-to-duplicates',
+      headerMessageId: 'fake-message-reply-to-duplicates@localhost',
       accountId: account.id,
       to: [new Contact({email: '1@1.com'}), new Contact({email: '2@2.com'})],
       cc: [new Contact({email: '1@1.com'}), new Contact({email: '4@4.com'})],
@@ -152,10 +157,10 @@ describe('DraftFactory', function draftFactory() {
         });
       });
 
-      it("should set the replyToMessageId to the previous message's ids", () => {
+      it("should set the replyToHeaderMessageId to the previous message's ids", () => {
         waitsForPromise(() => {
           return DraftFactory.createDraftForReply({thread: fakeThread, message: fakeMessage1, type: 'reply'}).then((draft) => {
-            expect(draft.replyToMessageId).toEqual(fakeMessage1.id);
+            expect(draft.replyToHeaderMessageId).toEqual(fakeMessage1.headerMessageId);
           });
         });
       });
@@ -378,8 +383,8 @@ describe('DraftFactory', function draftFactory() {
         expect(this.model.bcc).toEqual([]);
       });
 
-      it("should not set the replyToMessageId", () => {
-        expect(this.model.replyToMessageId).toEqual(undefined);
+      it("should not set the replyToHeaderMessageId", () => {
+        expect(this.model.replyToHeaderMessageId).toEqual(undefined);
       });
 
       it("should sanitize the HTML", () => {
@@ -433,7 +438,7 @@ describe('DraftFactory', function draftFactory() {
         this.existingDraft = new Message({
           id: 'asd',
           accountId: TEST_ACCOUNT_ID,
-          replyToMessageId: fakeMessage1.id,
+          replyToHeaderMessageId: fakeMessage1.headerMessageId,
           threadId: fakeMessage1.threadId,
           draft: true,
         });

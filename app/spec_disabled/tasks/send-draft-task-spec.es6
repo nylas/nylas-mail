@@ -205,7 +205,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
             return Promise.resolve(this.response);
           });
 
-          this.draft.replyToMessageId = "reply-123";
+          this.draft.replyToHeaderMessageId = "reply-123";
           this.draft.threadId = "thread-123";
           waitsForPromise(() => {
             return this.task.performRemote(this.draft)
@@ -232,7 +232,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
             return Promise.resolve(this.response);
           });
 
-          this.draft.replyToMessageId = "reply-123";
+          this.draft.replyToHeaderMessageId = "reply-123";
           this.draft.threadId = "thread-123";
           waitsForPromise(() => this.task.performRemote(this.draft).then(() => {
             expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();

@@ -280,10 +280,10 @@ class MessageStore extends NylasStore
   _sortItemsForDisplay: (items) ->
     # Re-sort items in the list so that drafts appear after the message that
     # they are in reply to, when possible. First, identify all the drafts
-    # with a replyToMessageId and remove them
+    # with a replyToHeaderMessageId and remove them
     itemsInReplyTo = []
     for item, index in items by -1
-      if item.draft and item.replyToMessageId
+      if item.draft and item.replyToHeaderMessageId
         itemsInReplyTo.push(item)
         items.splice(index, 1)
 
@@ -291,7 +291,7 @@ class MessageStore extends NylasStore
     # the message which it was in reply to. If we can't find it, put it at the end.
     for item in itemsInReplyTo
       for other, index in items
-        if item.replyToMessageId is other.id
+        if item.replyToHeaderMessageId is other.id
           items.splice(index+1, 0, item)
           item = null
           break

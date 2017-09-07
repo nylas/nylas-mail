@@ -111,7 +111,7 @@ describe('ComposerHeader', function composerHeader() {
       });
 
       it("should be hidden if the message is a reply", () => {
-        const draft = new Message({draft: true, subject: 'Re: 1234', replyToMessageId: '123', accountId: TEST_ACCOUNT_ID, headerMessageId: DRAFT_HEADER_MSG_ID});
+        const draft = new Message({draft: true, subject: 'Re: 1234', replyToHeaderMessageId: '123', accountId: TEST_ACCOUNT_ID, headerMessageId: DRAFT_HEADER_MSG_ID});
         this.createWithDraft(draft);
         expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField'])
       });

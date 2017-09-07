@@ -120,8 +120,8 @@ class DraftFactory
       from: [@_fromContactForReply(message)],
       threadId: thread.id,
       accountId: message.accountId,
-      replyToMessageId: message.id,
-      body: "" # quoted html is managed by the composer via the replyToMessageId
+      replyToHeaderMessageId: message.headerMessageId,
+      body: "" # quoted html is managed by the composer via the replyToHeaderMessageId
     )
 
   createDraftForForward: ({thread, message}) =>
@@ -166,7 +166,7 @@ class DraftFactory
 
     getMessages.then (messages) =>
       candidateDrafts = messages.filter (other) =>
-        other.replyToMessageId is message.id and other.draft is true
+        other.replyToHeaderMessageId is message.id and other.draft is true
 
       if candidateDrafts.length is 0
         return Promise.resolve(null)

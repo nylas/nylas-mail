@@ -56,6 +56,7 @@ class DraftListStore extends NylasStore
         # where we set thread.__messages to the message array.
         resultSetWithTasks = new MutableQueryResultSet(resultSet)
 
+        # TODO BG modelWithId: task.headerMessageId does not work
         mailboxPerspective.accountIds.forEach (aid) =>
           OutboxStore.itemsForAccount(aid).forEach (task) =>
             draft = resultSet.modelWithId(task.headerMessageId)

@@ -127,7 +127,7 @@ export default class ComposerHeader extends React.Component {
     if (DraftHelpers.isForwardedMessage(this.props.draft)) {
       return true;
     }
-    if (this.props.draft.replyToMessageId) {
+    if (this.props.draft.replyToHeaderMessageId) {
       return false;
     }
     return true;
