@@ -200,13 +200,6 @@ export default class MailsyncBridge {
       return;
     }
 
-    if (fullAccountJSON.syncState !== Account.SYNC_STATE_OK) {
-      Actions.updateAccount(id, {
-        syncState: Account.SYNC_STATE_OK,
-        syncError: null,
-      });
-    }
-
     const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, fullAccountJSON);
     client.sync();
     client.on('deltas', this._onIncomingMessages);
@@ -232,6 +225,14 @@ export default class MailsyncBridge {
       }
     });
     this._clients[id] = client;
+
+    if (fullAccountJSON.syncState !== Account.SYNC_STATE_OK) {
+      // note: This call triggers ensureClients, and must go after this.clients[id] is set
+      Actions.updateAccount(id, {
+        syncState: Account.SYNC_STATE_OK,
+        syncError: null,
+      });
+    }
   }
 
   _onQueueTask(task) {
