@@ -112,6 +112,12 @@ export default class MailsyncProcess extends EventEmitter {
     let buffer = "";
     let errBuffer = null;
 
+    /* Allow us to buffer up to 1MB on stdin instead of 16k. This is necessary
+    because some tasks (creating replies to drafts, etc.) can be gigantic amounts
+    of HTML, many tasks can be created at once, etc, and we don't want to kill
+    the channel. */
+    this._proc.stdin.highWaterMark = 1024 * 1024;
+
     this._proc.stdout.on('data', (data) => {
       const added = data.toString();
       buffer += added;
