@@ -32,16 +32,10 @@ export default class ChangeFolderTask extends ChangeMailTask {
     }
     if (!data.previousFolders) {
       data.previousFolders = {};
-    }
-    if (data.threads) {
-      data.threads = data.threads.filter(t => t.folders.find(f => f.id !== data.folder.id));
-      for (const t of data.threads) {
-        data.previousFolders[t.id] = t.folders.find(f => f.id !== data.folder.id);
+      for (const t of (data.threads || [])) {
+        data.previousFolders[t.id] = t.folders.find(f => f.id !== data.folder.id) || t.folders[0];
       }
-    }
-    if (data.messages) {
-      data.messages = data.messages.filter(m => m.folder.id !== data.folder.id);
-      for (const m of data.messages) {
+      for (const m of (data.messages || [])) {
         data.previousFolders[m.id] = m.folder;
       }
     }
