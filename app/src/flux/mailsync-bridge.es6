@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import {ipcRenderer} from 'electron';
 
 import Task from './tasks/task';
 import TaskQueue from './stores/task-queue';
@@ -112,7 +113,7 @@ class CrashTracker {
 export default class MailsyncBridge {
   constructor() {
     if (!NylasEnv.isMainWindow() || NylasEnv.inSpecMode()) {
-      // maybe bind as listener?
+      ipcRenderer.on('mailsync-bridge-message', this._onIncomingRebroadcastMessage);
       return;
     }
 
@@ -269,9 +270,6 @@ export default class MailsyncBridge {
   }
 
   _onIncomingMessages(msgs) {
-    // todo bg
-    // dispatch the messages to other windows?
-
     for (const msg of msgs) {
       if (msg.length === 0) {
         continue;
@@ -286,6 +284,10 @@ export default class MailsyncBridge {
         console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`)
         continue;
       }
+
+      // dispatch the message to other windows
+      ipcRenderer.send('mailsync-bridge-rebroadcast-to-all', msg);
+
       const models = objects.map(Utils.convertToModel);
       DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
 
@@ -301,6 +303,12 @@ export default class MailsyncBridge {
         }
       }
     }
+  }
+
+  _onIncomingRebroadcastMessage = (event, msg) => {
+    const {type, objects, objectClass} = JSON.parse(msg);
+    const models = objects.map(Utils.convertToModel);
+    DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
   }
 
   _onFetchBodies(messages) {

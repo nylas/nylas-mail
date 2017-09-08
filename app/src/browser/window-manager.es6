@@ -134,6 +134,9 @@ export default class WindowManager {
       if (!win.browserWindow.webContents) {
         continue;
       }
+      if (win.windowType === WindowLauncher.EMPTY_WINDOW) {
+        continue;
+      }
       win.browserWindow.webContents.send(msg, ...args);
     }
   }

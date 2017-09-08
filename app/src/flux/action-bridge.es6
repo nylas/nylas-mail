@@ -39,13 +39,7 @@ class ActionBridge {
     NylasEnv.onBeforeUnload(this.onBeforeUnload);
 
     // Listen for action bridge messages from other windows
-    if (NylasEnv.isEmptyWindow()) {
-      NylasEnv.onWindowPropsReceived(() => {
-        this.ipc.on('action-bridge-message', this.onIPCMessage);
-      });
-    } else {
-      this.ipc.on('action-bridge-message', this.onIPCMessage);
-    }
+    this.ipc.on('action-bridge-message', this.onIPCMessage);
 
     // Observe all global actions and re-broadcast them to other windows
     Actions.globalActions.forEach(name => {
