@@ -321,7 +321,7 @@ export default class DraftEditingSession extends NylasStore {
   }
 
   _onDraftChanged = (change) => {
-    if (change === undefined) {
+    if ((change === undefined) || (change.type !== 'persist')) {
       return;
     }
 

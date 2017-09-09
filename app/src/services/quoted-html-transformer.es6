@@ -93,21 +93,37 @@ class QuotedHTMLTransformer {
       el.remove();
     }
 
-    // Remove any trailing <br> in the last leaf child of doc.body.
-    // This specific pattern occurs often when stripping Mailspring / gmail quotes.
-    let last = doc.body;
-    while (last.children.length) {
-      last = last.children[last.children.length - 1];
+    // Traverse down the tree of "last child" nodes to get the last child of the last child.
+    // The deepest node at the end of the document.
+    let lastOfLast = doc.body;
+    while (lastOfLast.lastElementChild) {
+      lastOfLast = lastOfLast.lastElementChild;
     }
-    last = last.parentElement;
 
-    while (last.children.length > 0) {
-      const innerLast = last.children[last.children.length - 1];
-      if (innerLast.nodeName === 'BR') {
-        innerLast.remove();
-      } else {
+    // Traverse back up the tree - at each level, attempt to remove
+    // whitespace from the last child and then remove the child itself
+    // if it's completely empty. Repeat until a child has meaningful content,
+    // then move up the tree.
+    //
+    // Containers with empty space at the end occur pretty often when we
+    // remove the quoted text and it had preceding spaces.
+    const removeTrailingWhitespaceChildren = (el) => {
+      while (el.lastElementChild) {
+        const child = el.lastElementChild;
+        if (['BR', 'P', 'DIV', 'SPAN'].includes(child.nodeName)) {
+          removeTrailingWhitespaceChildren(child);
+          if ((child.childElementCount === 0) && (child.textContent.trim() === '')) {
+            child.remove();
+            continue;
+          }
+        }
         break;
       }
+    }
+
+    while (lastOfLast.parentElement) {
+      lastOfLast = lastOfLast.parentElement;
+      removeTrailingWhitespaceChildren(lastOfLast);
     }
   }
 
@@ -183,6 +199,7 @@ class QuotedHTMLTransformer {
       this._findGmailQuotes,
       this._findOffice365Quotes,
       this._findBlockquoteQuotes,
+      this._findQuotesAfterMessageHeaderBlock,
     ];
 
     let quoteElements = [];
@@ -350,6 +367,52 @@ class QuotedHTMLTransformer {
 
   _findBlockquoteQuotes(doc) {
     return Array.from(doc.querySelectorAll('blockquote'));
+  }
+
+  _findQuotesAfterMessageHeaderBlock(doc) {
+    // This detector looks for a element in the DOM tree containing
+    // three children: <b>To:</b> and <b>Cc:</b> and <b>Subject:</b>.
+    // It then returns every node after that as quoted text.
+
+    // Find a DOM node exactly matching <b>To:</b>
+    const to = doc.evaluate("//b[. = 'To:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext();
+    if (to) {
+      // check to see if the parent container also contains the other two
+      const headerContainer = to.parentElement;
+      let matches = 0;
+      for (const node of Array.from(headerContainer.children)) {
+        if ((node.textContent === "Cc:") || (node.textContent === "Subject:")) {
+          matches++;
+        }
+      }
+      if (matches === 2) {
+        // got a hit! let's cut some text.
+        const quotedTextNodes = [];
+        
+        // Special case to add "From:" if it's present in the node before the rest of
+        // the header fields. It's often not in the same container as To, Cc, Subject:
+        const possibleFromNode = headerContainer.previousElementSibling;
+        if (possibleFromNode && possibleFromNode.innerText.trim() === "From:") {
+          quotedTextNodes.push(possibleFromNode);
+        }
+
+        // The headers container and everything past it in the document is quoted text.
+        // This traverses the DOM, walking up the tree and adding all siblings below
+        // our current path to the array.
+        let head = headerContainer;
+        while (head) {
+          quotedTextNodes.push(head);
+          const next = head.nextElementSibling;
+          if (next) {
+            head = next;
+          } else {
+            head = head.parentElement.nextElementSibling;
+          }
+        }
+        return quotedTextNodes;
+      }
+    }
+    return [];
   }
 }
 

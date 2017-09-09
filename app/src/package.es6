@@ -29,6 +29,8 @@ export default class Package {
   }
 
   activate() {
+    const start = Date.now(); // eslint-disable-line
+
     this.loadKeymaps();
     this.loadMenus();
     this.loadStylesheets();
@@ -48,6 +50,9 @@ export default class Package {
         module.activateConfig();
       }
     }
+
+    // Uncomment to enable timing inspection
+    // console.log(`Loading ${this.name} took ${Date.now() - start}`);
   }
 
   deactivate() {
