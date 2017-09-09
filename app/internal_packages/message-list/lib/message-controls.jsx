@@ -91,7 +91,7 @@ export default class MessageControls extends React.Component {
     // bg todo
     // .then((body) =>
     //   fs.writeFile tmpfile, body, =>
-    //     window = new BrowserWindow(width: 800, height: 600, title: "#{@props.message.subject} - RFC822")
+    //     window = new BrowserWindow(width: 800, height: 600, title: "${@props.message.subject} - RFC822")
     //     window.loadURL('file://'+tmpfile)
     // )
   }

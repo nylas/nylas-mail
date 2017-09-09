@@ -2,7 +2,7 @@
   "name": "account-sidebar",
   "version": "0.1.0",
   "main": "./lib/main",
-  "description": "Sidebar view that shows your account and important tags",
+  "description": "Left panel showing accounts and folders",
   "license": "GPL-3.0",
   "private": true,
   "syncInit": true,

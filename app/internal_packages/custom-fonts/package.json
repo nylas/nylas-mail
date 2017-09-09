@@ -5,6 +5,7 @@
   "description": "Custom Fonts",
   "license": "Proprietary",
   "private": true,
+  "syncInit": true,
   "windowTypes": {
     "all": true
   },
