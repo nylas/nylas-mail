@@ -291,7 +291,7 @@ class MessageStore extends NylasStore
     # the message which it was in reply to. If we can't find it, put it at the end.
     for item in itemsInReplyTo
       for other, index in items
-        if item.replyToHeaderMessageId is other.id
+        if item.replyToHeaderMessageId is other.headerMessageId
           items.splice(index+1, 0, item)
           item = null
           break

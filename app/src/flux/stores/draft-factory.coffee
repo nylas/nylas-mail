@@ -166,7 +166,7 @@ class DraftFactory
 
     getMessages.then (messages) =>
       candidateDrafts = messages.filter (other) =>
-        other.replyToHeaderMessageId is message.id and other.draft is true
+        other.replyToHeaderMessageId is message.headerMessageId and other.draft is true
 
       if candidateDrafts.length is 0
         return Promise.resolve(null)
