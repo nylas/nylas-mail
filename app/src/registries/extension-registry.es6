@@ -8,12 +8,13 @@ export class Registry {
 
   constructor(name) {
     this.name = name;
-    this._registry = new Map();
+    this.clear();
   }
 
   register(extension, {priority = 0} = {}) {
     this.validateExtension(extension, 'register');
-    this._registry.set(extension.name, {extension, priority});
+    this._registry.push({name: extension.name, extension, priority});
+    this._registry.sort((a, b) => a.priority < b.priority);
     this.triggerDebounced();
     return this;
   }
@@ -25,14 +26,14 @@ export class Registry {
   }
 
   extensions() {
-    return _.pluck(_.sortBy(Array.from(this._registry.values()), "priority"), "extension").reverse()
+    return this._registry.map(e => e.extension);
   }
 
   clear() {
-    this._registry = new Map();
+    this._registry = [];
   }
 
-  triggerDebounced = _.debounce(::this.trigger, 1);
+  triggerDebounced = _.debounce(() => this.trigger(), 1);
 
   validateExtension(extension, method) {
     if (!extension || Array.isArray(extension) || !_.isObject(extension)) {

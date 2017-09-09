@@ -93,7 +93,7 @@ class Scrollbar extends React.Component
 
     position:'relative'
     height: handleHeight || 0
-    top: handleTop || 0
+    transform: 'translate3d(0, ' + Math.floor(handleTop) + 'px, 0)'
 
   _scrollbarWrapStyles: =>
     position:'absolute'
