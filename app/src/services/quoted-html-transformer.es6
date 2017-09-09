@@ -108,8 +108,14 @@ class QuotedHTMLTransformer {
     // Containers with empty space at the end occur pretty often when we
     // remove the quoted text and it had preceding spaces.
     const removeTrailingWhitespaceChildren = (el) => {
-      while (el.lastElementChild) {
-        const child = el.lastElementChild;
+      while (el.lastChild) {
+        const child = el.lastChild;
+        if (child.nodeType === Node.TEXT_NODE) {
+          if (child.textContent.trim() === '') {
+            child.remove();
+            continue;
+          }
+        }
         if (['BR', 'P', 'DIV', 'SPAN'].includes(child.nodeName)) {
           removeTrailingWhitespaceChildren(child);
           if ((child.childElementCount === 0) && (child.textContent.trim() === '')) {
@@ -371,17 +377,17 @@ class QuotedHTMLTransformer {
 
   _findQuotesAfterMessageHeaderBlock(doc) {
     // This detector looks for a element in the DOM tree containing
-    // three children: <b>To:</b> and <b>Cc:</b> and <b>Subject:</b>.
+    // three children: <b>Sent:</b> and <b>To:</b> and <b>Subject:</b>.
     // It then returns every node after that as quoted text.
 
-    // Find a DOM node exactly matching <b>To:</b>
-    const to = doc.evaluate("//b[. = 'To:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext();
+    // Find a DOM node exactly matching <b>Sent:</b>
+    const to = doc.evaluate("//b[. = 'Sent:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext();
     if (to) {
       // check to see if the parent container also contains the other two
       const headerContainer = to.parentElement;
       let matches = 0;
       for (const node of Array.from(headerContainer.children)) {
-        if ((node.textContent === "Cc:") || (node.textContent === "Subject:")) {
+        if ((node.textContent === "To:") || (node.textContent === "Subject:")) {
           matches++;
         }
       }
@@ -402,11 +408,11 @@ class QuotedHTMLTransformer {
         let head = headerContainer;
         while (head) {
           quotedTextNodes.push(head);
-          const next = head.nextElementSibling;
-          if (next) {
-            head = next;
-          } else {
-            head = head.parentElement.nextElementSibling;
+          while (head && !head.nextElementSibling) {
+            head = head.parentElement;
+          }
+          if (head) {
+            head = head.nextElementSibling;
           }
         }
         return quotedTextNodes;

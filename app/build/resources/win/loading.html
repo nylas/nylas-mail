@@ -1,0 +1,19 @@
+<style>
+#spinner {
+  transform: translate(-50%,-50%) rotate(0deg);
+  transition: transform 1s linear;
+}
+#spinner.after {
+  transform: translate(-50%,-50%) rotate(180deg);
+  transition: transform 1s linear;
+}
+</style>
+<script>
+  setTimeout(() => {
+    document.getElementById('spinner').classList.add('after');
+  }, 1000);
+</script>
+<div style="width: 400px; height: 400px; border:2px solid black; text-align:center; position:relative;">
+  <img id="spinner" src="spinner-flat.png" style="position:absolute; top: 160px; left: 200px;" onClick="">
+  <h2 style="position:absolute; bottom: 40px; width: 400px; font-family: 'Fakt Pro'; font-weight: 300; font-size:34px;">Installing Mailspring…</h2>
+</div>

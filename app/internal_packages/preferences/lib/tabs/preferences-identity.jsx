@@ -79,13 +79,7 @@ class PreferencesIdentity extends React.Component {
       <div className="container-identity">
         <div className="identity-content-box">
 
-          <div className="row info-row">
-            <div className="logo">
-              <RetinaImg
-                name="prefs-identity-nylas-logo.png"
-                mode={RetinaImg.Mode.ContentPreserve}
-              />
-            </div>
+          <div className="row padded">
             <div className="identity-info">
               <div className="name">{firstName} {lastName}</div>
               <div className="email">{emailAddress}</div>
