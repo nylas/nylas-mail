@@ -5,7 +5,7 @@ import {RetinaImg} from 'nylas-component-kit';
 import {NylasAPIRequest, Actions} from 'nylas-exports';
 
 import OnboardingActions from '../onboarding-actions';
-import {runAuthValidation} from '../onboarding-helpers';
+import {buildAndValidateAccount} from '../onboarding-helpers';
 import FormErrorMessage from '../form-error-message';
 import AccountTypes from '../account-types'
 
@@ -99,10 +99,10 @@ const CreatePageForForm = (FormComponent) => {
 
       this.setState({submitting: true});
 
-      runAuthValidation(accountInfo)
-      .then(({account, cloudToken}) => {
+      buildAndValidateAccount(accountInfo)
+      .then(({account}) => {
         OnboardingActions.moveToPage('account-onboarding-success')
-        OnboardingActions.accountJSONReceived(account, cloudToken)
+        OnboardingActions.accountJSONReceived(account)
       })
       .catch((err) => {
         Actions.recordUserEvent('Email Account Auth Failed', {

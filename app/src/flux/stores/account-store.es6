@@ -137,8 +137,7 @@ class AccountStore extends NylasStore {
       // the account is added, but we want to be on the safe side.
       delete a.settings.imap_password;
       delete a.settings.smtp_password;
-      delete a.settings.xoauth_refresh_token;
-      delete a.cloudToken;
+      delete a.settings.refresh_token;
     });
     NylasEnv.config.set(configAccountsKey, configAccounts);
     NylasEnv.config.set(configVersionKey, this._version);
@@ -204,14 +203,14 @@ class AccountStore extends NylasStore {
     this._save()
   }
 
-  addAccountFromJSON = (json, cloudToken) => {
+  addAccountFromJSON = (json) => {
     if (!json.emailAddress || !json.provider) {
       throw new Error(`Returned account data is invalid: ${JSON.stringify(json)}`)
     }
 
     // send the account JSON and cloud token to the KeyManager,
     // which gives us back a version with no secrets.
-    const cleanJSON = KeyManager.extractAccountSecrets(json, cloudToken);
+    const cleanJSON = KeyManager.extractAccountSecrets(json);
 
     this._loadAccounts();
 

@@ -40,6 +40,21 @@ function base64url(inBuffer) {
     .replace(/\//g, '_'); // Convert '/' to '_'
 }
 
+function idForAccount(emailAddress, connectionSettings) {
+  // changing your connection security settings / ports shouldn't blow
+  // away everything and trash your metadata. Just look at critiical fields.
+  // (Me adding more connection settings fields shouldn't break account Ids either!)
+  const settingsThatCouldChangeMailContents = {
+    imap_username: connectionSettings.imap_username,
+    imap_host: connectionSettings.imap_host,
+    smtp_username: connectionSettings.smtp_username,
+    smtp_host: connectionSettings.smtp_host,
+  }
+
+  const idString = `${emailAddress}${JSON.stringify(settingsThatCouldChangeMailContents)}`;
+  return crypto.createHash('sha256').update(idString, 'utf8').digest('hex');
+}
+
 export function makeGmailOAuthRequest(sessionKey) {
   return makeRequest({
     server: 'accounts',
@@ -54,20 +69,15 @@ export async function authIMAPForGmail(serverTokenResponse) {
   // created an account object in the database and tested it. All we
   // need to do is save it locally, since we're confident Gmail will be
   // accessible from the local sync worker.
-  const {id, email_address, provider, connection_settings, account_token, xoauth_refresh_token, name} = serverTokenResponse;
+  const {emailAddress, refreshToken} = serverTokenResponse;
+  const settings = expandAccountInfoWithCommonSettings({email: emailAddress, refreshToken, type: 'gmail'});
 
-  // Todo: clean up the serialization so this translation from K2 JSON isn't necessary.
   return {
-    account: {
-      id,
-      provider,
-      name,
-      emailAddress: email_address,
-      settings: Object.assign({}, connection_settings, {
-        xoauth_refresh_token,
-      }),
-    },
-    cloudToken: account_token,
+    id: idForAccount(emailAddress, settings),
+    provider: 'gmail',
+    name,
+    settings,
+    emailAddress,
   };
 }
 
@@ -79,11 +89,11 @@ export function buildGmailAuthURL(sessionKey) {
   return `${rootURLForServer('accounts')}/auth/gmail?state=${sessionKey}`;
 }
 
-export async function runAuthValidation(accountInfo) {
+export async function buildAndValidateAccount(accountInfo) {
   const {username, type, email, name} = accountInfo;
 
   const data = {
-    id: 'temp',
+    id: idForAccount(email, accountInfo),
     provider: type,
     name: name,
     emailAddress: email,
@@ -114,21 +124,7 @@ export async function runAuthValidation(accountInfo) {
   const proc = new MailsyncProcess(NylasEnv.getLoadSettings(), IdentityStore.identity(), data);
   const {account} = await proc.test();
 
-  delete data.id;
-
-  const {id, account_token} = await makeRequest({
-    server: 'accounts',
-    path: `/auth`,
-    method: 'POST',
-    timeout: 1000 * 180, // Same timeout as server timeout (most requests are faster than 90s, but server validation can be slow in some cases)
-    body: data,
-    auth: false,
-  })
-
-  return {
-    account: Object.assign({}, account, {id}),
-    cloudToken: account_token,
-  };
+  return account;
 }
 
 export function isValidHost(value) {

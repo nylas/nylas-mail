@@ -25,8 +25,8 @@ export default class AccountSettingsPageGmail extends React.Component {
     this._gmailAuthUrl = buildGmailAuthURL(this._sessionKey)
   }
 
-  onSuccess({account, cloudToken}) {
-    OnboardingActions.accountJSONReceived(account, cloudToken);
+  onSuccess(account) {
+    OnboardingActions.accountJSONReceived(account);
   }
 
   render() {

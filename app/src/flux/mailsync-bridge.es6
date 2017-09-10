@@ -85,8 +85,8 @@ class CrashTracker {
     });
   }
 
-  _keyFor({id, settings, cloudToken}) {
-    return JSON.stringify({id, settings, cloudToken});
+  _keyFor({id, settings}) {
+    return JSON.stringify({id, settings});
   }
 
   _appendCrashToHistory(fullAccountJSON) {

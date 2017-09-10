@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom'
 import classnames from 'classnames';
 import networkErrors from 'chromium-net-errors';
 
+import {rootURLForServer} from '../flux/nylas-api-request';
 import RetinaImg from './retina-img'
 
 class InitialLoadingCover extends React.Component {
@@ -42,7 +43,7 @@ class InitialLoadingCover extends React.Component {
     if (this.props.error) {
       message = this.props.error;
     } else if (this.state.slow) {
-      message = "Still trying to reach id.getmailspring.com…";
+      message = `Still trying to reach ${rootURLForServer('identity')}…`;
     } else {
       message = '&nbsp;'
     }

@@ -29,12 +29,11 @@ class KeyManager {
       delete keys[`${account.emailAddress}-imap`];
       delete keys[`${account.emailAddress}-smtp`];
       delete keys[`${account.emailAddress}-refresh-token`];
-      delete keys[`${account.emailAddress}-cloud`];
       return this._writeKeyHash(keys);
     });
   }
 
-  extractAccountSecrets(accountJSON, cloudToken) {
+  extractAccountSecrets(accountJSON) {
     const next = Object.assign({}, accountJSON);
     this._try(() => {
       const keys = this._getKeyHash();
@@ -42,9 +41,8 @@ class KeyManager {
       delete next.settings.imap_password;
       keys[`${accountJSON.emailAddress}-smtp`] = next.settings.smtp_password;
       delete next.settings.smtp_password;
-      keys[`${accountJSON.emailAddress}-refresh-token`] = next.settings.xoauth_refresh_token;
-      delete next.settings.xoauth_refresh_token;
-      keys[`${accountJSON.emailAddress}-cloud`] = cloudToken;
+      keys[`${accountJSON.emailAddress}-refresh-token`] = next.settings.refresh_token;
+      delete next.settings.refresh_token;
       return this._writeKeyHash(keys);
     });
     return next;
@@ -55,8 +53,7 @@ class KeyManager {
     const keys = this._getKeyHash();
     next.settings.imap_password = keys[`${accountJSON.emailAddress}-imap`];
     next.settings.smtp_password = keys[`${accountJSON.emailAddress}-smtp`];
-    next.settings.xoauth_refresh_token = keys[`${accountJSON.emailAddress}-refresh-token`];
-    next.cloudToken = keys[`${accountJSON.emailAddress}-cloud`];
+    next.settings.refresh_token = keys[`${accountJSON.emailAddress}-refresh-token`];
     return next;
   }
 
