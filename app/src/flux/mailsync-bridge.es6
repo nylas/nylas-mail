@@ -269,7 +269,7 @@ export default class MailsyncBridge {
     }
   }
 
-  _onIncomingMessages(msgs) {
+  _onIncomingMessages = (msgs) => {
     for (const msg of msgs) {
       if (msg.length === 0) {
         continue;
@@ -289,17 +289,28 @@ export default class MailsyncBridge {
       ipcRenderer.send('mailsync-bridge-rebroadcast-to-all', msg);
 
       const models = objects.map(Utils.convertToModel);
-      DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
+      this._onIncomingChangeRecord(new DatabaseChangeRecord({type, objectClass, objects: models}));
+    }
+  }
 
-      if (models[0] instanceof Task) {
-        for (const task of models) {
-          if (task.status === 'complete') {
-            if (task.error != null) {
-              task.onError(task.error);
-            } else {
-              task.onSuccess();
-            }
-          }
+  _onIncomingChangeRecord = (record) => {
+    if (record.type === 'metadata-expiration') {
+      console.log('got metadata expiration');
+      console.log(record);
+    }
+    // Allow observers of the database to handle this change
+    DatabaseStore.trigger(record);
+
+    // Run task success / error handlers if the task is now complete
+    if (record.type === 'persist' && record.objects[0] instanceof Task) {
+      for (const task of record.objects) {
+        if (task.status !== 'complete') {
+          continue;
+        }
+        if (task.error != null) {
+          task.onError(task.error);
+        } else {
+          task.onSuccess();
         }
       }
     }

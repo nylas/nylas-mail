@@ -32,7 +32,7 @@ export default class InitialSyncActivity extends React.Component {
     if (busy) {
       status = 'busy';
       if (progress < 1) {
-        progressLabel = `Scanning folder (${Math.round(progress * 100)}%)`;
+        progressLabel = `Scanning (${Math.round(progress * 100)}%)`;
       } else {
         progressLabel = `Indexing messages...`;
       }
