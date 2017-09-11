@@ -7,7 +7,7 @@ class AccountIMAPSettingsForm extends React.Component {
   static displayName = 'AccountIMAPSettingsForm';
 
   static propTypes = {
-    accountInfo: React.PropTypes.object,
+    account: React.PropTypes.object,
     errorFieldNames: React.PropTypes.array,
     submitting: React.PropTypes.bool,
     onConnect: React.PropTypes.func,
@@ -27,24 +27,19 @@ class AccountIMAPSettingsForm extends React.Component {
     return 'Complete the IMAP and SMTP settings below to connect your account.';
   }
 
-  static validateAccountInfo = (accountInfo) => {
+  static validateAccount = (account) => {
     let errorMessage = null;
     const errorFieldNames = [];
 
     for (const type of ['imap', 'smtp']) {
-      if (!accountInfo[`${type}_host`] || !accountInfo[`${type}_username`] || !accountInfo[`${type}_password`]) {
+      if (!account.settings[`${type}_host`] || !account.settings[`${type}_username`] || !account.settings[`${type}_password`]) {
         return {errorMessage, errorFieldNames, populated: false};
       }
-      if (!isValidHost(accountInfo[`${type}_host`])) {
+      if (!isValidHost(account.settings[`${type}_host`])) {
         errorMessage = "Please provide a valid hostname or IP adddress.";
         errorFieldNames.push(`${type}_host`);
       }
-      // todo bg
-      // if (accountInfo[`${type}_host`] === 'imap.gmail.com') {
-      //   errorMessage = "Please link Gmail accounts by choosing 'Google' on the account type screen.";
-      //   errorFieldNames.push(`${type}_host`);
-      // }
-      if (!Number.isInteger(accountInfo[`${type}_port`] / 1)) {
+      if (!Number.isInteger(account.settings[`${type}_port`] / 1)) {
         errorMessage = "Please provide a valid port number.";
         errorFieldNames.push(`${type}_port`);
       }
@@ -61,16 +56,16 @@ class AccountIMAPSettingsForm extends React.Component {
     if (!["imap", "smtp"].includes(protocol)) {
       throw new Error(`Can't render port dropdown for protocol '${protocol}'`);
     }
-    const {accountInfo, submitting, onFieldKeyPress, onFieldChange} = this.props;
+    const {account: {settings}, submitting, onFieldKeyPress, onFieldChange} = this.props;
 
     if (protocol === "imap") {
       return (
         <span>
-          <label htmlFor="imap_port">Port:</label>
+          <label htmlFor="settings.imap_port">Port:</label>
           <select
-            id="imap_port"
+            id="settings.imap_port"
             tabIndex={0}
-            value={accountInfo.imap_port}
+            value={settings.imap_port}
             disabled={submitting}
             onKeyPress={onFieldKeyPress}
             onChange={onFieldChange}
@@ -84,11 +79,11 @@ class AccountIMAPSettingsForm extends React.Component {
     if (protocol === "smtp") {
       return (
         <span>
-          <label htmlFor="smtp_port">Port:</label>
+          <label htmlFor="settings.smtp_port">Port:</label>
           <select
-            id="smtp_port"
+            id="settings.smtp_port"
             tabIndex={0}
-            value={accountInfo.smtp_port}
+            value={settings.smtp_port}
             disabled={submitting}
             onKeyPress={onFieldKeyPress}
             onChange={onFieldChange}
@@ -104,16 +99,18 @@ class AccountIMAPSettingsForm extends React.Component {
   }
 
   renderSecurityDropdown(protocol) {
-    const {accountInfo, submitting, onFieldKeyPress, onFieldChange} = this.props;
+    const {account: {settings}, submitting, onFieldKeyPress, onFieldChange} = this.props;
 
     return (
       <div>
         <span>
-          <label htmlFor={`${protocol}_security`}>Security:</label>
+          <label htmlFor={`settings.${protocol}_security`}>
+            Security:
+          </label>
           <select
-            id={`${protocol}_security`}
+            id={`settings.${protocol}_security`}
             tabIndex={0}
-            value={accountInfo[`${protocol}_security`]}
+            value={settings[`${protocol}_security`]}
             disabled={submitting}
             onKeyPress={onFieldKeyPress}
             onChange={onFieldChange}
@@ -126,9 +123,9 @@ class AccountIMAPSettingsForm extends React.Component {
         <span style={{paddingLeft: '20px', paddingTop: '10px'}}>
           <input
             type="checkbox"
-            id={`${protocol}_allow_insecure_ssl`}
+            id={`settings.${protocol}_allow_insecure_ssl`}
             disabled={submitting}
-            checked={accountInfo[`${protocol}_allow_insecure_ssl`] || false}
+            checked={settings[`${protocol}_allow_insecure_ssl`] || false}
             onKeyPress={onFieldKeyPress}
             onChange={onFieldChange}
           />
@@ -141,13 +138,13 @@ class AccountIMAPSettingsForm extends React.Component {
   renderFieldsForType(type) {
     return (
       <div>
-        <FormField field={`${type}_host`} title={"Server"} {...this.props} />
+        <FormField field={`settings.${type}_host`} title={"Server"} {...this.props} />
         <div style={{textAlign: 'left'}}>
           {this.renderPortDropdown(type)}
           {this.renderSecurityDropdown(type)}
         </div>
-        <FormField field={`${type}_username`} title={"Username"} {...this.props} />
-        <FormField field={`${type}_password`} title={"Password"} type="password" {...this.props} />
+        <FormField field={`settings.${type}_username`} title={"Username"} {...this.props} />
+        <FormField field={`settings.${type}_password`} title={"Password"} type="password" {...this.props} />
       </div>
     );
   }

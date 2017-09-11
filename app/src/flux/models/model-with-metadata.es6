@@ -47,8 +47,9 @@ export default class ModelWithMetadata extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     pluginMetadata: Attributes.Collection({
       queryable: true,
-      joinOnField: 'pluginId',
       itemClass: PluginMetadata,
+      joinOnField: 'pluginId',
+      joinTableName: 'ModelPluginMetadata',
       modelKey: 'pluginMetadata',
       jsonKey: 'metadata',
     }),
@@ -70,7 +71,11 @@ export default class ModelWithMetadata extends Model {
     if (!metadata) {
       return null;
     }
-    return JSON.parse(JSON.stringify(metadata.value));
+    const m = JSON.parse(JSON.stringify(metadata.value));
+    if (m.expiration) {
+      m.expiration = new Date(m.expiration * 1000);
+    }
+    return m;
   }
 
   // Private helpers
@@ -88,7 +93,10 @@ export default class ModelWithMetadata extends Model {
       metadata = new PluginMetadata({pluginId});
       this.pluginMetadata.push(metadata);
     }
-    metadata.value = metadataValue;
+    metadata.value = Object.assign({}, metadataValue);
+    if (metadata.value.expiration) {
+      metadata.value.expiration = Math.round(new Date(metadata.value.expiration).getTime() / 1000);
+    }
     return this;
   }
 

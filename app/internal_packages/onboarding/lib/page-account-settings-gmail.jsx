@@ -3,20 +3,20 @@ import {OAuthSignInPage} from 'nylas-component-kit';
 
 import {
   makeGmailOAuthRequest,
-  authIMAPForGmail,
+  buildGmailAccountFromToken,
   buildGmailSessionKey,
   buildGmailAuthURL,
 } from './onboarding-helpers';
 
 import OnboardingActions from './onboarding-actions';
-import AccountTypes from './account-types';
+import AccountProviders from './account-providers';
 
 
 export default class AccountSettingsPageGmail extends React.Component {
   static displayName = "AccountSettingsPageGmail";
 
   static propTypes = {
-    accountInfo: React.PropTypes.object,
+    account: React.PropTypes.object,
   };
 
   constructor() {
@@ -30,9 +30,10 @@ export default class AccountSettingsPageGmail extends React.Component {
   }
 
   render() {
-    const {accountInfo} = this.props;
-    const accountType = AccountTypes.find(a => a.type === accountInfo.type)
-    const {headerIcon} = accountType;
+    const providerConfig = AccountProviders.find(a =>
+      a.provider === this.props.account.provider
+    )
+    const {headerIcon} = providerConfig;
     const goBack = () => OnboardingActions.moveToPreviousPage()
 
     return (
@@ -41,7 +42,7 @@ export default class AccountSettingsPageGmail extends React.Component {
         providerAuthPageUrl={this._gmailAuthUrl}
         iconName={headerIcon}
         tokenRequestPollFn={makeGmailOAuthRequest}
-        accountFromTokenFn={authIMAPForGmail}
+        accountFromTokenFn={buildGmailAccountFromToken}
         onSuccess={this.onSuccess}
         onTryAgain={goBack}
         sessionKey={this._sessionKey}

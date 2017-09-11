@@ -203,28 +203,29 @@ class AccountStore extends NylasStore {
     this._save()
   }
 
-  addAccountFromJSON = (json) => {
-    if (!json.emailAddress || !json.provider) {
-      throw new Error(`Returned account data is invalid: ${JSON.stringify(json)}`)
+  addAccount = (account) => {
+    if (!account.emailAddress || !account.provider || !(account instanceof Account)) {
+      throw new Error(`Returned account data is invalid: ${JSON.stringify(account)}`)
     }
 
     // send the account JSON and cloud token to the KeyManager,
     // which gives us back a version with no secrets.
-    const cleanJSON = KeyManager.extractAccountSecrets(json);
+    const cleanAccount = KeyManager.extractAccountSecrets(account);
 
     this._loadAccounts();
 
     const existingIdx = this._accounts.findIndex((a) =>
-      a.id === cleanJSON.id || a.emailAddress === cleanJSON.emailAddress
+      a.id === cleanAccount.id || a.emailAddress === cleanAccount.emailAddress
     );
 
     if (existingIdx === -1) {
-      const account = (new Account()).fromJSON(cleanJSON);
-      this._accounts.push(account);
+      this._accounts.push(cleanAccount);
     } else {
-      const account = this._accounts[existingIdx];
-      account.syncState = Account.SYNC_STATE_OK;
-      account.fromJSON(cleanJSON);
+      const existing = this._accounts[existingIdx];
+      existing.syncState = Account.SYNC_STATE_OK;
+      existing.name = cleanAccount.name;
+      existing.emailAddress = cleanAccount.emailAddress;
+      existing.settings = cleanAccount.settings;
     }
 
     this._save();

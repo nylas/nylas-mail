@@ -53,7 +53,7 @@ export default class OnboardingRoot extends React.Component {
     return {
       page: OnboardingStore.page(),
       pageDepth: OnboardingStore.pageDepth(),
-      accountInfo: OnboardingStore.accountInfo(),
+      account: OnboardingStore.account(),
     };
   }
 
@@ -79,7 +79,7 @@ export default class OnboardingRoot extends React.Component {
           transitionEnterTimeout={150}
         >
           <div key={this.state.page} className="page-container">
-            <Component accountInfo={this.state.accountInfo} />
+            <Component account={this.state.account} />
           </div>
         </ReactCSSTransitionGroup>
       </div>

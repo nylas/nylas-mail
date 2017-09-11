@@ -30,10 +30,11 @@ The value of this attribute is always an array of other model objects.
 Section: Database
 */
 export default class AttributeCollection extends Attribute {
-  constructor({modelKey, jsonKey, itemClass, joinOnField, joinQueryableBy, queryable}) {
+  constructor({modelKey, jsonKey, itemClass, joinOnField, joinQueryableBy, joinTableName, queryable}) {
     super({modelKey, jsonKey, queryable});
     this.itemClass = itemClass;
     this.joinOnField = joinOnField;
+    this.joinTableName = joinTableName;
     this.joinQueryableBy = joinQueryableBy || [];
   }
 
@@ -66,6 +67,12 @@ export default class AttributeCollection extends Attribute {
       }
       return new Klass(objJSON);
     });
+  }
+
+  // Private: The Matcher interface uses this method to determine how to
+  // constuct a SQL join:
+  tableNameForJoinAgainst(primaryKlass) {
+    return this.joinTableName || `${primaryKlass.name}${this.itemClass.name}`;
   }
 
   // Public: Returns a {Matcher} for objects containing the provided value.

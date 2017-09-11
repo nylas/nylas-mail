@@ -191,7 +191,7 @@ export default class MailsyncBridge {
   // Private
 
   _launchClient(account, {force} = {}) {
-    const fullAccountJSON = KeyManager.insertAccountSecrets(account.toJSON());
+    const fullAccountJSON = KeyManager.insertAccountSecrets(account).toJSON();
     const identity = IdentityStore.identity();
     const id = account.id;
 

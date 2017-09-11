@@ -8,7 +8,7 @@ class AccountExchangeSettingsForm extends React.Component {
   static displayName = 'AccountExchangeSettingsForm';
 
   static propTypes = {
-    accountInfo: React.PropTypes.object,
+    account: React.PropTypes.object,
     errorFieldNames: React.PropTypes.array,
     submitting: React.PropTypes.bool,
     onConnect: React.PropTypes.func,
@@ -28,28 +28,28 @@ class AccountExchangeSettingsForm extends React.Component {
     return 'Enter your Exchange credentials to get started.';
   }
 
-  static validateAccountInfo = (accountInfo) => {
-    const {email, password, name} = accountInfo;
+  static validateAccount = (account) => {
+    const {emailAddress, password, name} = account;
     const errorFieldNames = [];
     let errorMessage = null;
 
-    if (!email || !password || !name) {
+    if (!emailAddress || !password || !name) {
       return {errorMessage, errorFieldNames, populated: false};
     }
 
-    if (!RegExpUtils.emailRegex().test(accountInfo.email)) {
+    if (!RegExpUtils.emailRegex().test(emailAddress)) {
       errorFieldNames.push('email')
       errorMessage = "Please provide a valid email address."
     }
-    if (!accountInfo.password) {
+    if (!account.settings.password) {
       errorFieldNames.push('password')
       errorMessage = "Please provide a password for your account."
     }
-    if (!accountInfo.name) {
+    if (!account.name) {
       errorFieldNames.push('name')
       errorMessage = "Please provide your name."
     }
-    if (accountInfo.eas_server_host && !isValidHost(accountInfo.eas_server_host)) {
+    if (account.settings.eas_server_host && !isValidHost(account.settings.eas_server_host)) {
       errorFieldNames.push('eas_server_host')
       errorMessage = "Please provide a valid host name."
     }
@@ -67,13 +67,13 @@ class AccountExchangeSettingsForm extends React.Component {
   }
 
   render() {
-    const {errorFieldNames, accountInfo} = this.props;
+    const {errorFieldNames, account} = this.props;
     const showAdvanced = (
       this.state.showAdvanced ||
       errorFieldNames.includes('eas_server_host') ||
       errorFieldNames.includes('username') ||
-      accountInfo.eas_server_host ||
-      accountInfo.username
+      account.eas_server_host ||
+      account.username
     );
 
     let classnames = "twocol";

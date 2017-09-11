@@ -25,14 +25,6 @@ export function rootURLForServer(server) {
       production: "https://id.getmailspring.com",
     }[env];
   }
-  if (server === 'accounts') {
-    return {
-      development: "http://localhost:5100",
-      staging: "https://accounts-staging.getmailspring.com",
-      production: "https://accounts.getmailspring.com",
-    }[env];
-  }
-
   throw new Error("rootURLForServer: You must provide a valid `server` value");
 }
 

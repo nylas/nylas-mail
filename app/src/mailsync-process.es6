@@ -53,12 +53,10 @@ export default class MailsyncProcess extends EventEmitter {
     const env = {
       CONFIG_DIR_PATH: this.configDirPath,
       IDENTITY_SERVER: 'unknown',
-      ACCOUNTS_SERVER: 'unknown',
     };
     if (process.type === 'renderer') {
       const rootURLForServer = require('./flux/nylas-api-request').rootURLForServer;
       env.IDENTITY_SERVER = rootURLForServer('identity');
-      env.ACCOUNTS_SERVER = rootURLForServer('accounts');
     }
 
     this._proc = spawn(this.binaryPath, [`--mode`, mode], {env});

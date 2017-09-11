@@ -23,6 +23,11 @@ export default class SyncbackMetadataTask extends Task {
 
   constructor(data = {}) {
     super(data);
+
+    if (data.value && data.value.expiration) {
+      data.value.expiration = Math.round(new Date(data.value.expiration).getTime() / 1000);
+    }
+
     if (data.model) {
       this.modelId = data.model.id;
       this.modelClassName = data.model.constructor.name.toLowerCase();

@@ -194,12 +194,12 @@ export function getLatestMessageWithReminder(thread, messages) {
 }
 
 export function getReminderLabel(reminderDate, {fromNow = false, shortFormat = false} = {}) {
-  const momentDate = DateUtils.futureDateFromString(reminderDate);
+  const momentDate = moment(reminderDate);
   if (shortFormat) {
     return momentDate ? `in ${momentDate.fromNow(true)}` : 'now'
   }
   if (fromNow) {
     return momentDate ? `Reminder set for ${momentDate.fromNow(true)} from now` : `Reminder set`;
   }
-  return moment(reminderDate).format(DATE_FORMAT_LONG_NO_YEAR)
+  return momentDate.format(DATE_FORMAT_LONG_NO_YEAR)
 }

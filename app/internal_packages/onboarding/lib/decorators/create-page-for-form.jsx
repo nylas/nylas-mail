@@ -5,26 +5,26 @@ import {RetinaImg} from 'nylas-component-kit';
 import {NylasAPIRequest, Actions} from 'nylas-exports';
 
 import OnboardingActions from '../onboarding-actions';
-import {buildAndValidateAccount} from '../onboarding-helpers';
+import {finalizeAndValidateAccount} from '../onboarding-helpers';
 import FormErrorMessage from '../form-error-message';
-import AccountTypes from '../account-types'
+import AccountProviders from '../account-providers'
 
 const CreatePageForForm = (FormComponent) => {
   return class Composed extends React.Component {
     static displayName = FormComponent.displayName;
 
     static propTypes = {
-      accountInfo: React.PropTypes.object,
+      account: React.PropTypes.object,
     };
 
     constructor(props) {
       super(props);
 
       this.state = Object.assign({
-        accountInfo: JSON.parse(JSON.stringify(this.props.accountInfo)),
+        account: this.props.account.clone(),
         errorFieldNames: [],
         errorMessage: null,
-      }, FormComponent.validateAccountInfo(this.props.accountInfo));
+      }, FormComponent.validateAccount(this.props.account));
     }
 
     componentDidMount() {
@@ -61,24 +61,36 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     onFieldChange = (event) => {
-      const changes = {};
+      const next = this.state.account.clone();
+
+      let val = event.target.value;
       if (event.target.type === 'checkbox') {
-        changes[event.target.id] = event.target.checked;
-      } else {
-        changes[event.target.id] = event.target.value;
-        if (event.target.id === 'email') {
-          changes[event.target.id] = event.target.value.trim();
-        }
+        val = event.target.checked;
+      }
+      if (event.target.id === 'emailAddress') {
+        val = val.trim();
       }
 
-      const accountInfo = Object.assign({}, this.state.accountInfo, changes);
-      const {errorFieldNames, errorMessage, populated} = FormComponent.validateAccountInfo(accountInfo);
+      if (event.target.id.includes('.')) {
+        const [parent, key] = event.target.id.split('.');
+        next[parent][key] = val;
+      } else {
+        next[event.target.id] = val;
+      }
 
-      this.setState({accountInfo, errorFieldNames, errorMessage, populated, errorStatusCode: null});
+      const {errorFieldNames, errorMessage, populated} = FormComponent.validateAccount(next);
+
+      this.setState({
+        account: next,
+        errorFieldNames,
+        errorMessage,
+        populated,
+        errorStatusCode: null,
+      });
     }
 
     onSubmit = () => {
-      OnboardingActions.setAccountInfo(this.state.accountInfo);
+      OnboardingActions.setAccount(this.state.account);
       this._formEl.submit();
     }
 
@@ -90,24 +102,24 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     onBack = () => {
-      OnboardingActions.setAccountInfo(this.state.accountInfo);
+      OnboardingActions.setAccount(this.state.account);
       OnboardingActions.moveToPreviousPage();
     }
 
-    onConnect = (updatedAccountInfo) => {
-      const accountInfo = updatedAccountInfo || this.state.accountInfo;
+    onConnect = (updatedAccount) => {
+      const account = updatedAccount || this.state.account;
 
       this.setState({submitting: true});
 
-      buildAndValidateAccount(accountInfo)
-      .then(({account}) => {
+      finalizeAndValidateAccount(account)
+      .then((validated) => {
         OnboardingActions.moveToPage('account-onboarding-success')
-        OnboardingActions.accountJSONReceived(account)
+        OnboardingActions.finishAndAddAccount(validated)
       })
       .catch((err) => {
         Actions.recordUserEvent('Email Account Auth Failed', {
           errorMessage: err.message,
-          provider: accountInfo.type,
+          provider: account.provider,
         })
 
         const errorFieldNames = err.body ? (err.body.missing_fields || err.body.missing_settings || []) : []
@@ -117,7 +129,7 @@ const CreatePageForForm = (FormComponent) => {
         if (err.errorType === "setting_update_error") {
           errorMessage = 'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from Mailspring, then try logging in again.';
         }
-        if (err.errorType && err.errorType.includes("autodiscover") && (accountInfo.type === 'exchange')) {
+        if (err.errorType && err.errorType.includes("autodiscover") && (account.provider === 'exchange')) {
           errorFieldNames.push('eas_server_host')
           errorFieldNames.push('username');
         }
@@ -144,8 +156,8 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     _renderButton() {
-      const {accountInfo, submitting} = this.state;
-      const buttonLabel = FormComponent.submitLabel(accountInfo);
+      const {account, submitting} = this.state;
+      const buttonLabel = FormComponent.submitLabel(account);
 
       // We're not on the last page.
       if (submitting) {
@@ -172,11 +184,11 @@ const CreatePageForForm = (FormComponent) => {
     // help with common problems. For instance, they may need an app password,
     // or to enable specific settings with their provider.
     _renderCredentialsNote() {
-      const {errorStatusCode, accountInfo} = this.state;
+      const {errorStatusCode, account} = this.state;
       if (errorStatusCode !== 401) { return false; }
       let message;
       let articleURL;
-      if (accountInfo.email.includes("@yahoo.com")) {
+      if (account.emailAddress.includes("@yahoo.com")) {
         message = "Have you enabled access through Yahoo?";
         articleURL = "https://support.getmailspring.com/hc/en-us/articles/115001076128";
       } else {
@@ -200,11 +212,11 @@ const CreatePageForForm = (FormComponent) => {
     }
 
     render() {
-      const {accountInfo, errorMessage, errorFieldNames, submitting} = this.state;
-      const AccountType = AccountTypes.find(a => a.type === accountInfo.type);
+      const {account, errorMessage, errorFieldNames, submitting} = this.state;
+      const providerConfig = AccountProviders.find(({provider}) => provider === account.provider);
 
-      if (!AccountType) {
-        throw new Error(`Cannot find account type ${accountInfo.type}`);
+      if (!providerConfig) {
+        throw new Error(`Cannot find account provider ${account.provider}`);
       }
 
       const hideTitle = errorMessage && errorMessage.length > 120;
@@ -213,21 +225,21 @@ const CreatePageForForm = (FormComponent) => {
         <div className={`page account-setup ${FormComponent.displayName}`}>
           <div className="logo-container">
             <RetinaImg
-              style={{backgroundColor: AccountType.color, borderRadius: 44}}
-              name={AccountType.headerIcon}
+              style={{backgroundColor: providerConfig.color, borderRadius: 44}}
+              name={providerConfig.headerIcon}
               mode={RetinaImg.Mode.ContentPreserve}
               className="logo"
             />
           </div>
-          {hideTitle ? <div style={{height: 20}} /> : <h2>{FormComponent.titleLabel(AccountType)}</h2>}
+          {hideTitle ? <div style={{height: 20}} /> : <h2>{FormComponent.titleLabel(providerConfig)}</h2>}
           <FormErrorMessage
             message={errorMessage}
-            empty={FormComponent.subtitleLabel(AccountType)}
+            empty={FormComponent.subtitleLabel(providerConfig)}
           />
           { this._renderCredentialsNote() }
           <FormComponent
             ref={(el) => { this._formEl = el; }}
-            accountInfo={accountInfo}
+            account={account}
             errorFieldNames={errorFieldNames}
             submitting={submitting}
             onFieldChange={this.onFieldChange}

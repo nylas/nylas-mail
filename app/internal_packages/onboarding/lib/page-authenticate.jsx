@@ -7,7 +7,7 @@ export default class AuthenticatePage extends React.Component {
   static displayName = "AuthenticatePage";
 
   static propTypes = {
-    accountInfo: React.PropTypes.object,
+    account: React.PropTypes.object,
   };
 
   _src() {

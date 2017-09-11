@@ -288,18 +288,18 @@ export default class Application extends EventEmitter {
       win.browserWindow.inspectElement(x, y);
     });
 
-    this.on('application:add-account', ({existingAccount, accountType} = {}) => {
+    this.on('application:add-account', ({existingAccount, accountProvider} = {}) => {
       const onboarding = this.windowManager.get(WindowManager.ONBOARDING_WINDOW);
       if (onboarding) {
         if (onboarding.browserWindow.webContents) {
-          onboarding.browserWindow.webContents.send('set-account-type', accountType)
+          onboarding.browserWindow.webContents.send('set-account-provider', accountProvider)
         }
         onboarding.show();
         onboarding.focus();
       } else {
         this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
           title: "Add an Account",
-          windowProps: { addingAccount: true, existingAccount, accountType },
+          windowProps: { addingAccount: true, existingAccount, accountProvider },
         });
       }
     });
@@ -524,11 +524,6 @@ export default class Application extends EventEmitter {
       if (onboarding) {
         onboarding.close();
       }
-    });
-
-    ipcMain.on('new-account-added', () => {
-      // TODO BEN
-      // this.windowManager.ensureWindow(WindowManager.WORK_WINDOW)
     });
 
     ipcMain.on('run-in-window', (event, params) => {

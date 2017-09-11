@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import NylasStore from 'nylas-store';
 
 import {
@@ -7,7 +6,6 @@ import {
   Actions,
   DatabaseStore,
   Message,
-  CategoryStore,
 } from 'nylas-exports';
 
 import SnoozeUtils from './snooze-utils'

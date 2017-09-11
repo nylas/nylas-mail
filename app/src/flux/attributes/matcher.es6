@@ -1,4 +1,3 @@
-import {tableNameForJoin} from '../models/utils';
 import LocalSearchQueryBackend from '../../services/search/search-query-backend-local'
 
 // https://www.sqlite.org/faq.html#q14
@@ -115,7 +114,7 @@ class Matcher {
     switch (this.comparator) {
       case 'contains':
       case 'containsAny': {
-        const joinTable = tableNameForJoin(klass, this.attr.itemClass);
+        const joinTable = this.attr.tableNameForJoinAgainst(klass);
         const joinTableRef = this.joinTableRef();
         return `INNER JOIN \`${joinTable}\` AS \`${joinTableRef}\` ON \`${joinTableRef}\`.\`id\` = \`${klass.name}\`.\`id\``;
       }

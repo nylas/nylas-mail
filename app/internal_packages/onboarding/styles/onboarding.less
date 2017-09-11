@@ -100,6 +100,7 @@
     margin-bottom:15px;
     max-width: 600px;
     margin: auto;
+    white-space: pre-wrap;
 
     &.error {
       color: #A33;
@@ -116,6 +117,9 @@
   form.settings {
     padding: 0 20px;
     padding-bottom: 20px;
+    span:last-child input {
+      margin-bottom:0;
+    }
   }
   input {
     display: inline-block;
@@ -168,10 +172,6 @@
     font-size: 0.94em;
     text-align: right;
     padding: 0;
-  }
-
-  .btn {
-    margin-top:8px;
   }
 }
 
@@ -339,7 +339,7 @@
   }
   .twocol {
     padding-top: 20px;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
   }
 }
 .page.account-setup.google, .page.account-setup.AccountOnboardingSuccess {

@@ -409,7 +409,7 @@ export default class ModelQuery {
   _subselectSQL(returningMatcher, subselectMatchers, order, limit) {
     const returningAttribute = returningMatcher.attribute()
 
-    const table = Utils.tableNameForJoin(this._klass, returningAttribute.itemClass);
+    const table = returningAttribute.tableNameForJoinAgainst(this._klass);
     const wheres = subselectMatchers.map(c => c.whereSQL(this._klass)).filter(c => !!c);
 
     let innerSQL = `SELECT \`id\` FROM \`${table}\` WHERE ${wheres.join(' AND ')} ${order} ${limit}`;

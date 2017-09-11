@@ -2,7 +2,7 @@
   "name": "thread-sharing",
   "version": "0.1.0",
   "serverUrl": {
-    "development": "http://localhost:5100",
+    "development": "http://localhost:5101",
     "staging": "https://share-staging.getmailspring.com",
     "production": "https://share.getmailspring.com"
   },

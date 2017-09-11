@@ -33,27 +33,27 @@ class KeyManager {
     });
   }
 
-  extractAccountSecrets(accountJSON) {
-    const next = Object.assign({}, accountJSON);
+  extractAccountSecrets(account) {
+    const next = account.clone();
     this._try(() => {
       const keys = this._getKeyHash();
-      keys[`${accountJSON.emailAddress}-imap`] = next.settings.imap_password;
+      keys[`${account.emailAddress}-imap`] = next.settings.imap_password;
       delete next.settings.imap_password;
-      keys[`${accountJSON.emailAddress}-smtp`] = next.settings.smtp_password;
+      keys[`${account.emailAddress}-smtp`] = next.settings.smtp_password;
       delete next.settings.smtp_password;
-      keys[`${accountJSON.emailAddress}-refresh-token`] = next.settings.refresh_token;
+      keys[`${account.emailAddress}-refresh-token`] = next.settings.refresh_token;
       delete next.settings.refresh_token;
       return this._writeKeyHash(keys);
     });
     return next;
   }
 
-  insertAccountSecrets(accountJSON) {
-    const next = Object.assign({}, accountJSON);
+  insertAccountSecrets(account) {
+    const next = account.clone();
     const keys = this._getKeyHash();
-    next.settings.imap_password = keys[`${accountJSON.emailAddress}-imap`];
-    next.settings.smtp_password = keys[`${accountJSON.emailAddress}-smtp`];
-    next.settings.refresh_token = keys[`${accountJSON.emailAddress}-refresh-token`];
+    next.settings.imap_password = keys[`${account.emailAddress}-imap`];
+    next.settings.smtp_password = keys[`${account.emailAddress}-smtp`];
+    next.settings.refresh_token = keys[`${account.emailAddress}-refresh-token`];
     return next;
   }
 
