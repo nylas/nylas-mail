@@ -18,7 +18,7 @@ You can download compiled versions of the original, no longer maintained Nylas M
 
 ## This is a Fork
 
-This is a fork from the project currently hosted at [nylas/nylas-mail](https://github.com/nylas-mail-lives/nylas-mail). A bunch of developers who really liked this open source project got upset on [this issue thread](https://github.com/nylas/nylas-mail/issues/3564) and wondered if they could contribute to the project, as the main development team had stopped to look into issues and pull requests from the community.
+This is a fork from the project currently hosted at [nylas/nylas-mail](https://github.com/nylas/nylas-mail). A bunch of developers who really liked this open source project got upset on [this issue thread](https://github.com/nylas/nylas-mail/issues/3564) and wondered if they could contribute to the project, as the main development team had stopped to look into issues and pull requests from the community.
 
 Our main objective is to maintain this amazing project alive and actively accepting contributions from the community. We believe this is the true life behind any open source endeavour.
 
