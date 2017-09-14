@@ -6,7 +6,7 @@ import {
   Actions,
   Folder,
 } from 'nylas-exports'
-import SnoozeUtils from '../lib/snooze-utils'
+import * as SnoozeUtils from '../lib/snooze-utils'
 import SnoozeStore from '../lib/snooze-store'
 
 
@@ -47,8 +47,7 @@ xdescribe('SnoozeStore', function snoozeStore() {
 
     spyOn(AccountStore, 'accountsForItems').andReturn(this.accounts)
     spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve())
-    spyOn(SnoozeUtils, 'moveThreadsToSnooze').andReturn(Promise.resolve(this.threads))
-    spyOn(SnoozeUtils, 'moveThreadsFromSnooze')
+    spyOn(SnoozeUtils, 'moveThreads')
     spyOn(Actions, 'closePopover')
     spyOn(NylasEnv, 'reportError')
     spyOn(NylasEnv, 'showErrorDialog')
@@ -115,8 +114,8 @@ xdescribe('SnoozeStore', function snoozeStore() {
     });
 
     it('displays dialog on error', () => {
-      jasmine.unspy(SnoozeUtils, 'moveThreadsToSnooze')
-      spyOn(SnoozeUtils, 'moveThreadsToSnooze').andReturn(Promise.reject(new Error('Oh no!')))
+      jasmine.unspy(SnoozeUtils, 'moveThreads')
+      spyOn(SnoozeUtils, 'moveThreads').andReturn(Promise.reject(new Error('Oh no!')))
 
       waitsForPromise(async () => {
         try {
@@ -124,7 +123,7 @@ xdescribe('SnoozeStore', function snoozeStore() {
         } catch (err) {
           //
         }
-        expect(SnoozeUtils.moveThreadsFromSnooze).toHaveBeenCalled()
+        expect(SnoozeUtils.moveThreads).toHaveBeenCalled()
         expect(NylasEnv.reportError).toHaveBeenCalled()
         expect(NylasEnv.showErrorDialog).toHaveBeenCalled()
       });

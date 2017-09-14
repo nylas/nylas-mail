@@ -5,24 +5,29 @@ import {
   SyncbackMetadataTask,
   Actions,
   DatabaseStore,
-  Message,
+  Thread,
 } from 'nylas-exports';
 
-import SnoozeUtils from './snooze-utils'
-import {PLUGIN_ID, PLUGIN_NAME} from './snooze-constants';
+import {moveThreads, snoozedUntilMessage} from './snooze-utils'
+import {PLUGIN_ID} from './snooze-constants';
 import SnoozeActions from './snooze-actions';
 
 class SnoozeStore extends NylasStore {
-
-  constructor(pluginId = PLUGIN_ID, pluginName = PLUGIN_NAME) {
-    super();
-    this.pluginId = pluginId;
-    this.pluginName = pluginName;
-  }
-
   activate() {
     this.unsubscribers = [
-      SnoozeActions.snoozeThreads.listen(this.onSnoozeThreads),
+      SnoozeActions.snoozeThreads.listen(this._onSnoozeThreads),
+      DatabaseStore.listen((change) => {
+        if (change.type !== 'metadata-expiration' || change.objectClass !== Thread.name) {
+          return;
+        }
+        const unsnooze = change.objects.filter((model) => {
+          const metadata = model.metadataForPluginId(PLUGIN_ID);
+          return metadata && metadata.expiration && metadata.expiration < new Date();
+        });
+        if (unsnooze.length > 0) {
+          this._onUnsnoozeThreads(unsnooze);
+        }
+      }),
     ];
   }
 
@@ -30,7 +35,7 @@ class SnoozeStore extends NylasStore {
     this.unsubscribers.forEach(unsub => unsub())
   }
 
-  recordSnoozeEvent(threads, snoozeDate, label) {
+  _recordSnoozeEvent(threads, snoozeDate, label) {
     try {
       const timeInSec = Math.round(((new Date(snoozeDate)).valueOf() - Date.now()) / 1000);
       Actions.recordUserEvent("Threads Snoozed", {
@@ -44,21 +49,7 @@ class SnoozeStore extends NylasStore {
     }
   }
 
-  groupUpdatedThreads = (threads) => {
-    const threadsByAccountId = {}
-
-    threads.forEach((thread) => {
-      const accId = thread.accountId
-      if (!threadsByAccountId[accId]) {
-        threadsByAccountId[accId] = [thread];
-      } else {
-        threadsByAccountId[accId].threads.push(thread);
-      }
-    });
-    return threadsByAccountId;
-  };
-
-  onSnoozeThreads = async (allThreads, snoozeDate, label) => {
+  _onSnoozeThreads = async (threads, snoozeDate, label) => {
     const lexicon = {
       displayName: "Snooze",
       usedUpHeader: "All Snoozes used",
@@ -70,39 +61,52 @@ class SnoozeStore extends NylasStore {
       await FeatureUsageStore.asyncUseFeature('snooze', {lexicon});
 
       // log to analytics
-      this.recordSnoozeEvent(allThreads, snoozeDate, label);
+      this._recordSnoozeEvent(threads, snoozeDate, label);
 
-      const updatedThreads = await SnoozeUtils.moveThreadsToSnooze(allThreads, snoozeDate);
-      const updatedThreadsByAccountId = this.groupUpdatedThreads(updatedThreads);
+      // move the threads to the snoozed folder
+      await moveThreads(threads, {
+        snooze: true,
+        description: snoozedUntilMessage(snoozeDate),
+      })
 
-      // note we don't wait for this to complete currently
-      Object.values(updatedThreadsByAccountId).map(async (threads) => {
-        // Get messages for those threads and metadata for those.
-        const messages = await DatabaseStore.findAll(Message, {
-          threadId: threads.map(t => t.id),
-        });
-
-        for (const message of messages) {
-          Actions.queueTask(new SyncbackMetadataTask({
-            model: message,
-            accountId: message.accountId,
-            pluginId: this.pluginId,
-            value: {
-              expiration: snoozeDate,
-            },
-          }));
-        }
-      });
+      // attach metadata to the threads to unsnooze them later
+      Actions.queueTasks(threads.map((model) =>
+        new SyncbackMetadataTask({
+          model,
+          pluginId: PLUGIN_ID,
+          value: {
+            expiration: snoozeDate,
+          },
+        }))
+      );
     } catch (error) {
       if (error instanceof FeatureUsageStore.NoProAccessError) {
         return;
       }
-      SnoozeUtils.moveThreadsFromSnooze(allThreads);
+      moveThreads(threads, {snooze: false, description: 'Unsnoozed'});
       Actions.closePopover();
       NylasEnv.reportError(error);
       NylasEnv.showErrorDialog(`Sorry, we were unable to save your snooze settings. ${error.message}`);
     }
   };
+
+  _onUnsnoozeThreads = (threads) => {
+    // move the threads back to the inbox
+    moveThreads(threads, {snooze: false, description: 'Unsnoozed'});
+
+    // remove the expiration on the metadata. note this is super important,
+    // otherwise we'll receive a notification from the sync worker over and
+    // over again.
+    Actions.queueTasks(threads.map((model) =>
+      new SyncbackMetadataTask({
+        model,
+        pluginId: PLUGIN_ID,
+        value: {
+          expiration: null,
+        },
+      })
+    ));
+  }
 }
 
 export default new SnoozeStore();

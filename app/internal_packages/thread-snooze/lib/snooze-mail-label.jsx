@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import {FocusedPerspectiveStore} from 'nylas-exports';
 import {RetinaImg, MailLabel} from 'nylas-component-kit';
 import {PLUGIN_ID} from './snooze-constants';
-import SnoozeUtils from './snooze-utils';
+import {snoozedUntilMessage} from './snooze-utils';
 
 
 class SnoozeMailLabel extends Component {
@@ -27,37 +27,36 @@ class SnoozeMailLabel extends Component {
     }
 
     const {thread} = this.props;
-    if (thread.categories.find(c => c.role === 'snoozed')) {
-      let metadata = null;
-      for (const msg of thread.__messages) {
-        metadata = msg.metadataForPluginId(PLUGIN_ID);
-        if (metadata) {
-          break;
-        }
-      }
-
-      if (metadata) {
-        const content = (
-          <span className="snooze-mail-label">
-            <RetinaImg
-              name="icon-snoozed.png"
-              mode={RetinaImg.Mode.ContentIsMask}
-            />
-            <span className="date-message">
-              {SnoozeUtils.snoozedUntilMessage(metadata.expiration).replace('Snoozed', '')}
-            </span>
-          </span>
-        )
-        const label = {
-          displayName: content,
-          isLockedCategory: () => true,
-          hue: () => 259,
-        }
-        return <MailLabel label={label} key={`snooze-message-${thread.id}`} />;
-      }
-      return <span />
+    if (!thread.categories.find(c => c.role === 'snoozed')) {
+      return false;
     }
-    return <span />
+
+    const metadata = thread.metadataForPluginId(PLUGIN_ID);
+    if (!metadata) {
+      return false;
+    }
+    const content = (
+      <span className="snooze-mail-label">
+        <RetinaImg
+          name="icon-snoozed.png"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
+        <span className="date-message">
+          {snoozedUntilMessage(metadata.expiration).replace('Snoozed', '')}
+        </span>
+      </span>
+    )
+    const label = {
+      displayName: content,
+      isLockedCategory: () => true,
+      hue: () => 259,
+    }
+    return (
+      <MailLabel
+        label={label}
+        key={`snooze-message-${thread.id}`}
+      />
+    );
   }
 }
 

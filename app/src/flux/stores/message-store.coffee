@@ -84,10 +84,10 @@ class MessageStore extends NylasStore
     @listenTo ExtensionRegistry.MessageView, @_onExtensionsChanged
     @listenTo DatabaseStore, @_onDataChanged
     @listenTo FocusedContentStore, @_onFocusChanged
+    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @listenTo Actions.toggleMessageIdExpanded, @_onToggleMessageIdExpanded
     @listenTo Actions.toggleAllMessagesExpanded, @_onToggleAllMessagesExpanded
     @listenTo Actions.toggleHiddenMessages, @_onToggleHiddenMessages
-    @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @listenTo Actions.popoutThread, @_onPopoutThread
     @listenTo Actions.focusThreadMainWindow, @_onFocusThreadMainWindow
 

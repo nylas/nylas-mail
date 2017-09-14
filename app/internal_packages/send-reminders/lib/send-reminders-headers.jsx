@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {RetinaImg} from 'nylas-component-kit'
-import {FocusedPerspectiveStore} from 'nylas-exports'
 import {getReminderLabel, getLatestMessage, getLatestMessageWithReminder, setMessageReminder} from './send-reminders-utils'
 import {PLUGIN_ID} from './send-reminders-constants'
 

@@ -330,10 +330,15 @@ export default class Message extends ModelWithMetadata {
   }
 
   isHidden() {
-    return (
+    const isReminder = (
       this.to.length === 1 && this.from.length === 1 &&
       this.to[0].email === this.from[0].email &&
       (this.snippet || "").startsWith('Mailspring Reminder:')
     )
+    const isDraftBeingDeleted = (
+      this.id.startsWith('deleted-')
+    );
+
+    return isReminder || isDraftBeingDeleted;
   }
 }

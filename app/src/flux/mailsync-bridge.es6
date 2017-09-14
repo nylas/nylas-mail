@@ -294,10 +294,6 @@ export default class MailsyncBridge {
   }
 
   _onIncomingChangeRecord = (record) => {
-    if (record.type === 'metadata-expiration') {
-      console.log('got metadata expiration');
-      console.log(record);
-    }
     // Allow observers of the database to handle this change
     DatabaseStore.trigger(record);
 

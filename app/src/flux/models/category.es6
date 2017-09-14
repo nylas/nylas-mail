@@ -27,7 +27,6 @@ const StandardRoleMap = ToObject([
 const LockedRoleMap = ToObject([
   "sent",
   "drafts",
-  "snoozed",
 ]);
 
 const HiddenRoleMap = ToObject([

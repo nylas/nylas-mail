@@ -35,4 +35,11 @@ export default class SyncbackMetadataTask extends Task {
       this.accountId = data.model.accountId;
     }
   }
+
+  validate() {
+    if (!this.pluginId) {
+      throw new Error("SyncbackMetadataTask: You must specify a pluginId.");
+    }
+    return super.validate();
+  }
 }

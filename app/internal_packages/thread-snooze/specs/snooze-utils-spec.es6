@@ -6,10 +6,9 @@ import {
   DatabaseStore,
   Folder,
   Thread,
-  CategoryStore,
   FolderSyncProgressStore,
 } from 'nylas-exports'
-import SnoozeUtils from '../lib/snooze-utils'
+import * as SnoozeUtils from '../lib/snooze-utils'
 
 xdescribe('Snooze Utils', function snoozeUtils() {
   beforeEach(() => {
@@ -58,102 +57,6 @@ xdescribe('Snooze Utils', function snoozeUtils() {
     });
   });
 
-  describe('createSnoozeCategory', () => {
-    beforeEach(() => {
-      this.category = new Folder({
-        displayName: this.name,
-        accountId: this.accId,
-        id: 321,
-      })
-      spyOn(Actions, 'queueTask')
-      spyOn(TaskQueue, 'waitForPerformRemote').andReturn(Promise.resolve())
-      spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(this.category))
-    })
-
-    it('creates category with correct snooze name', () => {
-      SnoozeUtils.createSnoozeCategory(this.accId, this.name)
-      expect(Actions.queueTask).toHaveBeenCalled()
-      const task = Actions.queueTask.calls[0].args[0]
-      expect(task.category.displayName).toEqual(this.name)
-      expect(task.category.accountId).toEqual(this.accId)
-    });
-
-    it('resolves with the updated category that has been saved to the server', () => {
-      waitsForPromise(() => {
-        return SnoozeUtils.createSnoozeCategory(this.accId, this.name).then((result) => {
-          expect(DatabaseStore.findBy).toHaveBeenCalled()
-          expect(result).toBe(this.category)
-        })
-      })
-    });
-
-    it('rejects if the category could not be found in the database', () => {
-      this.category.id = null
-      jasmine.unspy(DatabaseStore, 'findBy')
-      spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(this.category))
-      waitsForPromise(() => {
-        return SnoozeUtils.createSnoozeCategory(this.accId, this.name)
-        .then(() => {
-          throw new Error('SnoozeUtils.createSnoozeCategory should not resolve in this case!')
-        })
-        .catch((error) => {
-          expect(DatabaseStore.findBy).toHaveBeenCalled()
-          expect(error.message).toEqual('Could not create Snooze category')
-        })
-      })
-    });
-
-    it('rejects if the category could not be saved to the server', () => {
-      jasmine.unspy(DatabaseStore, 'findBy')
-      spyOn(DatabaseStore, 'findBy').andReturn(Promise.resolve(undefined))
-      waitsForPromise(() => {
-        return SnoozeUtils.createSnoozeCategory(this.accId, this.name)
-        .then(() => {
-          throw new Error('SnoozeUtils.createSnoozeCategory should not resolve in this case!')
-        })
-        .catch((error) => {
-          expect(DatabaseStore.findBy).toHaveBeenCalled()
-          expect(error.message).toEqual('Could not create Snooze category')
-        })
-      })
-    });
-  });
-
-  describe('getSnoozeCategory', () => {
-    it('resolves category if it exists in the category store', () => {
-      const categories = [
-        new Folder({accountId: this.accId, name: 'inbox'}),
-        new Folder({accountId: this.accId, displayName: this.name}),
-      ]
-      spyOn(CategoryStore, 'categories').andReturn(categories)
-      spyOn(SnoozeUtils, 'createSnoozeCategory')
-
-      waitsForPromise(() => {
-        return SnoozeUtils.getSnoozeCategory(this.accountId, this.name)
-        .then((result) => {
-          expect(SnoozeUtils.createSnoozeCategory).not.toHaveBeenCalled()
-          expect(result).toBe(categories[1])
-        })
-      })
-    });
-
-    it('creates category if it does not exist', () => {
-      const categories = [
-        new Folder({accountId: this.accId, name: 'inbox'}),
-      ]
-      const snoozeCat = new Folder({accountId: this.accId, displayName: this.name})
-      spyOn(CategoryStore, 'categories').andReturn(categories)
-      spyOn(SnoozeUtils, 'createSnoozeCategory').andReturn(Promise.resolve(snoozeCat))
-
-      waitsForPromise(() => {
-        return SnoozeUtils.getSnoozeCategory(this.accId, this.name)
-        .then((result) => {
-          expect(SnoozeUtils.createSnoozeCategory).toHaveBeenCalledWith(this.accId, this.name)
-          expect(result).toBe(snoozeCat)
-        })
-      })
-    });
-  });
 
   describe('moveThreads', () => {
     beforeEach(() => {
