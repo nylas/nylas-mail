@@ -9,7 +9,6 @@
   + Fix issue with sending emails (Issue #19)
   + Fix config.json saving/loading issues (Issue #15)
   + Reverse mail order option (Issue #20)
-  + Auto-Updater disabled (Issue #34)
 
 ### 2.0.32 (5/1/2017)
 
