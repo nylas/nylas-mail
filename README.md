@@ -133,7 +133,6 @@ The Nylas Mail user interface is styled using CSS, which means it's easy to modi
 - [Sublime Dark](https://github.com/rishabhkesarwani/Nylas-Sublime-Dark-Theme)
 - [Sunrise](https://github.com/jackiehluo/n1-sunrise)
 - [ToogaBooga](https://github.com/brycedorn/N1-ToogaBooga)
->>>>>>> 5a1b14d... Improved formatting for README.md
 
 #### Installing Community Themes
 
