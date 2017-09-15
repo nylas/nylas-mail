@@ -23,15 +23,16 @@ case "$1" in
     	gtk-update-icon-cache /usr/share/icons/hicolor > /dev/null 2>&1
 
         DISTRO=`lsb_release -s -i`
+        DISTRO_UPSTREAM=`lsb_release -s -i -u`
 
-        if [ "$DISTRO" = "Ubuntu" ] || [ "$DISTRO" = "elementary OS" ] || [ "$DISTRO" = "LinuxMint" ] ; then
+        if [ "$DISTRO" = "Ubuntu" ] || [ "$DISTRO_UPSTREAM" = "Ubuntu" ]; then
           DISTS=$UBUNTU_CODENAMES
           DISTRO="ubuntu"
         elif [ "$DISTRO" = "Debian" ]; then
           DISTS=$DEBIAN_CODENAMES
           DISTRO="debian"
         else
-          echo "You are not running Debian, Ubuntu, ElementaryOS or LinuxMint.  Not adding mailspring repository."
+          echo "You are not running Debian, Ubuntu, or an Ubuntu derivative.  Not adding mailspring repository."
           DISTRO=""
         fi
 
@@ -84,10 +85,11 @@ KEYDATA
           }
 
           DISTRIB_CODENAME=`lsb_release -s -c`
+          DISTRIB_UPSTREAM_CODENAME=`lsb_release -s -c -u`
 
           for DIST in $DISTS; do
               REPO=$DIST
-              if [ "$DIST" = "$DISTRIB_CODENAME" ]; then
+              if [ "$DIST" = "$DISTRIB_CODENAME" ] || [ "$DIST" = "$DISTRIB_UPSTREAM_CODENAME" ]; then
                 break
               fi
           done
