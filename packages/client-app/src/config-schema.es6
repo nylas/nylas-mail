@@ -94,6 +94,11 @@ export default {
             'default': false,
             'title': "Swipe gesture and backspace / delete move messages to trash",
           },
+          descendingOrderMessageList: {
+            'type': 'boolean',
+            'default': false,
+            'title': "Display conversations in descending chronological order",
+          },
         },
       },
       composing: {

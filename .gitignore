@@ -60,3 +60,10 @@ scripts/venv
 # OAuth client secret for talking to Google Sheets
 client_secret.json
 /packages/client-app/internal_packages/client-sync
+
+
+# CodeLite Workspace Files
+.tern-port
+.tern-project
+nylas-mail.workspace*
+.codelite/*

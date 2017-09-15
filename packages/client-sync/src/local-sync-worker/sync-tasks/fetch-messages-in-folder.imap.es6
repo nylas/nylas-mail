@@ -73,8 +73,8 @@ class FetchMessagesInFolderIMAP extends SyncTask {
 
       if (!msg) continue;
 
-      const unread = !attrs.flags.includes('\\Seen');
-      const starred = attrs.flags.includes('\\Flagged');
+      const unread = !attrs.flags.some((attr) => {return attr.toUpperCase() === '\\SEEN'});
+      const starred = attrs.flags.some((attr) => {return attr.toUpperCase() === '\\FLAGGED'});
       const xGmLabels = attrs['x-gm-labels'];
       const xGmLabelsJSON = xGmLabels ? JSON.stringify(xGmLabels) : null;
 

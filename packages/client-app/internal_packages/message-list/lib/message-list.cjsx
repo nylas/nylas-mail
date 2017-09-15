@@ -293,6 +293,15 @@ class MessageList extends React.Component
 
     hasReplyArea = not _.last(@state.messages)?.draft
     messages = @_messagesWithMinification(@state.messages)
+    
+    # Check on whether to display items in descending order
+    descendingOrderMessageList = NylasEnv.config.get('core.reading.descendingOrderMessageList')
+    if descendingOrderMessageList
+      messages = messages.reverse()
+      lastMessageIdx = 0
+    else
+      lastMessageIdx = messages.length - 1
+
     messages.forEach (message, idx) =>
 
       if message.type is "minifiedBundle"
@@ -300,7 +309,7 @@ class MessageList extends React.Component
         return
 
       collapsed = !@state.messagesExpandedState[message.id]
-      isLastMsg = (messages.length - 1 is idx)
+      isLastMsg = (lastMessageIdx is idx)
       isBeforeReplyArea = isLastMsg and hasReplyArea
 
       elements.push(
@@ -318,8 +327,8 @@ class MessageList extends React.Component
         />
       )
 
-    if hasReplyArea
-      elements.push(@_renderReplyArea())
+      if isLastMsg and hasReplyArea
+        elements.push(@_renderReplyArea())
 
     return elements
 

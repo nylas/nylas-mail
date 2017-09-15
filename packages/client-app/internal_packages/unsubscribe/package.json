@@ -1,0 +1,24 @@
+{
+  "name": "unsubscribe",
+  "version": "2.0.0",
+  "main": "./lib/main",
+  "description": "Unsubscribe without leaving Nylas Mail.",
+  "license": "GPL-3.0",
+  "title": "Unsubscribe",
+  "icon": "./icon.png",
+  "isOptional": true,
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "nylas": "*"
+  },
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "mailparser": "^0.6.1",
+    "mailto-parser": "^1.0.0",
+    "open": "0.0.5",
+    "underscore": "^1.8.3"
+  }
+}
