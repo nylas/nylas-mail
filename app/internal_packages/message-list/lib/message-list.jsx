@@ -238,11 +238,22 @@ class MessageList extends React.Component {
 
   _messageElements() {
     const {messagesExpandedState, currentThread} = this.state;
-    const elements = []
+    const elements = [];
+    let lastMessageIdx;
 
-    const lastItem = this.state.messages[this.state.messages.length - 1];
+    const descendingOrderMessageList = NylasEnv.config.get('core.reading.descendingOrderMessageList');
+    let messages = this._messagesWithMinification(this.state.messages);
+
+    // Check on whether to display items in descending order
+    if (descendingOrderMessageList) {
+      messages = messages.reverse();
+      lastMessageIdx = 0;
+    } else {
+      lastMessageIdx = messages.length - 1;
+    }
+
+    const lastItem = this.state.messages[descendingOrderMessageList ? 0 : this.state.messages.length - 1];
     const hasReplyArea = lastItem && !lastItem.draft;
-    const messages = this._messagesWithMinification(this.state.messages)
 
     messages.forEach((message, idx) => {
       if (message.type === "minifiedBundle") {
@@ -251,7 +262,7 @@ class MessageList extends React.Component {
       }
 
       const collapsed = !messagesExpandedState[message.id];
-      const isLastItem = (messages.length - 1 === idx);
+      const isLastItem = (lastMessageIdx === idx);
       const isBeforeReplyArea = isLastItem && hasReplyArea;
 
       elements.push(
@@ -268,7 +279,7 @@ class MessageList extends React.Component {
         />
       );
     });
-    if (hasReplyArea) {
+    if (hasReplyArea && lastItem) {
       elements.push(this._renderReplyArea());
     }
     return elements;
