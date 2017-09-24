@@ -79,9 +79,10 @@ class TemplatePopover extends React.Component {
       />,
     ];
 
+    // note: these are using onMouseDown to avoid clearing focus in the composer (I think)
     const footerComponents = [
-      <div className="item" key="new" onClick={this._onNewTemplate}>Save Draft as Template...</div>,
-      <div className="item" key="manage" onClick={this._onManageTemplates}>Manage Templates...</div>,
+      <div className="item" key="new" onMouseDown={this._onNewTemplate}>Save Draft as Template...</div>,
+      <div className="item" key="manage" onMouseDown={this._onManageTemplates}>Manage Templates...</div>,
     ];
 
     return (

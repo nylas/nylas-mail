@@ -76,19 +76,19 @@ describe "ActionBridge", ->
     describe "when called with TargetWindows.ALL", ->
       it "should broadcast the action over IPC to all windows", ->
         spyOn(ipc, 'send')
-        Actions.onNewMailDeltas.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'onNewMailDeltas', '[{"oldModel":"1","newModel":2}]')
+        Actions.openPreferences.firing = false
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'openPreferences', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-all', 'popout', 'openPreferences', '[{"oldModel":"1","newModel":2}]')
 
     describe "when called with TargetWindows.MAIN", ->
       it "should broadcast the action over IPC to the main window only", ->
         spyOn(ipc, 'send')
-        Actions.onNewMailDeltas.firing = false
-        @bridge.onRebroadcast(ActionBridge.TargetWindows.MAIN, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
-        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-default', 'popout', 'onNewMailDeltas', '[{"oldModel":"1","newModel":2}]')
+        Actions.openPreferences.firing = false
+        @bridge.onRebroadcast(ActionBridge.TargetWindows.MAIN, 'openPreferences', [{oldModel: '1', newModel: 2}])
+        expect(ipc.send).toHaveBeenCalledWith('action-bridge-rebroadcast-to-default', 'popout', 'openPreferences', '[{"oldModel":"1","newModel":2}]')
 
     it "should not do anything if the current invocation of the Action was triggered by itself", ->
       spyOn(ipc, 'send')
-      Actions.onNewMailDeltas.firing = true
-      @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'onNewMailDeltas', [{oldModel: '1', newModel: 2}])
+      Actions.openPreferences.firing = true
+      @bridge.onRebroadcast(ActionBridge.TargetWindows.ALL, 'openPreferences', [{oldModel: '1', newModel: 2}])
       expect(ipc.send).not.toHaveBeenCalled()

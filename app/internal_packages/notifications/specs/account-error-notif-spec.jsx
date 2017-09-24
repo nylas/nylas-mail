@@ -8,8 +8,8 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
   describe("when one account is in the `invalid` state", () => {
     beforeEach(() => {
       spyOn(AccountStore, 'accounts').andReturn([
-        new Account({id: 'A', syncState: 'invalid', emailAddress: '123@gmail.com'}),
-        new Account({id: 'B', syncState: 'running', emailAddress: 'other@gmail.com'}),
+        new Account({id: 'A', syncState: Account.SYNC_STATE_AUTH_FAILED, emailAddress: '123@gmail.com'}),
+        new Account({id: 'B', syncState: Account.SYNC_STATE_OK, emailAddress: 'other@gmail.com'}),
       ])
     });
 
@@ -19,10 +19,10 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
     });
 
     it("allows the user to refresh the account", () => {
+      spyOn(NylasEnv.mailsyncBridge, 'forceRelaunchClient').andReturn(Promise.resolve());
       const notif = mount(<AccountErrorNotification />);
-      spyOn(Actions, 'wakeLocalSyncWorkerForAccount').andReturn(Promise.resolve());
       notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
-      expect(Actions.wakeLocalSyncWorkerForAccount).toHaveBeenCalled();
+      expect(NylasEnv.mailsyncBridge.forceRelaunchClient).toHaveBeenCalled();
     });
 
     it("allows the user to reconnect the account", () => {
@@ -39,8 +39,8 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
   describe("when more than one account is in the `invalid` state", () => {
     beforeEach(() => {
       spyOn(AccountStore, 'accounts').andReturn([
-        new Account({id: 'A', syncState: 'invalid', emailAddress: '123@gmail.com'}),
-        new Account({id: 'B', syncState: 'invalid', emailAddress: 'other@gmail.com'}),
+        new Account({id: 'A', syncState: Account.SYNC_STATE_AUTH_FAILED, emailAddress: '123@gmail.com'}),
+        new Account({id: 'B', syncState: Account.SYNC_STATE_AUTH_FAILED, emailAddress: 'other@gmail.com'}),
       ])
     });
 
@@ -50,10 +50,10 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
     });
 
     it("allows the user to refresh the accounts", () => {
+      spyOn(NylasEnv.mailsyncBridge, 'forceRelaunchClient').andReturn(Promise.resolve());
       const notif = mount(<AccountErrorNotification />);
-      spyOn(Actions, 'wakeLocalSyncWorkerForAccount').andReturn(Promise.resolve());
       notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
-      expect(Actions.wakeLocalSyncWorkerForAccount).toHaveBeenCalled();
+      expect(NylasEnv.mailsyncBridge.forceRelaunchClient).toHaveBeenCalled();
     });
 
     it("allows the user to open preferences", () => {
@@ -69,8 +69,8 @@ describe("AccountErrorNotif", function AccountErrorNotifTests() {
   describe("when all accounts are fine", () => {
     beforeEach(() => {
       spyOn(AccountStore, 'accounts').andReturn([
-        new Account({id: 'A', syncState: 'running', emailAddress: '123@gmail.com'}),
-        new Account({id: 'B', syncState: 'running', emailAddress: 'other@gmail.com'}),
+        new Account({id: 'A', syncState: Account.SYNC_STATE_OK, emailAddress: '123@gmail.com'}),
+        new Account({id: 'B', syncState: Account.SYNC_STATE_OK, emailAddress: 'other@gmail.com'}),
       ])
     });
 

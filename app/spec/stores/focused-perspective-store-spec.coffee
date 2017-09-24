@@ -14,9 +14,9 @@ describe "FocusedPerspectiveStore", ->
     FocusedPerspectiveStore._current = MailboxPerspective.forNothing()
     @account = AccountStore.accounts()[0]
 
-    @inboxCategory = new Folder(id: 'id-123', name: 'inbox', displayName: "INBOX", accountId: @account.id)
+    @inboxCategory = new Folder(id: 'id-123', role: 'inbox', path: "INBOX", accountId: @account.id)
     @inboxPerspective = MailboxPerspective.forCategory(@inboxCategory)
-    @userCategory = new Folder(id: 'id-456', name: null, displayName: "MyCategory", accountId: @account.id)
+    @userCategory = new Folder(id: 'id-456', role: null, path: "MyCategory", accountId: @account.id)
     @userPerspective = MailboxPerspective.forCategory(@userCategory)
 
     spyOn(CategoryStore, "getCategoryByRole").andReturn @inboxCategory

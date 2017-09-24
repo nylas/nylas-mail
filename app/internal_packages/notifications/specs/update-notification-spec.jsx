@@ -20,6 +20,12 @@ const patched = proxyquire("../lib/items/update-notification",
             autoUpdateManager: {
               releaseVersion: stubUpdaterReleaseVersion,
               getState: () => stubUpdaterState,
+              getReleaseDetails: () => {
+                return {
+                  releaseVersion: stubUpdaterReleaseVersion,
+                  releaseNotes: 'A new version is available!',
+                }
+              }
             },
           }
         },

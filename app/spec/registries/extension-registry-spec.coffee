@@ -38,9 +38,7 @@ describe 'ExtensionRegistry', ->
       it 'does not add extensions with the same name', ->
         expect(@registry.extensions().length).toEqual 0
         @registry.register(TestExtension)
-        expect(@registry.extensions().length).toEqual 1
-        @registry.register({name: 'TestExtension'})
-        expect(@registry.extensions().length).toEqual 1
+        expect(=> @registry.register({name: 'TestExtension'})).toThrow()
 
     describe 'unregister', ->
       it 'unregisters the extension if it exists', ->

@@ -43,7 +43,7 @@ that is not a Store, you can still use the `listen` method provided by Reflux:
 
 ```coffee
 setup: ->
-  @unlisten = Actions.onNewMailDeltas.listen(@onNewMailReceived, @)
+  @unlisten = Actions.queueTask.listen(@onTaskWasQueued, @)
 
 onNewMailReceived: (data) ->
   console.log("You've got mail!", data)
@@ -70,11 +70,7 @@ class Actions {
   }
   ```
   */
-  static onNewMailDeltas = ActionScopeGlobal;
-
   static downloadStateChanged = ActionScopeGlobal;
-
-  static sendToAllWindows = ActionScopeGlobal;
 
   /*
   Public: Queue a {Task} object to the {TaskQueue}.
@@ -103,9 +99,6 @@ class Actions {
   *Scope: Main Window*
   */
   static checkOnlineStatus = ActionScopeWindow;
-
-
-  static wakeLocalSyncWorkerForAccount = ActionScopeGlobal;
 
   /*
   Public: Open the preferences view.

@@ -34,9 +34,9 @@ xdescribe "ChangeLabelsTask", ->
         item
 
     testLabels = @testLabels =
-      "l1": new Label({name: 'inbox', id: 'l1', displayName: "INBOX"}),
-      "l2": new Label({name: 'drafts', id: 'l2', displayName: "MyDrafts"})
-      "l3": new Label({name: null, id: 'l3', displayName: "My Label"})
+      "l1": new Label({role: 'inbox', id: 'l1', path: "INBOX"}),
+      "l2": new Label({role: 'drafts', id: 'l2', path: "MyDrafts"})
+      "l3": new Label({role: null, id: 'l3', path: "My Label"})
 
     testThreads = @testThreads =
       't1': new Thread(id: 't1', categories: [@testLabels['l1']])

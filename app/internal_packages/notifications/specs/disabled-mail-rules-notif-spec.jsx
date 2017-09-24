@@ -5,7 +5,7 @@ import DisabledMailRulesNotification from '../lib/items/disabled-mail-rules-noti
 describe("DisabledMailRulesNotification", function DisabledMailRulesNotifTests() {
   beforeEach(() => {
     spyOn(AccountStore, 'accounts').andReturn([
-      new Account({id: 'A', syncState: 'running', emailAddress: '123@gmail.com'}),
+      new Account({id: 'A', syncState: Account.SYNC_STATE_OK, emailAddress: '123@gmail.com'}),
     ])
   })
   describe("When there is one disabled mail rule", () => {

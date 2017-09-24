@@ -186,12 +186,13 @@ export default class NylasEnvConstructor {
     if (process.platform === 'win32') {
       this.getCurrentWindow().setMenuBarVisibility(false);
     }
-    this.windowEventHandler = new WindowEventHandler();
 
+    this.windowEventHandler = new WindowEventHandler();
+    
     // We extend nylas observables with our own methods. This happens on
     // require of nylas-observables
     require('nylas-observables');
-
+    
     // Nylas exports is designed to provide a lazy-loaded set of globally
     // accessible objects to all packages. Upon require, nylas-exports will
     // fill the StoreRegistry, and DatabaseObjectRegistries
@@ -200,6 +201,12 @@ export default class NylasEnvConstructor {
     // We initialize all of the stores loaded into the StoreRegistry once
     // the window starts loading.
     require('nylas-exports');
+
+    const ActionBridge = require('./flux/action-bridge').default;
+    this.actionBridge = new ActionBridge(ipcRenderer);
+
+    const MailsyncBridge = require('./flux/mailsync-bridge').default;
+    this.mailsyncBridge = new MailsyncBridge();
 
     process.title = `Mailspring ${this.getWindowType()}`;
     return this.onWindowPropsReceived(() => {
@@ -722,12 +729,6 @@ export default class NylasEnvConstructor {
 
   async startWindow() {
     const {windowType} = this.getLoadSettings();
-
-    const ActionBridge = require('./flux/action-bridge').default;
-    this.actionBridge = new ActionBridge(ipcRenderer);
-
-    const MailsyncBridge = require('./flux/mailsync-bridge').default;
-    this.mailsyncBridge = new MailsyncBridge();
 
     this.themes.loadBaseStylesheets();
     this.initializeBasicSheet();

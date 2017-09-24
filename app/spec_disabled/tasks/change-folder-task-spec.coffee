@@ -30,9 +30,9 @@ xdescribe "ChangeFolderTask", ->
         item
 
     testFolders = @testFolders =
-      "f1": new Folder({name: 'inbox', id: 'f1', displayName: "INBOX"}),
-      "f2": new Folder({name: 'drafts', id: 'f2', displayName: "MyDrafts"})
-      "f3": new Folder({name: null, id: 'f3', displayName: "My Folder"})
+      "f1": new Folder({role: 'inbox', id: 'f1', path: "INBOX"}),
+      "f2": new Folder({role: 'drafts', id: 'f2', path: "MyDrafts"})
+      "f3": new Folder({role: null, id: 'f3', path: "My Folder"})
 
     testThreads = @testThreads =
       't1': new Thread(id: 't1', categories: [@testFolders['f1']])

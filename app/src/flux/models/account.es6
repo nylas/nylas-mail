@@ -74,7 +74,7 @@ export default class Account extends ModelWithMetadata {
     super(args)
     this.aliases = this.aliases || [];
     this.label = this.label || this.emailAddress;
-    this.syncState = this.syncState || "running";
+    this.syncState = this.syncState || Account.SYNC_STATE_OK;
   }
 
   fromJSON(json) {
