@@ -2,6 +2,7 @@ import _ from 'underscore'
 import {
   Thread,
   Actions,
+  Message,
   SoundRegistry,
   NativeNotifications,
   DatabaseStore,
@@ -9,14 +10,14 @@ import {
 
 export class Notifier {
   constructor() {
-    this.unlisteners = [];
-    this.unlisteners.push(Actions.onNewMailDeltas.listen(this._onNewMailReceived, this));
     this.activationTime = Date.now();
     this.unnotifiedQueue = [];
     this.hasScheduledNotify = false;
 
     this.activeNotifications = {};
-    this.unlisteners.push(DatabaseStore.listen(this._onDatabaseUpdated, this));
+    this.unlisteners = [
+      DatabaseStore.listen(this._onDatabaseChanged, this),
+    ];
   }
 
   unlisten() {
@@ -25,18 +26,37 @@ export class Notifier {
     }
   }
 
-  _onDatabaseUpdated({objectClass, objects}) {
-    if (objectClass === 'Thread') {
-      objects
-        .filter((thread) => !thread.unread)
-        .forEach((thread) => this._onThreadIsRead(thread));
+  // async for testing
+  async _onDatabaseChanged({objectClass, objects}) {
+    if (objectClass === Thread.name) {
+      // Ensure notifications are dismissed when the user reads a thread
+      objects.forEach(({id, unread}) => {
+        if (!unread && this.activeNotifications[id]) {
+          this.activeNotifications[id].forEach((n) => n.close());
+          delete this.activeNotifications[id];
+        }
+      });
     }
-  }
 
-  _onThreadIsRead({id: threadId}) {
-    if (threadId in this.activeNotifications) {
-      this.activeNotifications[threadId].forEach((n) => n.close());
-      delete this.activeNotifications[threadId];
+    if (objectClass === Message.name) {
+      if (NylasEnv.config.get('core.notifications.enabled') === false) {
+        return;
+      }
+      const newUnread = objects.filter((msg) => {
+        // ensure the message is unread
+        if (msg.unread !== true) return false;
+        // ensure the message was just saved (eg: this is not a modification)
+        if (msg.version !== 1) return false;
+        // ensure the message was received after the app launched (eg: not syncing an old email)
+        if (!msg.date || msg.date.valueOf() < this.activationTime) return false;
+        // ensure the message is from someone else
+        if (msg.isFromMe()) return false;
+        return true;
+      });
+
+      if (newUnread.length > 0) {
+        await this._onNewMessagesReceived(newUnread);
+      }
     }
   }
 
@@ -104,90 +124,44 @@ export class Notifier {
     }
   }
 
-  // https://phab.nylas.com/D2188
-  _onNewMessagesMissingThreads(messages) {
-    setTimeout(() => {
-      const threads = {}
-      for (const {threadId} of messages) {
-        threads[threadId] = threads[threadId] || DatabaseStore.find(Thread, threadId);
-      }
-      Promise.props(threads).then((resolvedThreads) => {
-        const resolved = messages.filter((msg) => resolvedThreads[msg.threadId]);
-        if (resolved.length > 0) {
-          this._onNewMailReceived({message: resolved, thread: Object.values(resolvedThreads)});
-        }
-      });
-    }, 10000);
-  }
+  _onNewMessagesReceived(newMessages) {
+    // For each message, find it's corresponding thread. First, look to see
+    // if it's already in the `incoming` payload (sent via delta sync
+    // at the same time as the message.) If it's not, try loading it from
+    // the local cache.
 
-  _onNewMailReceived(incoming) {
-    return new Promise((resolve) => {
-      if (NylasEnv.config.get('core.notifications.enabled') === false) {
-        resolve();
+    const threadIds = {};
+    for (const {threadId} of newMessages) {
+      threadIds[threadId] = true;
+    }
+
+    // TODO: Use xGMLabels + folder on message to identify which ones
+    // are in the inbox to avoid needing threads here.
+    return DatabaseStore.findAll(Thread, Thread.attributes.id.in(Object.keys(threadIds))).then((threadsArray) => {
+      const threads = {};
+      for (const t of threadsArray) {
+        threads[t.id] = t;
+      }
+
+      // Filter new messages to just the ones in the inbox
+      const newMessagesInInbox = newMessages.filter(({threadId}) => {
+        return threads[threadId] && threads[threadId].categories.find(c => c.role === 'inbox');
+      })
+
+      if (newMessagesInInbox.length === 0) {
         return;
       }
 
-      const incomingMessages = incoming.message || [];
-      const incomingThreads = incoming.thread || [];
-
-      // Filter for new messages that are not sent by the current user
-      const newUnread = incomingMessages.filter((msg) => {
-        const isUnread = msg.unread === true;
-        const isNew = msg.date && msg.date.valueOf() >= this.activationTime;
-        const isFromMe = msg.isFromMe();
-        return isUnread && isNew && !isFromMe;
-      });
-
-      if (newUnread.length === 0) {
-        resolve();
-        return;
+      for (const msg of newMessagesInInbox) {
+        this.unnotifiedQueue.push({message: msg, thread: threads[msg.threadId]});
       }
-
-      // For each message, find it's corresponding thread. First, look to see
-      // if it's already in the `incoming` payload (sent via delta sync
-      // at the same time as the message.) If it's not, try loading it from
-      // the local cache.
-
-      // Note we may receive multiple unread msgs for the same thread.
-      // Using a map and ?= to avoid repeating work.
-      const threads = {}
-      for (const {threadId} of newUnread) {
-        threads[threadId] = threads[threadId] || incomingThreads.find(t => t.id === threadId)
-        threads[threadId] = threads[threadId] || DatabaseStore.find(Thread, threadId);
+      if (!this.hasScheduledNotify) {
+        if (NylasEnv.config.get("core.notifications.sounds")) {
+          this._playNewMailSound = this._playNewMailSound || _.debounce(() => SoundRegistry.playSound('new-mail'), 5000, true);
+          this._playNewMailSound();
+        }
+        this._notifyMessages();
       }
-
-      Promise.props(threads).then((resolvedThreads) => {
-        // Filter new unread messages to just the ones in the inbox
-        const newUnreadInInbox = newUnread.filter((msg) =>
-          resolvedThreads[msg.threadId] && resolvedThreads[msg.threadId].categories.find(c => c.role === 'inbox')
-        )
-
-        // Filter messages that we can't decide whether to display or not
-        // since no associated Thread object has arrived yet.
-        const newUnreadMissingThreads = newUnread.filter((msg) => !resolvedThreads[msg.threadId])
-
-        if (newUnreadMissingThreads.length > 0) {
-          this._onNewMessagesMissingThreads(newUnreadMissingThreads);
-        }
-
-        if (newUnreadInInbox.length === 0) {
-          resolve();
-          return;
-        }
-
-        for (const msg of newUnreadInInbox) {
-          this.unnotifiedQueue.push({message: msg, thread: resolvedThreads[msg.threadId]});
-        }
-        if (!this.hasScheduledNotify) {
-          if (NylasEnv.config.get("core.notifications.sounds")) {
-            this._playNewMailSound = this._playNewMailSound || _.debounce(() => SoundRegistry.playSound('new-mail'), 5000, true);
-            this._playNewMailSound();
-          }
-          this._notifyMessages();
-        }
-
-        resolve();
-      });
     });
   }
 }

@@ -1,20 +1,23 @@
-import Contact from '../../../src/flux/models/contact'
-import Message from '../../../src/flux/models/message'
-import Thread from '../../../src/flux/models/thread'
-import Folder from '../../../src/flux/models/category'
-import CategoryStore from '../../../src/flux/stores/category-store'
-import DatabaseStore from '../../../src/flux/stores/database-store'
-import AccountStore from '../../../src/flux/stores/account-store'
-import SoundRegistry from '../../../src/registries/sound-registry'
-import NativeNotifications from '../../../src/native-notifications'
+import {
+  Contact,
+  Message,
+  Thread,
+  Folder,
+  CategoryStore,
+  DatabaseStore,
+  AccountStore,
+  SoundRegistry,
+  NativeNotifications,
+} from 'nylas-exports';
+
 import {Notifier} from '../lib/main'
 
-xdescribe("UnreadNotifications", function UnreadNotifications() {
+describe("UnreadNotifications", function UnreadNotifications() {
   beforeEach(() => {
     this.notifier = new Notifier();
 
-    const inbox = new Folder({id: "l1", name: "inbox", displayName: "Inbox"})
-    const archive = new Folder({id: "l2", name: "archive", displayName: "Archive"})
+    const inbox = new Folder({id: "l1", role: "inbox", path: "Inbox"})
+    const archive = new Folder({id: "l2", role: "archive", path: "Archive"})
 
     spyOn(CategoryStore, "getCategoryByRole").andReturn(inbox);
 
@@ -35,6 +38,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
       subject: "Hello World",
       threadId: "A",
+      version: 1,
     });
     this.msgNoSender = new Message({
       unread: true,
@@ -42,6 +46,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [],
       subject: "Hello World",
       threadId: "A",
+      version: 1,
     });
     this.msg2 = new Message({
       unread: true,
@@ -49,6 +54,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Mark', email: 'markthis.example.com'})],
       subject: "Hello World 2",
       threadId: "A",
+      version: 1,
     });
     this.msg3 = new Message({
       unread: true,
@@ -56,6 +62,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
       subject: "Hello World 3",
       threadId: "A",
+      version: 1,
     });
     this.msg4 = new Message({
       unread: true,
@@ -63,6 +70,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
       subject: "Hello World 4",
       threadId: "A",
+      version: 1,
     });
     this.msg5 = new Message({
       unread: true,
@@ -70,6 +78,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
       subject: "Hello World 5",
       threadId: "A",
+      version: 1,
     });
     this.msgUnreadButArchived = new Message({
       unread: true,
@@ -77,6 +86,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Mark', email: 'markthis.example.com'})],
       subject: "Hello World 2",
       threadId: "B",
+      version: 1,
     });
     this.msgRead = new Message({
       unread: false,
@@ -84,6 +94,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Mark', email: 'markthis.example.com'})],
       subject: "Hello World Read Already",
       threadId: "A",
+      version: 1,
     });
     this.msgOld = new Message({
       unread: true,
@@ -91,6 +102,7 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [new Contact({name: 'Mark', email: 'markthis.example.com'})],
       subject: "Hello World Old",
       threadId: "A",
+      version: 1,
     });
     this.msgFromMe = new Message({
       unread: true,
@@ -98,7 +110,16 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       from: [account.me()],
       subject: "A Sent Mail!",
       threadId: "A",
+      version: 1,
     });
+    this.msgHigherVersion = new Message({
+      unread: true,
+      date: new Date(),
+      from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
+      subject: "Hello World",
+      threadId: "A",
+      version: 2,
+    })
 
     spyOn(DatabaseStore, 'find').andCallFake((klass, id) => {
       if (id === 'A') {
@@ -108,6 +129,10 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
         return Promise.resolve(this.threadB);
       }
       return Promise.resolve(null);
+    });
+
+    spyOn(DatabaseStore, 'findAll').andCallFake(() => {
+      return Promise.resolve([this.threadA, this.threadB]);
     });
 
     this.notification = jasmine.createSpyObj('notification', ['close']);
@@ -132,171 +157,183 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
   })
 
   it("should create a Notification if there is one unread message", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msgRead, this.msg1]})
-      .then(() => {
-        advanceClock(2000)
-        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
-        const options = NativeNotifications.displayNotification.mostRecentCall.args[0]
-        delete options.onActivate;
-        expect(options).toEqual({
-          title: 'Ben',
-          subtitle: 'Hello World',
-          body: undefined,
-          canReply: true,
-          tag: 'unread-update',
-        });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgRead, this.msg1],
+      })
+      advanceClock(2000)
+      expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+      const options = NativeNotifications.displayNotification.mostRecentCall.args[0]
+      delete options.onActivate;
+      expect(options).toEqual({
+        title: 'Ben',
+        subtitle: 'Hello World',
+        body: undefined,
+        canReply: true,
+        tag: 'unread-update',
       });
     });
   });
 
   it("should create multiple Notifications if there is more than one but less than five unread messages", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msg1, this.msg2, this.msg3]})
-      .then(() => {
-        // Need to call advance clock twice because we call setTimeout twice
-        advanceClock(2000)
-        advanceClock(2000)
-        expect(NativeNotifications.displayNotification.callCount).toEqual(3)
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg1, this.msg2, this.msg3],
+      })
+      // Need to call advance clock twice because we call setTimeout twice
+      advanceClock(2000)
+      advanceClock(2000)
+      expect(NativeNotifications.displayNotification.callCount).toEqual(3)
     });
   });
 
   it("should create Notifications in the order of messages received", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msg1, this.msg2]})
-      .then(() => {
-        advanceClock(2000);
-        return this.notifier._onNewMailReceived({message: [this.msg3, this.msg4]});
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg1, this.msg2],
       })
-      .then(() => {
-        advanceClock(2000);
-        advanceClock(2000);
-        expect(NativeNotifications.displayNotification.callCount).toEqual(4);
-        const subjects = NativeNotifications.displayNotification.calls.map((call) => {
-          return call.args[0].subtitle;
-        });
-        const expected = [this.msg1, this.msg2, this.msg3, this.msg4]
-          .map((msg) => msg.subject);
-        expect(subjects).toEqual(expected);
+      advanceClock(2000);
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg3, this.msg4],
+      })
+      advanceClock(2000);
+      advanceClock(2000);
+      expect(NativeNotifications.displayNotification.callCount).toEqual(4);
+      const subjects = NativeNotifications.displayNotification.calls.map((call) => {
+        return call.args[0].subtitle;
       });
+      const expected = [this.msg1, this.msg2, this.msg3, this.msg4]
+        .map((msg) => msg.subject);
+      expect(subjects).toEqual(expected);
     });
   });
 
   it("should create a Notification if there are five or more unread messages", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({
-        message: [this.msg1, this.msg2, this.msg3, this.msg4, this.msg5]})
-      .then(() => {
-        advanceClock(2000)
-        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
-        expect(NativeNotifications.displayNotification.mostRecentCall.args).toEqual([{
-          title: '5 Unread Messages',
-          tag: 'unread-update',
-        }])
-      });
-    });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg1, this.msg2, this.msg3, this.msg4, this.msg5],
+      })
+      advanceClock(2000)
+      expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+      expect(NativeNotifications.displayNotification.mostRecentCall.args).toEqual([{
+        title: '5 Unread Messages',
+        tag: 'unread-update',
+      }])
+    })
   });
 
   it("should create a Notification correctly, even if new mail has no sender", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msgNoSender]})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
-
-        const options = NativeNotifications.displayNotification.mostRecentCall.args[0]
-        delete options.onActivate;
-        expect(options).toEqual({
-          title: 'Unknown',
-          subtitle: 'Hello World',
-          body: undefined,
-          canReply: true,
-          tag: 'unread-update',
-        })
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgNoSender],
       });
+      expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+
+      const options = NativeNotifications.displayNotification.mostRecentCall.args[0]
+      delete options.onActivate;
+      expect(options).toEqual({
+        title: 'Unknown',
+        subtitle: 'Hello World',
+        body: undefined,
+        canReply: true,
+        tag: 'unread-update',
+      })
     });
   });
 
   it("should not create a Notification if there are no new messages", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: []})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
-      });
-    });
-
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [],
+      })
+      expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
+      await this.notifier._onDatabaseChanged({});
+      expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
     });
   });
 
   it("should not notify about unread messages that are outside the inbox", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msgUnreadButArchived, this.msg1]})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).toHaveBeenCalled()
-        const options = NativeNotifications.displayNotification.mostRecentCall.args[0]
-        delete options.onActivate;
-        expect(options).toEqual({
-          title: 'Ben',
-          subtitle: 'Hello World',
-          body: undefined,
-          canReply: true,
-          tag: 'unread-update',
-        })
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgUnreadButArchived, this.msg1],
+      })
+      expect(NativeNotifications.displayNotification).toHaveBeenCalled()
+      const options = NativeNotifications.displayNotification.mostRecentCall.args[0]
+      delete options.onActivate;
+      expect(options).toEqual({
+        title: 'Ben',
+        subtitle: 'Hello World',
+        body: undefined,
+        canReply: true,
+        tag: 'unread-update',
+      })
     });
   });
 
   it("should not create a Notification if the new messages are read", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msgRead]})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgRead],
+      })
+      expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
+    });
+  });
+  it("should not create a Notification if the message model is being updated", () => {
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgHigherVersion],
+      })
+      expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
     });
   });
 
   it("should not create a Notification if the new messages are actually old ones", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msgOld]})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgOld],
+      })
+      expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
     });
   });
 
   it("should not create a Notification if the new message is one I sent", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msgFromMe]})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgFromMe],
+      })
+      expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
     });
   });
 
   it("clears notifications when a thread is read", () => {
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msg1]})
-      .then(() => {
-        expect(NativeNotifications.displayNotification).toHaveBeenCalled();
-        expect(this.notification.close).not.toHaveBeenCalled();
-        this.notifier._onThreadIsRead(this.threadA);
-        expect(this.notification.close).toHaveBeenCalled();
-      });
-    });
-  });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg1],
+      })
+      expect(NativeNotifications.displayNotification).toHaveBeenCalled();
+      expect(this.notification.close).not.toHaveBeenCalled();
 
-  it("detects changes that may be a thread being read", () => {
-    const unreadThread = { unread: true };
-    const readThread = { unread: false };
-    spyOn(this.notifier, '_onThreadIsRead');
-    this.notifier._onDatabaseUpdated({ objectClass: 'Thread', objects: [unreadThread, readThread]});
-    expect(this.notifier._onThreadIsRead.calls.length).toEqual(1);
-    expect(this.notifier._onThreadIsRead).toHaveBeenCalledWith(readThread);
+      const read = this.threadA.clone();
+      read.unread = false;
+      await this.notifier._onDatabaseChanged({
+        objectClass: Thread.name,
+        objects: [read],
+      })
+      expect(this.notification.close).toHaveBeenCalled();
+    });
   });
 
   it("should play a sound when it gets new mail", () => {
@@ -307,12 +344,13 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
     });
 
     spyOn(SoundRegistry, "playSound");
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msg1]})
-      .then(() => {
-        expect(NylasEnv.config.get.calls[1].args[0]).toBe("core.notifications.sounds");
-        expect(SoundRegistry.playSound).toHaveBeenCalledWith("new-mail");
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg1],
+      })
+      expect(NylasEnv.config.get.calls[1].args[0]).toBe("core.notifications.sounds");
+      expect(SoundRegistry.playSound).toHaveBeenCalledWith("new-mail");
     });
   });
 
@@ -323,12 +361,13 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       return undefined;
     });
     spyOn(SoundRegistry, "playSound")
-    waitsForPromise(() => {
-      return this.notifier._onNewMailReceived({message: [this.msg1]})
-      .then(() => {
-        expect(NylasEnv.config.get.calls[1].args[0]).toBe("core.notifications.sounds");
-        expect(SoundRegistry.playSound).not.toHaveBeenCalled()
-      });
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg1],
+      })
+      expect(NylasEnv.config.get.calls[1].args[0]).toBe("core.notifications.sounds");
+      expect(SoundRegistry.playSound).not.toHaveBeenCalled()
     });
   });
 
@@ -338,80 +377,19 @@ xdescribe("UnreadNotifications", function UnreadNotifications() {
       if (config === "core.notifications.sounds") return true;
       return undefined;
     });
-    waitsForPromise(() => {
+    waitsForPromise(async () => {
       spyOn(SoundRegistry, "playSound")
-      return this.notifier._onNewMailReceived({message: [this.msg1, this.msg2]}).then(() => {
-        expect(SoundRegistry.playSound).toHaveBeenCalled();
-        SoundRegistry.playSound.reset();
-        return this.notifier._onNewMailReceived({message: [this.msg3]}).then(() => {
-          expect(SoundRegistry.playSound).not.toHaveBeenCalled();
-        });
-      });
-    });
-  });
-
-  describe("when the message has no matching thread", () => {
-    beforeEach(() => {
-      this.msgNoThread = new Message({
-        unread: true,
-        date: new Date(),
-        from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-        subject: "Hello World",
-        threadId: "missing",
-      });
-    });
-
-    it("should not create a Notification, since it cannot be determined whether the message is in the Inbox", () => {
-      waitsForPromise(() => {
-        return this.notifier._onNewMailReceived({message: [this.msgNoThread]})
-        .then(() => {
-          advanceClock(2000)
-          expect(NativeNotifications.displayNotification).not.toHaveBeenCalled()
-        });
-      });
-    });
-
-    it("should call _onNewMessagesMissingThreads to try displaying a notification again in 10 seconds", () => {
-      waitsForPromise(() => {
-        spyOn(this.notifier, '_onNewMessagesMissingThreads')
-        return this.notifier._onNewMailReceived({message: [this.msgNoThread]})
-        .then(() => {
-          advanceClock(2000)
-          expect(this.notifier._onNewMessagesMissingThreads).toHaveBeenCalledWith([this.msgNoThread])
-        });
-      });
-    });
-  });
-
-  describe("_onNewMessagesMissingThreads", () => {
-    beforeEach(() => {
-      this.msgNoThread = new Message({
-        unread: true,
-        date: new Date(),
-        from: [new Contact({name: 'Ben', email: 'benthis.example.com'})],
-        subject: "Hello World",
-        threadId: "missing",
-      });
-      spyOn(this.notifier, '_onNewMailReceived')
-      this.notifier._onNewMessagesMissingThreads([this.msgNoThread])
-      advanceClock(2000)
-    });
-
-    it("should wait 10 seconds and then re-query for threads", () => {
-      expect(DatabaseStore.find).not.toHaveBeenCalled()
-      this.msgNoThread.threadId = "A"
-      advanceClock(10000)
-      expect(DatabaseStore.find).toHaveBeenCalled()
-      advanceClock()
-      expect(this.notifier._onNewMailReceived).toHaveBeenCalledWith({message: [this.msgNoThread], thread: [this.threadA]})
-    });
-
-    it("should do nothing if the threads still can't be found", () => {
-      expect(DatabaseStore.find).not.toHaveBeenCalled()
-      advanceClock(10000)
-      expect(DatabaseStore.find).toHaveBeenCalled()
-      advanceClock()
-      expect(this.notifier._onNewMailReceived).not.toHaveBeenCalled()
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg1, this.msg2],
+      })
+      expect(SoundRegistry.playSound).toHaveBeenCalled();
+      SoundRegistry.playSound.reset();
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msg3],
+      })
+      expect(SoundRegistry.playSound).not.toHaveBeenCalled();
     });
   });
 });
