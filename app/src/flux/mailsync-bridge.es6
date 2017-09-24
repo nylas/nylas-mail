@@ -279,8 +279,8 @@ export default class MailsyncBridge {
         continue;
       }
 
-      const {type, objects, objectClass} = JSON.parse(msg);
-      if (!objects || !type || !objectClass) {
+      const {type, modelJSONs, modelClass} = JSON.parse(msg);
+      if (!modelJSONs || !type || !modelClass) {
         console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`)
         continue;
       }
@@ -288,8 +288,11 @@ export default class MailsyncBridge {
       // dispatch the message to other windows
       ipcRenderer.send('mailsync-bridge-rebroadcast-to-all', msg);
 
-      const models = objects.map(Utils.convertToModel);
-      this._onIncomingChangeRecord(new DatabaseChangeRecord({type, objectClass, objects: models}));
+      const models = modelJSONs.map(Utils.convertToModel);
+      this._onIncomingChangeRecord(new DatabaseChangeRecord({
+        type, // TODO BG move to "model" naming style, finding all uses might be tricky
+        objectClass: modelClass,
+        objects: models}));
     }
   }
 
