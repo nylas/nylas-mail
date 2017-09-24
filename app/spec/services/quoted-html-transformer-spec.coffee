@@ -75,8 +75,7 @@ describe "QuotedHTMLTransformer", ->
             </blockquote>
           </blockquote>
 
-          <div>Text at end</div>
-         </div>
+          <div>Text at end</div></div>
         """
 
     # Test 2: Basic quote removal
@@ -91,8 +90,6 @@ describe "QuotedHTMLTransformer", ->
       after: """
         <br>
         Yo
-        <br>
-        <br>
         """
 
     # Test 3: It found the blockquote in another div
@@ -107,13 +104,7 @@ describe "QuotedHTMLTransformer", ->
         <br>
         """
       after: """
-        <div>Hello World</div>
-        <br>
-        <div>
-         </div>
-        <br>
-        <br>
-        """
+        <div>Hello World</div>"""
 
       # Test 4: It works inside of a wrapped div
     tests.push
@@ -125,13 +116,7 @@ describe "QuotedHTMLTransformer", ->
           <br>
         </div>
         """
-      after: """
-        <div>
-          <br>
-          <br>
-          <br>
-        </div>
-        """
+      after: ""
 
     # Test 5: Inline quotes and text
     tests.push
@@ -207,14 +192,7 @@ describe "QuotedHTMLTransformer", ->
           <blockquote>Some text quote</blockquote>
           Some text
           <div>
-            More text
-            <br>
-          </div>
-          <br>
-          <br>
-        </div>
-        <br>
-
+            More text </div></div>
         """
 
     # Test 9: Last several tags are blockquotes. Note the 3 blockquote
@@ -235,9 +213,7 @@ describe "QuotedHTMLTransformer", ->
       after: """
         <div>
           <blockquote>I'm inline</blockquote>
-          Content
-         </div>
-        <div></div>
+          Content </div>
         """
 
     # Test 10: If it's only a quote and no other text, then just show the
@@ -294,7 +270,6 @@ describe "QuotedHTMLTransformer", ->
           <tr><td>E</td><td>F</td></tr>
         </tbody></table>
         Yo
-        <br>
         """
 
     # Test 13: If there's an "On date…" string immediatley before a blockquote,
@@ -326,9 +301,7 @@ describe "QuotedHTMLTransformer", ->
       after: """
         Hey
         <div>
-          On FOOBAR
-          <br><br>
-          </div><br>
+          On FOOBAR </div>
       """
 
     # Test 14: Don't pick up false positives on the string precursors to block
@@ -343,8 +316,7 @@ describe "QuotedHTMLTransformer", ->
         <strong>A little song</strong>
         <blockquote>
           QUOTED TEXT
-        </blockquote>
-        </div>
+        </blockquote></div>
       """
       after: """
         Hey
@@ -352,8 +324,7 @@ describe "QuotedHTMLTransformer", ->
         On FOOBAR
         <br>
         On Thu, Mar 3, 2016 I went to my writing club and wrote:
-        <strong>A little song</strong>
-        </div>
+        <strong>A little song</strong></div>
       """
 
     # Test 15: Make sure inline quote in plaintext converted to HTML with <pre>
@@ -389,14 +360,14 @@ describe "QuotedHTMLTransformer", ->
         test = clean(QuotedHTMLTransformer.removeQuotedHTML(before, options))
         expect(test).toEqual clean(after)
 
-    it 'removes all trailing <br> tags except one', ->
+    it 'removes all trailing <br> tags', ->
       input0 = "hello world<br><br><blockquote>foolololol</blockquote>"
-      expect0 = "hello world<br>"
+      expect0 = "hello world"
       expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
     it 'preserves <br> tags in the middle and only chops off tail', ->
       input0 = "hello<br><br>world<br><br><blockquote>foolololol</blockquote>"
-      expect0 = "hello<br><br>world<br>"
+      expect0 = "hello<br>world"
       expect(QuotedHTMLTransformer.removeQuotedHTML(input0)).toEqual expect0
 
     it 'works as expected when body tag inside the html', ->
@@ -412,12 +383,9 @@ describe "QuotedHTMLTransformer", ->
       <body>
       <h1 id="h2">h2</h1>
       <p>he he hehehehehehe</p>
-      <p>dufjcasc</p>
-
-
-      </blockquote>
+      <p>dufjcasc</p></blockquote>
       """
-      expect0 = "<head></head><body><br></body>"
+      expect0 = "<head></head><body></body>"
       expect(QuotedHTMLTransformer.removeQuotedHTML(input0, {keepIfWholeBodyIsQuote: false})).toEqual expect0
 
 
