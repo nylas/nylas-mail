@@ -234,6 +234,7 @@ export default class QuerySubscription {
 
       this._set.clipToRange(this._query.range());
 
+      // todo: this is returning fewer objects because they're being deleted immediately after being saved
       this._fetchMissingModels().then((models) => {
         if (this._queryVersion !== version) {
           return;

@@ -7,4 +7,8 @@ export default class DestroyDraftTask extends Task {
       modelKey: 'messageIds',
     }),
   });
+
+  label() {
+    return "Deleting draft";
+  }
 }

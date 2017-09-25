@@ -92,9 +92,10 @@ export async function buildGmailAccountFromToken(serverTokenResponse) {
   // created an account object in the database and tested it. All we
   // need to do is save it locally, since we're confident Gmail will be
   // accessible from the local sync worker.
-  const {emailAddress, refreshToken} = serverTokenResponse;
+  const {name, emailAddress, refreshToken} = serverTokenResponse;
 
   const account = expandAccountWithCommonSettings(new Account({
+    name: name,
     emailAddress: emailAddress,
     provider: 'gmail',
     settings: {
