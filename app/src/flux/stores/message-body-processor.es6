@@ -38,20 +38,10 @@ class MessageBodyProcessor {
   }
 
   updateCacheForMessage = async (changedMessage) => {
-    const changedKey = this._key(changedMessage);
-
-    // grab the old cached value if there is one
-    const oldCacheRecord = this._recentlyProcessedD[changedKey];
-
-    // remove the message from the cache so retrieve() will reprocess
-    delete this._recentlyProcessedD[changedKey];
-    this._recentlyProcessedA = this._recentlyProcessedA.filter(({key}) =>
-      key !== changedKey
-    );
-
     // reprocess any subscription using the new message data. Note that
     // changedMessage may not have a loaded body if it wasn't changed. In
-    // that case, we use the previous body.
+    // that case, we use the previous body. Note: metadata changes, etc.
+    // can cause the body to change, even if the HTML is identical!
     const subscriptions = this._subscriptions.filter(({message}) =>
       message.id === changedMessage.id
     );
@@ -62,6 +52,19 @@ class MessageBodyProcessor {
       return;
     }
 
+    const changedKey = this._key(changedMessage);
+
+    // grab the old cached value if there is one
+    const oldCacheRecord = this._recentlyProcessedD[changedKey];
+
+    // remove the message from the cache so retrieve() will reprocess
+    // and insert it into the cache again
+    delete this._recentlyProcessedD[changedKey];
+    this._recentlyProcessedA = this._recentlyProcessedA.filter(({key}) =>
+      key !== changedKey
+    );
+
+    // run the processor
     const output = await this.retrieve(updatedMessage);
 
     // only trigger if the body has really changed
