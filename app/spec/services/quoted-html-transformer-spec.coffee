@@ -19,7 +19,7 @@ describe "QuotedHTMLTransformer", ->
     re = new RegExp(QuotedHTMLTransformer.annotationClass, 'g')
     html.match(re)?.length ? 0
 
-  [1..23].forEach (n) ->
+  [1..24].forEach (n) ->
     it "properly parses email_#{n}", ->
       opts = keepIfWholeBodyIsQuote: true
       expect(removeQuotedHTML("email_#{n}.html", opts).trim()).toEqual(readFile("email_#{n}_stripped.html").trim())

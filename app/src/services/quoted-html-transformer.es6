@@ -116,7 +116,7 @@ class QuotedHTMLTransformer {
             continue;
           }
         }
-        if (['BR', 'P', 'DIV', 'SPAN'].includes(child.nodeName)) {
+        if (['BR', 'P', 'DIV', 'SPAN', 'HR'].includes(child.nodeName)) {
           removeTrailingWhitespaceChildren(child);
           if ((child.childElementCount === 0) && (child.textContent.trim() === '')) {
             child.remove();
@@ -377,14 +377,18 @@ class QuotedHTMLTransformer {
 
   _findQuotesAfterMessageHeaderBlock(doc) {
     // This detector looks for a element in the DOM tree containing
-    // three children: <b>Sent:</b> and <b>To:</b> and <b>Subject:</b>.
-    // It then returns every node after that as quoted text.
+    // three children: <b>Sent:</b> or <b>Date:</b> and <b>To:</b> and
+    // <b>Subject:</b>. It then returns every node after that as quoted text.
 
     // Find a DOM node exactly matching <b>Sent:</b>
-    const to = doc.evaluate("//b[. = 'Sent:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext();
-    if (to) {
+    const dateMarker = (
+      doc.evaluate("//b[. = 'Sent:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext() ||
+      doc.evaluate("//b[. = 'Date:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext()
+    );
+
+    if (dateMarker) {
       // check to see if the parent container also contains the other two
-      const headerContainer = to.parentElement;
+      const headerContainer = dateMarker.parentElement;
       let matches = 0;
       for (const node of Array.from(headerContainer.children)) {
         if ((node.textContent === "To:") || (node.textContent === "Subject:")) {
