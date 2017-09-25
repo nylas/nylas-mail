@@ -75,7 +75,6 @@ class FeatureUsageStore extends NylasStore {
       component: (
         <FeatureUsedUpModal
           modalClass={feature}
-          featureName={lexicon.displayName}
           headerText={headerText}
           iconUrl={lexicon.iconUrl}
           rechargeText={rechargeText}
@@ -84,7 +83,7 @@ class FeatureUsageStore extends NylasStore {
     });
   }
 
-  async asyncUseFeature(feature, {lexicon = {}} = {}) {
+  async asyncUseFeature(feature, lexicon = {}) {
     if (this._isUsable(feature)) {
       this._markFeatureUsed(feature);
       return true;
@@ -115,25 +114,23 @@ class FeatureUsageStore extends NylasStore {
     let headerText = "";
     let rechargeText = "";
     if (!featureData.quota) {
-      headerText = `${lexicon.displayName} not yet enabled`;
-      rechargeText = `Upgrade to Pro to use ${lexicon.displayName}`
+      headerText = `Uhoh - that's a pro feature!`;
+      rechargeText = `Upgrade to Mailspring Pro to ${lexicon.usagePhrase}.`
     } else {
       headerText = lexicon.usedUpHeader || "You've reached your quota";
       let time = "later";
       if (featureData.period === "hourly") {
-        time = "next hour"
+        time = "an hour"
       } else if (featureData.period === "daily") {
-        time = "tomorrow"
+        time = "a day"
       } else if (featureData.period === "weekly") {
-        time = "next week"
+        time = "a week"
       } else if (featureData.period === "monthly") {
-        time = "next month"
+        time = "a month"
       } else if (featureData.period === "yearly") {
-        time = "next year"
-      } else if (featureData.period === "unlimited") {
-        time = "if you upgrade to Pro"
+        time = "a year"
       }
-      rechargeText = `You’ll have ${featureData.quota} more ${time}`
+      rechargeText = `You can ${lexicon.usagePhrase} ${featureData.quota} emails ${time} with Mailspring Basic. Upgrade to Pro today!`;
     }
     return {headerText, rechargeText}
   }

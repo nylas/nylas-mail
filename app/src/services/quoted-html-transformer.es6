@@ -40,6 +40,7 @@ class QuotedHTMLTransformer {
   //   preserve it.
   //
   // Returns HTML without quoted text
+  //
   removeQuotedHTML(html, options = {keepIfWholeBodyIsQuote: true}) {
     const doc = this._parseHTML(html);
     const quoteElements = this._findQuoteLikeElements(doc, options);
@@ -67,7 +68,9 @@ class QuotedHTMLTransformer {
     for (const el of quoteStringElements) {
       el.remove();
     }
-    this.removeTrailingBr(doc);
+
+    this._removeImagesStrippedByAnotherClient(doc);
+    this._removeUnnecessaryWhitespace(doc);
 
     if (options.keepIfWholeBodyIsQuote && (!doc.children[0] || this._wholeNylasPlaintextBodyIsQuote(doc))) {
       return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
@@ -76,7 +79,21 @@ class QuotedHTMLTransformer {
     return this._outputHTMLFor(doc, {initialHTML: html, asDOM});
   }
 
-  removeTrailingBr(doc) {
+  _removeImagesStrippedByAnotherClient(doc) {
+    const result = doc.evaluate("//img[contains(@alt,'removed by sender')]", doc.body, null, XPathResult.ANY_TYPE, null);
+    const nodes = [];
+
+    // collect all the results and then remove them all
+    // to avoid modifying the dom while using the xpath selector
+    let node = result.iterateNext();
+    while (node) {
+      nodes.push(node);
+      node = result.iterateNext();
+    }
+    nodes.forEach((n) => n.remove());
+  }
+
+  _removeUnnecessaryWhitespace(doc) {
     // Find back-to-back <br><br> at the top level and de-duplicate them
     const { children } = doc.body;
     const extraTailBrTags = [];

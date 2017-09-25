@@ -24,7 +24,7 @@ DOMUtils = require '../../dom-utils'
 class DraftFactory
   createDraft: (fields = {}) =>
     account = @_accountForNewDraft()
-    Promise.resolve(new Message(Object.assign({
+    defaults = {
       body: ''
       subject: ''
       version: 0
@@ -36,7 +36,8 @@ class DraftFactory
       draft: true
       pristine: true
       accountId: account.id
-    }, fields)))
+    }
+    Promise.resolve(new Message(Object.assign(defaults, fields)))
 
   createDraftForMailto: (urlString) =>
     account = @_accountForNewDraft()

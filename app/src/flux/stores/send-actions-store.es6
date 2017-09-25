@@ -26,35 +26,8 @@ function verifySendAction(sendAction = {}, extension = {}) {
   return true;
 }
 
-function configKeyFromTitle(title) {
-  return _str.dasherize(title.toLowerCase());
-}
-
-function getSendActions() {
-  return [DefaultSendAction].concat(
-    ExtensionRegistry.Composer.extensions()
-    .filter((extension) => extension.sendActions != null)
-    .reduce((accum, extension) => {
-      const sendActions = (extension.sendActions() || [])
-      .filter((sendAction) => sendAction != null)
-      .map((sendAction) => {
-        try {
-          verifySendAction(sendAction, extension);
-          sendAction.configKey = configKeyFromTitle(sendAction.title);
-          return sendAction
-        } catch (err) {
-          NylasEnv.reportError(err);
-          return null
-        }
-      })
-      .filter((sendAction) => sendAction != null)
-      return accum.concat(sendActions)
-    }, [])
-  )
-}
 
 class SendActionsStore extends NylasStore {
-
   constructor() {
     super()
     this._sendActions = []
@@ -72,8 +45,25 @@ class SendActionsStore extends NylasStore {
     return DefaultSendAction
   }
 
-  sendActions() {
+  getSendActions() {
     return this._sendActions
+  }
+
+  collectSendActions() {
+    const all = [DefaultSendAction];
+    for (const ext of ExtensionRegistry.Composer.extensions()) {
+      const extActions = (ext.sendActions && ext.sendActions()) || [];
+      for (const extAction of extActions) {
+        try {
+          verifySendAction(extAction, ext);
+          extAction.configKey = _str.dasherize(extAction.title.toLowerCase());
+          all.push(extAction);
+        } catch (err) {
+          NylasEnv.reportError(err);
+        }
+      }
+    }
+    return all;
   }
 
   sendActionForKey(configKey) {
@@ -104,7 +94,7 @@ class SendActionsStore extends NylasStore {
   }
 
   _onComposerExtensionsChanged = () => {
-    this._sendActions = getSendActions()
+    this._sendActions = this.collectSendActions();
     this.trigger()
   }
 }

@@ -1,14 +1,22 @@
-import {Actions, FocusedContentStore, SyncbackMetadataTask} from 'nylas-exports'
+import {
+  Actions,
+  FocusedContentStore,
+  SyncbackMetadataTask,
+  SyncbackDraftTask,
+  DatabaseStore,
+  AccountStore,
+  TaskQueue,
+  Thread,
+  Contact,
+  DraftFactory,
+} from 'nylas-exports'
 import NylasStore from 'nylas-store';
+
 import {PLUGIN_ID} from './send-reminders-constants'
 import {
-  getLatestMessage,
-  setMessageReminder,
-  getLatestMessageWithReminder,
-  asyncUpdateFromSentMessage,
-  observableForThreadsWithReminders,
-} from './send-reminders-utils'
-
+  updateReminderMetadata,
+  transferReminderMetadataFromDraftToThread,
+} from './send-reminders-utils';
 
 class SendRemindersStore extends NylasStore {
   constructor() {
@@ -20,19 +28,69 @@ class SendRemindersStore extends NylasStore {
     this._unsubscribers = [
       FocusedContentStore.listen(this._onFocusedContentChanged),
       Actions.draftDeliverySucceeded.listen(this._onDraftDeliverySucceeded),
-    ]
-    this._disposables = [
-      observableForThreadsWithReminders().subscribe(this._onThreadsWithRemindersChanged),
-    ]
+      DatabaseStore.listen(this._onDatabaseChanged),
+    ];
   }
 
   deactivate() {
     this._unsubscribers.forEach((unsub) => unsub())
-    this._disposables.forEach((disp) => disp.dispose())
+  }
+
+  _sendReminderEmail = async (thread, sentHeaderMessageId) => {
+    const account = AccountStore.accountForId(thread.accountId);
+    const draft = await DraftFactory.createDraft({
+      from: [new Contact({email: account.emailAddress, name: `${account.name} via Mailspring`})],
+      to: [account.defaultMe()],
+      cc: [],
+      pristine: false,
+      subject: thread.subject,
+      threadId: thread.id,
+      accountId: thread.accountId,
+      replyToHeaderMessageId: sentHeaderMessageId,
+      body: `
+        <strong>Mailspring Reminder:</strong> This thread has been moved to the top of
+        your inbox by Mailspring because no one has replied to your message</p>.
+        <p>--The Mailspring Team</p>`,
+    });
+
+    const saveTask = new SyncbackDraftTask({draft})
+    Actions.queueTask(saveTask)
+    await TaskQueue.waitForPerformLocal(saveTask);
+    Actions.sendDraft(draft.headerMessageId);
   }
 
   _onDraftDeliverySucceeded = ({headerMessageId}) => {
-    asyncUpdateFromSentMessage({headerMessageId})
+    // when a draft is sent a thread may be created for it for the first time.
+    // Move the metadata from the message to the thread for much easier book-keeping.
+    transferReminderMetadataFromDraftToThread(headerMessageId);
+  }
+
+  _onDatabaseChanged = ({type, objects, objectClass}) => {
+    if (objectClass !== Thread.name) {
+      return;
+    }
+
+    for (const thread of objects) {
+      const metadata = thread.metadataForPluginId(PLUGIN_ID);
+      if (!metadata || !metadata.expiration) {
+        continue;
+      }
+
+      // has a new message arrived on the thread? if so, clear the metadata
+      if (metadata.lastReplyTimestamp !== new Date(thread.lastMessageReceivedTimestamp).getTime() / 1000) {
+        updateReminderMetadata(thread, Object.assign(metadata, {expiration: null, shouldNotify: false}));
+        continue;
+      }
+
+      // has the metadata expired? If so, send the reminder email and
+      // advance metadata into the "notify" phase.
+      if (type === 'metadata-expiration' && metadata.expiration <= new Date()) {
+        // mark that the email should enter the notification highlight state
+        updateReminderMetadata(thread, Object.assign(metadata, {expiration: null, shouldNotify: true}));
+        // send an email on the thread, causing the thread to move up in the inbox
+        this._sendReminderEmail(thread, metadata.sentHeaderMessageId);
+      }
+    }
   }
 
   _onFocusedContentChanged = () => {
@@ -45,8 +103,8 @@ class SendRemindersStore extends NylasStore {
     // we have acknowledged the notification, or in this case, the reminder. If
     // that's the case, set `shouldNotify` to false.
     if (didUnfocusLastThread) {
-      const {shouldNotify} = this._lastFocusedThread.metadataForPluginId(PLUGIN_ID) || {}
-      if (shouldNotify) {
+      const metadata = this._lastFocusedThread.metadataForPluginId(PLUGIN_ID);
+      if (metadata && metadata.shouldNotify) {
         Actions.queueTask(new SyncbackMetadataTask({
           model: this._lastFocusedThread,
           accountId: this._lastFocusedThread.accountId,
@@ -55,22 +113,7 @@ class SendRemindersStore extends NylasStore {
         }));
       }
     }
-    this._lastFocusedThread = thread
-  }
-
-  _onThreadsWithRemindersChanged = (threads) => {
-    // If a new message was received on the thread, clear the reminder
-    threads.forEach((thread) => {
-      const {accountId} = thread
-      thread.messages().then((messages) => {
-        const latestMessage = getLatestMessage(thread, messages)
-        const latestMessageWithReminder = getLatestMessageWithReminder(thread, messages)
-        if (!latestMessageWithReminder) { return }
-        if (latestMessage.id !== latestMessageWithReminder.id) {
-          setMessageReminder(accountId, latestMessageWithReminder, null)
-        }
-      })
-    })
+    this._lastFocusedThread = thread;
   }
 }
 

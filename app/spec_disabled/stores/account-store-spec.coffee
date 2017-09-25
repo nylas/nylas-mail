@@ -170,13 +170,6 @@ describe "AccountStore", ->
       expect(@instance._onUpdateAccount.callCount).toBe(1)
       expect(@instance._onUpdateAccount.mostRecentCall.args).toEqual(['A', {syncState: 'invalid'}])
 
-    it "should put the N1 Cloud account in an `invalid` state", ->
-      spyOn(@instance, "_onUpdateAccount")
-      spyOn(AccountStore, 'tokensForAccountId').andReturn({n1Cloud: 'token'})
-      @instance._onAPIAuthError(new Error(), auth: user: 'token', 'N1CloudAPI')
-      expect(@instance._onUpdateAccount).toHaveBeenCalled()
-      expect(@instance._onUpdateAccount.mostRecentCall.args).toEqual(['A', {syncState: 'n1_cloud_auth_failed'}])
-
     it "should not throw an exception if the account cannot be found", ->
       spyOn(@instance, "_onUpdateAccount")
       @instance._onAPIAuthError(new Error(), auth: user: 'not found')

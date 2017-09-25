@@ -1,14 +1,19 @@
-import fs from 'fs';
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
-import {Actions, DateUtils, NylasAPIHelpers, DraftHelpers, FeatureUsageStore} from 'nylas-exports'
+import {Actions, DateUtils, NylasAPIHelpers, FeatureUsageStore} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
+
 import SendLaterPopover from './send-later-popover'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
-const {NylasAPIRequest, NylasAPI, N1CloudAPI} = require('nylas-exports')
 
-Promise.promisifyAll(fs);
+function sendLaterDateForDraft(draft) {
+  if (!draft) {
+    return null;
+  }
+  const messageMetadata = draft.metadataForPluginId(PLUGIN_ID) || {};
+  return messageMetadata.expiration;
+}
 
 class SendLaterButton extends Component {
   static displayName = 'SendLaterButton';
@@ -36,7 +41,7 @@ class SendLaterButton extends Component {
     if (nextState.saving !== this.state.saving) {
       return true;
     }
-    if (this._sendLaterDateForDraft(nextProps.draft) !== this._sendLaterDateForDraft(this.props.draft)) {
+    if (sendLaterDateForDraft(nextProps.draft) !== sendLaterDateForDraft(this.props.draft)) {
       return true;
     }
     return false;
@@ -50,20 +55,18 @@ class SendLaterButton extends Component {
     if (!this.props.isValidDraft()) { return }
     Actions.closePopover();
 
-    const currentSendLaterDate = this._sendLaterDateForDraft(this.props.draft)
+    const currentSendLaterDate = sendLaterDateForDraft(this.props.draft)
     if (currentSendLaterDate === sendLaterDate) { return }
 
     // Only check for feature usage and record metrics if this draft is not
     // already set to send later.
     if (!currentSendLaterDate) {
-      const lexicon = {
-        displayName: "Send Later",
-        usedUpHeader: "All delayed sends used",
-        iconUrl: "mailspring://send-later/assets/ic-send-later-modal@2x.png",
-      }
-
       try {
-        await FeatureUsageStore.asyncUseFeature('send-later', {lexicon})
+        await FeatureUsageStore.asyncUseFeature('send-later', {
+          usedUpHeader: "All Scheduled Sends Used",
+          usagePhrase: "schedule sending of",
+          iconUrl: "mailspring://send-later/assets/ic-send-later-modal@2x.png",
+        })
       } catch (error) {
         if (error instanceof FeatureUsageStore.NoProAccessError) {
           return
@@ -83,79 +86,20 @@ class SendLaterButton extends Component {
 
   onCancelSendLater = () => {
     Actions.closePopover();
-    this.onSetMetadata({expiration: null, cancelled: true});
+    this.onSetMetadata({expiration: null});
   };
 
-  onSetMetadata = async (metadatum = {}) => {
-    if (!this.mounted) { return; }
+  onSetMetadata = async ({expiration}) => {
     const {draft, session} = this.props;
-    const {expiration, ...extra} = metadatum
+
+    if (!this.mounted) { return; }
     this.setState({saving: true});
 
     try {
       await NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId);
       if (!this.mounted) { return; }
 
-      if (!expiration) {
-        session.changes.addPluginMetadata(PLUGIN_ID, {
-          ...extra,
-          expiration: null,
-        });
-      } else {
-        session.changes.add({pristine: false})
-        const draftContents = await DraftHelpers.finalizeDraft(session);
-        const req = new NylasAPIRequest({
-          api: NylasAPI,
-          options: {
-            path: `/drafts/build`,
-            method: 'POST',
-            body: draftContents,
-            accountId: draft.accountId,
-            returnsModel: false,
-          },
-        });
-
-        const draftMessage = await req.run();
-        const uploads = [];
-
-        // Now, upload attachments to our blob service.
-        for (const attachment of draftContents.uploads) {
-          const uploadReq = new NylasAPIRequest({
-            api: N1CloudAPI,
-            options: {
-              path: `/blobs`,
-              method: 'PUT',
-              blob: true,
-              accountId: draft.accountId,
-              returnsModel: false,
-              formData: {
-                id: attachment.id,
-                file: fs.createReadStream(attachment.originPath),
-              },
-            },
-          });
-          await uploadReq.run();
-          attachment.serverId = `${draftContents.accountId}-${attachment.id}`;
-          uploads.push(attachment);
-        }
-
-        const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking')
-        const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking')
-
-        draftMessage.usesOpenTracking = draft.metadataForPluginId(OPEN_TRACKING_ID) != null;
-        draftMessage.usesLinkTracking = draft.metadataForPluginId(LINK_TRACKING_ID) != null;
-        session.changes.add({serverId: draftMessage.id})
-        session.changes.addPluginMetadata(PLUGIN_ID, {
-          ...draftMessage,
-          ...extra,
-          expiration,
-          uploads,
-        });
-      }
-
-      // TODO: This currently is only useful for syncing the draft metadata,
-      // even though we don't actually syncback drafts
-      Actions.finalizeDraftAndSyncbackMetadata(draft.clientId);
+      session.changes.addPluginMetadata(PLUGIN_ID, {expiration});
 
       if (expiration && NylasEnv.isComposerWindow()) {
         NylasEnv.close();
@@ -173,7 +117,7 @@ class SendLaterButton extends Component {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       <SendLaterPopover
-        sendLaterDate={this._sendLaterDateForDraft(this.props.draft)}
+        sendLaterDate={sendLaterDateForDraft(this.props.draft)}
         onAssignSendLaterDate={this.onAssignSendLaterDate}
         onCancelSendLater={this.onCancelSendLater}
       />,
@@ -181,21 +125,17 @@ class SendLaterButton extends Component {
     )
   };
 
-  _sendLaterDateForDraft(draft) {
-    if (!draft) {
-      return null;
-    }
-    const messageMetadata = draft.metadataForPluginId(PLUGIN_ID) || {};
-    return messageMetadata.expiration;
-  }
-
-
   render() {
     let className = 'btn btn-toolbar btn-send-later';
 
     if (this.state.saving) {
       return (
-        <button className={className} title="Saving send date..." tabIndex={-1} style={{order: -99}}>
+        <button
+          className={className}
+          title="Saving send date..."
+          tabIndex={-1}
+          style={{order: -99}}
+        >
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
@@ -206,7 +146,7 @@ class SendLaterButton extends Component {
     }
 
     let sendLaterLabel = false;
-    const sendLaterDate = this._sendLaterDateForDraft(this.props.draft);
+    const sendLaterDate = sendLaterDateForDraft(this.props.draft);
 
     if (sendLaterDate) {
       className += ' btn-enabled';
@@ -218,7 +158,13 @@ class SendLaterButton extends Component {
       }
     }
     return (
-      <button className={className} title="Send later…" onClick={this.onClick} tabIndex={-1} style={{order: -99}}>
+      <button
+        className={className}
+        title="Send later…"
+        onClick={this.onClick}
+        tabIndex={-1}
+        style={{order: -99}}
+      >
         <RetinaImg name="icon-composer-sendlater.png" mode={RetinaImg.Mode.ContentIsMask} />
         {sendLaterLabel}
         <span>&nbsp;</span>

@@ -1,8 +1,8 @@
 import React from 'react'
+import moment from 'moment'
 import PropTypes from 'prop-types'
 import {DateUtils} from 'nylas-exports'
 import {DatePickerPopover} from 'nylas-component-kit'
-import {getReminderLabel} from './send-reminders-utils'
 
 
 const SendRemindersOptions = {
@@ -21,9 +21,13 @@ const SendRemindersOptions = {
 function SendRemindersPopover(props) {
   const {reminderDate, onRemind, onCancelReminder} = props
   const header = <span key="reminders-header">Remind me if no one replies:</span>
-  const footer = [
-    reminderDate ? <div key="reminders-divider" className="divider" /> : null,
-    reminderDate ?
+  const footer = [];
+
+  if (reminderDate) {
+    footer.push(
+      <div key="reminders-divider" className="divider" />
+    )
+    footer.push(
       <div
         key="send-reminders-footer"
         className="section send-reminders-footer"
@@ -32,16 +36,16 @@ function SendRemindersPopover(props) {
           <span>
             This thread will come back to the top of your inbox if nobody replies by:
             <span className="reminder-date">
-              {` ${getReminderLabel(reminderDate)}`}
+              {` ${moment(reminderDate).format(DateUtils.DATE_FORMAT_LONG_NO_YEAR)}`}
             </span>
           </span>
         </div>
         <button className="btn btn-cancel" onClick={onCancelReminder}>
           Clear reminder
         </button>
-      </div> :
-      null,
-  ]
+      </div>
+    );
+  }
 
   return (
     <DatePickerPopover
@@ -56,7 +60,7 @@ function SendRemindersPopover(props) {
 SendRemindersPopover.displayName = 'SendRemindersPopover';
 
 SendRemindersPopover.propTypes = {
-  reminderDate: PropTypes.string,
+  reminderDate: PropTypes.instanceOf(Date),
   onRemind: PropTypes.func,
   onCancelReminder: PropTypes.func,
 };

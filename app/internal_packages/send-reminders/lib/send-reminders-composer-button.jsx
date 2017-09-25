@@ -3,11 +3,13 @@ import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import {Actions} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
+import moment from 'moment'
+
 import SendRemindersPopover from './send-reminders-popover'
-import {setDraftReminder, reminderDateForMessage, getReminderLabel} from './send-reminders-utils'
+import {reminderDateFor, updateDraftReminderMetadata} from './send-reminders-utils'
 
 
-class SendRemindersComposerButton extends Component {
+export default class SendRemindersComposerButton extends Component {
   static displayName = 'SendRemindersComposerButton';
 
   static containerRequired = false;
@@ -31,16 +33,17 @@ class SendRemindersComposerButton extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (reminderDateForMessage(nextProps.draft) !== reminderDateForMessage(this.props.draft)) {
-      return true;
-    }
-    return false;
+    return (reminderDateFor(nextProps.draft) !== reminderDateFor(this.props.draft));
   }
 
-  onSetReminder = (reminderDate, dateLabel) => {
+  onSetReminder = (reminderDate) => {
     const {draft, session} = this.props
-    this.setState({saving: true})
-    setDraftReminder(draft.accountId, session, reminderDate, dateLabel)
+    this.setState({saving: true});
+    
+    updateDraftReminderMetadata(session, {
+      expiration: reminderDate,
+      sentHeaderMessageId: draft.headerMessageId,
+    })
   }
 
   onClick = () => {
@@ -49,7 +52,7 @@ class SendRemindersComposerButton extends Component {
     Actions.openPopover(
       <SendRemindersPopover
         onRemind={this.onSetReminder}
-        reminderDate={reminderDateForMessage(draft)}
+        reminderDate={reminderDateFor(draft)}
         onCancelReminder={() => this.onSetReminder(null)}
       />,
       {originRect: buttonRect, direction: 'up'}
@@ -57,10 +60,9 @@ class SendRemindersComposerButton extends Component {
   };
 
   render() {
-    const {saving} = this.state
     let className = 'btn btn-toolbar btn-send-reminder';
 
-    if (saving) {
+    if (this.state.saving) {
       return (
         <button className={className} title="Saving reminder..." tabIndex={-1}>
           <RetinaImg
@@ -72,12 +74,11 @@ class SendRemindersComposerButton extends Component {
       );
     }
 
-    const {draft} = this.props
-    const reminderDate = reminderDateForMessage(draft);
+    const reminderDate = reminderDateFor(this.props.draft);
     let reminderLabel = 'Set reminder';
     if (reminderDate) {
       className += ' btn-enabled';
-      reminderLabel = getReminderLabel(reminderDate, {fromNow: true})
+      reminderLabel = `Reminder set for ${moment(reminderDate).fromNow(true)} from now`;
     }
 
     return (
@@ -87,12 +88,16 @@ class SendRemindersComposerButton extends Component {
         title={reminderLabel}
         onClick={this.onClick}
       >
-        <RetinaImg name="icon-composer-reminders.png" mode={RetinaImg.Mode.ContentIsMask} />
+        <RetinaImg
+          name="icon-composer-reminders.png"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
         <span>&nbsp;</span>
-        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
+        <RetinaImg
+          name="icon-composer-dropdown.png"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </button>
     );
   }
 }
-
-export default SendRemindersComposerButton

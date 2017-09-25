@@ -8,7 +8,6 @@ import IdentityStore from '../flux/stores/identity-store'
 export default class FeatureUsedUpModal extends React.Component {
   static propTypes = {
     modalClass: React.PropTypes.string.isRequired,
-    featureName: React.PropTypes.string.isRequired,
     headerText: React.PropTypes.string.isRequired,
     rechargeText: React.PropTypes.string.isRequired,
     iconUrl: React.PropTypes.string.isRequired,
@@ -59,18 +58,20 @@ export default class FeatureUsedUpModal extends React.Component {
           <p className="recharge-text">{this.props.rechargeText}</p>
         </div>
         <div className="feature-cta">
-          <h2>Want to <span className="feature-name">{this.props.featureName} more</span>?</h2>
           <div className="pro-description">
-            <h3>Mailspring Pro includes:</h3>
+            <h3>Upgrade to Mailspring Pro</h3>
             <ul>
+              <li>Unlimited Connected Accounts</li>
+              <li>Unlimited Contact Profiles</li>
               <li>Unlimited Snoozing</li>
-              <li>Unlimited Open &amp; Link Tracking</li>
+              <li>Unlimited Read Receipts</li>
+              <li>Unlimited Link Tracking</li>
               <li>Unlimited Reminders</li>
+              <li><a onClick={this.onGoToFeatures}>Dozens of other features!</a></li>
             </ul>
-            <p>&hellip; plus <a onClick={this.onGoToFeatures}>dozens of other features</a></p>
           </div>
 
-          <button className="btn btn-cta btn-emphasis" onClick={this.onUpgrade}>
+          <button className="btn btn-large btn-cta btn-emphasis" onClick={this.onUpgrade}>
             Upgrade
           </button>
         </div>

@@ -1,52 +1,52 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import {Rx, Actions, Message, DatabaseStore} from 'nylas-exports';
-import {RetinaImg, ListensToObservable} from 'nylas-component-kit';
+import {Actions, DatabaseStore, Message} from 'nylas-exports';
+import {RetinaImg} from 'nylas-component-kit';
 import SendRemindersPopover from './send-reminders-popover';
-import {getLatestMessage, setMessageReminder, reminderDateForMessage} from './send-reminders-utils'
+import {updateReminderMetadata, reminderDateFor} from './send-reminders-utils'
 
 
-function getMessageObservable({thread} = {}) {
-  if (!thread) { return Rx.Observable.empty() }
-  const latestMessage = getLatestMessage(thread) || {}
-  const query = DatabaseStore.find(Message, latestMessage.id)
-  return Rx.Observable.fromQuery(query)
-}
-
-function getStateFromObservable(message, {props}) {
-  const {thread} = props
-  const latestMessage = message || getLatestMessage(thread)
-  return {latestMessage}
-}
-
-
-class SendRemindersPopoverButton extends Component {
+export default class SendRemindersPopoverButton extends Component {
   static displayName = 'SendRemindersPopoverButton';
 
   static propTypes = {
     className: PropTypes.string,
     thread: PropTypes.object,
-    latestMessage: PropTypes.object,
     direction: PropTypes.string,
     getBoundingClientRect: PropTypes.func,
   };
 
   static defaultProps = {
-    className: 'btn btn-toolbar',
     direction: 'down',
-    getBoundingClientRect: (inst) => ReactDOM.findDOMNode(inst).getBoundingClientRect(),
+    className: 'btn btn-toolbar',
+    getBoundingClientRect: (inst) =>
+      ReactDOM.findDOMNode(inst).getBoundingClientRect(),
   };
 
-  onSetReminder = (reminderDate, dateLabel) => {
-    const {latestMessage, thread} = this.props
-    setMessageReminder(latestMessage.accountId, latestMessage, reminderDate, dateLabel, thread)
+  onSetReminder = async (expiration) => {
+    const {thread} = this.props;
+
+    // get the messages on the thread and find the last one received.
+    // we need to identify the message which will show the reminder
+    DatabaseStore.findAll(Message, {threadId: thread.id}).then((messages) => {
+      const lastSent = messages.reverse().find(m => m.isFromMe());
+
+      updateReminderMetadata(thread, {
+        expiration,
+        shouldNotify: false,
+        sentHeaderMessageId: lastSent ? lastSent.headerMessageId : null,
+        lastReplyTimestamp: new Date(thread.lastMessageReceivedTimestamp).getTime() / 1000,
+      });
+
+      Actions.closePopover();
+    })
   }
 
   onClick = (event) => {
     event.stopPropagation()
-    const {direction, latestMessage, getBoundingClientRect} = this.props
-    const reminderDate = reminderDateForMessage(latestMessage)
+    const {direction, thread, getBoundingClientRect} = this.props
+    const reminderDate = reminderDateFor(thread)
     const buttonRect = getBoundingClientRect(this)
     Actions.openPopover(
       <SendRemindersPopover
@@ -59,8 +59,8 @@ class SendRemindersPopoverButton extends Component {
   };
 
   render() {
-    const {className, latestMessage} = this.props
-    const reminderDate = reminderDateForMessage(latestMessage)
+    const {className, thread} = this.props
+    const reminderDate = reminderDateFor(thread)
     const title = reminderDate ? 'Edit reminder' : 'Set reminder';
     return (
       <button
@@ -78,7 +78,3 @@ class SendRemindersPopoverButton extends Component {
   }
 }
 
-export default ListensToObservable(SendRemindersPopoverButton, {
-  getObservable: getMessageObservable,
-  getStateFromObservable,
-})

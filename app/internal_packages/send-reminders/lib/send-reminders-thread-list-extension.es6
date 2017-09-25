@@ -1,5 +1,4 @@
 import {PLUGIN_ID} from './send-reminders-constants'
-import {getLatestMessageWithReminder} from './send-reminders-utils'
 
 export const name = 'SendRemindersThreadListExtension'
 
@@ -12,11 +11,11 @@ export function cssClassNamesForThreadListItem(thread) {
 }
 
 export function cssClassNamesForThreadListIcon(thread) {
-  const {shouldNotify} = thread.metadataForPluginId(PLUGIN_ID) || {}
+  const {expiration, shouldNotify} = thread.metadataForPluginId(PLUGIN_ID) || {}
   if (shouldNotify) {
     return 'thread-icon-reminder-triggered'
   }
-  if (getLatestMessageWithReminder(thread)) {
+  if (expiration) {
     return 'thread-icon-reminder-pending'
   }
   return ''

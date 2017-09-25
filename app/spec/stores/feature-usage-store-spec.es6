@@ -82,9 +82,8 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
     describe("showing modal", () => {
       beforeEach(() => {
         this.lexicon = {
-          displayName: "Test Name",
-          rechargeCTA: "recharge me",
           usedUpHeader: "all test used",
+          usagePhrase: "add a test to",
           iconUrl: "icon url",
         }
       });
@@ -94,7 +93,7 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
           IdentityStore._identity.featureUsage["not-usable"].quota = 10000;
           FeatureUsageStore._onModalClose();
         });
-        await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
+        await FeatureUsageStore.asyncUseFeature('not-usable', this.lexicon);
         expect(Actions.openModal).toHaveBeenCalled();
         expect(Actions.openModal.calls.length).toBe(1)
       });
@@ -104,7 +103,7 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
           IdentityStore._identity.featureUsage["not-usable"].quota = 10000;
           FeatureUsageStore._onModalClose();
         })
-        await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
+        await FeatureUsageStore.asyncUseFeature('not-usable', this.lexicon);
         expect(Actions.openModal).toHaveBeenCalled();
         expect(Actions.openModal.calls.length).toBe(1)
         const component = Actions.openModal.calls[0].args[0].component;
@@ -123,7 +122,7 @@ describe("FeatureUsageStore", function featureUsageStoreSpec() {
           FeatureUsageStore._onModalClose()
         })
         try {
-          await FeatureUsageStore.asyncUseFeature('not-usable', {lexicon: this.lexicon});
+          await FeatureUsageStore.asyncUseFeature('not-usable', this.lexicon);
         } catch (err) {
           expect(err instanceof FeatureUsageStore.NoProAccessError).toBe(true)
           caughtError = true;

@@ -20,7 +20,7 @@ export default class SendLaterStatus extends Component {
       model: this.props.draft,
       accountId: this.props.draft.accountId,
       pluginId: PLUGIN_ID,
-      value: {expiration: null, cancelled: true},
+      value: {expiration: null},
     }))
   };
 

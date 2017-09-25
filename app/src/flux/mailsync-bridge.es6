@@ -316,9 +316,13 @@ export default class MailsyncBridge {
   }
 
   _onIncomingRebroadcastMessage = (event, msg) => {
-    const {type, objects, objectClass} = JSON.parse(msg);
-    const models = objects.map(Utils.convertToModel);
-    DatabaseStore.trigger(new DatabaseChangeRecord({type, objectClass, objects: models}));
+    const {type, modelJSONs, modelClass} = JSON.parse(msg);
+    const models = modelJSONs.map(Utils.convertToModel);
+    DatabaseStore.trigger(new DatabaseChangeRecord({
+      type,
+      objectClass: modelClass,
+      objects: models,
+    }));
   }
 
   _onFetchBodies(messages) {

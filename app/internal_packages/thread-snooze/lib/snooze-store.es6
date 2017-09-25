@@ -20,13 +20,7 @@ class SnoozeStore extends NylasStore {
         if (change.type !== 'metadata-expiration' || change.objectClass !== Thread.name) {
           return;
         }
-        const unsnooze = change.objects.filter((model) => {
-          const metadata = model.metadataForPluginId(PLUGIN_ID);
-          return metadata && metadata.expiration && metadata.expiration < new Date();
-        });
-        if (unsnooze.length > 0) {
-          this._onUnsnoozeThreads(unsnooze);
-        }
+        this._onMetadataExpired(change.objects);
       }),
     ];
   }
@@ -50,15 +44,13 @@ class SnoozeStore extends NylasStore {
   }
 
   _onSnoozeThreads = async (threads, snoozeDate, label) => {
-    const lexicon = {
-      displayName: "Snooze",
-      usedUpHeader: "All Snoozes used",
-      iconUrl: "mailspring://thread-snooze/assets/ic-snooze-modal@2x.png",
-    }
-
     try {
       // ensure the user is authorized to use this feature
-      await FeatureUsageStore.asyncUseFeature('snooze', {lexicon});
+      await FeatureUsageStore.asyncUseFeature('snooze', {
+        usedUpHeader: "All Snoozes Used",
+        usagePhrase: "snooze",
+        iconUrl: "mailspring://thread-snooze/assets/ic-snooze-modal@2x.png",
+      });
 
       // log to analytics
       this._recordSnoozeEvent(threads, snoozeDate, label);
@@ -106,6 +98,16 @@ class SnoozeStore extends NylasStore {
         },
       })
     ));
+  }
+
+  _onMetadataExpired = (threads) => {
+    const unsnooze = threads.filter((thread) => {
+      const metadata = thread.metadataForPluginId(PLUGIN_ID);
+      return metadata && metadata.expiration && metadata.expiration < new Date();
+    });
+    if (unsnooze.length > 0) {
+      this._onUnsnoozeThreads(unsnooze);
+    }
   }
 }
 

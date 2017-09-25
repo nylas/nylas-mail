@@ -93,11 +93,18 @@ export async function buildGmailAccountFromToken(serverTokenResponse) {
   // need to do is save it locally, since we're confident Gmail will be
   // accessible from the local sync worker.
   const {emailAddress, refreshToken} = serverTokenResponse;
-  const account = new Account();
-  account.emailAddress = emailAddress;
-  account.provider = 'gmail';
-  account.settings.refresh_token = refreshToken;
-  return expandAccountWithCommonSettings(account);
+
+  const account = expandAccountWithCommonSettings(new Account({
+    emailAddress: emailAddress,
+    provider: 'gmail',
+    settings: {
+      refresh_token: refreshToken,
+    },
+  }));
+
+  account.id = idForAccount(emailAddress, account.settings);
+
+  return account;
 }
 
 export function buildGmailSessionKey() {

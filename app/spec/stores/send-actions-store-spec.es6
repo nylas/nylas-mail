@@ -87,7 +87,7 @@ const OtherExtension = {
 const {DefaultSendActionKey} = SendActionsStore
 
 function sendActionKeys() {
-  return SendActionsStore.sendActions().map(({configKey}) => configKey)
+  return SendActionsStore.collectSendActions().map(({configKey}) => configKey)
 }
 
 describe('SendActionsStore', function describeBlock() {

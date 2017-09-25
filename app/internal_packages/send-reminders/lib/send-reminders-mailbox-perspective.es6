@@ -1,8 +1,11 @@
 import {
+  Thread,
   MailboxPerspective,
+  MutableQuerySubscription,
+  DatabaseStore,
 } from 'nylas-exports'
-import SendRemindersQuerySubscription from './send-reminders-query-subscription'
 
+import {PLUGIN_ID} from './send-reminders-constants';
 
 class SendRemindersMailboxPerspective extends MailboxPerspective {
 
@@ -22,7 +25,15 @@ class SendRemindersMailboxPerspective extends MailboxPerspective {
   }
 
   threads() {
-    return new SendRemindersQuerySubscription(this.accountIds)
+    let query = DatabaseStore.findAll(Thread)
+      .where(Thread.attributes.pluginMetadata.contains(PLUGIN_ID))
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+
+    if (this.accountIds.length === 1) {
+      query = query.where({accountId: this.accountIds[0]})
+    }
+
+    return new MutableQuerySubscription(query, {emitResultSet: true});
   }
 
   canReceiveThreadsFromAccountIds() {

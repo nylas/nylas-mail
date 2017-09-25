@@ -1,18 +1,20 @@
 import React from 'react'
+import moment from 'moment';
 import PropTypes from 'prop-types'
 import {RetinaImg} from 'nylas-component-kit'
-import {getReminderLabel, getLatestMessage, getLatestMessageWithReminder, setMessageReminder} from './send-reminders-utils'
+import {DateUtils} from 'nylas-exports';
+
+import {updateReminderMetadata} from './send-reminders-utils'
 import {PLUGIN_ID} from './send-reminders-constants'
 
 
-export function MessageHeader(props) {
-  const {thread, messages, message} = props
-  const {shouldNotify} = thread.metadataForPluginId(PLUGIN_ID) || {}
+export function NotificationExplanationMessageHeader({thread, message}) {
+  const {shouldNotify, sentHeaderMessageId} = thread.metadataForPluginId(PLUGIN_ID) || {};
+
   if (!shouldNotify) {
     return <span />
   }
-  const latestMessage = getLatestMessage(thread, messages)
-  if (message.id !== latestMessage.id) {
+  if (message.headerMessageId !== sentHeaderMessageId) {
     return <span />
   }
   return (
@@ -27,24 +29,25 @@ export function MessageHeader(props) {
     </div>
   )
 }
-MessageHeader.displayName = 'MessageHeader'
-MessageHeader.containerRequired = false
-MessageHeader.propTypes = {
+
+NotificationExplanationMessageHeader.displayName = 'NotificationExplanationMessageHeader'
+NotificationExplanationMessageHeader.containerRequired = false
+NotificationExplanationMessageHeader.propTypes = {
   messages: PropTypes.array,
   message: PropTypes.object,
   thread: PropTypes.object,
 }
 
-export function ThreadHeader(props) {
-  const {thread, messages} = props
-  const message = getLatestMessageWithReminder(thread, messages)
-  if (!message) {
+export function ScheduledReminderThreadHeader({thread}) {
+  const metadata = thread.metadataForPluginId(PLUGIN_ID) || {};
+  if (!metadata.expiration) {
     return <span />
   }
-  const {expiration} = message.metadataForPluginId(PLUGIN_ID) || {}
-  const clearReminder = () => {
-    setMessageReminder(message.accountId, message, null)
+
+  const onClearReminder = () => {
+    updateReminderMetadata(thread, Object.assign(metadata, {expiration: null}))
   }
+
   return (
     <div className="send-reminders-header">
       <RetinaImg
@@ -52,15 +55,15 @@ export function ThreadHeader(props) {
         mode={RetinaImg.Mode.ContentIsMask}
       />
       <span className="reminder-date">
-        {` ${getReminderLabel(expiration)}`}
+        {` ${moment(metadata.expiration).format(DateUtils.DATE_FORMAT_LONG_NO_YEAR)}`}
       </span>
-      <span className="clear-reminder" onClick={clearReminder}>Cancel</span>
+      <span className="clear-reminder" onClick={onClearReminder}>Cancel</span>
     </div>
   )
 }
-ThreadHeader.displayName = 'ThreadHeader'
-ThreadHeader.containerRequired = false
-ThreadHeader.propTypes = {
+ScheduledReminderThreadHeader.displayName = 'ScheduledReminderThreadHeader'
+ScheduledReminderThreadHeader.containerRequired = false
+ScheduledReminderThreadHeader.propTypes = {
   thread: PropTypes.object,
   messages: PropTypes.array,
 }
