@@ -38,7 +38,7 @@ function idForAccount(emailAddress, connectionSettings) {
   }
 
   const idString = `${emailAddress}${JSON.stringify(settingsThatCouldChangeMailContents)}`;
-  return crypto.createHash('sha256').update(idString, 'utf8').digest('hex');
+  return crypto.createHash('sha256').update(idString, 'utf8').digest('hex').substr(0, 8);
 }
 
 export function expandAccountWithCommonSettings(account) {
