@@ -6,7 +6,7 @@ import {
   NylasAPIHelpers,
   APIError,
 } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import classnames from 'classnames';
 import _ from 'underscore';
 
@@ -66,7 +66,6 @@ export default class MetadataComposerToggleButton extends React.Component {
     this.setState({ pending: true });
 
     try {
-      await NylasAPIHelpers.authPlugin(pluginId, pluginName, draft.accountId);
       session.changes.addPluginMetadata(pluginId, metadataValue);
     } catch (error) {
       const { stickyToggle, errorMessage } = this.props;

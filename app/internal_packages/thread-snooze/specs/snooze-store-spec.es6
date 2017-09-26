@@ -47,7 +47,6 @@ xdescribe('SnoozeStore', function snoozeStore() {
     );
 
     spyOn(AccountStore, 'accountsForItems').andReturn(this.accounts);
-    spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
     spyOn(SnoozeUtils, 'moveThreads');
     spyOn(Actions, 'closePopover');
     spyOn(AppEnv, 'reportError');
@@ -78,16 +77,6 @@ xdescribe('SnoozeStore', function snoozeStore() {
   });
 
   describe('onSnoozeThreads', () => {
-    it('auths plugin against all present accounts', () => {
-      waitsForPromise(() => {
-        return this.store.onSnoozeThreads(this.threads, 'date', 'label').then(() => {
-          expect(NylasAPIHelpers.authPlugin).toHaveBeenCalled();
-          expect(NylasAPIHelpers.authPlugin.calls[0].args[2]).toEqual(this.accounts[0]);
-          expect(NylasAPIHelpers.authPlugin.calls[1].args[2]).toEqual(this.accounts[1]);
-        });
-      });
-    });
-
     it('calls Actions.queueTask with the correct metadata', () => {
       waitsForPromise(() => {
         return this.store.onSnoozeThreads(this.threads, 'date', 'label').then(() => {

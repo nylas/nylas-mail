@@ -51,7 +51,6 @@ const lazyLoadAndRegisterTask = (klassName, path) => {
 lazyLoad(`Actions`, 'flux/actions');
 
 // API Endpoints
-lazyLoad(`NylasAPIHelpers`, 'flux/nylas-api-helpers');
 lazyLoad(`NylasAPIRequest`, 'flux/nylas-api-request');
 lazyLoad(`MailsyncProcess`, 'mailsync-process');
 // The Database

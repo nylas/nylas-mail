@@ -46,11 +46,6 @@ xdescribe('SendLaterButton', function sendLaterButton() {
       advanceClock();
 
       expect(button.setState).toHaveBeenCalledWith({ saving: true });
-      expect(NylasAPIHelpers.authPlugin).toHaveBeenCalledWith(
-        PLUGIN_ID,
-        PLUGIN_NAME,
-        button.props.draft.accountId
-      );
       expect(button.props.session.changes.addPluginMetadata).toHaveBeenCalledWith(PLUGIN_ID, {
         sendLaterDate,
       });
@@ -61,7 +56,6 @@ xdescribe('SendLaterButton', function sendLaterButton() {
       spyOn(button, 'setState');
       spyOn(AppEnv, 'reportError');
       spyOn(AppEnv, 'showErrorDialog');
-      spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.reject(new Error('Oh no!')));
       spyOn(Actions, 'finalizeDraftAndSyncbackMetadata');
       button.onSendLater({ utc: () => 'utc' });
       advanceClock();
@@ -73,7 +67,6 @@ xdescribe('SendLaterButton', function sendLaterButton() {
       const button = makeButton(null, { sendLaterDate: 'date' });
       spyOn(button, 'setState');
       spyOn(AppEnv, 'close');
-      spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
       spyOn(AppEnv, 'isComposerWindow').andReturn(true);
       spyOn(Actions, 'finalizeDraftAndSyncbackMetadata');
       button.onSendLater({ utc: () => 'utc' });

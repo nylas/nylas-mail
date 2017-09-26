@@ -1,4 +1,4 @@
-NylasStore = require "nylas-store"
+MailspringStore = require "mailspring-store"
 Actions = require("../actions").default
 Message = require("../models/message").default
 Thread = require("../models/thread").default
@@ -7,14 +7,13 @@ DatabaseStore = require("./database-store").default
 TaskFactory = require("../tasks/task-factory").default
 FocusedPerspectiveStore = require('./focused-perspective-store').default
 FocusedContentStore = require("./focused-content-store").default
-NylasAPIHelpers = require '../nylas-api-helpers'
 ExtensionRegistry = require('../../registries/extension-registry')
 async = require 'async'
 _ = require 'underscore'
 
 FolderNamesHiddenByDefault = ['spam', 'trash']
 
-class MessageStore extends NylasStore
+class MessageStore extends MailspringStore
 
   constructor: ->
     @_setStoreDefaults()
