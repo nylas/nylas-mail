@@ -4,7 +4,7 @@ import DatabaseObjectRegistry from '../registries/database-object-registry';
 
 // This module exports an empty object, with a ton of defined properties that
 // `require` files the first time they're called.
-module.exports = exports = window.$n = {};
+module.exports = exports = window.$m = {};
 
 const resolveExport = requireValue => {
   return requireValue.default || requireValue;
