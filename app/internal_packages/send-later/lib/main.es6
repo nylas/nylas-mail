@@ -28,9 +28,6 @@ export function activate() {
       return;
     }
     for (const message of change.objects) {
-      if (!message.draft) {
-        continue;
-      }
       const metadata = message.metadataForPluginId(PLUGIN_ID);
       if (!metadata || !metadata.expiration || metadata.expiration > new Date()) {
         continue;
@@ -44,6 +41,10 @@ export function activate() {
           expiration: null,
         },
       }));
+
+      if (!message.draft) {
+        continue;
+      }
 
       // send the draft
       Actions.sendDraft(message.headerMessageId, SendActionsStore.DefaultSendActionKey)

@@ -1,7 +1,6 @@
 import {
   Actions,
   FocusedContentStore,
-  SyncbackMetadataTask,
   SyncbackDraftTask,
   DatabaseStore,
   AccountStore,
@@ -59,10 +58,10 @@ class SendRemindersStore extends NylasStore {
     Actions.sendDraft(draft.headerMessageId);
   }
 
-  _onDraftDeliverySucceeded = ({headerMessageId}) => {
+  _onDraftDeliverySucceeded = ({headerMessageId, accountId}) => {
     // when a draft is sent a thread may be created for it for the first time.
     // Move the metadata from the message to the thread for much easier book-keeping.
-    transferReminderMetadataFromDraftToThread(headerMessageId);
+    transferReminderMetadataFromDraftToThread({headerMessageId, accountId});
   }
 
   _onDatabaseChanged = ({type, objects, objectClass}) => {
@@ -76,9 +75,9 @@ class SendRemindersStore extends NylasStore {
         continue;
       }
 
-      // has a new message arrived on the thread? if so, clear the metadata
+      // has a new message arrived on the thread? if so, clear the metadata completely
       if (metadata.lastReplyTimestamp !== new Date(thread.lastMessageReceivedTimestamp).getTime() / 1000) {
-        updateReminderMetadata(thread, Object.assign(metadata, {expiration: null, shouldNotify: false}));
+        updateReminderMetadata(thread, {});
         continue;
       }
 
@@ -105,12 +104,7 @@ class SendRemindersStore extends NylasStore {
     if (didUnfocusLastThread) {
       const metadata = this._lastFocusedThread.metadataForPluginId(PLUGIN_ID);
       if (metadata && metadata.shouldNotify) {
-        Actions.queueTask(new SyncbackMetadataTask({
-          model: this._lastFocusedThread,
-          accountId: this._lastFocusedThread.accountId,
-          pluginId: PLUGIN_ID,
-          value: {shouldNotify: false},
-        }));
+        updateReminderMetadata(this._lastFocusedThread, {});
       }
     }
     this._lastFocusedThread = thread;

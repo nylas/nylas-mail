@@ -84,7 +84,10 @@ export default class SendDraftTask extends Task {
 
   onSuccess() {
     Actions.recordUserEvent("Draft Sent")
-    Actions.draftDeliverySucceeded({headerMessageId: this.draft.headerMessageId});
+    Actions.draftDeliverySucceeded({
+      headerMessageId: this.draft.headerMessageId,
+      accountId: this.draft.accountId,
+    });
 
     // Play the sending sound
     if (NylasEnv.config.get("core.sending.sounds") && !this.silent) {

@@ -45,7 +45,7 @@ export function ScheduledReminderThreadHeader({thread}) {
   }
 
   const onClearReminder = () => {
-    updateReminderMetadata(thread, Object.assign(metadata, {expiration: null}))
+    updateReminderMetadata(thread, {})
   }
 
   return (

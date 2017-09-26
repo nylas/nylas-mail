@@ -24,9 +24,9 @@ describe('DatePickerPopover', function sendLaterPopover() {
     it('calls props.onSelectDate', () => {
       const onSelectDate = jasmine.createSpy('onSelectDate')
       const popover = makePopover({onSelectDate})
-      popover.instance().selectDate({utc: () => 'utc'}, 'Custom')
-
-      expect(onSelectDate).toHaveBeenCalledWith('formatted', 'Custom')
+      const fakeDate = new Date()
+      popover.instance().selectDate(fakeDate, 'Custom')
+      expect(onSelectDate).toHaveBeenCalledWith(fakeDate, 'Custom')
     });
   });
 
@@ -39,8 +39,9 @@ describe('DatePickerPopover', function sendLaterPopover() {
       const popover = makePopover()
       const instance = popover.instance()
       spyOn(instance, 'selectDate')
-      instance.onCustomDateSelected('date', 'abc')
-      expect(instance.selectDate).toHaveBeenCalledWith('date', 'Custom')
+      const fakeDate = new Date()
+      instance.onCustomDateSelected(fakeDate, 'abc')
+      expect(instance.selectDate).toHaveBeenCalledWith(fakeDate, 'Custom')
     });
 
     it('throws error if date is invalid', () => {

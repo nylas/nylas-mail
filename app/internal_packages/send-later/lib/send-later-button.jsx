@@ -9,11 +9,7 @@ import SendLaterPopover from './send-later-popover'
 import {PLUGIN_ID, PLUGIN_NAME} from './send-later-constants'
 
 function sendLaterDateForDraft(draft) {
-  if (!draft) {
-    return null;
-  }
-  const messageMetadata = draft.metadataForPluginId(PLUGIN_ID) || {};
-  return messageMetadata.expiration;
+  return (draft && draft.metadataForPluginId(PLUGIN_ID) || {}).expiration;
 }
 
 class SendLaterButton extends Component {

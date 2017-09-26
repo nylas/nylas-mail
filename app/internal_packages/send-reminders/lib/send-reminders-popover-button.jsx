@@ -31,13 +31,14 @@ export default class SendRemindersPopoverButton extends Component {
     // we need to identify the message which will show the reminder
     DatabaseStore.findAll(Message, {threadId: thread.id}).then((messages) => {
       const lastSent = messages.reverse().find(m => m.isFromMe());
-
-      updateReminderMetadata(thread, {
+      const metadata = expiration ? {
         expiration,
         shouldNotify: false,
         sentHeaderMessageId: lastSent ? lastSent.headerMessageId : null,
         lastReplyTimestamp: new Date(thread.lastMessageReceivedTimestamp).getTime() / 1000,
-      });
+      } : {};
+
+      updateReminderMetadata(thread, metadata);
 
       Actions.closePopover();
     })
@@ -51,7 +52,7 @@ export default class SendRemindersPopoverButton extends Component {
     Actions.openPopover(
       <SendRemindersPopover
         reminderDate={reminderDate}
-        onRemind={this.onSetReminder}
+        onRemind={(date) => this.onSetReminder(date)}
         onCancelReminder={() => this.onSetReminder(null)}
       />,
       {originRect: buttonRect, direction}

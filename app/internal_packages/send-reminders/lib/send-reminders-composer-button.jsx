@@ -44,6 +44,8 @@ export default class SendRemindersComposerButton extends Component {
       expiration: reminderDate,
       sentHeaderMessageId: draft.headerMessageId,
     })
+
+    Actions.closePopover();
   }
 
   onClick = () => {
@@ -51,8 +53,8 @@ export default class SendRemindersComposerButton extends Component {
     const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
     Actions.openPopover(
       <SendRemindersPopover
-        onRemind={this.onSetReminder}
         reminderDate={reminderDateFor(draft)}
+        onRemind={(date) => this.onSetReminder(date)}
         onCancelReminder={() => this.onSetReminder(null)}
       />,
       {originRect: buttonRect, direction: 'up'}

@@ -41,7 +41,7 @@ function SendLaterPopover(props) {
 }
 SendLaterPopover.displayName = 'SendLaterPopover';
 SendLaterPopover.propTypes = {
-  sendLaterDate: PropTypes.string,
+  sendLaterDate: PropTypes.instanceOf(Date),
   onAssignSendLaterDate: PropTypes.func.isRequired,
   onCancelSendLater: PropTypes.func.isRequired,
 };

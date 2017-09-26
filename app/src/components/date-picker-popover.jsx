@@ -52,8 +52,8 @@ class DatePickerPopover extends Component {
   };
 
   selectDate = (date, dateLabel) => {
-    const formatted = DateUtils.format(date.utc());
-    this.props.onSelectDate(formatted, dateLabel);
+    const nonMomentDate = date.toDate ? date.toDate() : date;
+    this.props.onSelectDate(nonMomentDate, dateLabel);
   };
 
   renderMenuOption = (optionKey) => {
