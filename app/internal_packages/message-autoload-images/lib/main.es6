@@ -1,7 +1,4 @@
-import {
-  ComponentRegistry,
-  ExtensionRegistry,
-} from 'nylas-exports';
+import { ComponentRegistry, ExtensionRegistry } from 'nylas-exports';
 
 import AutoloadImagesExtension from './autoload-images-extension';
 import AutoloadImagesHeader from './autoload-images-header';

@@ -2,7 +2,7 @@
 import path from 'path';
 import Model from './model';
 import Attributes from '../attributes';
-let RegExpUtils = null
+let RegExpUtils = null;
 
 /**
 Public: File model represents an email attachment.
@@ -23,7 +23,6 @@ This class also inherits attributes from {Model}
 Section: Models
 */
 export default class File extends Model {
-
   static attributes = Object.assign({}, Model.attributes, {
     filename: Attributes.String({
       modelKey: 'filename',
@@ -48,7 +47,7 @@ export default class File extends Model {
   // the contentType. It will always return a non-empty string.
   displayName() {
     const defaultNames = {
-      'text/calendar': "Event.ics",
+      'text/calendar': 'Event.ics',
       'image/png': 'Unnamed Image.png',
       'image/jpg': 'Unnamed Image.jpg',
       'image/jpeg': 'Unnamed Image.jpg',
@@ -59,7 +58,7 @@ export default class File extends Model {
     if (defaultNames[this.contentType]) {
       return defaultNames[this.contentType];
     }
-    return "Unnamed Attachment";
+    return 'Unnamed Attachment';
   }
 
   safeDisplayName() {
@@ -91,7 +90,7 @@ export default class File extends Model {
 
     // parseFloat will remove trailing zeros
     const decimalPoints = idx >= 2 ? 1 : 0;
-    const rounded = parseFloat(result.toFixed(decimalPoints))
+    const rounded = parseFloat(result.toFixed(decimalPoints));
     return `${rounded} ${units[idx]}`;
   }
 }

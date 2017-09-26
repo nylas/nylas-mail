@@ -5,49 +5,49 @@ import { ContenteditableExtension } from 'nylas-exports';
 export default class EmphasisFormattingExtension extends ContenteditableExtension {
   static keyCommandHandlers() {
     return {
-      "contenteditable:bold": this._onBold,
-      "contenteditable:italic": this._onItalic,
-      "contenteditable:underline": this._onUnderline,
-      "contenteditable:strikeThrough": this._onStrikeThrough,
+      'contenteditable:bold': this._onBold,
+      'contenteditable:italic': this._onItalic,
+      'contenteditable:underline': this._onUnderline,
+      'contenteditable:strikeThrough': this._onStrikeThrough,
     };
   }
 
   static toolbarButtons() {
     return [
       {
-        className: "btn-bold",
+        className: 'btn-bold',
         onClick: this._onBold,
-        tooltip: "Bold",
+        tooltip: 'Bold',
         iconUrl: null, // Defined in the css of btn-bold
       },
       {
-        className: "btn-italic",
+        className: 'btn-italic',
         onClick: this._onItalic,
-        tooltip: "Italic",
+        tooltip: 'Italic',
         iconUrl: null, // Defined in the css of btn-italic
       },
       {
-        className: "btn-underline",
+        className: 'btn-underline',
         onClick: this._onUnderline,
-        tooltip: "Underline",
+        tooltip: 'Underline',
         iconUrl: null, // Defined in the css of btn-underline
       },
     ];
   }
 
-  static _onBold({editor}) {
+  static _onBold({ editor }) {
     editor.bold();
   }
 
-  static _onItalic({editor}) {
+  static _onItalic({ editor }) {
     editor.italic();
   }
 
-  static _onUnderline({editor}) {
+  static _onUnderline({ editor }) {
     editor.underline();
   }
 
-  static _onStrikeThrough({editor}) {
+  static _onStrikeThrough({ editor }) {
     editor.strikeThrough();
   }
 

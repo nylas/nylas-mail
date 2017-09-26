@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 
-module.exports = (grunt) => {
-  const {spawn} = grunt.config('taskHelpers');
+module.exports = grunt => {
+  const { spawn } = grunt.config('taskHelpers');
 
   const outputDir = grunt.config.get('outputDir');
   const contentsDir = path.join(grunt.config('outputDir'), `mailspring-linux-${process.arch}`);
@@ -17,23 +17,23 @@ module.exports = (grunt) => {
   // a few helpers
 
   const writeFromTemplate = (filePath, data) => {
-    const template = _.template(String(fs.readFileSync(filePath)))
+    const template = _.template(String(fs.readFileSync(filePath)));
     const finishedPath = path.join(outputDir, path.basename(filePath).replace('.in', ''));
     grunt.file.write(finishedPath, template(data));
     return finishedPath;
-  }
+  };
 
   const getInstalledSize = (dir, callback) => {
     const cmd = 'du';
     const args = ['-sk', dir];
-    spawn({cmd, args}, (error, {stdout}) => {
+    spawn({ cmd, args }, (error, { stdout }) => {
       const installedSize = stdout.split(/\s+/).shift() || '200000'; // default to 200MB
       callback(null, installedSize);
     });
-  }
+  };
 
   grunt.registerTask('create-rpm-installer', 'Create rpm package', function mkrpmf() {
-    const done = this.async()
+    const done = this.async();
     if (!arch) {
       done(new Error(`Unsupported arch ${process.arch}`));
       return;
@@ -41,7 +41,7 @@ module.exports = (grunt) => {
 
     const rpmDir = path.join(grunt.config('outputDir'), 'rpm');
     if (grunt.file.exists(rpmDir)) {
-      grunt.file.delete(rpmDir, {force: true});
+      grunt.file.delete(rpmDir, { force: true });
     }
 
     const templateData = {
@@ -52,19 +52,19 @@ module.exports = (grunt) => {
       linuxShareDir: '/usr/local/share/mailspring',
       linuxAssetsDir: linuxAssetsDir,
       contentsDir: contentsDir,
-    }
+    };
 
     // This populates mailspring.spec
-    const specInFilePath = path.join(linuxAssetsDir, 'redhat', 'mailspring.spec.in')
-    writeFromTemplate(specInFilePath, templateData)
+    const specInFilePath = path.join(linuxAssetsDir, 'redhat', 'mailspring.spec.in');
+    writeFromTemplate(specInFilePath, templateData);
 
     // This populates mailspring.desktop
-    const desktopInFilePath = path.join(linuxAssetsDir, 'mailspring.desktop.in')
-    writeFromTemplate(desktopInFilePath, templateData)
+    const desktopInFilePath = path.join(linuxAssetsDir, 'mailspring.desktop.in');
+    writeFromTemplate(desktopInFilePath, templateData);
 
-    const cmd = path.join(grunt.config('appDir'), 'script', 'mkrpm')
-    const args = [outputDir, contentsDir, linuxAssetsDir]
-    spawn({cmd, args}, (error) => {
+    const cmd = path.join(grunt.config('appDir'), 'script', 'mkrpm');
+    const args = [outputDir, contentsDir, linuxAssetsDir];
+    spawn({ cmd, args }, error => {
       if (error) {
         return done(error);
       }
@@ -74,7 +74,7 @@ module.exports = (grunt) => {
   });
 
   grunt.registerTask('create-deb-installer', 'Create debian package', function mkdebf() {
-    const done = this.async()
+    const done = this.async();
     if (!arch) {
       done(`Unsupported arch ${process.arch}`);
       return;
@@ -97,20 +97,20 @@ module.exports = (grunt) => {
         section: 'devel',
         maintainer: 'Mailspring Team <support@getmailspring.com>',
         installedSize: installedSize,
-      }
-      writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data)
-      writeFromTemplate(path.join(linuxAssetsDir, 'mailspring.desktop.in'), data)
+      };
+      writeFromTemplate(path.join(linuxAssetsDir, 'debian', 'control.in'), data);
+      writeFromTemplate(path.join(linuxAssetsDir, 'mailspring.desktop.in'), data);
 
-      const icon = path.join(grunt.config('appDir'), 'build', 'resources', 'mailspring.png')
+      const icon = path.join(grunt.config('appDir'), 'build', 'resources', 'mailspring.png');
       const cmd = path.join(grunt.config('appDir'), 'script', 'mkdeb');
       const args = [version, arch, icon, linuxAssetsDir, contentsDir, outputDir];
-      spawn({cmd, args}, (spawnError) => {
+      spawn({ cmd, args }, spawnError => {
         if (spawnError) {
           return done(spawnError);
         }
         grunt.log.ok(`Created ${outputDir}/mailspring-${version}-${arch}.deb`);
-        return done()
+        return done();
       });
     });
   });
-}
+};

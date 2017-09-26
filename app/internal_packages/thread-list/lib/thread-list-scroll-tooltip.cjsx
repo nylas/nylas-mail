@@ -1,12 +1,11 @@
-React = require 'react'
-{Utils, DateUtils} = require 'nylas-exports'
+{React, PropTypes, Utils, DateUtils} = require 'nylas-exports'
 ThreadListStore = require './thread-list-store'
 
 class ThreadListScrollTooltip extends React.Component
   @displayName: 'ThreadListScrollTooltip'
   @propTypes:
-    viewportCenter: React.PropTypes.number.isRequired
-    totalHeight: React.PropTypes.number.isRequired
+    viewportCenter: PropTypes.number.isRequired
+    totalHeight: PropTypes.number.isRequired
 
   componentWillMount: =>
     @setupForProps(@props)

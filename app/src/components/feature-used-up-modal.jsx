@@ -1,47 +1,46 @@
-import React from 'react'
-import {shell} from 'electron'
-import Actions from '../flux/actions'
-import RetinaImg from './retina-img'
-import BillingModal from './billing-modal'
-import IdentityStore from '../flux/stores/identity-store'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { shell } from 'electron';
+import Actions from '../flux/actions';
+import RetinaImg from './retina-img';
+import BillingModal from './billing-modal';
+import IdentityStore from '../flux/stores/identity-store';
 
 export default class FeatureUsedUpModal extends React.Component {
   static propTypes = {
-    modalClass: React.PropTypes.string.isRequired,
-    headerText: React.PropTypes.string.isRequired,
-    rechargeText: React.PropTypes.string.isRequired,
-    iconUrl: React.PropTypes.string.isRequired,
-  }
+    modalClass: PropTypes.string.isRequired,
+    headerText: PropTypes.string.isRequired,
+    rechargeText: PropTypes.string.isRequired,
+    iconUrl: PropTypes.string.isRequired,
+  };
 
   componentDidMount() {
     this._mounted = true;
 
-    IdentityStore.fetchSingleSignOnURL("/payment?embedded=true").then((upgradeUrl) => {
+    IdentityStore.fetchSingleSignOnURL('/payment?embedded=true').then(upgradeUrl => {
       if (!this._mounted) {
         return;
       }
-      this.setState({upgradeUrl})
-    })
+      this.setState({ upgradeUrl });
+    });
   }
 
   componentWillUnmount() {
     this._mounted = false;
   }
-  
+
   onGoToFeatures = () => {
-    shell.openExternal("https://getmailspring.com/pro");
+    shell.openExternal('https://getmailspring.com/pro');
   };
 
-  onUpgrade = (e) => {
+  onUpgrade = e => {
     e.stopPropagation();
     Actions.openModal({
-      component: (
-        <BillingModal source="feature-limit" upgradeUrl={this.state.upgradeUrl} />
-      ),
+      component: <BillingModal source="feature-limit" upgradeUrl={this.state.upgradeUrl} />,
       width: BillingModal.IntrinsicWidth,
       height: BillingModal.IntrinsicHeight,
     });
-  }
+  };
 
   render() {
     return (
@@ -50,7 +49,7 @@ export default class FeatureUsedUpModal extends React.Component {
           <div className="icon">
             <RetinaImg
               url={this.props.iconUrl}
-              style={{position: "relative", top: "-2px"}}
+              style={{ position: 'relative', top: '-2px' }}
               mode={RetinaImg.Mode.ContentPreserve}
             />
           </div>
@@ -67,7 +66,9 @@ export default class FeatureUsedUpModal extends React.Component {
               <li>Unlimited Read Receipts</li>
               <li>Unlimited Link Tracking</li>
               <li>Unlimited Reminders</li>
-              <li><a onClick={this.onGoToFeatures}>Dozens of other features!</a></li>
+              <li>
+                <a onClick={this.onGoToFeatures}>Dozens of other features!</a>
+              </li>
             </ul>
           </div>
 
@@ -76,6 +77,6 @@ export default class FeatureUsedUpModal extends React.Component {
           </button>
         </div>
       </div>
-    )
+    );
   }
 }

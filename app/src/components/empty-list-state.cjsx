@@ -1,6 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 ReactDOM = require 'react-dom'
+PropTypes = require 'prop-types'
 classNames = require 'classnames'
 RetinaImg = require('./retina-img').default
 EventedIFrame = require './evented-iframe'
@@ -21,8 +22,8 @@ class EmptyPerspectiveState extends React.Component
   @displayName: "EmptyPerspectiveState"
 
   @propTypes:
-    perspective: React.PropTypes.object,
-    messageContent: React.PropTypes.node,
+    perspective: PropTypes.object,
+    messageContent: PropTypes.node,
 
   render: ->
     {messageContent, perspective} = @props
@@ -45,7 +46,7 @@ class EmptyInboxState extends React.Component
   @displayName: "EmptyInboxState"
 
   @propTypes:
-    containerRect: React.PropTypes.object,
+    containerRect: PropTypes.object,
 
   _getScalingFactor: =>
     {width} = @props.containerRect
@@ -79,7 +80,7 @@ class EmptyInboxState extends React.Component
 class EmptyListState extends React.Component
   @displayName = 'EmptyListState'
   @propTypes =
-    visible: React.PropTypes.bool.isRequired
+    visible: PropTypes.bool.isRequired
 
   constructor: (@props) ->
     @_mounted = false

@@ -1,6 +1,6 @@
 /* eslint no-unused-vars: 0 */
-import {EventEmitter} from 'events'
-import ListSelection from './list-selection'
+import { EventEmitter } from 'events';
+import ListSelection from './list-selection';
 
 export default class ListDataSource {
   constructor() {
@@ -11,21 +11,23 @@ export default class ListDataSource {
 
   // Accessing Data
 
-  trigger = (arg) => {
+  trigger = arg => {
     this._emitter.emit('trigger', arg);
-  }
+  };
 
   listen(callback, bindContext) {
     if (!(callback instanceof Function)) {
-      throw new Error("ListDataSource: You must pass a function to `listen`");
+      throw new Error('ListDataSource: You must pass a function to `listen`');
     }
     if (this._cleanedup === true) {
-      throw new Error("ListDataSource: You cannot listen again after removing the last listener. This is an implementation detail.");
+      throw new Error(
+        'ListDataSource: You cannot listen again after removing the last listener. This is an implementation detail.'
+      );
     }
 
     const eventHandler = (...args) => {
       callback.apply(bindContext, args);
-    }
+    };
     this._emitter.addListener('trigger', eventHandler);
 
     return () => {
@@ -40,35 +42,35 @@ export default class ListDataSource {
   }
 
   loaded() {
-    throw new Error("ListDataSource base class does not implement loaded()");
+    throw new Error('ListDataSource base class does not implement loaded()');
   }
 
   empty() {
-    throw new Error("ListDataSource base class does not implement empty()");
+    throw new Error('ListDataSource base class does not implement empty()');
   }
 
   get(idx) {
-    throw new Error("ListDataSource base class does not implement get()");
+    throw new Error('ListDataSource base class does not implement get()');
   }
 
   getById(id) {
-    throw new Error("ListDataSource base class does not implement getById()");
+    throw new Error('ListDataSource base class does not implement getById()');
   }
 
   indexOfId(id) {
-    throw new Error("ListDataSource base class does not implement indexOfId()");
+    throw new Error('ListDataSource base class does not implement indexOfId()');
   }
 
   count() {
-    throw new Error("ListDataSource base class does not implement count()");
+    throw new Error('ListDataSource base class does not implement count()');
   }
 
   itemsCurrentlyInViewMatching(matchFn) {
-    throw new Error("ListDataSource base class does not implement itemsCurrentlyInViewMatching()");
+    throw new Error('ListDataSource base class does not implement itemsCurrentlyInViewMatching()');
   }
 
-  setRetainedRange({start, end}) {
-    throw new Error("ListDataSource base class does not implement setRetainedRange()");
+  setRetainedRange({ start, end }) {
+    throw new Error('ListDataSource base class does not implement setRetainedRange()');
   }
 
   cleanup() {
@@ -77,14 +79,30 @@ export default class ListDataSource {
 }
 
 class EmptyListDataSource extends ListDataSource {
-  loaded() { return true }
-  empty() { return true }
-  get() { return null }
-  getById() { return null }
-  indexOfId() { return -1 }
-  count() { return 0 }
-  itemsCurrentlyInViewMatching() { return []; }
-  setRetainedRange() { return }
+  loaded() {
+    return true;
+  }
+  empty() {
+    return true;
+  }
+  get() {
+    return null;
+  }
+  getById() {
+    return null;
+  }
+  indexOfId() {
+    return -1;
+  }
+  count() {
+    return 0;
+  }
+  itemsCurrentlyInViewMatching() {
+    return [];
+  }
+  setRetainedRange() {
+    return;
+  }
 }
 
-ListDataSource.Empty = EmptyListDataSource
+ListDataSource.Empty = EmptyListDataSource;

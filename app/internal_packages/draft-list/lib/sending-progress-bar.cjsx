@@ -1,9 +1,8 @@
-React = require 'react'
-{Utils} = require 'nylas-exports'
+{React, PropTypes, Utils} = require 'nylas-exports'
 
 class SendingProgressBar extends React.Component
   @propTypes:
-    progress: React.PropTypes.number.isRequired
+    progress: PropTypes.number.isRequired
 
   render: ->
     otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))

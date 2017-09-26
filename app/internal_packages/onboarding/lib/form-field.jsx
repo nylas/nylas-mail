@@ -1,6 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const FormField = (props) => {
+const FormField = props => {
   const field = props.field;
   let val = props.account[field];
   if (props.field.includes('.')) {
@@ -11,10 +12,10 @@ const FormField = (props) => {
     <span>
       <label htmlFor={props.field}>{props.title}:</label>
       <input
-        type={props.type || "text"}
+        type={props.type || 'text'}
         id={props.field}
         style={props.style}
-        className={(val && props.errorFieldNames.includes(props.field)) ? 'error' : ''}
+        className={val && props.errorFieldNames.includes(props.field) ? 'error' : ''}
         disabled={props.submitting}
         spellCheck="false"
         value={val || ''}
@@ -23,18 +24,18 @@ const FormField = (props) => {
       />
     </span>
   );
-}
+};
 
 FormField.propTypes = {
-  field: React.PropTypes.string,
-  title: React.PropTypes.string,
-  type: React.PropTypes.string,
-  style: React.PropTypes.object,
-  submitting: React.PropTypes.bool,
-  onFieldKeyPress: React.PropTypes.func,
-  onFieldChange: React.PropTypes.func,
-  errorFieldNames: React.PropTypes.array,
-  account: React.PropTypes.object,
-}
+  field: PropTypes.string,
+  title: PropTypes.string,
+  type: PropTypes.string,
+  style: PropTypes.object,
+  submitting: PropTypes.bool,
+  onFieldKeyPress: PropTypes.func,
+  onFieldChange: PropTypes.func,
+  errorFieldNames: PropTypes.array,
+  account: PropTypes.object,
+};
 
 export default FormField;

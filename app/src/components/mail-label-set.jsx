@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import FocusedPerspectiveStore from '../flux/stores/focused-perspective-store';
 import CategoryStore from '../flux/stores/category-store';
 import MessageStore from '../flux/stores/message-store';
 import Label from '../flux/models/label';
-import {MailLabel} from './mail-label';
+import { MailLabel } from './mail-label';
 import Actions from '../flux/actions';
 import ChangeLabelsTask from '../flux/tasks/change-labels-task';
 import InjectedComponentSet from './injected-component-set';
@@ -14,15 +15,15 @@ export default class MailLabelSet extends React.Component {
   static displayName = 'MailLabelSet';
 
   static propTypes = {
-    thread: React.PropTypes.object.isRequired,
-    messages: React.PropTypes.array,
-    includeCurrentCategories: React.PropTypes.bool,
-    removable: React.PropTypes.bool,
+    thread: PropTypes.object.isRequired,
+    messages: PropTypes.array,
+    includeCurrentCategories: PropTypes.bool,
+    removable: PropTypes.bool,
   };
 
   _onRemoveLabel(label) {
     const task = new ChangeLabelsTask({
-      source: "Label Remove Icon",
+      source: 'Label Remove Icon',
       threads: [this.props.thread],
       labelsToAdd: [],
       labelsToRemove: [label],
@@ -31,7 +32,7 @@ export default class MailLabelSet extends React.Component {
   }
 
   render() {
-    const {thread, messages, includeCurrentCategories} = this.props;
+    const { thread, messages, includeCurrentCategories } = this.props;
     const labels = [];
 
     const accountUsesLabels = CategoryStore.getInboxCategory(thread.accountId) instanceof Label;
@@ -49,24 +50,17 @@ export default class MailLabelSet extends React.Component {
 
       for (const label of thread.sortedCategories()) {
         const labelExists = CategoryStore.byId(thread.accountId, label.id);
-        if (ignoredNames.includes(label.name) || ignoredIds.includes(label.id) ||
-            !labelExists) {
+        if (ignoredNames.includes(label.name) || ignoredIds.includes(label.id) || !labelExists) {
           continue;
         }
 
         if (this.props.removable) {
           labels.push(
-            <MailLabel
-              label={label}
-              key={label.id}
-              onRemove={() => this._onRemoveLabel(label)}
-            />
-          )
+            <MailLabel label={label} key={label.id} onRemove={() => this._onRemoveLabel(label)} />
+          );
         } else {
           if (LabelComponentCache[label.id] === undefined) {
-            LabelComponentCache[label.id] = (
-              <MailLabel label={label} key={label.id} />
-            );
+            LabelComponentCache[label.id] = <MailLabel label={label} key={label.id} />;
           }
           labels.push(LabelComponentCache[label.id]);
         }
@@ -76,9 +70,9 @@ export default class MailLabelSet extends React.Component {
       <InjectedComponentSet
         inline
         containersRequired={false}
-        matching={{role: "Thread:MailLabel"}}
+        matching={{ role: 'Thread:MailLabel' }}
         className="thread-injected-mail-labels"
-        exposedProps={{thread, messages}}
+        exposedProps={{ thread, messages }}
       >
         {labels}
       </InjectedComponentSet>

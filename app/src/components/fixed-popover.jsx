@@ -1,12 +1,11 @@
 import _ from 'underscore';
-import React, {Component} from 'react';
-import {findDOMNode} from 'react-dom';
-import PropTypes from 'prop-types'
+import React, { Component } from 'react';
+import { findDOMNode } from 'react-dom';
+import PropTypes from 'prop-types';
 
 import Actions from '../flux/actions';
-import compose from './decorators/compose'
-import AutoFocuses from './decorators/auto-focuses'
-
+import compose from './decorators/compose';
+import AutoFocuses from './decorators/auto-focuses';
 
 const Directions = {
   Up: 'up',
@@ -32,7 +31,6 @@ const OFFSET_PADDING = 11.5;
  * @class FixedPopover
  **/
 class FixedPopover extends Component {
-
   static Directions = Directions;
 
   static propTypes = {
@@ -53,12 +51,12 @@ class FixedPopover extends Component {
 
   static defaultProps = {
     closeOnAppBlur: true,
-  }
+  };
 
   constructor(props) {
     super(props);
     this.mounted = false;
-    this.updateCount = 0
+    this.updateCount = 0;
     this.fallback = this.props.fallbackDirection;
     this.state = {
       offset: {},
@@ -69,39 +67,39 @@ class FixedPopover extends Component {
 
   componentDidMount() {
     this.mounted = true;
-    findDOMNode(this.refs.popoverContainer).addEventListener('animationend', this.onAnimationEnd)
-    window.addEventListener('resize', this.onWindowResize)
-    _.defer(this.onPopoverRendered)
+    findDOMNode(this.refs.popoverContainer).addEventListener('animationend', this.onAnimationEnd);
+    window.addEventListener('resize', this.onWindowResize);
+    _.defer(this.onPopoverRendered);
   }
 
   componentWillReceiveProps(nextProps) {
     this.fallback = nextProps.fallbackDirection;
-    this.setState({direction: nextProps.direction})
+    this.setState({ direction: nextProps.direction });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (
-      !_.isEqual(this.state, nextState) ||
-      !_.isEqual(this.props, nextProps)
-    )
+    return !_.isEqual(this.state, nextState) || !_.isEqual(this.props, nextProps);
   }
 
   componentDidUpdate() {
-    _.defer(this.onPopoverRendered)
+    _.defer(this.onPopoverRendered);
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    findDOMNode(this.refs.popoverContainer).removeEventListener('animationend', this.onAnimationEnd)
-    window.removeEventListener('resize', this.onWindowResize)
+    findDOMNode(this.refs.popoverContainer).removeEventListener(
+      'animationend',
+      this.onAnimationEnd
+    );
+    window.removeEventListener('resize', this.onWindowResize);
   }
 
   onAnimationEnd = () => {
     _.defer(this.props.focusElementWithTabIndex);
-  }
+  };
 
   onWindowResize() {
-    Actions.closePopover()
+    Actions.closePopover();
   }
 
   onPopoverRendered = () => {
@@ -109,37 +107,41 @@ class FixedPopover extends Component {
       return;
     }
 
-    const {direction} = this.state
-    const currentRect = this.getCurrentRect()
-    const windowDimensions = this.getWindowDimensions()
-    const newState = this.computeAdjustedOffsetAndDirection({direction, windowDimensions, currentRect})
+    const { direction } = this.state;
+    const currentRect = this.getCurrentRect();
+    const windowDimensions = this.getWindowDimensions();
+    const newState = this.computeAdjustedOffsetAndDirection({
+      direction,
+      windowDimensions,
+      currentRect,
+    });
     if (newState) {
       if (this.updateCount > 1) {
-        this.setState({direction: this.props.direction, offset: {}, visible: true})
-        return
+        this.setState({ direction: this.props.direction, offset: {}, visible: true });
+        return;
       }
 
       // Reset fallback after using it once
-      this.fallback = null
+      this.fallback = null;
       this.updateCount++;
       this.setState(newState);
     } else {
-      this.setState({visible: true})
+      this.setState({ visible: true });
     }
   };
 
-  onBlur = (event) => {
+  onBlur = event => {
     const target = event.nativeEvent.relatedTarget;
     if (!this.props.closeOnAppBlur && target === null) {
-      return
+      return;
     }
-    if (!target || (!findDOMNode(this).contains(target))) {
+    if (!target || !findDOMNode(this).contains(target)) {
       Actions.closePopover();
     }
   };
 
-  onKeyDown = (event) => {
-    if (event.key === "Escape") {
+  onKeyDown = event => {
+    if (event.key === 'Escape') {
       Actions.closePopover();
     }
   };
@@ -152,68 +154,73 @@ class FixedPopover extends Component {
     return {
       width: document.body.clientWidth,
       height: document.body.clientHeight,
-    }
+    };
   };
 
-  computeOverflows = ({currentRect, windowDimensions}) => {
+  computeOverflows = ({ currentRect, windowDimensions }) => {
     const overflows = {
       top: currentRect.top < 0,
       left: currentRect.left < 0,
       bottom: currentRect.bottom > windowDimensions.height,
       right: currentRect.right > windowDimensions.width,
-    }
+    };
     const overflowValues = {
       top: Math.abs(currentRect.top),
       left: Math.abs(currentRect.left),
       bottom: Math.abs(currentRect.bottom - windowDimensions.height),
       right: Math.abs(currentRect.right - windowDimensions.width),
-    }
-    return {overflows, overflowValues}
+    };
+    return { overflows, overflowValues };
   };
 
-  computeAdjustedOffsetAndDirection = ({direction, currentRect, windowDimensions, fallback = this.fallback, offsetPadding = OFFSET_PADDING}) => {
-    const {overflows, overflowValues} = this.computeOverflows({currentRect, windowDimensions})
-    const overflowCount = Object.keys(_.pick(overflows, (val) => val === true)).length
+  computeAdjustedOffsetAndDirection = ({
+    direction,
+    currentRect,
+    windowDimensions,
+    fallback = this.fallback,
+    offsetPadding = OFFSET_PADDING,
+  }) => {
+    const { overflows, overflowValues } = this.computeOverflows({ currentRect, windowDimensions });
+    const overflowCount = Object.keys(_.pick(overflows, val => val === true)).length;
 
     if (overflowCount > 0) {
       if (fallback) {
-        return {direction: fallback, offset: {}}
+        return { direction: fallback, offset: {} };
       }
 
-      const isHorizontalDirection = [Directions.Left, Directions.Right].includes(direction)
-      const isVerticalDirection = [Directions.Up, Directions.Down].includes(direction)
-      const shouldInvertDirection = (
+      const isHorizontalDirection = [Directions.Left, Directions.Right].includes(direction);
+      const isVerticalDirection = [Directions.Up, Directions.Down].includes(direction);
+      const shouldInvertDirection =
         (isHorizontalDirection && (overflows.left || overflows.right)) ||
-        (isVerticalDirection && (overflows.top || overflows.bottom))
-      )
+        (isVerticalDirection && (overflows.top || overflows.bottom));
       const offset = {};
       let newDirection = direction;
 
       if (shouldInvertDirection) {
-        newDirection = InverseDirections[direction]
+        newDirection = InverseDirections[direction];
       }
 
       if (isHorizontalDirection && (overflows.top || overflows.bottom)) {
-        const overflowVal = (overflows.top ? overflowValues.top : overflowValues.bottom)
+        const overflowVal = overflows.top ? overflowValues.top : overflowValues.bottom;
         let offsetY = overflowVal + offsetPadding;
 
-        offsetY = overflows.bottom ? -(offsetY) : offsetY;
+        offsetY = overflows.bottom ? -offsetY : offsetY;
         offset.y = offsetY;
       }
       if (isVerticalDirection && (overflows.left || overflows.right)) {
-        const overflowVal = (overflows.left ? overflowValues.left : overflowValues.right)
+        const overflowVal = overflows.left ? overflowValues.left : overflowValues.right;
         let offsetX = overflowVal + offsetPadding;
 
-        offsetX = overflows.right ? -(offsetX) : offsetX;
+        offsetX = overflows.right ? -offsetX : offsetX;
         offset.x = offsetX;
       }
-      return {offset, direction: newDirection}
+      return { offset, direction: newDirection };
     }
     return null;
   };
 
-  computePopoverStyles = ({originRect, direction, offset}) => {
-    const {Up, Down, Left, Right} = Directions
+  computePopoverStyles = ({ originRect, direction, offset }) => {
+    const { Up, Down, Left, Right } = Directions;
     let containerStyle = {};
     let popoverStyle = {};
     let pointerStyle = {};
@@ -225,17 +232,17 @@ class FixedPopover extends Component {
           top: originRect.top,
           left: originRect.left,
           width: originRect.width,
-        }
+        };
         popoverStyle = {
           // Center, place on top of container, and adjust 10px for the pointer
           transform: `translate(${offset.x || 0}px) translate(-50%, calc(-100% - 10px))`,
           left: originRect.width / 2,
-        }
+        };
         pointerStyle = {
           // Center, and place on top of our container
           transform: 'translate(-50%, -100%)',
           left: originRect.width, // Don't divide by 2 because of zoom
-        }
+        };
         break;
       case Down:
         containerStyle = {
@@ -243,17 +250,17 @@ class FixedPopover extends Component {
           top: originRect.top + originRect.height,
           left: originRect.left,
           width: originRect.width,
-        }
+        };
         popoverStyle = {
           // Center and adjust 10px for the pointer (already positioned at the bottom of container)
           transform: `translate(${offset.x || 0}px) translate(-50%, 10px)`,
           left: originRect.width / 2,
-        }
+        };
         pointerStyle = {
           // Center, already positioned at the bottom of container
           transform: 'translate(-50%, 0) rotateX(180deg)',
           left: originRect.width, // Don't divide by 2 because of zoom
-        }
+        };
         break;
       case Left:
         containerStyle = {
@@ -261,17 +268,17 @@ class FixedPopover extends Component {
           top: originRect.top,
           left: originRect.left,
           height: originRect.height,
-        }
+        };
         popoverStyle = {
           // Center, place on left of container, and adjust 10px for the pointer
           transform: `translate(0, ${offset.y || 0}px) translate(calc(-100% - 10px), -50%)`,
           top: originRect.height / 2,
-        }
+        };
         pointerStyle = {
           // Center, and place on left of our container (adjust for rotation)
           transform: 'translate(calc(-100% + 13px), -50%) rotate(270deg)',
           top: originRect.height, // Don't divide by 2 because of zoom
-        }
+        };
         break;
       case Right:
         containerStyle = {
@@ -279,17 +286,17 @@ class FixedPopover extends Component {
           top: originRect.top,
           left: originRect.left + originRect.width,
           height: originRect.height,
-        }
+        };
         popoverStyle = {
           // Center and adjust 10px for the pointer
           transform: `translate(0, ${offset.y || 0}px) translate(10px, -50%)`,
           top: originRect.height / 2,
-        }
+        };
         pointerStyle = {
           // Center, already positioned at the right of container (adjust for rotation)
           transform: 'translate(-12px, -50%) rotate(90deg)',
           top: originRect.height, // Don't divide by 2 because of zoom
-        }
+        };
         break;
       default:
         break;
@@ -299,16 +306,23 @@ class FixedPopover extends Component {
     // mask image of our shadow pointer element. This is probably a Chrome bug
     pointerStyle.zoom = 0.5;
 
-    return {containerStyle, popoverStyle, pointerStyle};
+    return { containerStyle, popoverStyle, pointerStyle };
   };
 
   render() {
-    const {offset, direction, visible} = this.state;
-    const {children, originRect} = this.props;
-    const blurTrapStyle = {top: originRect.top, left: originRect.left, height: originRect.height, width: originRect.width}
-    const {containerStyle, popoverStyle, pointerStyle} = (
-      this.computePopoverStyles({originRect, direction, offset})
-    );
+    const { offset, direction, visible } = this.state;
+    const { children, originRect } = this.props;
+    const blurTrapStyle = {
+      top: originRect.top,
+      left: originRect.left,
+      height: originRect.height,
+      width: originRect.width,
+    };
+    const { containerStyle, popoverStyle, pointerStyle } = this.computePopoverStyles({
+      originRect,
+      direction,
+      offset,
+    });
     const animateClass = visible ? ' popout' : '';
 
     return (

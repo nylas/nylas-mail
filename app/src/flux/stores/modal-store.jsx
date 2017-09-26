@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Modal} from 'nylas-component-kit';
-import NylasStore from 'nylas-store'
+import { Modal } from 'nylas-component-kit';
+import NylasStore from 'nylas-store';
 
-import Actions from '../actions'
+import Actions from '../actions';
 
-const CONTAINER_ID = "nylas-modal-container";
+const CONTAINER_ID = 'nylas-modal-container';
 
 function createContainer(id) {
   const element = document.createElement(id);
@@ -14,9 +14,8 @@ function createContainer(id) {
 }
 
 class ModalStore extends NylasStore {
-
   constructor(containerId = CONTAINER_ID) {
-    super()
+    super();
     this.isOpen = false;
     this.container = createContainer(containerId);
     ReactDOM.render(<span />, this.container);
@@ -30,9 +29,7 @@ class ModalStore extends NylasStore {
   };
 
   renderModal = (child, props, callback) => {
-    const modal = (
-      <Modal {...props}>{child}</Modal>
-    );
+    const modal = <Modal {...props}>{child}</Modal>;
 
     ReactDOM.render(modal, this.container, () => {
       this.isOpen = true;
@@ -41,7 +38,7 @@ class ModalStore extends NylasStore {
     });
   };
 
-  openModal = ({component, height, width}, callback = () => {}) => {
+  openModal = ({ component, height, width }, callback = () => {}) => {
     const props = {
       height: height,
       width: width,
@@ -50,7 +47,7 @@ class ModalStore extends NylasStore {
     if (this.isOpen) {
       this.closeModal(() => {
         this.renderModal(component, props, callback);
-      })
+      });
     } else {
       this.renderModal(component, props, callback);
     }
@@ -63,7 +60,6 @@ class ModalStore extends NylasStore {
       callback();
     });
   };
-
 }
 
 export default new ModalStore();

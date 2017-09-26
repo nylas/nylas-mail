@@ -41,24 +41,24 @@ const exeName = path.basename(process.execPath);
 // Spawn a command and invoke the callback when it completes with an error
 // and the output from standard out.
 function spawn(command, args, callback, options = {}) {
-  let stdout = ''
+  let stdout = '';
   let spawnedProcess = null;
 
   try {
     spawnedProcess = ChildProcess.spawn(command, args, options);
   } catch (error) {
     // Spawn can throw an error
-    setTimeout(() => callback && callback(error, stdout), 0)
+    setTimeout(() => callback && callback(error, stdout), 0);
     return;
   }
 
-  spawnedProcess.stdout.on('data', (data) => {
-    stdout += data
+  spawnedProcess.stdout.on('data', data => {
+    stdout += data;
   });
 
-  let error = null
-  spawnedProcess.on('error', (processError) => {
-    error = error || processError
+  let error = null;
+  spawnedProcess.on('error', processError => {
+    error = error || processError;
   });
 
   spawnedProcess.on('close', (code, signal) => {
@@ -87,8 +87,8 @@ function createShortcuts(callback) {
   spawnUpdate(['--createShortcut', exeName], callback);
 }
 
-function createRegistryEntries({allowEscalation, registerDefaultIfPossible}, callback) {
-  const escapeBackticks = (str) => str.replace(/\\/g, '\\\\');
+function createRegistryEntries({ allowEscalation, registerDefaultIfPossible }, callback) {
+  const escapeBackticks = str => str.replace(/\\/g, '\\\\');
 
   const isWindows7 = os.release().startsWith('6.1');
   const requiresLocalMachine = isWindows7;
@@ -102,7 +102,7 @@ function createRegistryEntries({allowEscalation, registerDefaultIfPossible}, cal
 
   let regPath = 'reg.exe';
   if (process.env.SystemRoot) {
-    regPath = path.join(process.env.SystemRoot, 'System32', 'reg.exe')
+    regPath = path.join(process.env.SystemRoot, 'System32', 'reg.exe');
   }
 
   let spawnPath = regPath;
@@ -112,40 +112,57 @@ function createRegistryEntries({allowEscalation, registerDefaultIfPossible}, cal
     spawnArgs = [regPath];
   }
 
-  fs.readFile(path.join(appFolder, 'resources', 'mailspring-mailto-registration.reg'), (err, data) => {
-    if (err || !data) {
-      callback(err);
-      return;
-    }
-    const importTemplate = data.toString();
-    let importContents = importTemplate.replace(/{{PATH_TO_ROOT_FOLDER}}/g, escapeBackticks(rootN1Folder));
-    importContents = importContents.replace(/{{PATH_TO_APP_FOLDER}}/g, escapeBackticks(appFolder));
-    if (requiresLocalMachine) {
-      importContents = importContents.replace(/{{HKEY_ROOT}}/g, 'HKEY_LOCAL_MACHINE');
-    } else {
-      importContents = importContents.replace(/{{HKEY_ROOT}}/g, 'HKEY_CURRENT_USER');
-    }
-
-    const importTempPath = path.join(os.tmpdir(), `mailspring-reg-${Date.now()}.reg`);
-
-    fs.writeFile(importTempPath, importContents, (writeErr) => {
-      if (writeErr) {
-        callback(writeErr);
+  fs.readFile(
+    path.join(appFolder, 'resources', 'mailspring-mailto-registration.reg'),
+    (err, data) => {
+      if (err || !data) {
+        callback(err);
         return;
       }
+      const importTemplate = data.toString();
+      let importContents = importTemplate.replace(
+        /{{PATH_TO_ROOT_FOLDER}}/g,
+        escapeBackticks(rootN1Folder)
+      );
+      importContents = importContents.replace(
+        /{{PATH_TO_APP_FOLDER}}/g,
+        escapeBackticks(appFolder)
+      );
+      if (requiresLocalMachine) {
+        importContents = importContents.replace(/{{HKEY_ROOT}}/g, 'HKEY_LOCAL_MACHINE');
+      } else {
+        importContents = importContents.replace(/{{HKEY_ROOT}}/g, 'HKEY_CURRENT_USER');
+      }
 
-      spawn(spawnPath, spawnArgs.concat(['import', escapeBackticks(importTempPath)]), (spawnErr) => {
-        if (isWindows7 && registerDefaultIfPossible) {
-          const defaultReg = path.join(appFolder, 'resources', 'mailspring-mailto-default.reg')
-          spawn(spawnPath, spawnArgs.concat(['import', escapeBackticks(defaultReg)]), (spawnDefaultErr) => {
-            callback(spawnDefaultErr, true);
-          });
-        } else {
-          callback(spawnErr, false);
+      const importTempPath = path.join(os.tmpdir(), `mailspring-reg-${Date.now()}.reg`);
+
+      fs.writeFile(importTempPath, importContents, writeErr => {
+        if (writeErr) {
+          callback(writeErr);
+          return;
         }
+
+        spawn(
+          spawnPath,
+          spawnArgs.concat(['import', escapeBackticks(importTempPath)]),
+          spawnErr => {
+            if (isWindows7 && registerDefaultIfPossible) {
+              const defaultReg = path.join(appFolder, 'resources', 'mailspring-mailto-default.reg');
+              spawn(
+                spawnPath,
+                spawnArgs.concat(['import', escapeBackticks(defaultReg)]),
+                spawnDefaultErr => {
+                  callback(spawnDefaultErr, true);
+                }
+              );
+            } else {
+              callback(spawnErr, false);
+            }
+          }
+        );
       });
-    });
-  });
+    }
+  );
 }
 
 // Remove the desktop and start menu shortcuts by using the command line API
@@ -160,12 +177,12 @@ exports.removeShortcuts = removeShortcuts;
 exports.createRegistryEntries = createRegistryEntries;
 
 // Is the Update.exe installed with N1?
-exports.existsSync = () => fs.existsSync(updateDotExe)
+exports.existsSync = () => fs.existsSync(updateDotExe);
 
 // Restart N1 using the version pointed to by the N1.cmd shim
-exports.restartMailspring = (app) => {
+exports.restartMailspring = app => {
   app.once('will-quit', () => {
-    spawnUpdate(['--processStart', exeName], (() => {}), {detached: true});
+    spawnUpdate(['--processStart', exeName], () => {}, { detached: true });
   });
   app.quit();
-}
+};

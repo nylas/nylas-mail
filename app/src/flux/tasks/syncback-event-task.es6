@@ -1,8 +1,9 @@
-import {Event} from 'nylas-exports';
+import { Event } from 'nylas-exports';
 
 export default class SyncbackEventTask {
-  constructor() { // id
-    throw new Error("Unimplemented!");
+  constructor() {
+    // id
+    throw new Error('Unimplemented!');
     // super({id, endpoint: EVENTS_ENDPOINT})
   }
 
@@ -18,5 +19,4 @@ export default class SyncbackEventTask {
     delete data.body.when.object;
     return data;
   }
-
 }

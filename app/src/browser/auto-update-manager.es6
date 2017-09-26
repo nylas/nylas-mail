@@ -1,6 +1,6 @@
 /* eslint global-require: 0*/
-import {dialog} from 'electron';
-import {EventEmitter} from 'events';
+import { dialog } from 'electron';
+import { EventEmitter } from 'events';
 import path from 'path';
 import fs from 'fs';
 
@@ -16,7 +16,6 @@ const ErrorState = 'error';
 const preferredChannel = 'stable';
 
 export default class AutoUpdateManager extends EventEmitter {
-
   constructor(version, config, specMode) {
     super();
 
@@ -48,9 +47,9 @@ export default class AutoUpdateManager extends EventEmitter {
 
     this.feedURL = `https://${host}/check/${params.platform}/${params.arch}/${params.version}/${params.id}/${params.channel}`;
     if (autoUpdater) {
-      autoUpdater.setFeedURL(this.feedURL)
+      autoUpdater.setFeedURL(this.feedURL);
     }
-  }
+  };
 
   setupAutoUpdater() {
     if (process.platform === 'win32') {
@@ -70,15 +69,15 @@ export default class AutoUpdateManager extends EventEmitter {
     autoUpdater.setFeedURL(this.feedURL);
 
     autoUpdater.on('checking-for-update', () => {
-      this.setState(CheckingState)
+      this.setState(CheckingState);
     });
 
     autoUpdater.on('update-not-available', () => {
-      this.setState(NoUpdateAvailableState)
+      this.setState(NoUpdateAvailableState);
     });
 
     autoUpdater.on('update-available', () => {
-      this.setState(DownloadingState)
+      this.setState(DownloadingState);
     });
 
     autoUpdater.on('update-downloaded', (event, releaseNotes, releaseVersion) => {
@@ -88,14 +87,14 @@ export default class AutoUpdateManager extends EventEmitter {
       this.emitUpdateAvailableEvent();
     });
 
-    this.check({hidePopups: true});
+    this.check({ hidePopups: true });
 
     setInterval(() => {
       if ([UpdateAvailableState, UnsupportedState].includes(this.state)) {
-        console.log("Skipping update check... update ready to install, or updater unavailable.");
+        console.log('Skipping update check... update ready to install, or updater unavailable.');
         return;
       }
-      this.check({hidePopups: true});
+      this.check({ hidePopups: true });
     }, 1000 * 60 * 30);
 
     if (autoUpdater.supportsUpdates && !autoUpdater.supportsUpdates()) {
@@ -107,7 +106,11 @@ export default class AutoUpdateManager extends EventEmitter {
     if (!this.releaseVersion) {
       return;
     }
-    global.application.windowManager.sendToAllWindows("update-available", {}, this.getReleaseDetails());
+    global.application.windowManager.sendToAllWindows(
+      'update-available',
+      {},
+      this.getReleaseDetails()
+    );
   }
 
   setState(state) {
@@ -129,13 +132,13 @@ export default class AutoUpdateManager extends EventEmitter {
     };
   }
 
-  check({hidePopups} = {}) {
+  check({ hidePopups } = {}) {
     this.updateFeedURL();
     if (!hidePopups) {
       autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
       autoUpdater.once('error', this.onUpdateError);
     }
-    if (process.platform === "win32") {
+    if (process.platform === 'win32') {
       // There's no separate "checking" stage on Windows. It also
       // "installs" as soon as it downloads. You just need to restart to
       // launch the updated app.
@@ -146,7 +149,7 @@ export default class AutoUpdateManager extends EventEmitter {
   }
 
   install() {
-    if (process.platform === "win32") {
+    if (process.platform === 'win32') {
       // On windows the update has already been "installed" and shortcuts
       // already updated. You just need to restart the app to load the new
       // version.
@@ -186,5 +189,5 @@ export default class AutoUpdateManager extends EventEmitter {
       title: 'Update Error',
       detail: message,
     });
-  }
+  };
 }

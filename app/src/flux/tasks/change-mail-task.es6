@@ -11,7 +11,6 @@ they provide, and override {ChangeMailTask::performLocal} to perform
 additional consistency checks.
 */
 export default class ChangeMailTask extends Task {
-
   static attributes = Object.assign({}, Task.attributes, {
     taskDescription: Attributes.String({
       modelKey: 'taskDescription',
@@ -30,7 +29,7 @@ export default class ChangeMailTask extends Task {
     }),
   });
 
-  constructor({threads = [], messages = [], ...rest} = {}) {
+  constructor({ threads = [], messages = [], ...rest } = {}) {
     super(rest);
 
     // we actually only keep a small bit of data now
@@ -47,7 +46,9 @@ export default class ChangeMailTask extends Task {
 
   createUndoTask() {
     if (this.isUndo) {
-      throw new Error("ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.");
+      throw new Error(
+        'ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.'
+      );
     }
 
     const task = this.createIdenticalTask();

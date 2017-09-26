@@ -1,12 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'underscore';
 
 export default class DropZone extends React.Component {
   static propTypes = {
-    shouldAcceptDrop: React.PropTypes.func.isRequired,
-    onDrop: React.PropTypes.func.isRequired,
-    onDragOver: React.PropTypes.func,
-    onDragStateChange: React.PropTypes.func,
+    shouldAcceptDrop: PropTypes.func.isRequired,
+    onDrop: PropTypes.func.isRequired,
+    onDragOver: PropTypes.func,
+    onDragStateChange: PropTypes.func,
   };
 
   static defaultProps = {
@@ -19,7 +20,7 @@ export default class DropZone extends React.Component {
 
   // Alternative solution *maybe* is to set pointer-events:none; during drag.
 
-  _onDragEnter = (e) => {
+  _onDragEnter = e => {
     if (!this.props.shouldAcceptDrop(e)) {
       return;
     }
@@ -28,36 +29,36 @@ export default class DropZone extends React.Component {
     }
     this._dragCounter += 1;
     if (this._dragCounter === 1 && this.props.onDragStateChange) {
-      this.props.onDragStateChange({isDropping: true});
+      this.props.onDragStateChange({ isDropping: true });
     }
     e.stopPropagation();
     return;
-  }
+  };
 
-  _onDragLeave = (e) => {
+  _onDragLeave = e => {
     if (!this.props.shouldAcceptDrop(e)) {
       return;
     }
     this._dragCounter -= 1;
     if (this._dragCounter === 0 && this.props.onDragStateChange) {
-      this.props.onDragStateChange({isDropping: false});
+      this.props.onDragStateChange({ isDropping: false });
     }
     e.stopPropagation();
     return;
-  }
+  };
 
-  _onDrop = (e) => {
+  _onDrop = e => {
     if (!this.props.shouldAcceptDrop(e)) {
       return;
     }
     if (this.props.onDragStateChange) {
-      this.props.onDragStateChange({isDropping: false});
+      this.props.onDragStateChange({ isDropping: false });
     }
     this._dragCounter = 0;
     this.props.onDrop(e);
     e.stopPropagation();
     return;
-  }
+  };
 
   render() {
     const otherProps = _.omit(this.props, Object.keys(this.constructor.propTypes));

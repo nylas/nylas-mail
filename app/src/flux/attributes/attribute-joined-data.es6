@@ -1,6 +1,6 @@
 import Attribute from './attribute';
 
-const NullPlaceholder = "!NULLVALUE!";
+const NullPlaceholder = '!NULLVALUE!';
 
 /*
 Public: Joined Data attributes allow you to store certain attributes of an
@@ -33,8 +33,8 @@ Section: Database
 export default class AttributeJoinedData extends Attribute {
   static NullPlaceholder = NullPlaceholder;
 
-  constructor({modelKey, jsonKey, modelTable, queryable}) {
-    super({modelKey, jsonKey, queryable});
+  constructor({ modelKey, jsonKey, modelTable, queryable }) {
+    super({ modelKey, jsonKey, queryable });
     this.modelTable = modelTable;
   }
 
@@ -51,7 +51,7 @@ export default class AttributeJoinedData extends Attribute {
   }
 
   fromJSON(val) {
-    return (val === null || val === undefined || val === false) ? null : `${val}`;
+    return val === null || val === undefined || val === false ? null : `${val}`;
   }
 
   selectSQL() {
@@ -61,6 +61,7 @@ export default class AttributeJoinedData extends Attribute {
   }
 
   includeSQL(klass) {
-    return `LEFT OUTER JOIN \`${this.modelTable}\` ON \`${this.modelTable}\`.\`id\` = \`${klass.name}\`.\`id\``;
+    return `LEFT OUTER JOIN \`${this.modelTable}\` ON \`${this
+      .modelTable}\`.\`id\` = \`${klass.name}\`.\`id\``;
   }
 }

@@ -6,18 +6,18 @@ import path from 'path';
 
 class N1SpecLoader {
   loadSpecs(loadSettings, jasmineEnv) {
-    this.jasmineEnv = jasmineEnv
+    this.jasmineEnv = jasmineEnv;
     this.loadSettings = loadSettings;
     if (this.loadSettings.specDirectory) {
       this._loadSpecsInDir(this.loadSettings.specDirectory);
       this._setSpecType('user');
     } else {
-      this._loadAllSpecs()
+      this._loadAllSpecs();
     }
   }
 
   _loadAllSpecs() {
-    const {resourcePath} = this.loadSettings;
+    const { resourcePath } = this.loadSettings;
 
     this._loadSpecsInDir(path.join(resourcePath, 'spec'));
 
@@ -27,7 +27,7 @@ class N1SpecLoader {
 
     // EDGEHILL_CORE: Look in internal_packages instead of node_modules
     let packagePaths = [];
-    const iterable = fs.listSync(path.join(resourcePath, "internal_packages"));
+    const iterable = fs.listSync(path.join(resourcePath, 'internal_packages'));
     for (let i = 0; i < iterable.length; i++) {
       const packagePath = iterable[i];
       if (fs.isDirectorySync(packagePath)) {
@@ -37,7 +37,7 @@ class N1SpecLoader {
 
     packagePaths = _.uniq(packagePaths);
 
-    packagePaths = _.groupBy(packagePaths, (packagePath) => {
+    packagePaths = _.groupBy(packagePaths, packagePath => {
       if (packagePath.indexOf(`${fixturesPackagesPath}${path.sep}`) === 0) {
         return 'fixtures';
       } else if (packagePath.indexOf(`${resourcePath}${path.sep}`) === 0) {
@@ -74,11 +74,11 @@ class N1SpecLoader {
 
     for (const specFilePath of fs.listTreeSync(specDirectory)) {
       if (regex.test(specFilePath)) {
-        require(specFilePath)
+        require(specFilePath);
       }
     }
 
-    this._setSpecDirectory(specDirectory)
+    this._setSpecDirectory(specDirectory);
   }
 
   _setSpecDirectory(specDirectory) {
@@ -87,17 +87,18 @@ class N1SpecLoader {
 
   _setSpecField(name, value) {
     const specs = this.jasmineEnv.currentRunner().specs();
-    if (specs.length === 0) { return; }
+    if (specs.length === 0) {
+      return;
+    }
 
     for (let i = 0; i < specs.length; i++) {
       if (specs[i][name]) break;
-      specs[i][name] = value
+      specs[i][name] = value;
     }
   }
 
   _setSpecType(specType) {
     this._setSpecField('specType', specType);
   }
-
 }
-export default new N1SpecLoader()
+export default new N1SpecLoader();

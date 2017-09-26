@@ -1,36 +1,36 @@
-import React from 'react'
-import Webview from './webview'
-import Actions from '../flux/actions'
-import IdentityStore from '../flux/stores/identity-store'
+import React from 'react';
+import PropTypes from 'prop-types';
+import Webview from './webview';
+import Actions from '../flux/actions';
+import IdentityStore from '../flux/stores/identity-store';
 
 export default class BillingModal extends React.Component {
   static IntrinsicWidth = 412;
   static IntrinsicHeight = 540;
 
   static propTypes = {
-    upgradeUrl: React.PropTypes.string,
-    source: React.PropTypes.string,
-  }
+    upgradeUrl: PropTypes.string,
+    source: PropTypes.string,
+  };
 
   constructor(props = {}) {
     super(props);
     this.state = {
       src: props.upgradeUrl,
-    }
+    };
   }
 
   componentWillMount() {
     if (!this.state.src) {
-      IdentityStore.fetchSingleSignOnURL("/payment?embedded=true").then((url) => {
+      IdentityStore.fetchSingleSignOnURL('/payment?embedded=true').then(url => {
         if (!this._mounted) return;
-        this.setState({src: url})
-      })
+        this.setState({ src: url });
+      });
     }
   }
 
   componentDidMount() {
     this._mounted = true;
-
   }
 
   /**
@@ -44,7 +44,7 @@ export default class BillingModal extends React.Component {
     this._mounted = false;
   }
 
-  _onDidFinishLoad = (webview) => {
+  _onDidFinishLoad = webview => {
     /**
      * Ahh webviews…
      *
@@ -58,22 +58,26 @@ export default class BillingModal extends React.Component {
       var a = document.querySelector('#payment-success-data');
       result = a ? a.innerText : null;
     `;
-    webview.executeJavaScript(receiveUserInfo, false, async (result) => {
+    webview.executeJavaScript(receiveUserInfo, false, async result => {
       if (!result) return;
       if (result !== IdentityStore.identityId()) {
-        NylasEnv.reportError(new Error("id.getmailspring.com/payment_success did not have a valid #payment-success-data field"))
+        NylasEnv.reportError(
+          new Error(
+            'id.getmailspring.com/payment_success did not have a valid #payment-success-data field'
+          )
+        );
       }
       const listenForContinue = `
         var el = document.querySelector('#continue-btn');
         if (el) {el.addEventListener('click', function(event) {console.log("continue clicked")})}
       `;
       webview.executeJavaScript(listenForContinue);
-      webview.addEventListener("console-message", (e) => {
-        if (e.message === "continue clicked") {
+      webview.addEventListener('console-message', e => {
+        if (e.message === 'continue clicked') {
           // See comment on componentWillUnmount
-          Actions.closeModal()
+          Actions.closeModal();
         }
-      })
+      });
       await IdentityStore.fetchIdentity();
     });
 
@@ -86,13 +90,13 @@ export default class BillingModal extends React.Component {
       if (el) {el.addEventListener('click', function(event) {console.log(this.href); event.preventDefault(); return false;})}
     `;
     webview.executeJavaScript(openExternalLink);
-  }
+  };
 
   render() {
     return (
       <div className="modal-wrap billing-modal">
         <Webview src={this.state.src} onDidFinishLoad={this._onDidFinishLoad} />
       </div>
-    )
+    );
   }
 }

@@ -9,7 +9,7 @@ import Utils from './flux/models/utils';
 import MenuHelpers from './menu-helpers';
 
 export default class MenuManager {
-  constructor({resourcePath}) {
+  constructor({ resourcePath }) {
     this.resourcePath = resourcePath;
     this.template = [];
     this.loadPlatformItems();
@@ -64,23 +64,25 @@ export default class MenuManager {
     this.pendingUpdateOperation = true;
     window.requestAnimationFrame(() => {
       this.pendingUpdateOperation = false;
-      MenuHelpers.forEachMenuItem(this.template, (item) => {
+      MenuHelpers.forEachMenuItem(this.template, item => {
         if (item.command && item.command.startsWith('application:') === false) {
           item.enabled = NylasEnv.commands.listenerCountForCommand(item.command) > 0;
         }
         if (item.submenu != null) {
-          item.enabled = !item.submenu.every((subitem) => subitem.enabled === false);
+          item.enabled = !item.submenu.every(subitem => subitem.enabled === false);
         }
-        if (item.hideWhenDisabled) { item.visible = item.enabled; }
+        if (item.hideWhenDisabled) {
+          item.visible = item.enabled;
+        }
       });
       return this.sendToBrowserProcess(this.template, NylasEnv.keymaps.getBindingsForAllCommands());
     });
-  }
+  };
 
   loadPlatformItems() {
     const menusDirPath = path.join(this.resourcePath, 'menus');
     const platformMenuPath = fs.resolve(menusDirPath, process.platform, ['json']);
-    const {menu} = require(platformMenuPath);
+    const { menu } = require(platformMenuPath);
     return this.add(menu);
   }
 

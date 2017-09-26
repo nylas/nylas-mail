@@ -3,7 +3,7 @@ const assert = require('assert');
 const crypto = require('crypto');
 const validate = require('@segment/loosely-validate-event');
 const debug = require('debug')('analytics-node');
-const version = `3.0.0`
+const version = `3.0.0`;
 
 // BG: Dependencies of analytics-node I lifted in
 
@@ -11,13 +11,13 @@ const version = `3.0.0`
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 function uid(length, fn) {
-  const str = (bytes) => {
+  const str = bytes => {
     const res = [];
     for (let i = 0; i < bytes.length; i++) {
       res.push(chars[bytes[i] % chars.length]);
     }
     return res.join('');
-  }
+  };
 
   if (typeof length === 'function') {
     fn = length;
@@ -45,9 +45,8 @@ function removeSlash(str) {
   return String(str).replace(/\/+$/, '');
 }
 
-
-const setImmediate = global.setImmediate || process.nextTick.bind(process)
-const noop = () => {}
+const setImmediate = global.setImmediate || process.nextTick.bind(process);
+const noop = () => {};
 
 export default class Analytics {
   /**
@@ -62,16 +61,16 @@ export default class Analytics {
    */
 
   constructor(writeKey, options) {
-    options = options || {}
+    options = options || {};
 
-    assert(writeKey, 'You must pass your Segment project\'s write key.')
+    assert(writeKey, "You must pass your Segment project's write key.");
 
-    this.queue = []
-    this.writeKey = writeKey
-    this.host = removeSlash(options.host || 'https://api.segment.io')
-    this.flushAt = Math.max(options.flushAt, 1) || 20
-    this.flushInterval = options.flushInterval || 10000
-    this.flushed = false
+    this.queue = [];
+    this.writeKey = writeKey;
+    this.host = removeSlash(options.host || 'https://api.segment.io');
+    this.flushAt = Math.max(options.flushAt, 1) || 20;
+    this.flushInterval = options.flushInterval || 10000;
+    this.flushed = false;
   }
 
   /**
@@ -83,9 +82,9 @@ export default class Analytics {
    */
 
   identify(message, callback) {
-    validate(message, 'identify')
-    this.enqueue('identify', message, callback)
-    return this
+    validate(message, 'identify');
+    this.enqueue('identify', message, callback);
+    return this;
   }
 
   /**
@@ -97,9 +96,9 @@ export default class Analytics {
    */
 
   group(message, callback) {
-    validate(message, 'group')
-    this.enqueue('group', message, callback)
-    return this
+    validate(message, 'group');
+    this.enqueue('group', message, callback);
+    return this;
   }
 
   /**
@@ -111,9 +110,9 @@ export default class Analytics {
    */
 
   track(message, callback) {
-    validate(message, 'track')
-    this.enqueue('track', message, callback)
-    return this
+    validate(message, 'track');
+    this.enqueue('track', message, callback);
+    return this;
   }
 
   /**
@@ -125,9 +124,9 @@ export default class Analytics {
    */
 
   page(message, callback) {
-    validate(message, 'page')
-    this.enqueue('page', message, callback)
-    return this
+    validate(message, 'page');
+    this.enqueue('page', message, callback);
+    return this;
   }
 
   /**
@@ -139,9 +138,9 @@ export default class Analytics {
    */
 
   screen(message, callback) {
-    validate(message, 'screen')
-    this.enqueue('screen', message, callback)
-    return this
+    validate(message, 'screen');
+    this.enqueue('screen', message, callback);
+    return this;
   }
 
   /**
@@ -153,9 +152,9 @@ export default class Analytics {
    */
 
   alias(message, callback) {
-    validate(message, 'alias')
-    this.enqueue('alias', message, callback)
-    return this
+    validate(message, 'alias');
+    this.enqueue('alias', message, callback);
+    return this;
   }
 
   /**
@@ -169,45 +168,51 @@ export default class Analytics {
    */
 
   enqueue(type, message, callback) {
-    callback = callback || noop
+    callback = callback || noop;
 
-    message = Object.assign({}, message)
-    message.type = type
-    message.context = Object.assign({
-      library: {
-        name: 'analytics-node',
-        version,
+    message = Object.assign({}, message);
+    message.type = type;
+    message.context = Object.assign(
+      {
+        library: {
+          name: 'analytics-node',
+          version,
+        },
       },
-    }, message.context)
+      message.context
+    );
 
-    message._metadata = Object.assign({
-      nodeVersion: process.versions.node,
-    }, message._metadata)
+    message._metadata = Object.assign(
+      {
+        nodeVersion: process.versions.node,
+      },
+      message._metadata
+    );
 
     if (!message.timestamp) {
-      message.timestamp = new Date()
+      message.timestamp = new Date();
     }
 
     if (!message.messageId) {
-      message.messageId = `node-${uid(32)}`
+      message.messageId = `node-${uid(32)}`;
     }
 
-    debug('%s: %o', type, message)
+    debug('%s: %o', type, message);
 
-    this.queue.push({ message, callback })
+    this.queue.push({ message, callback });
 
     if (!this.flushed) {
-      this.flushed = true
-      this.flush()
-      return
+      this.flushed = true;
+      this.flush();
+      return;
     }
 
     if (this.queue.length >= this.flushAt) {
-      this.flush()
+      this.flush();
     }
 
     if (this.flushInterval && !this.timer) {
-      this.timer = setTimeout(this.flush.bind(this), this.flushInterval)
+      this.timer = setTimeout(this.flush.bind(this), this.flushInterval);
     }
   }
 
@@ -219,29 +224,29 @@ export default class Analytics {
    */
 
   async flush(callback) {
-    callback = callback || noop
+    callback = callback || noop;
 
     if (this.timer) {
-      clearTimeout(this.timer)
-      this.timer = null
+      clearTimeout(this.timer);
+      this.timer = null;
     }
 
     if (!this.queue.length) {
-      setImmediate(callback)
+      setImmediate(callback);
       return;
     }
 
-    const items = this.queue.splice(0, this.flushAt)
-    const callbacks = items.map(item => item.callback)
-    const messages = items.map(item => item.message)
+    const items = this.queue.splice(0, this.flushAt);
+    const callbacks = items.map(item => item.callback);
+    const messages = items.map(item => item.message);
 
     const data = {
       batch: messages,
       timestamp: new Date(),
       sentAt: new Date(),
-    }
+    };
 
-    debug('flush: %o', data)
+    debug('flush: %o', data);
 
     const options = {
       body: JSON.stringify(data),
@@ -250,11 +255,11 @@ export default class Analytics {
       method: 'POST',
     };
     options.headers.set('Accept', 'application/json');
-    options.headers.set('Authorization', `Basic ${btoa(`${this.writeKey}:`)}`)
+    options.headers.set('Authorization', `Basic ${btoa(`${this.writeKey}:`)}`);
     options.headers.set('Content-Type', 'application/json');
 
-    const runCallbacks = (err) => {
-      callbacks.forEach((cb) => cb(err))
+    const runCallbacks = err => {
+      callbacks.forEach(cb => cb(err));
       callback(err, data);
       debug('flushed: %o', data);
     };

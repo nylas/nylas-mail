@@ -1,5 +1,4 @@
-import React from 'react';
-import {Message} from 'nylas-exports';
+import { React, PropTypes, Message } from 'nylas-exports';
 
 import AutoloadImagesStore from './autoload-images-store';
 import Actions from './autoload-images-actions';
@@ -8,8 +7,8 @@ export default class AutoloadImagesHeader extends React.Component {
   static displayName = 'AutoloadImagesHeader';
 
   static propTypes = {
-    message: React.PropTypes.instanceOf(Message).isRequired,
-  }
+    message: PropTypes.instanceOf(Message).isRequired,
+  };
 
   constructor(props) {
     super(props);
@@ -22,7 +21,7 @@ export default class AutoloadImagesHeader extends React.Component {
     this._unlisten = AutoloadImagesStore.listen(() => {
       const blocking = AutoloadImagesStore.shouldBlockImagesIn(this.props.message);
       if (blocking !== this.state.blocking) {
-        this.setState({blocking});
+        this.setState({ blocking });
       }
     });
   }
@@ -32,13 +31,11 @@ export default class AutoloadImagesHeader extends React.Component {
   }
 
   render() {
-    const {message} = this.props;
-    const {blocking} = this.state;
+    const { message } = this.props;
+    const { blocking } = this.state;
 
     if (blocking === false) {
-      return (
-        <div />
-      );
+      return <div />;
     }
 
     return (
@@ -46,7 +43,7 @@ export default class AutoloadImagesHeader extends React.Component {
         <a className="option" onClick={() => Actions.temporarilyEnableImages(message)}>
           Show Images
         </a>
-        <span style={{paddingLeft: 10, paddingRight: 10}}>|</span>
+        <span style={{ paddingLeft: 10, paddingRight: 10 }}>|</span>
         <a className="option" onClick={() => Actions.permanentlyEnableImages(message)}>
           Always show images from {message.fromContact().toString()}
         </a>

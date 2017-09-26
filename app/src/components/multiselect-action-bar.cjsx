@@ -1,8 +1,7 @@
-React = require "react"
 ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 
-{Utils, Actions} = require "nylas-exports"
+{React, PropTypes, Utils, Actions} = require "nylas-exports"
 InjectedComponentSet = require('./injected-component-set').default
 Flexbox = require('./flexbox').default
 
@@ -46,8 +45,8 @@ class MultiselectActionBar extends React.Component
       in the component registry that should appear in the bar (`thread` => `thread:BulkAtion`)
   ###
   @propTypes:
-    collection: React.PropTypes.string.isRequired
-    dataSource: React.PropTypes.object
+    collection: PropTypes.string.isRequired
+    dataSource: PropTypes.object
 
   constructor: (@props) ->
     @state = @_getStateFromStores()

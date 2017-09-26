@@ -2,10 +2,10 @@
 import path from 'path';
 import createDebug from 'debug';
 import childProcess from 'child_process';
-import LRU from "lru-cache";
+import LRU from 'lru-cache';
 import Sqlite3 from 'better-sqlite3';
-import {remote} from 'electron';
-import {ExponentialBackoffScheduler} from '../../backoff-schedulers';
+import { remote } from 'electron';
+import { ExponentialBackoffScheduler } from '../../backoff-schedulers';
 
 import NylasStore from '../../global/nylas-store';
 import Utils from '../models/utils';
@@ -21,29 +21,31 @@ const BASE_RETRY_LOCK_DELAY = 50;
 const MAX_RETRY_LOCK_DELAY = 500;
 
 function trimTo(str, size) {
-  const g = window || global || {}
+  const g = window || global || {};
   const TRIM_SIZE = size || process.env.TRIM_SIZE || g.TRIM_SIZE || 256;
   let trimed = str;
   if (str.length >= TRIM_SIZE) {
-    trimed = `${str.slice(0, TRIM_SIZE / 2)}…${str.slice(str.length - TRIM_SIZE / 2, str.length)}`
+    trimed = `${str.slice(0, TRIM_SIZE / 2)}…${str.slice(str.length - TRIM_SIZE / 2, str.length)}`;
   }
-  return trimed
+  return trimed;
 }
 
-function handleUnrecoverableDatabaseError(err = (new Error(`Manually called handleUnrecoverableDatabaseError`))) {
+function handleUnrecoverableDatabaseError(
+  err = new Error(`Manually called handleUnrecoverableDatabaseError`)
+) {
   NylasEnv.errorLogger.reportError(err);
   const app = remote.getGlobal('application');
   if (!app) {
-    throw new Error('handleUnrecoverableDatabaseError: `app` is not ready!')
+    throw new Error('handleUnrecoverableDatabaseError: `app` is not ready!');
   }
-  app.rebuildDatabase({detail: err.toString()});
+  app.rebuildDatabase({ detail: err.toString() });
 }
 
 async function openDatabase(dbPath) {
   try {
     const database = await new Promise((resolve, reject) => {
-      const db = new Sqlite3(dbPath, {readonly: true});
-      db.on('close', reject)
+      const db = new Sqlite3(dbPath, { readonly: true });
+      db.on('close', reject);
       db.on('open', () => {
         // https://www.sqlite.org/wal.html
         // WAL provides more concurrency as readers do not block writers and a writer
@@ -61,11 +63,11 @@ async function openDatabase(dbPath) {
 
         resolve(db);
       });
-    })
-    return database
+    });
+    return database;
   } catch (err) {
     handleUnrecoverableDatabaseError(err);
-    return null
+    return null;
   }
 }
 
@@ -74,7 +76,7 @@ function databasePath(configDirPath, specMode = false) {
   if (specMode) {
     dbPath = path.join(configDirPath, 'edgehill.test.db');
   }
-  return dbPath
+  return dbPath;
 }
 
 /*
@@ -122,7 +124,6 @@ are in your displayed set before refreshing.
 Section: Database
 */
 class DatabaseStore extends NylasStore {
-
   static ChangeRecord = DatabaseChangeRecord;
 
   constructor() {
@@ -130,12 +131,12 @@ class DatabaseStore extends NylasStore {
 
     this._open = false;
     this._waiting = [];
-    this._preparedStatementCache = LRU({max: 500});
+    this._preparedStatementCache = LRU({ max: 500 });
 
     this.setupEmitter();
     this._emitter.setMaxListeners(100);
 
-    this._databasePath = databasePath(NylasEnv.getConfigDirPath(), NylasEnv.inSpecMode())
+    this._databasePath = databasePath(NylasEnv.getConfigDirPath(), NylasEnv.inSpecMode());
 
     if (!NylasEnv.inSpecMode()) {
       this.open();
@@ -143,28 +144,46 @@ class DatabaseStore extends NylasStore {
   }
 
   async open() {
-    this._db = await openDatabase(this._databasePath)
+    this._db = await openDatabase(this._databasePath);
     this._open = true;
     for (const w of this._waiting) {
       w();
     }
     this._waiting = [];
-    this._emitter.emit('ready')
+    this._emitter.emit('ready');
   }
 
   _prettyConsoleLog(qa) {
     let q = qa.replace(/%/g, '%%');
     q = `color:black |||%c ${q}`;
-    q = q.replace(/`(\w+)`/g, "||| color:purple |||%c$&||| color:black |||%c");
+    q = q.replace(/`(\w+)`/g, '||| color:purple |||%c$&||| color:black |||%c');
 
     const colorRules = {
-      'color:green': ['SELECT', 'INSERT INTO', 'VALUES', 'WHERE', 'FROM', 'JOIN', 'ORDER BY', 'DESC', 'ASC', 'INNER', 'OUTER', 'LIMIT', 'OFFSET', 'IN'],
+      'color:green': [
+        'SELECT',
+        'INSERT INTO',
+        'VALUES',
+        'WHERE',
+        'FROM',
+        'JOIN',
+        'ORDER BY',
+        'DESC',
+        'ASC',
+        'INNER',
+        'OUTER',
+        'LIMIT',
+        'OFFSET',
+        'IN',
+      ],
       'color:red; background-color:#ffdddd;': ['SCAN TABLE'],
     };
 
     for (const style of Object.keys(colorRules)) {
       for (const keyword of colorRules[style]) {
-        q = q.replace(new RegExp(`\\b${keyword}\\b`, 'g'), `||| ${style} |||%c${keyword}||| color:black |||%c`);
+        q = q.replace(
+          new RegExp(`\\b${keyword}\\b`, 'g'),
+          `||| ${style} |||%c${keyword}||| color:black |||%c`
+        );
       }
     }
 
@@ -212,20 +231,25 @@ class DatabaseStore extends NylasStore {
         const results = await this._executeLocally(query, values);
         const msec = Date.now() - start;
         if (msec > 100) {
-          this._prettyConsoleLog(`DatabaseStore._executeLocally took more than 100ms - ${msec}msec: ${query}`);
+          this._prettyConsoleLog(
+            `DatabaseStore._executeLocally took more than 100ms - ${msec}msec: ${query}`
+          );
         }
         resolve(results);
       } else {
-        this._executeInBackground(query, values).then(({results, backgroundTime}) => {
+        this._executeInBackground(query, values).then(({ results, backgroundTime }) => {
           const msec = Date.now() - start;
           if (debugVerbose.enabled) {
             const q = `🔶 (${msec}ms) Background: ${query}`;
-            debugVerbose(trimTo(q))
+            debugVerbose(trimTo(q));
           }
 
           if (msec > 100) {
-            const msgPrefix = msec > 100 ? 'DatabaseStore._executeInBackground took more than 100ms - ' : ''
-            this._prettyConsoleLog(`${msgPrefix}${msec}msec (${backgroundTime}msec in background): ${query}`);
+            const msgPrefix =
+              msec > 100 ? 'DatabaseStore._executeInBackground took more than 100ms - ' : '';
+            this._prettyConsoleLog(
+              `${msgPrefix}${msec}msec (${backgroundTime}msec in background): ${query}`
+            );
           }
           resolve(results);
         });
@@ -239,14 +263,11 @@ class DatabaseStore extends NylasStore {
     const scheduler = new ExponentialBackoffScheduler({
       baseDelay: BASE_RETRY_LOCK_DELAY,
       maxDelay: MAX_RETRY_LOCK_DELAY,
-    })
+    });
 
-    const schemaChangedStr = 'database schema has changed'
+    const schemaChangedStr = 'database schema has changed';
 
-    const retryableRegexp = new RegExp(
-      `(database is locked)||` +
-      `(${schemaChangedStr})`,
-    'i')
+    const retryableRegexp = new RegExp(`(database is locked)||(${schemaChangedStr})`, 'i');
 
     // Because other processes may be writing to the database and modifying the
     // schema (running ANALYZE, etc.), we may `prepare` a statement and then be
@@ -259,13 +280,13 @@ class DatabaseStore extends NylasStore {
           // We don't want to unnecessarily defer and delay every single query,
           // so we only set the timer when we are actually backing off for a
           // retry.
-          await new Promise((resolve) => setTimeout(resolve, scheduler.currentDelay()))
+          await new Promise(resolve => setTimeout(resolve, scheduler.currentDelay()));
         }
 
         let stmt = this._preparedStatementCache.get(query);
         if (!stmt) {
           stmt = this._db.prepare(query);
-          this._preparedStatementCache.set(query, stmt)
+          this._preparedStatementCache.set(query, stmt);
         }
 
         const start = Date.now();
@@ -273,11 +294,11 @@ class DatabaseStore extends NylasStore {
         const msec = Date.now() - start;
         if (debugVerbose.enabled) {
           const q = `(${msec}ms) ${query}`;
-          debugVerbose(trimTo(q))
+          debugVerbose(trimTo(q));
         }
 
         if (msec > 100) {
-          const msgPrefix = msec > 100 ? 'DatabaseStore: query took more than 100ms - ' : ''
+          const msgPrefix = msec > 100 ? 'DatabaseStore: query took more than 100ms - ' : '';
           if (query.startsWith(`SELECT `) && DEBUG_QUERY_PLANS) {
             const plan = this._db.prepare(`EXPLAIN QUERY PLAN ${query}`).all(values);
             const planString = `${plan.map(row => row.detail).join('\n')} for ${query}`;
@@ -291,22 +312,24 @@ class DatabaseStore extends NylasStore {
           }
         }
       } catch (err) {
-        const errString = err.toString()
+        const errString = err.toString();
         if (/database disk image is malformed/gi.test(errString)) {
-          handleUnrecoverableDatabaseError(err)
-          return results
+          handleUnrecoverableDatabaseError(err);
+          return results;
         }
 
         if (scheduler.numTries() > 5 || !retryableRegexp.test(errString)) {
-          throw new Error(`DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`);
+          throw new Error(
+            `DatabaseStore: Query ${query}, ${JSON.stringify(values)} failed ${err.toString()}`
+          );
         }
 
         // Some errors require action before the query can be retried
-        if ((new RegExp(schemaChangedStr, 'i')).test(errString)) {
+        if (new RegExp(schemaChangedStr, 'i').test(errString)) {
           this._preparedStatementCache.del(query);
         }
       }
-      scheduler.nextDelay()
+      scheduler.nextDelay();
     }
     return results;
   }
@@ -314,32 +337,32 @@ class DatabaseStore extends NylasStore {
   _executeInBackground(query, values) {
     if (!this._agent) {
       this._agentOpenQueries = {};
-      this._agent = childProcess.fork(path.join(path.dirname(__filename), 'database-agent.js'), [], {
-        silent: true,
-      });
-      this._agent.stdout.on('data', (data) =>
-        console.log(data.toString())
+      this._agent = childProcess.fork(
+        path.join(path.dirname(__filename), 'database-agent.js'),
+        [],
+        {
+          silent: true,
+        }
       );
-      this._agent.stderr.on('data', (data) =>
-        console.error(data.toString())
-      );
-      this._agent.on('close', (code) => {
+      this._agent.stdout.on('data', data => console.log(data.toString()));
+      this._agent.stderr.on('data', data => console.error(data.toString()));
+      this._agent.on('close', code => {
         debug(`Query Agent: exited with code ${code}`);
         this._agent = null;
       });
-      this._agent.on('error', (err) => {
+      this._agent.on('error', err => {
         console.error(`Query Agent: failed to start or receive message: ${err.toString()}`);
         this._agent.kill('SIGTERM');
         this._agent = null;
       });
-      this._agent.on('message', ({type, id, results, agentTime}) => {
+      this._agent.on('message', ({ type, id, results, agentTime }) => {
         if (type === 'results') {
-          this._agentOpenQueries[id]({results, backgroundTime: agentTime});
+          this._agentOpenQueries[id]({ results, backgroundTime: agentTime });
           delete this._agentOpenQueries[id];
         }
       });
     }
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const id = Utils.generateTempId();
       this._agentOpenQueries[id] = resolve;
       this._agent.send({ query, values, id, dbpath: this._databasePath });
@@ -369,9 +392,11 @@ class DatabaseStore extends NylasStore {
       throw new Error(`DatabaseStore::find - You must provide a class`);
     }
     if (typeof id !== 'string') {
-      throw new Error(`DatabaseStore::find - You must provide a string id. You may have intended to use findBy.`);
+      throw new Error(
+        `DatabaseStore::find - You must provide a string id. You may have intended to use findBy.`
+      );
     }
-    return new Query(klass, this).where({id}).one();
+    return new Query(klass, this).where({ id }).one();
   }
 
   // Public: Creates a new Model Query for retrieving a single model matching the
@@ -432,11 +457,11 @@ class DatabaseStore extends NylasStore {
   // - 'arr' An {Array} with a mix of string model IDs and/or models.
   //
   modelify(klass, arr) {
-    if (!(arr instanceof Array) || (arr.length === 0)) {
+    if (!(arr instanceof Array) || arr.length === 0) {
       return Promise.resolve([]);
     }
 
-    const ids = []
+    const ids = [];
     for (const item of arr) {
       if (item instanceof klass) {
         // nothing
@@ -450,15 +475,18 @@ class DatabaseStore extends NylasStore {
       return Promise.resolve(arr);
     }
 
-    return this.findAll(klass).where(klass.attributes.id.in(ids)).markNotBackgroundable().then(modelsFromIds => {
-      const modelsByString = {};
-      for (const model of modelsFromIds) {
-        modelsByString[model.id] = model;
-      }
-      return Promise.resolve(arr.map(item =>
-        (item instanceof klass ? item : modelsByString[item]))
-      );
-    });
+    return this.findAll(klass)
+      .where(klass.attributes.id.in(ids))
+      .markNotBackgroundable()
+      .then(modelsFromIds => {
+        const modelsByString = {};
+        for (const model of modelsFromIds) {
+          modelsByString[model.id] = model;
+        }
+        return Promise.resolve(
+          arr.map(item => (item instanceof klass ? item : modelsByString[item]))
+        );
+      });
   }
 
   // Public: Executes a {Query} on the local database.
@@ -468,18 +496,23 @@ class DatabaseStore extends NylasStore {
   // Returns a {Promise} that
   //   - resolves with the result of the database query.
   //
-  run(modelQuery, options = {format: true}) {
-    return this._query(modelQuery.sql(), [], modelQuery._background, modelQuery._logQueryPlanDebugOutput).then((result) => {
+  run(modelQuery, options = { format: true }) {
+    return this._query(
+      modelQuery.sql(),
+      [],
+      modelQuery._background,
+      modelQuery._logQueryPlanDebugOutput
+    ).then(result => {
       let transformed = modelQuery.inflateResult(result);
       if (options.format !== false) {
-        transformed = modelQuery.formatResult(transformed)
+        transformed = modelQuery.formatResult(transformed);
       }
       return Promise.resolve(transformed);
     });
   }
 
   inTransaction() {
-    throw new Error("The client-side database connection no longer permits writes");
+    throw new Error('The client-side database connection no longer permits writes');
   }
 }
 

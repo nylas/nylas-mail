@@ -4,14 +4,14 @@ const originalError = console.error;
 
 export default class ConsoleReporter {
   reportSpecStarting(spec) {
-    const withContext = (log) => {
+    const withContext = log => {
       return (...args) => {
         if (args[0] === '.') {
           return log(...args);
         }
         return log(`[${spec.getFullName()}] ${args[0]}`, ...args.slice(1));
-      }
-    }
+      };
+    };
     console.log = withContext(originalLog);
     console.warn = withContext(originalWarn);
     console.error = withContext(originalError);

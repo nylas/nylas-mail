@@ -19,7 +19,7 @@ export default class ReprocessMailRulesTask extends Task {
   }
 
   label() {
-    return "Applying Mail Rules";
+    return 'Applying Mail Rules';
   }
 
   numberOfImpactedItems() {
@@ -33,18 +33,18 @@ export default class ReprocessMailRulesTask extends Task {
   // TODO BG WHAT?
 
   async performRemote() {
-    await Promise.fromCallback(this._processAllMessages)
+    await Promise.fromCallback(this._processAllMessages);
     return Task.Status.Success;
   }
 
-  _processAllMessages = (callback) => {
+  _processAllMessages = callback => {
     async.until(() => this._finished, this._processSomeMessages, callback);
-  }
+  };
 
-  _processSomeMessages = (callback) => {
+  _processSomeMessages = callback => {
     const inboxCategory = CategoryStore.getCategoryByRole(this.accountId, 'inbox');
     if (!inboxCategory) {
-      return callback(new Error("ReprocessMailRulesTask: No inbox category found."));
+      return callback(new Error('ReprocessMailRulesTask: No inbox category found.'));
     }
 
     // Fetching threads first, and then getting their messages allows us to use
@@ -52,39 +52,43 @@ export default class ReprocessMailRulesTask extends Task {
 
     // Note that we look for "50 after X" rather than "offset 150", because
     // running mail rules can move things out of the inbox!
-    const query = DatabaseStore
-      .findAll(Thread, {accountId: this.accountId})
+    const query = DatabaseStore.findAll(Thread, { accountId: this.accountId })
       .where(Thread.attributes.categories.contains(inboxCategory.id))
       .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-      .limit(50)
+      .limit(50);
 
     if (this._lastTimestamp !== null) {
-      query.where(Thread.attributes.lastMessageReceivedTimestamp.lessThan(this._lastTimestamp))
+      query.where(Thread.attributes.lastMessageReceivedTimestamp.lessThan(this._lastTimestamp));
     }
 
-    return query.then((threads) => {
-      if (threads.length === 0) {
-        this._finished = true;
-      }
+    return query
+      .then(threads => {
+        if (threads.length === 0) {
+          this._finished = true;
+        }
 
-      if (this._finished) {
-        return Promise.resolve(null);
-      }
-
-      return DatabaseStore.findAll(Message, {threadId: _.pluck(threads, 'id')}).then((messages) => {
         if (this._finished) {
           return Promise.resolve(null);
         }
 
-        const advance = () => {
-          this._processed += messages.length;
-          this._offset += threads.length;
-          this._lastTimestamp = threads.pop().lastMessageReceivedTimestamp;
-        }
-        return MailRulesProcessor.processMessages(messages).catch(advance).then(advance)
-      });
-    })
-    .delay(500)
-    .asCallback(callback)
-  }
+        return DatabaseStore.findAll(Message, {
+          threadId: _.pluck(threads, 'id'),
+        }).then(messages => {
+          if (this._finished) {
+            return Promise.resolve(null);
+          }
+
+          const advance = () => {
+            this._processed += messages.length;
+            this._offset += threads.length;
+            this._lastTimestamp = threads.pop().lastMessageReceivedTimestamp;
+          };
+          return MailRulesProcessor.processMessages(messages)
+            .catch(advance)
+            .then(advance);
+        });
+      })
+      .delay(500)
+      .asCallback(callback);
+  };
 }

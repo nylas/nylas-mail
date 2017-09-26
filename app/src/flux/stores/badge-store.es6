@@ -5,18 +5,17 @@ import ThreadCountsStore from './thread-counts-store';
 import CategoryStore from './category-store';
 
 class BadgeStore extends NylasStore {
-
   constructor() {
     super();
 
     this.listenTo(FocusedPerspectiveStore, this._updateCounts);
     this.listenTo(ThreadCountsStore, this._updateCounts);
 
-    NylasEnv.config.onDidChange('core.notifications.countBadge', ({newValue}) => {
+    NylasEnv.config.onDidChange('core.notifications.countBadge', ({ newValue }) => {
       if (newValue !== 'hide') {
         this._setBadgeForCount();
       } else {
-        this._setBadge("");
+        this._setBadge('');
       }
     });
 
@@ -38,18 +37,18 @@ class BadgeStore extends NylasStore {
 
     const accountIds = FocusedPerspectiveStore.current().accountIds;
     for (const cat of CategoryStore.getCategoriesWithRoles(accountIds, 'inbox')) {
-      unread += ThreadCountsStore.unreadCountForCategoryId(cat.id)
-      total += ThreadCountsStore.totalCountForCategoryId(cat.id)
+      unread += ThreadCountsStore.unreadCountForCategoryId(cat.id);
+      total += ThreadCountsStore.totalCountForCategoryId(cat.id);
     }
 
-    if ((this._unread === unread) && (this._total === total)) {
+    if (this._unread === unread && this._total === total) {
       return;
     }
     this._unread = unread;
     this._total = total;
     this._setBadgeForCount();
     this.trigger();
-  }
+  };
 
   _setBadgeForCount = () => {
     const badgePref = NylasEnv.config.get('core.notifications.countBadge');
@@ -62,18 +61,18 @@ class BadgeStore extends NylasStore {
 
     const count = badgePref === 'unread' ? this._unread : this._total;
     if (count > 999) {
-      this._setBadge("999+");
+      this._setBadge('999+');
     } else if (count > 0) {
       this._setBadge(`${count}`);
     } else {
-      this._setBadge("");
+      this._setBadge('');
     }
-  }
+  };
 
-  _setBadge = (val) => {
+  _setBadge = val => {
     require('electron').ipcRenderer.send('set-badge-value', val);
-  }
+  };
 }
 
-const badgeStore = new BadgeStore()
-export default badgeStore
+const badgeStore = new BadgeStore();
+export default badgeStore;

@@ -1,11 +1,11 @@
-import fs from 'fs-plus'
-import path from 'path'
-import mousetrap from 'mousetrap'
-import {ipcRenderer} from 'electron'
-import {Emitter, Disposable} from 'event-kit'
+import fs from 'fs-plus';
+import path from 'path';
+import mousetrap from 'mousetrap';
+import { ipcRenderer } from 'electron';
+import { Emitter, Disposable } from 'event-kit';
 
-let suspended = false
-const templateConfigKey = 'core.keymapTemplate'
+let suspended = false;
+const templateConfigKey = 'core.keymapTemplate';
 
 /*
 By default, Mousetrap stops all hotkeys within text inputs. Override this to
@@ -16,7 +16,11 @@ mousetrap.prototype.stopCallback = (e, element, combo) => {
   if (suspended) {
     return true;
   }
-  const withinTextInput = element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA' || element.isContentEditable
+  const withinTextInput =
+    element.tagName === 'INPUT' ||
+    element.tagName === 'SELECT' ||
+    element.tagName === 'TEXTAREA' ||
+    element.isContentEditable;
   const withinWebview = element.tagName === 'WEBVIEW';
   if (withinWebview) {
     return true;
@@ -27,7 +31,7 @@ mousetrap.prototype.stopCallback = (e, element, combo) => {
     return isPlainKey || isReservedTextEditingShortcut;
   }
   return false;
-}
+};
 
 class KeymapFile {
   constructor(manager, filePath) {
@@ -40,7 +44,7 @@ class KeymapFile {
   load = () => {
     let keymaps = null;
     try {
-      keymaps = JSON.parse(fs.readFileSync(this._path))
+      keymaps = JSON.parse(fs.readFileSync(this._path));
     } catch (e) {
       if (e.code === 'ENOENT') {
         return;
@@ -50,7 +54,7 @@ class KeymapFile {
     }
 
     this._bindings = {};
-    Object.keys(keymaps).forEach((command) => {
+    Object.keys(keymaps).forEach(command => {
       let keystrokesArray = keymaps[command];
       if (!(keystrokesArray instanceof Array)) {
         keystrokesArray = [keystrokesArray];
@@ -62,7 +66,7 @@ class KeymapFile {
       }
     });
     this._manager.keymapCacheInvalidated();
-  }
+  };
 
   watch() {
     fs.watch(this._path, this.load);
@@ -74,8 +78,7 @@ class KeymapFile {
 }
 
 export default class KeymapManager {
-
-  constructor({configDirPath, resourcePath}) {
+  constructor({ configDirPath, resourcePath }) {
     this.configDirPath = configDirPath;
     this.resourcePath = resourcePath;
     this._emitter = new Emitter();
@@ -99,8 +102,8 @@ export default class KeymapManager {
 
   loadKeymaps = () => {
     // Load the base keymap and the base.platform keymap
-    this.loadKeymap(path.join(this.resourcePath, 'keymaps', 'base.json'))
-    this.loadKeymap(path.join(this.resourcePath, 'keymaps', `base-${process.platform}.json`))
+    this.loadKeymap(path.join(this.resourcePath, 'keymaps', 'base.json'));
+    this.loadKeymap(path.join(this.resourcePath, 'keymaps', `base-${process.platform}.json`));
 
     // Load the template keymap (Gmail, Mail.app, etc.) the user has chosen
     if (this._unobserveTemplate) {
@@ -108,14 +111,14 @@ export default class KeymapManager {
     }
     this._unobserveTemplate = NylasEnv.config.observe(templateConfigKey, this.loadTemplateKeymap);
 
-    const userKeymapPath = this.getUserKeymapPath()
+    const userKeymapPath = this.getUserKeymapPath();
     if (!fs.existsSync(userKeymapPath)) {
-      fs.writeFileSync(userKeymapPath, "{}");
+      fs.writeFileSync(userKeymapPath, '{}');
     }
-    this.userKeymap = new KeymapFile(this, userKeymapPath)
-    this.userKeymap.load()
-    this.userKeymap.watch()
-  }
+    this.userKeymap = new KeymapFile(this, userKeymapPath);
+    this.userKeymap.load();
+    this.userKeymap.watch();
+  };
 
   loadTemplateKeymap = () => {
     if (this._removeTemplate) {
@@ -123,11 +126,16 @@ export default class KeymapManager {
     }
     let templateFile = NylasEnv.config.get(templateConfigKey);
     if (templateFile) {
-      templateFile = templateFile.replace("GoogleInbox", "Inbox by Gmail");
-      const templateKeymapPath = path.join(this.resourcePath, 'keymaps', 'templates', `${templateFile}.json`);
+      templateFile = templateFile.replace('GoogleInbox', 'Inbox by Gmail');
+      const templateKeymapPath = path.join(
+        this.resourcePath,
+        'keymaps',
+        'templates',
+        `${templateFile}.json`
+      );
       this._removeTemplate = this.loadKeymap(templateKeymapPath);
     }
-  }
+  };
 
   loadKeymap(filePath) {
     const file = new KeymapFile(this, filePath);
@@ -147,14 +155,14 @@ export default class KeymapManager {
     this._registered[keystrokes] = true;
 
     mousetrap.bind(keystrokes, () => {
-      for (const command of (this._commandsCache[keystrokes] || [])) {
+      for (const command of this._commandsCache[keystrokes] || []) {
         if (command.startsWith('application:')) {
           ipcRenderer.send('command', command);
         } else {
           NylasEnv.commands.dispatch(command);
         }
       }
-      return false
+      return false;
     });
   }
 
@@ -190,9 +198,9 @@ export default class KeymapManager {
     this._emitter.emit('on-did-reload-keymap');
   }
 
-  onDidReloadKeymap = (callback) => {
+  onDidReloadKeymap = callback => {
     return this._emitter.on('on-did-reload-keymap', callback);
-  }
+  };
 
   getBindingsForAllCommands() {
     return this._bindingsCache;

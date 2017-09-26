@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import NylasStore from 'nylas-store';
-import {FocusedContactsStore} from 'nylas-exports';
+import { FocusedContactsStore } from 'nylas-exports';
 
 // This package uses the Flux pattern - our Store is a small singleton that
 // observes other parts of the application and vends data to our React
@@ -55,10 +55,10 @@ class GithubUserStore extends NylasStore {
     }
 
     this.trigger(this);
-  }
+  };
 
   async _githubFetchProfile(email) {
-    this._loading = true
+    this._loading = true;
 
     try {
       const data = await this._githubRequest(`https://api.github.com/search/users?q=${email}`);
@@ -78,9 +78,11 @@ class GithubUserStore extends NylasStore {
       // repositories.
       if (profile !== false) {
         profile.repos = [];
-        const repos = await this._githubRequest(`https://api.github.com/search/repositories?q=user:${profile.login}&sort=stars&order=desc`)
+        const repos = await this._githubRequest(
+          `https://api.github.com/search/repositories?q=user:${profile.login}&sort=stars&order=desc`
+        );
         // Sort the repositories by their stars (`-` for descending order)
-        profile.repos = _.sortBy(repos.items, (repo) => -repo.stargazers_count);
+        profile.repos = _.sortBy(repos.items, repo => -repo.stargazers_count);
         // Trigger so that our React components refresh their state and display
         // the updated data.
         this.trigger(this);
@@ -99,10 +101,10 @@ class GithubUserStore extends NylasStore {
   // parsed.
   async _githubRequest(url) {
     const headers = new Headers();
-    headers.append("User-Agent", "fetch-request");
-    const resp = await fetch(url, {headers});
+    headers.append('User-Agent', 'fetch-request');
+    const resp = await fetch(url, { headers });
     if (!resp.ok) {
-      throw new Error("Sorry, we were unable to complete the translation request.");
+      throw new Error('Sorry, we were unable to complete the translation request.');
     }
     return resp.json();
   }

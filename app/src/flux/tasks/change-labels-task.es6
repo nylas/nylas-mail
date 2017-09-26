@@ -11,7 +11,6 @@ import Attributes from '../attributes';
 // - messages: An {Array} of {Message}s or {Message} ids
 //
 export default class ChangeLabelsTask extends ChangeMailTask {
-
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
     labelsToAdd: Attributes.Collection({
       modelKey: 'labelsToAdd',
@@ -24,7 +23,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   });
 
   label() {
-    return "Applying labels";
+    return 'Applying labels';
   }
 
   description() {
@@ -32,7 +31,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
       return this.taskDescription;
     }
 
-    let countString = "";
+    let countString = '';
     if (this.threadIds.length > 1) {
       countString = ` ${this.threadIds.length} threads`;
     }
@@ -67,23 +66,25 @@ export default class ChangeLabelsTask extends ChangeMailTask {
   }
 
   _isArchive() {
-    const toAdd = this.labelsToAdd.map(l => l.name)
-    return toAdd.includes("all") || toAdd.includes("archive")
+    const toAdd = this.labelsToAdd.map(l => l.name);
+    return toAdd.includes('all') || toAdd.includes('archive');
   }
 
   validate() {
     if (this.messageIds.length) {
-      throw new Error("ChangeLabelsTask: Changing individual message labels is unsupported");
+      throw new Error('ChangeLabelsTask: Changing individual message labels is unsupported');
     }
     if (!this.labelsToAdd) {
-      throw new Error(`Assertion Failure: ChangeLabelsTask requires labelsToAdd`)
+      throw new Error(`Assertion Failure: ChangeLabelsTask requires labelsToAdd`);
     }
     if (!this.labelsToRemove) {
-      throw new Error(`Assertion Failure: ChangeLabelsTask requires labelsToRemove`)
+      throw new Error(`Assertion Failure: ChangeLabelsTask requires labelsToRemove`);
     }
     for (const l of [].concat(this.labelsToAdd, this.labelsToRemove)) {
-      if ((l instanceof Label) === false) {
-        throw new Error(`Assertion Failure: ChangeLabelsTask received a non-label: ${JSON.stringify(l)}`)
+      if (l instanceof Label === false) {
+        throw new Error(
+          `Assertion Failure: ChangeLabelsTask received a non-label: ${JSON.stringify(l)}`
+        );
       }
     }
     super.validate();
@@ -91,7 +92,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
 
   createUndoTask() {
     const task = super.createUndoTask();
-    const {labelsToAdd, labelsToRemove} = task;
+    const { labelsToAdd, labelsToRemove } = task;
     task.labelsToAdd = labelsToRemove;
     task.labelsToRemove = labelsToAdd;
     return task;

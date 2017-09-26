@@ -1,5 +1,5 @@
 /* eslint global-require: 0 */
-import {shell, ipcRenderer, remote} from 'electron';
+import { shell, ipcRenderer, remote } from 'electron';
 import url from 'url';
 
 let ComponentRegistry = null;
@@ -8,13 +8,11 @@ let Spellchecker = null;
 // Handles low-level events related to the window.
 export default class WindowEventHandler {
   constructor() {
-    this.unloadCallbacks = []
+    this.unloadCallbacks = [];
 
     setTimeout(() => this.showDevModeMessages(), 1);
 
-    ipcRenderer.on('update-available', (event, detail) =>
-      NylasEnv.updateAvailable(detail)
-    )
+    ipcRenderer.on('update-available', (event, detail) => NylasEnv.updateAvailable(detail));
 
     ipcRenderer.on('browser-window-focus', () => {
       document.body.classList.remove('is-blurred');
@@ -28,14 +26,14 @@ export default class WindowEventHandler {
 
     ipcRenderer.on('command', (event, command, ...args) => {
       NylasEnv.commands.dispatch(command, args[0]);
-    })
+    });
 
     ipcRenderer.on('scroll-touch-begin', () => {
       window.dispatchEvent(new Event('scroll-touch-begin'));
     });
 
     ipcRenderer.on('scroll-touch-end', () => {
-      window.dispatchEvent(new Event('scroll-touch-end'))
+      window.dispatchEvent(new Event('scroll-touch-end'));
     });
 
     window.onbeforeunload = () => {
@@ -56,23 +54,23 @@ export default class WindowEventHandler {
     };
 
     NylasEnv.commands.add(document.body, 'window:toggle-full-screen', () => {
-      NylasEnv.toggleFullScreen()
+      NylasEnv.toggleFullScreen();
     });
 
     NylasEnv.commands.add(document.body, 'window:close', () => {
-      NylasEnv.close()
+      NylasEnv.close();
     });
 
     NylasEnv.commands.add(document.body, 'window:reload', () => {
-      NylasEnv.reload()
+      NylasEnv.reload();
     });
 
     NylasEnv.commands.add(document.body, 'window:toggle-dev-tools', () => {
-      NylasEnv.toggleDevTools()
+      NylasEnv.toggleDevTools();
     });
 
     NylasEnv.commands.add(document.body, 'window:open-js-logs', () => {
-      NylasEnv.errorLogger.openLogs()
+      NylasEnv.errorLogger.openLogs();
     });
 
     NylasEnv.commands.add(document.body, 'window:open-mailsync-logs', () => {
@@ -91,23 +89,25 @@ export default class WindowEventHandler {
     });
 
     NylasEnv.commands.add(document.body, 'window:toggle-component-regions', () => {
-      ComponentRegistry = ComponentRegistry || require('./registries/component-registry').default
-      ComponentRegistry.toggleComponentRegions()
+      ComponentRegistry = ComponentRegistry || require('./registries/component-registry').default;
+      ComponentRegistry.toggleComponentRegions();
     });
 
     const webContents = NylasEnv.getCurrentWindow().webContents;
-    NylasEnv.commands.add(document.body, 'core:copy', () => webContents.copy())
-    NylasEnv.commands.add(document.body, 'core:cut', () => webContents.cut())
-    NylasEnv.commands.add(document.body, 'core:paste', () => webContents.paste())
-    NylasEnv.commands.add(document.body, 'core:paste-and-match-style', () => webContents.pasteAndMatchStyle())
-    NylasEnv.commands.add(document.body, 'core:undo', () => webContents.undo())
-    NylasEnv.commands.add(document.body, 'core:redo', () => webContents.redo())
-    NylasEnv.commands.add(document.body, 'core:select-all', () => webContents.selectAll())
+    NylasEnv.commands.add(document.body, 'core:copy', () => webContents.copy());
+    NylasEnv.commands.add(document.body, 'core:cut', () => webContents.cut());
+    NylasEnv.commands.add(document.body, 'core:paste', () => webContents.paste());
+    NylasEnv.commands.add(document.body, 'core:paste-and-match-style', () =>
+      webContents.pasteAndMatchStyle()
+    );
+    NylasEnv.commands.add(document.body, 'core:undo', () => webContents.undo());
+    NylasEnv.commands.add(document.body, 'core:redo', () => webContents.redo());
+    NylasEnv.commands.add(document.body, 'core:select-all', () => webContents.selectAll());
 
     // "Pinch to zoom" on the Mac gets translated by the system into a
     // "scroll with ctrl key down". To prevent the page from zooming in,
     // prevent default when the ctrlKey is detected.
-    document.addEventListener('mousewheel', () => {
+    document.addEventListener('mousewheel', event => {
       if (event.ctrlKey) {
         event.preventDefault();
       }
@@ -117,23 +117,23 @@ export default class WindowEventHandler {
 
     document.addEventListener('dragover', this.onDragOver);
 
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', event => {
       if (event.target.closest('[href]')) {
         this.openLink(event);
       }
     });
 
-    document.addEventListener('contextmenu', (event) => {
+    document.addEventListener('contextmenu', event => {
       if (event.target.nodeName === 'INPUT') {
         this.openContextualMenuForInput(event);
       }
     });
 
     // Prevent form submits from changing the current window's URL
-    document.addEventListener('submit', (event) => {
+    document.addEventListener('submit', event => {
       if (event.target.nodeName === 'FORM') {
-        event.preventDefault()
-        this.openContextualMenuForInput(event)
+        event.preventDefault();
+        this.openContextualMenuForInput(event);
       }
     });
   }
@@ -143,11 +143,11 @@ export default class WindowEventHandler {
   }
 
   removeUnloadCallback(callback) {
-    this.unloadCallbacks = this.unloadCallbacks.filter((cb) => cb !== callback);
+    this.unloadCallbacks = this.unloadCallbacks.filter(cb => cb !== callback);
   }
 
   runUnloadCallbacks() {
-    let hasReturned = false
+    let hasReturned = false;
 
     let unloadCallbacksRunning = 0;
     const unloadCallbackComplete = () => {
@@ -162,13 +162,16 @@ export default class WindowEventHandler {
       if (returnValue === false) {
         unloadCallbacksRunning += 1;
       } else if (returnValue !== true) {
-        console.warn(`You registered an "onBeforeUnload" callback that does not return either exactly true or false. It returned ${returnValue}`, callback);
+        console.warn(
+          `You registered an "onBeforeUnload" callback that does not return either exactly true or false. It returned ${returnValue}`,
+          callback
+        );
       }
     }
 
     // In Electron, returning false cancels the close.
     hasReturned = true;
-    return (unloadCallbacksRunning === 0);
+    return unloadCallbacksRunning === 0;
   }
 
   runUnloadFinished() {
@@ -187,12 +190,12 @@ export default class WindowEventHandler {
   // Important: even though we don't do anything here, we need to catch the
   // drop event to prevent the browser from navigating the to the "url" of the
   // file and completely leaving the app.
-  onDrop = (event) => {
+  onDrop = event => {
     event.preventDefault();
     event.stopPropagation();
   };
 
-  onDragOver = (event) => {
+  onDragOver = event => {
     event.preventDefault();
     event.stopPropagation();
   };
@@ -205,7 +208,7 @@ export default class WindowEventHandler {
     return closestHrefEl ? closestHrefEl.getAttribute('href') : null;
   }
 
-  openLink({href, target, currentTarget, metaKey}) {
+  openLink({ href, target, currentTarget, metaKey }) {
     const resolved = href || this.resolveHref(target || currentTarget);
     if (!resolved) {
       return;
@@ -214,7 +217,7 @@ export default class WindowEventHandler {
       return;
     }
 
-    const {protocol} = url.parse(resolved);
+    const { protocol } = url.parse(resolved);
     if (!protocol) {
       return;
     }
@@ -226,7 +229,7 @@ export default class WindowEventHandler {
       const sanitized = encodeURI(decodeURI(resolved));
       remote.getGlobal('application').openUrl(sanitized);
     } else if (['http:', 'https:', 'tel:'].includes(protocol)) {
-      shell.openExternal(resolved, {activate: !metaKey});
+      shell.openExternal(resolved, { activate: !metaKey });
     }
     return;
   }
@@ -234,7 +237,11 @@ export default class WindowEventHandler {
   openContextualMenuForInput(event) {
     event.preventDefault();
 
-    if (!['text', 'password', 'email', 'number', 'range', 'search', 'tel', 'url'].includes(event.target.type)) {
+    if (
+      !['text', 'password', 'email', 'number', 'range', 'search', 'tel', 'url'].includes(
+        event.target.type
+      )
+    ) {
       return;
     }
     const hasSelectedText = event.target.selectionStart !== event.target.selectionEnd;
@@ -243,44 +250,54 @@ export default class WindowEventHandler {
     let wordEnd = null;
 
     if (hasSelectedText) {
-      wordStart = event.target.selectionStart
-      wordEnd = event.target.selectionEnd
+      wordStart = event.target.selectionStart;
+      wordEnd = event.target.selectionEnd;
     } else {
-      wordStart = event.target.value.lastIndexOf(" ", event.target.selectionStart)
-      if (wordStart === -1) { wordStart = 0; }
-      wordEnd = event.target.value.indexOf(" ", event.target.selectionStart)
-      if (wordEnd === -1) { wordEnd = event.target.value.length; }
+      wordStart = event.target.value.lastIndexOf(' ', event.target.selectionStart);
+      if (wordStart === -1) {
+        wordStart = 0;
+      }
+      wordEnd = event.target.value.indexOf(' ', event.target.selectionStart);
+      if (wordEnd === -1) {
+        wordEnd = event.target.value.length;
+      }
     }
     const word = event.target.value.substr(wordStart, wordEnd - wordStart);
 
-    const {Menu, MenuItem} = remote;
+    const { Menu, MenuItem } = remote;
     const menu = new Menu();
 
-    Spellchecker = Spellchecker || require('./spellchecker').default
+    Spellchecker = Spellchecker || require('./spellchecker').default;
     Spellchecker.appendSpellingItemsToMenu({
       menu: menu,
       word: word,
-      onCorrect: (correction) => {
-        const insertionPoint = wordStart + correction.length
-        event.target.value = event.target.value.replace(word, correction)
-        event.target.setSelectionRange(insertionPoint, insertionPoint)
+      onCorrect: correction => {
+        const insertionPoint = wordStart + correction.length;
+        event.target.value = event.target.value.replace(word, correction);
+        event.target.setSelectionRange(insertionPoint, insertionPoint);
       },
     });
 
-    menu.append(new MenuItem({
-      label: 'Cut',
-      enabled: hasSelectedText,
-      click: () => document.execCommand('cut'),
-    }));
-    menu.append(new MenuItem({
-      label: 'Copy',
-      enabled: hasSelectedText,
-      click: () => document.execCommand('copy'),
-    }))
-    menu.append(new MenuItem({
-      label: 'Paste',
-      click: () => document.execCommand('paste'),
-    }));
+    menu.append(
+      new MenuItem({
+        label: 'Cut',
+        enabled: hasSelectedText,
+        click: () => document.execCommand('cut'),
+      })
+    );
+    menu.append(
+      new MenuItem({
+        label: 'Copy',
+        enabled: hasSelectedText,
+        click: () => document.execCommand('copy'),
+      })
+    );
+    menu.append(
+      new MenuItem({
+        label: 'Paste',
+        click: () => document.execCommand('paste'),
+      })
+    );
     menu.popup(remote.getCurrentWindow());
   }
 
@@ -290,15 +307,17 @@ export default class WindowEventHandler {
     }
 
     if (!NylasEnv.inDevMode()) {
-      console.log("%c Welcome to Mailspring! If you're exploring the source or building a " +
-                  "plugin, you should enable debug flags. It's slower, but " +
-                  "gives you better exceptions, the debug version of React, " +
-                  "and more. Choose %c Developer > Run with Debug Flags %c " +
-                  "from the menu. Also, check out http://Foundry376.github.io/Mailspring/ " +
-                  "for documentation and sample code!",
-                  "background-color: antiquewhite;",
-                  "background-color: antiquewhite; font-weight:bold;",
-                  "background-color: antiquewhite; font-weight:normal;");
+      console.log(
+        "%c Welcome to Mailspring! If you're exploring the source or building a " +
+          "plugin, you should enable debug flags. It's slower, but " +
+          'gives you better exceptions, the debug version of React, ' +
+          'and more. Choose %c Developer > Run with Debug Flags %c ' +
+          'from the menu. Also, check out http://Foundry376.github.io/Mailspring/ ' +
+          'for documentation and sample code!',
+        'background-color: antiquewhite;',
+        'background-color: antiquewhite; font-weight:bold;',
+        'background-color: antiquewhite; font-weight:normal;'
+      );
     }
   }
 }

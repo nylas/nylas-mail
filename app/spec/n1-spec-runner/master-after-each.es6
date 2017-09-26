@@ -1,12 +1,12 @@
 import pathwatcher from 'pathwatcher';
 import ReactTestUtils from 'react-dom/test-utils';
-import {TaskQueue} from 'nylas-exports'
+import { TaskQueue } from 'nylas-exports';
 
 class MasterAfterEach {
   setup(loadSettings, afterEach) {
     const styleElementsToRestore = NylasEnv.styles.getSnapshot();
 
-    const self = this
+    const self = this;
     afterEach(async function masterAfterEach() {
       // await destroyTestDatabase() TODO BEN
       NylasEnv.packages.deactivatePackages();
@@ -24,9 +24,9 @@ class MasterAfterEach {
 
       this.removeAllSpies();
       if (TaskQueue._queue.length > 0) {
-        console.inspect(TaskQueue._queue)
-        TaskQueue._queue = []
-        throw new Error("Your test forgot to clean up the TaskQueue")
+        console.inspect(TaskQueue._queue);
+        TaskQueue._queue = [];
+        throw new Error('Your test forgot to clean up the TaskQueue');
       }
       waits(0);
     }); // yield to ui thread to make screen update more frequently
@@ -36,9 +36,9 @@ class MasterAfterEach {
     const watchedPaths = pathwatcher.getWatchedPaths();
     pathwatcher.closeAllWatchers();
     if (watchedPaths.length > 0) {
-      throw new Error(`Leaking subscriptions for paths: ${watchedPaths.join(", ")}`);
+      throw new Error(`Leaking subscriptions for paths: ${watchedPaths.join(', ')}`);
     }
   }
 }
 
-export default new MasterAfterEach()
+export default new MasterAfterEach();

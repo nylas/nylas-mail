@@ -1,5 +1,4 @@
-import {Tray, Menu, nativeImage} from 'electron';
-
+import { Tray, Menu, nativeImage } from 'electron';
 
 function _getMenuTemplate(platform, application) {
   const template = [
@@ -38,16 +37,14 @@ function _getIcon(iconPath, isTemplateImg) {
   if (!iconPath) {
     return nativeImage.createEmpty();
   }
-  const icon = nativeImage.createFromPath(iconPath)
+  const icon = nativeImage.createFromPath(iconPath);
   if (isTemplateImg) {
     icon.setTemplateImage(true);
   }
   return icon;
 }
 
-
 class SystemTrayManager {
-
   constructor(platform, application) {
     this._platform = platform;
     this._application = application;
@@ -56,7 +53,7 @@ class SystemTrayManager {
     this._tray = null;
     this.initTray();
 
-    this._application.config.onDidChange('core.workspace.systemTray', ({newValue}) => {
+    this._application.config.onDidChange('core.workspace.systemTray', ({ newValue }) => {
       if (newValue === false) {
         this.destroyTray();
       } else {
@@ -66,14 +63,16 @@ class SystemTrayManager {
   }
 
   initTray() {
-    const enabled = (this._application.config.get('core.workspace.systemTray') !== false);
-    const created = (this._tray !== null);
+    const enabled = this._application.config.get('core.workspace.systemTray') !== false;
+    const created = this._tray !== null;
 
     if (enabled && !created) {
       this._tray = new Tray(_getIcon(this._iconPath));
       this._tray.setToolTip(_getTooltip(this._unreadString));
       this._tray.addListener('click', this._onClick);
-      this._tray.setContextMenu(Menu.buildFromTemplate(_getMenuTemplate(this._platform, this._application)));
+      this._tray.setContextMenu(
+        Menu.buildFromTemplate(_getMenuTemplate(this._platform, this._application))
+      );
     }
   }
 
@@ -84,7 +83,7 @@ class SystemTrayManager {
   };
 
   updateTraySettings(iconPath, unreadString, isTemplateImg) {
-    if ((this._iconPath === iconPath) && (this._unreadString === unreadString)) return;
+    if (this._iconPath === iconPath && this._unreadString === unreadString) return;
 
     this._iconPath = iconPath;
     this._unreadString = unreadString;

@@ -1,19 +1,17 @@
-import React from 'react';
-import {AccountStore, SendActionsStore} from 'nylas-exports';
-import {ListensToFluxStore} from 'nylas-component-kit';
+import { React, PropTypes, AccountStore, SendActionsStore } from 'nylas-exports';
+import { ListensToFluxStore } from 'nylas-component-kit';
 import ConfigSchemaItem from './config-schema-item';
-
 
 function getExtendedSendingSchema(configSchema) {
   const accounts = AccountStore.accounts();
   // const sendActions = SendActionsStore.sendActions()
   const defaultAccountIdForSend = {
-    'type': 'string',
-    'title': 'Send new messages from',
-    'default': 'selected-mailbox',
-    'enum': ['selected-mailbox'].concat(accounts.map(acc => acc.id)),
-    'enumLabels': ['Account of selected mailbox'].concat(accounts.map(acc => acc.me().toString())),
-  }
+    type: 'string',
+    title: 'Send new messages from',
+    default: 'selected-mailbox',
+    enum: ['selected-mailbox'].concat(accounts.map(acc => acc.id)),
+    enumLabels: ['Account of selected mailbox'].concat(accounts.map(acc => acc.me().toString())),
+  };
   // TODO re-enable sending actions at some point
   // const defaultSendType = {
   //   'type': 'string',
@@ -30,7 +28,7 @@ function getExtendedSendingSchema(configSchema) {
 }
 
 function SendingSection(props) {
-  const {config, sendingConfigSchema} = props
+  const { config, sendingConfigSchema } = props;
 
   return (
     <ConfigSchemaItem
@@ -44,17 +42,17 @@ function SendingSection(props) {
 
 SendingSection.displayName = 'SendingSection';
 SendingSection.propTypes = {
-  config: React.PropTypes.object,
-  configSchema: React.PropTypes.object,
-  sendingConfigSchema: React.PropTypes.object,
-}
+  config: PropTypes.object,
+  configSchema: PropTypes.object,
+  sendingConfigSchema: PropTypes.object,
+};
 
 export default ListensToFluxStore(SendingSection, {
   stores: [AccountStore, SendActionsStore],
   getStateFromStores(props) {
-    const {configSchema} = props
+    const { configSchema } = props;
     return {
       sendingConfigSchema: getExtendedSendingSchema(configSchema),
-    }
+    };
   },
 });

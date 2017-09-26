@@ -1,5 +1,5 @@
 import NylasStore from 'nylas-store';
-import {ExponentialBackoffScheduler} from '../../backoff-schedulers';
+import { ExponentialBackoffScheduler } from '../../backoff-schedulers';
 import Actions from '../actions';
 
 let isOnlineModule = null;
@@ -7,15 +7,14 @@ let isOnlineModule = null;
 const CHECK_ONLINE_INTERVAL = 30 * 1000;
 
 class OnlineStatusStore extends NylasStore {
-
   constructor() {
-    super()
+    super();
     this._online = true;
     this._countdownSeconds = 0;
 
     this._interval = null;
     this._timeout = null;
-    this._backoffScheduler = new ExponentialBackoffScheduler({jitter: false});
+    this._backoffScheduler = new ExponentialBackoffScheduler({ jitter: false });
 
     if (NylasEnv.isMainWindow()) {
       Actions.checkOnlineStatus.listen(this._checkOnlineStatus);
@@ -36,8 +35,8 @@ class OnlineStatusStore extends NylasStore {
 
     const nextIsOnline = await isOnlineModule();
     if (this._online !== nextIsOnline) {
-      this._online = nextIsOnline
-      this.trigger({onlineDidChange: true, countdownDidChange: false})
+      this._online = nextIsOnline;
+      this.trigger({ onlineDidChange: true, countdownDidChange: false });
     }
   }
 
@@ -46,16 +45,15 @@ class OnlineStatusStore extends NylasStore {
     clearTimeout(this._timeout);
 
     // If we are currently offline, this trigger will show `Retrying now...`
-    this._countdownSeconds = 0
-    this.trigger({onlineDidChange: false, countdownDidChange: true});
+    this._countdownSeconds = 0;
+    this.trigger({ onlineDidChange: false, countdownDidChange: true });
 
-    await this._setNextOnlineState()
+    await this._setNextOnlineState();
 
     if (this._online) {
       // just check again later
       this._backoffScheduler.reset();
       this._timeout = setTimeout(this._checkOnlineStatus, CHECK_ONLINE_INTERVAL);
-
     } else {
       // count down an inreasing delay and check again
       this._countdownSeconds = Math.ceil(this._backoffScheduler.nextDelay() / 1000);
@@ -64,11 +62,11 @@ class OnlineStatusStore extends NylasStore {
         if (this._countdownSeconds === 0) {
           this._checkOnlineStatus();
         } else {
-          this.trigger({onlineDidChange: false, countdownDidChange: true});
+          this.trigger({ onlineDidChange: false, countdownDidChange: true });
         }
       }, 1000);
     }
-  }
+  };
 }
 
-export default new OnlineStatusStore()
+export default new OnlineStatusStore();

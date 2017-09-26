@@ -2,9 +2,9 @@
 import _ from 'underscore';
 import uuid from 'node-uuid';
 import classNames from 'classnames';
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import ScrollRegion from './scroll-region';
 import KeyCommandsRegion from './key-commands-region';
@@ -80,7 +80,7 @@ class EditableList extends Component {
    * @callback props.onItemCreated
    * @param {string} value - The value for the new item
    */
-   /**
+  /**
     * If provided, the user will be able to drag and drop items to re-arrange them
     * within the list. Note that dragging between lists is not supported.
     * @callback props.onReorderItem
@@ -108,7 +108,7 @@ class EditableList extends Component {
 
   static defaultProps = {
     items: [],
-    itemContent: (item) => item,
+    itemContent: item => item,
     className: '',
     createInputProps: {},
     showEditIcon: false,
@@ -129,7 +129,7 @@ class EditableList extends Component {
 
   // Helpers
 
-  _createItem = (value) => {
+  _createItem = value => {
     this._clearCreatingState(() => {
       if (value) {
         this.props.onItemCreated(value);
@@ -154,16 +154,16 @@ class EditableList extends Component {
     if (this.props.onSelectItem) {
       this.props.onSelectItem(item, idx);
     } else {
-      this.setState({selected: item});
+      this.setState({ selected: item });
     }
   };
 
-  _clearEditingState = (callback) => {
-    this._setStateAndFocus({editingIndex: -1}, callback);
+  _clearEditingState = callback => {
+    this._setStateAndFocus({ editingIndex: -1 }, callback);
   };
 
-  _clearCreatingState = (callback) => {
-    this._setStateAndFocus({creatingItem: false}, callback);
+  _clearCreatingState = callback => {
+    this._setStateAndFocus({ creatingItem: false }, callback);
   };
 
   _setStateAndFocus = (state, callback = () => {}) => {
@@ -181,13 +181,12 @@ class EditableList extends Component {
    * @private Scrolls to the dom node of the item at the provided index
    * @param {number} idx - Index of item inside the list to scroll to
    */
-  _scrollTo = (idx) => {
+  _scrollTo = idx => {
     if (!idx) return;
     const wrapperNode = ReactDOM.findDOMNode(this._itemsWrapperEl);
     const nodes = wrapperNode.querySelectorAll('.list-item');
     this._itemsWrapperEl.scrollTo(nodes[idx]);
   };
-
 
   // Handlers
 
@@ -195,7 +194,7 @@ class EditableList extends Component {
     this._updateItem(event.target.value, item, idx);
   };
 
-  _onEditInputFocus = (event) => {
+  _onEditInputFocus = event => {
     const input = event.target;
     // Move cursor to the end of the input
     input.selectionStart = input.selectionEnd = input.value.length;
@@ -210,11 +209,11 @@ class EditableList extends Component {
     }
   };
 
-  _onCreateInputBlur = (event) => {
+  _onCreateInputBlur = event => {
     this._createItem(event.target.value);
   };
 
-  _onCreateInputKeyDown = (event) => {
+  _onCreateInputKeyDown = event => {
     event.stopPropagation();
     if (_.includes(['Enter', 'Return'], event.key)) {
       this._createItem(event.target.value);
@@ -228,11 +227,11 @@ class EditableList extends Component {
   };
 
   _onItemEdit = (event, item, idx) => {
-    this.setState({editingIndex: idx});
+    this.setState({ editingIndex: idx });
   };
 
   _listKeymapHandlers = () => {
-    const _shift = (dir) => {
+    const _shift = dir => {
       const len = this.props.items.length;
       const index = this.props.items.indexOf(this._getSelectedItem());
       const newIndex = Math.min(len - 1, Math.max(0, index + dir));
@@ -243,11 +242,11 @@ class EditableList extends Component {
       this._selectItem(this.props.items[newIndex], newIndex);
     };
     return {
-      'core:previous-item': (event) => {
+      'core:previous-item': event => {
         event.stopPropagation();
         _shift(-1);
       },
-      'core:next-item': (event) => {
+      'core:next-item': event => {
         event.stopPropagation();
         _shift(1);
       },
@@ -258,7 +257,7 @@ class EditableList extends Component {
     if (this.props.onCreateItem) {
       this.props.onCreateItem();
     } else {
-      this.setState({creatingItem: true});
+      this.setState({ creatingItem: true });
     }
   };
 
@@ -267,7 +266,7 @@ class EditableList extends Component {
     const index = this.props.items.indexOf(selectedItem);
     if (selectedItem) {
       // Move the selection 1 up or down after deleting
-      const newIndex = index === 0 ? index + 1 : index - 1
+      const newIndex = index === 0 ? index + 1 : index - 1;
       this.props.onDeleteItem(selectedItem, index);
       if (this.props.items[newIndex]) {
         this._selectItem(this.props.items[newIndex], newIndex);
@@ -275,7 +274,7 @@ class EditableList extends Component {
     }
   };
 
-  _onItemDragStart = (event) => {
+  _onItemDragStart = event => {
     if (!this.props.onReorderItem) {
       event.preventDefault();
       return;
@@ -294,10 +293,10 @@ class EditableList extends Component {
 
     event.dataTransfer.setData('editablelist-index', row.dataset.itemIdx);
     event.dataTransfer.setData(`editablelist-listid:${this.listId}`, 'true');
-    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.effectAllowed = 'move';
   };
 
-  _onDragOver = (event) => {
+  _onDragOver = event => {
     const wrapperNode = ReactDOM.findDOMNode(this._itemsWrapperEl);
 
     // As of Chromium 53, we cannot access the contents of the drag pasteboard
@@ -305,15 +304,15 @@ class EditableList extends Component {
     // drag datatype itself.
     const originListType = event.dataTransfer.types.find(t => t.startsWith('editablelist-listid:'));
     const originListId = originListType ? originListType.split(':').pop() : null;
-    const originSameList = (originListId === this.listId);
+    const originSameList = originListId === this.listId;
     let dropInsertionIndex = 0;
 
-    if ((event.currentTarget === wrapperNode) && originSameList) {
-      const itemNodes = wrapperNode.querySelectorAll('[data-item-idx]')
+    if (event.currentTarget === wrapperNode && originSameList) {
+      const itemNodes = wrapperNode.querySelectorAll('[data-item-idx]');
       for (let i = 0; i < itemNodes.length; i++) {
         const itemNode = itemNodes[i];
         const rect = itemNode.getBoundingClientRect();
-        if (event.clientY > rect.top + (rect.height / 2)) {
+        if (event.clientY > rect.top + rect.height / 2) {
           dropInsertionIndex = itemNode.dataset.itemIdx / 1 + 1;
         } else {
           break;
@@ -324,27 +323,27 @@ class EditableList extends Component {
     }
 
     if (this.state.dropInsertionIndex !== dropInsertionIndex) {
-      this.setState({dropInsertionIndex: dropInsertionIndex});
+      this.setState({ dropInsertionIndex: dropInsertionIndex });
     }
   };
 
   _onDragLeave = () => {
-    this.setState({dropInsertionIndex: -1});
+    this.setState({ dropInsertionIndex: -1 });
   };
 
-  _onDrop = (event) => {
+  _onDrop = event => {
     if (this.state.dropInsertionIndex !== -1) {
       const startIdx = event.dataTransfer.getData('editablelist-index');
-      if (startIdx && (this.state.dropInsertionIndex !== startIdx)) {
+      if (startIdx && this.state.dropInsertionIndex !== startIdx) {
         const item = this.props.items[startIdx];
 
         let endIdx = this.state.dropInsertionIndex;
         if (endIdx > startIdx) {
-          endIdx -= 1
+          endIdx -= 1;
         }
 
         this.props.onReorderItem(item, startIdx, endIdx);
-        this.setState({dropInsertionIndex: -1});
+        this.setState({ dropInsertionIndex: -1 });
       }
     }
   };
@@ -390,7 +389,7 @@ class EditableList extends Component {
   };
 
   // handlers object for testing
-  _renderItem = (item, idx, {editingIndex} = this.state, handlers = {}) => {
+  _renderItem = (item, idx, { editingIndex } = this.state, handlers = {}) => {
     const onClick = handlers.onClick || this._onItemClick;
     const onEdit = handlers.onEdit || this._onItemEdit;
 
@@ -399,13 +398,13 @@ class EditableList extends Component {
 
     const classes = classNames({
       'list-item': true,
-      'selected': item === this._getSelectedItem(),
-      'editing': idx === editingIndex,
+      selected: item === this._getSelectedItem(),
+      editing: idx === editingIndex,
       'editable-item': itemIsEditable,
       'with-edit-icon': this.props.showEditIcon && editingIndex !== idx,
     });
 
-    if ((editingIndex === idx) && itemIsEditable) {
+    if (editingIndex === idx && itemIsEditable) {
       itemContent = this._renderEditInput(item, itemContent, idx, handlers);
     }
 
@@ -450,8 +449,10 @@ class EditableList extends Component {
 
   _renderDropInsertion = () => {
     return (
-      <div className="insertion-point"><div /></div>
-    )
+      <div className="insertion-point">
+        <div />
+      </div>
+    );
   };
 
   render() {
@@ -472,7 +473,9 @@ class EditableList extends Component {
       >
         <ScrollRegion
           className="items-wrapper"
-          ref={(el) => { this._itemsWrapperEl = el; }}
+          ref={el => {
+            this._itemsWrapperEl = el;
+          }}
           onDragOver={this._onDragOver}
           onDragLeave={this._onDragLeave}
           onDrop={this._onDrop}
@@ -483,7 +486,6 @@ class EditableList extends Component {
       </KeyCommandsRegion>
     );
   }
-
 }
 
 export default EditableList;

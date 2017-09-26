@@ -1,4 +1,4 @@
-const cidRegexString = "src=['\"]cid:([^'\"]*)['\"]";
-const cidRegex = new RegExp(cidRegexString, "g");
+const cidRegexString = 'src=[\'"]cid:([^\'"]*)[\'"]';
+const cidRegex = new RegExp(cidRegexString, 'g');
 
-export default {cidRegexString, cidRegex};
+export default { cidRegexString, cidRegex };

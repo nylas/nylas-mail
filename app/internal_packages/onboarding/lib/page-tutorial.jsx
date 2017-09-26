@@ -7,7 +7,8 @@ const Steps = [
     id: 'people',
     title: 'Compose with context',
     image: 'feature-people@2x.png',
-    description: "Mailspring shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.",
+    description:
+      'Mailspring shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.',
     x: 96.6,
     y: 1.3,
     xDot: 93.5,
@@ -18,7 +19,8 @@ const Steps = [
     id: 'activity',
     title: 'Track opens and clicks',
     image: 'feature-activity@2x.png',
-    description: "With activity tracking, you’ll know as soon as someone reads your message. Sending to a group? Mailspring shows you which recipients opened your email so you can follow up with precision.",
+    description:
+      'With activity tracking, you’ll know as soon as someone reads your message. Sending to a group? Mailspring shows you which recipients opened your email so you can follow up with precision.',
     x: 12.8,
     y: 1,
     xDot: 15,
@@ -29,7 +31,8 @@ const Steps = [
     id: 'snooze',
     title: 'Send on your own schedule',
     image: 'feature-snooze@2x.png',
-    description: "Snooze emails to return at any time that suits you. Schedule messages to send at the ideal time. Mailspring makes it easy to control the fabric of spacetime!",
+    description:
+      'Snooze emails to return at any time that suits you. Schedule messages to send at the ideal time. Mailspring makes it easy to control the fabric of spacetime!',
     x: 5.5,
     y: 23.3,
     xDot: 10,
@@ -49,7 +52,7 @@ const Steps = [
 ];
 
 export default class TutorialPage extends React.Component {
-  static displayName = "TutorialPage";
+  static displayName = 'TutorialPage';
 
   constructor(props) {
     super(props);
@@ -58,12 +61,12 @@ export default class TutorialPage extends React.Component {
       appeared: false,
       seen: [],
       current: Steps[0],
-    }
+    };
   }
 
   componentDidMount() {
     this._timer = setTimeout(() => {
-      this.setState({appeared: true})
+      this.setState({ appeared: true });
     }, 200);
   }
 
@@ -76,56 +79,62 @@ export default class TutorialPage extends React.Component {
     if (!nextItem) {
       OnboardingActions.moveToPreviousPage();
     } else {
-      this.setState({current: nextItem});
+      this.setState({ current: nextItem });
     }
-  }
+  };
 
   _onNextUnseen = () => {
     const nextSeen = [].concat(this.state.seen, [this.state.current]);
     const nextItem = Steps.find(s => !nextSeen.includes(s));
     if (nextItem) {
-      this.setState({current: nextItem, seen: nextSeen});
+      this.setState({ current: nextItem, seen: nextSeen });
     } else {
       OnboardingActions.moveToPage('authenticate');
     }
-  }
+  };
 
-  _onMouseOverOverlay = (event) => {
+  _onMouseOverOverlay = event => {
     const item = Steps.find(i => i.id === event.target.id);
     if (item) {
       if (!this.state.seen.includes(item)) {
         this.state.seen.push(item);
       }
-      this.setState({current: item});
+      this.setState({ current: item });
     }
-  }
+  };
 
   render() {
-    const {current, seen, appeared} = this.state;
+    const { current, seen, appeared } = this.state;
 
     return (
       <div className={`page tutorial appeared-${appeared}`}>
         <div className="tutorial-container">
           <div className="left">
             <div className="screenshot">
-              {Steps.map((step) =>
+              {Steps.map(step => (
                 <div
                   key={step.id}
                   id={step.id}
-                  className={`overlay ${seen.includes(step) ? 'seen' : ''} ${current === step ? 'expanded' : ''}`}
-                  style={{left: `${step.xDot}%`, top: `${step.yDot}%`}}
+                  className={`overlay ${seen.includes(step) ? 'seen' : ''} ${current === step
+                    ? 'expanded'
+                    : ''}`}
+                  style={{ left: `${step.xDot}%`, top: `${step.yDot}%` }}
                   onMouseOver={this._onMouseOverOverlay}
                 >
                   <div
                     className="overlay-content"
-                    style={{backgroundPosition: `${step.x}% ${step.y}%`}}
+                    style={{ backgroundPosition: `${step.x}% ${step.y}%` }}
                   />
                 </div>
-              )}
+              ))}
             </div>
           </div>
           <div className="right">
-            <img src={`mailspring://onboarding/assets/${current.image}`} style={{zoom: 0.5, margin: 'auto'}} role="presentation" />
+            <img
+              src={`mailspring://onboarding/assets/${current.image}`}
+              style={{ zoom: 0.5, margin: 'auto' }}
+              alt=""
+            />
             <h2>{current.title}</h2>
             <p>{current.description}</p>
           </div>

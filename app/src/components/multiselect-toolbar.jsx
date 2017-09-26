@@ -1,8 +1,7 @@
-import {Utils} from 'nylas-exports'
-import React, {Component} from 'react'
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import PropTypes from 'prop-types'
-
+import { Utils } from 'nylas-exports';
+import React, { Component } from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import PropTypes from 'prop-types';
 
 /*
  * MultiselectToolbar renders a toolbar inside a horizontal bar and displays
@@ -24,49 +23,40 @@ class MultiselectToolbar extends Component {
   };
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (
-      !Utils.isEqualReact(nextProps, this.props) ||
-      !Utils.isEqualReact(nextState, this.state)
-    )
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   selectionLabel = () => {
-    const {selectionCount, collection} = this.props
+    const { selectionCount, collection } = this.props;
     if (selectionCount > 1) {
-      return `${selectionCount} ${collection}s selected`
+      return `${selectionCount} ${collection}s selected`;
     } else if (selectionCount === 1) {
-      return `${selectionCount} ${collection} selected`
+      return `${selectionCount} ${collection} selected`;
     }
-    return ''
+    return '';
   };
 
   renderToolbar() {
-    const {toolbarElement, onClearSelection} = this.props
+    const { toolbarElement, onClearSelection } = this.props;
     return (
       <div className="absolute" key="absolute">
         <div className="inner">
           {toolbarElement}
-          <div className="centered">
-            {this.selectionLabel()}
-          </div>
+          <div className="centered">{this.selectionLabel()}</div>
 
-          <button
-            style={{order: 100}}
-            className="btn btn-toolbar"
-            onClick={onClearSelection}
-          >
+          <button style={{ order: 100 }} className="btn btn-toolbar" onClick={onClearSelection}>
             Clear Selection
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   render() {
-    const {selectionCount} = this.props
+    const { selectionCount } = this.props;
     return (
       <ReactCSSTransitionGroup
-        className={"selection-bar"}
+        className={'selection-bar'}
         transitionName="selection-bar-absolute"
         component="div"
         transitionLeaveTimeout={200}
@@ -74,8 +64,8 @@ class MultiselectToolbar extends Component {
       >
         {selectionCount > 0 ? this.renderToolbar() : undefined}
       </ReactCSSTransitionGroup>
-    )
+    );
   }
 }
 
-export default MultiselectToolbar
+export default MultiselectToolbar;

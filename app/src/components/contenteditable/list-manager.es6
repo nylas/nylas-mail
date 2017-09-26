@@ -3,12 +3,12 @@ import { DOMUtils, ContenteditableExtension } from 'nylas-exports';
 export default class ListManager extends ContenteditableExtension {
   static keyCommandHandlers() {
     return {
-      "contenteditable:numbered-list": this._insertNumberedList,
-      "contenteditable:bulleted-list": this._insertBulletedList,
+      'contenteditable:numbered-list': this._insertNumberedList,
+      'contenteditable:bulleted-list': this._insertBulletedList,
     };
   }
 
-  static onContentChanged({editor}) {
+  static onContentChanged({ editor }) {
     if (this._spaceEntered && this.hasListStartSignature(editor.currentSelection())) {
       this.createList(editor);
     }
@@ -16,13 +16,13 @@ export default class ListManager extends ContenteditableExtension {
     return this._collapseAdjacentLists(editor);
   }
 
-  static onKeyDown({editor, event}) {
-    this._spaceEntered = event.key === " ";
+  static onKeyDown({ editor, event }) {
+    this._spaceEntered = event.key === ' ';
     if (DOMUtils.isInList()) {
-      if (event.key === "Backspace" && DOMUtils.atStartOfList()) {
+      if (event.key === 'Backspace' && DOMUtils.atStartOfList()) {
         event.preventDefault();
         this.outdentListItem(editor);
-      } else if (event.key === "Tab" && editor.currentSelection().isCollapsed) {
+      } else if (event.key === 'Tab' && editor.currentSelection().isCollapsed) {
         event.preventDefault();
         if (event.shiftKey) {
           this.outdentListItem(editor);
@@ -40,9 +40,13 @@ export default class ListManager extends ContenteditableExtension {
     return event;
   }
 
-  static bulletRegex() { return /^[*-]\s[^\S]*/; }
+  static bulletRegex() {
+    return /^[*-]\s[^\S]*/;
+  }
 
-  static numberRegex() { return /^\d\.\s[^\S]*/; }
+  static numberRegex() {
+    return /^\d\.\s[^\S]*/;
+  }
 
   static hasListStartSignature(selection) {
     if (!selection || !selection.anchorNode) {
@@ -68,28 +72,28 @@ export default class ListManager extends ContenteditableExtension {
     }
     if (this.numberRegex().test(text)) {
       this.originalInput = text.slice(0, 3);
-      this.insertList(editor, {ordered: true});
+      this.insertList(editor, { ordered: true });
       this.removeListStarter(this.numberRegex(), editor.currentSelection());
     } else if (this.bulletRegex().test(text)) {
       this.originalInput = text.slice(0, 2);
-      this.insertList(editor, {ordered: false});
+      this.insertList(editor, { ordered: false });
       this.removeListStarter(this.bulletRegex(), editor.currentSelection());
     } else {
       return;
     }
-    const el = DOMUtils.closest(editor.currentSelection().anchorNode, "li");
+    const el = DOMUtils.closest(editor.currentSelection().anchorNode, 'li');
     DOMUtils.Mutating.removeEmptyNodes(el);
   }
 
   static removeListStarter(starterRegex, selection) {
-    const el = DOMUtils.closest(selection.anchorNode, "li");
-    const textContent = el.textContent.replace(starterRegex, "");
+    const el = DOMUtils.closest(selection.anchorNode, 'li');
+    const textContent = el.textContent.replace(starterRegex, '');
 
     if (textContent.trim().length === 0) {
-      el.innerHTML = "<br>";
+      el.innerHTML = '<br>';
     } else {
       const textNode = DOMUtils.findFirstTextNode(el);
-      textNode.textContent = textNode.textContent.replace(starterRegex, "");
+      textNode.textContent = textNode.textContent.replace(starterRegex, '');
     }
   }
 
@@ -111,7 +115,7 @@ export default class ListManager extends ContenteditableExtension {
     } else if (node.nodeType === Node.ELEMENT_NODE) {
       const textNode = DOMUtils.findFirstTextNode(node);
       if (!textNode) {
-        node.innerHTML = this.originalInput.replace(" ", "&nbsp;") + node.innerHTML;
+        node.innerHTML = this.originalInput.replace(' ', '&nbsp;') + node.innerHTML;
       } else {
         textNode.textContent = this.originalInput + textNode.textContent;
       }
@@ -127,7 +131,7 @@ export default class ListManager extends ContenteditableExtension {
     this.originalInput = null;
   }
 
-  static insertList(editor, {ordered}) {
+  static insertList(editor, { ordered }) {
     const node = editor.currentSelection().anchorNode;
     if (this.isInsideListItem(node)) {
       editor.indent();
@@ -140,11 +144,11 @@ export default class ListManager extends ContenteditableExtension {
     }
   }
 
-  static _insertNumberedList({editor}) {
+  static _insertNumberedList({ editor }) {
     return editor.insertOrderedList();
   }
 
-  static _insertBulletedList({editor}) {
+  static _insertBulletedList({ editor }) {
     return editor.insertUnorderedList();
   }
 

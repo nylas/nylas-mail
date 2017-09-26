@@ -1,23 +1,23 @@
-import _ from 'underscore'
-import {Categories} from 'nylas-observables'
-import NylasStore from 'nylas-store'
-import AccountStore from './account-store'
-import Account from '../models/account'
-import Category from '../models/category'
+import _ from 'underscore';
+import { Categories } from 'nylas-observables';
+import NylasStore from 'nylas-store';
+import AccountStore from './account-store';
+import Account from '../models/account';
+import Category from '../models/category';
 
-const asAccount = (a) => {
+const asAccount = a => {
   if (!a) {
-    throw new Error("You must pass an Account or Account Id");
+    throw new Error('You must pass an Account or Account Id');
   }
   return a instanceof Account ? a : AccountStore.accountForId(a);
-}
+};
 
-const asAccountId = (a) => {
+const asAccountId = a => {
   if (!a) {
-    throw new Error("You must pass an Account or Account Id");
+    throw new Error('You must pass an Account or Account Id');
   }
   return a instanceof Account ? a.id : a;
-}
+};
 
 class CategoryStore extends NylasStore {
   constructor() {
@@ -33,8 +33,7 @@ class CategoryStore extends NylasStore {
       }
     });
 
-    Categories
-      .forAllAccounts()
+    Categories.forAllAccounts()
       .sort()
       .subscribe(this._onCategoriesChanged);
   }
@@ -50,7 +49,7 @@ class CategoryStore extends NylasStore {
   //
   categories(accountOrId = null) {
     if (accountOrId) {
-      const cached = this._categoryCache[asAccountId(accountOrId)]
+      const cached = this._categoryCache[asAccountId(accountOrId)];
       return cached ? Object.values(cached) : [];
     }
     let all = [];
@@ -91,22 +90,22 @@ class CategoryStore extends NylasStore {
       throw new Error(`'${role}' is not a standard category`);
     }
 
-    const accountCategories = this._standardCategories[asAccountId(accountOrId)]
-    return accountCategories && accountCategories.find(c => c.role === role) || null;
+    const accountCategories = this._standardCategories[asAccountId(accountOrId)];
+    return (accountCategories && accountCategories.find(c => c.role === role)) || null;
   }
 
   // Public: Returns the set of all standard categories that match the given
   // names for each of the provided accounts
   getCategoriesWithRoles(accountsOrIds, ...names) {
     if (Array.isArray(accountsOrIds)) {
-      let res = []
+      let res = [];
       for (const accOrId of accountsOrIds) {
-        const cats = names.map((name) => this.getCategoryByRole(accOrId, name));
+        const cats = names.map(name => this.getCategoryByRole(accOrId, name));
         res = res.concat(_.compact(cats));
       }
       return res;
     }
-    return _.compact(names.map((name) => this.getCategoryByRole(accountsOrIds, name)));
+    return _.compact(names.map(name => this.getCategoryByRole(accountsOrIds, name)));
   }
 
   // Public: Returns the Folder or Label object that should be used for "Archive"
@@ -122,7 +121,9 @@ class CategoryStore extends NylasStore {
       return null;
     }
 
-    return this.getCategoryByRole(account.id, "archive") || this.getCategoryByRole(account.id, "all");
+    return (
+      this.getCategoryByRole(account.id, 'archive') || this.getCategoryByRole(account.id, 'all')
+    );
   }
 
   // Public: Returns Label object for "All mail"
@@ -131,36 +132,36 @@ class CategoryStore extends NylasStore {
     if (!accountOrId) {
       return null;
     }
-    const account = asAccount(accountOrId)
+    const account = asAccount(accountOrId);
     if (!account) {
       return null;
     }
 
-    return this.getCategoryByRole(account.id, "all");
+    return this.getCategoryByRole(account.id, 'all');
   }
 
   // Public: Returns the Folder or Label object that should be used for
   // the inbox or null if it doesn't exist
   //
   getInboxCategory(accountOrId) {
-    return this.getCategoryByRole(accountOrId, "inbox")
+    return this.getCategoryByRole(accountOrId, 'inbox');
   }
 
   // Public: Returns the Folder or Label object that should be used for
   // "Move to Trash", or null if no trash folder exists.
   //
   getTrashCategory(accountOrId) {
-    return this.getCategoryByRole(accountOrId, "trash")
+    return this.getCategoryByRole(accountOrId, 'trash');
   }
 
   // Public: Returns the Folder or Label object that should be used for
   // "Move to Spam", or null if no trash folder exists.
   //
   getSpamCategory(accountOrId) {
-    return this.getCategoryByRole(accountOrId, "spam")
+    return this.getCategoryByRole(accountOrId, 'spam');
   }
 
-  _onCategoriesChanged = (categories) => {
+  _onCategoriesChanged = categories => {
     this._categoryResult = categories;
     this._categoryCache = {};
     for (const cat of categories) {
@@ -168,7 +169,7 @@ class CategoryStore extends NylasStore {
       this._categoryCache[cat.accountId][cat.id] = cat;
     }
 
-    const filteredByAccount = (fn) => {
+    const filteredByAccount = fn => {
       const result = {};
       for (const cat of categories) {
         if (!fn(cat)) {
@@ -180,18 +181,18 @@ class CategoryStore extends NylasStore {
       return result;
     };
 
-    this._standardCategories = filteredByAccount((cat) => cat.isStandardCategory());
-    this._userCategories = filteredByAccount((cat) => cat.isUserCategory());
-    this._hiddenCategories = filteredByAccount((cat) => cat.isHiddenCategory());
+    this._standardCategories = filteredByAccount(cat => cat.isStandardCategory());
+    this._userCategories = filteredByAccount(cat => cat.isUserCategory());
+    this._hiddenCategories = filteredByAccount(cat => cat.isHiddenCategory());
 
     // Ensure standard categories are always sorted in the correct order
     for (const accountCategories of Object.values(this._standardCategories)) {
-      accountCategories.sort((a, b) =>
-        Category.StandardRoles.indexOf(a.name) - Category.StandardRoles.indexOf(b.name)
+      accountCategories.sort(
+        (a, b) => Category.StandardRoles.indexOf(a.name) - Category.StandardRoles.indexOf(b.name)
       );
     }
     this.trigger();
-  }
+  };
 }
 
-export default new CategoryStore()
+export default new CategoryStore();

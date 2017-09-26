@@ -1,8 +1,7 @@
 _ = require 'underscore'
-React = require 'react'
-ReactDOM = require 'react-dom'
 
 {Actions,
+ React, ReactDOM, PropTypes,
  AccountStore,
  WorkspaceStore} = require 'nylas-exports'
 
@@ -19,10 +18,10 @@ class MovePicker extends React.Component
   @containerRequired: false
 
   @propTypes:
-    items: React.PropTypes.array
+    items: PropTypes.array
 
   @contextTypes:
-    sheetDepth: React.PropTypes.number
+    sheetDepth: PropTypes.number
 
   constructor: (@props) ->
     @_account = AccountStore.accountForItems(@props.items)

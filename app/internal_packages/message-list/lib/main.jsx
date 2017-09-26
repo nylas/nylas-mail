@@ -8,8 +8,8 @@ import {
 } from 'nylas-exports';
 
 import MessageListHiddenMessagesToggle from './message-list-hidden-messages-toggle';
-import MessageList from "./message-list";
-import SidebarPluginContainer from "./sidebar-plugin-container";
+import MessageList from './message-list';
+import SidebarPluginContainer from './sidebar-plugin-container';
 import SidebarParticipantPicker from './sidebar-participant-picker';
 
 export function activate() {
@@ -29,12 +29,12 @@ export function activate() {
     });
   } else {
     // This is for the thread-popout window.
-    const {threadId, perspectiveJSON} = NylasEnv.getWindowProps();
-    ComponentRegistry.register(MessageList, {location: WorkspaceStore.Location.Center});
+    const { threadId, perspectiveJSON } = NylasEnv.getWindowProps();
+    ComponentRegistry.register(MessageList, { location: WorkspaceStore.Location.Center });
 
     // We need to locate the thread and focus it so that the MessageList displays it
-    DatabaseStore.find(Thread, threadId).then((thread) =>
-      Actions.setFocus({collection: 'thread', item: thread})
+    DatabaseStore.find(Thread, threadId).then(thread =>
+      Actions.setFocus({ collection: 'thread', item: thread })
     );
 
     // Set the focused perspective and hide the proper messages

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {Utils, ComponentRegistry, WorkspaceStore} from "nylas-exports";
+import { Utils, ComponentRegistry, WorkspaceStore } from 'nylas-exports';
 import InjectedComponentSet from './components/injected-component-set';
 import ResizableRegion from './components/resizable-region';
 import Flexbox from './components/flexbox';
@@ -15,15 +15,15 @@ export default class Sheet extends React.Component {
     data: PropTypes.object.isRequired,
     depth: PropTypes.number.isRequired,
     onColumnSizeChanged: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     onColumnSizeChanged: () => {},
   };
 
   static childContextTypes = {
-    sheetDepth: React.PropTypes.number,
-  }
+    sheetDepth: PropTypes.number,
+  };
 
   constructor(props) {
     super(props);
@@ -38,12 +38,10 @@ export default class Sheet extends React.Component {
   }
 
   componentDidMount() {
-    this.unlisteners.push(ComponentRegistry.listen(() =>
-      this.setState(this._getStateFromStores())
-    ));
-    this.unlisteners.push(WorkspaceStore.listen(() =>
-      this.setState(this._getStateFromStores())
-    ));
+    this.unlisteners.push(
+      ComponentRegistry.listen(() => this.setState(this._getStateFromStores()))
+    );
+    this.unlisteners.push(WorkspaceStore.listen(() => this.setState(this._getStateFromStores())));
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -63,10 +61,9 @@ export default class Sheet extends React.Component {
     this.unlisteners = [];
   }
 
-
   _columnFlexboxElements() {
     return this.state.columns.map((column, idx) => {
-      const {maxWidth, minWidth, handle, location, width} = column;
+      const { maxWidth, minWidth, handle, location, width } = column;
 
       if (minWidth !== maxWidth && maxWidth < FLEX) {
         return (
@@ -74,9 +71,9 @@ export default class Sheet extends React.Component {
             key={`${this.props.data.id}:${idx}`}
             name={`${this.props.data.id}:${idx}`}
             className={`column-${location.id}`}
-            style={{height: '100%'}}
+            style={{ height: '100%' }}
             data-column={idx}
-            onResize={(w) => this._onColumnResize(column, w)}
+            onResize={w => this._onColumnResize(column, w)}
             initialWidth={width}
             minWidth={minWidth}
             maxWidth={maxWidth}
@@ -84,7 +81,7 @@ export default class Sheet extends React.Component {
           >
             <InjectedComponentSet
               direction="column"
-              matching={{location: location, mode: this.state.mode}}
+              matching={{ location: location, mode: this.state.mode }}
             />
           </ResizableRegion>
         );
@@ -94,7 +91,7 @@ export default class Sheet extends React.Component {
         height: '100%',
         minWidth: minWidth,
         overflow: 'hidden',
-      }
+      };
       if (maxWidth < FLEX) {
         style.width = maxWidth;
       } else {
@@ -108,22 +105,22 @@ export default class Sheet extends React.Component {
           className={`column-${location.id}`}
           data-column={idx}
           style={style}
-          matching={{location: location, mode: this.state.mode}}
+          matching={{ location: location, mode: this.state.mode }}
         />
       );
     });
   }
 
   _onColumnResize = (column, width) => {
-    NylasEnv.storeColumnWidth({id: column.location.id, width: width});
+    NylasEnv.storeColumnWidth({ id: column.location.id, width: width });
     this.props.onColumnSizeChanged(this);
-  }
+  };
 
   _getStateFromStores() {
     const state = {
       mode: WorkspaceStore.layoutMode(),
       columns: [],
-    }
+    };
 
     let widest = -1;
     let widestWidth = -1;
@@ -140,22 +137,30 @@ export default class Sheet extends React.Component {
           mode: state.mode,
         });
 
-        const maxWidth = entries.reduce((m, {containerStyles}) => {
-          if (containerStyles && containerStyles.maxWidth !== undefined && containerStyles.maxWidth < m) {
+        const maxWidth = entries.reduce((m, { containerStyles }) => {
+          if (
+            containerStyles &&
+            containerStyles.maxWidth !== undefined &&
+            containerStyles.maxWidth < m
+          ) {
             return containerStyles.maxWidth;
           }
           return m;
         }, 10000);
 
-        const minWidth = entries.reduce((m, {containerStyles}) => {
-          if (containerStyles && containerStyles.minWidth !== undefined && containerStyles.minWidth > m) {
+        const minWidth = entries.reduce((m, { containerStyles }) => {
+          if (
+            containerStyles &&
+            containerStyles.minWidth !== undefined &&
+            containerStyles.minWidth > m
+          ) {
             return containerStyles.minWidth;
           }
           return m;
         }, 0);
 
         const width = NylasEnv.getColumnWidth(location.id);
-        const col = {maxWidth, minWidth, location, width};
+        const col = { maxWidth, minWidth, location, width };
         state.columns.push(col);
 
         if (maxWidth > widestWidth) {
@@ -200,12 +205,12 @@ export default class Sheet extends React.Component {
 
     return (
       <div
-        name={"Sheet"}
+        name={'Sheet'}
         style={style}
         className={`sheet mode-${this.state.mode}`}
         data-id={this.props.data.id}
       >
-        <Flexbox direction="row" style={{overflow: 'hidden'}}>
+        <Flexbox direction="row" style={{ overflow: 'hidden' }}>
           {this._columnFlexboxElements()}
         </Flexbox>
       </div>

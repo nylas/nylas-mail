@@ -1,8 +1,8 @@
 import _ from 'underscore';
-import React, {Component} from 'react';
-import {Utils} from 'nylas-exports';
+import React, { Component } from 'react';
+import { Utils } from 'nylas-exports';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import ScrollRegion from './scroll-region';
 import Spinner from './spinner';
@@ -12,7 +12,7 @@ import ListSelection from './list-selection';
 import ListTabularItem from './list-tabular-item';
 
 class ListColumn {
-  constructor({name, resolver, flex, width}) {
+  constructor({ name, resolver, flex, width }) {
     this.name = name;
     this.resolver = resolver;
     this.flex = flex;
@@ -37,37 +37,30 @@ class ListTabularRows extends Component {
   };
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (
-      !Utils.isEqualReact(nextProps, this.props) ||
-      !Utils.isEqualReact(nextState, this.state)
-    )
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
-  renderRow({item, idx, itemProps = {}} = {}) {
-    if (!item) { return false }
-    const {
-      columns,
-      itemHeight,
-      onClick,
-      onSelect,
-      onDoubleClick,
-    } = this.props
+  renderRow({ item, idx, itemProps = {} } = {}) {
+    if (!item) {
+      return false;
+    }
+    const { columns, itemHeight, onClick, onSelect, onDoubleClick } = this.props;
     return (
       <ListTabularItem
         key={item.id || idx}
         item={item}
         itemProps={itemProps}
-        metrics={{top: idx * itemHeight, height: itemHeight}}
+        metrics={{ top: idx * itemHeight, height: itemHeight }}
         columns={columns}
         onSelect={onSelect}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
       />
-    )
+    );
   }
 
   render() {
-    const {rows, innerStyles, draggable, onDragStart, onDragEnd} = this.props
+    const { rows, innerStyles, draggable, onDragStart, onDragEnd } = this.props;
     return (
       <div
         className="list-rows"
@@ -78,7 +71,7 @@ class ListTabularRows extends Component {
       >
         {rows.map(r => this.renderRow(r))}
       </div>
-    )
+    );
   }
 }
 
@@ -107,21 +100,23 @@ class ListTabular extends Component {
     footer: false,
     EmptyComponent: () => false,
     itemPropsProvider: () => ({}),
-  }
+  };
 
-  static Item = ListTabularItem
-  static Column = ListColumn
-  static Selection = ListSelection
-  static DataSource = ListDataSource
+  static Item = ListTabularItem;
+  static Column = ListColumn;
+  static Selection = ListSelection;
+  static DataSource = ListDataSource;
 
   constructor(props) {
-    super(props)
+    super(props);
     if (!props.itemHeight) {
-      throw new Error("ListTabular: You must provide an itemHeight - raising to avoid divide by zero errors.");
+      throw new Error(
+        'ListTabular: You must provide an itemHeight - raising to avoid divide by zero errors.'
+      );
     }
 
-    this._unlisten = () => {}
-    this.state = this.buildStateForRange({start: -1, end: -1});
+    this._unlisten = () => {};
+    this.state = this.buildStateForRange({ start: -1, end: -1 });
   }
 
   componentDidMount() {
@@ -138,7 +133,7 @@ class ListTabular extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.onComponentDidUpdate) {
-      this.props.onComponentDidUpdate()
+      this.props.onComponentDidUpdate();
     }
     // If our view has been swapped out for an entirely different one,
     // reset our scroll position to the top.
@@ -158,20 +153,24 @@ class ListTabular extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.onWindowResize, true);
-    if (this._cleanupAnimationTimeout) { window.clearTimeout(this._cleanupAnimationTimeout); }
-    this._unlisten()
+    if (this._cleanupAnimationTimeout) {
+      window.clearTimeout(this._cleanupAnimationTimeout);
+    }
+    this._unlisten();
   }
 
   onWindowResize = () => {
-    if (this._onWindowResize == null) { this._onWindowResize = _.debounce(this.updateRangeState, 50); }
+    if (this._onWindowResize == null) {
+      this._onWindowResize = _.debounce(this.updateRangeState, 50);
+    }
     this._onWindowResize();
-  }
+  };
 
   onScroll = () => {
     // If we've shifted enough pixels from our previous scrollTop to require
     // new rows to be rendered, update our state!
     this.updateRangeState();
-  }
+  };
 
   onCleanupAnimatingItems = () => {
     this._cleanupAnimationTimeout = null;
@@ -181,62 +180,68 @@ class ListTabular extends Component {
       if (Date.now() < record.end) {
         nextAnimatingOut[idx] = record;
       }
-    })
+    });
 
     if (Object.keys(nextAnimatingOut).length < Object.keys(this.state.animatingOut).length) {
-      this.setState({animatingOut: nextAnimatingOut});
+      this.setState({ animatingOut: nextAnimatingOut });
     }
 
     if (Object.keys(nextAnimatingOut).length > 0) {
       this._cleanupAnimationTimeout = window.setTimeout(this.onCleanupAnimatingItems, 50);
     }
-  }
+  };
 
   setupDataSource(dataSource) {
-    this._unlisten()
+    this._unlisten();
     this._unlisten = dataSource.listen(() => {
       this.setState(this.buildStateForRange());
     });
-    this.setState(this.buildStateForRange({start: -1, end: -1, dataSource}));
+    this.setState(this.buildStateForRange({ start: -1, end: -1, dataSource }));
   }
 
   getRowsToRender() {
-    const {itemPropsProvider} = this.props
-    const {items, animatingOut, renderedRangeStart, renderedRangeEnd} = this.state
+    const { itemPropsProvider } = this.props;
+    const { items, animatingOut, renderedRangeStart, renderedRangeEnd } = this.state;
     // The ordering of the rows array is important. We want current rows to
     // slide over rows which are animating out, so we need to render them last.
     const rows = [];
     Object.entries(animatingOut).forEach(([idx, record]) => {
-      const itemProps = itemPropsProvider(record.item, idx / 1)
-      rows.push({item: record.item, idx: idx / 1, itemProps});
-    })
+      const itemProps = itemPropsProvider(record.item, idx / 1);
+      rows.push({ item: record.item, idx: idx / 1, itemProps });
+    });
 
     Utils.range(renderedRangeStart, renderedRangeEnd).forEach(idx => {
-      const item = items[idx]
+      const item = items[idx];
       if (item) {
-        const itemProps = itemPropsProvider(item, idx)
-        rows.push({item, idx, itemProps});
+        const itemProps = itemPropsProvider(item, idx);
+        rows.push({ item, idx, itemProps });
       }
-    })
+    });
 
     return rows;
   }
 
   scrollTo(node) {
-    if (!this._scrollRegion) { return; }
+    if (!this._scrollRegion) {
+      return;
+    }
     this._scrollRegion.scrollTo(node);
   }
 
   scrollByPage(direction) {
-    if (!this._scrollRegion) { return; }
+    if (!this._scrollRegion) {
+      return;
+    }
     const height = ReactDOM.findDOMNode(this._scrollRegion).clientHeight;
     this._scrollRegion.scrollTop += height * direction;
   }
 
   updateRangeState() {
-    if (!this._scrollRegion) { return; }
-    const {scrollTop} = this._scrollRegion;
-    const {itemHeight} = this.props
+    if (!this._scrollRegion) {
+      return;
+    }
+    const { scrollTop } = this._scrollRegion;
+    const { itemHeight } = this.props;
 
     // Determine the exact range of rows we want onscreen
     const rangeSize = Math.ceil(window.innerHeight / itemHeight);
@@ -249,10 +254,8 @@ class ListTabular extends Component {
     rangeEnd = Math.min(rangeEnd + 2, this.state.count + 1);
 
     // Final sanity check to prevent needless work
-    const shouldNotUpdate = (
-      rangeEnd === this.state.renderedRangeEnd &&
-      rangeStart === this.state.renderedRangeStart
-    )
+    const shouldNotUpdate =
+      rangeEnd === this.state.renderedRangeEnd && rangeStart === this.state.renderedRangeStart;
     if (shouldNotUpdate) {
       return;
     }
@@ -264,8 +267,8 @@ class ListTabular extends Component {
       end: rangeEnd,
     });
 
-    const nextState = this.buildStateForRange({start: rangeStart, end: rangeEnd})
-    this.setState(nextState)
+    const nextState = this.buildStateForRange({ start: rangeStart, end: rangeEnd });
+    this.setState(nextState);
   }
 
   buildStateForRange(args = {}) {
@@ -273,7 +276,7 @@ class ListTabular extends Component {
       start = this.state.renderedRangeStart,
       end = this.state.renderedRangeEnd,
       dataSource = this.props.dataSource,
-    } = args
+    } = args;
 
     const items = {};
     let animatingOut = {};
@@ -286,20 +289,22 @@ class ListTabular extends Component {
     // (eg: we're not scrolling), identify removed items. We'll render them in one
     // last time but not allocate height to them. This allows us to animate them
     // being covered by other items, not just disappearing when others start to slide up.
-    if (this.state && (start === this.state.renderedRangeStart)) {
+    if (this.state && start === this.state.renderedRangeStart) {
       const nextIds = Object.values(items).map(a => a && a.id);
       animatingOut = {};
 
       // Keep items which are still animating out and are still not in the set
       Object.entries(this.state.animatingOut).forEach(([recordIdx, record]) => {
-        if ((Date.now() < record.end) && !(nextIds.includes(record.item.id))) {
+        if (Date.now() < record.end && !nextIds.includes(record.item.id)) {
           animatingOut[recordIdx] = record;
         }
       });
 
       // Add items which are no longer found in the set
       Object.entries(this.state.items).forEach(([previousIdx, previousItem]) => {
-        if (!previousItem || nextIds.includes(previousItem.id)) { return; }
+        if (!previousItem || nextIds.includes(previousItem.id)) {
+          return;
+        }
         animatingOut[previousIdx] = {
           idx: previousIdx,
           item: previousItem,
@@ -311,7 +316,7 @@ class ListTabular extends Component {
       // the user probably switched to an entirely different perspective.
       // Don't bother trying to animate.
       const animatingCount = Object.keys(animatingOut).length;
-      if ((animatingCount > 8) || (animatingCount === Object.keys(this.state.items).length)) {
+      if (animatingCount > 8 || animatingCount === Object.keys(this.state.items).length) {
         animatingOut = {};
       }
     }
@@ -341,15 +346,17 @@ class ListTabular extends Component {
       onDragEnd,
       onDragStart,
       onDoubleClick,
-    } = this.props
-    const {count, loaded, empty} = this.state
-    const rows = this.getRowsToRender()
-    const innerStyles = {height: count * itemHeight}
+    } = this.props;
+    const { count, loaded, empty } = this.state;
+    const rows = this.getRowsToRender();
+    const innerStyles = { height: count * itemHeight };
 
     return (
       <div className={`list-container list-tabular ${className}`}>
         <ScrollRegion
-          ref={(cm) => { this._scrollRegion = cm; }}
+          ref={cm => {
+            this._scrollRegion = cm;
+          }}
           onScroll={this.onScroll}
           tabIndex="-1"
           scrollTooltipComponent={scrollTooltipComponent}
@@ -371,8 +378,8 @@ class ListTabular extends Component {
         <Spinner visible={!loaded && empty} />
         <EmptyComponent visible={loaded && empty} />
       </div>
-    )
+    );
   }
 }
 
-export default ListTabular
+export default ListTabular;

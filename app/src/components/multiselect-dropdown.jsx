@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import {ButtonDropdown, Menu} from 'nylas-component-kit'
+import React, { Component } from 'react';
+import { ButtonDropdown, Menu } from 'nylas-component-kit';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 /*
 Renders a drop down of items that can have multiple selected
@@ -17,7 +17,7 @@ Item can be string or object
 **/
 
 class MultiselectDropdown extends Component {
-  static displayName = 'MultiselectDropdown'
+  static displayName = 'MultiselectDropdown';
 
   static propTypes = {
     className: PropTypes.string,
@@ -27,7 +27,7 @@ class MultiselectDropdown extends Component {
     itemKey: PropTypes.func,
     buttonText: PropTypes.string,
     itemContent: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     className: '',
@@ -37,21 +37,20 @@ class MultiselectDropdown extends Component {
     itemKey: () => {},
     buttonText: '',
     itemContent: () => {},
-  }
+  };
 
   componentDidUpdate() {
     if (ReactDOM.findDOMNode(this.refs.select)) {
-      ReactDOM.findDOMNode(this.refs.select).focus()
+      ReactDOM.findDOMNode(this.refs.select).focus();
     }
   }
 
+  _onItemClick = item => {
+    this.props.onToggleItem(item);
+  };
 
-  _onItemClick = (item) => {
-    this.props.onToggleItem(item)
-  }
-
-  _renderItem = (item) => {
-    const MenuItem = Menu.Item
+  _renderItem = item => {
+    const MenuItem = Menu.Item;
     return (
       <MenuItem
         onMouseDown={() => this._onItemClick(item)}
@@ -59,11 +58,10 @@ class MultiselectDropdown extends Component {
         key={this.props.itemKey(item)}
         content={this.props.itemContent(item)}
       />
-    )
-  }
+    );
+  };
 
-
-  _renderMenu = (items) => {
+  _renderMenu = items => {
     return (
       <Menu
         items={items}
@@ -71,19 +69,19 @@ class MultiselectDropdown extends Component {
         itemKey={item => this.props.itemKey(item)}
         onSelect={() => {}}
       />
-    )
-  }
+    );
+  };
 
   render() {
-    const {items} = this.props
-    const menu = this._renderMenu(items)
+    const { items } = this.props;
+    const menu = this._renderMenu(items);
     return (
       <ButtonDropdown
         className={'btn-multiselect'}
         primaryItem={<span>{this.props.buttonText}</span>}
         menu={menu}
       />
-    )
+    );
   }
 }
-export default MultiselectDropdown
+export default MultiselectDropdown;

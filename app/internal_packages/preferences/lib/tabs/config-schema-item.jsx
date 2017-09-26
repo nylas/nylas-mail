@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'underscore';
 import _str from 'underscore.string';
 
@@ -10,14 +11,13 @@ be an instance of the config provided by `ConfigPropContainer`.
 The config schema follows the JSON Schema standard: http://json-schema.org/
 */
 class ConfigSchemaItem extends React.Component {
-
   static displayName = 'ConfigSchemaItem';
 
   static propTypes = {
-    config: React.PropTypes.object,
-    configSchema: React.PropTypes.object,
-    keyName: React.PropTypes.string,
-    keyPath: React.PropTypes.string,
+    config: PropTypes.object,
+    configSchema: PropTypes.object,
+    keyName: PropTypes.string,
+    keyPath: PropTypes.string,
   };
 
   _appliesToPlatform() {
@@ -29,15 +29,15 @@ class ConfigSchemaItem extends React.Component {
     return false;
   }
 
-  _onChangeChecked = (event) => {
+  _onChangeChecked = event => {
     this.props.config.toggle(this.props.keyPath);
     event.target.blur();
-  }
+  };
 
-  _onChangeValue = (event) => {
+  _onChangeValue = event => {
     this.props.config.set(this.props.keyPath, event.target.value);
     event.target.blur();
-  }
+  };
 
   render() {
     if (!this._appliesToPlatform()) return false;
@@ -49,7 +49,7 @@ class ConfigSchemaItem extends React.Component {
       return (
         <section>
           <h6>{_str.humanize(this.props.keyName)}</h6>
-          {Object.entries(this.props.configSchema.properties).map(([key, value]) =>
+          {Object.entries(this.props.configSchema.properties).map(([key, value]) => (
             <ConfigSchemaItem
               key={key}
               keyName={key}
@@ -57,7 +57,7 @@ class ConfigSchemaItem extends React.Component {
               configSchema={value}
               config={this.props.config}
             />
-          )}
+          ))}
         </section>
       );
     } else if (this.props.configSchema.enum) {
@@ -65,9 +65,14 @@ class ConfigSchemaItem extends React.Component {
         <div className="item">
           <label htmlFor={this.props.keyPath}>{this.props.configSchema.title}:</label>
           <select onChange={this._onChangeValue} value={this.props.config.get(this.props.keyPath)}>
-            {_.zip(this.props.configSchema.enum, this.props.configSchema.enumLabels).map(([value, label]) =>
-              <option key={value} value={value}>{label}</option>
-            )}
+            {_.zip(
+              this.props.configSchema.enum,
+              this.props.configSchema.enumLabels
+            ).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </div>
       );
@@ -84,11 +89,8 @@ class ConfigSchemaItem extends React.Component {
         </div>
       );
     }
-    return (
-      <span />
-    );
+    return <span />;
   }
-
 }
 
 export default ConfigSchemaItem;

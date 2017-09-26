@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import path from 'path';
 import fs from 'fs';
 import { remote } from 'electron';
@@ -11,7 +12,7 @@ export default class PreferencesKeymaps extends React.Component {
   static displayName = 'PreferencesKeymaps';
 
   static propTypes = {
-    config: React.PropTypes.object,
+    config: PropTypes.object,
   };
 
   constructor() {
@@ -25,7 +26,7 @@ export default class PreferencesKeymaps extends React.Component {
 
   componentDidMount() {
     this._disposable = NylasEnv.keymaps.onDidReloadKeymap(() => {
-      this.setState({bindings: this._getStateFromKeymaps()});
+      this.setState({ bindings: this._getStateFromKeymaps() });
     });
   }
 
@@ -47,13 +48,13 @@ export default class PreferencesKeymaps extends React.Component {
     const templatesDir = path.join(NylasEnv.getLoadSettings().resourcePath, 'keymaps', 'templates');
     fs.readdir(templatesDir, (err, files) => {
       if (!files || !(files instanceof Array)) return;
-      let templates = files.filter((filename) => {
+      let templates = files.filter(filename => {
         return path.extname(filename) === '.json';
       });
-      templates = templates.map((filename) => {
+      templates = templates.map(filename => {
         return path.parse(filename).name;
       });
-      this.setState({templates: templates});
+      this.setState({ templates: templates });
     });
   }
 
@@ -68,8 +69,8 @@ export default class PreferencesKeymaps extends React.Component {
   _onDeleteUserKeymap() {
     const chosen = remote.dialog.showMessageBox(NylasEnv.getCurrentWindow(), {
       type: 'info',
-      message: "Are you sure?",
-      detail: "Delete your custom key bindings and reset to the template defaults?",
+      message: 'Are you sure?',
+      detail: 'Delete your custom key bindings and reset to the template defaults?',
       buttons: ['Cancel', 'Reset'],
     });
 
@@ -79,25 +80,23 @@ export default class PreferencesKeymaps extends React.Component {
     }
   }
 
-  _renderBindingsSection = (section) => {
+  _renderBindingsSection = section => {
     return (
       <section key={`section-${section.title}`}>
         <div className="shortcut-section-title">{section.title}</div>
-        {
-          section.items.map(([command, label]) => {
-            return (
-              <CommandItem
-                key={command}
-                command={command}
-                label={label}
-                bindings={this.state.bindings[command]}
-              />
-            );
-          })
-        }
+        {section.items.map(([command, label]) => {
+          return (
+            <CommandItem
+              key={command}
+              command={command}
+              label={label}
+              bindings={this.state.bindings[command]}
+            />
+          );
+        })}
       </section>
     );
-  }
+  };
 
   render() {
     return (
@@ -107,29 +106,37 @@ export default class PreferencesKeymaps extends React.Component {
             <div>Shortcut set:</div>
             <div className="dropdown">
               <select
-                style={{margin: 0}}
+                style={{ margin: 0 }}
                 tabIndex={-1}
                 value={this.props.config.get('core.keymapTemplate')}
-                onChange={(event) => this.props.config.set('core.keymapTemplate', event.target.value)}
+                onChange={event => this.props.config.set('core.keymapTemplate', event.target.value)}
               >
-                {this.state.templates.map((template) => {
-                  return <option key={template} value={template}>{template}</option>
+                {this.state.templates.map(template => {
+                  return (
+                    <option key={template} value={template}>
+                      {template}
+                    </option>
+                  );
                 })}
               </select>
             </div>
-            <div style={{flex: 1}} />
-            <button className="btn" onClick={this._onDeleteUserKeymap}>Reset to Defaults</button>
+            <div style={{ flex: 1 }} />
+            <button className="btn" onClick={this._onDeleteUserKeymap}>
+              Reset to Defaults
+            </button>
           </Flexbox>
           <p>
-            You can choose a shortcut set to use keyboard shortcuts of familiar email clients.
-            To edit a shortcut, click it in the list below and enter a replacement on the keyboard.
+            You can choose a shortcut set to use keyboard shortcuts of familiar email clients. To
+            edit a shortcut, click it in the list below and enter a replacement on the keyboard.
           </p>
           {displayedKeybindings.map(this._renderBindingsSection)}
         </section>
         <section>
           <h2>Customization</h2>
           <p>You can manage your custom shortcuts directly by editing your shortcuts file.</p>
-          <button className="btn" onClick={this._onShowUserKeymaps}>Edit custom shortcuts</button>
+          <button className="btn" onClick={this._onShowUserKeymaps}>
+            Edit custom shortcuts
+          </button>
         </section>
       </div>
     );

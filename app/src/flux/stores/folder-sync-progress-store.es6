@@ -1,7 +1,7 @@
-import _ from 'underscore'
-import NylasStore from 'nylas-store'
-import AccountStore from './account-store'
-import CategoryStore from './category-store'
+import _ from 'underscore';
+import NylasStore from 'nylas-store';
+import AccountStore from './account-store';
+import CategoryStore from './category-store';
 import Folder from '../models/folder';
 
 /**
@@ -24,22 +24,21 @@ import Folder from '../models/folder';
  *
  */
 class FolderSyncProgressStore extends NylasStore {
-
   constructor() {
-    super()
-    this._statesByAccount = {}
-    this._triggerDebounced = _.debounce(this.trigger, 100)
+    super();
+    this._statesByAccount = {};
+    this._triggerDebounced = _.debounce(this.trigger, 100);
 
-    this.listenTo(AccountStore, () => this._onRefresh())
-    this.listenTo(CategoryStore, () => this._onRefresh())
-    this._onRefresh()
+    this.listenTo(AccountStore, () => this._onRefresh());
+    this.listenTo(CategoryStore, () => this._onRefresh());
+    this._onRefresh();
   }
 
   _onRefresh() {
     this._statesByAccount = {};
 
     for (const accountId of AccountStore.accountIds()) {
-      const folders = CategoryStore.categories(accountId).filter(cat => cat instanceof Folder)
+      const folders = CategoryStore.categories(accountId).filter(cat => cat instanceof Folder);
       const state = {};
 
       /*
@@ -48,12 +47,12 @@ class FolderSyncProgressStore extends NylasStore {
       implementation changes.
       */
       for (const folder of folders) {
-        const {uidnext, syncedMinUID, busy} = folder.localStatus || {};
+        const { uidnext, syncedMinUID, busy } = folder.localStatus || {};
         state[folder.path] = {
           busy: busy !== undefined ? busy : true,
           progress: 1.0 - (syncedMinUID - 1) / uidnext,
           total: uidnext,
-        }
+        };
       }
 
       this._statesByAccount[accountId] = state;
@@ -75,38 +74,40 @@ class FolderSyncProgressStore extends NylasStore {
    */
   isCategoryListSynced(accountId) {
     const state = this._statesByAccount[accountId];
-    if (!state) { return false }
-    return Object.values(state).some((i) => i.progress > 0);
+    if (!state) {
+      return false;
+    }
+    return Object.values(state).some(i => i.progress > 0);
   }
 
   whenCategoryListSynced(accountId) {
     if (this.isCategoryListSynced(accountId)) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const unsubscribe = this.listen(() => {
         if (this.isCategoryListSynced(accountId)) {
-          unsubscribe()
-          resolve()
+          unsubscribe();
+          resolve();
         }
-      })
-    })
+      });
+    });
   }
 
   isSyncCompleteForAccount(accountId, folderPath) {
-    const state = this._statesByAccount[accountId]
+    const state = this._statesByAccount[accountId];
 
     if (!state || !this.isCategoryListSynced(accountId)) {
-      return false
+      return false;
     }
 
     if (folderPath) {
-      return !state[folderPath].busy && state[folderPath].progress >= 1
+      return !state[folderPath].busy && state[folderPath].progress >= 1;
     }
 
-    const folderPaths = Object.keys(state)
+    const folderPaths = Object.keys(state);
     for (const aFolderPath of folderPaths) {
-      const {progress, busy} = state[aFolderPath];
+      const { progress, busy } = state[aFolderPath];
       if (busy || progress < 1) {
         return false;
       }
@@ -116,24 +117,24 @@ class FolderSyncProgressStore extends NylasStore {
   }
 
   isSyncComplete() {
-    return Object.keys(this._statesByAccount).every((accountId) =>
+    return Object.keys(this._statesByAccount).every(accountId =>
       this.isSyncCompleteForAccount(accountId)
     );
   }
 
   whenSyncComplete() {
     if (this.isSyncComplete()) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const unsubscribe = this.listen(() => {
         if (this.isSyncComplete()) {
-          unsubscribe()
-          resolve()
+          unsubscribe();
+          resolve();
         }
-      })
-    })
+      });
+    });
   }
 }
 
-export default new FolderSyncProgressStore()
+export default new FolderSyncProgressStore();

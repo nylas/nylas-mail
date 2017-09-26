@@ -1,29 +1,30 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { Flexbox } from 'nylas-component-kit';
 import fs from 'fs';
 
-import {keyAndModifiersForEvent} from './mousetrap-keybinding-helpers';
+import { keyAndModifiersForEvent } from './mousetrap-keybinding-helpers';
 
 export default class CommandKeybinding extends React.Component {
   static propTypes = {
-    bindings: React.PropTypes.array,
-    label: React.PropTypes.string,
-    command: React.PropTypes.string,
-  }
+    bindings: PropTypes.array,
+    label: PropTypes.string,
+    command: PropTypes.string,
+  };
 
   constructor(props) {
     super(props);
 
     this.state = {
       editing: false,
-    }
+    };
   }
   componentDidUpdate() {
-    const {modifiers, keys, editing} = this.state;
+    const { modifiers, keys, editing } = this.state;
     if (editing) {
-      const finished = (((modifiers.length > 0) && (keys.length > 0)) || (keys.length >= 2));
+      const finished = (modifiers.length > 0 && keys.length > 0) || keys.length >= 2;
       if (finished) {
         ReactDOM.findDOMNode(this).blur();
       }
@@ -32,7 +33,7 @@ export default class CommandKeybinding extends React.Component {
 
   _formatKeystrokes(original) {
     // On Windows, display cmd-shift-c
-    if (process.platform === "win32") return original;
+    if (process.platform === 'win32') return original;
 
     // Replace "cmd" => ⌘, etc.
     const modifiers = [
@@ -42,7 +43,7 @@ export default class CommandKeybinding extends React.Component {
       [/alt/gi, '⌥'],
       [/shift/gi, '⇧'],
       [/ctrl/gi, '^'],
-      [/mod/gi, (process.platform === 'darwin' ? '⌘' : '^')],
+      [/mod/gi, process.platform === 'darwin' ? '⌘' : '^'],
     ];
     let clean = original;
     for (const [regexp, char] of modifiers) {
@@ -67,18 +68,25 @@ export default class CommandKeybinding extends React.Component {
     splitKeystrokes.forEach((keystroke, kidx) => {
       elements.push(<span key={kidx}>{this._formatKeystrokes(keystroke)}</span>);
       if (kidx < splitKeystrokes.length - 1) {
-        elements.push(<span className="then" key={`then${kidx}`}> then </span>);
+        elements.push(
+          <span className="then" key={`then${kidx}`}>
+            {' '}
+            then{' '}
+          </span>
+        );
       }
     });
     return (
-      <span key={`keystrokes-${idx}`} className="shortcut-value">{elements}</span>
+      <span key={`keystrokes-${idx}`} className="shortcut-value">
+        {elements}
+      </span>
     );
-  }
+  };
 
   _onEdit = () => {
-    this.setState({editing: true, editingBinding: null, keys: [], modifiers: []});
+    this.setState({ editing: true, editingBinding: null, keys: [], modifiers: [] });
     NylasEnv.keymaps.suspendAllKeymaps();
-  }
+  };
 
   _onFinishedEditing = () => {
     if (this.state.editingBinding) {
@@ -99,14 +107,16 @@ export default class CommandKeybinding extends React.Component {
       try {
         fs.writeFileSync(keymapPath, JSON.stringify(keymaps, null, 2));
       } catch (err) {
-        NylasEnv.showErrorDialog(`Nylas was unable to modify your keymaps at ${keymapPath}. ${err.toString()}`);
+        NylasEnv.showErrorDialog(
+          `Nylas was unable to modify your keymaps at ${keymapPath}. ${err.toString()}`
+        );
       }
     }
-    this.setState({editing: false, editingBinding: null});
+    this.setState({ editing: false, editingBinding: null });
     NylasEnv.keymaps.resumeAllKeymaps();
-  }
+  };
 
-  _onKey = (event) => {
+  _onKey = event => {
     if (!this.state.editing) {
       return;
     }
@@ -119,7 +129,7 @@ export default class CommandKeybinding extends React.Component {
       return;
     }
 
-    let {keys, modifiers} = this.state;
+    let { keys, modifiers } = this.state;
     keys = keys.concat([eventKey]);
     modifiers = _.uniq(modifiers.concat(eventMods));
 
@@ -129,21 +139,21 @@ export default class CommandKeybinding extends React.Component {
       editingBinding = editingBinding.replace(/(meta|command|ctrl)/g, 'mod');
     }
 
-    this.setState({keys, modifiers, editingBinding});
-  }
+    this.setState({ keys, modifiers, editingBinding });
+  };
 
   render() {
-    const {editing, editingBinding} = this.state;
+    const { editing, editingBinding } = this.state;
     const bindings = editingBinding ? [editingBinding] : this.props.bindings;
 
-    let value = "None";
+    let value = 'None';
     if (bindings.length > 0) {
       value = _.uniq(bindings).map(this._renderKeystrokes);
     }
 
-    let classnames = "shortcut";
+    let classnames = 'shortcut';
     if (editing) {
-      classnames += " editing";
+      classnames += ' editing';
     }
     return (
       <Flexbox
@@ -154,9 +164,7 @@ export default class CommandKeybinding extends React.Component {
         onFocus={this._onEdit}
         onBlur={this._onFinishedEditing}
       >
-        <div className="col-left shortcut-name">
-          {this.props.label}
-        </div>
+        <div className="col-left shortcut-name">{this.props.label}</div>
         <div className="col-right">
           <div className="values">{value}</div>
         </div>

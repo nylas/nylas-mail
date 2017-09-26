@@ -1,8 +1,7 @@
-import {DOMUtils, ComposerExtension} from 'nylas-exports';
+import { DOMUtils, ComposerExtension } from 'nylas-exports';
 
 export default class TemplatesComposerExtension extends ComposerExtension {
-
-  static warningsForSending({draft}) {
+  static warningsForSending({ draft }) {
     const warnings = [];
     if (draft.body.search(/<code[^>]*empty[^>]*>/i) > 0) {
       warnings.push('with an empty template area');
@@ -10,26 +9,32 @@ export default class TemplatesComposerExtension extends ComposerExtension {
     return warnings;
   }
 
-  static applyTransformsForSending = ({draftBodyRootNode}) => {
-    draftBodyRootNode.innerHTML = draftBodyRootNode.innerHTML.replace(/<\/?code[^>]*>/g, (match) =>
-      `<!-- ${match} -->`
+  static applyTransformsForSending = ({ draftBodyRootNode }) => {
+    draftBodyRootNode.innerHTML = draftBodyRootNode.innerHTML.replace(
+      /<\/?code[^>]*>/g,
+      match => `<!-- ${match} -->`
     );
-  }
+  };
 
-  static unapplyTransformsForSending = ({draftBodyRootNode}) => {
-    draftBodyRootNode.innerHTML = draftBodyRootNode.innerHTML.replace(/<!-- (<\/?code[^>]*>) -->/g, (match, node) =>
-      node
+  static unapplyTransformsForSending = ({ draftBodyRootNode }) => {
+    draftBodyRootNode.innerHTML = draftBodyRootNode.innerHTML.replace(
+      /<!-- (<\/?code[^>]*>) -->/g,
+      (match, node) => node
     );
-  }
+  };
 
-  static onClick({editor, event}) {
+  static onClick({ editor, event }) {
     const node = event.target;
-    if (node.nodeName === 'CODE' && node.classList.contains('var') && node.classList.contains('empty')) {
+    if (
+      node.nodeName === 'CODE' &&
+      node.classList.contains('var') &&
+      node.classList.contains('empty')
+    ) {
       editor.selectAllChildren(node);
     }
   }
 
-  static onKeyDown({editor, event}) {
+  static onKeyDown({ editor, event }) {
     const editableNode = editor.rootNode;
     if (event.key === 'Tab') {
       const nodes = editableNode.querySelectorAll('code.var');
@@ -59,7 +64,10 @@ export default class TemplatesComposerExtension extends ComposerExtension {
         // If we failed to find a <code> that the selection is within, select the
         // nearest <code> before/after the selection (depending on shift).
         if (!found) {
-          const treeWalker = document.createTreeWalker(editableNode, NodeFilter.SHOW_ELEMENT + NodeFilter.SHOW_TEXT);
+          const treeWalker = document.createTreeWalker(
+            editableNode,
+            NodeFilter.SHOW_ELEMENT + NodeFilter.SHOW_TEXT
+          );
           let curIndex = 0;
           let nextIndex = null;
           let node = treeWalker.nextNode();
@@ -88,13 +96,15 @@ export default class TemplatesComposerExtension extends ComposerExtension {
     }
   }
 
-  static onContentChanged({editor}) {
+  static onContentChanged({ editor }) {
     const editableNode = editor.rootNode;
     const selection = editor.currentSelection().rawSelection;
-    const isWithinNode = (node) => {
+    const isWithinNode = node => {
       let test = selection.baseNode;
       while (test !== editableNode) {
-        if (test === node) { return true; }
+        if (test === node) {
+          return true;
+        }
         test = test.parentNode;
       }
       return false;

@@ -1,15 +1,14 @@
-import {AccountStore, Actions} from 'nylas-exports';
+import { AccountStore, Actions } from 'nylas-exports';
 import PrintWindow from './print-window';
 
 class Printer {
-
   constructor() {
     this.unsub = Actions.printThread.listen(this._printThread);
   }
 
   _printThread(thread, htmlContent) {
     if (!thread) throw new Error('Printing: No thread active!');
-    const account = AccountStore.accountForId(thread.accountId)
+    const account = AccountStore.accountForId(thread.accountId);
 
     // Get the <nylas-styles> tag present in the document
     const styleTag = document.getElementsByTagName('managed-styles')[0];
@@ -17,7 +16,7 @@ class Printer {
     // focused
     const iframes = document.getElementsByTagName('iframe');
     // Grab the html inside the iframes
-    const messagesHtml = [].slice.call(iframes).map((iframe) => {
+    const messagesHtml = [].slice.call(iframes).map(iframe => {
       return iframe.contentDocument.documentElement.innerHTML;
     });
 

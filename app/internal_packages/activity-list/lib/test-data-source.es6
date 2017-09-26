@@ -5,14 +5,14 @@ export default class TestDataSource {
 
   manuallyTrigger = (messages = []) => {
     this.onNext(messages);
-  }
+  };
 
   subscribe(onNext) {
     this.onNext = onNext;
     this.manuallyTrigger();
     const dispose = () => {
       this._unsub();
-    }
-    return {dispose};
+    };
+    return { dispose };
   }
 }

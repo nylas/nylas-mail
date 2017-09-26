@@ -1,5 +1,6 @@
 import React from 'react';
-import {OAuthSignInPage} from 'nylas-component-kit';
+import PropTypes from 'prop-types';
+import { OAuthSignInPage } from 'nylas-component-kit';
 
 import {
   makeGmailOAuthRequest,
@@ -11,18 +12,17 @@ import {
 import OnboardingActions from './onboarding-actions';
 import AccountProviders from './account-providers';
 
-
 export default class AccountSettingsPageGmail extends React.Component {
-  static displayName = "AccountSettingsPageGmail";
+  static displayName = 'AccountSettingsPageGmail';
 
   static propTypes = {
-    account: React.PropTypes.object,
+    account: PropTypes.object,
   };
 
   constructor() {
-    super()
+    super();
     this._sessionKey = buildGmailSessionKey();
-    this._gmailAuthUrl = buildGmailAuthURL(this._sessionKey)
+    this._gmailAuthUrl = buildGmailAuthURL(this._sessionKey);
   }
 
   onSuccess(account) {
@@ -30,11 +30,9 @@ export default class AccountSettingsPageGmail extends React.Component {
   }
 
   render() {
-    const providerConfig = AccountProviders.find(a =>
-      a.provider === this.props.account.provider
-    )
-    const {headerIcon} = providerConfig;
-    const goBack = () => OnboardingActions.moveToPreviousPage()
+    const providerConfig = AccountProviders.find(a => a.provider === this.props.account.provider);
+    const { headerIcon } = providerConfig;
+    const goBack = () => OnboardingActions.moveToPreviousPage();
 
     return (
       <OAuthSignInPage

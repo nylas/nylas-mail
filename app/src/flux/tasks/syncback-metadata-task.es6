@@ -2,7 +2,6 @@ import Task from './task';
 import Attributes from '../attributes';
 
 export default class SyncbackMetadataTask extends Task {
-
   static attributes = Object.assign({}, Task.attributes, {
     pluginId: Attributes.String({
       modelKey: 'pluginId',
@@ -38,7 +37,7 @@ export default class SyncbackMetadataTask extends Task {
 
   validate() {
     if (!this.pluginId) {
-      throw new Error("SyncbackMetadataTask: You must specify a pluginId.");
+      throw new Error('SyncbackMetadataTask: You must specify a pluginId.');
     }
     return super.validate();
   }

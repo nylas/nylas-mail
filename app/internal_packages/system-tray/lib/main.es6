@@ -9,6 +9,4 @@ export function deactivate() {
   this.store.deactivate();
 }
 
-export function serialize() {
-
-}
+export function serialize() {}

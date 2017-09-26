@@ -1,14 +1,12 @@
 _ = require 'underscore'
-React = require 'react'
-ReactDOM = require 'react-dom'
-{Utils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, Utils} = require 'nylas-exports'
 classNames = require 'classnames'
 ScrollbarTicks = require('./scrollbar-ticks').default
 
 class Scrollbar extends React.Component
   @displayName: 'Scrollbar'
   @propTypes:
-    scrollTooltipComponent: React.PropTypes.func
+    scrollTooltipComponent: PropTypes.func
     # A scrollbarTickProvider is any object that has the `listen` and
     # `scrollbarTicks` method. Since ScrollRegions tend to encompass large
     # render trees it's more efficent for the scrollbar to listen for its
@@ -17,8 +15,8 @@ class Scrollbar extends React.Component
     # method must return an array of numbers between 0 and 1 which
     # represent the height percentages at which tick marks will be
     # rendered.
-    scrollbarTickProvider: React.PropTypes.object
-    getScrollRegion: React.PropTypes.func
+    scrollbarTickProvider: PropTypes.object
+    getScrollRegion: PropTypes.func
 
   constructor: (@props) ->
     @state =
@@ -144,13 +142,13 @@ class ScrollRegion extends React.Component
   @displayName: "ScrollRegion"
 
   @propTypes:
-    onScroll: React.PropTypes.func
-    onScrollEnd: React.PropTypes.func
-    className: React.PropTypes.string
-    scrollTooltipComponent: React.PropTypes.func
-    scrollbarTickProvider: React.PropTypes.object
-    children: React.PropTypes.oneOfType([React.PropTypes.element, React.PropTypes.array])
-    getScrollbar: React.PropTypes.func
+    onScroll: PropTypes.func
+    onScrollEnd: PropTypes.func
+    className: PropTypes.string
+    scrollTooltipComponent: PropTypes.func
+    scrollbarTickProvider: PropTypes.object
+    children: PropTypes.oneOfType([PropTypes.element, PropTypes.array])
+    getScrollbar: PropTypes.func
 
   # Concept from https://developer.apple.com/library/prerelease/ios/documentation/UIKit/Reference/UITableView_Class/#//apple_ref/c/tdef/UITableViewScrollPosition
 

@@ -1,10 +1,9 @@
-import {Utils} from 'nylas-exports'
-import React, {Component} from 'react';
+import { Utils } from 'nylas-exports';
+import React, { Component } from 'react';
 import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
 import OutlineViewItem from './outline-view-item';
-import PropTypes from 'prop-types'
-
+import PropTypes from 'prop-types';
 
 /*
  * Renders a section that contains a list of {@link OutlineViewItem}s. These items can
@@ -64,8 +63,7 @@ class OutlineView extends Component {
   };
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !Utils.isEqualReact(nextProps, this.props) ||
-      !Utils.isEqualReact(nextState, this.state);
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   componentWillUnmount() {
@@ -80,7 +78,7 @@ class OutlineView extends Component {
 
   _onCreateButtonClicked = () => {
     this._clickingCreateButton = false;
-    this.setState({showCreateInput: !this.state.showCreateInput});
+    this.setState({ showCreateInput: !this.state.showCreateInput });
   };
 
   _onCollapseToggled = () => {
@@ -89,26 +87,25 @@ class OutlineView extends Component {
     }
   };
 
-  _onDragStateChange = ({isDropping}) => {
+  _onDragStateChange = ({ isDropping }) => {
     if (this.props.collapsed && !this._expandTimeout && isDropping) {
       this._expandTimeout = setTimeout(this._onCollapseToggled, 650);
     } else if (this._expandTimeout && !isDropping) {
       clearTimeout(this._expandTimeout);
       this._expandTimeout = null;
     }
-  }
+  };
 
   _onItemCreated = (item, value) => {
-    this.setState({showCreateInput: false});
-    this.props.onItemCreated(value)
+    this.setState({ showCreateInput: false });
+    this.props.onItemCreated(value);
   };
 
   _onCreateInputCleared = () => {
     if (!this._clickingCreateButton) {
-      this.setState({showCreateInput: false});
+      this.setState({ showCreateInput: false });
     }
   };
-
 
   // Renderers
 
@@ -122,7 +119,7 @@ class OutlineView extends Component {
       onEdited: this._onItemCreated,
       inputPlaceholder: 'Create new item',
       onInputCleared: this._onCreateInputCleared,
-    }
+    };
     return <OutlineViewItem item={item} />;
   }
 
@@ -135,7 +132,7 @@ class OutlineView extends Component {
       >
         <RetinaImg
           url="mailspring://account-sidebar/assets/icon-sidebar-addcategory@2x.png"
-          style={{height: 15, width: 14}}
+          style={{ height: 15, width: 14 }}
           mode={RetinaImg.Mode.ContentIsMask}
         />
       </span>
@@ -155,23 +152,17 @@ class OutlineView extends Component {
           {this.props.title}
         </span>
         {allowCreate ? this._renderCreateButton() : null}
-        {collapsible ?
-          <span
-            className="collapse-button"
-            onClick={this._onCollapseToggled}
-          >
+        {collapsible ? (
+          <span className="collapse-button" onClick={this._onCollapseToggled}>
             {collapseLabel}
           </span>
-          : null
-        }
+        ) : null}
       </DropZone>
     );
   }
 
   _renderItems() {
-    return this.props.items.map(item => (
-      <OutlineViewItem key={item.id} item={item} />
-    ));
+    return this.props.items.map(item => <OutlineViewItem key={item.id} item={item} />);
   }
 
   _renderOutline(allowCreate, collapsed) {

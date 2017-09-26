@@ -1,10 +1,10 @@
 const Fields = {
-  To: "textFieldTo",
-  Cc: "textFieldCc",
-  Bcc: "textFieldBcc",
-  From: "fromField",
-  Subject: "textFieldSubject",
-  Body: "contentBody",
+  To: 'textFieldTo',
+  Cc: 'textFieldCc',
+  Bcc: 'textFieldBcc',
+  From: 'fromField',
+  Subject: 'textFieldSubject',
+  Body: 'contentBody',
 };
 
 Fields.ParticipantFields = [Fields.To, Fields.Cc, Fields.Bcc];
@@ -18,4 +18,4 @@ Fields.Order = {
   contentBody: 6,
 };
 
-export default Fields
+export default Fields;

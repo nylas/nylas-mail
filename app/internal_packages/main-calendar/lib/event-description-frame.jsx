@@ -1,13 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {EventedIFrame} from 'nylas-component-kit';
-import {Utils} from 'nylas-exports';
+import { EventedIFrame } from 'nylas-component-kit';
+import { React, ReactDOM, PropTypes, Utils } from 'nylas-exports';
 
 export default class EmailFrame extends React.Component {
   static displayName = 'EmailFrame';
 
   static propTypes = {
-    content: React.PropTypes.string.isRequired,
+    content: PropTypes.string.isRequired,
   };
 
   componentDidMount() {
@@ -16,7 +14,7 @@ export default class EmailFrame extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (!Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state));
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   componentDidUpdate() {
@@ -32,7 +30,9 @@ export default class EmailFrame extends React.Component {
 
   _writeContent = () => {
     const doc = ReactDOM.findDOMNode(this._iframeComponent).contentDocument;
-    if (!doc) { return; }
+    if (!doc) {
+      return;
+    }
     doc.open();
 
     // NOTE: The iframe must have a modern DOCTYPE. The lack of this line
@@ -40,7 +40,7 @@ export default class EmailFrame extends React.Component {
     // message bodies. This is particularly felt with <table> elements use
     // the `border-collapse: collapse` css property while setting a
     // `padding`.
-    doc.write("<!DOCTYPE html>");
+    doc.write('<!DOCTYPE html>');
     doc.write(`<div id='inbox-html-wrapper'>${this.props.content}</div>`);
     doc.close();
 
@@ -52,24 +52,24 @@ export default class EmailFrame extends React.Component {
     // so it can attach event listeners again.
     this._iframeComponent.didReplaceDocument();
     this._onMustRecalculateFrameHeight();
-  }
+  };
 
   _onMustRecalculateFrameHeight = () => {
     this._iframeComponent.setHeightQuietly(0);
     this._lastComputedHeight = 0;
     this._setFrameHeight();
-  }
+  };
 
-  _getFrameHeight = (doc) => {
+  _getFrameHeight = doc => {
     let height = 0;
 
     if (doc && doc.body) {
       // Why reset the height? body.scrollHeight will always be 0 if the height
       // of the body is dependent on the iframe height e.g. if height ===
       // 100% in inline styles or an email stylesheet
-      const style = window.getComputedStyle(doc.body)
+      const style = window.getComputedStyle(doc.body);
       if (style.height === '0px') {
-        doc.body.style.height = "auto"
+        doc.body.style.height = 'auto';
       }
       height = doc.body.scrollHeight;
     }
@@ -80,7 +80,7 @@ export default class EmailFrame extends React.Component {
 
     // scrollHeight does not include space required by scrollbar
     return height + 25;
-  }
+  };
 
   _setFrameHeight = () => {
     if (!this._mounted) {
@@ -110,17 +110,21 @@ export default class EmailFrame extends React.Component {
     if (iframeEl.contentDocument.readyState !== 'complete') {
       setTimeout(() => this._setFrameHeight(), 0);
     }
-  }
+  };
 
   render() {
     return (
       <div
         className="iframe-container"
-        ref={el => { this._iframeHeightHolderEl = el; }}
-        style={{height: this._lastComputedHeight}}
+        ref={el => {
+          this._iframeHeightHolderEl = el;
+        }}
+        style={{ height: this._lastComputedHeight }}
       >
         <EventedIFrame
-          ref={cm => { this._iframeComponent = cm; }}
+          ref={cm => {
+            this._iframeComponent = cm;
+          }}
           seamless="seamless"
           searchable
           onResize={this._onMustRecalculateFrameHeight}

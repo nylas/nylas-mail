@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import RetinaImg from './retina-img';
 
 export const LabelColorizer = {
@@ -20,7 +21,7 @@ export const LabelColorizer = {
       backgroundColor: LabelColorizer.backgroundColor(label),
       boxShadow: `inset 0 0 1px hsl(${label.hue()}, 62%, 47%), inset 0 1px 1px rgba(255,255,255,0.5), 0 0.5px 0 rgba(255,255,255,0.5)`,
     };
-    if (process.platform !== "win32") {
+    if (process.platform !== 'win32') {
       styles.backgroundImage = 'linear-gradient(rgba(255,255,255, 0.4), rgba(255,255,255,0))';
     }
     return styles;
@@ -29,12 +30,14 @@ export const LabelColorizer = {
 
 export class MailLabel extends React.Component {
   static propTypes = {
-    label: React.PropTypes.object.isRequired,
-    onRemove: React.PropTypes.func,
+    label: PropTypes.object.isRequired,
+    onRemove: PropTypes.func,
   };
 
   shouldComponentUpdate(nextProps) {
-    if (nextProps.label.id === this.props.label.id) { return false; }
+    if (nextProps.label.id === this.props.label.id) {
+      return false;
+    }
     return true;
   }
 
@@ -43,18 +46,18 @@ export class MailLabel extends React.Component {
   }
 
   render() {
-    let classname = 'mail-label'
-    let content = this.props.label.displayName
+    let classname = 'mail-label';
+    let content = this.props.label.displayName;
 
     let x = null;
     if (this._removable()) {
-      classname += ' removable'
-      content = <span className="inner">{content}</span>
+      classname += ' removable';
+      content = <span className="inner">{content}</span>;
       x = (
         <RetinaImg
           className="x"
           name="label-x.png"
-          style={{backgroundColor: LabelColorizer.color(this.props.label)}}
+          style={{ backgroundColor: LabelColorizer.color(this.props.label) }}
           mode={RetinaImg.Mode.ContentIsMask}
           onClick={this.props.onRemove}
         />
@@ -62,11 +65,9 @@ export class MailLabel extends React.Component {
     }
 
     return (
-      <div
-        className={classname}
-        style={LabelColorizer.styles(this.props.label)}
-      >
-        {content}{x}
+      <div className={classname} style={LabelColorizer.styles(this.props.label)}>
+        {content}
+        {x}
       </div>
     );
   }

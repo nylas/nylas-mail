@@ -10,12 +10,11 @@ import {
   InflatesDraftClientId,
   CustomContenteditableComponents,
 } from 'nylas-exports';
-import {OverlaidComposerExtension} from 'nylas-component-kit'
+import { OverlaidComposerExtension } from 'nylas-component-kit';
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
 import InlineImageComposerExtension from './inline-image-composer-extension';
-import InlineImageUploadContainer from "./inline-image-upload-container";
-
+import InlineImageUploadContainer from './inline-image-upload-container';
 
 const ComposerViewForDraftClientId = InflatesDraftClientId(ComposerView);
 
@@ -28,21 +27,23 @@ class ComposerWithWindowProps extends React.Component {
 
     // We'll now always have windowProps by the time we construct this.
     const windowProps = NylasEnv.getWindowProps();
-    const {draftJSON, headerMessageId} = windowProps;
+    const { draftJSON, headerMessageId } = windowProps;
     if (!draftJSON) {
-      throw new Error("Initialize popout composer windows with valid draftJSON")
+      throw new Error('Initialize popout composer windows with valid draftJSON');
     }
     const draft = new Message().fromJSON(draftJSON);
     DraftStore._createSession(headerMessageId, draft);
-    this.state = windowProps
+    this.state = windowProps;
   }
 
   componentWillUnmount() {
-    if (this._usub) { this._usub() }
+    if (this._usub) {
+      this._usub();
+    }
   }
 
   componentDidUpdate() {
-    this._composerComponent.focus()
+    this._composerComponent.focus();
   }
 
   _onDraftReady = () => {
@@ -53,12 +54,14 @@ class ComposerWithWindowProps extends React.Component {
         this._showInitialErrorDialog(this.state.errorMessage, this.state.errorDetail);
       }
     });
-  }
+  };
 
   render() {
     return (
       <ComposerViewForDraftClientId
-        ref={(cm) => { this._composerComponent = cm; }}
+        ref={cm => {
+          this._composerComponent = cm;
+        }}
         onDraftReady={this._onDraftReady}
         headerMessageId={this.state.headerMessageId}
         className="composer-full-window"
@@ -71,7 +74,7 @@ class ComposerWithWindowProps extends React.Component {
     // don't delay the modal may come up in a state where the draft looks
     // like it hasn't been restored or has been lost.
     _.delay(() => {
-      NylasEnv.showErrorDialog({title: 'Error', message: msg}, {detail: detail})
+      NylasEnv.showErrorDialog({ title: 'Error', message: msg }, { detail: detail });
     }, 100);
   }
 }
@@ -95,9 +98,12 @@ export function activate() {
     });
   }
 
-  ExtensionRegistry.Composer.register(OverlaidComposerExtension, {priority: 1})
+  ExtensionRegistry.Composer.register(OverlaidComposerExtension, { priority: 1 });
   ExtensionRegistry.Composer.register(InlineImageComposerExtension);
-  CustomContenteditableComponents.register("InlineImageUploadContainer", InlineImageUploadContainer);
+  CustomContenteditableComponents.register(
+    'InlineImageUploadContainer',
+    InlineImageUploadContainer
+  );
 }
 
 export function deactivate() {
@@ -108,9 +114,9 @@ export function deactivate() {
     ComponentRegistry.unregister(ComposerWithWindowProps);
   }
 
-  ExtensionRegistry.Composer.unregister(OverlaidComposerExtension)
+  ExtensionRegistry.Composer.unregister(OverlaidComposerExtension);
   ExtensionRegistry.Composer.unregister(InlineImageComposerExtension);
-  CustomContenteditableComponents.unregister("InlineImageUploadContainer");
+  CustomContenteditableComponents.unregister('InlineImageUploadContainer');
 }
 
 export function serialize() {

@@ -1,6 +1,6 @@
 import NylasStore from 'nylas-store';
-import {remote} from 'electron';
-import {makeRequest} from '../nylas-api-request';
+import { remote } from 'electron';
+import { makeRequest } from '../nylas-api-request';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
 const preferredChannel = autoUpdater.preferredChannel;
@@ -8,8 +8,8 @@ const preferredChannel = autoUpdater.preferredChannel;
 class UpdateChannelStore extends NylasStore {
   constructor() {
     super();
-    this._current = {name: 'Loading...'};
-    this._available = [{name: 'Loading...'}];
+    this._current = { name: 'Loading...' };
+    this._available = [{ name: 'Loading...' }];
 
     if (NylasEnv.isMainWindow()) {
       this.refreshChannel();
@@ -31,14 +31,14 @@ class UpdateChannelStore extends NylasStore {
   async refreshChannel() {
     // TODO BG
     try {
-      const {current, available} = await makeRequest({
+      const { current, available } = await makeRequest({
         server: 'identity',
         method: 'GET',
         path: `/api/update-channel`,
-        qs: Object.assign({preferredChannel: preferredChannel}, autoUpdater.parameters()),
+        qs: Object.assign({ preferredChannel: preferredChannel }, autoUpdater.parameters()),
         json: true,
       });
-      this._current = current || {name: "Channel API Not Available"};
+      this._current = current || { name: 'Channel API Not Available' };
       this._available = available || [];
       this.trigger();
     } catch (err) {
@@ -49,21 +49,24 @@ class UpdateChannelStore extends NylasStore {
 
   async setChannel(channelName) {
     try {
-      const {current, available} = await makeRequest({
+      const { current, available } = await makeRequest({
         server: 'identity',
         method: 'POST',
         path: `/api/update-channel`,
-        qs: Object.assign({
-          channel: channelName,
-          preferredChannel: preferredChannel,
-        }, autoUpdater.parameters()),
+        qs: Object.assign(
+          {
+            channel: channelName,
+            preferredChannel: preferredChannel,
+          },
+          autoUpdater.parameters()
+        ),
         json: true,
       });
-      this._current = current || {name: "Channel API Not Available"};
+      this._current = current || { name: 'Channel API Not Available' };
       this._available = available || [];
       this.trigger();
     } catch (err) {
-      NylasEnv.showErrorDialog(err.toString())
+      NylasEnv.showErrorDialog(err.toString());
       this.trigger();
     }
     return null;

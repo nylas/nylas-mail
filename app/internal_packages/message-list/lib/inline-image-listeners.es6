@@ -1,11 +1,11 @@
-import {Actions, Utils} from 'nylas-exports';
+import { Actions, Utils } from 'nylas-exports';
 
 function safeEncode(str) {
   return btoa(unescape(encodeURIComponent(str)));
 }
 
 function safeDecode(str) {
-  return atob(decodeURIComponent(escape(str)))
+  return atob(decodeURIComponent(escape(str)));
 }
 
 function _runOnImageNode(node) {
@@ -14,8 +14,8 @@ function _runOnImageNode(node) {
       const file = Utils.convertToModel(JSON.parse(safeDecode(node.dataset.nylasFile)));
       const initialDisplay = node.style.display;
       const downloadButton = document.createElement('a');
-      downloadButton.classList.add('inline-download-prompt')
-      downloadButton.textContent = "Click to download inline image";
+      downloadButton.classList.add('inline-download-prompt');
+      downloadButton.textContent = 'Click to download inline image';
       downloadButton.addEventListener('click', () => {
         Actions.fetchFile(file);
         node.parentNode.removeChild(downloadButton);
@@ -42,7 +42,7 @@ export function encodedAttributeForFile(file) {
 
 export function addInlineImageListeners(doc) {
   const imgTagWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
-    acceptNode: (node) => {
+    acceptNode: node => {
       if (node.nodeName === 'IMG') {
         return NodeFilter.FILTER_ACCEPT;
       }

@@ -1,11 +1,11 @@
 /* eslint no-cond-assign: 0 */
-const path = require('path')
-const fs = require('fs')
+const path = require('path');
+const fs = require('fs');
 const mkdirp = require('mkdirp');
 
-const babelCompiler = require('./compile-support/babel')
-const coffeeCompiler = require('./compile-support/coffee-script')
-const typescriptCompiler = require('./compile-support/typescript')
+const babelCompiler = require('./compile-support/babel');
+const coffeeCompiler = require('./compile-support/coffee-script');
+const typescriptCompiler = require('./compile-support/typescript');
 
 const COMPILERS = {
   '.jsx': babelCompiler,
@@ -13,15 +13,15 @@ const COMPILERS = {
   '.ts': typescriptCompiler,
   '.coffee': coffeeCompiler,
   '.cjsx': coffeeCompiler,
-}
+};
 
-const cacheStats = {}
-let cacheDirectory = null
+const cacheStats = {};
+let cacheDirectory = null;
 
 function readCachedJavascript(relativeCachePath) {
-  const cachePath = path.join(cacheDirectory, relativeCachePath)
+  const cachePath = path.join(cacheDirectory, relativeCachePath);
   try {
-    return fs.readFileSync(cachePath, 'utf8')
+    return fs.readFileSync(cachePath, 'utf8');
   } catch (error) {
     //
   }
@@ -29,39 +29,39 @@ function readCachedJavascript(relativeCachePath) {
 }
 
 function writeCachedJavascript(relativeCachePath, code) {
-  const cacheTmpPath = path.join(cacheDirectory, `${relativeCachePath}.${process.pid}`)
-  const cachePath = path.join(cacheDirectory, relativeCachePath)
+  const cacheTmpPath = path.join(cacheDirectory, `${relativeCachePath}.${process.pid}`);
+  const cachePath = path.join(cacheDirectory, relativeCachePath);
   mkdirp.sync(path.dirname(cacheTmpPath));
-  fs.writeFileSync(cacheTmpPath, code, 'utf8')
+  fs.writeFileSync(cacheTmpPath, code, 'utf8');
   fs.renameSync(cacheTmpPath, cachePath);
 }
 
 function addSourceURL(jsCode, filePath) {
   let finalPath = filePath;
   if (process.platform === 'win32') {
-    finalPath = `/${path.resolve(filePath).replace(/\\/g, '/')}`
+    finalPath = `/${path.resolve(filePath).replace(/\\/g, '/')}`;
   }
   return `${jsCode}\n//# sourceURL=${encodeURI(finalPath)}\n`;
 }
 
 function compileFileAtPath(compiler, filePath, extension) {
-  const sourceCode = fs.readFileSync(filePath, 'utf8')
+  const sourceCode = fs.readFileSync(filePath, 'utf8');
   if (compiler.shouldCompile(sourceCode, filePath)) {
-    const cachePath = compiler.getCachePath(sourceCode, filePath)
-    let compiledCode = readCachedJavascript(cachePath)
+    const cachePath = compiler.getCachePath(sourceCode, filePath);
+    let compiledCode = readCachedJavascript(cachePath);
     if (compiledCode != null) {
-      cacheStats[extension].hits++
+      cacheStats[extension].hits++;
     } else {
-      cacheStats[extension].misses++
-      compiledCode = addSourceURL(compiler.compile(sourceCode, filePath), filePath)
-      writeCachedJavascript(cachePath, compiledCode)
+      cacheStats[extension].misses++;
+      compiledCode = addSourceURL(compiler.compile(sourceCode, filePath), filePath);
+      writeCachedJavascript(cachePath, compiledCode);
     }
-    return compiledCode
+    return compiledCode;
   }
-  return sourceCode
+  return sourceCode;
 }
 
-const INLINE_SOURCE_MAP_REGEXP = /\/\/[#@]\s*sourceMappingURL=([^'"\n]+)\s*$/mg
+const INLINE_SOURCE_MAP_REGEXP = /\/\/[#@]\s*sourceMappingURL=([^'"\n]+)\s*$/gm;
 
 require('source-map-support').install({
   handleUncaughtExceptions: false,
@@ -69,51 +69,51 @@ require('source-map-support').install({
   // Most of this logic is the same as the default implementation in the
   // source-map-support module, but we've overridden it to read the javascript
   // code from our cache directory.
-  retrieveSourceMap: (filePath) => {
+  retrieveSourceMap: filePath => {
     if (!cacheDirectory) {
-      return null
+      return null;
     }
 
     // read the original source
     let sourceCode = null;
     try {
-      sourceCode = fs.readFileSync(filePath, 'utf8')
+      sourceCode = fs.readFileSync(filePath, 'utf8');
     } catch (error) {
       if (fs.existsSync(filePath)) {
         console.warn('Error reading source file', error.stack);
       }
-      return null
+      return null;
     }
 
     // retrieve the javascript for the original source
-    const compiler = COMPILERS[path.extname(filePath)]
+    const compiler = COMPILERS[path.extname(filePath)];
     let javascriptCode = null;
     if (compiler) {
       try {
-        javascriptCode = readCachedJavascript(compiler.getCachePath(sourceCode, filePath))
+        javascriptCode = readCachedJavascript(compiler.getCachePath(sourceCode, filePath));
       } catch (error) {
-        console.warn('Error reading compiled file', error.stack)
-        return null
+        console.warn('Error reading compiled file', error.stack);
+        return null;
       }
     } else {
       javascriptCode = sourceCode;
     }
 
     if (javascriptCode == null) {
-      return null
+      return null;
     }
 
     let match;
     let lastMatch;
-    INLINE_SOURCE_MAP_REGEXP.lastIndex = 0
+    INLINE_SOURCE_MAP_REGEXP.lastIndex = 0;
     while ((match = INLINE_SOURCE_MAP_REGEXP.exec(javascriptCode))) {
-      lastMatch = match
+      lastMatch = match;
     }
     if (lastMatch == null) {
-      return null
+      return null;
     }
 
-    const sourceMappingURL = lastMatch[1]
+    const sourceMappingURL = lastMatch[1];
 
     // check whether this is a file path, or an inline sourcemap and load it
     let rawData = null;
@@ -125,68 +125,71 @@ require('source-map-support').install({
 
     let sourceMap = null;
     try {
-      sourceMap = JSON.parse(new Buffer(rawData, 'base64'))
+      sourceMap = JSON.parse(new Buffer(rawData, 'base64'));
     } catch (error) {
-      console.warn('Error parsing source map', error.stack)
-      return null
+      console.warn('Error parsing source map', error.stack);
+      return null;
     }
 
     return {
       map: sourceMap,
       url: null,
-    }
+    };
   },
-})
+});
 
-Object.keys(COMPILERS).forEach((extension) => {
-  const compiler = COMPILERS[extension]
+Object.keys(COMPILERS).forEach(extension => {
+  const compiler = COMPILERS[extension];
 
   Object.defineProperty(require.extensions, extension, {
     enumerable: true,
     writable: true,
     value: (module, filePath) => {
-      const code = compileFileAtPath(compiler, filePath, extension)
-      return module._compile(code, filePath)
+      const code = compileFileAtPath(compiler, filePath, extension);
+      return module._compile(code, filePath);
     },
-  })
-})
+  });
+});
 
-
-exports.setHomeDirectory = (nylasHome) => {
-  let cacheDir = path.join(nylasHome, 'compile-cache')
-  if (process.env.USER === 'root' && process.env.SUDO_USER && process.env.SUDO_USER !== process.env.USER) {
-    cacheDir = path.join(cacheDir, 'root')
+exports.setHomeDirectory = nylasHome => {
+  let cacheDir = path.join(nylasHome, 'compile-cache');
+  if (
+    process.env.USER === 'root' &&
+    process.env.SUDO_USER &&
+    process.env.SUDO_USER !== process.env.USER
+  ) {
+    cacheDir = path.join(cacheDir, 'root');
   }
-  this.setCacheDirectory(cacheDir)
-}
+  this.setCacheDirectory(cacheDir);
+};
 
-exports.setCacheDirectory = (directory) => {
-  cacheDirectory = directory
-}
+exports.setCacheDirectory = directory => {
+  cacheDirectory = directory;
+};
 
 exports.getCacheDirectory = () => {
-  return cacheDirectory
-}
+  return cacheDirectory;
+};
 
 exports.addPathToCache = (filePath, nylasHome) => {
-  this.setHomeDirectory(nylasHome)
-  const extension = path.extname(filePath)
-  const compiler = COMPILERS[extension]
+  this.setHomeDirectory(nylasHome);
+  const extension = path.extname(filePath);
+  const compiler = COMPILERS[extension];
   if (compiler) {
-    compileFileAtPath(compiler, filePath, extension)
+    compileFileAtPath(compiler, filePath, extension);
   }
-}
+};
 
 exports.getCacheStats = () => {
-  return cacheStats
-}
+  return cacheStats;
+};
 
 exports.resetCacheStats = () => {
-  Object.keys(COMPILERS).forEach((extension) => {
+  Object.keys(COMPILERS).forEach(extension => {
     cacheStats[extension] = {
       hits: 0,
       misses: 0,
-    }
-  })
-}
-exports.resetCacheStats()
+    };
+  });
+};
+exports.resetCacheStats();

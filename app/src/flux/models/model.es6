@@ -32,7 +32,7 @@ export default class Model {
     }),
   };
 
-  static naturalSortOrder = () => null
+  static naturalSortOrder = () => null;
 
   constructor(data) {
     if (data) {
@@ -75,16 +75,16 @@ export default class Model {
   // Returns an {Object} with the JSON representation of the model.
   //
   toJSON() {
-    const json = {}
+    const json = {};
     for (const key of Object.keys(this.constructor.attributes)) {
-      const attr = this.constructor.attributes[key]
-      const attrValue = this[key]
+      const attr = this.constructor.attributes[key];
+      const attrValue = this[key];
       if (attrValue === undefined) {
         continue;
       }
       json[attr.jsonKey || key] = attr.toJSON(attrValue);
     }
-    json.__cls = this.constructor.name
+    json.__cls = this.constructor.name;
     return json;
   }
 

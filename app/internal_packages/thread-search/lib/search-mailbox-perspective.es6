@@ -6,15 +6,14 @@ import {
   CategoryStore,
   TaskFactory,
   MailboxPerspective,
-} from 'nylas-exports'
-import SearchQuerySubscription from './search-query-subscription'
+} from 'nylas-exports';
+import SearchQuerySubscription from './search-query-subscription';
 
 class SearchMailboxPerspective extends MailboxPerspective {
-
   constructor(sourcePerspective, searchQuery) {
-    super(sourcePerspective.accountIds)
+    super(sourcePerspective.accountIds);
     if (typeof searchQuery !== 'string') {
-      throw new Error("SearchMailboxPerspective: Expected a `string` search query")
+      throw new Error('SearchMailboxPerspective: Expected a `string` search query');
     }
 
     this.searchQuery = searchQuery;
@@ -24,7 +23,7 @@ class SearchMailboxPerspective extends MailboxPerspective {
       this.sourcePerspective = sourcePerspective;
     }
 
-    this.name = `Searching ${this.sourcePerspective.name}`
+    this.name = `Searching ${this.sourcePerspective.name}`;
   }
 
   _folderScope() {
@@ -33,24 +32,30 @@ class SearchMailboxPerspective extends MailboxPerspective {
     if (this.sourcePerspective.isInbox()) {
       return '';
     }
-    const folderQuery = this.sourcePerspective.categories().map((c) => c.displayName).join('" OR in:"');
+    const folderQuery = this.sourcePerspective
+      .categories()
+      .map(c => c.displayName)
+      .join('" OR in:"');
     return `AND (in:"${folderQuery}")`;
   }
 
   emptyMessage() {
-    return "No search results available"
+    return 'No search results available';
   }
 
   isEqual(other) {
-    return super.isEqual(other) && other.searchQuery === this.searchQuery
+    return super.isEqual(other) && other.searchQuery === this.searchQuery;
   }
 
   threads() {
-    return new SearchQuerySubscription(`(${this.searchQuery}) ${this._folderScope()}`, this.accountIds)
+    return new SearchQuerySubscription(
+      `(${this.searchQuery}) ${this._folderScope()}`,
+      this.accountIds
+    );
   }
 
   canReceiveThreadsFromAccountIds() {
-    return false
+    return false;
   }
 
   tasksForRemovingItems(threads) {
@@ -61,19 +66,19 @@ class SearchMailboxPerspective extends MailboxPerspective {
       if (dest instanceof Folder) {
         return new ChangeFolderTask({
           threads: accountThreads,
-          source: "Dragged out of list",
+          source: 'Dragged out of list',
           folder: dest,
-        })
+        });
       }
       if (dest.role === 'all') {
         // if you're searching and archive something, it really just removes the inbox label
         return new ChangeLabelsTask({
           threads: accountThreads,
-          source: "Dragged out of list",
+          source: 'Dragged out of list',
           labelsToRemove: [CategoryStore.getInboxCategory(accountId)],
-        })
+        });
       }
-      throw new Error("Unexpected destination returned from preferredRemovalDestination()");
+      throw new Error('Unexpected destination returned from preferredRemovalDestination()');
     });
   }
 }

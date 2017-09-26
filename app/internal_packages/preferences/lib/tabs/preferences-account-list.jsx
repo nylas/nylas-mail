@@ -1,10 +1,9 @@
-import React, {Component} from 'react';
-import {RetinaImg, Flexbox, EditableList} from 'nylas-component-kit';
+import React, { Component } from 'react';
+import { RetinaImg, Flexbox, EditableList } from 'nylas-component-kit';
 import classnames from 'classnames';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 class PreferencesAccountList extends Component {
-
   static propTypes = {
     accounts: PropTypes.array,
     selected: PropTypes.object,
@@ -15,7 +14,7 @@ class PreferencesAccountList extends Component {
   };
 
   _renderAccountStateIcon(account) {
-    if (account.syncState !== "running") {
+    if (account.syncState !== 'running') {
       return (
         <div className="sync-error-icon">
           <RetinaImg
@@ -24,35 +23,36 @@ class PreferencesAccountList extends Component {
             mode={RetinaImg.Mode.ContentIsMask}
           />
         </div>
-      )
+      );
     }
     return null;
   }
 
-  _renderAccount = (account) => {
+  _renderAccount = account => {
     const label = account.label;
     const accountSub = `${account.name || 'No name provided'} <${account.emailAddress}>`;
     const syncError = account.hasSyncStateError();
 
     return (
-      <div
-        className={classnames({"account": true, "sync-error": syncError})}
-        key={account.id}
-      >
-        <Flexbox direction="row" style={{alignItems: 'middle'}}>
-          <div style={{textAlign: 'center'}}>
+      <div className={classnames({ account: true, 'sync-error': syncError })} key={account.id}>
+        <Flexbox direction="row" style={{ alignItems: 'middle' }}>
+          <div style={{ textAlign: 'center' }}>
             <RetinaImg
-              style={{width: 50, height: 50}}
-              name={syncError ? "ic-settings-account-error.png" : `ic-settings-account-${account.provider}.png`}
+              style={{ width: 50, height: 50 }}
+              name={
+                syncError
+                  ? 'ic-settings-account-error.png'
+                  : `ic-settings-account-${account.provider}.png`
+              }
               fallback="ic-settings-account-imap.png"
               mode={RetinaImg.Mode.ContentPreserve}
             />
           </div>
-          <div style={{flex: 1, marginLeft: 10}}>
-            <div className="account-name">
-              {label}
+          <div style={{ flex: 1, marginLeft: 10 }}>
+            <div className="account-name">{label}</div>
+            <div className="account-subtext">
+              {accountSub} ({account.displayProvider()})
             </div>
-            <div className="account-subtext">{accountSub} ({account.displayProvider()})</div>
           </div>
         </Flexbox>
       </div>
@@ -76,7 +76,6 @@ class PreferencesAccountList extends Component {
       />
     );
   }
-
 }
 
 export default PreferencesAccountList;

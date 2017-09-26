@@ -17,10 +17,10 @@ class RecentlyReadStore extends NylasStore {
       this.ids = [];
       this.trigger();
     });
-    this.listenTo(Actions.queueTasks, (tasks) => {
+    this.listenTo(Actions.queueTasks, tasks => {
       this.tasksQueued(tasks);
     });
-    this.listenTo(Actions.queueTask, (task) => {
+    this.listenTo(Actions.queueTask, task => {
       this.tasksQueued([task]);
     });
   }
@@ -28,19 +28,17 @@ class RecentlyReadStore extends NylasStore {
   tasksQueued(tasks) {
     let changed = false;
 
-    tasks.filter(task =>
-      task instanceof ChangeUnreadTask
-    ).forEach(({threadIds}) => {
+    tasks.filter(task => task instanceof ChangeUnreadTask).forEach(({ threadIds }) => {
       this.ids = this.ids.concat(threadIds);
       changed = true;
     });
 
-    tasks.filter(task =>
-      task instanceof ChangeLabelsTask || task instanceof ChangeFolderTask
-    ).forEach(({threadIds}) => {
-      this.ids = this.ids.filter(id => !threadIds.includes(id));
-      changed = true;
-    });
+    tasks
+      .filter(task => task instanceof ChangeLabelsTask || task instanceof ChangeFolderTask)
+      .forEach(({ threadIds }) => {
+        this.ids = this.ids.filter(id => !threadIds.includes(id));
+        changed = true;
+      });
 
     if (changed) {
       this.trigger();
@@ -48,5 +46,5 @@ class RecentlyReadStore extends NylasStore {
   }
 }
 
-const store = new RecentlyReadStore()
-export default store
+const store = new RecentlyReadStore();
+export default store;

@@ -1,19 +1,20 @@
-import url from 'url'
-import React from 'react'
-import {shell} from 'electron'
-import ReactDOM from 'react-dom'
+import url from 'url';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { shell } from 'electron';
+import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import networkErrors from 'chromium-net-errors';
 
-import {rootURLForServer} from '../flux/nylas-api-request';
-import RetinaImg from './retina-img'
+import { rootURLForServer } from '../flux/nylas-api-request';
+import RetinaImg from './retina-img';
 
 class InitialLoadingCover extends React.Component {
   static propTypes = {
-    ready: React.PropTypes.bool,
-    error: React.PropTypes.string,
-    onTryAgain: React.PropTypes.func,
-  }
+    ready: PropTypes.bool,
+    error: PropTypes.string,
+    onTryAgain: PropTypes.func,
+  };
 
   constructor(props) {
     super(props);
@@ -22,7 +23,7 @@ class InitialLoadingCover extends React.Component {
 
   componentDidMount() {
     this._slowTimeout = setTimeout(() => {
-      this.setState({slow: true});
+      this.setState({ slow: true });
     }, 3500);
   }
 
@@ -34,9 +35,9 @@ class InitialLoadingCover extends React.Component {
   render() {
     const classes = classnames({
       'webview-cover': true,
-      'ready': this.props.ready,
-      'error': this.props.error,
-      'slow': this.state.slow,
+      ready: this.props.ready,
+      error: this.props.error,
+      slow: this.state.slow,
     });
 
     let message = this.props.error;
@@ -45,34 +46,35 @@ class InitialLoadingCover extends React.Component {
     } else if (this.state.slow) {
       message = `Still trying to reach ${rootURLForServer('identity')}…`;
     } else {
-      message = '&nbsp;'
+      message = '&nbsp;';
     }
 
     return (
       <div className={classes}>
-        <div style={{flex: 1}} />
+        <div style={{ flex: 1 }} />
         <RetinaImg
           className="spinner"
-          style={{width: 20, height: 20}}
+          style={{ width: 20, height: 20 }}
           name="inline-loading-spinner.gif"
           mode={RetinaImg.Mode.ContentPreserve}
         />
         <div className="message">{message}</div>
-        <div className="btn try-again" onClick={this.props.onTryAgain}>Try Again</div>
-        <div style={{flex: 1}} />
+        <div className="btn try-again" onClick={this.props.onTryAgain}>
+          Try Again
+        </div>
+        <div style={{ flex: 1 }} />
       </div>
     );
   }
 }
 
-
 export default class Webview extends React.Component {
-  static displayName = "Webview";
+  static displayName = 'Webview';
 
   static propTypes = {
-    src: React.PropTypes.string,
-    onDidFinishLoad: React.PropTypes.func,
-  }
+    src: PropTypes.string,
+    onDidFinishLoad: PropTypes.func,
+  };
 
   constructor(props) {
     super(props);
@@ -89,8 +91,8 @@ export default class Webview extends React.Component {
 
   componentWillReceiveProps(nextProps = {}) {
     if (this.props.src !== nextProps.src) {
-      this.setState({error: null, webviewLoading: true, ready: false});
-      this._setupWebview(nextProps)
+      this.setState({ error: null, webviewLoading: true, ready: false });
+      this._setupWebview(nextProps);
     }
   }
 
@@ -99,14 +101,14 @@ export default class Webview extends React.Component {
   }
 
   _setupWebview(props) {
-    if (!props.src) return
+    if (!props.src) return;
     const webview = ReactDOM.findDOMNode(this.refs.webview);
     const listeners = {
       'did-fail-load': this._webviewDidFailLoad,
       'did-finish-load': this._webviewDidFinishLoad,
       'did-get-response-details': this._webviewDidGetResponseDetails,
       'console-message': this._onConsoleMessage,
-    }
+    };
     for (const event of Object.keys(listeners)) {
       webview.removeEventListener(event, listeners[event]);
     }
@@ -120,20 +122,22 @@ export default class Webview extends React.Component {
   _onTryAgain = () => {
     const webview = ReactDOM.findDOMNode(this.refs.webview);
     webview.reload();
-  }
+  };
 
-  _onConsoleMessage = (e) => {
-    if (/^http.+/i.test(e.message)) { shell.openExternal(e.message) }
+  _onConsoleMessage = e => {
+    if (/^http.+/i.test(e.message)) {
+      shell.openExternal(e.message);
+    }
     console.log('Guest page logged a message:', e.message);
-  }
+  };
 
-  _webviewDidGetResponseDetails = ({httpResponseCode, originalURL}) => {
+  _webviewDidGetResponseDetails = ({ httpResponseCode, originalURL }) => {
     if (!this._mounted) return;
     if (!originalURL.includes(url.parse(this.props.src).host)) {
       // This means that some other secondarily loaded resource (like
       // analytics or Linkedin, etc) got a response. We don't care about
       // that.
-      return
+      return;
     }
     if (httpResponseCode >= 400) {
       const error = `
@@ -141,12 +145,12 @@ export default class Webview extends React.Component {
         support@getmailspring.com if the issue persists.
         (${originalURL}: ${httpResponseCode})
       `;
-      this.setState({ready: false, error: error, webviewLoading: false});
+      this.setState({ ready: false, error: error, webviewLoading: false });
     }
-    this.setState({webviewLoading: false})
+    this.setState({ webviewLoading: false });
   };
 
-  _webviewDidFailLoad = ({errorCode, validatedURL}) => {
+  _webviewDidFailLoad = ({ errorCode, validatedURL }) => {
     if (!this._mounted) return;
     // "Operation was aborted" can be fired when we move between pages quickly.
     if (errorCode === -3) {
@@ -155,25 +159,25 @@ export default class Webview extends React.Component {
 
     const e = networkErrors.createByCode(errorCode);
     const error = `Could not reach ${validatedURL}. ${e ? e.message : errorCode}`;
-    this.setState({ready: false, error: error, webviewLoading: false});
-  }
+    this.setState({ ready: false, error: error, webviewLoading: false });
+  };
 
   _webviewDidFinishLoad = () => {
     if (!this._mounted) return;
     // this is sometimes called right after did-fail-load
     if (this.state.error) return;
-    this.setState({ready: true, webviewLoading: false});
+    this.setState({ ready: true, webviewLoading: false });
 
     if (!this.props.onDidFinishLoad) return;
     const webview = ReactDOM.findDOMNode(this.refs.webview);
-    this.props.onDidFinishLoad(webview)
+    this.props.onDidFinishLoad(webview);
 
     // tweak the size of the webview to ensure it's contents have laid out
     webview.style.bottom = '1px';
     window.requestAnimationFrame(() => {
       webview.style.bottom = '0';
-    })
-  }
+    });
+  };
 
   render() {
     return (
@@ -181,7 +185,7 @@ export default class Webview extends React.Component {
         <webview ref="webview" is partition="in-memory-only" />
         <div className={`webview-loading-spinner loading-${this.state.webviewLoading}`}>
           <RetinaImg
-            style={{width: 20, height: 20}}
+            style={{ width: 20, height: 20 }}
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentPreserve}
           />

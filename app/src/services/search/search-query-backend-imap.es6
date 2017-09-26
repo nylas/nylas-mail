@@ -1,8 +1,5 @@
-import _ from 'underscore'
-import {
-  AndQueryExpression,
-  SearchQueryExpressionVisitor,
-} from './search-query-ast';
+import _ from 'underscore';
+import { AndQueryExpression, SearchQueryExpressionVisitor } from './search-query-ast';
 
 const TOP = 'top';
 
@@ -152,13 +149,13 @@ class IMAPSearchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
   }
 
   visitHasAttachment(/* node */) {
-    this._result = ['OR',
+    this._result = [
+      'OR',
       ['HEADER', 'Content-Type', 'multipart/mixed'],
       ['HEADER', 'Content-Type', 'multipart/related'],
     ];
   }
 }
-
 
 export default class IMAPSearchQueryBackend {
   static ALL_FOLDERS() {
@@ -166,14 +163,14 @@ export default class IMAPSearchQueryBackend {
   }
 
   static compile(ast, folder) {
-    return (new IMAPSearchQueryBackend()).compile(ast, folder);
+    return new IMAPSearchQueryBackend().compile(ast, folder);
   }
 
   static folderNamesForQuery(ast) {
-    return (new IMAPSearchQueryFolderFinderVisitor()).visit(ast);
+    return new IMAPSearchQueryFolderFinderVisitor().visit(ast);
   }
 
   compile(ast, folder) {
-    return (new IMAPSearchQueryExpressionVisitor(folder)).visit(ast);
+    return new IMAPSearchQueryExpressionVisitor(folder).visit(ast);
   }
 }

@@ -1,29 +1,25 @@
-import React from 'react'
-import {DateUtils} from 'nylas-exports'
+import { React, PropTypes, DateUtils } from 'nylas-exports';
 
 class MessageTimestamp extends React.Component {
-  static displayName = 'MessageTimestamp'
+  static displayName = 'MessageTimestamp';
 
   static propTypes = {
-    date: React.PropTypes.object.isRequired,
-    className: React.PropTypes.string,
-    isDetailed: React.PropTypes.bool,
-    onClick: React.PropTypes.func,
-  }
+    date: PropTypes.object.isRequired,
+    className: PropTypes.string,
+    isDetailed: PropTypes.bool,
+    onClick: PropTypes.func,
+  };
 
   shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.date !== this.props.date ||
-      nextProps.isDetailed !== this.props.isDetailed
-    )
+    return nextProps.date !== this.props.date || nextProps.isDetailed !== this.props.isDetailed;
   }
 
   render() {
-    let formattedDate = null
+    let formattedDate = null;
     if (this.props.isDetailed) {
-      formattedDate = DateUtils.mediumTimeString(this.props.date)
+      formattedDate = DateUtils.mediumTimeString(this.props.date);
     } else {
-      formattedDate = DateUtils.shortTimeString(this.props.date)
+      formattedDate = DateUtils.shortTimeString(this.props.date);
     }
     return (
       <div
@@ -33,8 +29,8 @@ class MessageTimestamp extends React.Component {
       >
         {formattedDate}
       </div>
-    )
+    );
   }
 }
 
-export default MessageTimestamp
+export default MessageTimestamp;

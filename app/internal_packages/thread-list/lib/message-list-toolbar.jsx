@@ -1,29 +1,27 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import {Rx, FocusedContentStore} from 'nylas-exports'
-import ThreadListStore from './thread-list-store'
-import InjectsToolbarButtons, {ToolbarRole} from './injects-toolbar-buttons'
-
+import React from 'react';
+import PropTypes from 'prop-types';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import { Rx, FocusedContentStore } from 'nylas-exports';
+import ThreadListStore from './thread-list-store';
+import InjectsToolbarButtons, { ToolbarRole } from './injects-toolbar-buttons';
 
 function getObservable() {
-  return (
-    Rx.Observable.combineLatest(
+  return Rx.Observable
+    .combineLatest(
       Rx.Observable.fromStore(FocusedContentStore),
       ThreadListStore.selectionObservable(),
-      (store, items) => ({focusedThread: store.focused('thread'), items})
+      (store, items) => ({ focusedThread: store.focused('thread'), items })
     )
-    .map(({focusedThread, items}) => {
+    .map(({ focusedThread, items }) => {
       if (focusedThread) {
-        return [focusedThread]
+        return [focusedThread];
       }
-      return items
-    })
-  )
+      return items;
+    });
 }
 
-const MessageListToolbar = ({items, injectedButtons}) => {
-  const shouldRender = items.length > 0
+const MessageListToolbar = ({ items, injectedButtons }) => {
+  const shouldRender = items.length > 0;
 
   return (
     <ReactCSSTransitionGroup
@@ -34,8 +32,8 @@ const MessageListToolbar = ({items, injectedButtons}) => {
     >
       {shouldRender ? injectedButtons : undefined}
     </ReactCSSTransitionGroup>
-  )
-}
+  );
+};
 MessageListToolbar.displayName = 'MessageListToolbar';
 MessageListToolbar.propTypes = {
   items: PropTypes.array,
@@ -45,6 +43,6 @@ MessageListToolbar.propTypes = {
 const toolbarProps = {
   getObservable,
   extraRoles: [`MessageList:${ToolbarRole}`],
-}
+};
 
-export default InjectsToolbarButtons(MessageListToolbar, toolbarProps)
+export default InjectsToolbarButtons(MessageListToolbar, toolbarProps);

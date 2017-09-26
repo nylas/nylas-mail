@@ -2,9 +2,7 @@ import Reflux from 'reflux';
 
 import PluginsActions from './plugins-actions';
 
-
 const TabsStore = Reflux.createStore({
-
   init: function init() {
     this._tabIndex = 0;
     this.listenTo(PluginsActions.selectTabIndex, this._onTabIndexChanged);
@@ -22,7 +20,6 @@ const TabsStore = Reflux.createStore({
     this._tabIndex = idx;
     this.trigger(this);
   },
-
 });
 
 export default TabsStore;

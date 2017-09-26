@@ -1,16 +1,16 @@
 import React from 'react';
-import {DefaultClientHelper, SystemStartService} from 'nylas-exports';
+import PropTypes from 'prop-types';
+import { DefaultClientHelper, SystemStartService } from 'nylas-exports';
 import ConfigSchemaItem from './config-schema-item';
 
 class DefaultMailClientItem extends React.Component {
-
   constructor() {
     super();
-    this.state = {defaultClient: false};
+    this.state = { defaultClient: false };
     this._helper = new DefaultClientHelper();
     if (this._helper.available()) {
-      this._helper.isRegisteredForURLScheme('mailto', (registered) => {
-        if (this._mounted) this.setState({defaultClient: registered});
+      this._helper.isRegisteredForURLScheme('mailto', registered => {
+        if (this._mounted) this.setState({ defaultClient: registered });
       });
     }
   }
@@ -23,16 +23,16 @@ class DefaultMailClientItem extends React.Component {
     this._mounted = false;
   }
 
-  toggleDefaultMailClient = (event) => {
+  toggleDefaultMailClient = event => {
     if (this.state.defaultClient) {
-      this.setState({defaultClient: false});
+      this.setState({ defaultClient: false });
       this._helper.resetURLScheme('mailto');
     } else {
-      this.setState({defaultClient: true});
+      this.setState({ defaultClient: true });
       this._helper.registerForURLScheme('mailto');
     }
     event.target.blur();
-  }
+  };
 
   render() {
     return (
@@ -47,12 +47,9 @@ class DefaultMailClientItem extends React.Component {
       </div>
     );
   }
-
 }
 
-
 class LaunchSystemStartItem extends React.Component {
-
   constructor() {
     super();
     this.state = {
@@ -64,14 +61,14 @@ class LaunchSystemStartItem extends React.Component {
 
   componentDidMount() {
     this._mounted = true;
-    this._service.checkAvailability().then((available) => {
+    this._service.checkAvailability().then(available => {
       if (this._mounted) {
-        this.setState({available});
+        this.setState({ available });
       }
       if (!available || !this._mounted) return;
-      this._service.doesLaunchOnSystemStart().then((launchOnStart) => {
+      this._service.doesLaunchOnSystemStart().then(launchOnStart => {
         if (this._mounted) {
-          this.setState({launchOnStart});
+          this.setState({ launchOnStart });
         }
       });
     });
@@ -81,16 +78,16 @@ class LaunchSystemStartItem extends React.Component {
     this._mounted = false;
   }
 
-  _toggleLaunchOnStart = (event) => {
+  _toggleLaunchOnStart = event => {
     if (this.state.launchOnStart) {
-      this.setState({launchOnStart: false});
+      this.setState({ launchOnStart: false });
       this._service.dontLaunchOnSystemStart();
     } else {
-      this.setState({launchOnStart: true});
+      this.setState({ launchOnStart: true });
       this._service.configureToLaunchOnSystemStart();
     }
     event.target.blur();
-  }
+  };
 
   render() {
     if (!this.state.available) return false;
@@ -106,10 +103,9 @@ class LaunchSystemStartItem extends React.Component {
       </div>
     );
   }
-
 }
 
-const WorkspaceSection = (props) => {
+const WorkspaceSection = props => {
   return (
     <section>
       <DefaultMailClientItem />
@@ -147,17 +143,17 @@ const WorkspaceSection = (props) => {
       />
 
       <div className="platform-note platform-linux-only">
-        &quot;Launch on system start&quot; only works in XDG-compliant desktop environments.
-        To enable the N1 icon in the system tray, you may need to install libappindicator1.
-        (i.e., &lt;code&gt;sudo apt-get install libappindicator1&lt;/code&gt;)
+        &quot;Launch on system start&quot; only works in XDG-compliant desktop environments. To
+        enable the N1 icon in the system tray, you may need to install libappindicator1. (i.e.,
+        &lt;code&gt;sudo apt-get install libappindicator1&lt;/code&gt;)
       </div>
     </section>
   );
-}
+};
 
 WorkspaceSection.propTypes = {
-  config: React.PropTypes.object,
-  configSchema: React.PropTypes.object,
-}
+  config: PropTypes.object,
+  configSchema: PropTypes.object,
+};
 
 export default WorkspaceSection;

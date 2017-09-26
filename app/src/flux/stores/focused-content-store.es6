@@ -85,31 +85,35 @@ class FocusedContentStore extends NylasStore {
     }
 
     if (changed.length > 0) {
-      this.trigger({ impactsCollection: (c) => changed.includes(c) });
+      this.trigger({ impactsCollection: c => changed.includes(c) });
     }
-  }
+  };
 
-  _onFocusKeyboard = ({collection, item}) => {
+  _onFocusKeyboard = ({ collection, item }) => {
     if (item && !(item instanceof Model)) {
-      throw new Error("focusKeyboard() requires a Model or null");
+      throw new Error('focusKeyboard() requires a Model or null');
     }
     if (!collection) {
-      throw new Error("focusKeyboard() requires a collection");
+      throw new Error('focusKeyboard() requires a collection');
     }
-    if (this._keyboardCursor[collection] && item && this._keyboardCursor[collection].id === item.id) {
+    if (
+      this._keyboardCursor[collection] &&
+      item &&
+      this._keyboardCursor[collection].id === item.id
+    ) {
       return;
     }
 
     this._keyboardCursor[collection] = item;
-    this.triggerAfterAnimationFrame({ impactsCollection: (c) => c === collection });
-  }
+    this.triggerAfterAnimationFrame({ impactsCollection: c => c === collection });
+  };
 
-  _onFocus = ({collection, item, usingClick}) => {
+  _onFocus = ({ collection, item, usingClick }) => {
     if (item && !(item instanceof Model)) {
-      throw new Error("focus() requires a Model or null")
+      throw new Error('focus() requires a Model or null');
     }
     if (!collection) {
-      throw new Error("focus() requires a collection");
+      throw new Error('focus() requires a collection');
     }
 
     // same item
@@ -127,11 +131,11 @@ class FocusedContentStore extends NylasStore {
     if (item) {
       this._keyboardCursor[collection] = item;
     }
-    this.triggerAfterAnimationFrame({ impactsCollection: (c) => c === collection });
-  }
+    this.triggerAfterAnimationFrame({ impactsCollection: c => c === collection });
+  };
 
   _onWorkspaceChange = () => {
-    const keyboardCursorEnabled = WorkspaceStore.layoutMode() === 'list'
+    const keyboardCursorEnabled = WorkspaceStore.layoutMode() === 'list';
 
     if (keyboardCursorEnabled !== this._keyboardCursorEnabled) {
       this._keyboardCursorEnabled = keyboardCursorEnabled;
@@ -140,17 +144,17 @@ class FocusedContentStore extends NylasStore {
         for (const [collection, item] of Object.entries(this._focused)) {
           this._keyboardCursor[collection] = item;
         }
-        this._focused = {}
+        this._focused = {};
       } else {
         for (const [collection, item] of Object.entries(this._keyboardCursor)) {
-          this._onFocus({collection, item});
+          this._onFocus({ collection, item });
         }
       }
     }
     this.trigger({ impactsCollection: () => true });
-  }
+  };
 
-  _onDataChange = (change) => {
+  _onDataChange = change => {
     // If one of the objects we're storing in our focused or keyboard cursor
     // dictionaries has changed, we need to let our observers know, since they
     // may now be holding on to outdated data.
@@ -167,7 +171,7 @@ class FocusedContentStore extends NylasStore {
         }
         for (const obj of change.objects) {
           if (val.id === obj.id) {
-            data[key] = (change.type === 'unpersist') ? null : obj;
+            data[key] = change.type === 'unpersist' ? null : obj;
             touched.push(key);
           }
         }
@@ -175,9 +179,9 @@ class FocusedContentStore extends NylasStore {
     }
 
     if (touched.length > 0) {
-      this.trigger({ impactsCollection: (c) => c in touched });
+      this.trigger({ impactsCollection: c => c in touched });
     }
-  }
+  };
 
   // Public Methods
 
@@ -250,4 +254,4 @@ class FocusedContentStore extends NylasStore {
   }
 }
 
-export default new FocusedContentStore()
+export default new FocusedContentStore();

@@ -4,18 +4,17 @@ import quoteStringDetector from './quote-string-detector';
 import unwrappedSignatureDetector from './unwrapped-signature-detector';
 
 class QuotedHTMLTransformer {
-
-  annotationClass = "nylas-quoted-text-segment";
+  annotationClass = 'nylas-quoted-text-segment';
 
   // Given an html string, it will add the `annotationClass` to the DOM
   // element
-  hideQuotedHTML(html, {keepIfWholeBodyIsQuote} = {}) {
+  hideQuotedHTML(html, { keepIfWholeBodyIsQuote } = {}) {
     const doc = this._parseHTML(html);
     const quoteElements = this._findQuoteLikeElements(doc);
     if (!keepIfWholeBodyIsQuote || !this._wholeBodyIsQuote(doc, quoteElements)) {
       this._annotateElements(quoteElements);
     }
-    return this._outputHTMLFor(doc, {initialHTML: html});
+    return this._outputHTMLFor(doc, { initialHTML: html });
   }
 
   hasQuotedHTML(html) {
@@ -41,13 +40,13 @@ class QuotedHTMLTransformer {
   //
   // Returns HTML without quoted text
   //
-  removeQuotedHTML(html, options = {keepIfWholeBodyIsQuote: true}) {
+  removeQuotedHTML(html, options = { keepIfWholeBodyIsQuote: true }) {
     const doc = this._parseHTML(html);
     const quoteElements = this._findQuoteLikeElements(doc, options);
-    const asDOM = !!options.asDOM
+    const asDOM = !!options.asDOM;
 
     if (options.keepIfWholeBodyIsQuote && this._wholeBodyIsQuote(doc, quoteElements)) {
-      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
+      return this._outputHTMLFor(this._parseHTML(html), { initialHTML: html, asDOM });
     }
 
     for (const el of quoteElements) {
@@ -57,11 +56,11 @@ class QuotedHTMLTransformer {
     // It's possible that the entire body was quoted text anyway and we've
     // removed everything.
     if (options.keepIfWholeBodyIsQuote && (!doc.body || !doc.children[0])) {
-      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
+      return this._outputHTMLFor(this._parseHTML(html), { initialHTML: html, asDOM });
     }
 
     if (!doc.body) {
-      return this._outputHTMLFor(this._parseHTML(""), {initialHTML: html, asDOM});
+      return this._outputHTMLFor(this._parseHTML(''), { initialHTML: html, asDOM });
     }
 
     const quoteStringElements = quoteStringDetector(doc);
@@ -72,15 +71,24 @@ class QuotedHTMLTransformer {
     this._removeImagesStrippedByAnotherClient(doc);
     this._removeUnnecessaryWhitespace(doc);
 
-    if (options.keepIfWholeBodyIsQuote && (!doc.children[0] || this._wholeNylasPlaintextBodyIsQuote(doc))) {
-      return this._outputHTMLFor(this._parseHTML(html), {initialHTML: html, asDOM});
+    if (
+      options.keepIfWholeBodyIsQuote &&
+      (!doc.children[0] || this._wholeNylasPlaintextBodyIsQuote(doc))
+    ) {
+      return this._outputHTMLFor(this._parseHTML(html), { initialHTML: html, asDOM });
     }
 
-    return this._outputHTMLFor(doc, {initialHTML: html, asDOM});
+    return this._outputHTMLFor(doc, { initialHTML: html, asDOM });
   }
 
   _removeImagesStrippedByAnotherClient(doc) {
-    const result = doc.evaluate("//img[contains(@alt,'removed by sender')]", doc.body, null, XPathResult.ANY_TYPE, null);
+    const result = doc.evaluate(
+      "//img[contains(@alt,'removed by sender')]",
+      doc.body,
+      null,
+      XPathResult.ANY_TYPE,
+      null
+    );
     const nodes = [];
 
     // collect all the results and then remove them all
@@ -90,7 +98,7 @@ class QuotedHTMLTransformer {
       nodes.push(node);
       node = result.iterateNext();
     }
-    nodes.forEach((n) => n.remove());
+    nodes.forEach(n => n.remove());
   }
 
   _removeUnnecessaryWhitespace(doc) {
@@ -124,7 +132,7 @@ class QuotedHTMLTransformer {
     //
     // Containers with empty space at the end occur pretty often when we
     // remove the quoted text and it had preceding spaces.
-    const removeTrailingWhitespaceChildren = (el) => {
+    const removeTrailingWhitespaceChildren = el => {
       while (el.lastChild) {
         const child = el.lastChild;
         if (child.nodeType === Node.TEXT_NODE) {
@@ -135,14 +143,14 @@ class QuotedHTMLTransformer {
         }
         if (['BR', 'P', 'DIV', 'SPAN', 'HR'].includes(child.nodeName)) {
           removeTrailingWhitespaceChildren(child);
-          if ((child.childElementCount === 0) && (child.textContent.trim() === '')) {
+          if (child.childElementCount === 0 && child.textContent.trim() === '') {
             child.remove();
             continue;
           }
         }
         break;
       }
-    }
+    };
 
     while (lastOfLast.parentElement) {
       lastOfLast = lastOfLast.parentElement;
@@ -158,24 +166,24 @@ class QuotedHTMLTransformer {
       const node = quoteElements[i];
       doc.body.appendChild(node);
     }
-    return this._outputHTMLFor(doc, {initialHTML: originalHTML});
+    return this._outputHTMLFor(doc, { initialHTML: originalHTML });
   }
 
   restoreAnnotatedHTML(html) {
     const doc = this._parseHTML(html);
     const quoteElements = this._findAnnotatedElements(doc);
     this._removeAnnotation(quoteElements);
-    return this._outputHTMLFor(doc, {initialHTML: html});
+    return this._outputHTMLFor(doc, { initialHTML: html });
   }
 
   _parseHTML(text) {
     const domParser = new DOMParser();
     let doc;
     try {
-      doc = domParser.parseFromString(text, "text/html");
+      doc = domParser.parseFromString(text, 'text/html');
     } catch (error) {
       const errText = `HTML Parser Error: ${error.toString()}`;
-      doc = domParser.parseFromString(errText, "text/html");
+      doc = domParser.parseFromString(errText, 'text/html');
       NylasEnv.reportError(error);
     }
 
@@ -184,8 +192,8 @@ class QuotedHTMLTransformer {
     return doc;
   }
 
-  _outputHTMLFor(doc, {initialHTML, asDOM} = {}) {
-    if (asDOM) return doc
+  _outputHTMLFor(doc, { initialHTML, asDOM } = {}) {
+    if (asDOM) return doc;
     if (/<\s?head\s?>/i.test(initialHTML) || /<\s?body[\s>]/i.test(initialHTML)) {
       return doc.children[0].innerHTML;
     }
@@ -194,30 +202,32 @@ class QuotedHTMLTransformer {
 
   _wholeNylasPlaintextBodyIsQuote(doc) {
     const preElement = doc.body.children[0];
-    return (preElement && preElement.tagName === 'PRE' && !preElement.children[0]);
+    return preElement && preElement.tagName === 'PRE' && !preElement.children[0];
   }
 
   _wholeBodyIsQuote(doc, quoteElements) {
     const nonBlankChildElements = [];
     for (let i = 0; i < doc.body.childNodes.length; i++) {
       const child = doc.body.childNodes[i];
-      if (child.textContent.trim() === "") {
+      if (child.textContent.trim() === '') {
         continue;
-      } else { nonBlankChildElements.push(child); }
+      } else {
+        nonBlankChildElements.push(child);
+      }
     }
 
     if (nonBlankChildElements.length === 1) {
-      return Array.from(quoteElements).includes(nonBlankChildElements[0])
+      return Array.from(quoteElements).includes(nonBlankChildElements[0]);
     }
     return false;
   }
 
-    // We used to have a scheme where we cached the `doc` object, keyed by
-    // the md5 of the text. Unfortunately we can't do this because the
-    // `doc` is mutated in place. Returning clones of the DOM is just as
-    // bad as re-parsing from string, which is very fast anyway.
+  // We used to have a scheme where we cached the `doc` object, keyed by
+  // the md5 of the text. Unfortunately we can't do this because the
+  // `doc` is mutated in place. Returning clones of the DOM is just as
+  // bad as re-parsing from string, which is very fast anyway.
 
-  _findQuoteLikeElements(doc, {includeInline} = {}) {
+  _findQuoteLikeElements(doc, { includeInline } = {}) {
     const parsers = [
       this._findGmailQuotes,
       this._findOffice365Quotes,
@@ -241,8 +251,8 @@ class QuotedHTMLTransformer {
      * message. We detect this case (by looking for signature text
      * repetition) and add it to the set of flagged quote candidates.
      */
-    const unwrappedSignatureNodes = unwrappedSignatureDetector(doc, quoteElements)
-    quoteElements = quoteElements.concat(unwrappedSignatureNodes)
+    const unwrappedSignatureNodes = unwrappedSignatureDetector(doc, quoteElements);
+    quoteElements = quoteElements.concat(unwrappedSignatureNodes);
 
     if (!includeInline && quoteElements.length > 0) {
       const trailingQuotes = this._findTrailingQuotes(doc, Array.from(quoteElements));
@@ -269,7 +279,7 @@ class QuotedHTMLTransformer {
        * make sure we include all of them.
        */
       if (_.intersection(quoteElements, unwrappedSignatureNodes).length > 0) {
-        quoteElements = _.uniq(quoteElements.concat(unwrappedSignatureNodes))
+        quoteElements = _.uniq(quoteElements.concat(unwrappedSignatureNodes));
       }
     }
 
@@ -333,22 +343,22 @@ class QuotedHTMLTransformer {
 
   _annotateElements(elements = []) {
     let originalDisplay;
-    return elements.forEach((el) => {
-      el.classList.add(this.annotationClass)
-      originalDisplay = el.style.display
-      el.style.display = "none"
-      el.setAttribute("data-nylas-quoted-text-original-display", originalDisplay);
+    return elements.forEach(el => {
+      el.classList.add(this.annotationClass);
+      originalDisplay = el.style.display;
+      el.style.display = 'none';
+      el.setAttribute('data-nylas-quoted-text-original-display', originalDisplay);
     });
   }
 
   _removeAnnotation(elements = []) {
     let originalDisplay;
-    return elements.forEach((el) => {
-      el.classList.remove(this.annotationClass)
-      originalDisplay = el.getAttribute("data-nylas-quoted-text-original-display")
-      el.style.display = originalDisplay
-      el.removeAttribute("data-nylas-quoted-text-original-display");
-    })
+    return elements.forEach(el => {
+      el.classList.remove(this.annotationClass);
+      originalDisplay = el.getAttribute('data-nylas-quoted-text-original-display');
+      el.style.display = originalDisplay;
+      el.removeAttribute('data-nylas-quoted-text-original-display');
+    });
   }
 
   _findGmailQuotes(doc) {
@@ -363,27 +373,29 @@ class QuotedHTMLTransformer {
     elements = Array.from(elements);
 
     const weirdEl = doc.getElementById('3D"divRplyFwdMsg"');
-    if (weirdEl) { elements.push(weirdEl); }
+    if (weirdEl) {
+      elements.push(weirdEl);
+    }
 
-    elements = elements.map((el) => {
+    elements = elements.map(el => {
       /**
        * When Office 365 wraps quotes in a '#divRplyFwdMsg' id, it usually
        * preceedes it with an <hr> tag and then wraps the entire section
        * in an anonymous div one level up.
        */
-      if (el.previousElementSibling && el.previousElementSibling.nodeName === "HR") {
-        if (el.parentElement && el.parentElement.nodeName !== "BODY") {
+      if (el.previousElementSibling && el.previousElementSibling.nodeName === 'HR') {
+        if (el.parentElement && el.parentElement.nodeName !== 'BODY') {
           return el.parentElement;
         }
-        const quoteNodes = [el.previousElementSibling, el]
+        const quoteNodes = [el.previousElementSibling, el];
         let node = el.nextSibling;
         while (node) {
           quoteNodes.push(node);
           node = node.nextSibling;
         }
-        return quoteNodes
+        return quoteNodes;
       }
-      return el
+      return el;
     });
     return _.flatten(elements);
   }
@@ -398,28 +410,27 @@ class QuotedHTMLTransformer {
     // <b>Subject:</b>. It then returns every node after that as quoted text.
 
     // Find a DOM node exactly matching <b>Sent:</b>
-    const dateMarker = (
+    const dateMarker =
       doc.evaluate("//b[. = 'Sent:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext() ||
-      doc.evaluate("//b[. = 'Date:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext()
-    );
+      doc.evaluate("//b[. = 'Date:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext();
 
     if (dateMarker) {
       // check to see if the parent container also contains the other two
       const headerContainer = dateMarker.parentElement;
       let matches = 0;
       for (const node of Array.from(headerContainer.children)) {
-        if ((node.textContent === "To:") || (node.textContent === "Subject:")) {
+        if (node.textContent === 'To:' || node.textContent === 'Subject:') {
           matches++;
         }
       }
       if (matches === 2) {
         // got a hit! let's cut some text.
         const quotedTextNodes = [];
-        
+
         // Special case to add "From:" if it's present in the node before the rest of
         // the header fields. It's often not in the same container as To, Cc, Subject:
         const possibleFromNode = headerContainer.previousElementSibling;
-        if (possibleFromNode && possibleFromNode.innerText.trim() === "From:") {
+        if (possibleFromNode && possibleFromNode.innerText.trim() === 'From:') {
           quotedTextNodes.push(possibleFromNode);
         }
 

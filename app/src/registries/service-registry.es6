@@ -28,4 +28,4 @@ class ServiceRegistry {
   }
 }
 
-export default new ServiceRegistry()
+export default new ServiceRegistry();

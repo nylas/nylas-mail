@@ -1,8 +1,6 @@
-import {
-  ComponentRegistry,
-} from "nylas-exports";
+import { ComponentRegistry } from 'nylas-exports';
 
-import GithubContactCardSection from "./github-contact-card-section";
+import GithubContactCardSection from './github-contact-card-section';
 
 /*
 All packages must export a basic object that has at least the following 3
@@ -24,7 +22,7 @@ export function activate() {
   // This sidebar is to the right of the Message List in both split pane mode
   // and list mode.
   ComponentRegistry.register(GithubContactCardSection, {
-    role: "MessageListSidebar:ContactCard",
+    role: 'MessageListSidebar:ContactCard',
   });
 }
 

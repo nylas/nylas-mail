@@ -1,6 +1,5 @@
-import React from 'react'
-import {Utils} from 'nylas-exports'
-import CalendarEvent from './calendar-event'
+import { React, PropTypes, Utils } from 'nylas-exports';
+import CalendarEvent from './calendar-event';
 
 /*
  * Displays the all day events across the top bar of the week event view.
@@ -10,24 +9,23 @@ import CalendarEvent from './calendar-event'
  * events.
  */
 export default class WeekViewAllDayEvents extends React.Component {
-  static displayName = "WeekViewAllDayEvents";
+  static displayName = 'WeekViewAllDayEvents';
 
   static propTypes = {
-    end: React.PropTypes.number,
-    start: React.PropTypes.number,
-    height: React.PropTypes.number,
-    minorDim: React.PropTypes.number,
-    allDayEvents: React.PropTypes.array,
-    allDayOverlap: React.PropTypes.object,
-  }
+    end: PropTypes.number,
+    start: PropTypes.number,
+    height: PropTypes.number,
+    minorDim: PropTypes.number,
+    allDayEvents: PropTypes.array,
+    allDayOverlap: PropTypes.object,
+  };
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (!Utils.isEqualReact(nextProps, this.props) ||
-            !Utils.isEqualReact(nextState, this.state));
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   render() {
-    const eventComponents = this.props.allDayEvents.map((e) => {
+    const eventComponents = this.props.allDayEvents.map(e => {
       return (
         <CalendarEvent
           event={e}
@@ -42,9 +40,9 @@ export default class WeekViewAllDayEvents extends React.Component {
       );
     });
     return (
-      <div className="all-day-events" style={{height: this.props.height}}>
+      <div className="all-day-events" style={{ height: this.props.height }}>
         {eventComponents}
       </div>
-    )
+    );
   }
 }

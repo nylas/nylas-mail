@@ -1,13 +1,12 @@
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import ReactDOM from 'react-dom'
-import {Actions} from 'nylas-exports'
-import {RetinaImg} from 'nylas-component-kit'
-import moment from 'moment'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
+import { Actions } from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
+import moment from 'moment';
 
-import SendRemindersPopover from './send-reminders-popover'
-import {reminderDateFor, updateDraftReminderMetadata} from './send-reminders-utils'
-
+import SendRemindersPopover from './send-reminders-popover';
+import { reminderDateFor, updateDraftReminderMetadata } from './send-reminders-utils';
 
 export default class SendRemindersComposerButton extends Component {
   static displayName = 'SendRemindersComposerButton';
@@ -20,45 +19,45 @@ export default class SendRemindersComposerButton extends Component {
   };
 
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       saving: false,
-    }
+    };
   }
 
   componentWillReceiveProps() {
     if (this.state.saving) {
-      this.setState({saving: false})
+      this.setState({ saving: false });
     }
   }
 
   shouldComponentUpdate(nextProps) {
-    return (reminderDateFor(nextProps.draft) !== reminderDateFor(this.props.draft));
+    return reminderDateFor(nextProps.draft) !== reminderDateFor(this.props.draft);
   }
 
-  onSetReminder = (reminderDate) => {
-    const {draft, session} = this.props
-    this.setState({saving: true});
-    
+  onSetReminder = reminderDate => {
+    const { draft, session } = this.props;
+    this.setState({ saving: true });
+
     updateDraftReminderMetadata(session, {
       expiration: reminderDate,
       sentHeaderMessageId: draft.headerMessageId,
-    })
+    });
 
     Actions.closePopover();
-  }
+  };
 
   onClick = () => {
-    const {draft} = this.props
-    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
+    const { draft } = this.props;
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect();
     Actions.openPopover(
       <SendRemindersPopover
         reminderDate={reminderDateFor(draft)}
-        onRemind={(date) => this.onSetReminder(date)}
+        onRemind={date => this.onSetReminder(date)}
         onCancelReminder={() => this.onSetReminder(null)}
       />,
-      {originRect: buttonRect, direction: 'up'}
-    )
+      { originRect: buttonRect, direction: 'up' }
+    );
   };
 
   render() {
@@ -70,7 +69,7 @@ export default class SendRemindersComposerButton extends Component {
           <RetinaImg
             name="inline-loading-spinner.gif"
             mode={RetinaImg.Mode.ContentDark}
-            style={{width: 14, height: 14}}
+            style={{ width: 14, height: 14 }}
           />
         </button>
       );
@@ -84,21 +83,10 @@ export default class SendRemindersComposerButton extends Component {
     }
 
     return (
-      <button
-        tabIndex={-1}
-        className={className}
-        title={reminderLabel}
-        onClick={this.onClick}
-      >
-        <RetinaImg
-          name="icon-composer-reminders.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-        />
+      <button tabIndex={-1} className={className} title={reminderLabel} onClick={this.onClick}>
+        <RetinaImg name="icon-composer-reminders.png" mode={RetinaImg.Mode.ContentIsMask} />
         <span>&nbsp;</span>
-        <RetinaImg
-          name="icon-composer-dropdown.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-        />
+        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     );
   }

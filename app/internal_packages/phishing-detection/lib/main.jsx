@@ -13,7 +13,6 @@ const tld = require('tld');
 // `.cjsx` filetype because we use the CJSX DSL to describe markup for React to
 // render. Without the CJSX, we could just name this file `main.coffee` instead.
 class PhishingIndicator extends React.Component {
-
   // Adding a displayName to a React component helps for debugging.
   static displayName = 'PhishingIndicator';
 
@@ -37,21 +36,21 @@ class PhishingIndicator extends React.Component {
     this.setState({
       message: MessageStore.items()[0],
     });
-  }
+  };
 
   // A React component's `render` method returns a virtual DOM element described
   // in CJSX. `render` is deterministic: with the same input, it will always
   // render the same output. Here, the input is provided by @isPhishingAttempt.
   // `@state` and `@props` are popular inputs as well.
   render() {
-    const {message} = this.state;
+    const { message } = this.state;
     if (!message) {
-      return (<span />);
+      return <span />;
     }
 
-    const {replyTo, from} = message;
+    const { replyTo, from } = message;
     if (!replyTo || !replyTo.length || !from || !from.length) {
-      return (<span />);
+      return <span />;
     }
 
     // This package's strategy to ascertain whether or not the email is a
@@ -60,7 +59,7 @@ class PhishingIndicator extends React.Component {
     const fromEmail = from[0].email.toLowerCase();
     const replyToEmail = replyTo[0].email.toLowerCase();
     if (!fromEmail || !replyToEmail) {
-      return (<span />);
+      return <span />;
     }
 
     const fromDomain = tld.registered(fromEmail.split('@')[1] || '');
@@ -74,7 +73,7 @@ class PhishingIndicator extends React.Component {
       );
     }
 
-    return (<span />);
+    return <span />;
   }
 }
 
@@ -84,9 +83,7 @@ export function activate() {
   });
 }
 
-export function serialize() {
-
-}
+export function serialize() {}
 
 export function deactivate() {
   ComponentRegistry.unregister(PhishingIndicator);

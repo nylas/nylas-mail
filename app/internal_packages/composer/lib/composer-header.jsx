@@ -1,7 +1,13 @@
 import _ from 'underscore';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {Utils, DraftHelpers, Actions, AccountStore} from 'nylas-exports';
+import {
+  React,
+  ReactDOM,
+  PropTypes,
+  Utils,
+  DraftHelpers,
+  Actions,
+  AccountStore,
+} from 'nylas-exports';
 import {
   InjectedComponent,
   KeyCommandsRegion,
@@ -14,36 +20,35 @@ import ComposerHeaderActions from './composer-header-actions';
 import SubjectTextField from './subject-text-field';
 import Fields from './fields';
 
-
 const ScopedFromField = ListensToFluxStore(AccountContactField, {
   stores: [AccountStore],
-  getStateFromStores: (props) => {
+  getStateFromStores: props => {
     const savedOrReplyToThread = !!props.draft.threadId;
     if (savedOrReplyToThread) {
-      return {accounts: [AccountStore.accountForId(props.draft.accountId)]};
+      return { accounts: [AccountStore.accountForId(props.draft.accountId)] };
     }
-    return {accounts: AccountStore.accounts()}
+    return { accounts: AccountStore.accounts() };
   },
 });
 
 export default class ComposerHeader extends React.Component {
-  static displayName = "ComposerHeader";
+  static displayName = 'ComposerHeader';
 
   static propTypes = {
-    draft: React.PropTypes.object.isRequired,
-    session: React.PropTypes.object.isRequired,
-    initiallyFocused: React.PropTypes.bool,
+    draft: PropTypes.object.isRequired,
+    session: PropTypes.object.isRequired,
+    initiallyFocused: PropTypes.bool,
     // Subject text field injected component needs to call this function
     // when it is rendered with a new header component
-    onNewHeaderComponents: React.PropTypes.func,
-  }
+    onNewHeaderComponents: PropTypes.func,
+  };
 
   static contextTypes = {
-    parentTabGroup: React.PropTypes.object,
-  }
+    parentTabGroup: PropTypes.object,
+  };
 
   constructor(props = {}) {
-    super(props)
+    super(props);
     this._els = {};
     this.state = this._initialStateForDraft(this.props.draft, props);
   }
@@ -66,26 +71,26 @@ export default class ComposerHeader extends React.Component {
     this.showAndFocusField(Fields.To);
   }
 
-  showAndFocusField = (fieldName) => {
+  showAndFocusField = fieldName => {
     const enabledFields = _.uniq([].concat(this.state.enabledFields, [fieldName]));
-    const participantsFocused = this.state.participantsFocused || Fields.ParticipantFields.includes(fieldName);
+    const participantsFocused =
+      this.state.participantsFocused || Fields.ParticipantFields.includes(fieldName);
 
-    Utils.waitFor(() => this._els[fieldName]).then(() =>
-      this._els[fieldName].focus()
-    ).catch(() => {
-    })
+    Utils.waitFor(() => this._els[fieldName])
+      .then(() => this._els[fieldName].focus())
+      .catch(() => {});
 
-    this.setState({enabledFields, participantsFocused});
-  }
+    this.setState({ enabledFields, participantsFocused });
+  };
 
-  hideField = (fieldName) => {
+  hideField = fieldName => {
     if (ReactDOM.findDOMNode(this._els[fieldName]).contains(document.activeElement)) {
-      this.context.parentTabGroup.shiftFocus(-1)
+      this.context.parentTabGroup.shiftFocus(-1);
     }
 
-    const enabledFields = _.without(this.state.enabledFields, fieldName)
-    this.setState({enabledFields})
-  }
+    const enabledFields = _.without(this.state.enabledFields, fieldName);
+    this.setState({ enabledFields });
+  };
 
   _ensureFilledFieldsEnabled(draft) {
     let enabledFields = this.state.enabledFields;
@@ -96,7 +101,7 @@ export default class ComposerHeader extends React.Component {
       enabledFields = enabledFields.concat([Fields.Bcc]);
     }
     if (enabledFields !== this.state.enabledFields) {
-      this.setState({enabledFields});
+      this.setState({ enabledFields });
     }
   }
 
@@ -131,67 +136,65 @@ export default class ComposerHeader extends React.Component {
       return false;
     }
     return true;
-  }
+  };
 
-  _onChangeParticipants = (changes) => {
+  _onChangeParticipants = changes => {
     this.props.session.changes.add(changes);
     Actions.draftParticipantsChanged(this.props.draft.id, changes);
-  }
+  };
 
-  _onSubjectChange = (value) => {
-    this.props.session.changes.add({subject: value});
-  }
+  _onSubjectChange = value => {
+    this.props.session.changes.add({ subject: value });
+  };
 
   _onFocusInParticipants = () => {
     const fieldName = this.state.participantsLastActiveField || Fields.To;
-    Utils.waitFor(() =>
-      this._els[fieldName]
-    ).then(() =>
-      this._els[fieldName].focus()
-    ).catch(() => {
-    });
+    Utils.waitFor(() => this._els[fieldName])
+      .then(() => this._els[fieldName].focus())
+      .catch(() => {});
 
     this.setState({
       participantsFocused: true,
       participantsLastActiveField: null,
     });
-  }
+  };
 
-  _onFocusOutParticipants = (lastFocusedEl) => {
-    const active = Fields.ParticipantFields.find((fieldName) => {
-      return this._els[fieldName] ? ReactDOM.findDOMNode(this._els[fieldName]).contains(lastFocusedEl) : false
-    }
-    );
+  _onFocusOutParticipants = lastFocusedEl => {
+    const active = Fields.ParticipantFields.find(fieldName => {
+      return this._els[fieldName]
+        ? ReactDOM.findDOMNode(this._els[fieldName]).contains(lastFocusedEl)
+        : false;
+    });
     this.setState({
       participantsFocused: false,
       participantsLastActiveField: active,
     });
-  }
+  };
 
   _onFocusInSubject = () => {
     this.setState({
       subjectFocused: true,
     });
-  }
+  };
 
   _onFocusOutSubject = () => {
     this.setState({
       subjectFocused: false,
     });
-  }
+  };
 
   isFocused() {
     return this.state.participantsFocused || this.state.subjectFocused;
   }
 
-  _onDragCollapsedParticipants = ({isDropping}) => {
+  _onDragCollapsedParticipants = ({ isDropping }) => {
     if (isDropping) {
       this.setState({
         participantsFocused: true,
         enabledFields: [...Fields.ParticipantFields, Fields.From, Fields.Subject],
-      })
+      });
     }
-  }
+  };
 
   _renderParticipants = () => {
     let content = null;
@@ -205,7 +208,7 @@ export default class ComposerHeader extends React.Component {
           bcc={this.props.draft.bcc}
           onDragChange={this._onDragCollapsedParticipants}
         />
-      )
+      );
     }
 
     // When the participants field collapses, we store the field that was last
@@ -214,7 +217,11 @@ export default class ComposerHeader extends React.Component {
     return (
       <KeyCommandsRegion
         tabIndex={-1}
-        ref={(el) => { if (el) { this._els.participantsContainer = el; } }}
+        ref={el => {
+          if (el) {
+            this._els.participantsContainer = el;
+          }
+        }}
         className="expanded-participants"
         onFocusIn={this._onFocusInParticipants}
         onFocusOut={this._onFocusOutParticipants}
@@ -222,24 +229,32 @@ export default class ComposerHeader extends React.Component {
         {content}
       </KeyCommandsRegion>
     );
-  }
+  };
 
   _renderSubject = () => {
     if (!this.state.enabledFields.includes(Fields.Subject)) {
       return false;
     }
-    const {draft, session} = this.props
+    const { draft, session } = this.props;
     return (
       <KeyCommandsRegion
         tabIndex={-1}
-        ref={(el) => { if (el) { this._els.subjectContainer = el; } }}
+        ref={el => {
+          if (el) {
+            this._els.subjectContainer = el;
+          }
+        }}
         onFocusIn={this._onFocusInSubject}
         onFocusOut={this._onFocusOutSubject}
       >
         <InjectedComponent
-          ref={(el) => { if (el) { this._els[Fields.Subject] = el; } }}
+          ref={el => {
+            if (el) {
+              this._els[Fields.Subject] = el;
+            }
+          }}
           key="subject-wrap"
-          matching={{role: 'Composer:SubjectTextField'}}
+          matching={{ role: 'Composer:SubjectTextField' }}
           exposedProps={{
             draft,
             session,
@@ -252,11 +267,11 @@ export default class ComposerHeader extends React.Component {
           onComponentDidChange={this.props.onNewHeaderComponents}
         />
       </KeyCommandsRegion>
-    )
-  }
+    );
+  };
 
   _renderFields = () => {
-    const {to, cc, bcc, from} = this.props.draft;
+    const { to, cc, bcc, from } = this.props.draft;
 
     // Note: We need to physically add and remove these elements, not just hide them.
     // If they're hidden, shift-tab between fields breaks.
@@ -264,64 +279,80 @@ export default class ComposerHeader extends React.Component {
 
     fields.push(
       <ParticipantsTextField
-        ref={(el) => { if (el) { this._els[Fields.To] = el; } }}
+        ref={el => {
+          if (el) {
+            this._els[Fields.To] = el;
+          }
+        }}
         key="to"
         field="to"
         change={this._onChangeParticipants}
         className="composer-participant-field to-field"
-        participants={{to, cc, bcc}}
+        participants={{ to, cc, bcc }}
         draft={this.props.draft}
         session={this.props.session}
       />
-    )
+    );
 
     if (this.state.enabledFields.includes(Fields.Cc)) {
       fields.push(
         <ParticipantsTextField
-          ref={(el) => { if (el) { this._els[Fields.Cc] = el; } }}
+          ref={el => {
+            if (el) {
+              this._els[Fields.Cc] = el;
+            }
+          }}
           key="cc"
           field="cc"
           change={this._onChangeParticipants}
           onEmptied={() => this.hideField(Fields.Cc)}
           className="composer-participant-field cc-field"
-          participants={{to, cc, bcc}}
+          participants={{ to, cc, bcc }}
           draft={this.props.draft}
           session={this.props.session}
         />
-      )
+      );
     }
 
     if (this.state.enabledFields.includes(Fields.Bcc)) {
       fields.push(
         <ParticipantsTextField
-          ref={(el) => { if (el) { this._els[Fields.Bcc] = el; } }}
+          ref={el => {
+            if (el) {
+              this._els[Fields.Bcc] = el;
+            }
+          }}
           key="bcc"
           field="bcc"
           change={this._onChangeParticipants}
           onEmptied={() => this.hideField(Fields.Bcc)}
           className="composer-participant-field bcc-field"
-          participants={{to, cc, bcc}}
+          participants={{ to, cc, bcc }}
           draft={this.props.draft}
           session={this.props.session}
         />
-      )
+      );
     }
 
     if (this.state.enabledFields.includes(Fields.From)) {
       fields.push(
         <ScopedFromField
           key="from"
-          ref={(el) => { if (el) { this._els[Fields.From] = el; } }}
+          ref={el => {
+            if (el) {
+              this._els[Fields.From] = el;
+            }
+          }}
           value={from[0]}
           draft={this.props.draft}
           session={this.props.session}
           onChange={this._onChangeParticipants}
         />
-      )
+      );
     }
 
     return fields;
-  }
+  };
 
   render() {
     return (
@@ -335,6 +366,6 @@ export default class ComposerHeader extends React.Component {
         {this._renderParticipants()}
         {this._renderSubject()}
       </div>
-    )
+    );
   }
 }

@@ -1,20 +1,20 @@
 /* eslint global-require: 0 */
 /* eslint import/no-dynamic-require: 0 */
-import DatabaseObjectRegistry from '../registries/database-object-registry'
+import DatabaseObjectRegistry from '../registries/database-object-registry';
 
 // This module exports an empty object, with a ton of defined properties that
 // `require` files the first time they're called.
 module.exports = exports = window.$n = {};
 
-const resolveExport = (requireValue) => {
+const resolveExport = requireValue => {
   return requireValue.default || requireValue;
-}
+};
 
 const lazyLoadWithGetter = (prop, getter) => {
   const key = `${prop}`;
 
   if (exports[key]) {
-    throw new Error(`Fatal error: Duplicate entry in nylas-exports: ${key}`)
+    throw new Error(`Fatal error: Duplicate entry in nylas-exports: ${key}`);
   }
   Object.defineProperty(exports, prop, {
     configurable: true,
@@ -25,7 +25,7 @@ const lazyLoadWithGetter = (prop, getter) => {
       return value;
     },
   });
-}
+};
 
 const lazyLoad = (prop, path) => {
   lazyLoadWithGetter(prop, () => resolveExport(require(`../${path}`)));
@@ -35,7 +35,7 @@ const _resolveNow = [];
 const load = (klassName, path) => {
   lazyLoad(klassName, path);
   _resolveNow.push(klassName);
-}
+};
 
 const lazyLoadAndRegisterModel = (klassName, path) => {
   lazyLoad(klassName, `flux/models/${path}`);
@@ -139,7 +139,10 @@ load(`FocusedContactsStore`, 'flux/stores/focused-contacts-store');
 load(`FolderSyncProgressStore`, 'flux/stores/folder-sync-progress-store');
 load(`FocusedPerspectiveStore`, 'flux/stores/focused-perspective-store');
 load(`SearchableComponentStore`, 'flux/stores/searchable-component-store');
-lazyLoad(`CustomContenteditableComponents`, 'components/overlaid-components/custom-contenteditable-components');
+lazyLoad(
+  `CustomContenteditableComponents`,
+  'components/overlaid-components/custom-contenteditable-components'
+);
 
 lazyLoad(`ServiceRegistry`, `registries/service-registry`);
 
@@ -157,6 +160,7 @@ lazyLoadWithGetter(`Rx`, () => require('rx-lite'));
 lazyLoadWithGetter(`React`, () => require('react'));
 lazyLoadWithGetter(`ReactDOM`, () => require('react-dom'));
 lazyLoadWithGetter(`ReactTestUtils`, () => require('react-dom/test-utils'));
+lazyLoadWithGetter(`PropTypes`, () => require('prop-types'));
 
 // React Components
 lazyLoad(`ComponentRegistry`, 'registries/component-registry');
@@ -201,7 +205,7 @@ lazyLoadWithGetter(`NylasTestUtils`, () => require('../../spec/nylas-test-utils'
 process.nextTick(() => {
   let c = 0;
   for (const key of _resolveNow) {
-    c += exports[key] ? 1 : 0
+    c += exports[key] ? 1 : 0;
   }
   return c;
 });

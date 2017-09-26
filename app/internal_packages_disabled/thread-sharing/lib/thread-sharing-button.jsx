@@ -1,5 +1,5 @@
-import {Actions, React, ReactDOM} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import { Actions, React, ReactDOM, PropTypes } from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
 import ThreadSharingPopover from './thread-sharing-popover';
 
 export default class ThreadSharingButton extends React.Component {
@@ -8,18 +8,18 @@ export default class ThreadSharingButton extends React.Component {
   static containerRequired = false;
 
   static propTypes = {
-    items: React.PropTypes.array,
-    thread: React.PropTypes.object,
+    items: PropTypes.array,
+    thread: PropTypes.object,
   };
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.thread.id !== this.props.thread.id) {
-      Actions.closePopover()
+      Actions.closePopover();
     }
   }
 
   _onClick = () => {
-    const {thread} = this.props;
+    const { thread } = this.props;
 
     Actions.openPopover(
       <ThreadSharingPopover
@@ -31,26 +31,23 @@ export default class ThreadSharingButton extends React.Component {
         originRect: ReactDOM.findDOMNode(this).getBoundingClientRect(),
         direction: 'down',
       }
-    )
-  }
+    );
+  };
 
   render() {
     if (this.props.items && this.props.items.length > 1) {
-      return <span />
+      return <span />;
     }
 
     return (
       <button
         className="btn btn-toolbar thread-sharing-button"
         title="Share"
-        style={{marginRight: 0}}
+        style={{ marginRight: 0 }}
         onClick={this._onClick}
       >
-        <RetinaImg
-          name="ic-toolbar-native-share.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-        />
+        <RetinaImg name="ic-toolbar-native-share.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
-    )
+    );
   }
 }

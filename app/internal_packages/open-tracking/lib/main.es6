@@ -1,27 +1,22 @@
-import {
-  ComponentRegistry,
-  ExtensionRegistry,
-} from 'nylas-exports';
-import {HasTutorialTip} from 'nylas-component-kit';
+import { ComponentRegistry, ExtensionRegistry } from 'nylas-exports';
+import { HasTutorialTip } from 'nylas-component-kit';
 import OpenTrackingButton from './open-tracking-button';
 import OpenTrackingIcon from './open-tracking-icon';
 import OpenTrackingMessageStatus from './open-tracking-message-status';
 import OpenTrackingComposerExtension from './open-tracking-composer-extension';
 
 const OpenTrackingButtonWithTutorialTip = HasTutorialTip(OpenTrackingButton, {
-  title: "See when recipients open this email",
-  instructions: "When enabled, Mailspring will notify you as soon as someone reads this message. Sending to a group? Mailspring shows you which recipients opened your email so you can follow up with precision.",
+  title: 'See when recipients open this email',
+  instructions:
+    'When enabled, Mailspring will notify you as soon as someone reads this message. Sending to a group? Mailspring shows you which recipients opened your email so you can follow up with precision.',
 });
 
 export function activate() {
-  ComponentRegistry.register(OpenTrackingButtonWithTutorialTip,
-    {role: 'Composer:ActionButton'});
+  ComponentRegistry.register(OpenTrackingButtonWithTutorialTip, { role: 'Composer:ActionButton' });
 
-  ComponentRegistry.register(OpenTrackingIcon,
-    {role: 'ThreadListIcon'});
+  ComponentRegistry.register(OpenTrackingIcon, { role: 'ThreadListIcon' });
 
-  ComponentRegistry.register(OpenTrackingMessageStatus,
-    {role: 'MessageHeaderStatus'});
+  ComponentRegistry.register(OpenTrackingMessageStatus, { role: 'MessageHeaderStatus' });
 
   ExtensionRegistry.Composer.register(OpenTrackingComposerExtension);
 }

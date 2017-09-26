@@ -1,4 +1,4 @@
-import {ListTabular} from 'nylas-component-kit'
+import { ListTabular } from 'nylas-component-kit';
 
 /**
 This class takes an observable which vends QueryResultSets and adapts it so that
@@ -8,24 +8,23 @@ When the MultiselectList is refactored to take an Observable, this class should
 go away!
 */
 export default class ObservableListDataSource extends ListTabular.DataSource {
-
   constructor(resultSetObservable, setRetainedRange) {
-    super()
+    super();
     this._$resultSetObservable = resultSetObservable;
     this._setRetainedRange = setRetainedRange;
-    this._countEstimate = -1
-    this._resultSet = null
-    this._resultDesiredLast = null
+    this._countEstimate = -1;
+    this._resultSet = null;
+    this._resultDesiredLast = null;
 
     // Wait until a retained range is set before subscribing to result sets
   }
 
   _attach = () => {
-    this._subscription = this._$resultSetObservable.subscribe((nextResultSet) => {
+    this._subscription = this._$resultSetObservable.subscribe(nextResultSet => {
       if (nextResultSet.range().end === this._resultDesiredLast) {
-        this._countEstimate = Math.max(this._countEstimate, nextResultSet.range().end)
+        this._countEstimate = Math.max(this._countEstimate, nextResultSet.range().end);
       } else {
-        this._countEstimate = nextResultSet.range().end
+        this._countEstimate = nextResultSet.range().end;
       }
 
       const previousResultSet = this._resultSet;
@@ -39,13 +38,13 @@ export default class ObservableListDataSource extends ListTabular.DataSource {
         this.selection.removeItemsNotMatching(query.matchers());
       }
 
-      this.trigger({previous: previousResultSet, next: nextResultSet});
+      this.trigger({ previous: previousResultSet, next: nextResultSet });
     });
-  }
+  };
 
-  setRetainedRange({start, end}) {
+  setRetainedRange({ start, end }) {
     this._resultDesiredLast = end;
-    this._setRetainedRange({start, end});
+    this._setRetainedRange({ start, end });
     if (!this._subscription) {
       this._attach();
     }
@@ -63,20 +62,20 @@ export default class ObservableListDataSource extends ListTabular.DataSource {
 
   empty = () => {
     return !this._resultSet || this._resultSet.empty();
-  }
+  };
 
-  get = (offset) => {
+  get = offset => {
     if (!this._resultSet) {
       return null;
     }
     return this._resultSet.modelAtOffset(offset);
-  }
+  };
 
   getById(id) {
     if (!this._resultSet) {
       return null;
     }
-    return this._resultSet.modelWithId(id)
+    return this._resultSet.modelWithId(id);
   }
 
   indexOfId(id) {

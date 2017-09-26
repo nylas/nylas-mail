@@ -1,4 +1,4 @@
-import DOMWalkers from '../dom-walkers'
+import DOMWalkers from '../dom-walkers';
 
 /*
  * There are semi-common cases where immediately before a blockquote, we
@@ -33,7 +33,7 @@ export default function quoteStringDetector(doc) {
           return quoteNodesToRemove;
         }
       } else {
-        quoteNodesToRemove.push(node)
+        quoteNodesToRemove.push(node);
         if (/On \S/gim.test(node.nodeValue)) {
           // This means we've reached the beginning of the quoted string.
           return quoteNodesToRemove;
@@ -41,7 +41,7 @@ export default function quoteStringDetector(doc) {
       }
     } else {
       if (seenInitialQuoteEnd) {
-        quoteNodesToRemove.push(node)
+        quoteNodesToRemove.push(node);
       }
     }
   }

@@ -1,17 +1,21 @@
 import path from 'path';
-import {ipcRenderer} from 'electron';
-import {BadgeStore} from 'nylas-exports';
+import { ipcRenderer } from 'electron';
+import { BadgeStore } from 'nylas-exports';
 
 // Must be absolute real system path
 // https://github.com/atom/electron/issues/1299
-const {platform} = process
+const { platform } = process;
 const INBOX_ZERO_ICON = path.join(__dirname, '..', 'assets', platform, 'MenuItem-Inbox-Zero.png');
 const INBOX_UNREAD_ICON = path.join(__dirname, '..', 'assets', platform, 'MenuItem-Inbox-Full.png');
-const INBOX_UNREAD_ALT_ICON = path.join(__dirname, '..', 'assets', platform, 'MenuItem-Inbox-Full-NewItems.png');
-
+const INBOX_UNREAD_ALT_ICON = path.join(
+  __dirname,
+  '..',
+  'assets',
+  platform,
+  'MenuItem-Inbox-Full-NewItems.png'
+);
 
 class SystemTrayIconStore {
-
   static INBOX_ZERO_ICON = INBOX_ZERO_ICON;
 
   static INBOX_UNREAD_ICON = INBOX_UNREAD_ICON;
@@ -31,21 +35,25 @@ class SystemTrayIconStore {
 
     window.addEventListener('browser-window-blur', this._onWindowBlur);
     window.addEventListener('browser-window-focus', this._onWindowFocus);
-    this._unsubscribers.push(() => window.removeEventListener('browser-window-blur', this._onWindowBlur))
-    this._unsubscribers.push(() => window.removeEventListener('browser-window-focus', this._onWindowFocus))
+    this._unsubscribers.push(() =>
+      window.removeEventListener('browser-window-blur', this._onWindowBlur)
+    );
+    this._unsubscribers.push(() =>
+      window.removeEventListener('browser-window-focus', this._onWindowFocus)
+    );
   }
 
   deactivate() {
-    this._unsubscribers.forEach(unsub => unsub())
+    this._unsubscribers.forEach(unsub => unsub());
   }
 
   _getIconImageData(isInboxZero, isWindowBlurred) {
     if (isInboxZero) {
-      return {iconPath: INBOX_ZERO_ICON, isTemplateImg: true};
+      return { iconPath: INBOX_ZERO_ICON, isTemplateImg: true };
     }
-    return isWindowBlurred ?
-      {iconPath: INBOX_UNREAD_ALT_ICON, isTemplateImg: false} :
-      {iconPath: INBOX_UNREAD_ICON, isTemplateImg: true};
+    return isWindowBlurred
+      ? { iconPath: INBOX_UNREAD_ALT_ICON, isTemplateImg: false }
+      : { iconPath: INBOX_UNREAD_ICON, isTemplateImg: true };
   }
 
   _onWindowBlur = () => {
@@ -63,8 +71,8 @@ class SystemTrayIconStore {
   _updateIcon = () => {
     const unread = BadgeStore.unread();
     const unreadString = (+unread).toLocaleString();
-    const isInboxZero = (BadgeStore.total() === 0);
-    const {iconPath, isTemplateImg} = this._getIconImageData(isInboxZero, this._windowBlurred);
+    const isInboxZero = BadgeStore.total() === 0;
+    const { iconPath, isTemplateImg } = this._getIconImageData(isInboxZero, this._windowBlurred);
     ipcRenderer.send('update-system-tray', iconPath, unreadString, isTemplateImg);
   };
 }

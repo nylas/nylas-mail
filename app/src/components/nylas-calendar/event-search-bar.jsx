@@ -1,86 +1,85 @@
-import React, {Component} from 'react'
-import {Event, DatabaseStore} from 'nylas-exports'
-import SearchBar from '../search-bar'
-import PropTypes from 'prop-types'
-
+import React, { Component } from 'react';
+import { Event, DatabaseStore } from 'nylas-exports';
+import SearchBar from '../search-bar';
+import PropTypes from 'prop-types';
 
 class EventSearchBar extends Component {
-  static displayName = 'EventSearchBar'
+  static displayName = 'EventSearchBar';
 
   static propTypes = {
     disabledCalendars: PropTypes.array,
     onSelectEvent: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     disabledCalendars: [],
     onSelectEvent: () => {},
-  }
+  };
 
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       query: '',
       suggestions: [],
-    }
+    };
   }
 
-  onSearchQueryChanged = (query) => {
-    const {disabledCalendars} = this.props
-    this.setState({query})
+  onSearchQueryChanged = query => {
+    const { disabledCalendars } = this.props;
+    this.setState({ query });
     if (query.length <= 1) {
-      this.onClearSearchSuggestions()
-      return
+      this.onClearSearchSuggestions();
+      return;
     }
-    let dbQuery = DatabaseStore.findAll(Event).distinct() // eslint-disable-line
+    let dbQuery = DatabaseStore.findAll(Event).distinct(); // eslint-disable-line
     if (disabledCalendars.length > 0) {
-      dbQuery = dbQuery.where(Event.attributes.calendarId.notIn(disabledCalendars))
+      dbQuery = dbQuery.where(Event.attributes.calendarId.notIn(disabledCalendars));
     }
     dbQuery = dbQuery
-    .search(query)
-    .limit(10)
-    .then((events) => {
-      this.setState({suggestions: events})
-    })
-  }
+      .search(query)
+      .limit(10)
+      .then(events => {
+        this.setState({ suggestions: events });
+      });
+  };
 
   onClearSearchQuery = () => {
-    this.setState({query: '', suggestions: []})
-  }
+    this.setState({ query: '', suggestions: [] });
+  };
 
   onClearSearchSuggestions = () => {
-    this.setState({suggestions: []})
-  }
+    this.setState({ suggestions: [] });
+  };
 
-  onSelectEvent = (event) => {
-    this.onClearSearchQuery()
+  onSelectEvent = event => {
+    this.onClearSearchQuery();
     setImmediate(() => {
-      const {onSelectEvent} = this.props
-      onSelectEvent(event)
-    })
-  }
+      const { onSelectEvent } = this.props;
+      onSelectEvent(event);
+    });
+  };
 
   renderEvent(event) {
-    return event.title
+    return event.title;
   }
 
   render() {
-    const {query, suggestions} = this.state
+    const { query, suggestions } = this.state;
 
     return (
       <SearchBar
         query={query}
         suggestions={suggestions}
         placeholder="Search all events"
-        suggestionKey={(event) => event.id}
+        suggestionKey={event => event.id}
         suggestionRenderer={this.renderEvent}
         onSearchQueryChanged={this.onSearchQueryChanged}
         onSelectSuggestion={this.onSelectEvent}
         onClearSearchQuery={this.onClearSearchQuery}
         onClearSearchSuggestions={this.onClearSearchSuggestions}
       />
-    )
+    );
   }
 }
 
-export default EventSearchBar
+export default EventSearchBar;

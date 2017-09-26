@@ -1,13 +1,14 @@
 import React from 'react';
-import {AccountStore} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import PropTypes from 'prop-types';
+import { AccountStore } from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 
-const PageTopBar = (props) => {
-  const {pageDepth} = props;
+const PageTopBar = props => {
+  const { pageDepth } = props;
 
-  const closeClass = (pageDepth > 1) ? 'back' : 'close';
-  const closeIcon = (pageDepth > 1) ? 'onboarding-back.png' : 'onboarding-close.png';
+  const closeClass = pageDepth > 1 ? 'back' : 'close';
+  const closeIcon = pageDepth > 1 ? 'onboarding-back.png' : 'onboarding-close.png';
   const closeAction = () => {
     const webview = document.querySelector('webview');
     if (webview && webview.canGoBack()) {
@@ -21,13 +22,13 @@ const PageTopBar = (props) => {
         NylasEnv.close();
       }
     }
-  }
+  };
 
   let backButton = (
     <div className={closeClass} onClick={closeAction}>
       <RetinaImg name={closeIcon} mode={RetinaImg.Mode.ContentPreserve} />
     </div>
-  )
+  );
   if (props.pageDepth > 1 && !props.allowMoveBack) {
     backButton = null;
   }
@@ -42,17 +43,17 @@ const PageTopBar = (props) => {
         height: 27,
         zIndex: 100,
         position: 'absolute',
-        WebkitAppRegion: "drag",
+        WebkitAppRegion: 'drag',
       }}
     >
       {backButton}
     </div>
-  )
-}
+  );
+};
 
 PageTopBar.propTypes = {
-  pageDepth: React.PropTypes.number,
-  allowMoveBack: React.PropTypes.bool,
+  pageDepth: PropTypes.number,
+  allowMoveBack: PropTypes.bool,
 };
 
 export default PageTopBar;

@@ -1,5 +1,4 @@
-React = require 'react'
-{Actions} = require 'nylas-exports'
+{Actions, React, PropTypes} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 AccountCommands = require '../account-commands'
 
@@ -8,8 +7,8 @@ class AccountSwitcher extends React.Component
   @displayName: 'AccountSwitcher'
 
   @propTypes:
-    accounts: React.PropTypes.array.isRequired
-    sidebarAccountIds: React.PropTypes.array.isRequired
+    accounts: PropTypes.array.isRequired
+    sidebarAccountIds: PropTypes.array.isRequired
 
 
   _makeMenuTemplate: =>

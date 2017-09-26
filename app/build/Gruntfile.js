@@ -2,7 +2,7 @@
 /* eslint import/no-dynamic-require: 0 */
 const path = require('path');
 
-module.exports = (grunt) => {
+module.exports = grunt => {
   if (!grunt.option('platform')) {
     grunt.option('platform', process.platform);
   }
@@ -15,17 +15,17 @@ module.exports = (grunt) => {
   const appDir = path.resolve(path.join('app'));
   const buildDir = path.join(appDir, 'build');
   const tasksDir = path.join(buildDir, 'tasks');
-  const taskHelpers = require(path.join(tasksDir, 'task-helpers'))(grunt)
+  const taskHelpers = require(path.join(tasksDir, 'task-helpers'))(grunt);
 
   // This allows all subsequent paths to the relative to the root of the repo
   grunt.config.init({
-    'taskHelpers': taskHelpers,
-    'rootDir': path.resolve('./'),
-    'buildDir': buildDir,
-    'appDir': appDir,
-    'classDocsOutputDir': path.join(buildDir, 'docs_src', 'classes'),
-    'outputDir': path.join(appDir, 'dist'),
-    'appJSON': grunt.file.readJSON(path.join(appDir, 'package.json')),
+    taskHelpers: taskHelpers,
+    rootDir: path.resolve('./'),
+    buildDir: buildDir,
+    appDir: appDir,
+    classDocsOutputDir: path.join(buildDir, 'docs_src', 'classes'),
+    outputDir: path.join(appDir, 'dist'),
+    appJSON: grunt.file.readJSON(path.join(appDir, 'package.json')),
     'source:coffeescript': [
       'internal_packages/**/*.cjsx',
       'internal_packages/**/*.coffee',
@@ -59,35 +59,18 @@ module.exports = (grunt) => {
   grunt.loadTasks(tasksDir);
   grunt.file.setBase(appDir);
 
-  grunt.registerTask('docs', [
-    'docs-build',
-    'docs-render',
-  ]);
+  grunt.registerTask('docs', ['docs-build', 'docs-render']);
 
-  grunt.registerTask('lint', [
-    'eslint',
-    'lesslint',
-    'nylaslint',
-    'coffeelint',
-    'csslint',
-  ]);
+  grunt.registerTask('lint', ['eslint', 'lesslint', 'nylaslint', 'coffeelint', 'csslint']);
 
   if (grunt.option('platform') === 'win32') {
-    grunt.registerTask("build-client", [
-      "package",
+    grunt.registerTask('build-client', [
+      'package',
       // The Windows electron-winstaller task must be run outside of grunt
     ]);
   } else if (grunt.option('platform') === 'darwin') {
-    grunt.registerTask("build-client", [
-      "package",
-      "create-mac-zip",
-      "create-mac-dmg",
-    ]);
+    grunt.registerTask('build-client', ['package', 'create-mac-zip', 'create-mac-dmg']);
   } else if (grunt.option('platform') === 'linux') {
-    grunt.registerTask("build-client", [
-      "package",
-      "create-deb-installer",
-      "create-rpm-installer",
-    ]);
+    grunt.registerTask('build-client', ['package', 'create-deb-installer', 'create-rpm-installer']);
   }
-}
+};

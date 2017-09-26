@@ -17,49 +17,49 @@
  */
 export default class SerializableRegistry {
   constructor() {
-    this._constructorFactories = {}
+    this._constructorFactories = {};
   }
 
   get(name) {
-    return this._constructorFactories[name].call(null)
+    return this._constructorFactories[name].call(null);
   }
 
   getAllConstructors() {
-    const constructors = []
+    const constructors = [];
     for (const name of Object.keys(this._constructorFactories)) {
-      constructors.push(this.get(name))
+      constructors.push(this.get(name));
     }
     return constructors;
   }
 
   isInRegistry(name) {
-    return !!this._constructorFactories[name]
+    return !!this._constructorFactories[name];
   }
 
   deserialize(name, dataJSON) {
     let data = dataJSON;
-    if (typeof data === "string") {
-      data = JSON.parse(dataJSON)
+    if (typeof data === 'string') {
+      data = JSON.parse(dataJSON);
     }
 
-    const constructor = this.get(name)
+    const constructor = this.get(name);
 
-    if (typeof constructor !== "function") {
+    if (typeof constructor !== 'function') {
       throw new Error(`Unsure of how to inflate ${JSON.stringify(data)}. \
 Your constructor factory must return a class constructor.`);
     }
 
-    const object = new constructor()
-    object.fromJSON(data)
+    const object = new constructor();
+    object.fromJSON(data);
 
-    return object
+    return object;
   }
 
   register(name, constructorFactory) {
-    this._constructorFactories[name] = constructorFactory
+    this._constructorFactories[name] = constructorFactory;
   }
 
   unregister(name) {
-    delete this._constructorFactories[name]
+    delete this._constructorFactories[name];
   }
 }

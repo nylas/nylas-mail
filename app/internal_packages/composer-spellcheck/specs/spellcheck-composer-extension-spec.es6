@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {Spellchecker, Message} from 'nylas-exports';
+import { Spellchecker, Message } from 'nylas-exports';
 
 import SpellcheckComposerExtension from '../lib/spellcheck-composer-extension';
 
@@ -14,31 +14,31 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
     // Avoid differences between node-spellcheck on different platforms
     const lookupPath = path.join(__dirname, 'fixtures', 'california-spelling-lookup.json');
     const spellings = JSON.parse(fs.readFileSync(lookupPath));
-    spyOn(Spellchecker, 'isMisspelled').andCallFake(word => spellings[word])
+    spyOn(Spellchecker, 'isMisspelled').andCallFake(word => spellings[word]);
     spyOn(Spellchecker.handler, 'provideHintText').andReturn({
       then(cb) {
-        cb()
+        cb();
       },
-    })
+    });
   });
 
-  describe("onContentChanged", () => {
-    it("correctly walks a DOM tree and surrounds mispelled words", () => {
+  describe('onContentChanged', () => {
+    it('correctly walks a DOM tree and surrounds mispelled words', () => {
       const node = document.createElement('div');
       node.innerHTML = initialHTML;
 
       const editor = {
         rootNode: node,
-        whilePreservingSelection: (cb) => cb(),
+        whilePreservingSelection: cb => cb(),
       };
 
-      SpellcheckComposerExtension.onContentChanged({editor});
-      advanceClock(1000) // Wait for debounce
-      advanceClock(1) // Wait for defer
+      SpellcheckComposerExtension.onContentChanged({ editor });
+      advanceClock(1000); // Wait for debounce
+      advanceClock(1); // Wait for defer
       expect(node.innerHTML).toEqual(afterHTML);
     });
 
-    it("does not mark misspelled words inside A, CODE and PRE tags", () => {
+    it('does not mark misspelled words inside A, CODE and PRE tags', () => {
       const node = document.createElement('div');
       node.innerHTML = `
       <br>
@@ -54,12 +54,12 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
 
       const editor = {
         rootNode: node,
-        whilePreservingSelection: (cb) => cb(),
+        whilePreservingSelection: cb => cb(),
       };
 
-      SpellcheckComposerExtension.onContentChanged({editor});
-      advanceClock(1000) // Wait for debounce
-      advanceClock(1) // Wait for defer
+      SpellcheckComposerExtension.onContentChanged({ editor });
+      advanceClock(1000); // Wait for debounce
+      advanceClock(1); // Wait for defer
       expect(node.innerHTML).toEqual(`
       <br>
       This is a <spelling class="misspelled">testst</spelling>! I have a few <spelling class="misspelled">misspellled</spelling> words.
@@ -73,14 +73,14 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
     });
   });
 
-  describe("applyTransformsForSending", () => {
-    it("removes the spelling annotations it inserted", () => {
+  describe('applyTransformsForSending', () => {
+    it('removes the spelling annotations it inserted', () => {
       const draft = new Message({ body: afterHTML });
       const fragment = document.createDocumentFragment();
-      const draftBodyRootNode = document.createElement('root')
-      fragment.appendChild(draftBodyRootNode)
-      draftBodyRootNode.innerHTML = afterHTML
-      SpellcheckComposerExtension.applyTransformsForSending({draftBodyRootNode, draft});
+      const draftBodyRootNode = document.createElement('root');
+      fragment.appendChild(draftBodyRootNode);
+      draftBodyRootNode.innerHTML = afterHTML;
+      SpellcheckComposerExtension.applyTransformsForSending({ draftBodyRootNode, draft });
       expect(draftBodyRootNode.innerHTML).toEqual(initialHTML);
     });
   });

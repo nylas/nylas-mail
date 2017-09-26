@@ -1,8 +1,8 @@
-import {SystemStartService, WorkspaceStore, ComponentRegistry} from 'nylas-exports';
+import { SystemStartService, WorkspaceStore, ComponentRegistry } from 'nylas-exports';
 import OnboardingRoot from './onboarding-root';
 
 export function activate() {
-  WorkspaceStore.defineSheet('Main', {root: true}, {list: ['Center']});
+  WorkspaceStore.defineSheet('Main', { root: true }, { list: ['Center'] });
 
   ComponentRegistry.register(OnboardingRoot, {
     location: WorkspaceStore.Location.Center,
@@ -12,11 +12,11 @@ export function activate() {
 
   if (accounts.length === 0) {
     const startService = new SystemStartService();
-    startService.checkAvailability().then((available) => {
+    startService.checkAvailability().then(available => {
       if (!available) {
         return;
       }
-      startService.doesLaunchOnSystemStart().then((launchesOnStart) => {
+      startService.doesLaunchOnSystemStart().then(launchesOnStart => {
         if (!launchesOnStart) {
           startService.configureToLaunchOnSystemStart();
         }
@@ -25,10 +25,6 @@ export function activate() {
   }
 }
 
-export function deactivate() {
+export function deactivate() {}
 
-}
-
-export function serialize() {
-
-}
+export function serialize() {}

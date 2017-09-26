@@ -1,7 +1,7 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import {
   Flexbox,
   ScrollRegion,
@@ -9,9 +9,8 @@ import {
   ListensToFluxStore,
   ConfigPropContainer,
 } from 'nylas-component-kit';
-import {PreferencesUIStore} from 'nylas-exports';
+import { PreferencesUIStore } from 'nylas-exports';
 import PreferencesTabsBar from './preferences-tabs-bar';
-
 
 class PreferencesRoot extends React.Component {
   static displayName = 'PreferencesRoot';
@@ -22,7 +21,7 @@ class PreferencesRoot extends React.Component {
     tab: PropTypes.object,
     tabs: PropTypes.array,
     selection: PropTypes.object,
-  }
+  };
 
   componentDidMount() {
     ReactDOM.findDOMNode(this).focus();
@@ -31,16 +30,16 @@ class PreferencesRoot extends React.Component {
 
   componentDidUpdate(oldProps) {
     if (oldProps.tab !== this.props.tab) {
-      const scrollRegion = document.querySelector(".preferences-content .scroll-region-content");
+      const scrollRegion = document.querySelector('.preferences-content .scroll-region-content');
       scrollRegion.scrollTop = 0;
       this._focusContent();
     }
   }
 
   _localHandlers() {
-    const stopPropagation = (e) => {
+    const stopPropagation = e => {
       e.stopPropagation();
-    }
+    };
     // This prevents some basic commands from propagating to the threads list and
     // producing unexpected results
 
@@ -63,42 +62,43 @@ class PreferencesRoot extends React.Component {
       'core:archive-item': stopPropagation,
       'core:delete-item': stopPropagation,
       'core:print-thread': stopPropagation,
-    }
+    };
   }
 
   // Focus the first thing with a tabindex when we update.
   // inside the content area. This makes it way easier to interact with prefs.
   _focusContent() {
-    const node = ReactDOM.findDOMNode(this._contentComponent).querySelector('[tabindex]')
+    const node = ReactDOM.findDOMNode(this._contentComponent).querySelector('[tabindex]');
     if (node) {
       node.focus();
     }
   }
 
   render() {
-    const {tab, selection, tabs} = this.props
+    const { tab, selection, tabs } = this.props;
     const TabComponent = tab && tab.componentClassFn();
 
     return (
-      <KeyCommandsRegion className="preferences-wrap" tabIndex="1" localHandlers={this._localHandlers()}>
+      <KeyCommandsRegion
+        className="preferences-wrap"
+        tabIndex="1"
+        localHandlers={this._localHandlers()}
+      >
         <Flexbox direction="column">
-          <PreferencesTabsBar
-            tabs={tabs}
-            selection={selection}
-          />
+          <PreferencesTabsBar tabs={tabs} selection={selection} />
           <ScrollRegion className="preferences-content">
-            <ConfigPropContainer ref={(el) => { this._contentComponent = el; }}>
-              {tab ?
-                <TabComponent accountId={selection.accountId} /> :
-                false
-              }
+            <ConfigPropContainer
+              ref={el => {
+                this._contentComponent = el;
+              }}
+            >
+              {tab ? <TabComponent accountId={selection.accountId} /> : false}
             </ConfigPropContainer>
           </ScrollRegion>
         </Flexbox>
       </KeyCommandsRegion>
     );
   }
-
 }
 
 export default ListensToFluxStore(PreferencesRoot, {
@@ -106,7 +106,7 @@ export default ListensToFluxStore(PreferencesRoot, {
   getStateFromStores() {
     const tabs = PreferencesUIStore.tabs();
     const selection = PreferencesUIStore.selection();
-    const tab = tabs.find((t) => t.tabId === selection.tabId);
-    return {tabs, selection, tab}
+    const tab = tabs.find(t => t.tabId === selection.tabId);
+    return { tabs, selection, tab };
   },
 });

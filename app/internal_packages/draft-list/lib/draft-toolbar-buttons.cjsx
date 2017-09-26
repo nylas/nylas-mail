@@ -1,13 +1,12 @@
-React = require "react"
 {RetinaImg} = require 'nylas-component-kit'
-{Actions, FocusedContentStore} = require "nylas-exports"
+{React, PropTypes, Actions, FocusedContentStore} = require "nylas-exports"
 
 class DraftDeleteButton extends React.Component
   @displayName: 'DraftDeleteButton'
   @containerRequired: false
 
   @propTypes:
-    selection: React.PropTypes.object.isRequired
+    selection: PropTypes.object.isRequired
 
   render: ->
     <button style={order:-100}

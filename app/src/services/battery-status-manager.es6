@@ -1,5 +1,5 @@
-import moment from 'moment-timezone'
-import Actions from '../flux/actions'
+import moment from 'moment-timezone';
+import Actions from '../flux/actions';
 
 class BatteryStatusManager {
   constructor() {
@@ -27,13 +27,16 @@ class BatteryStatusManager {
 
   _onChargingChange = () => {
     const changeTime = Date.now();
-    Actions.recordUserEvent("Battery State Changed", {
+    Actions.recordUserEvent('Battery State Changed', {
       oldState: this.isBatteryCharging() ? 'battery' : 'ac',
-      oldStateDuration: Math.min(changeTime - this._lastChangeTime, moment.duration(12, 'hours').asMilliseconds()),
+      oldStateDuration: Math.min(
+        changeTime - this._lastChangeTime,
+        moment.duration(12, 'hours').asMilliseconds()
+      ),
     });
     this._lastChangeTime = changeTime;
     this._callbacks.forEach(cb => cb());
-  }
+  };
 
   onChange(callback) {
     this._callbacks.push(callback);

@@ -16,7 +16,7 @@ class QuerySubscriptionPool {
 
   add(query, callback) {
     if (NylasEnv.inDevMode()) {
-      callback._registrationPoint = this._formatRegistrationPoint((new Error()).stack);
+      callback._registrationPoint = this._formatRegistrationPoint(new Error().stack);
     }
 
     const key = this._keyForQuery(query);
@@ -44,7 +44,7 @@ class QuerySubscriptionPool {
 
   printSubscriptions() {
     if (!NylasEnv.inDevMode()) {
-      console.log("printSubscriptions is only available in developer mode.");
+      console.log('printSubscriptions is only available in developer mode.');
       return;
     }
 
@@ -71,7 +71,7 @@ class QuerySubscriptionPool {
   _runCleanupChecks() {
     for (const key of this._cleanupChecks) {
       const subscription = this._subscriptions[key];
-      if (subscription && (subscription.callbackCount() === 0)) {
+      if (subscription && subscription.callbackCount() === 0) {
         delete this._subscriptions[key];
       }
     }
@@ -103,12 +103,12 @@ class QuerySubscriptionPool {
     DatabaseStore.listen(this._onChange);
   }
 
-  _onChange = (record) => {
+  _onChange = record => {
     for (const key of Object.keys(this._subscriptions)) {
       const subscription = this._subscriptions[key];
       subscription.applyChangeRecord(record);
     }
-  }
+  };
 }
 
 const pool = new QuerySubscriptionPool();

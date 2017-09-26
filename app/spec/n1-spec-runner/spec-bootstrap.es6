@@ -13,4 +13,4 @@ const loadSettings = NylasEnv.getLoadSettings();
 // This must be `required` instead of imported because
 // NylasEnv.initialize() must complete before `nylas-exports` and other
 // globals are available for import via es6 modules.
-require('./n1-spec-runner').default.runSpecs(loadSettings)
+require('./n1-spec-runner').default.runSpecs(loadSettings);

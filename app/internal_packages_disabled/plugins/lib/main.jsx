@@ -1,10 +1,10 @@
-import {PreferencesUIStore} from 'nylas-exports';
+import { PreferencesUIStore } from 'nylas-exports';
 import PluginsView from './preferences-plugins';
 
 export function activate() {
   this.preferencesTab = new PreferencesUIStore.TabItem({
-    tabId: "Plugins",
-    displayName: "Plugins",
+    tabId: 'Plugins',
+    displayName: 'Plugins',
     componentClassFn: () => PluginsView,
   });
 
@@ -12,5 +12,5 @@ export function activate() {
 }
 
 export function deactivate() {
-  PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab.sectionId)
+  PreferencesUIStore.unregisterPreferencesTab(this.preferencesTab.sectionId);
 }

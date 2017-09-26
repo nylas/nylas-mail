@@ -1,4 +1,4 @@
-import {RegExpUtils, DOMUtils} from 'nylas-exports';
+import { RegExpUtils, DOMUtils } from 'nylas-exports';
 
 function _matchesAnyRegexp(text, regexps) {
   for (const excludeRegexp of regexps) {
@@ -11,9 +11,9 @@ function _matchesAnyRegexp(text, regexps) {
 
 function _runOnTextNode(node, matchers) {
   if (node.parentElement) {
-    const withinScript = node.parentElement.tagName === "SCRIPT";
-    const withinStyle = node.parentElement.tagName === "STYLE";
-    const withinA = (node.parentElement.closest('a') !== null);
+    const withinScript = node.parentElement.tagName === 'SCRIPT';
+    const withinStyle = node.parentElement.tagName === 'STYLE';
+    const withinA = node.parentElement.closest('a') !== null;
     if (withinScript || withinA || withinStyle) {
       return;
     }
@@ -51,32 +51,36 @@ function _runOnTextNode(node, matchers) {
   }
 }
 
-export function autolink(doc, {async} = {}) {
+export function autolink(doc, { async } = {}) {
   // Traverse the new DOM tree and make things that look like links clickable,
   // and ensure anything with an href has a title attribute.
   const textWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
   const matchers = [
-    ['mailto:', RegExpUtils.emailRegex(), {
-      // Technically, gmail.com/bengotow@gmail.com is an email address. After
-      // matching, manully exclude any email that follows the .*[/?].*@ pattern.
-      exclude: [/\..*[/|?].*@/],
-    }],
+    [
+      'mailto:',
+      RegExpUtils.emailRegex(),
+      {
+        // Technically, gmail.com/bengotow@gmail.com is an email address. After
+        // matching, manully exclude any email that follows the .*[/?].*@ pattern.
+        exclude: [/\..*[/|?].*@/],
+      },
+    ],
     ['tel:', RegExpUtils.phoneRegex()],
     ['', RegExpUtils.mailspringCommandRegex()],
-    ['', RegExpUtils.urlRegex({matchEntireString: false})],
+    ['', RegExpUtils.urlRegex({ matchEntireString: false })],
   ];
 
   if (async) {
-    const fn = (deadline) => {
+    const fn = deadline => {
       while (textWalker.nextNode()) {
         _runOnTextNode(textWalker.currentNode, matchers);
         if (deadline.timeRemaining() <= 0) {
-          window.requestIdleCallback(fn, {timeout: 500});
+          window.requestIdleCallback(fn, { timeout: 500 });
           return;
         }
       }
     };
-    window.requestIdleCallback(fn, {timeout: 500});
+    window.requestIdleCallback(fn, { timeout: 500 });
   } else {
     while (textWalker.nextNode()) {
       _runOnTextNode(textWalker.currentNode, matchers);
@@ -85,9 +89,7 @@ export function autolink(doc, {async} = {}) {
 
   // Traverse the new DOM tree and make sure everything with an href has a title.
   const aTagWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
-    acceptNode: (node) =>
-      (node.href ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP)
-    ,
+    acceptNode: node => (node.href ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
   });
   while (aTagWalker.nextNode()) {
     aTagWalker.currentNode.title = aTagWalker.currentNode.getAttribute('href');

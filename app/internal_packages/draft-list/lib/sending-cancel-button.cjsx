@@ -1,12 +1,11 @@
-React = require 'react'
-{Actions} = require 'nylas-exports'
+{React, PropTypes, Actions} = require 'nylas-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class SendingCancelButton extends React.Component
   @displayName: 'SendingCancelButton'
 
   @propTypes:
-    taskId: React.PropTypes.string.isRequired
+    taskId: PropTypes.string.isRequired
 
   constructor: (@props) ->
     @state =

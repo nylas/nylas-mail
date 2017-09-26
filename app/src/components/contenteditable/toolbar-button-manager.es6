@@ -4,18 +4,27 @@ import ToolbarButtons from './toolbar-buttons';
 // This contains the logic to declaratively render the core
 // <ToolbarButtons> component in a <FloatingToolbar>
 export default class ToolbarButtonManager extends ContenteditableExtension {
-
   // See the {EmphasisFormattingExtension} and {LinkManager} and other
   // extensions for toolbarButtons.
-  static toolbarButtons() { return []; }
+  static toolbarButtons() {
+    return [];
+  }
 
-  static toolbarComponentConfig({toolbarState}) {
-    if (toolbarState.dragging || toolbarState.doubleDown) { return null; }
-    if (!toolbarState.selectionSnapshot) { return null; }
-    if (toolbarState.selectionSnapshot.isCollapsed) { return null; }
+  static toolbarComponentConfig({ toolbarState }) {
+    if (toolbarState.dragging || toolbarState.doubleDown) {
+      return null;
+    }
+    if (!toolbarState.selectionSnapshot) {
+      return null;
+    }
+    if (toolbarState.selectionSnapshot.isCollapsed) {
+      return null;
+    }
 
     const locationRef = DOMUtils.getRangeInScope(toolbarState.editableNode);
-    if (!locationRef) { return null; }
+    if (!locationRef) {
+      return null;
+    }
 
     const buttonConfigs = this._toolbarButtonConfigs(toolbarState);
     const range = DOMUtils.getRangeInScope(toolbarState.editableNode);
@@ -43,15 +52,16 @@ export default class ToolbarButtonManager extends ContenteditableExtension {
   }
 
   static _toolbarButtonConfigs(toolbarState) {
-    const {extensions, atomicEdit} = toolbarState;
+    const { extensions, atomicEdit } = toolbarState;
     let buttonConfigs = [];
 
     for (const extension of extensions) {
       try {
-        const extensionConfigs = (extension.toolbarButtons ? extension.toolbarButtons({toolbarState}) : null) || [];
-        extensionConfigs.map((config) => {
+        const extensionConfigs =
+          (extension.toolbarButtons ? extension.toolbarButtons({ toolbarState }) : null) || [];
+        extensionConfigs.map(config => {
           const innerClick = config.onClick || (() => {});
-          config.onClick = (event) => atomicEdit(innerClick, {event});
+          config.onClick = event => atomicEdit(innerClick, { event });
           return config;
         });
         buttonConfigs = buttonConfigs.concat(extensionConfigs);

@@ -1,20 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import _ from "underscore";
-import {EventedIFrame} from 'nylas-component-kit';
-import {Utils, QuotedHTMLTransformer, MessageStore} from 'nylas-exports';
-import {autolink} from './autolinker';
-import {autoscaleImages} from './autoscale-images';
-import {addInlineImageListeners} from './inline-image-listeners';
+import _ from 'underscore';
+import { EventedIFrame } from 'nylas-component-kit';
+import {
+  React,
+  ReactDOM,
+  PropTypes,
+  Utils,
+  QuotedHTMLTransformer,
+  MessageStore,
+} from 'nylas-exports';
+import { autolink } from './autolinker';
+import { autoscaleImages } from './autoscale-images';
+import { addInlineImageListeners } from './inline-image-listeners';
 import EmailFrameStylesStore from './email-frame-styles-store';
 
 export default class EmailFrame extends React.Component {
   static displayName = 'EmailFrame';
 
   static propTypes = {
-    content: React.PropTypes.string.isRequired,
-    message: React.PropTypes.object,
-    showQuotedText: React.PropTypes.bool,
+    content: PropTypes.string.isRequired,
+    message: PropTypes.object,
+    showQuotedText: PropTypes.bool,
   };
 
   componentDidMount() {
@@ -24,8 +29,7 @@ export default class EmailFrame extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (!Utils.isEqualReact(nextProps, this.props) ||
-            !Utils.isEqualReact(nextState, this.state));
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   componentDidUpdate() {
@@ -47,12 +51,14 @@ export default class EmailFrame extends React.Component {
     return QuotedHTMLTransformer.removeQuotedHTML(this.props.content, {
       keepIfWholeBodyIsQuote: true,
     });
-  }
+  };
 
   _writeContent = () => {
     const iframeNode = ReactDOM.findDOMNode(this._iframeComponent);
     const doc = iframeNode.contentDocument;
-    if (!doc) { return; }
+    if (!doc) {
+      return;
+    }
     doc.open();
 
     // NOTE: The iframe must have a modern DOCTYPE. The lack of this line
@@ -60,7 +66,7 @@ export default class EmailFrame extends React.Component {
     // message bodies. This is particularly felt with <table> elements use
     // the `border-collapse: collapse` css property while setting a
     // `padding`.
-    doc.write("<!DOCTYPE html>");
+    doc.write('<!DOCTYPE html>');
     const styles = EmailFrameStylesStore.styles();
     if (styles) {
       doc.write(`<style>${styles}</style>`);
@@ -68,7 +74,7 @@ export default class EmailFrame extends React.Component {
     doc.write(`<div id='inbox-html-wrapper'>${this._emailContent()}</div>`);
     doc.close();
 
-    autolink(doc, {async: true});
+    autolink(doc, { async: true });
     autoscaleImages(doc);
     addInlineImageListeners(doc);
 
@@ -91,15 +97,15 @@ export default class EmailFrame extends React.Component {
     // so it can attach event listeners again.
     this._iframeComponent.didReplaceDocument();
     this._onMustRecalculateFrameHeight();
-  }
+  };
 
   _onMustRecalculateFrameHeight = () => {
     this._iframeComponent.setHeightQuietly(0);
     this._lastComputedHeight = 0;
     this._setFrameHeight();
-  }
+  };
 
-  _getFrameHeight = (doc) => {
+  _getFrameHeight = doc => {
     let height = 0;
 
     // If documentElement has a scroll height, prioritize that as height
@@ -109,14 +115,14 @@ export default class EmailFrame extends React.Component {
     } else if (doc && doc.body) {
       const style = window.getComputedStyle(doc.body);
       if (style.height === '0px') {
-        doc.body.style.height = "auto";
+        doc.body.style.height = 'auto';
       }
       height = doc.body.scrollHeight;
     }
 
     // scrollHeight does not include space required by scrollbar
     return height + 25;
-  }
+  };
 
   _setFrameHeight = () => {
     if (!this._mounted) {
@@ -146,17 +152,21 @@ export default class EmailFrame extends React.Component {
     if (iframeNode.contentDocument.readyState !== 'complete') {
       _.defer(() => this._setFrameHeight());
     }
-  }
+  };
 
   render() {
     return (
       <div
         className="iframe-container"
-        ref={(el) => { this._iframeHeightHolderEl = el; }}
-        style={{height: this._lastComputedHeight}}
+        ref={el => {
+          this._iframeHeightHolderEl = el;
+        }}
+        style={{ height: this._lastComputedHeight }}
       >
         <EventedIFrame
-          ref={(cm) => { this._iframeComponent = cm; }}
+          ref={cm => {
+            this._iframeComponent = cm;
+          }}
           seamless="seamless"
           searchable
           onResize={this._onMustRecalculateFrameHeight}

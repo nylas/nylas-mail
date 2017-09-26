@@ -1,19 +1,18 @@
-import _ from 'underscore'
+import _ from 'underscore';
 import EventEmitter from 'events';
 import NylasStore from 'nylas-store';
 
 import TaskQueue from './task-queue';
-import Message from '../models/message'
-import {PluginMetadata} from '../models/model-with-metadata';
-import Actions from '../actions'
-import AccountStore from './account-store'
-import ContactStore from './contact-store'
-import DatabaseStore from './database-store'
-import UndoStack from '../../undo-stack'
-import DraftHelpers from '../stores/draft-helpers'
-import {Composer as ComposerExtensionRegistry} from '../../registries/extension-registry'
-import SyncbackDraftTask from '../tasks/syncback-draft-task'
-import DestroyDraftTask from '../tasks/destroy-draft-task'
+import Message from '../models/message';
+import Actions from '../actions';
+import AccountStore from './account-store';
+import ContactStore from './contact-store';
+import DatabaseStore from './database-store';
+import UndoStack from '../../undo-stack';
+import DraftHelpers from '../stores/draft-helpers';
+import { Composer as ComposerExtensionRegistry } from '../../registries/extension-registry';
+import SyncbackDraftTask from '../tasks/syncback-draft-task';
+import DestroyDraftTask from '../tasks/destroy-draft-task';
 
 const MetadataChangePrefix = 'metadata.';
 let DraftStore = null;
@@ -36,9 +35,9 @@ class DraftChangeSet extends EventEmitter {
   constructor(callbacks) {
     super();
     this.callbacks = callbacks;
-    this._commitChain = Promise.resolve()
-    this._pending = {}
-    this._saving = {}
+    this._commitChain = Promise.resolve();
+    this._pending = {};
+    this._saving = {};
     this._timer = null;
   }
 
@@ -51,7 +50,7 @@ class DraftChangeSet extends EventEmitter {
     }
   }
 
-  add(changes, {doesNotAffectPristine} = {}) {
+  add(changes, { doesNotAffectPristine } = {}) {
     this.callbacks.onWillAddChanges(changes);
     this._pending = Object.assign(this._pending, changes);
     if (!doesNotAffectPristine) {
@@ -68,7 +67,7 @@ class DraftChangeSet extends EventEmitter {
   addPluginMetadata(pluginId, metadata) {
     const changes = {};
     changes[`${MetadataChangePrefix}${pluginId}`] = metadata;
-    this.add(changes, {doesNotAffectPristine: true});
+    this.add(changes, { doesNotAffectPristine: true });
   }
 
   commit() {
@@ -83,7 +82,7 @@ class DraftChangeSet extends EventEmitter {
       this._saving = this._pending;
       this._pending = {};
       return this.callbacks.onCommit().then(() => {
-        this._saving = {}
+        this._saving = {};
       });
     };
 
@@ -121,14 +120,13 @@ that display Draft objects or allow for interactive editing of Drafts.
 Section: Drafts
 */
 export default class DraftEditingSession extends NylasStore {
-
   static DraftChangeSet = DraftChangeSet;
 
   constructor(headerMessageId, draft = null) {
     super();
 
     DraftStore = DraftStore || require('./draft-store').default; // eslint-disable-line
-    this.listenTo(DraftStore, this._onDraftChanged)
+    this.listenTo(DraftStore, this._onDraftChanged);
 
     this.headerMessageId = headerMessageId;
     this._draft = false;
@@ -168,18 +166,21 @@ export default class DraftEditingSession extends NylasStore {
   }
 
   prepare() {
-    this._draftPromise = this._draftPromise || DatabaseStore
-    .findBy(Message, {headerMessageId: this.headerMessageId, draft: true})
-    .include(Message.attributes.body)
-    .then((draft) => {
-      if (this._destroyed) {
-        return Promise.reject(new Error("Draft has been destroyed."));
-      }
-      if (!draft) {
-        return Promise.reject(new Error(`Assertion Failure: Draft ${this.headerMessageId} not found.`));
-      }
-      return this._setDraft(draft)
-    });
+    this._draftPromise =
+      this._draftPromise ||
+      DatabaseStore.findBy(Message, { headerMessageId: this.headerMessageId, draft: true })
+        .include(Message.attributes.body)
+        .then(draft => {
+          if (this._destroyed) {
+            return Promise.reject(new Error('Draft has been destroyed.'));
+          }
+          if (!draft) {
+            return Promise.reject(
+              new Error(`Assertion Failure: Draft ${this.headerMessageId} not found.`)
+            );
+          }
+          return this._setDraft(draft);
+        });
     return this._draftPromise;
   }
 
@@ -190,16 +191,19 @@ export default class DraftEditingSession extends NylasStore {
   }
 
   validateDraftForSending() {
-    const warnings = []
-    const errors = []
-    const allRecipients = [].concat(this._draft.to, this._draft.cc, this._draft.bcc)
-    const bodyIsEmpty = (this._draft.body === this.draftPristineBody()) || (this._draft.body === "<br>")
+    const warnings = [];
+    const errors = [];
+    const allRecipients = [].concat(this._draft.to, this._draft.cc, this._draft.bcc);
+    const bodyIsEmpty =
+      this._draft.body === this.draftPristineBody() || this._draft.body === '<br>';
     const forwarded = DraftHelpers.isForwardedMessage(this._draft);
-    const hasAttachment = (this._draft.files && this._draft.files.length > 0);
+    const hasAttachment = this._draft.files && this._draft.files.length > 0;
 
     for (const contact of allRecipients) {
       if (!ContactStore.isValidContact(contact)) {
-        errors.push(`${contact.email} is not a valid email address - please remove or edit it before sending.`)
+        errors.push(
+          `${contact.email} is not a valid email address - please remove or edit it before sending.`
+        );
       }
     }
 
@@ -208,7 +212,7 @@ export default class DraftEditingSession extends NylasStore {
     }
 
     if (errors.length > 0) {
-      return {errors, warnings};
+      return { errors, warnings };
     }
 
     if (this._draft.subject.length === 0) {
@@ -228,10 +232,10 @@ export default class DraftEditingSession extends NylasStore {
       if (!extension.warningsForSending) {
         continue;
       }
-      warnings.push(...extension.warningsForSending({draft: this._draft}));
+      warnings.push(...extension.warningsForSending({ draft: this._draft }));
     }
 
-    return {errors, warnings};
+    return { errors, warnings };
   }
 
   // This function makes sure the draft is attached to a valid account, and changes
@@ -242,7 +246,9 @@ export default class DraftEditingSession extends NylasStore {
     const draft = this.draft();
     const account = AccountStore.accountForEmail(draft.from[0].email);
     if (!account) {
-      throw new Error("DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account.");
+      throw new Error(
+        'DraftEditingSession::ensureCorrectAccount - you can only send drafts from a configured account.'
+      );
     }
 
     if (account.id !== draft.accountId) {
@@ -288,14 +294,14 @@ export default class DraftEditingSession extends NylasStore {
 
   async _setDraft(draft) {
     if (draft.body === undefined) {
-      throw new Error("DraftEditingSession._setDraft - new draft has no body!");
+      throw new Error('DraftEditingSession._setDraft - new draft has no body!');
     }
 
-    const extensions = ComposerExtensionRegistry.extensions()
+    const extensions = ComposerExtensionRegistry.extensions();
 
     // Run `extensions[].unapplyTransformsForSending`
-    const fragment = document.createDocumentFragment()
-    const draftBodyRootNode = document.createElement('root')
+    const fragment = document.createDocumentFragment();
+    const draftBodyRootNode = document.createElement('root');
     fragment.appendChild(draftBodyRootNode);
     draftBodyRootNode.innerHTML = draft.body;
 
@@ -322,8 +328,8 @@ export default class DraftEditingSession extends NylasStore {
     return this;
   }
 
-  _onDraftChanged = (change) => {
-    if ((change === undefined) || (change.type !== 'persist')) {
+  _onDraftChanged = change => {
+    if (change === undefined || change.type !== 'persist') {
       return;
     }
 
@@ -343,9 +349,9 @@ export default class DraftEditingSession extends NylasStore {
 
     // If our draft has been changed, only accept values which are present.
     // If `body` is undefined, assume it's not loaded. Do not overwrite old body.
-    const nextDraft = change.objects.filter((obj) =>
-      obj.headerMessageId === this._draft.headerMessageId
-    ).pop();
+    const nextDraft = change.objects
+      .filter(obj => obj.headerMessageId === this._draft.headerMessageId)
+      .pop();
 
     if (nextDraft) {
       const nextValues = {};
@@ -361,7 +367,7 @@ export default class DraftEditingSession extends NylasStore {
       this._setDraft(Object.assign(new Message(), this._draft, nextValues));
       this.trigger();
     }
-  }
+  };
 
   async changeSetCommit() {
     if (this._destroyed || !this._draft) {
@@ -371,9 +377,9 @@ export default class DraftEditingSession extends NylasStore {
     // Set a variable here to protect against this._draft getting set from
     // underneath us
     const inMemoryDraft = this._draft;
-    const draft = await DatabaseStore
-      .findBy(Message, {headerMessageId: inMemoryDraft.headerMessageId})
-      .include(Message.attributes.body);
+    const draft = await DatabaseStore.findBy(Message, {
+      headerMessageId: inMemoryDraft.headerMessageId,
+    }).include(Message.attributes.body);
 
     // This can happen if we get a "delete" delta, or something else
     // strange happens. In this case, we'll use the this._draft we have in
@@ -384,35 +390,35 @@ export default class DraftEditingSession extends NylasStore {
     // by creating a new draft
     const baseDraft = draft || inMemoryDraft;
     const updatedDraft = this.changes.applyToModel(baseDraft);
-    Actions.queueTask(new SyncbackDraftTask({draft: updatedDraft}));
+    Actions.queueTask(new SyncbackDraftTask({ draft: updatedDraft }));
   }
 
   // Undo / Redo
 
-  changeSetWillAddChanges = (changes) => {
+  changeSetWillAddChanges = changes => {
     if (this._restoring) {
       return;
     }
-    const hasBeen300ms = (Date.now() - this._lastAddTimestamp > 300);
-    const hasChangedFields = !_.isEqual(Object.keys(changes), this._lastChangedFields)
+    const hasBeen300ms = Date.now() - this._lastAddTimestamp > 300;
+    const hasChangedFields = !_.isEqual(Object.keys(changes), this._lastChangedFields);
 
     this._lastChangedFields = Object.keys(changes);
     this._lastAddTimestamp = Date.now();
     if (hasBeen300ms || hasChangedFields) {
       this._undoStack.save(this._snapshot());
     }
-  }
+  };
 
   changeSetDidAddChanges = () => {
     if (this._destroyed) {
       return;
     }
     if (!this._draft) {
-      throw new Error("DraftChangeSet was modified before the draft was prepared.")
+      throw new Error('DraftChangeSet was modified before the draft was prepared.');
     }
     this.changes.applyToModel(this._draft);
     this.trigger();
-  }
+  };
 
   restoreSnapshot(snapshot) {
     if (!snapshot) {
@@ -427,19 +433,19 @@ export default class DraftEditingSession extends NylasStore {
   }
 
   undo() {
-    this.restoreSnapshot(this._undoStack.saveAndUndo(this._snapshot()))
+    this.restoreSnapshot(this._undoStack.saveAndUndo(this._snapshot()));
   }
 
   redo() {
-    this.restoreSnapshot(this._undoStack.redo())
+    this.restoreSnapshot(this._undoStack.redo());
   }
 
   _snapshot() {
     const snapshot = {
       selection: this._composerViewSelectionRetrieve && this._composerViewSelectionRetrieve(),
       draft: Object.assign({}, this.draft()),
-    }
-    for (const {pluginId, value} of snapshot.draft.pluginMetadata) {
+    };
+    for (const { pluginId, value } of snapshot.draft.pluginMetadata) {
       snapshot.draft[`${MetadataChangePrefix}${pluginId}`] = value;
     }
     delete snapshot.draft.pluginMetadata;

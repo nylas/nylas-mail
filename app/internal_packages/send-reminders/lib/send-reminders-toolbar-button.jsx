@@ -1,15 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types'
-import {HasTutorialTip} from 'nylas-component-kit';
+import PropTypes from 'prop-types';
+import { HasTutorialTip } from 'nylas-component-kit';
 import SendRemindersPopoverButton from './send-reminders-popover-button';
 
 const SendRemindersPopoverButtonWithTip = HasTutorialTip(SendRemindersPopoverButton, {
-  title: "Get reminded!",
-  instructions: "Get reminded if you don't receive a reply for this message within a specified time.",
+  title: 'Get reminded!',
+  instructions:
+    "Get reminded if you don't receive a reply for this message within a specified time.",
 });
 
 export default function SendRemindersToolbarButton(props) {
-  const threads = props.items
+  const threads = props.items;
   if (threads.length > 1) {
     return <span />;
   }
@@ -20,9 +21,7 @@ export default function SendRemindersToolbarButton(props) {
     return <span />;
   }
 
-  return (
-    <SendRemindersPopoverButtonWithTip thread={thread} />
-  );
+  return <SendRemindersPopoverButtonWithTip thread={thread} />;
 }
 
 SendRemindersToolbarButton.containerRequired = false;

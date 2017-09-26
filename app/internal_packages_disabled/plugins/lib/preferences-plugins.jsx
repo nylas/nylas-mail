@@ -3,15 +3,13 @@ import React from 'react';
 import TabsStore from './tabs-store';
 import Tabs from './tabs';
 
-
 class PluginsView extends React.Component {
-
   static displayName = 'PluginsView';
 
   static containerStyles = {
     minWidth: 500,
     maxWidth: 99999,
-  }
+  };
 
   constructor() {
     super();
@@ -28,12 +26,12 @@ class PluginsView extends React.Component {
   }
 
   _getStateFromStores() {
-    return {tabIndex: TabsStore.tabIndex()};
+    return { tabIndex: TabsStore.tabIndex() };
   }
 
   _onChange = () => {
     this.setState(this._getStateFromStores());
-  }
+  };
 
   render() {
     const PluginsTabComponent = Tabs[this.state.tabIndex].component;
@@ -43,7 +41,6 @@ class PluginsView extends React.Component {
       </div>
     );
   }
-
 }
 
 export default PluginsView;

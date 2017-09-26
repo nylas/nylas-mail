@@ -1,14 +1,13 @@
-import {React, ReactDOM, Actions} from 'nylas-exports'
-import {RetinaImg} from 'nylas-component-kit'
-import OpenTrackingMessagePopover from './open-tracking-message-popover'
-import {PLUGIN_ID} from './open-tracking-constants'
-
+import { React, ReactDOM, Actions, PropTypes } from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
+import OpenTrackingMessagePopover from './open-tracking-message-popover';
+import { PLUGIN_ID } from './open-tracking-constants';
 
 export default class OpenTrackingMessageStatus extends React.Component {
-  static displayName = "OpenTrackingMessageStatus";
+  static displayName = 'OpenTrackingMessageStatus';
 
   static propTypes = {
-    message: React.PropTypes.object.isRequired,
+    message: PropTypes.object.isRequired,
   };
 
   static containerStyles = {
@@ -17,11 +16,11 @@ export default class OpenTrackingMessageStatus extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = this._getStateFromMessage(props.message)
+    this.state = this._getStateFromMessage(props.message);
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(this._getStateFromMessage(nextProps.message))
+    this.setState(this._getStateFromMessage(nextProps.message));
   }
 
   onMouseDown = () => {
@@ -31,9 +30,9 @@ export default class OpenTrackingMessageStatus extends React.Component {
         message={this.props.message}
         openMetadata={this.props.message.metadataForPluginId(PLUGIN_ID)}
       />,
-      {originRect: rect, direction: 'down'}
-    )
-  }
+      { originRect: rect, direction: 'down' }
+    );
+  };
 
   _getStateFromMessage(message) {
     const metadata = message.metadataForPluginId(PLUGIN_ID);
@@ -54,8 +53,8 @@ export default class OpenTrackingMessageStatus extends React.Component {
   renderImage() {
     return (
       <RetinaImg
-        className={this.state.opened ? "opened" : "unopened"}
-        style={{position: 'relative', top: -1}}
+        className={this.state.opened ? 'opened' : 'unopened'}
+        style={{ position: 'relative', top: -1 }}
         url="mailspring://open-tracking/assets/InMessage-opened@2x.png"
         mode={RetinaImg.Mode.ContentIsMask}
       />
@@ -64,16 +63,16 @@ export default class OpenTrackingMessageStatus extends React.Component {
 
   render() {
     if (!this.state.hasMetadata) return false;
-    let openedCount = `${this.state.openCount} open${this.state.openCount === 1 ? "" : "s"}`;
-    if (this.state.openCount > 999) openedCount = "999+ opens";
-    const text = this.state.opened ? openedCount : "No opens";
+    let openedCount = `${this.state.openCount} open${this.state.openCount === 1 ? '' : 's'}`;
+    if (this.state.openCount > 999) openedCount = '999+ opens';
+    const text = this.state.opened ? openedCount : 'No opens';
     return (
       <span
-        className={`open-tracking-message-status ${this.state.opened ? "opened" : "unopened"}`}
+        className={`open-tracking-message-status ${this.state.opened ? 'opened' : 'unopened'}`}
         onMouseDown={this.state.opened ? this.onMouseDown : null}
       >
         {this.renderImage()}&nbsp;&nbsp;{text}
       </span>
-    )
+    );
   }
 }

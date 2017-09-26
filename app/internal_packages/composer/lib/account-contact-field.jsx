@@ -1,32 +1,29 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import {
-  AccountStore,
-} from 'nylas-exports';
-import {Menu, ButtonDropdown, InjectedComponentSet} from 'nylas-component-kit';
+import { AccountStore } from 'nylas-exports';
+import { Menu, ButtonDropdown, InjectedComponentSet } from 'nylas-component-kit';
 
 export default class AccountContactField extends React.Component {
   static displayName = 'AccountContactField';
 
   static propTypes = {
-    value: React.PropTypes.object,
-    accounts: React.PropTypes.array,
-    session: React.PropTypes.object.isRequired,
-    draft: React.PropTypes.object.isRequired,
-    onChange: React.PropTypes.func.isRequired,
+    value: PropTypes.object,
+    accounts: PropTypes.array,
+    session: PropTypes.object.isRequired,
+    draft: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
   };
 
-  _onChooseContact = (contact) => {
-    this.props.onChange({from: [contact]});
-    this.props.session.ensureCorrectAccount()
+  _onChooseContact = contact => {
+    this.props.onChange({ from: [contact] });
+    this.props.session.ensureCorrectAccount();
     this._dropdownComponent.toggleDropdown();
-  }
+  };
 
   _renderAccountSelector() {
     if (!this.props.value) {
-      return (
-        <span />
-      );
+      return <span />;
     }
 
     const label = this.props.value.toString();
@@ -36,7 +33,9 @@ export default class AccountContactField extends React.Component {
     if (multipleAccounts || hasAliases) {
       return (
         <ButtonDropdown
-          ref={(cm) => { this._dropdownComponent = cm; }}
+          ref={cm => {
+            this._dropdownComponent = cm;
+          }}
           bordered={false}
           primaryItem={<span>{label}</span>}
           menu={this._renderAccounts(this.props.accounts)}
@@ -46,23 +45,21 @@ export default class AccountContactField extends React.Component {
     return this._renderAccountSpan(label);
   }
 
-  _renderAccountSpan = (label) => {
+  _renderAccountSpan = label => {
     return (
-      <span className="from-single-name" style={{position: "relative", top: 13, left: "0.5em"}}>
+      <span className="from-single-name" style={{ position: 'relative', top: 13, left: '0.5em' }}>
         {label}
       </span>
     );
-  }
+  };
 
-  _renderMenuItem = (contact) => {
+  _renderMenuItem = contact => {
     const className = classnames({
-      'contact': true,
+      contact: true,
       'is-alias': contact.isAlias,
     });
-    return (
-      <span className={className}>{contact.toString()}</span>
-    );
-  }
+    return <span className={className}>{contact.toString()}</span>;
+  };
 
   _renderAccounts(accounts) {
     const items = AccountStore.aliasesFor(accounts);
@@ -76,13 +73,12 @@ export default class AccountContactField extends React.Component {
     );
   }
 
-
   _renderFromFieldComponents = () => {
-    const {draft, session, accounts} = this.props
+    const { draft, session, accounts } = this.props;
     return (
       <InjectedComponentSet
         className="dropdown-component"
-        matching={{role: "Composer:FromFieldComponents"}}
+        matching={{ role: 'Composer:FromFieldComponents' }}
         exposedProps={{
           draft,
           session,
@@ -90,8 +86,8 @@ export default class AccountContactField extends React.Component {
           currentAccount: draft.from[0],
         }}
       />
-    )
-  }
+    );
+  };
 
   render() {
     return (

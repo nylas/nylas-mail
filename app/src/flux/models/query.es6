@@ -3,7 +3,7 @@ import Attributes from '../attributes';
 import QueryRange from './query-range';
 import Utils from './utils';
 
-const {Matcher, AttributeJoinedData, AttributeCollection} = Attributes;
+const { Matcher, AttributeJoinedData, AttributeCollection } = Attributes;
 
 /*
 Public: ModelQuery exposes an ActiveRecord-style syntax for building database queries
@@ -37,7 +37,6 @@ query.where([Thread.attributes.categories.contains('label-id')])
 Section: Database
 */
 export default class ModelQuery {
-
   // Public
   // - `class` A {Model} class to query
   // - `database` (optional) An optional reference to a {DatabaseStore} the
@@ -80,7 +79,7 @@ export default class ModelQuery {
 
   background() {
     if (!this._backgroundable) {
-      throw new Error("Queries within transactions cannot be moved to the background.");
+      throw new Error('Queries within transactions cannot be moved to the background.');
     }
     this._background = true;
     return this;
@@ -110,7 +109,7 @@ export default class ModelQuery {
     } else if (matchers instanceof Array) {
       for (const m of matchers) {
         if (!(m instanceof Matcher)) {
-          throw new Error("You must provide instances of `Matcher`");
+          throw new Error('You must provide instances of `Matcher`');
         }
       }
       this._matchers = this._matchers.concat(matchers);
@@ -120,7 +119,8 @@ export default class ModelQuery {
         const value = matchers[key];
         const attr = this._klass.attributes[key];
         if (!attr) {
-          const msg = `Cannot create where clause \`${key}:${value}\`. ${key} is not an attribute of ${this._klass.name}`;
+          const msg = `Cannot create where clause \`${key}:${value}\`. ${key} is not an attribute of ${this
+            ._klass.name}`;
           throw new Error(msg);
         }
 
@@ -162,7 +162,7 @@ export default class ModelQuery {
   include(attr) {
     this._assertNotFinalized();
     if (!(attr instanceof AttributeJoinedData)) {
-      throw new Error("query.include() must be called with a joined data attribute");
+      throw new Error('query.include() must be called with a joined data attribute');
     }
     this._includeJoinedData.push(attr);
     return this;
@@ -173,7 +173,7 @@ export default class ModelQuery {
   // This method is chainable.
   //
   includeAll() {
-    this._assertNotFinalized()
+    this._assertNotFinalized();
     for (const key of Object.keys(this._klass.attributes)) {
       const attr = this._klass.attributes[key];
       if (attr instanceof AttributeJoinedData) {
@@ -191,7 +191,7 @@ export default class ModelQuery {
   //
   order(ordersOrOrder) {
     this._assertNotFinalized();
-    const orders = (ordersOrOrder instanceof Array) ? ordersOrOrder : [ordersOrOrder];
+    const orders = ordersOrOrder instanceof Array ? ordersOrOrder : [ordersOrOrder];
     this._orders = this._orders.concat(orders);
     return this;
   }
@@ -214,9 +214,9 @@ export default class ModelQuery {
   // This method is chainable.
   //
   limit(limit) {
-    this._assertNotFinalized()
+    this._assertNotFinalized();
     if (this._returnOne && limit > 1) {
-      throw new Error("Cannot use limit > 1 with one()");
+      throw new Error('Cannot use limit > 1 with one()');
     }
     this._range = this._range.clone();
     this._range.limit = limit;
@@ -241,9 +241,9 @@ export default class ModelQuery {
   // A convenience method for setting both limit and offset given a desired page size.
   //
   page(start, end, pageSize = 50, pagePadding = 100) {
-    const roundToPage = (n) => Math.max(0, Math.floor(n / pageSize) * pageSize)
+    const roundToPage = n => Math.max(0, Math.floor(n / pageSize) * pageSize);
     this.offset(roundToPage(start - pagePadding));
-    this.limit(roundToPage((end - start) + pagePadding * 2));
+    this.limit(roundToPage(end - start + pagePadding * 2));
     return this;
   }
 
@@ -295,7 +295,7 @@ export default class ModelQuery {
     }
 
     try {
-      return result.map((row) => {
+      return result.map(row => {
         const object = Utils.convertToModel(JSON.parse(row.data));
         for (const attrName of Object.keys(this._klass.attributes)) {
           const attr = this._klass.attributes[attrName];
@@ -314,7 +314,9 @@ export default class ModelQuery {
         return object;
       });
     } catch (error) {
-      throw new Error(`Query could not parse the database result. Query: ${this.sql()}, Error: ${error.toString()}`);
+      throw new Error(
+        `Query could not parse the database result. Query: ${this.sql()}, Error: ${error.toString()}`
+      );
     }
   }
 
@@ -351,9 +353,9 @@ export default class ModelQuery {
         }
         result += `, ${attr.tableColumn} `;
       }
-      this._includeJoinedData.forEach((attr) => {
+      this._includeJoinedData.forEach(attr => {
         result += `, ${attr.selectSQL(this._klass)} `;
-      })
+      });
     }
 
     const order = this._count ? '' : this._orderClause();
@@ -362,7 +364,7 @@ export default class ModelQuery {
     if (Number.isInteger(this._range.limit)) {
       limit = `LIMIT ${this._range.limit}`;
     } else {
-      limit = ''
+      limit = '';
     }
     if (Number.isInteger(this._range.offset)) {
       limit += ` OFFSET ${this._range.offset}`;
@@ -371,14 +373,16 @@ export default class ModelQuery {
     const distinct = this._distinct ? ' DISTINCT' : '';
     const allMatchers = this.matchersFlattened();
 
-    const joins = allMatchers.filter((matcher) => matcher.attr instanceof AttributeCollection)
+    const joins = allMatchers.filter(matcher => matcher.attr instanceof AttributeCollection);
 
-    if ((joins.length === 1) && this._canSubselectForJoin(joins[0], allMatchers)) {
+    if (joins.length === 1 && this._canSubselectForJoin(joins[0], allMatchers)) {
       const subSql = this._subselectSQL(joins[0], this._matchers, order, limit);
-      return `SELECT${distinct} ${result} FROM \`${this._klass.name}\` WHERE \`id\` IN (${subSql}) ${order}`;
+      return `SELECT${distinct} ${result} FROM \`${this._klass
+        .name}\` WHERE \`id\` IN (${subSql}) ${order}`;
     }
 
-    return `SELECT${distinct} ${result} FROM \`${this._klass.name}\` ${this._whereClause()} ${order} ${limit}`;
+    return `SELECT${distinct} ${result} FROM \`${this._klass
+      .name}\` ${this._whereClause()} ${order} ${limit}`;
   }
 
   // If one of our matchers requires a join, and the attribute configuration lists
@@ -396,39 +400,47 @@ export default class ModelQuery {
       return false;
     }
 
-    const allMatchersOnJoinTable = allMatchers.every((m) =>
-      (m === matcher) || (joinAttribute.joinQueryableBy.includes(m.attr.modelKey)) || (m.attr.modelKey === 'id')
+    const allMatchersOnJoinTable = allMatchers.every(
+      m =>
+        m === matcher ||
+        joinAttribute.joinQueryableBy.includes(m.attr.modelKey) ||
+        m.attr.modelKey === 'id'
     );
-    const allOrdersOnJoinTable = this._orders.every((o) =>
-      (joinAttribute.joinQueryableBy.includes(o.attr.modelKey))
+    const allOrdersOnJoinTable = this._orders.every(o =>
+      joinAttribute.joinQueryableBy.includes(o.attr.modelKey)
     );
 
-    return (allMatchersOnJoinTable && allOrdersOnJoinTable);
+    return allMatchersOnJoinTable && allOrdersOnJoinTable;
   }
 
   _subselectSQL(returningMatcher, subselectMatchers, order, limit) {
-    const returningAttribute = returningMatcher.attribute()
+    const returningAttribute = returningMatcher.attribute();
 
     const table = returningAttribute.tableNameForJoinAgainst(this._klass);
     const wheres = subselectMatchers.map(c => c.whereSQL(this._klass)).filter(c => !!c);
 
-    let innerSQL = `SELECT \`id\` FROM \`${table}\` WHERE ${wheres.join(' AND ')} ${order} ${limit}`;
+    let innerSQL = `SELECT \`id\` FROM \`${table}\` WHERE ${wheres.join(
+      ' AND '
+    )} ${order} ${limit}`;
     innerSQL = innerSQL.replace(new RegExp(`\`${this._klass.name}\``, 'g'), `\`${table}\``);
-    innerSQL = innerSQL.replace(new RegExp(`\`${returningMatcher.joinTableRef()}\``, 'g'), `\`${table}\``);
+    innerSQL = innerSQL.replace(
+      new RegExp(`\`${returningMatcher.joinTableRef()}\``, 'g'),
+      `\`${table}\``
+    );
     return innerSQL;
   }
 
   _whereClause() {
     const joins = [];
-    this._matchers.forEach((c) => {
-      const join = c.joinSQL(this._klass)
+    this._matchers.forEach(c => {
+      const join = c.joinSQL(this._klass);
       if (join) {
         joins.push(join);
       }
     });
 
-    this._includeJoinedData.forEach((attr) => {
-      const join = attr.includeSQL(this._klass)
+    this._includeJoinedData.forEach(attr => {
+      const join = attr.includeSQL(this._klass);
       if (join) {
         joins.push(join);
       }
@@ -438,11 +450,11 @@ export default class ModelQuery {
     this._matchers.forEach(c => {
       const where = c.whereSQL(this._klass);
       if (where) {
-        wheres.push(where)
+        wheres.push(where);
       }
     });
 
-    let sql = joins.join(' ')
+    let sql = joins.join(' ');
     if (wheres.length > 0) {
       sql += ` WHERE ${wheres.join(' AND ')}`;
     }
@@ -451,11 +463,11 @@ export default class ModelQuery {
 
   _orderClause() {
     if (this._orders.length === 0) {
-      return ''
+      return '';
     }
 
-    let sql = ' ORDER BY '
-    this._orders.forEach((sort) => {
+    let sql = ' ORDER BY ';
+    this._orders.forEach(sort => {
       sql += sort.orderBySQL(this._klass);
     });
     return sql;
@@ -498,8 +510,8 @@ export default class ModelQuery {
   }
 
   matchersFlattened() {
-    const all = []
-    const traverse = (matchers) => {
+    const all = [];
+    const traverse = matchers => {
       if (!(matchers instanceof Array)) {
         return;
       }
@@ -510,13 +522,13 @@ export default class ModelQuery {
           all.push(m);
         }
       }
-    }
+    };
     traverse(this._matchers);
     return all;
   }
 
   matcherValueForModelKey(key) {
-    const matcher = this._matchers.find(m => m.attr.modelKey === key)
+    const matcher = this._matchers.find(m => m.attr.modelKey === key);
     return matcher ? matcher.val : null;
   }
 

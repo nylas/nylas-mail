@@ -1,9 +1,10 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
+PropTypes = require 'prop-types'
 
 class TabGroupRegion extends React.Component
   @childContextTypes:
-    parentTabGroup: React.PropTypes.object
+    parentTabGroup: PropTypes.object
 
   _onKeyDown: (event) =>
     if event.key is "Tab" and not event.defaultPrevented

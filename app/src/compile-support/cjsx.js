@@ -5,16 +5,17 @@ CoffeeScript = require('coffee-react');
 // Note: This uses https://github.com/gaearon/react-hot-api and code from
 // https://github.com/BenoitZugmeyer/chwitt-react/blob/2d62184986c7c183955dcb607dba5ceda70a2221/bootstrap-jsx.js
 
-var hotCompile = (function () {
+var hotCompile = (function() {
   var fs = require('fs');
   var React = require('react');
   var ReactMount = require('react/lib/ReactMount');
   var reactHotReload;
   try {
-      reactHotReload = require('react-hot-api')(function () { return ReactMount._instancesByReactRootID; });
-  }
-  catch (e) {
-      console.log('Not using react hot reload');
+    reactHotReload = require('react-hot-api')(function() {
+      return ReactMount._instancesByReactRootID;
+    });
+  } catch (e) {
+    console.log('Not using react hot reload');
   }
 
   var currentlyCompiling;
@@ -31,20 +32,23 @@ var hotCompile = (function () {
     watchedModules.add(module);
 
     var timeout;
-    setTimeout(function(){
+    setTimeout(function() {
       var pathwatcher = require('pathwatcher');
-      pathwatcher.watch(module.filename, /*{persistent: true},*/ function () {
-        clearTimeout(timeout);
-        timeout = setTimeout(function () {
-          hotCompile(module, module.filename, true);
-          console.log('hot reloaded '+module.filename);
-        }, 100);
-      });
-    },100);
+      pathwatcher.watch(
+        module.filename,
+        /*{persistent: true},*/ function() {
+          clearTimeout(timeout);
+          timeout = setTimeout(function() {
+            hotCompile(module, module.filename, true);
+            console.log('hot reloaded ' + module.filename);
+          }, 100);
+        }
+      );
+    }, 100);
   }
 
   function isReactComponent(module) {
-    return reactHotReload && (module.exports.prototype instanceof React.Component);
+    return reactHotReload && module.exports.prototype instanceof React.Component;
   }
 
   function recompileRequirements(module, collection) {
@@ -67,10 +71,10 @@ var hotCompile = (function () {
   function monitorRequire(module) {
     if (Object.getOwnPropertyDescriptor(require.cache, module.filename).value) {
       Object.defineProperty(require.cache, module.filename, {
-        get: function () {
+        get: function() {
           onRequired(module);
           return module;
-        }
+        },
       });
     }
   }
@@ -89,7 +93,6 @@ var hotCompile = (function () {
   }
 
   function hotCompile(module, filename, withRequirements) {
-
     monitorRequire(module);
     onRequired(module);
 
@@ -105,8 +108,7 @@ var hotCompile = (function () {
 
     try {
       result = compile(module, filename);
-    }
-    catch (e) {
+    } catch (e) {
       console.log('Error while compiling ' + filename);
       console.log(e.stack);
       failed = true;
@@ -117,7 +119,6 @@ var hotCompile = (function () {
     monitorHotReload(module);
 
     if (!failed) {
-
       if (isReactComponent(module)) {
         reactHotReload(module.exports, module.filename);
       }
@@ -131,7 +132,7 @@ var hotCompile = (function () {
   }
 
   return hotCompile;
-}());
+})();
 
 function registerHotCompile() {
   require.extensions['.cjsx'] = hotCompile;
@@ -143,5 +144,5 @@ function registerHotCompile() {
 }
 
 module.exports = {
-  register: registerHotCompile
+  register: registerHotCompile,
 };

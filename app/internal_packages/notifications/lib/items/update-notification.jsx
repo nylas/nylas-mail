@@ -1,6 +1,6 @@
-import {React} from 'nylas-exports';
-import {ipcRenderer, remote, shell} from 'electron';
-import {Notification} from 'nylas-component-kit';
+import { React } from 'nylas-exports';
+import { ipcRenderer, remote, shell } from 'electron';
+import { Notification } from 'nylas-component-kit';
 
 export default class UpdateNotification extends React.Component {
   static displayName = 'UpdateNotification';
@@ -12,7 +12,7 @@ export default class UpdateNotification extends React.Component {
 
   componentDidMount() {
     this.disposable = NylasEnv.onUpdateAvailable(() => {
-      this.setState(this.getStateFromStores())
+      this.setState(this.getStateFromStores());
     });
   }
 
@@ -28,22 +28,22 @@ export default class UpdateNotification extends React.Component {
       updateAvailable,
       updateIsManual: info.releaseNotes === 'manual-download',
       version: info.releaseVersion,
-    }
+    };
   }
 
   _onUpdate = () => {
-    ipcRenderer.send('command', 'application:install-update')
-  }
+    ipcRenderer.send('command', 'application:install-update');
+  };
 
   _onViewChangelog = () => {
-    shell.openExternal('https://github.com/Foundry376/Mailspring/releases/latest')
-  }
+    shell.openExternal('https://github.com/Foundry376/Mailspring/releases/latest');
+  };
 
   render() {
-    const {updateAvailable, version, updateIsManual} = this.state;
+    const { updateAvailable, version, updateIsManual } = this.state;
 
     if (!updateAvailable) {
-      return <span />
+      return <span />;
     }
     return (
       <Notification
@@ -52,11 +52,13 @@ export default class UpdateNotification extends React.Component {
         subtitle="View changelog"
         subtitleAction={this._onViewChangelog}
         icon="volstead-upgrade.png"
-        actions={[{
-          label: updateIsManual ? 'Download Now' : 'Install Update',
-          fn: this._onUpdate,
-        }]}
+        actions={[
+          {
+            label: updateIsManual ? 'Download Now' : 'Install Update',
+            fn: this._onUpdate,
+          },
+        ]}
       />
-    )
+    );
   }
 }

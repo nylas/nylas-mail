@@ -1,8 +1,7 @@
-import React from 'react'
-import moment from 'moment'
-import classnames from 'classnames'
-import {Utils} from 'nylas-exports'
-import CalendarEvent from './calendar-event'
+import moment from 'moment';
+import classnames from 'classnames';
+import { React, PropTypes, Utils } from 'nylas-exports';
+import CalendarEvent from './calendar-event';
 
 /*
  * This display a single column of events in the Week View.
@@ -11,28 +10,37 @@ import CalendarEvent from './calendar-event'
  * column-by-column basis.
  */
 export default class WeekViewEventColumn extends React.Component {
-  static displayName = "WeekViewEventColumn";
+  static displayName = 'WeekViewEventColumn';
 
   static propTypes = {
-    events: React.PropTypes.array.isRequired,
-    day: React.PropTypes.instanceOf(moment),
-    dayEnd: React.PropTypes.number,
-    focusedEvent: React.PropTypes.object,
-    eventOverlap: React.PropTypes.object,
-    onEventClick: React.PropTypes.func,
-    onEventDoubleClick: React.PropTypes.func,
-    onEventFocused: React.PropTypes.func,
-    selectedEvents: React.PropTypes.arrayOf(React.PropTypes.object),
-  }
+    events: PropTypes.array.isRequired,
+    day: PropTypes.instanceOf(moment),
+    dayEnd: PropTypes.number,
+    focusedEvent: PropTypes.object,
+    eventOverlap: PropTypes.object,
+    onEventClick: PropTypes.func,
+    onEventDoubleClick: PropTypes.func,
+    onEventFocused: PropTypes.func,
+    selectedEvents: PropTypes.arrayOf(PropTypes.object),
+  };
 
   shouldComponentUpdate(nextProps, nextState) {
-    return (!Utils.isEqualReact(nextProps, this.props) ||
-            !Utils.isEqualReact(nextState, this.state));
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   renderEvents() {
-    const {events, focusedEvent, selectedEvents, eventOverlap, dayEnd, day, onEventClick, onEventDoubleClick, onEventFocused} = this.props;
-    return events.map((e) =>
+    const {
+      events,
+      focusedEvent,
+      selectedEvents,
+      eventOverlap,
+      dayEnd,
+      day,
+      onEventClick,
+      onEventDoubleClick,
+      onEventFocused,
+    } = this.props;
+    return events.map(e => (
       <CalendarEvent
         ref={`event-${e.id}`}
         event={e}
@@ -47,15 +55,18 @@ export default class WeekViewEventColumn extends React.Component {
         onDoubleClick={onEventDoubleClick}
         onFocused={onEventFocused}
       />
-    );
+    ));
   }
 
   render() {
     const className = classnames({
-      "event-column": true,
-      "weekend": this.props.day.day() === 0 || this.props.day.day() === 6,
+      'event-column': true,
+      weekend: this.props.day.day() === 0 || this.props.day.day() === 6,
     });
-    const end = moment(this.props.day).add(1, 'day').subtract(1, 'millisecond').valueOf()
+    const end = moment(this.props.day)
+      .add(1, 'day')
+      .subtract(1, 'millisecond')
+      .valueOf();
     return (
       <div
         className={className}
@@ -65,6 +76,6 @@ export default class WeekViewEventColumn extends React.Component {
       >
         {this.renderEvents()}
       </div>
-    )
+    );
   }
 }

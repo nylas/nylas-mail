@@ -1,21 +1,242 @@
 /* eslint global-require: 0 */
-import _str from 'underscore.string'
+import _str from 'underscore.string';
 import Model from './model';
 import Attributes from '../attributes';
-import Utils from './utils'
-import RegExpUtils from '../../regexp-utils'
-import AccountStore from '../stores/account-store'
+import Utils from './utils';
+import RegExpUtils from '../../regexp-utils';
+import AccountStore from '../stores/account-store';
 
 let FocusedPerspectiveStore = null; // Circular Dependency
 
 const namePrefixes = {};
 const nameSuffixes = {};
 
-['2dlt', '2lt', '2nd lieutenant', 'adm', 'administrative', 'admiral', 'amb', 'ambassador', 'attorney', 'atty', 'baron', 'baroness', 'bishop', 'br', 'brig gen or bg', 'brigadier general', 'brnss', 'brother', 'capt', 'captain', 'chancellor', 'chaplain', 'chapln', 'chief petty officer', 'cmdr', 'cntss', 'coach', 'col', 'colonel', 'commander', 'corporal', 'count', 'countess', 'cpl', 'cpo', 'cpt', 'doctor', 'dr', 'dr and mrs', 'drs', 'duke', 'ens', 'ensign', 'estate of', 'father', 'father', 'fr', 'frau', 'friar', 'gen', 'general', 'gov', 'governor', 'hon', 'honorable', 'judge', 'justice', 'lieutenant', 'lieutenant colonel', 'lieutenant commander', 'lieutenant general', 'lieutenant junior grade', 'lord', 'lt', 'ltc', 'lt cmdr', 'lt col', 'lt gen', 'ltg', 'lt jg', 'm', 'madame', 'mademoiselle', 'maj', 'maj', 'master sergeant', 'master sgt', 'miss', 'miss', 'mlle', 'mme', 'monsieur', 'monsignor', 'monsignor', 'mr', 'mr', 'mr & dr', 'mr and dr', 'mr & mrs', 'mr and mrs', 'mrs & mr', 'mrs and mr', 'ms', 'ms', 'msgr', 'msgr', 'ofc', 'officer', 'president', 'princess', 'private', 'prof', 'prof & mrs', 'professor', 'pvt', 'rabbi', 'radm', 'rear admiral', 'rep', 'representative', 'rev', 'reverend', 'reverends', 'revs', 'right reverend', 'rtrev', 's sgt', 'sargent', 'sec', 'secretary', 'sen', 'senator', 'senor', 'senora', 'senorita', 'sergeant', 'sgt', 'sgt', 'sheikh', 'sir', 'sister', 'sister', 'sr', 'sra', 'srta', 'staff sergeant', 'superintendent', 'supt', 'the hon', 'the honorable', 'the venerable', 'treas', 'treasurer', 'trust', 'trustees of', 'vadm', 'vice admiral'].forEach((prefix) => {
+[
+  '2dlt',
+  '2lt',
+  '2nd lieutenant',
+  'adm',
+  'administrative',
+  'admiral',
+  'amb',
+  'ambassador',
+  'attorney',
+  'atty',
+  'baron',
+  'baroness',
+  'bishop',
+  'br',
+  'brig gen or bg',
+  'brigadier general',
+  'brnss',
+  'brother',
+  'capt',
+  'captain',
+  'chancellor',
+  'chaplain',
+  'chapln',
+  'chief petty officer',
+  'cmdr',
+  'cntss',
+  'coach',
+  'col',
+  'colonel',
+  'commander',
+  'corporal',
+  'count',
+  'countess',
+  'cpl',
+  'cpo',
+  'cpt',
+  'doctor',
+  'dr',
+  'dr and mrs',
+  'drs',
+  'duke',
+  'ens',
+  'ensign',
+  'estate of',
+  'father',
+  'father',
+  'fr',
+  'frau',
+  'friar',
+  'gen',
+  'general',
+  'gov',
+  'governor',
+  'hon',
+  'honorable',
+  'judge',
+  'justice',
+  'lieutenant',
+  'lieutenant colonel',
+  'lieutenant commander',
+  'lieutenant general',
+  'lieutenant junior grade',
+  'lord',
+  'lt',
+  'ltc',
+  'lt cmdr',
+  'lt col',
+  'lt gen',
+  'ltg',
+  'lt jg',
+  'm',
+  'madame',
+  'mademoiselle',
+  'maj',
+  'maj',
+  'master sergeant',
+  'master sgt',
+  'miss',
+  'miss',
+  'mlle',
+  'mme',
+  'monsieur',
+  'monsignor',
+  'monsignor',
+  'mr',
+  'mr',
+  'mr & dr',
+  'mr and dr',
+  'mr & mrs',
+  'mr and mrs',
+  'mrs & mr',
+  'mrs and mr',
+  'ms',
+  'ms',
+  'msgr',
+  'msgr',
+  'ofc',
+  'officer',
+  'president',
+  'princess',
+  'private',
+  'prof',
+  'prof & mrs',
+  'professor',
+  'pvt',
+  'rabbi',
+  'radm',
+  'rear admiral',
+  'rep',
+  'representative',
+  'rev',
+  'reverend',
+  'reverends',
+  'revs',
+  'right reverend',
+  'rtrev',
+  's sgt',
+  'sargent',
+  'sec',
+  'secretary',
+  'sen',
+  'senator',
+  'senor',
+  'senora',
+  'senorita',
+  'sergeant',
+  'sgt',
+  'sgt',
+  'sheikh',
+  'sir',
+  'sister',
+  'sister',
+  'sr',
+  'sra',
+  'srta',
+  'staff sergeant',
+  'superintendent',
+  'supt',
+  'the hon',
+  'the honorable',
+  'the venerable',
+  'treas',
+  'treasurer',
+  'trust',
+  'trustees of',
+  'vadm',
+  'vice admiral',
+].forEach(prefix => {
   namePrefixes[prefix] = true;
 });
 
-['1', '2', '3', '4', '5', '6', '7', 'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', 'cfx', 'cnd', 'cpa', 'csb', 'csc', 'csfn', 'csj', 'dc', 'dds', 'esq', 'esquire', 'first', 'fs', 'fsc', 'ihm', 'jd', 'jr', 'md', 'ocd', 'ofm', 'op', 'osa', 'osb', 'osf', 'phd', 'pm', 'rdc', 'ret', 'rsm', 'second', 'sj', 'sm', 'snd', 'sp', 'sr', 'ssj', 'us army', 'us army ret', 'usa', 'usa ret', 'usaf', 'usaf ret', 'usaf us air force', 'usmc us marine corp', 'usmcr us marine reserves', 'usn', 'usn ret', 'usn us navy', 'vm'].forEach((suffix) => {
+[
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  'i',
+  'ii',
+  'iii',
+  'iv',
+  'v',
+  'vi',
+  'vii',
+  'viii',
+  'ix',
+  '1st',
+  '2nd',
+  '3rd',
+  '4th',
+  '5th',
+  '6th',
+  '7th',
+  'cfx',
+  'cnd',
+  'cpa',
+  'csb',
+  'csc',
+  'csfn',
+  'csj',
+  'dc',
+  'dds',
+  'esq',
+  'esquire',
+  'first',
+  'fs',
+  'fsc',
+  'ihm',
+  'jd',
+  'jr',
+  'md',
+  'ocd',
+  'ofm',
+  'op',
+  'osa',
+  'osb',
+  'osf',
+  'phd',
+  'pm',
+  'rdc',
+  'ret',
+  'rsm',
+  'second',
+  'sj',
+  'sm',
+  'snd',
+  'sp',
+  'sr',
+  'ssj',
+  'us army',
+  'us army ret',
+  'usa',
+  'usa ret',
+  'usaf',
+  'usaf ret',
+  'usaf us air force',
+  'usmc us marine corp',
+  'usmcr us marine reserves',
+  'usn',
+  'usn ret',
+  'usn us navy',
+  'vm',
+].forEach(suffix => {
   nameSuffixes[suffix] = true;
 });
 
@@ -92,18 +313,20 @@ export default class Contact extends Model {
   static searchFields = ['content'];
 
   static sortOrderAttribute = () => {
-    return Contact.attributes.id
-  }
+    return Contact.attributes.id;
+  };
 
   static naturalSortOrder = () => {
-    return Contact.sortOrderAttribute().descending()
-  }
+    return Contact.sortOrderAttribute().descending();
+  };
 
-  static fromString(string, {accountId} = {}) {
+  static fromString(string, { accountId } = {}) {
     const emailRegex = RegExpUtils.emailRegex();
     const match = emailRegex.exec(string);
     if (emailRegex.exec(string)) {
-      throw new Error('Error while calling Contact.fromString: string contains more than one email');
+      throw new Error(
+        'Error while calling Contact.fromString: string contains more than one email'
+      );
     }
     const email = match[0];
     let name = string.substr(0, match.index - 1);
@@ -130,7 +353,7 @@ export default class Contact extends Model {
     // Note: This is used as the drag-drop text of a Contact token, in the
     // creation of message bylines "From Ben Gotow <ben@nylas>", and several other
     // places. Change with care.
-    return (this.name && this.name !== this.email) ? `${this.name} <${this.email}>` : this.email;
+    return this.name && this.name !== this.email ? `${this.name} <${this.email}>` : this.email;
   }
 
   fromJSON(json) {
@@ -138,7 +361,6 @@ export default class Contact extends Model {
     this.name = this.name || this.email;
     return json;
   }
-
 
   // Public: Returns true if the contact provided is a {Contact} instance and
   // contains a properly formatted email address.
@@ -149,7 +371,7 @@ export default class Contact extends Model {
 
     // The email regexp must match the /entire/ email address
     const result = RegExpUtils.emailRegex().exec(this.email);
-    return (result && result instanceof Array) ? (result[0] === this.email) : false;
+    return result && result instanceof Array ? result[0] === this.email : false;
   }
 
   // Public: Returns true if the contact is the current user, false otherwise.
@@ -168,19 +390,23 @@ export default class Contact extends Model {
     return false;
   }
 
-  isMePhrase({includeAccountLabel, forceAccountLabel} = {}) {
+  isMePhrase({ includeAccountLabel, forceAccountLabel } = {}) {
     const account = AccountStore.accountForEmail(this.email);
     if (!account) {
       return null;
     }
 
     if (includeAccountLabel) {
-      FocusedPerspectiveStore = FocusedPerspectiveStore || require('../stores/focused-perspective-store').default;
-      if (account && (FocusedPerspectiveStore.current().accountIds.length > 1 || forceAccountLabel)) {
+      FocusedPerspectiveStore =
+        FocusedPerspectiveStore || require('../stores/focused-perspective-store').default;
+      if (
+        account &&
+        (FocusedPerspectiveStore.current().accountIds.length > 1 || forceAccountLabel)
+      ) {
         return `You (${account.label})`;
       }
     }
-    return "You";
+    return 'You';
   }
 
   // Returns a {String} display name.
@@ -204,7 +430,7 @@ export default class Contact extends Model {
     }
 
     const fallback = compact ? this.firstName() : this.fullName();
-    return this.isMePhrase({forceAccountLabel, includeAccountLabel}) || fallback;
+    return this.isMePhrase({ forceAccountLabel, includeAccountLabel }) || fallback;
   }
 
   fullName() {
@@ -213,29 +439,37 @@ export default class Contact extends Model {
 
   firstName() {
     const exclusions = ['a', 'the', 'dr.', 'mrs.', 'mr.', 'mx.', 'prof.', 'ph.d.'];
-    return this._nameParts().find((p) => !exclusions.includes(p.toLowerCase())) || "";
+    return this._nameParts().find(p => !exclusions.includes(p.toLowerCase())) || '';
   }
 
   lastName() {
-    return this._nameParts().slice(1).join(" ") || "";
+    return (
+      this._nameParts()
+        .slice(1)
+        .join(' ') || ''
+    );
   }
 
   nameAbbreviation() {
-    const c1 = (this.firstName()[0] || "").toUpperCase();
-    const c2 = (this.lastName()[0] || "").toUpperCase();
+    const c1 = (this.firstName()[0] || '').toUpperCase();
+    const c2 = (this.lastName()[0] || '').toUpperCase();
     return c1 + c2;
   }
 
   guessCompanyFromEmail(email = this.email) {
     if (Utils.emailHasCommonDomain(email)) {
-      return "";
+      return '';
     }
-    const domain = email.toLowerCase().trim().split("@").pop();
-    const domainParts = domain.split(".");
+    const domain = email
+      .toLowerCase()
+      .trim()
+      .split('@')
+      .pop();
+    const domainParts = domain.split('.');
     if (domainParts.length >= 2) {
       return _str.titleize(_str.humanize(domainParts[domainParts.length - 2]));
     }
-    return "";
+    return '';
   }
 
   _nameParts() {
@@ -243,7 +477,7 @@ export default class Contact extends Model {
 
     // At this point, if the name is empty we'll use the email address
     if (!name || name.length === 0) {
-      name = this.email || "";
+      name = this.email || '';
 
       // If the phrase has an '@', use everything before the @ sign
       // Unless there that would result in an empty string.
@@ -269,7 +503,10 @@ export default class Contact extends Model {
       if (parts.length > 0 && namePrefixes[parts[0].toLowerCase().replace(/\./, '')]) {
         parts = parts.slice(1);
       }
-      if (parts.length > 0 && nameSuffixes[parts[parts.length - 1].toLowerCase().replace(/\./, '')]) {
+      if (
+        parts.length > 0 &&
+        nameSuffixes[parts[parts.length - 1].toLowerCase().replace(/\./, '')]
+      ) {
         parts = parts.slice(0, parts.length - 1);
       }
     }

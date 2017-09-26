@@ -1,20 +1,18 @@
-React = require 'react'
-ReactDOM = require 'react-dom'
-{RegExpUtils} = require 'nylas-exports'
+{React, PropTypes, ReactDOM, RegExpUtils} = require 'nylas-exports'
 
 class LinkEditor extends React.Component
   @displayName = "LinkEditor"
 
   @propTypes:
     # A callback function we use to save the URL to the Contenteditable
-    onSaveUrl: React.PropTypes.func
+    onSaveUrl: PropTypes.func
 
     # The current DOM link we are modifying
-    linkToModify: React.PropTypes.object
+    linkToModify: PropTypes.object
 
     # A callback used when a link has been cancled, completed, or escaped
     # from. Used to notify our parent to switch modes.
-    onDoneWithLink: React.PropTypes.func
+    onDoneWithLink: PropTypes.func
 
   constructor: (@props) ->
     @state =

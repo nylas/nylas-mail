@@ -1,10 +1,11 @@
 _ = require 'underscore'
-React = require 'react'
-ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 ListTabular = require('./list-tabular').default
 Spinner = require './spinner'
-{Actions,
+{React,
+ ReactDOM,
+ PropTypes,
+ Actions,
  Utils,
  WorkspaceStore,
  AccountStore} = require 'nylas-exports'
@@ -29,12 +30,12 @@ class MultiselectList extends React.Component
   @displayName = 'MultiselectList'
 
   @propTypes =
-    dataSource: React.PropTypes.object
-    className: React.PropTypes.string.isRequired
-    columns: React.PropTypes.array.isRequired
-    itemPropsProvider: React.PropTypes.func.isRequired
-    keymapHandlers: React.PropTypes.object
-    onComponentDidUpdate: React.PropTypes.func
+    dataSource: PropTypes.object
+    className: PropTypes.string.isRequired
+    columns: PropTypes.array.isRequired
+    itemPropsProvider: PropTypes.func.isRequired
+    keymapHandlers: PropTypes.object
+    onComponentDidUpdate: PropTypes.func
 
   constructor: (@props) ->
     @state = @_getStateFromStores()

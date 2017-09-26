@@ -1,18 +1,17 @@
 _ = require 'underscore'
-React = require 'react'
 SwipeContainer = require('./swipe-container').default
-{Utils} = require 'nylas-exports'
+{React, PropTypes, Utils} = require 'nylas-exports'
 
 class ListTabularItem extends React.Component
   @displayName = 'ListTabularItem'
   @propTypes =
-    metrics: React.PropTypes.object
-    columns: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-    item: React.PropTypes.object.isRequired
-    itemProps: React.PropTypes.object
-    onSelect: React.PropTypes.func
-    onClick: React.PropTypes.func
-    onDoubleClick: React.PropTypes.func
+    metrics: PropTypes.object
+    columns: PropTypes.arrayOf(PropTypes.object).isRequired
+    item: PropTypes.object.isRequired
+    itemProps: PropTypes.object
+    onSelect: PropTypes.func
+    onClick: PropTypes.func
+    onDoubleClick: PropTypes.func
 
   # DO NOT DELETE unless you know what you're doing! This method cuts
   # React.Perf.wasted-time from ~300msec to 20msec by doing a deep

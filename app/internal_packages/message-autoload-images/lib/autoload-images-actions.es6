@@ -1,12 +1,9 @@
 import Reflux from 'reflux';
 
-const ActionNames = [
-  'temporarilyEnableImages',
-  'permanentlyEnableImages',
-];
+const ActionNames = ['temporarilyEnableImages', 'permanentlyEnableImages'];
 
 const Actions = Reflux.createActions(ActionNames);
-ActionNames.forEach((name) => {
+ActionNames.forEach(name => {
   Actions[name].sync = true;
 });
 

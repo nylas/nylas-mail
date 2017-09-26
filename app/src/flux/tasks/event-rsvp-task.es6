@@ -1,6 +1,5 @@
 import Task from './task';
 
-
 export default class EventRSVPTask extends Task {
   constructor(event, RSVPEmail, RSVPResponse) {
     super();
@@ -9,8 +8,7 @@ export default class EventRSVPTask extends Task {
     this.RSVPResponse = RSVPResponse;
   }
 
-  performLocal() {
-  }
+  performLocal() {}
 
   onOtherError() {
     return Promise.resolve();

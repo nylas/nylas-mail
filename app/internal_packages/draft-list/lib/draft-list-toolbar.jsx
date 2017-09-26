@@ -1,19 +1,18 @@
-import React, {Component} from 'react'
-import {ListensToObservable, MultiselectToolbar, InjectedComponentSet} from 'nylas-component-kit'
-import PropTypes from 'prop-types'
+import React, { Component } from 'react';
+import { ListensToObservable, MultiselectToolbar, InjectedComponentSet } from 'nylas-component-kit';
+import PropTypes from 'prop-types';
 
-import DraftListStore from './draft-list-store'
-
+import DraftListStore from './draft-list-store';
 
 function getObservable() {
-  return DraftListStore.selectionObservable()
+  return DraftListStore.selectionObservable();
 }
 
 function getStateFromObservable(items) {
   if (!items) {
-    return {items: []}
+    return { items: [] };
   }
-  return {items}
+  return { items };
 }
 
 class DraftListToolbar extends Component {
@@ -24,20 +23,20 @@ class DraftListToolbar extends Component {
   };
 
   onClearSelection = () => {
-    DraftListStore.dataSource().selection.clear()
+    DraftListStore.dataSource().selection.clear();
   };
 
   render() {
-    const {selection} = DraftListStore.dataSource()
-    const {items} = this.props
+    const { selection } = DraftListStore.dataSource();
+    const { items } = this.props;
 
     // Keep all of the exposed props from deprecated regions that now map to this one
     const toolbarElement = (
       <InjectedComponentSet
-        matching={{role: "DraftActionsToolbarButton"}}
-        exposedProps={{selection, items}}
+        matching={{ role: 'DraftActionsToolbarButton' }}
+        exposedProps={{ selection, items }}
       />
-    )
+    );
 
     return (
       <MultiselectToolbar
@@ -46,8 +45,8 @@ class DraftListToolbar extends Component {
         toolbarElement={toolbarElement}
         onClearSelection={this.onClearSelection}
       />
-    )
+    );
   }
 }
 
-export default ListensToObservable(DraftListToolbar, {getObservable, getStateFromObservable})
+export default ListensToObservable(DraftListToolbar, { getObservable, getStateFromObservable });

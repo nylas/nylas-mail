@@ -1,20 +1,21 @@
 import React from 'react';
-import DraftStore from '../flux/stores/draft-store'
-import Actions from '../flux/actions'
-import Utils from '../flux/models/utils'
+import PropTypes from 'prop-types';
+import DraftStore from '../flux/stores/draft-store';
+import Actions from '../flux/actions';
+import Utils from '../flux/models/utils';
 
 function InflatesDraftClientId(ComposedComponent) {
   return class extends React.Component {
     static displayName = ComposedComponent.displayName;
 
     static propTypes = {
-      headerMessageId: React.PropTypes.string,
-      onDraftReady: React.PropTypes.func,
-    }
+      headerMessageId: PropTypes.string,
+      onDraftReady: PropTypes.func,
+    };
 
     static defaultProps = {
       onDraftReady: () => {},
-    }
+    };
 
     static containerRequired = false;
 
@@ -48,21 +49,25 @@ function InflatesDraftClientId(ComposedComponent) {
       if (!headerMessageId) {
         return;
       }
-      DraftStore.sessionForClientId(headerMessageId).then((session) => {
+      DraftStore.sessionForClientId(headerMessageId).then(session => {
         const shouldSetState = () =>
-          this._mounted && session.headerMessageId === this.props.headerMessageId
+          this._mounted && session.headerMessageId === this.props.headerMessageId;
 
-        if (!shouldSetState()) { return; }
+        if (!shouldSetState()) {
+          return;
+        }
         this._sessionUnlisten = session.listen(() => {
-          if (!shouldSetState()) { return; }
-          this.setState({draft: session.draft()});
+          if (!shouldSetState()) {
+            return;
+          }
+          this.setState({ draft: session.draft() });
         });
 
         this.setState({
           session: session,
           draft: session.draft(),
         });
-        this.props.onDraftReady()
+        this.props.onDraftReady();
       });
     }
 
@@ -88,8 +93,8 @@ function InflatesDraftClientId(ComposedComponent) {
     // once the composer is rendered and focused.
     focus() {
       return Utils.waitFor(() => this.refs.composed)
-      .then(() => this.refs.composed.focus())
-      .catch(() => {});
+        .then(() => this.refs.composed.focus())
+        .catch(() => {});
     }
 
     render() {
@@ -101,4 +106,4 @@ function InflatesDraftClientId(ComposedComponent) {
   };
 }
 
-export default InflatesDraftClientId
+export default InflatesDraftClientId;

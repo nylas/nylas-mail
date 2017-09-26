@@ -1,22 +1,23 @@
-import _ from 'underscore'
-import NylasStore from 'nylas-store'
-import AccountStore from './account-store'
-import WorkspaceStore from './workspace-store'
-import MailboxPerspective from '../../mailbox-perspective'
-import CategoryStore from './category-store'
-import Actions from '../actions'
-
+import _ from 'underscore';
+import NylasStore from 'nylas-store';
+import AccountStore from './account-store';
+import WorkspaceStore from './workspace-store';
+import MailboxPerspective from '../../mailbox-perspective';
+import CategoryStore from './category-store';
+import Actions from '../actions';
 
 class FocusedPerspectiveStore extends NylasStore {
-
   constructor() {
-    super()
+    super();
     this._current = MailboxPerspective.forNothing();
-    this._initialized = false
+    this._initialized = false;
 
     this.listenTo(CategoryStore, this._onCategoryStoreChanged);
     this.listenTo(Actions.focusMailboxPerspective, this._onFocusPerspective);
-    this.listenTo(Actions.focusDefaultMailboxPerspectiveForAccounts, this._onFocusDefaultPerspectiveForAccounts);
+    this.listenTo(
+      Actions.focusDefaultMailboxPerspectiveForAccounts,
+      this._onFocusDefaultPerspectiveForAccounts
+    );
     this.listenTo(Actions.ensureCategoryIsFocused, this._onEnsureCategoryIsFocused);
     this._listenToCommands();
   }
@@ -27,7 +28,7 @@ class FocusedPerspectiveStore extends NylasStore {
 
   sidebarAccountIds() {
     let ids = NylasEnv.savedState.sidebarAccountIds;
-    if (!ids || !ids.length || !ids.every((id) => AccountStore.accountForId(id))) {
+    if (!ids || !ids.length || !ids.every(id => AccountStore.accountForId(id))) {
       ids = NylasEnv.savedState.sidebarAccountIds = AccountStore.accountIds();
     }
 
@@ -41,57 +42,67 @@ class FocusedPerspectiveStore extends NylasStore {
 
   _listenToCommands() {
     NylasEnv.commands.add(document.body, {
-      'navigation:go-to-inbox': () => this._setPerspectiveByName("inbox"),
-      'navigation:go-to-sent': () => this._setPerspectiveByName("sent"),
-      'navigation:go-to-starred': () => this._setPerspective(MailboxPerspective.forStarred(this._current.accountIds)),
-      'navigation:go-to-drafts': () => this._setPerspective(MailboxPerspective.forDrafts(this._current.accountIds)),
+      'navigation:go-to-inbox': () => this._setPerspectiveByName('inbox'),
+      'navigation:go-to-sent': () => this._setPerspectiveByName('sent'),
+      'navigation:go-to-starred': () =>
+        this._setPerspective(MailboxPerspective.forStarred(this._current.accountIds)),
+      'navigation:go-to-drafts': () =>
+        this._setPerspective(MailboxPerspective.forDrafts(this._current.accountIds)),
       'navigation:go-to-all': () => {
-        const categories = this._current.accountIds.map((id) => CategoryStore.getArchiveCategory(id))
-        this._setPerspective(MailboxPerspective.forCategories(categories))
+        const categories = this._current.accountIds.map(id => CategoryStore.getArchiveCategory(id));
+        this._setPerspective(MailboxPerspective.forCategories(categories));
       },
       'navigation:go-to-contacts': () => {}, // TODO,
       'navigation:go-to-tasks': () => {}, // TODO,
       'navigation:go-to-label': () => {}, // TODO,
-    })
+    });
   }
 
   _isValidAccountSet(ids) {
     const accountIds = AccountStore.accountIds();
-    return ids.every((a) => accountIds.includes(a));
+    return ids.every(a => accountIds.includes(a));
   }
 
   _isValidPerspective(perspective) {
     // Ensure all the accountIds referenced in the perspective still exist
-    if (!this._isValidAccountSet(perspective.accountIds)) { return false; }
+    if (!this._isValidAccountSet(perspective.accountIds)) {
+      return false;
+    }
 
     // Ensure all the categories referenced in the perspective still exist
-    const categoriesStillExist = perspective.categories().every((c) => {
+    const categoriesStillExist = perspective.categories().every(c => {
       return !!CategoryStore.byId(c.accountId, c.id);
-    })
-    if (!categoriesStillExist) { return false; }
+    });
+    if (!categoriesStillExist) {
+      return false;
+    }
 
     return true;
   }
 
   _initializeFromSavedState() {
     const json = NylasEnv.savedState.perspective;
-    let {sidebarAccountIds} = NylasEnv.savedState;
+    let { sidebarAccountIds } = NylasEnv.savedState;
     let perspective;
 
     if (json) {
       perspective = MailboxPerspective.fromJSON(json);
     }
-    this._initialized = true
+    this._initialized = true;
 
     if (!perspective || !this._isValidPerspective(perspective)) {
       perspective = this._defaultPerspective();
       sidebarAccountIds = perspective.accountIds;
-      this._initialized = false
+      this._initialized = false;
     }
 
-    if (!sidebarAccountIds || !this._isValidAccountSet(sidebarAccountIds) || sidebarAccountIds.length < perspective.accountIds.length) {
+    if (
+      !sidebarAccountIds ||
+      !this._isValidAccountSet(sidebarAccountIds) ||
+      sidebarAccountIds.length < perspective.accountIds.length
+    ) {
       sidebarAccountIds = perspective.accountIds;
-      this._initialized = false
+      this._initialized = false;
     }
 
     this._setPerspective(perspective, sidebarAccountIds);
@@ -104,9 +115,9 @@ class FocusedPerspectiveStore extends NylasStore {
     } else if (!this._isValidPerspective(this._current)) {
       this._setPerspective(this._defaultPerspective(this._current.accountIds));
     }
-  }
+  };
 
-  _onFocusPerspective = (perspective) => {
+  _onFocusPerspective = perspective => {
     // If looking at unified inbox, don't attempt to change the sidebar accounts
     const sidebarIsUnifiedInbox = this.sidebarAccountIds().length > 1;
     if (sidebarIsUnifiedInbox) {
@@ -114,27 +125,27 @@ class FocusedPerspectiveStore extends NylasStore {
     } else {
       this._setPerspective(perspective, perspective.accountIds);
     }
-  }
+  };
 
   /*
   * Takes an optional array of `sidebarAccountIds`. By default, this method will
   * set the sidebarAccountIds to the perspective's accounts if no value is
   * provided
   */
-  _onFocusDefaultPerspectiveForAccounts = (accountsOrIds, {sidebarAccountIds} = {}) => {
-    if (!accountsOrIds) { return; }
+  _onFocusDefaultPerspectiveForAccounts = (accountsOrIds, { sidebarAccountIds } = {}) => {
+    if (!accountsOrIds) {
+      return;
+    }
     const perspective = this._defaultPerspective(accountsOrIds);
     this._setPerspective(perspective, sidebarAccountIds || perspective.accountIds);
-  }
+  };
 
   _onEnsureCategoryIsFocused = (categoryName, accountIds = []) => {
-    const ids = accountIds instanceof Array ? accountIds : [accountIds]
-    const categories = ids.map((id) => (
-      CategoryStore.getCategoryByRole(id, categoryName)
-    ))
-    const perspective = MailboxPerspective.forCategories(categories)
-    this._onFocusPerspective(perspective)
-  }
+    const ids = accountIds instanceof Array ? accountIds : [accountIds];
+    const categories = ids.map(id => CategoryStore.getCategoryByRole(id, categoryName));
+    const perspective = MailboxPerspective.forCategories(categories);
+    this._onFocusPerspective(perspective);
+  };
 
   _defaultPerspective(accountsOrIds = AccountStore.accountIds()) {
     const perspective = MailboxPerspective.forInbox(accountsOrIds);
@@ -157,17 +168,18 @@ class FocusedPerspectiveStore extends NylasStore {
       shouldTrigger = true;
     }
 
-    const shouldSaveSidebarAccountIds = (
+    const shouldSaveSidebarAccountIds =
       sidebarAccountIds &&
       !_.isEqual(NylasEnv.savedState.sidebarAccountIds, sidebarAccountIds) &&
-      this._initialized === true
-    )
+      this._initialized === true;
     if (shouldSaveSidebarAccountIds) {
       NylasEnv.savedState.sidebarAccountIds = sidebarAccountIds;
       shouldTrigger = true;
     }
 
-    if (shouldTrigger) { this.trigger(); }
+    if (shouldTrigger) {
+      this.trigger();
+    }
 
     let desired;
     if (perspective.drafts) {
@@ -184,13 +196,15 @@ class FocusedPerspectiveStore extends NylasStore {
   }
 
   _setPerspectiveByName(categoryName) {
-    let categories = this._current.accountIds.map((id) => {
+    let categories = this._current.accountIds.map(id => {
       return CategoryStore.getCategoryByRole(id, categoryName);
     });
     categories = _.compact(categories);
-    if (categories.length === 0) { return; }
+    if (categories.length === 0) {
+      return;
+    }
     this._setPerspective(MailboxPerspective.forCategories(categories));
   }
 }
 
-export default new FocusedPerspectiveStore()
+export default new FocusedPerspectiveStore();

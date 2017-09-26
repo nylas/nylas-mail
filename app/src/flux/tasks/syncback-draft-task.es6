@@ -3,7 +3,6 @@ import Attributes from '../attributes';
 import Message from '../models/message';
 
 export default class SyncbackDraftTask extends Task {
-
   static attributes = Object.assign({}, Task.attributes, {
     headerMessageId: Attributes.String({
       modelKey: 'headerMessageId',
@@ -14,7 +13,7 @@ export default class SyncbackDraftTask extends Task {
     }),
   });
 
-  constructor({draft, ...rest} = {}) {
+  constructor({ draft, ...rest } = {}) {
     super(rest);
     this.draft = draft;
     this.accountId = (draft || {}).accountId;

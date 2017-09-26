@@ -3,7 +3,6 @@ import AttributeJoinedData from '../attributes/attribute-joined-data';
 
 // TODO: Make mutator methods QueryResultSet.join(), QueryResultSet.clip...
 export default class MutableQueryResultSet extends QueryResultSet {
-
   immutableClone() {
     const set = new QueryResultSet({
       _ids: [].concat(this._ids),
@@ -34,16 +33,16 @@ export default class MutableQueryResultSet extends QueryResultSet {
     const models = this.models();
     this._modelsHash = {};
     this._idToIndexHash = null;
-    models.forEach((m) => this.updateModel(m));
+    models.forEach(m => this.updateModel(m));
   }
 
   addModelsInRange(rangeModels, range) {
     this.addIdsInRange(rangeModels.map(m => m.id), range);
-    rangeModels.forEach((m) => this.updateModel(m));
+    rangeModels.forEach(m => this.updateModel(m));
   }
 
   addIdsInRange(rangeIds, range) {
-    if ((this._offset === null) || range.isInfinite()) {
+    if (this._offset === null || range.isInfinite()) {
       this._ids = rangeIds;
       this._idToIndexHash = null;
       this._offset = range.offset;
@@ -52,19 +51,23 @@ export default class MutableQueryResultSet extends QueryResultSet {
       const rangeIdsEnd = range.offset + rangeIds.length;
 
       if (rangeIdsEnd < this._offset) {
-        throw new Error(`addIdsInRange: You can only add adjacent values (${rangeIdsEnd} < ${this._offset})`)
+        throw new Error(
+          `addIdsInRange: You can only add adjacent values (${rangeIdsEnd} < ${this._offset})`
+        );
       }
       if (range.offset > currentEnd) {
-        throw new Error(`addIdsInRange: You can only add adjacent values (${range.offset} > ${currentEnd})`);
+        throw new Error(
+          `addIdsInRange: You can only add adjacent values (${range.offset} > ${currentEnd})`
+        );
       }
 
-      let existingBefore = []
+      let existingBefore = [];
       if (range.offset > this._offset) {
         existingBefore = this._ids.slice(0, range.offset - this._offset);
       }
 
-      let existingAfter = []
-      if ((rangeIds.length === range.limit) && (currentEnd > rangeIdsEnd)) {
+      let existingAfter = [];
+      if (rangeIds.length === range.limit && currentEnd > rangeIdsEnd) {
         existingAfter = this._ids.slice(rangeIdsEnd - this._offset);
       }
 
@@ -84,10 +87,10 @@ export default class MutableQueryResultSet extends QueryResultSet {
     // Make sure we never drop joined data by pulling it over.
     const existing = this._modelsHash[item.id];
     if (existing) {
-      const attrs = existing.constructor.attributes
+      const attrs = existing.constructor.attributes;
       for (const key of Object.keys(attrs)) {
         const attr = attrs[key];
-        if ((attr instanceof AttributeJoinedData) && (item[attr.modelKey] === undefined)) {
+        if (attr instanceof AttributeJoinedData && item[attr.modelKey] === undefined) {
           item[attr.modelKey] = existing[attr.modelKey];
         }
       }

@@ -1,8 +1,9 @@
 import { DOMUtils } from 'nylas-exports';
 import BlockquoteManager from '../../src/components/contenteditable/blockquote-manager';
 
-describe("BlockquoteManager", function BlockquoteManagerSpecs() {
-  const outdentCases = [`
+describe('BlockquoteManager', function BlockquoteManagerSpecs() {
+  const outdentCases = [
+    `
   <div>|</div>
   `,
     `
@@ -44,9 +45,10 @@ describe("BlockquoteManager", function BlockquoteManagerSpecs() {
     <span>|test</span>
   </span>
   `,
-  ]
+  ];
 
-  const backspaceCases = [`
+  const backspaceCases = [
+    `
   <div>yo|</div>
   `,
     `
@@ -89,12 +91,12 @@ describe("BlockquoteManager", function BlockquoteManagerSpecs() {
     <span>|test</span>
   </span>
   `,
-  ]
+  ];
 
-  const setupContext = (testCase) => {
-    const context = document.createElement("blockquote");
+  const setupContext = testCase => {
+    const context = document.createElement('blockquote');
     context.innerHTML = testCase;
-    const {node, index} = DOMUtils.findCharacter(context, "|");
+    const { node, index } = DOMUtils.findCharacter(context, '|');
     if (!node) {
       throw new Error("Couldn't find where to set Selection");
     }
@@ -109,7 +111,11 @@ describe("BlockquoteManager", function BlockquoteManagerSpecs() {
   outdentCases.forEach(testCase =>
     it(`outdents\n${testCase}`, () => {
       const mockSelection = setupContext(testCase);
-      const editor = {currentSelection() { return mockSelection; }};
+      const editor = {
+        currentSelection() {
+          return mockSelection;
+        },
+      };
       expect(BlockquoteManager._isInBlockquote(editor)).toBe(true);
       return expect(BlockquoteManager._isAtStartOfLine(editor)).toBe(true);
     })
@@ -118,7 +124,11 @@ describe("BlockquoteManager", function BlockquoteManagerSpecs() {
   return backspaceCases.forEach(testCase =>
     it(`backspaces (does NOT outdent)\n${testCase}`, () => {
       const mockSelection = setupContext(testCase);
-      const editor = {currentSelection() { return mockSelection; }};
+      const editor = {
+        currentSelection() {
+          return mockSelection;
+        },
+      };
       expect(BlockquoteManager._isInBlockquote(editor)).toBe(true);
       return expect(BlockquoteManager._isAtStartOfLine(editor)).toBe(false);
     })

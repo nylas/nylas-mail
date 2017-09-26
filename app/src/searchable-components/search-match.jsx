@@ -1,6 +1,7 @@
-import React from 'react'
+import React from 'react';
+import PropTypes from 'prop-types';
 
-const SearchMatch = (props) => {
+const SearchMatch = props => {
   return (
     <span
       data-region-id={props.regionId}
@@ -9,13 +10,13 @@ const SearchMatch = (props) => {
     >
       {props.children}
     </span>
-  )
-}
+  );
+};
 
 SearchMatch.propTypes = {
-  regionId: React.PropTypes.string,
-  className: React.PropTypes.string,
-  renderIndex: React.PropTypes.number,
+  regionId: PropTypes.string,
+  className: PropTypes.string,
+  renderIndex: PropTypes.number,
 };
 
 export default SearchMatch;

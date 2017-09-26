@@ -1,7 +1,8 @@
-import _ from 'underscore'
-import React from 'react'
-import ReactDOM from 'react-dom'
-import classNames from 'classnames'
+import _ from 'underscore';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 /*
 Public: Easily respond to keyboard shortcuts
@@ -82,19 +83,19 @@ In `my-package/keymaps/my-package.cson`:
 ```
 */
 export default class KeyCommandsRegion extends React.Component {
-  static displayName = "KeyCommandsRegion";
+  static displayName = 'KeyCommandsRegion';
 
   static propTypes = {
-    className: React.PropTypes.string,
-    localHandlers: React.PropTypes.object,
-    globalHandlers: React.PropTypes.object,
-    globalMenuItems: React.PropTypes.array,
-    onFocusIn: React.PropTypes.func,
-    onFocusOut: React.PropTypes.func,
+    className: PropTypes.string,
+    localHandlers: PropTypes.object,
+    globalHandlers: PropTypes.object,
+    globalMenuItems: PropTypes.array,
+    onFocusIn: PropTypes.func,
+    onFocusOut: PropTypes.func,
   };
 
   static defaultProps = {
-    className: "",
+    className: '',
     localHandlers: null,
     globalHandlers: null,
     globalMenuItems: null,
@@ -104,7 +105,7 @@ export default class KeyCommandsRegion extends React.Component {
 
   constructor(props) {
     super(props);
-    this._lostFocusToElement = null
+    this._lostFocusToElement = null;
     this.state = {
       focused: false,
     };
@@ -118,8 +119,8 @@ export default class KeyCommandsRegion extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this._unmountListeners()
-    this._setupListeners(newProps)
+    this._unmountListeners();
+    this._setupListeners(newProps);
 
     // Updating menus in particular is expensive, so avoid teardown / re-add if identical
     if (!_.isEqual(newProps.globalMenuItems, this.props.globalMenuItems)) {
@@ -144,7 +145,7 @@ export default class KeyCommandsRegion extends React.Component {
   // custom event will be fired at the originating target and propogate
   // updwards until it reaches the root window level.
 
-    // An event is scoped in the `.cson` files. Since we use that to
+  // An event is scoped in the `.cson` files. Since we use that to
   // determine which keymappings can fire a particular command in a
   // particular scope, we simply need to listen at the root window level
   // here for all commands coming in.
@@ -180,19 +181,19 @@ export default class KeyCommandsRegion extends React.Component {
   }
 
   _onWindowBlur = () => {
-    this.setState({focused: false});
-  }
+    this.setState({ focused: false });
+  };
 
-  _onFocusIn = (event) => {
+  _onFocusIn = event => {
     this._lastFocusElement = event.target;
     this._losingFocusToElement = null;
     if (this.state.focused === false) {
       this.props.onFocusIn(event);
     }
-    this.setState({focused: true});
-  }
+    this.setState({ focused: true });
+  };
 
-  _onFocusOut = (event) => {
+  _onFocusOut = event => {
     this._lastFocusElement = event.target;
     this._losingFocusToElement = event.relatedTarget;
 
@@ -217,7 +218,7 @@ export default class KeyCommandsRegion extends React.Component {
       window.requestAnimationFrame(attempt);
     }
     this._losingFocusFrames = 10; // at 60fps, roughly 150ms
-  }
+  };
 
   _onDefinitelyFocusedOut = () => {
     if (!this._losingFocusToElement) {
@@ -247,14 +248,14 @@ export default class KeyCommandsRegion extends React.Component {
     }
 
     this.props.onFocusOut(this._lastFocusElement);
-    this.setState({focused: false});
+    this.setState({ focused: false });
     this._losingFocusToElement = null;
-  }
+  };
 
   render() {
     const classname = classNames({
       'key-commands-region': true,
-      'focused': this.state.focused,
+      focused: this.state.focused,
     });
     const otherProps = _.omit(this.props, Object.keys(this.constructor.propTypes));
 

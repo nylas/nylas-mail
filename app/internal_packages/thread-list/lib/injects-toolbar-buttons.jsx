@@ -1,18 +1,16 @@
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import {ListensToObservable, InjectedComponentSet} from 'nylas-component-kit'
-import ThreadListStore from './thread-list-store'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { ListensToObservable, InjectedComponentSet } from 'nylas-component-kit';
+import ThreadListStore from './thread-list-store';
 
-
-export const ToolbarRole = 'ThreadActionsToolbarButton'
-
+export const ToolbarRole = 'ThreadActionsToolbarButton';
 
 function defaultObservable() {
-  return ThreadListStore.selectionObservable()
+  return ThreadListStore.selectionObservable();
 }
 
-function InjectsToolbarButtons(ToolbarComponent, {getObservable, extraRoles = []}) {
-  const roles = [ToolbarRole].concat(extraRoles)
+function InjectsToolbarButtons(ToolbarComponent, { getObservable, extraRoles = [] }) {
+  const roles = [ToolbarRole].concat(extraRoles);
 
   class ComposedComponent extends Component {
     static displayName = ToolbarComponent.displayName;
@@ -24,42 +22,34 @@ function InjectsToolbarButtons(ToolbarComponent, {getObservable, extraRoles = []
     static containerRequired = false;
 
     render() {
-      const {items} = this.props;
-      const {selection} = ThreadListStore.dataSource()
+      const { items } = this.props;
+      const { selection } = ThreadListStore.dataSource();
 
       // Keep all of the exposed props from deprecated regions that now map to this one
       const exposedProps = {
         items,
         selection,
         thread: items[0],
-      }
+      };
       const injectedButtons = (
-        <InjectedComponentSet
-          key="injected"
-          matching={{roles}}
-          exposedProps={exposedProps}
-        />
-      )
+        <InjectedComponentSet key="injected" matching={{ roles }} exposedProps={exposedProps} />
+      );
       return (
-        <ToolbarComponent
-          items={items}
-          selection={selection}
-          injectedButtons={injectedButtons}
-        />
-      )
+        <ToolbarComponent items={items} selection={selection} injectedButtons={injectedButtons} />
+      );
     }
   }
 
-  const getStateFromObservable = (items) => {
+  const getStateFromObservable = items => {
     if (!items) {
-      return {items: []}
+      return { items: [] };
     }
-    return {items}
-  }
+    return { items };
+  };
   return ListensToObservable(ComposedComponent, {
     getObservable: getObservable || defaultObservable,
     getStateFromObservable,
-  })
+  });
 }
 
-export default InjectsToolbarButtons
+export default InjectsToolbarButtons;

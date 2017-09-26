@@ -1,20 +1,20 @@
-import {Utils, Actions, AccountStore} from 'nylas-exports';
-import NylasStore from 'nylas-store'
-import _ from 'underscore'
+import { Utils, Actions } from 'nylas-exports';
+import NylasStore from 'nylas-store';
+import _ from 'underscore';
 
-const DefaultSignatureText = "Sent from <a href=\"https://getmailspring.com?ref=client\">Mailspring</a>, the best free email app for work";
+const DefaultSignatureText =
+  'Sent from <a href="https://getmailspring.com?ref=client">Mailspring</a>, the best free email app for work';
 
 class SignatureStore extends NylasStore {
-
   constructor() {
     super();
     this.activate(); // for specs
   }
 
   activate() {
-    this.signatures = NylasEnv.config.get(`nylas.signatures`) || {}
-    this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`) || {}
-    this._autoselectSignatureId()
+    this.signatures = NylasEnv.config.get(`nylas.signatures`) || {};
+    this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`) || {};
+    this._autoselectSignatureId();
 
     if (!this.unsubscribers) {
       this.unsubscribers = [
@@ -26,12 +26,12 @@ class SignatureStore extends NylasStore {
       ];
 
       NylasEnv.config.onDidChange(`nylas.signatures`, () => {
-        this.signatures = NylasEnv.config.get(`nylas.signatures`)
-        this.trigger()
+        this.signatures = NylasEnv.config.get(`nylas.signatures`);
+        this.trigger();
       });
       NylasEnv.config.onDidChange(`nylas.defaultSignatures`, () => {
-        this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`)
-        this.trigger()
+        this.defaultSignatures = NylasEnv.config.get(`nylas.defaultSignatures`);
+        this.trigger();
       });
     }
   }
@@ -45,70 +45,74 @@ class SignatureStore extends NylasStore {
   }
 
   selectedSignature() {
-    return this.signatures[this.selectedSignatureId]
+    return this.signatures[this.selectedSignatureId];
   }
 
   getDefaults() {
-    return this.defaultSignatures
+    return this.defaultSignatures;
   }
 
-  signatureForEmail = (email) => {
-    return this.signatures[this.defaultSignatures[email]] || {id: 'default', body: DefaultSignatureText, title: 'Default'}
-  }
+  signatureForEmail = email => {
+    return (
+      this.signatures[this.defaultSignatures[email]] || {
+        id: 'default',
+        body: DefaultSignatureText,
+        title: 'Default',
+      }
+    );
+  };
 
   _saveSignatures() {
-    _.debounce(NylasEnv.config.set(`nylas.signatures`, this.signatures), 500)
+    _.debounce(NylasEnv.config.set(`nylas.signatures`, this.signatures), 500);
   }
 
   _saveDefaultSignatures() {
-    _.debounce(NylasEnv.config.set(`nylas.defaultSignatures`, this.defaultSignatures), 500)
+    _.debounce(NylasEnv.config.set(`nylas.defaultSignatures`, this.defaultSignatures), 500);
   }
 
-
-  _onSelectSignature = (id) => {
-    this.selectedSignatureId = id
-    this.trigger()
-  }
+  _onSelectSignature = id => {
+    this.selectedSignatureId = id;
+    this.trigger();
+  };
 
   _autoselectSignatureId() {
-    const sigIds = Object.keys(this.signatures)
+    const sigIds = Object.keys(this.signatures);
     this.selectedSignatureId = sigIds.length ? sigIds[0] : null;
   }
 
-  _onRemoveSignature = (signatureToDelete) => {
+  _onRemoveSignature = signatureToDelete => {
     this.signatures = Object.assign({}, this.signatures);
-    delete this.signatures[signatureToDelete.id]
-    this._autoselectSignatureId()
-    this.trigger()
-    this._saveSignatures()
-  }
+    delete this.signatures[signatureToDelete.id];
+    this._autoselectSignatureId();
+    this.trigger();
+    this._saveSignatures();
+  };
 
-  _onAddSignature = (sigTitle = "Untitled") => {
-    const newId = Utils.generateTempId()
-    this.signatures[newId] = {id: newId, title: sigTitle, body: DefaultSignatureText}
-    this.selectedSignatureId = newId
-    this.trigger()
-    this._saveSignatures()
-  }
+  _onAddSignature = (sigTitle = 'Untitled') => {
+    const newId = Utils.generateTempId();
+    this.signatures[newId] = { id: newId, title: sigTitle, body: DefaultSignatureText };
+    this.selectedSignatureId = newId;
+    this.trigger();
+    this._saveSignatures();
+  };
 
   _onEditSignature = (editedSig, oldSigId) => {
-    this.signatures[oldSigId].title = editedSig.title
-    this.signatures[oldSigId].body = editedSig.body
-    this.trigger()
-    this._saveSignatures()
-  }
+    this.signatures[oldSigId].title = editedSig.title;
+    this.signatures[oldSigId].body = editedSig.body;
+    this.trigger();
+    this._saveSignatures();
+  };
 
-  _onToggleAccount = (email) => {
+  _onToggleAccount = email => {
     if (this.defaultSignatures[email] === this.selectedSignatureId) {
-      this.defaultSignatures[email] = null
+      this.defaultSignatures[email] = null;
     } else {
-      this.defaultSignatures[email] = this.selectedSignatureId
+      this.defaultSignatures[email] = this.selectedSignatureId;
     }
 
-    this.trigger()
-    this._saveDefaultSignatures()
-  }
-
+    this.trigger();
+    this._saveDefaultSignatures();
+  };
 }
 
 export default new SignatureStore();

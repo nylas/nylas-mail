@@ -1,10 +1,9 @@
-import classnames from 'classnames'
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import {pickHTMLProps} from 'pick-react-known-prop'
-import LazyRenderedList from '../lazy-rendered-list'
-import TableDataSource from './table-data-source'
-
+import classnames from 'classnames';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { pickHTMLProps } from 'pick-react-known-prop';
+import LazyRenderedList from '../lazy-rendered-list';
+import TableDataSource from './table-data-source';
 
 /*
  * Scrollable Table component which supports headers, numbering and lazily rendering rows.
@@ -53,22 +52,22 @@ import TableDataSource from './table-data-source'
  * @class Table
  */
 
-const RendererType = PropTypes.oneOfType([PropTypes.func, PropTypes.string])
-const IndexType = PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+const RendererType = PropTypes.oneOfType([PropTypes.func, PropTypes.string]);
+const IndexType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 const TablePropTypes = {
   idx: IndexType,
   renderer: RendererType,
   tableDataSource: PropTypes.instanceOf(TableDataSource),
-}
+};
 
 export function TableCell(props) {
-  const {className, isHeader, children, ...extraProps} = props;
-  const CellTag = isHeader ? 'th' : 'td'
+  const { className, isHeader, children, ...extraProps } = props;
+  const CellTag = isHeader ? 'th' : 'td';
   return (
-    <CellTag {...pickHTMLProps(extraProps)} className={`table-cell ${className}`} >
+    <CellTag {...pickHTMLProps(extraProps)} className={`table-cell ${className}`}>
       {children}
     </CellTag>
-  )
+  );
 }
 
 TableCell.propTypes = {
@@ -77,7 +76,6 @@ TableCell.propTypes = {
 };
 
 export class TableRow extends Component {
-
   static propTypes = {
     className: PropTypes.string,
     isHeader: PropTypes.bool,
@@ -86,49 +84,53 @@ export class TableRow extends Component {
     rowIdx: TablePropTypes.idx,
     extraProps: PropTypes.object,
     CellRenderer: TablePropTypes.renderer,
-  }
+  };
 
   static defaultProps = {
     className: '',
     extraProps: {},
     CellRenderer: TableCell,
-  }
+  };
 
   render() {
-    const {className, displayNumbers, isHeader, tableDataSource, rowIdx, extraProps, CellRenderer, ...props} = this.props
+    const {
+      className,
+      displayNumbers,
+      isHeader,
+      tableDataSource,
+      rowIdx,
+      extraProps,
+      CellRenderer,
+      ...props
+    } = this.props;
     const classes = classnames({
       'table-row': true,
       'table-row-header': isHeader,
       [className]: true,
-    })
+    });
 
     return (
       <tr className={classes} {...pickHTMLProps(props)}>
-        {displayNumbers ?
-          <TableCell
-            className="numbered-cell"
-            isHeader={isHeader}
-          >
+        {displayNumbers ? (
+          <TableCell className="numbered-cell" isHeader={isHeader}>
             {isHeader ? '' : rowIdx + 1}
-          </TableCell> :
-          null
-        }
+          </TableCell>
+        ) : null}
         {tableDataSource.columns().map((colName, colIdx) => {
-          const cellProps = {tableDataSource, rowIdx, colIdx, ...extraProps}
+          const cellProps = { tableDataSource, rowIdx, colIdx, ...extraProps };
           return (
             <CellRenderer key={`cell-${rowIdx}-${colIdx}`} {...cellProps}>
-              {tableDataSource.cellAt({rowIdx, colIdx})}
+              {tableDataSource.cellAt({ rowIdx, colIdx })}
             </CellRenderer>
-          )
+          );
         })}
       </tr>
-    )
+    );
   }
 }
 
-
 export default class Table extends Component {
-  static displayName = 'Table'
+  static displayName = 'Table';
 
   static propTypes = {
     className: PropTypes.string,
@@ -140,19 +142,19 @@ export default class Table extends Component {
     extraProps: PropTypes.object,
     RowRenderer: TablePropTypes.renderer,
     CellRenderer: TablePropTypes.renderer,
-  }
+  };
 
   static defaultProps = {
     className: '',
     extraProps: {},
     RowRenderer: TableRow,
     CellRenderer: TableCell,
-  }
+  };
 
-  static TableDataSource = TableDataSource
+  static TableDataSource = TableDataSource;
 
-  renderRow = ({idx}) => {
-    const {tableDataSource, displayNumbers, extraProps, RowRenderer, CellRenderer} = this.props
+  renderRow = ({ idx }) => {
+    const { tableDataSource, displayNumbers, extraProps, RowRenderer, CellRenderer } = this.props;
     return (
       <RowRenderer
         key={`row-${idx}`}
@@ -163,12 +165,12 @@ export default class Table extends Component {
         CellRenderer={CellRenderer}
         {...extraProps}
       />
-    )
-  }
+    );
+  };
 
   renderBody() {
-    const {tableDataSource, rowHeight, bodyHeight} = this.props
-    const rows = tableDataSource.rows()
+    const { tableDataSource, rowHeight, bodyHeight } = this.props;
+    const rows = tableDataSource.rows();
 
     return (
       <LazyRenderedList
@@ -179,14 +181,23 @@ export default class Table extends Component {
         RootRenderer="tbody"
         ItemRenderer={this.renderRow}
       />
-    )
+    );
   }
 
   renderHeader() {
-    const {tableDataSource, displayNumbers, displayHeader, extraProps, RowRenderer, CellRenderer} = this.props
-    if (!displayHeader) { return false }
+    const {
+      tableDataSource,
+      displayNumbers,
+      displayHeader,
+      extraProps,
+      RowRenderer,
+      CellRenderer,
+    } = this.props;
+    if (!displayHeader) {
+      return false;
+    }
 
-    const extraHeaderProps = {...extraProps, isHeader: true}
+    const extraHeaderProps = { ...extraProps, isHeader: true };
     return (
       <thead>
         <RowRenderer
@@ -198,11 +209,11 @@ export default class Table extends Component {
           {...extraHeaderProps}
         />
       </thead>
-    )
+    );
   }
 
   render() {
-    const {className, ...otherProps} = this.props
+    const { className, ...otherProps } = this.props;
 
     return (
       <div className={`nylas-table ${className}`} {...pickHTMLProps(otherProps)}>
@@ -211,6 +222,6 @@ export default class Table extends Component {
           {this.renderBody()}
         </table>
       </div>
-    )
+    );
   }
 }

@@ -4,9 +4,7 @@ import PackageSet from './package-set';
 import PackagesStore from './packages-store';
 import PluginsActions from './plugins-actions';
 
-
 class TabExplore extends React.Component {
-
   static displayName = 'TabExplore';
 
   constructor() {
@@ -19,7 +17,7 @@ class TabExplore extends React.Component {
     this._unsubscribers.push(PackagesStore.listen(this._onChange));
 
     // Trigger a refresh of the featured packages
-    PluginsActions.refreshFeaturedPackages()
+    PluginsActions.refreshFeaturedPackages();
   }
 
   componentWillUnmount() {
@@ -36,27 +34,27 @@ class TabExplore extends React.Component {
 
   _onChange = () => {
     this.setState(this._getStateFromStores());
-  }
+  };
 
-  _onSearchChange = (event) => {
+  _onSearchChange = event => {
     PluginsActions.setGlobalSearchValue(event.target.value);
-  }
+  };
 
   render() {
     let collection = this.state.featured;
-    let collectionPrefix = "Featured ";
+    let collectionPrefix = 'Featured ';
     let emptyText = null;
     if (this.state.search.length > 0) {
-      collectionPrefix = "Matching ";
+      collectionPrefix = 'Matching ';
       if (this.state.searchResults) {
         collection = this.state.searchResults;
-        emptyText = "No results found.";
+        emptyText = 'No results found.';
       } else {
         collection = {
           packages: [],
           themes: [],
         };
-        emptyText = "Loading results...";
+        emptyText = 'Loading results...';
       }
     }
 
@@ -72,19 +70,18 @@ class TabExplore extends React.Component {
           />
           <PackageSet
             title={`${collectionPrefix} Themes`}
-            emptyText={emptyText || "There are no featured themes yet."}
+            emptyText={emptyText || 'There are no featured themes yet.'}
             packages={collection.themes}
           />
           <PackageSet
             title={`${collectionPrefix} Packages`}
-            emptyText={emptyText || "There are no featured packages yet."}
+            emptyText={emptyText || 'There are no featured packages yet.'}
             packages={collection.packages}
           />
         </div>
       </div>
     );
   }
-
 }
 
 export default TabExplore;

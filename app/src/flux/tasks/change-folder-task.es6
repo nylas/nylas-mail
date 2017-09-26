@@ -14,7 +14,6 @@ import Folder from '../models/folder';
 //   that configuration
 //
 export default class ChangeFolderTask extends ChangeMailTask {
-
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
     previousFolder: Attributes.Object({
       modelKey: 'folder',
@@ -28,14 +27,14 @@ export default class ChangeFolderTask extends ChangeMailTask {
 
   constructor(data = {}) {
     if (data.folder && !(data.folder instanceof Folder)) {
-      throw new Error("ChangeFolderTask: You must provide a single folder.");
+      throw new Error('ChangeFolderTask: You must provide a single folder.');
     }
     if (!data.previousFolders) {
       data.previousFolders = {};
-      for (const t of (data.threads || [])) {
+      for (const t of data.threads || []) {
         data.previousFolders[t.id] = t.folders.find(f => f.id !== data.folder.id) || t.folders[0];
       }
-      for (const m of (data.messages || [])) {
+      for (const m of data.messages || []) {
         data.previousFolders[m.id] = m.folder;
       }
     }
@@ -47,7 +46,7 @@ export default class ChangeFolderTask extends ChangeMailTask {
     if (this.folder) {
       return `Moving to ${this.folder.displayName}`;
     }
-    return "Moving to folder";
+    return 'Moving to folder';
   }
 
   description() {
@@ -67,25 +66,27 @@ export default class ChangeFolderTask extends ChangeMailTask {
 
   validate() {
     if (!this.folder) {
-      throw new Error("Must specify a `folder`");
+      throw new Error('Must specify a `folder`');
     }
     if (this.threadIds.length > 0 && this.messageIds.length > 0) {
-      throw new Error("ChangeFolderTask: You can move `threads` or `messages` but not both")
+      throw new Error('ChangeFolderTask: You can move `threads` or `messages` but not both');
     }
     if (this.threadIds.length === 0 && this.messageIds.length === 0) {
-      throw new Error("ChangeFolderTask: You must provide a `threads` or `messages` Array of models or IDs.")
+      throw new Error(
+        'ChangeFolderTask: You must provide a `threads` or `messages` Array of models or IDs.'
+      );
     }
 
     super.validate();
   }
 
   _isArchive() {
-    return this.folder.name === "archive" || this.folder.name === "all"
+    return this.folder.name === 'archive' || this.folder.name === 'all';
   }
 
   createUndoTask() {
     const task = super.createUndoTask();
-    const {folder, previousFolder} = task;
+    const { folder, previousFolder } = task;
     task.folder = previousFolder;
     task.previousFolder = folder;
     return task;

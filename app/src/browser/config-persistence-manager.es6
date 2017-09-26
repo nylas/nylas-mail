@@ -1,22 +1,21 @@
 import path from 'path';
 import fs from 'fs-plus';
-import {BrowserWindow, dialog, app} from 'electron';
-import {atomicWriteFileSync} from '../fs-utils'
+import { BrowserWindow, dialog, app } from 'electron';
+import { atomicWriteFileSync } from '../fs-utils';
 
 let _ = require('underscore');
 _ = Object.assign(_, require('../config-utils'));
 
-const RETRY_SAVES = 3
-
+const RETRY_SAVES = 3;
 
 export default class ConfigPersistenceManager {
-  constructor({configDirPath, resourcePath} = {}) {
+  constructor({ configDirPath, resourcePath } = {}) {
     this.configDirPath = configDirPath;
     this.resourcePath = resourcePath;
 
-    this.userWantsToPreserveErrors = false
-    this.saveRetries = 0
-    this.configFilePath = path.join(this.configDirPath, 'config.json')
+    this.userWantsToPreserveErrors = false;
+    this.saveRetries = 0;
+    this.configFilePath = path.join(this.configDirPath, 'config.json');
     this.settings = {};
 
     this.initializeConfigDirectory();
@@ -46,9 +45,11 @@ export default class ConfigPersistenceManager {
     let detail = error.message;
 
     if (error instanceof SyntaxError) {
-      detail += `\n\nThe file ${this.configFilePath} has incorrect JSON formatting or is empty. Fix the formatting to resolve this error, or reset your settings to continue using N1.`
+      detail += `\n\nThe file ${this
+        .configFilePath} has incorrect JSON formatting or is empty. Fix the formatting to resolve this error, or reset your settings to continue using N1.`;
     } else {
-      detail += `\n\nWe were unable to read the file ${this.configFilePath}. Make sure you have permissions to access this file, and check that the file is not open or being edited and try again.`
+      detail += `\n\nWe were unable to read the file ${this
+        .configFilePath}. Make sure you have permissions to access this file, and check that the file is not open or being edited and try again.`;
     }
 
     const clickedIndex = dialog.showMessageBox({
@@ -59,9 +60,12 @@ export default class ConfigPersistenceManager {
     });
 
     switch (clickedIndex) {
-      case 0: return 'quit';
-      case 1: return 'tryagain';
-      case 2: return 'reset';
+      case 0:
+        return 'quit';
+      case 1:
+        return 'tryagain';
+      case 2:
+        return 'reset';
       default:
         throw new Error('Unknown button clicked');
     }
@@ -109,9 +113,10 @@ export default class ConfigPersistenceManager {
     const clickedIndex = dialog.showMessageBox({
       type: 'error',
       message: `Failed to save "${path.basename(this.configFilePath)}"`,
-      detail: `\n\nWe were unable to save the file ${this.configFilePath}. Make sure you have permissions to access this file, and check that the file is not open or being edited and try again.`,
+      detail: `\n\nWe were unable to save the file ${this
+        .configFilePath}. Make sure you have permissions to access this file, and check that the file is not open or being edited and try again.`,
       buttons: ['Okay', 'Try again'],
-    })
+    });
     return ['ignore', 'retry'][clickedIndex];
   }
 
@@ -119,60 +124,60 @@ export default class ConfigPersistenceManager {
     if (this.userWantsToPreserveErrors) {
       return;
     }
-    const allSettings = {'*': this.settings};
+    const allSettings = { '*': this.settings };
     const allSettingsJSON = JSON.stringify(allSettings, null, 2);
     this.lastSaveTimestamp = Date.now();
 
     try {
-      atomicWriteFileSync(this.configFilePath, allSettingsJSON)
-      this.saveRetries = 0
+      atomicWriteFileSync(this.configFilePath, allSettingsJSON);
+      this.saveRetries = 0;
     } catch (error) {
       if (this.saveRetries >= RETRY_SAVES) {
-        error.message = `Failed to save config.json: ${error.message}`
+        error.message = `Failed to save config.json: ${error.message}`;
         global.errorLogger.reportError(error);
         const action = this._showSaveErrorDialog();
         this.saveRetries = 0;
 
         if (action === 'retry') {
-          this.save()
+          this.save();
         }
         return;
       }
 
-      this.saveRetries++
-      this.save()
+      this.saveRetries++;
+      this.save();
     }
-  }
+  };
 
   getRawValuesString = () => {
     if (!this.settings || _.isEmpty(this.settings)) {
       throw new Error('this.settings is empty');
     }
     return JSON.stringify(this.settings);
-  }
+  };
 
   setSettings = (value, sourceWebcontentsId) => {
     this.settings = value;
-    this.emitChangeEvent({sourceWebcontentsId});
+    this.emitChangeEvent({ sourceWebcontentsId });
     this.save();
-  }
+  };
 
   setRawValue = (keyPath, value, sourceWebcontentsId) => {
     if (!keyPath) {
       throw new Error('keyPath must not be false-y!');
     }
     _.setValueForKeyPath(this.settings, keyPath, value);
-    this.emitChangeEvent({sourceWebcontentsId});
+    this.emitChangeEvent({ sourceWebcontentsId });
     this.save();
-  }
+  };
 
-  emitChangeEvent = ({sourceWebcontentsId} = {}) => {
+  emitChangeEvent = ({ sourceWebcontentsId } = {}) => {
     global.application.config.updateSettings(this.settings);
 
-    BrowserWindow.getAllWindows().forEach((win) => {
-      if ((win.webContents) && (win.webContents.getId() !== sourceWebcontentsId)) {
+    BrowserWindow.getAllWindows().forEach(win => {
+      if (win.webContents && win.webContents.getId() !== sourceWebcontentsId) {
         win.webContents.send('on-config-reloaded', this.settings);
       }
     });
-  }
+  };
 }

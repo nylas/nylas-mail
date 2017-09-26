@@ -1,4 +1,4 @@
-import {ComponentRegistry, WorkspaceStore} from "nylas-exports";
+import { ComponentRegistry, WorkspaceStore } from 'nylas-exports';
 
 import ThreadList from './thread-list';
 import ThreadListToolbar from './thread-list-toolbar';
@@ -13,7 +13,7 @@ import {
   MarkAsSpamButton,
   ToggleUnreadButton,
   ToggleStarredButton,
-} from "./thread-toolbar-buttons";
+} from './thread-toolbar-buttons';
 
 export function activate() {
   ComponentRegistry.register(ThreadList, {

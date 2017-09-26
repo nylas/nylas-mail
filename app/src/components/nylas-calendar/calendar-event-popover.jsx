@@ -1,46 +1,57 @@
-import React from 'react';
 import moment from 'moment';
-import {Actions, DatabaseStore, DateUtils, SyncbackEventTask} from 'nylas-exports';
-import {DatePicker, RetinaImg, ScrollRegion, TabGroupRegion, TimePicker} from 'nylas-component-kit';
+import {
+  React,
+  PropTypes,
+  Actions,
+  DatabaseStore,
+  DateUtils,
+  SyncbackEventTask,
+} from 'nylas-exports';
+import {
+  DatePicker,
+  RetinaImg,
+  ScrollRegion,
+  TabGroupRegion,
+  TimePicker,
+} from 'nylas-component-kit';
 import EventParticipantsInput from './event-participants-input';
-
 
 export default class CalendarEventPopover extends React.Component {
   static propTypes = {
-    event: React.PropTypes.object.isRequired,
-  }
+    event: PropTypes.object.isRequired,
+  };
 
   constructor(props) {
-    super(props)
-    const {description, start, end, location, participants} = this.props.event;
+    super(props);
+    const { description, start, end, location, participants } = this.props.event;
 
-    this.state = {description, start, end, location}
-    this.state.title = this.props.event.displayTitle()
+    this.state = { description, start, end, location };
+    this.state.title = this.props.event.displayTitle();
     this.state.editing = false;
-    this.state.participants = participants || []
+    this.state.participants = participants || [];
   }
 
-  componentWillReceiveProps = (nextProps) => {
-    const {description, start, end, location, participants} = nextProps.event;
-    this.setState({description, start, end, location})
+  componentWillReceiveProps = nextProps => {
+    const { description, start, end, location, participants } = nextProps.event;
+    this.setState({ description, start, end, location });
     this.setState({
       participants: participants || [],
       title: nextProps.event.displayTitle(),
-    })
-  }
+    });
+  };
 
   onEdit = () => {
-    this.setState({editing: true})
-  }
+    this.setState({ editing: true });
+  };
 
   getStartMoment = () => moment(this.state.start * 1000);
   getEndMoment = () => moment(this.state.end * 1000);
 
   saveEdits = () => {
     const event = this.props.event.clone();
-    const keys = ['title', 'description', 'location', 'participants']
+    const keys = ['title', 'description', 'location', 'participants'];
     for (const key of keys) {
-      event[key] = this.state[key]
+      event[key] = this.state[key];
     }
 
     // TODO, this component shouldn't save the event here, we should expose an
@@ -50,20 +61,22 @@ export default class CalendarEventPopover extends React.Component {
     event.when.start_time = this.state.start;
     event.when.end_time = this.state.end;
 
-    DatabaseStore.inTransaction((t) => {
-      this.setState({editing: false}); // TODO: where's the best place to put this?
-      return t.persistModel(event)
+    DatabaseStore.inTransaction(t => {
+      this.setState({ editing: false }); // TODO: where's the best place to put this?
+      return t.persistModel(event);
     }).then(() => {
       const task = new SyncbackEventTask(event.id);
       Actions.queueTask(task);
     });
-  }
+  };
 
   extractNotesFromDescription(node) {
     const els = node.querySelectorAll('meta[itemprop=description]');
     let notes = null;
     if (els.length) {
-      notes = Array.from(els).map(el => el.content).join('\n');
+      notes = Array.from(els)
+        .map(el => el.content)
+        .join('\n');
     } else {
       notes = node.innerText;
     }
@@ -81,97 +94,94 @@ export default class CalendarEventPopover extends React.Component {
   formatTime(momentTime) {
     const min = momentTime.minutes();
     if (min === 0) {
-      return momentTime.format("h A");
+      return momentTime.format('h A');
     }
-    return momentTime.format("h:mm A");
+    return momentTime.format('h:mm A');
   }
 
-  updateParticipants = (participants) => {
-    this.setState({participants})
-  }
+  updateParticipants = participants => {
+    this.setState({ participants });
+  };
 
   updateField = (key, value) => {
-    const updates = {}
+    const updates = {};
     updates[key] = value;
-    this.setState(updates)
-  }
+    this.setState(updates);
+  };
 
-  _onChangeDay = (newTimestamp) => {
-    const newDay = moment(newTimestamp)
+  _onChangeDay = newTimestamp => {
+    const newDay = moment(newTimestamp);
     const start = this.getStartMoment();
     const end = this.getEndMoment();
-    start.year(newDay.year())
-    end.year(newDay.year())
-    start.dayOfYear(newDay.dayOfYear())
-    end.dayOfYear(newDay.dayOfYear())
-    this.setState({start: start.unix(), end: end.unix()})
-  }
+    start.year(newDay.year());
+    end.year(newDay.year());
+    start.dayOfYear(newDay.dayOfYear());
+    end.dayOfYear(newDay.dayOfYear());
+    this.setState({ start: start.unix(), end: end.unix() });
+  };
 
-  _onChangeStartTime = (newTimestamp) => {
-    const newStart = moment(newTimestamp)
+  _onChangeStartTime = newTimestamp => {
+    const newStart = moment(newTimestamp);
     let newEnd = this.getEndMoment();
     if (newEnd.isSameOrBefore(newStart)) {
-      const leftInDay = moment(newStart).endOf('day').diff(newStart)
+      const leftInDay = moment(newStart)
+        .endOf('day')
+        .diff(newStart);
       const move = Math.min(leftInDay, moment.duration(1, 'hour').asMilliseconds());
-      newEnd = moment(newStart).add(move, 'ms')
+      newEnd = moment(newStart).add(move, 'ms');
     }
-    this.setState({start: newStart.unix(), end: newEnd.unix()})
-  }
+    this.setState({ start: newStart.unix(), end: newEnd.unix() });
+  };
 
-  _onChangeEndTime = (newTimestamp) => {
-    const newEnd = moment(newTimestamp)
+  _onChangeEndTime = newTimestamp => {
+    const newEnd = moment(newTimestamp);
     let newStart = this.getStartMoment();
     if (newStart.isSameOrAfter(newEnd)) {
-      const sinceDay = moment(newEnd).diff(newEnd.startOf('day'))
+      const sinceDay = moment(newEnd).diff(newEnd.startOf('day'));
       const move = Math.min(sinceDay, moment.duration(1, 'hour').asMilliseconds());
       newStart = moment(newEnd).subtract(move, 'ms');
     }
-    this.setState({end: newEnd.unix(), start: newStart.unix()})
-  }
+    this.setState({ end: newEnd.unix(), start: newStart.unix() });
+  };
 
   renderTime() {
     const startMoment = this.getStartMoment();
     const endMoment = this.getEndMoment();
     const date = startMoment.format('dddd, MMMM D'); // e.g. Tuesday, February 22
-    const timeRange = `${this.formatTime(startMoment)} - ${this.formatTime(endMoment)}`
+    const timeRange = `${this.formatTime(startMoment)} - ${this.formatTime(endMoment)}`;
     return (
       <div>
-        {date}<br />
+        {date}
+        <br />
         {timeRange}
       </div>
-    )
+    );
   }
 
   renderEditableTime() {
-    const startVal = (this.state.start) * 1000;
-    const endVal = (this.state.end) * 1000;
+    const startVal = this.state.start * 1000;
+    const endVal = this.state.end * 1000;
     return (
       <div className="row time">
         <RetinaImg name="ic-eventcard-time@2x.png" mode={RetinaImg.Mode.ContentPreserve} />
         <span>
-          <TimePicker
-            value={startVal}
-            onChange={this._onChangeStartTime}
-          />
+          <TimePicker value={startVal} onChange={this._onChangeStartTime} />
           to
-          <TimePicker
-            value={endVal}
-            onChange={this._onChangeEndTime}
-          />
+          <TimePicker value={endVal} onChange={this._onChangeEndTime} />
           <span className="timezone">
-            {moment().tz(DateUtils.timeZone).format("z")}
+            {moment()
+              .tz(DateUtils.timeZone)
+              .format('z')}
           </span>
-          &nbsp;
-          on
-          &nbsp;
+          &nbsp; on &nbsp;
           <DatePicker value={startVal} onChange={this._onChangeDay} />
         </span>
       </div>
-    )
+    );
   }
 
   renderParticipants(participants) {
-    const names = []
+    const names = [];
     for (let i = 0; i < participants.length; i++) {
       names.push(<div key={i}> {participants[i].name} </div>);
     }
@@ -179,11 +189,11 @@ export default class CalendarEventPopover extends React.Component {
   }
 
   renderEditable = () => {
-    const {title, description, start, end, location, participants} = this.state;
+    const { title, description, start, end, location, participants } = this.state;
 
     const fragment = document.createDocumentFragment();
-    const descriptionRoot = document.createElement('root')
-    fragment.appendChild(descriptionRoot)
+    const descriptionRoot = document.createElement('root');
+    fragment.appendChild(descriptionRoot);
     descriptionRoot.innerHTML = description;
 
     const notes = this.extractNotesFromDescription(descriptionRoot);
@@ -196,24 +206,28 @@ export default class CalendarEventPopover extends React.Component {
               className="title"
               type="text"
               value={title}
-              onChange={(e) => { this.updateField('title', e.target.value) }}
+              onChange={e => {
+                this.updateField('title', e.target.value);
+              }}
             />
           </div>
           <input
             className="location"
             type="text"
             value={location}
-            onChange={(e) => { this.updateField('location', e.target.value) }}
+            onChange={e => {
+              this.updateField('location', e.target.value);
+            }}
           />
-          <div className="section">
-            {this.renderEditableTime(start, end)}
-          </div>
+          <div className="section">{this.renderEditableTime(start, end)}</div>
           <div className="section">
             <div className="label">Invitees: </div>
             <EventParticipantsInput
               className="event-participant-field"
               participants={participants}
-              change={(val) => { this.updateField('participants', val) }}
+              change={val => {
+                this.updateField('participants', val);
+              }}
             />
           </div>
           <div className="section">
@@ -221,24 +235,27 @@ export default class CalendarEventPopover extends React.Component {
             <input
               type="text"
               value={notes}
-              onChange={(e) => { this.updateField('description', e.target.value) }}
+              onChange={e => {
+                this.updateField('description', e.target.value);
+              }}
             />
           </div>
-          <span onClick={this.saveEdits}>Save</span><span onClick={() => Actions.closePopover()}>Cancel</span>
+          <span onClick={this.saveEdits}>Save</span>
+          <span onClick={() => Actions.closePopover()}>Cancel</span>
         </TabGroupRegion>
       </div>
-    )
-  }
+    );
+  };
 
   render() {
     if (this.state.editing) {
       return this.renderEditable();
     }
-    const {title, description, location, participants} = this.state;
+    const { title, description, location, participants } = this.state;
 
     const fragment = document.createDocumentFragment();
-    const descriptionRoot = document.createElement('root')
-    fragment.appendChild(descriptionRoot)
+    const descriptionRoot = document.createElement('root');
+    fragment.appendChild(descriptionRoot);
     descriptionRoot.innerHTML = description;
 
     const notes = this.extractNotesFromDescription(descriptionRoot);
@@ -246,9 +263,7 @@ export default class CalendarEventPopover extends React.Component {
     return (
       <div className="calendar-event-popover" tabIndex="0">
         <div className="title-wrapper">
-          <div className="title">
-            {title}
-          </div>
+          <div className="title">{title}</div>
           <RetinaImg
             className="edit-icon"
             name="edit-icon.png"
@@ -257,12 +272,8 @@ export default class CalendarEventPopover extends React.Component {
             onClick={this.onEdit}
           />
         </div>
-        <div className="location">
-          {location}
-        </div>
-        <div className="section">
-          {this.renderTime()}
-        </div>
+        <div className="location">{location}</div>
+        <div className="section">{this.renderTime()}</div>
         <div className="section">
           <div className="label">Invitees: </div>
           {this.renderParticipants(participants)}
@@ -271,9 +282,7 @@ export default class CalendarEventPopover extends React.Component {
           <div className="description">
             <div className="label">Notes: </div>
             <ScrollRegion>
-              <div>
-                {notes}
-              </div>
+              <div>{notes}</div>
             </ScrollRegion>
           </div>
         </div>
@@ -281,4 +290,3 @@ export default class CalendarEventPopover extends React.Component {
     );
   }
 }
-

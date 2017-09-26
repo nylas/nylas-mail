@@ -4,7 +4,7 @@ import RecentlyReadStore from '../stores/recently-read-store';
 import Matcher from '../attributes/matcher';
 import Thread from '../models/thread';
 
-const buildQuery = (categoryIds) => {
+const buildQuery = categoryIds => {
   const unreadMatchers = new Matcher.And([
     Thread.attributes.categories.containsAny(categoryIds),
     Thread.attributes.unread.equal(true),
@@ -20,27 +20,25 @@ const buildQuery = (categoryIds) => {
   if (RecentlyReadStore.ids.length === 0) {
     query.where(unreadMatchers);
   } else {
-    query.where(new Matcher.Or([
-      unreadMatchers,
-      Thread.attributes.id.in(RecentlyReadStore.ids),
-    ]));
+    query.where(new Matcher.Or([unreadMatchers, Thread.attributes.id.in(RecentlyReadStore.ids)]));
   }
 
   return query;
-}
+};
 
 export default class UnreadQuerySubscription extends MutableQuerySubscription {
-
   constructor(categoryIds) {
-    super(buildQuery(categoryIds), {emitResultSet: true})
+    super(buildQuery(categoryIds), { emitResultSet: true });
     this._categoryIds = categoryIds;
     this._unlisten = RecentlyReadStore.listen(this.onRecentlyReadChanged);
   }
 
   onRecentlyReadChanged = () => {
-    const {limit, offset} = this._query.range()
-    this._query = buildQuery(this._categoryIds).limit(limit).offset(offset);
-  }
+    const { limit, offset } = this._query.range();
+    this._query = buildQuery(this._categoryIds)
+      .limit(limit)
+      .offset(offset);
+  };
 
   onLastCallbackRemoved() {
     this._unlisten();

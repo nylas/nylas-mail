@@ -1,12 +1,7 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import {
-  Menu,
-  RetinaImg,
-  LabelColorizer,
-  BoldedSearchResult,
-} from 'nylas-component-kit'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Menu, RetinaImg, LabelColorizer, BoldedSearchResult } from 'nylas-component-kit';
 import {
   Utils,
   Actions,
@@ -17,12 +12,10 @@ import {
   ChangeFolderTask,
   ChangeLabelsTask,
   FocusedPerspectiveStore,
-} from 'nylas-exports'
-import {Categories} from 'nylas-observables'
-
+} from 'nylas-exports';
+import { Categories } from 'nylas-observables';
 
 export default class MovePickerPopover extends Component {
-
   static propTypes = {
     threads: PropTypes.array.isRequired,
     account: PropTypes.object.isRequired,
@@ -32,7 +25,7 @@ export default class MovePickerPopover extends Component {
     super(props);
     this._standardFolders = [];
     this._userCategories = [];
-    this.state = this._recalculateState(this.props, {searchValue: ''});
+    this.state = this._recalculateState(this.props, { searchValue: '' });
   }
 
   componentDidMount() {
@@ -51,7 +44,9 @@ export default class MovePickerPopover extends Component {
   _registerObservables = (props = this.props) => {
     this._unregisterObservables();
     this.disposables = [
-      Categories.forAccount(props.account).sort().subscribe(this._onCategoriesChanged),
+      Categories.forAccount(props.account)
+        .sort()
+        .subscribe(this._onCategoriesChanged),
     ];
   };
 
@@ -61,16 +56,16 @@ export default class MovePickerPopover extends Component {
     }
   };
 
-  _recalculateState = (props = this.props, {searchValue = (this.state.searchValue || "")} = {}) => {
-    const {threads, account} = props
+  _recalculateState = (props = this.props, { searchValue = this.state.searchValue || '' } = {}) => {
+    const { threads, account } = props;
     if (threads.length === 0) {
-      return {categoryData: [], searchValue}
+      return { categoryData: [], searchValue };
     }
 
     const currentCategories = FocusedPerspectiveStore.current().categories() || [];
     const currentCategoryIds = currentCategories.map(c => c.id);
     const viewingAllMail = !currentCategories.find(c => c.role === 'spam' || c.role === 'trash');
-    const hidden = account ? ["drafts", "sent", "snoozed"] : [];
+    const hidden = account ? ['drafts', 'sent', 'snoozed'] : [];
 
     if (viewingAllMail) {
       hidden.push('all');
@@ -78,18 +73,17 @@ export default class MovePickerPopover extends Component {
 
     const categoryData = []
       .concat(this._standardFolders)
-      .concat([{divider: true, id: "category-divider"}])
+      .concat([{ divider: true, id: 'category-divider' }])
       .concat(this._userCategories)
-      .filter((cat) =>
-        // remove categories that are part of the current perspective or locked
-        !hidden.includes(cat.role) && !currentCategoryIds.includes(cat.id)
+      .filter(
+        cat =>
+          // remove categories that are part of the current perspective or locked
+          !hidden.includes(cat.role) && !currentCategoryIds.includes(cat.id)
       )
-      .filter((cat) =>
-        Utils.wordSearchRegExp(searchValue).test(cat.displayName)
-      )
-      .map((cat) => {
+      .filter(cat => Utils.wordSearchRegExp(searchValue).test(cat.displayName))
+      .map(cat => {
         if (cat.divider) {
-          return cat
+          return cat;
         }
         return {
           id: cat.id,
@@ -103,24 +97,24 @@ export default class MovePickerPopover extends Component {
       const newItemData = {
         searchValue: searchValue,
         newCategoryItem: true,
-        id: "category-create-new",
-      }
-      categoryData.push(newItemData)
+        id: 'category-create-new',
+      };
+      categoryData.push(newItemData);
     }
-    return {categoryData, searchValue}
+    return { categoryData, searchValue };
   };
 
-  _onCategoriesChanged = (categories) => {
+  _onCategoriesChanged = categories => {
     this._standardFolders = categories.filter(c => c.role && c instanceof Folder);
     this._userCategories = categories.filter(c => !c.role || !(c instanceof Folder));
-    this.setState(this._recalculateState())
+    this.setState(this._recalculateState());
   };
 
   _onEscape = () => {
-    Actions.closePopover()
+    Actions.closePopover();
   };
 
-  _onSelectCategory = (item) => {
+  _onSelectCategory = item => {
     if (this.props.threads.length === 0) {
       return;
     }
@@ -132,7 +126,7 @@ export default class MovePickerPopover extends Component {
     }
     Actions.popSheet();
     Actions.closePopover();
-  }
+  };
 
   _onCreateCategory = () => {
     const syncbackTask = new SyncbackCategoryTask({
@@ -140,46 +134,49 @@ export default class MovePickerPopover extends Component {
       accountId: this.props.account.id,
     });
 
-    TaskQueue.waitForPerformRemote(syncbackTask).then((finishedTask) => {
+    TaskQueue.waitForPerformRemote(syncbackTask).then(finishedTask => {
       if (!finishedTask.created) {
-        NylasEnv.showErrorDialog({title: "Error", message: `Could not create folder.`})
+        NylasEnv.showErrorDialog({ title: 'Error', message: `Could not create folder.` });
         return;
       }
-      this._onMoveToCategory({category: finishedTask.created});
+      this._onMoveToCategory({ category: finishedTask.created });
     });
     Actions.queueTask(syncbackTask);
-  }
+  };
 
-  _onMoveToCategory = ({category}) => {
-    const {threads} = this.props
+  _onMoveToCategory = ({ category }) => {
+    const { threads } = this.props;
 
     if (category instanceof Folder) {
-      Actions.queueTask(new ChangeFolderTask({
-        source: "Category Picker: New Category",
-        threads: threads,
-        folder: category,
-      }));
+      Actions.queueTask(
+        new ChangeFolderTask({
+          source: 'Category Picker: New Category',
+          threads: threads,
+          folder: category,
+        })
+      );
     } else {
       const all = [];
-      threads.forEach(({labels}) => all.push(...labels));
+      threads.forEach(({ labels }) => all.push(...labels));
 
-      Actions.queueTask(new ChangeLabelsTask({
-        source: "Category Picker: New Category",
-        labelsToRemove: all,
-        labelsToAdd: [category],
-        threads: threads,
-      }));
+      Actions.queueTask(
+        new ChangeLabelsTask({
+          source: 'Category Picker: New Category',
+          labelsToRemove: all,
+          labelsToAdd: [category],
+          threads: threads,
+        })
+      );
     }
   };
 
-  _onSearchValueChange = (event) => {
-    this.setState(
-      this._recalculateState(this.props, {searchValue: event.target.value})
-    )
+  _onSearchValueChange = event => {
+    this.setState(this._recalculateState(this.props, { searchValue: event.target.value }));
   };
 
-  _renderCreateNewItem = ({searchValue}) => {
-    const icon = CategoryStore.getInboxCategory(this.props.account) instanceof Folder ? 'folder' : 'tag';
+  _renderCreateNewItem = ({ searchValue }) => {
+    const icon =
+      CategoryStore.getInboxCategory(this.props.account) instanceof Folder ? 'folder' : 'tag';
 
     return (
       <div className="category-item category-create-new">
@@ -192,37 +189,35 @@ export default class MovePickerPopover extends Component {
           <strong>&ldquo;{searchValue}&rdquo;</strong> (create new)
         </div>
       </div>
-    )
+    );
   };
 
-  _renderItem = (item) => {
+  _renderItem = item => {
     if (item.divider) {
-      return <Menu.Item key={item.id} divider={item.divider} />
+      return <Menu.Item key={item.id} divider={item.divider} />;
     } else if (item.newCategoryItem) {
-      return this._renderCreateNewItem(item)
+      return this._renderCreateNewItem(item);
     }
 
-    const icon = (item.category instanceof Folder) ? (
-      <RetinaImg
-        name={`${item.name}.png`}
-        fallback={'folder.png'}
-        mode={RetinaImg.Mode.ContentIsMask}
-      />
-    ) : (
-      <RetinaImg
-        name={`tag.png`}
-        mode={RetinaImg.Mode.ContentIsMask}
-      />
-    );
+    const icon =
+      item.category instanceof Folder ? (
+        <RetinaImg
+          name={`${item.name}.png`}
+          fallback={'folder.png'}
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
+      ) : (
+        <RetinaImg name={`tag.png`} mode={RetinaImg.Mode.ContentIsMask} />
+      );
 
     return (
       <div className="category-item">
         {icon}
         <div className="category-display-name">
-          <BoldedSearchResult value={item.displayName} query={this.state.searchValue || ""} />
+          <BoldedSearchResult value={item.displayName} query={this.state.searchValue || ''} />
         </div>
       </div>
-    )
+    );
   };
 
   render() {
@@ -236,7 +231,7 @@ export default class MovePickerPopover extends Component {
         value={this.state.searchValue}
         onChange={this._onSearchValueChange}
       />,
-    ]
+    ];
 
     return (
       <div className="category-picker-popover">
@@ -248,9 +243,9 @@ export default class MovePickerPopover extends Component {
           itemContent={this._renderItem}
           onSelect={this._onSelectCategory}
           onEscape={this._onEscape}
-          defaultSelectedIndex={this.state.searchValue === "" ? -1 : 0}
+          defaultSelectedIndex={this.state.searchValue === '' ? -1 : 0}
         />
       </div>
-    )
+    );
   }
 }

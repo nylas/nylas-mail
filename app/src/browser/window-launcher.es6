@@ -1,4 +1,4 @@
-import NylasWindow from './nylas-window'
+import NylasWindow from './nylas-window';
 
 const DEBUG_SHOW_HOT_WINDOW = process.env.SHOW_HOT_WINDOW || false;
 let winNum = 0;
@@ -14,21 +14,29 @@ let winNum = 0;
  * requires and show it.
  */
 export default class WindowLauncher {
-  static EMPTY_WINDOW = "emptyWindow"
+  static EMPTY_WINDOW = 'emptyWindow';
 
-  constructor({devMode, safeMode, specMode, resourcePath, configDirPath, onCreatedHotWindow, config}) {
+  constructor({
+    devMode,
+    safeMode,
+    specMode,
+    resourcePath,
+    configDirPath,
+    onCreatedHotWindow,
+    config,
+  }) {
     this.defaultWindowOpts = {
-      frame: process.platform !== "darwin",
+      frame: process.platform !== 'darwin',
       hidden: false,
       toolbar: true,
       devMode,
       safeMode,
       resizable: true,
       windowType: WindowLauncher.EMPTY_WINDOW,
-      bootstrapScript: require.resolve("../secondary-window-bootstrap"),
+      bootstrapScript: require.resolve('../secondary-window-bootstrap'),
       resourcePath,
       configDirPath,
-    }
+    };
     this.config = config;
     this.onCreatedHotWindow = onCreatedHotWindow;
     if (specMode) return;
@@ -40,18 +48,18 @@ export default class WindowLauncher {
 
     let win;
     if (this._mustUseColdWindow(opts)) {
-      win = new NylasWindow(opts)
+      win = new NylasWindow(opts);
     } else {
       // Check if the hot window has been deleted. This may happen when we are
       // relaunching the app
       if (!this.hotWindow) {
-        this.createHotWindow()
+        this.createHotWindow();
       }
       win = this.hotWindow;
 
-      const newLoadSettings = Object.assign({}, win.loadSettings(), opts)
+      const newLoadSettings = Object.assign({}, win.loadSettings(), opts);
       if (newLoadSettings.windowType === WindowLauncher.EMPTY_WINDOW) {
-        throw new Error("Must specify a windowType")
+        throw new Error('Must specify a windowType');
       }
 
       // Reset the loaded state and update the load settings.
@@ -74,7 +82,7 @@ export default class WindowLauncher {
         // We need to regen a hot window, but do it in the next event
         // loop to not hang the opening of the current window.
         this.createHotWindow();
-      }, 0)
+      }, 0);
     }
 
     if (!opts.hidden && !opts.initializeInBackground) {
@@ -83,9 +91,9 @@ export default class WindowLauncher {
       // `hidden:true` flag, nothing will show. When `setLoadSettings`
       // starts populating the window in `populateHotWindow` we'll show or
       // hide based on the windowOpts
-      win.showWhenLoaded()
+      win.showWhenLoaded();
     }
-    return win
+    return win;
   }
 
   createHotWindow() {
@@ -102,19 +110,19 @@ export default class WindowLauncher {
   // https://phab.nylas.com/T1282
   cleanupBeforeAppQuit() {
     if (this.hotWindow != null) {
-      this.hotWindow.browserWindow.destroy()
+      this.hotWindow.browserWindow.destroy();
     }
-    this.hotWindow = null
+    this.hotWindow = null;
   }
 
   // Some properties, like the `frame` or `toolbar` can't be updated once
   // a window has been setup. If we detect this case we have to bootup a
   // plain NylasWindow instead of using a hot window.
   _mustUseColdWindow(opts) {
-    const {bootstrapScript, frame} = this.defaultWindowOpts;
+    const { bootstrapScript, frame } = this.defaultWindowOpts;
 
     const usesOtherBootstrap = opts.bootstrapScript !== bootstrapScript;
-    const usesOtherFrame = (!!opts.frame) !== frame;
+    const usesOtherFrame = !!opts.frame !== frame;
     const requestsColdStart = opts.coldStartOnly;
 
     return usesOtherBootstrap || usesOtherFrame || requestsColdStart;
@@ -123,6 +131,6 @@ export default class WindowLauncher {
   _hotWindowOpts() {
     const hotWindowOpts = Object.assign({}, this.defaultWindowOpts);
     hotWindowOpts.hidden = DEBUG_SHOW_HOT_WINDOW;
-    return hotWindowOpts
+    return hotWindowOpts;
   }
 }

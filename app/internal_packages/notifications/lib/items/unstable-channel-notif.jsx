@@ -1,5 +1,5 @@
-import {React, UpdateChannelStore} from 'nylas-exports';
-import {Notification} from 'nylas-component-kit';
+import { React, UpdateChannelStore } from 'nylas-exports';
+import { Notification } from 'nylas-component-kit';
 
 export default class UnstableChannelNotification extends React.Component {
   static displayName = 'UnstableChannelNotification';
@@ -8,7 +8,7 @@ export default class UnstableChannelNotification extends React.Component {
     super();
     this.state = {
       isUnstableChannel: UpdateChannelStore.currentIsUnstable(),
-    }
+    };
   }
 
   componentDidMount() {
@@ -26,12 +26,12 @@ export default class UnstableChannelNotification extends React.Component {
   }
 
   _onReportIssue = () => {
-    NylasEnv.windowEventHandler.openLink({href: 'mailto:support@getmailspring.com'})
-  }
+    NylasEnv.windowEventHandler.openLink({ href: 'mailto:support@getmailspring.com' });
+  };
 
   render() {
     if (!this.state.isUnstableChannel) {
-      return <span />
+      return <span />;
     }
     return (
       <Notification
@@ -40,13 +40,15 @@ export default class UnstableChannelNotification extends React.Component {
         title="You're on a pre-release channel. We'd love your feedback."
         subtitle="You can switch back to stable from the preferences."
         icon="volstead-defaultclient.png"
-        actions={[{
-          label: "Feedback",
-          fn: this._onReportIssue,
-        }]}
+        actions={[
+          {
+            label: 'Feedback',
+            fn: this._onReportIssue,
+          },
+        ]}
         isDismissable
         isPermanentlyDismissable
       />
-    )
+    );
   }
 }

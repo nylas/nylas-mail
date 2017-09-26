@@ -1,26 +1,25 @@
-import React from 'react'
-import classnames from 'classnames'
-import {ComponentRegistry} from 'nylas-exports'
-import {InjectedComponentSet} from 'nylas-component-kit'
+import classnames from 'classnames';
+import { React, PropTypes, ComponentRegistry } from 'nylas-exports';
+import { InjectedComponentSet } from 'nylas-component-kit';
 
-const ROLE = "Composer:ActionButton";
+const ROLE = 'Composer:ActionButton';
 
 export default class ActionBarPlugins extends React.Component {
-  static displayName = "ActionBarPlugins";
+  static displayName = 'ActionBarPlugins';
 
   static propTypes = {
-    draft: React.PropTypes.object,
-    session: React.PropTypes.object,
-    isValidDraft: React.PropTypes.func,
-  }
+    draft: PropTypes.object,
+    session: PropTypes.object,
+    isValidDraft: PropTypes.func,
+  };
 
   constructor(props) {
     super(props);
-    this.state = this._getStateFromStores()
+    this.state = this._getStateFromStores();
   }
 
   componentDidMount() {
-    this._usub = ComponentRegistry.listen(this._onComponentsChange)
+    this._usub = ComponentRegistry.listen(this._onComponentsChange);
   }
 
   componentWillUnmount() {
@@ -37,26 +36,26 @@ export default class ActionBarPlugins extends React.Component {
       // It also takes 2 frames to reliably get all of the icons painted.
       window.requestAnimationFrame(() => {
         window.requestAnimationFrame(() => {
-          this.setState(this._getStateFromStores())
-        })
-      })
+          this.setState(this._getStateFromStores());
+        });
+      });
     }
-  }
+  };
 
   _getPluginsLength() {
-    return ComponentRegistry.findComponentsMatching({role: ROLE}).length;
+    return ComponentRegistry.findComponentsMatching({ role: ROLE }).length;
   }
 
   _getStateFromStores() {
     return {
       pluginsLoaded: this._getPluginsLength() > 0,
-    }
+    };
   }
 
   render() {
     const className = classnames({
-      "action-bar-animation-wrap": true,
-      "plugins-loaded": this.state.pluginsLoaded,
+      'action-bar-animation-wrap': true,
+      'plugins-loaded': this.state.pluginsLoaded,
     });
 
     return (
@@ -64,7 +63,7 @@ export default class ActionBarPlugins extends React.Component {
         <div className="action-bar-cover" />
         <InjectedComponentSet
           className="composer-action-bar-plugins"
-          matching={{role: ROLE}}
+          matching={{ role: ROLE }}
           exposedProps={{
             draft: this.props.draft,
             threadId: this.props.draft.threadId,
@@ -74,6 +73,6 @@ export default class ActionBarPlugins extends React.Component {
           }}
         />
       </span>
-    )
+    );
   }
 }

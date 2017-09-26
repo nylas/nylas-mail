@@ -1,7 +1,7 @@
 import React from 'react';
-import {Actions, FocusedContactsStore} from 'nylas-exports'
+import { Actions, FocusedContactsStore } from 'nylas-exports';
 
-const SPLIT_KEY = "---splitvalue---"
+const SPLIT_KEY = '---splitvalue---';
 
 export default class SidebarParticipantPicker extends React.Component {
   static displayName = 'SidebarParticipantPicker';
@@ -35,35 +35,35 @@ export default class SidebarParticipantPicker extends React.Component {
 
   _getKeyForContact(contact) {
     if (!contact) {
-      return null
+      return null;
     }
-    return contact.email + SPLIT_KEY + contact.name
+    return contact.email + SPLIT_KEY + contact.name;
   }
 
-  _onSelectContact = (event) => {
-    const {sortedContacts} = this.state
+  _onSelectContact = event => {
+    const { sortedContacts } = this.state;
     const [email, name] = event.target.value.split(SPLIT_KEY);
-    const contact = sortedContacts.find((c) => c.name === name && c.email === email)
+    const contact = sortedContacts.find(c => c.name === name && c.email === email);
     return Actions.focusContact(contact);
-  }
+  };
 
   _renderSortedContacts() {
-    return this.state.sortedContacts.map((contact) => {
-      const key = this._getKeyForContact(contact)
+    return this.state.sortedContacts.map(contact => {
+      const key = this._getKeyForContact(contact);
 
       return (
         <option value={key} key={key}>
-          {contact.displayName({includeAccountLabel: true, forceAccountLabel: true})}
+          {contact.displayName({ includeAccountLabel: true, forceAccountLabel: true })}
         </option>
-      )
+      );
     });
   }
 
   render() {
-    const {sortedContacts, focusedContact} = this.state
-    const value = this._getKeyForContact(focusedContact)
+    const { sortedContacts, focusedContact } = this.state;
+    const value = this._getKeyForContact(focusedContact);
     if (sortedContacts.length === 0 || !value) {
-      return false
+      return false;
     }
     return (
       <div className="sidebar-participant-picker">
@@ -71,8 +71,6 @@ export default class SidebarParticipantPicker extends React.Component {
           {this._renderSortedContacts()}
         </select>
       </div>
-    )
+    );
   }
-
-
 }

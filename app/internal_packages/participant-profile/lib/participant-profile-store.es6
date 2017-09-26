@@ -1,10 +1,10 @@
-import {Utils} from 'nylas-exports'
-import NylasStore from 'nylas-store'
-import ClearbitDataSource from './clearbit-data-source'
+import { Utils } from 'nylas-exports';
+import NylasStore from 'nylas-store';
+import ClearbitDataSource from './clearbit-data-source';
 
-const contactCache = {}
-const CACHE_SIZE = 100
-const contactCacheKeyIndex = []
+const contactCache = {};
+const CACHE_SIZE = 100;
+const contactCacheKeyIndex = [];
 
 // TODO: Put cache into localstorage
 
@@ -15,9 +15,7 @@ class ParticipantProfileStore extends NylasStore {
     this.dataSource = new ClearbitDataSource();
   }
 
-  activate() {
-
-  }
+  activate() {}
 
   deactivate() {
     // no op
@@ -25,32 +23,35 @@ class ParticipantProfileStore extends NylasStore {
 
   dataForContact(contact) {
     if (!contact) {
-      return {}
+      return {};
     }
 
     if (Utils.likelyNonHumanEmail(contact.email)) {
-      return {}
+      return {};
     }
 
     if (this.inCache(contact)) {
       const data = this.getCache(contact);
       if (data.cacheDate) {
-        return data
+        return data;
       }
-      return {}
+      return {};
     }
 
-    this.dataSource.find({email: contact.email}).then((data) => {
-      if (data && data.email === contact.email) {
-        this.setCache(contact, data);
-        this.trigger()
-      }
-    }).catch((err = {}) => {
-      if (err.statusCode !== 404) {
-        throw err
-      }
-    })
-    return {}
+    this.dataSource
+      .find({ email: contact.email })
+      .then(data => {
+        if (data && data.email === contact.email) {
+          this.setCache(contact, data);
+          this.trigger();
+        }
+      })
+      .catch((err = {}) => {
+        if (err.statusCode !== 404) {
+          throw err;
+        }
+      });
+    return {};
   }
 
   getCache(contact) {
@@ -58,7 +59,7 @@ class ParticipantProfileStore extends NylasStore {
   }
 
   inCache(contact) {
-    const cache = contactCache[contact.email]
+    const cache = contactCache[contact.email];
     if (!cache) {
       return false;
     }
@@ -78,4 +79,4 @@ class ParticipantProfileStore extends NylasStore {
   }
 }
 
-export default new ParticipantProfileStore()
+export default new ParticipantProfileStore();

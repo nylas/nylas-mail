@@ -13,7 +13,7 @@ import Utils from './flux/models/utils';
 
 function ensureInteger(f, fallback) {
   let int = f;
-  if (isNaN(f) || (f === undefined) || (f === null)) {
+  if (isNaN(f) || f === undefined || f === null) {
     int = fallback;
   }
   return Math.round(int);
@@ -50,7 +50,7 @@ export default class NylasEnvConstructor {
     this.prototype.themes = null;
 
     // Public: A {StyleManager} instance
-    this.prototype.styles = null;  // Increment this when the serialization format changes
+    this.prototype.styles = null; // Increment this when the serialization format changes
   }
 
   // Load or create the application environment
@@ -59,10 +59,10 @@ export default class NylasEnvConstructor {
     let app;
 
     const savedState = this._loadSavedState();
-    if (savedState && (savedState.version === this.version)) {
+    if (savedState && savedState.version === this.version) {
       app = new this(savedState);
     } else {
-      app = new this({version: this.version});
+      app = new this({ version: this.version });
     }
 
     return app;
@@ -85,7 +85,9 @@ export default class NylasEnvConstructor {
     }
 
     try {
-      if (stateString != null) { return JSON.parse(stateString); }
+      if (stateString != null) {
+        return JSON.parse(stateString);
+      }
     } catch (error) {
       console.warn(`Error parsing window state: ${statePath} ${error.stack}`, error);
     }
@@ -95,7 +97,7 @@ export default class NylasEnvConstructor {
   // Returns the path where the state for the current window will be
   // located if it exists.
   static getStatePath() {
-    const {isSpec, mainWindow, configDirPath} = this.getLoadSettings();
+    const { isSpec, mainWindow, configDirPath } = this.getLoadSettings();
     if (isSpec) {
       return 'spec-saved-state.json';
     } else if (mainWindow) {
@@ -107,14 +109,16 @@ export default class NylasEnvConstructor {
   // Returns the load settings hash associated with the current window.
   static getLoadSettings() {
     if (this.loadSettings == null) {
-      this.loadSettings = JSON.parse(decodeURIComponent(location.search.substr(14)));
+      this.loadSettings = JSON.parse(decodeURIComponent(window.location.search.substr(14)));
     }
 
     const cloned = Utils.deepClone(this.loadSettings);
     // The loadSettings.windowState could be large, request it only when needed.
     Object.defineProperty(cloned, 'windowState', {
-      get: () => { return this.getCurrentWindow().loadSettings.windowState },
-      set: (value) => {
+      get: () => {
+        return this.getCurrentWindow().loadSettings.windowState;
+      },
+      set: value => {
         this.getCurrentWindow().loadSettings.windowState = value;
         return value;
       },
@@ -133,7 +137,7 @@ export default class NylasEnvConstructor {
   // Call .loadOrCreate instead
   constructor(savedState = {}) {
     this.savedState = savedState;
-    ({version: this.version} = this.savedState);
+    ({ version: this.version } = this.savedState);
     this.emitter = new Emitter();
   }
 
@@ -146,7 +150,7 @@ export default class NylasEnvConstructor {
 
     this.setupErrorLogger();
 
-    const {devMode, safeMode, resourcePath, configDirPath, windowType} = this.getLoadSettings();
+    const { devMode, safeMode, resourcePath, configDirPath, windowType } = this.getLoadSettings();
     const specMode = this.inSpecMode();
 
     // Add 'src/global/' to module search path.
@@ -173,26 +177,37 @@ export default class NylasEnvConstructor {
 
     // Setup config and load it immediately so it's available to our singletons
     // and doesn't emit events later when it loads
-    this.config = new Config({configDirPath, resourcePath});
+    this.config = new Config({ configDirPath, resourcePath });
     this.loadConfig();
 
-    this.keymaps = new KeymapManager({configDirPath, resourcePath});
+    this.keymaps = new KeymapManager({ configDirPath, resourcePath });
     this.commands = new CommandRegistry();
-    this.packages = new PackageManager({devMode, configDirPath, resourcePath, safeMode, specMode});
+    this.packages = new PackageManager({
+      devMode,
+      configDirPath,
+      resourcePath,
+      safeMode,
+      specMode,
+    });
     this.styles = new StyleManager();
-    this.themes = new ThemeManager({packageManager: this.packages, configDirPath, resourcePath, safeMode});
+    this.themes = new ThemeManager({
+      packageManager: this.packages,
+      configDirPath,
+      resourcePath,
+      safeMode,
+    });
     this.spellchecker = require('./spellchecker').default;
-    this.menu = new MenuManager({resourcePath});
+    this.menu = new MenuManager({ resourcePath });
     if (process.platform === 'win32') {
       this.getCurrentWindow().setMenuBarVisibility(false);
     }
 
     this.windowEventHandler = new WindowEventHandler();
-    
+
     // We extend nylas observables with our own methods. This happens on
     // require of nylas-observables
     require('nylas-observables');
-    
+
     // Nylas exports is designed to provide a lazy-loaded set of globally
     // accessible objects to all packages. Upon require, nylas-exports will
     // fill the StoreRegistry, and DatabaseObjectRegistries
@@ -236,46 +251,50 @@ export default class NylasEnvConstructor {
     // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
     window.onerror = (message, url, line, column, originalError) => {
       if (!this.inDevMode()) {
-        return this.reportError(originalError, {url, line, column});
+        return this.reportError(originalError, { url, line, column });
       }
-      const {line: newLine, column: newColumn} = mapSourcePosition({source: url, line, column});
+      const { line: newLine, column: newColumn } = mapSourcePosition({ source: url, line, column });
       originalError.stack = convertStackTrace(originalError.stack, sourceMapCache);
-      return this.reportError(originalError, {url, line: newLine, column: newColumn});
+      return this.reportError(originalError, { url, line: newLine, column: newColumn });
     };
 
     process.on('uncaughtException', e => {
       this.reportError(e);
     });
 
-    process.on('unhandledRejection', (error) => {
+    process.on('unhandledRejection', error => {
       this._onUnhandledRejection(error, sourceMapCache);
     });
 
-    window.addEventListener('unhandledrejection', (e) => {
+    window.addEventListener('unhandledrejection', e => {
       // This event is supposed to look like {reason, promise}, according to
       // https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
       // In practice, it can have different shapes, so we make our best guess
       if (!e) {
-        const error = new Error(`Unknown window.unhandledrejection event.`)
-        this._onUnhandledRejection(error, sourceMapCache)
-        return
+        const error = new Error(`Unknown window.unhandledrejection event.`);
+        this._onUnhandledRejection(error, sourceMapCache);
+        return;
       }
       if (e instanceof Error) {
-        this._onUnhandledRejection(e, sourceMapCache)
-        return
+        this._onUnhandledRejection(e, sourceMapCache);
+        return;
       }
       if (e.reason) {
-        const error = e.reason
-        this._onUnhandledRejection(error, sourceMapCache)
-        return
+        const error = e.reason;
+        this._onUnhandledRejection(error, sourceMapCache);
+        return;
       }
       if (e.detail && e.detail.reason) {
-        const error = e.detail.reason
-        this._onUnhandledRejection(error, sourceMapCache)
-        return
+        const error = e.detail.reason;
+        this._onUnhandledRejection(error, sourceMapCache);
+        return;
       }
-      const error = new Error(`Unrecognized event shape in window.unhandledrejection handler. Event keys: ${Object.keys(e)}`)
-      this._onUnhandledRejection(error, sourceMapCache)
+      const error = new Error(
+        `Unrecognized event shape in window.unhandledrejection handler. Event keys: ${Object.keys(
+          e
+        )}`
+      );
+      this._onUnhandledRejection(error, sourceMapCache);
     });
 
     return null;
@@ -286,14 +305,14 @@ export default class NylasEnvConstructor {
       error.stack = convertStackTrace(error.stack, sourceMapCache);
     }
     this.reportError(error);
-  }
+  };
 
   // Public: report an error through the `ErrorLogger`
   //
   // The difference between this and `ErrorLogger.reportError` is that
   // `NylasEnv.reportError` hooks into test failures and dev tool popups.
   //
-  reportError(error, extra = {}, {noWindows} = {}) {
+  reportError(error, extra = {}, { noWindows } = {}) {
     try {
       extra.pluginIds = this._findPluginsFromError(error);
     } catch (err) {
@@ -316,9 +335,11 @@ export default class NylasEnvConstructor {
   }
 
   _findPluginsFromError(error) {
-    if (!error.stack) { return []; }
+    if (!error.stack) {
+      return [];
+    }
     const stackPaths = error.stack.match(/((?:\/[\w-_]+)+)/g) || [];
-    const stackPathComponents = _.uniq(_.flatten(stackPaths.map(p => p.split("/"))));
+    const stackPathComponents = _.uniq(_.flatten(stackPaths.map(p => p.split('/'))));
 
     const names = [];
     for (const pkg of this.packages.getActivePackages()) {
@@ -346,10 +367,10 @@ export default class NylasEnvConstructor {
     };
     return tracing.startRecording(opts, () => {
       console.log('Tracing started');
-      return setTimeout(() =>
-        tracing.stopRecording('', p => console.log(`Tracing data recorded to ${p}`))
-
-      , 5000);
+      return setTimeout(
+        () => tracing.stopRecording('', p => console.log(`Tracing data recorded to ${p}`)),
+        5000
+      );
     });
   }
 
@@ -392,7 +413,9 @@ export default class NylasEnvConstructor {
   //
   // Returns the version text {String}.
   getVersion() {
-    return this.appVersion != null ? this.appVersion : (this.appVersion = this.getLoadSettings().appVersion);
+    return this.appVersion != null
+      ? this.appVersion
+      : (this.appVersion = this.getLoadSettings().appVersion);
   }
 
   // Public: Determine whether the current version is an official release.
@@ -402,7 +425,9 @@ export default class NylasEnvConstructor {
   }
 
   // Public: Get the directory path to Mailspring's configuration area.
-  getConfigDirPath() { return this.getLoadSettings().configDirPath; }
+  getConfigDirPath() {
+    return this.getLoadSettings().configDirPath;
+  }
 
   // Public: Get the time taken to completely load the current window.
   //
@@ -440,7 +465,7 @@ export default class NylasEnvConstructor {
   // Returns an {Object} in the format `{width: 1000, height: 700}`
   getSize() {
     const [width, height] = Array.from(this.getCurrentWindow().getSize());
-    return {width, height};
+    return { width, height };
   }
 
   // Essential: Set the size of current window.
@@ -448,9 +473,7 @@ export default class NylasEnvConstructor {
   // * `width` The {Number} of pixels.
   // * `height` The {Number} of pixels.
   setSize(width, height) {
-    return this.getCurrentWindow().setSize(
-      ensureInteger(width, 100),
-      ensureInteger(height, 100));
+    return this.getCurrentWindow().setSize(ensureInteger(width, 100), ensureInteger(height, 100));
   }
 
   // Essential: Transition and set the size of the current window.
@@ -478,11 +501,11 @@ export default class NylasEnvConstructor {
     this._setSizeAnimatedCallCount += 1;
     const call = this._setSizeAnimatedCallCount;
 
-    const cubicInOut = (t) => {
+    const cubicInOut = t => {
       if (t < 0.5) {
-        return 4 * (t ** 3);
+        return 4 * t ** 3;
       }
-      return (t - 1) * (((2 * t) - 2) ** 2) + 1;
+      return (t - 1) * (2 * t - 2) ** 2 + 1;
     };
     const win = this.getCurrentWindow();
     const animWidth = Math.round(width);
@@ -495,16 +518,23 @@ export default class NylasEnvConstructor {
       // It's very important this function never return undefined for any of the
       // keys which blows up setBounds.
       ({
-        x: ensureInteger(startBounds.x + ((animWidth - startBounds.animWidth) * -0.5 * i), 0),
-        y: ensureInteger(startBounds.y + ((animHeight - startBounds.animHeight) * -0.5 * i), 0),
-        width: ensureInteger(startBounds.animWidth + ((animWidth - startBounds.animWidth) * i), animWidth),
-        height: ensureInteger(startBounds.animHeight + ((animHeight - startBounds.animHeight) * i), animHeight),
-      })
-    ;
+        x: ensureInteger(startBounds.x + (animWidth - startBounds.animWidth) * -0.5 * i, 0),
+        y: ensureInteger(startBounds.y + (animHeight - startBounds.animHeight) * -0.5 * i, 0),
+        width: ensureInteger(
+          startBounds.animWidth + (animWidth - startBounds.animWidth) * i,
+          animWidth
+        ),
+        height: ensureInteger(
+          startBounds.animHeight + (animHeight - startBounds.animHeight) * i,
+          animHeight
+        ),
+      });
 
     const tick = () => {
-      if (call !== this._setSizeAnimatedCallCount) { return; }
-      const t = Math.min(1, (Date.now() - startTime) / (animDuration));
+      if (call !== this._setSizeAnimatedCallCount) {
+        return;
+      }
+      const t = Math.min(1, (Date.now() - startTime) / animDuration);
       const i = cubicInOut(t);
       win.setBounds(boundsForI(i));
       if (t !== 1) {
@@ -530,7 +560,7 @@ export default class NylasEnvConstructor {
   // Returns an {Object} in the format `{x: 10, y: 20}`
   getPosition() {
     const [x, y] = Array.from(this.getCurrentWindow().getPosition());
-    return {x, y};
+    return { x, y };
   }
 
   // Essential: Set the position of current window.
@@ -538,9 +568,12 @@ export default class NylasEnvConstructor {
   // * `x` The {Number} of pixels.
   // * `y` The {Number} of pixels.
   setPosition(x, y) {
-    return ipcRenderer.send('call-window-method', 'setPosition',
+    return ipcRenderer.send(
+      'call-window-method',
+      'setPosition',
       ensureInteger(x, 0),
-      ensureInteger(y, 0));
+      ensureInteger(y, 0)
+    );
   }
 
   // Extended: Get the current window
@@ -619,9 +652,9 @@ export default class NylasEnvConstructor {
   setFullScreen(fullScreen = false) {
     ipcRenderer.send('call-window-method', 'setFullScreen', fullScreen);
     if (fullScreen) {
-      return document.body.classList.add("fullscreen");
+      return document.body.classList.add('fullscreen');
     }
-    return document.body.classList.remove("fullscreen");
+    return document.body.classList.remove('fullscreen');
   }
 
   // Extended: Toggle the full screen state of the current window.
@@ -638,10 +671,10 @@ export default class NylasEnvConstructor {
   //   * `height` The window's height {Number}.
   getWindowDimensions() {
     const browserWindow = this.getCurrentWindow();
-    const {x, y, width, height} = browserWindow.getBounds();
+    const { x, y, width, height } = browserWindow.getBounds();
     const maximized = browserWindow.isMaximized();
     const fullScreen = browserWindow.isFullScreen();
-    return {x, y, width, height, maximized, fullScreen};
+    return { x, y, width, height, maximized, fullScreen };
   }
 
   // Set the dimensions of the window.
@@ -655,12 +688,12 @@ export default class NylasEnvConstructor {
   //   * `y` The new y coordinate.
   //   * `width` The new width.
   //   * `height` The new height.
-  setWindowDimensions({x, y, width, height}) {
-    if ((x != null) && (y != null) && (width != null) && (height != null)) {
-      return this.getCurrentWindow().setBounds({x, y, width, height});
-    } else if ((width != null) && (height != null)) {
+  setWindowDimensions({ x, y, width, height }) {
+    if (x != null && y != null && width != null && height != null) {
+      return this.getCurrentWindow().setBounds({ x, y, width, height });
+    } else if (width != null && height != null) {
       return this.setSize(width, height);
-    } else if ((x != null) && (y != null)) {
+    } else if (x != null && y != null) {
       return this.setPosition(x, y);
     }
     return this.center();
@@ -668,12 +701,12 @@ export default class NylasEnvConstructor {
 
   // Returns true if the dimensions are useable, false if they should be ignored.
   // Work around for https://github.com/atom/electron/issues/473
-  isValidDimensions({x, y, width, height} = {}) {
-    return (width > 0) && (height > 0) && ((x + width) > 0) && ((y + height) > 0);
+  isValidDimensions({ x, y, width, height } = {}) {
+    return width > 0 && height > 0 && x + width > 0 && y + height > 0;
   }
 
   getDefaultWindowDimensions() {
-    let {width, height} = remote.screen.getPrimaryDisplay().workAreaSize;
+    let { width, height } = remote.screen.getPrimaryDisplay().workAreaSize;
     let x = 0;
     let y = 0;
 
@@ -689,7 +722,7 @@ export default class NylasEnvConstructor {
       height = MAX_HEIGHT;
     }
 
-    return {x, y, width, height};
+    return { x, y, width, height };
   }
 
   restoreWindowDimensions() {
@@ -698,7 +731,7 @@ export default class NylasEnvConstructor {
       dimensions = this.getDefaultWindowDimensions();
     }
     this.setWindowDimensions(dimensions);
-    if (dimensions.maximized && (process.platform !== 'darwin')) {
+    if (dimensions.maximized && process.platform !== 'darwin') {
       this.maximize();
     }
     if (dimensions.fullScreen) {
@@ -713,7 +746,7 @@ export default class NylasEnvConstructor {
     }
   }
 
-  storeColumnWidth({id, width}) {
+  storeColumnWidth({ id, width }) {
     if (this.savedState.columnWidths == null) {
       this.savedState.columnWidths = {};
     }
@@ -728,7 +761,7 @@ export default class NylasEnvConstructor {
   }
 
   async startWindow() {
-    const {windowType} = this.getLoadSettings();
+    const { windowType } = this.getLoadSettings();
 
     this.themes.loadBaseStylesheets();
     this.initializeBasicSheet();
@@ -753,7 +786,7 @@ export default class NylasEnvConstructor {
   async startRootWindow() {
     this.restoreWindowDimensions();
     this.getCurrentWindow().setMinimumSize(875, 250);
-    await this.startWindow()
+    await this.startWindow();
   }
 
   // Initializes a secondary window.
@@ -762,7 +795,7 @@ export default class NylasEnvConstructor {
   // gets fired.
   async startSecondaryWindow() {
     await this.startWindow();
-    ipcRenderer.on("load-settings-changed", (...args) => this.populateHotWindow(...args));
+    ipcRenderer.on('load-settings-changed', (...args) => this.populateHotWindow(...args));
   }
 
   // We setup the initial Sheet for hot windows. This is the default title
@@ -771,9 +804,13 @@ export default class NylasEnvConstructor {
   initializeBasicSheet() {
     const WorkspaceStore = require('../src/flux/stores/workspace-store');
     if (!WorkspaceStore.Sheet.Main) {
-      WorkspaceStore.defineSheet('Main', {root: true}, {
-        popout: ['Center'],
-      });
+      WorkspaceStore.defineSheet(
+        'Main',
+        { root: true },
+        {
+          popout: ['Center'],
+        }
+      );
     }
   }
 
@@ -789,8 +826,10 @@ export default class NylasEnvConstructor {
 
     this.packages.activatePackages(loadSettings.windowType);
 
-    this.emitter.emit('window-props-received',
-      loadSettings.windowProps != null ? loadSettings.windowProps : {});
+    this.emitter.emit(
+      'window-props-received',
+      loadSettings.windowProps != null ? loadSettings.windowProps : {}
+    );
 
     const browserWindow = this.getCurrentWindow();
     if (browserWindow.isResizable() !== loadSettings.resizable) {
@@ -825,8 +864,10 @@ export default class NylasEnvConstructor {
   Section: Messaging the User
   */
 
-  displayWindow({maximize} = {}) {
-    if (this.inSpecMode()) { return; }
+  displayWindow({ maximize } = {}) {
+    if (this.inSpecMode()) {
+      return;
+    }
     this.show();
     this.focus();
     if (maximize) this.maximize();
@@ -842,7 +883,7 @@ export default class NylasEnvConstructor {
   }
 
   isDevToolsOpened() {
-    return this.getCurrentWindow().webContents.isDevToolsOpened()
+    return this.getCurrentWindow().webContents.isDevToolsOpened();
   }
 
   // Extended: Toggle the visibility of the dev tools for the current window.
@@ -861,20 +902,23 @@ export default class NylasEnvConstructor {
 
   initializeReactRoot() {
     // Put state back into sheet-container? Restore app state here
-    this.item = document.createElement("nylas-workspace");
-    this.item.setAttribute("id", "sheet-container");
-    this.item.setAttribute("class", "sheet-container");
-    this.item.setAttribute("tabIndex", "-1");
+    this.item = document.createElement('nylas-workspace');
+    this.item.setAttribute('id', 'sheet-container');
+    this.item.setAttribute('class', 'sheet-container');
+    this.item.setAttribute('tabIndex', '-1');
 
-    const React = require("react");
-    const ReactDOM = require("react-dom");
+    const React = require('react');
+    const ReactDOM = require('react-dom');
     const SheetContainer = require('./sheet-container').default;
     ReactDOM.render(React.createElement(SheetContainer), this.item);
     return document.querySelector(this.workspaceViewParentSelector).appendChild(this.item);
   }
 
   loadConfig() {
-    this.config.setSchema(null, {type: 'object', properties: _.clone(require('./config-schema').default)});
+    this.config.setSchema(null, {
+      type: 'object',
+      properties: _.clone(require('./config-schema').default),
+    });
     return this.config.load();
   }
 
@@ -888,21 +932,23 @@ export default class NylasEnvConstructor {
   }
 
   showSaveDialog(options, callback) {
-    if (options.title == null) { options.title = 'Save File'; }
+    if (options.title == null) {
+      options.title = 'Save File';
+    }
     return callback(remote.dialog.showSaveDialog(this.getCurrentWindow(), options));
   }
 
-  showErrorDialog(messageData, {showInMainWindow, detail} = {}) {
+  showErrorDialog(messageData, { showInMainWindow, detail } = {}) {
     let message;
     let title;
     if (_.isString(messageData) || _.isNumber(messageData)) {
       message = messageData;
-      title = "Error";
+      title = 'Error';
     } else if (_.isObject(messageData)) {
       ({ message } = messageData);
       ({ title } = messageData);
     } else {
-      throw new Error("Must pass a valid message to show dialog", message);
+      throw new Error('Must pass a valid message to show dialog', message);
     }
 
     let winToShow = null;
@@ -918,22 +964,26 @@ export default class NylasEnvConstructor {
         detail: message,
       });
     }
-    return remote.dialog.showMessageBox(winToShow, {
-      type: 'warning',
-      buttons: ['Okay', 'Show Details'],
-      message: title,
-      detail: message,
-    }, (buttonIndex) => {
-      if (buttonIndex === 1) {
-        const {Actions} = require('nylas-exports');
-        const {CodeSnippet} = require('nylas-component-kit');
-        Actions.openModal({
-          component: CodeSnippet({intro: message, code: detail, className: 'error-details'}),
-          width: 500,
-          height: 300,
-        });
+    return remote.dialog.showMessageBox(
+      winToShow,
+      {
+        type: 'warning',
+        buttons: ['Okay', 'Show Details'],
+        message: title,
+        detail: message,
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          const { Actions } = require('nylas-exports');
+          const { CodeSnippet } = require('nylas-component-kit');
+          Actions.openModal({
+            component: CodeSnippet({ intro: message, code: detail, className: 'error-details' }),
+            width: 500,
+            height: 300,
+          });
+        }
       }
-    });
+    );
   }
 
   // Delegate to the browser's process fileListCache
@@ -996,7 +1046,9 @@ export default class NylasEnvConstructor {
   }
 
   registerGlobalActions(...args) {
-    if (this.inSpecMode()) { return; }
+    if (this.inSpecMode()) {
+      return;
+    }
     this.actionBridge.registerGlobalActions(...args);
   }
 }

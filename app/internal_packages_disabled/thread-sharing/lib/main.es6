@@ -1,6 +1,6 @@
-import {ComponentRegistry} from 'nylas-exports';
-import ThreadSharingButton from "./thread-sharing-button";
-import ExternalThreads from "./external-threads"
+import { ComponentRegistry } from 'nylas-exports';
+import ThreadSharingButton from './thread-sharing-button';
+import ExternalThreads from './external-threads';
 
 export function activate() {
   ComponentRegistry.register(ThreadSharingButton, {

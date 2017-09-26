@@ -1,8 +1,8 @@
-import _ from 'underscore'
-import {DOMUtils, ComposerExtension, Spellchecker} from 'nylas-exports';
+import _ from 'underscore';
+import { DOMUtils, ComposerExtension, Spellchecker } from 'nylas-exports';
 
 const recycled = [];
-const MAX_MISPELLINGS = 10
+const MAX_MISPELLINGS = 10;
 
 function getSpellingNodeForText(text) {
   let node = recycled.pop();
@@ -28,12 +28,17 @@ function whileApplyingSelectionChanges(rootNode, cb) {
     modified: false,
   };
 
-  rootNode.style.display = 'none'
+  rootNode.style.display = 'none';
   cb(selectionSnapshot);
-  rootNode.style.display = 'block'
+  rootNode.style.display = 'block';
 
   if (selectionSnapshot.modified) {
-    selection.setBaseAndExtent(selectionSnapshot.anchorNode, selectionSnapshot.anchorOffset, selectionSnapshot.focusNode, selectionSnapshot.focusOffset);
+    selection.setBaseAndExtent(
+      selectionSnapshot.anchorNode,
+      selectionSnapshot.anchorOffset,
+      selectionSnapshot.focusNode,
+      selectionSnapshot.focusOffset
+    );
   }
 }
 
@@ -41,7 +46,7 @@ function whileApplyingSelectionChanges(rootNode, cb) {
 // It normalizes the DOM after removing spelling nodes to ensure that words
 // are not split between text nodes. (ie: doesn, 't => doesn't)
 function unwrapWords(rootNode) {
-  whileApplyingSelectionChanges(rootNode, (selectionSnapshot) => {
+  whileApplyingSelectionChanges(rootNode, selectionSnapshot => {
     const spellingNodes = rootNode.querySelectorAll('spelling');
     for (let ii = 0; ii < spellingNodes.length; ii++) {
       const node = spellingNodes[ii];
@@ -66,16 +71,22 @@ function unwrapWords(rootNode) {
 // text node with a misspelled word, it splits it, wraps the misspelled word
 // with a <spelling> node and updates the selection to account for the change.
 function wrapMisspelledWords(rootNode) {
-  whileApplyingSelectionChanges(rootNode, (selectionSnapshot) => {
-    const treeWalker = document.createTreeWalker(rootNode, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
-      acceptNode: (node) => {
-        // skip the entire subtree inside <code> tags and <a> tags...
-        if ((node.nodeType === Node.ELEMENT_NODE) && (["CODE", "A", "PRE"].includes(node.tagName))) {
-          return NodeFilter.FILTER_REJECT;
-        }
-        return (node.nodeType === Node.TEXT_NODE) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-      },
-    });
+  whileApplyingSelectionChanges(rootNode, selectionSnapshot => {
+    const treeWalker = document.createTreeWalker(
+      rootNode,
+      NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+      {
+        acceptNode: node => {
+          // skip the entire subtree inside <code> tags and <a> tags...
+          if (node.nodeType === Node.ELEMENT_NODE && ['CODE', 'A', 'PRE'].includes(node.tagName)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return node.nodeType === Node.TEXT_NODE
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP;
+        },
+      }
+    );
 
     const nodeList = [];
 
@@ -89,7 +100,7 @@ function wrapMisspelledWords(rootNode) {
 
     while (true) {
       const node = nodeList.shift();
-      if ((node === undefined) || (nodeMisspellingsFound > MAX_MISPELLINGS)) {
+      if (node === undefined || nodeMisspellingsFound > MAX_MISPELLINGS) {
         break;
       }
 
@@ -98,18 +109,21 @@ function wrapMisspelledWords(rootNode) {
 
       while (true) {
         const match = nodeWordRegexp.exec(nodeContent);
-        if ((match === null) || (nodeMisspellingsFound > MAX_MISPELLINGS)) {
+        if (match === null || nodeMisspellingsFound > MAX_MISPELLINGS) {
           break;
         }
 
         if (Spellchecker.isMisspelled(match[0])) {
           // The insertion point is currently at the end of this misspelled word.
           // Do not mark it until the user types a space or leaves.
-          if ((selectionSnapshot.focusNode === node) && (selectionSnapshot.focusOffset === match.index + match[0].length)) {
+          if (
+            selectionSnapshot.focusNode === node &&
+            selectionSnapshot.focusOffset === match.index + match[0].length
+          ) {
             continue;
           }
 
-          const matchNode = (match.index === 0) ? node : node.splitText(match.index);
+          const matchNode = match.index === 0 ? node : node.splitText(match.index);
           const afterMatchNode = matchNode.splitText(match[0].length);
 
           const spellingSpan = getSpellingNodeForText(match[0]);
@@ -139,11 +153,11 @@ function wrapMisspelledWords(rootNode) {
 }
 
 let currentlyRunningSpellChecker = false;
-const runSpellChecker = _.debounce((rootNode) => {
+const runSpellChecker = _.debounce(rootNode => {
   currentlyRunningSpellChecker = true;
   unwrapWords(rootNode);
   Spellchecker.handler.provideHintText(rootNode.textContent).then(() => {
-    wrapMisspelledWords(rootNode)
+    wrapMisspelledWords(rootNode);
 
     // We defer here so that when the MutationObserver fires the
     // SpellcheckComposerExtension.onContentChanged callback we will properly
@@ -153,20 +167,18 @@ const runSpellChecker = _.debounce((rootNode) => {
     _.defer(() => {
       currentlyRunningSpellChecker = false;
     });
-  })
-}, 1000)
-
+  });
+}, 1000);
 
 export default class SpellcheckComposerExtension extends ComposerExtension {
-
-  static onContentChanged({editor}) {
-    const {rootNode} = editor
+  static onContentChanged({ editor }) {
+    const { rootNode } = editor;
     if (!currentlyRunningSpellChecker) {
       runSpellChecker(rootNode);
     }
   }
 
-  static onShowContextMenu({editor, menu}) {
+  static onShowContextMenu({ editor, menu }) {
     const selection = editor.currentSelection();
     const range = DOMUtils.Mutating.getRangeAtAndSelectWord(selection, 0);
     const word = range.toString();
@@ -174,17 +186,17 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
     Spellchecker.appendSpellingItemsToMenu({
       menu,
       word,
-      onCorrect: (correction) => {
+      onCorrect: correction => {
         DOMUtils.Mutating.applyTextInRange(range, selection, correction);
-        SpellcheckComposerExtension.onContentChanged({editor});
+        SpellcheckComposerExtension.onContentChanged({ editor });
       },
       onDidLearn: () => {
-        SpellcheckComposerExtension.onContentChanged({editor});
+        SpellcheckComposerExtension.onContentChanged({ editor });
       },
     });
   }
 
-  static applyTransformsForSending({draftBodyRootNode}) {
+  static applyTransformsForSending({ draftBodyRootNode }) {
     const spellingEls = draftBodyRootNode.querySelectorAll('spelling');
     for (const spellingEl of Array.from(spellingEls)) {
       // move contents out of the spelling node, remove the node
@@ -199,5 +211,4 @@ export default class SpellcheckComposerExtension extends ComposerExtension {
   static unapplyTransformsForSending() {
     // no need to put spelling nodes back!
   }
-
 }

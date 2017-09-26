@@ -1,10 +1,9 @@
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import {Menu, SearchBar, ListensToFluxStore} from 'nylas-component-kit'
-import {FocusedPerspectiveStore} from 'nylas-exports'
-import SearchStore from './search-store'
-import SearchActions from './search-actions'
-
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Menu, SearchBar, ListensToFluxStore } from 'nylas-component-kit';
+import { FocusedPerspectiveStore } from 'nylas-exports';
+import SearchStore from './search-store';
+import SearchActions from './search-actions';
 
 class ThreadSearchBar extends Component {
   static displayName = 'ThreadSearchBar';
@@ -14,36 +13,36 @@ class ThreadSearchBar extends Component {
     isSearching: PropTypes.bool,
     suggestions: PropTypes.array,
     perspective: PropTypes.object,
-  }
+  };
 
-  _onSelectSuggestion = (suggestion) => {
+  _onSelectSuggestion = suggestion => {
     if (suggestion.thread) {
-      SearchActions.querySubmitted(`"${suggestion.thread.subject}"`)
+      SearchActions.querySubmitted(`"${suggestion.thread.subject}"`);
     } else {
       SearchActions.querySubmitted(suggestion.value);
     }
-  }
+  };
 
-  _onSearchQueryChanged = (query) => {
+  _onSearchQueryChanged = query => {
     SearchActions.queryChanged(query);
     if (query === '') {
       this._onClearSearchQuery();
     }
-  }
+  };
 
-  _onSubmitSearchQuery = (query) => {
+  _onSubmitSearchQuery = query => {
     SearchActions.querySubmitted(query);
-  }
+  };
 
   _onClearSearchQuery = () => {
     SearchActions.querySubmitted('');
-  }
+  };
 
   _onClearSearchSuggestions = () => {
-    SearchActions.searchBlurred()
-  }
+    SearchActions.searchBlurred();
+  };
 
-  _renderSuggestion = (suggestion) => {
+  _renderSuggestion = suggestion => {
     if (suggestion.contact) {
       return <Menu.NameEmailItem name={suggestion.contact.name} email={suggestion.contact.email} />;
     }
@@ -51,20 +50,20 @@ class ThreadSearchBar extends Component {
       return suggestion.thread.subject;
     }
     if (suggestion.customElement) {
-      return suggestion.customElement
+      return suggestion.customElement;
     }
     return suggestion.label;
-  }
+  };
 
   _placeholder = () => {
     if (this.props.perspective.isInbox()) {
       return 'Search all email';
     }
-    return `Search ${this.props.perspective.name || ""}`;
-  }
+    return `Search ${this.props.perspective.name || ''}`;
+  };
 
   render() {
-    const {query, isSearching, suggestions} = this.props;
+    const { query, isSearching, suggestions } = this.props;
 
     return (
       <SearchBar
@@ -73,7 +72,8 @@ class ThreadSearchBar extends Component {
         query={query}
         suggestions={suggestions}
         isSearching={isSearching}
-        suggestionKey={(suggestion) => suggestion.label || (suggestion.contact || {}).id || (suggestion.thread || {}).id}
+        suggestionKey={suggestion =>
+          suggestion.label || (suggestion.contact || {}).id || (suggestion.thread || {}).id}
         suggestionRenderer={this._renderSuggestion}
         onSelectSuggestion={this._onSelectSuggestion}
         onSubmitSearchQuery={this._onSubmitSearchQuery}
@@ -81,7 +81,7 @@ class ThreadSearchBar extends Component {
         onClearSearchQuery={this._onClearSearchQuery}
         onClearSearchSuggestions={this._onClearSearchSuggestions}
       />
-    )
+    );
   }
 }
 
@@ -95,4 +95,4 @@ export default ListensToFluxStore(ThreadSearchBar, {
       perspective: FocusedPerspectiveStore.current(),
     };
   },
-})
+});

@@ -1,16 +1,20 @@
 /* eslint react/no-render-return-value: 0 */
 import _ from 'underscore';
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
 
 export function scryRenderedComponentsWithTypeAndProps(root, type, props) {
-  if (!root) { throw new Error("Must supply a root to scryRenderedComponentsWithTypeAndProps"); }
-  return _.compact(_.map(ReactTestUtils.scryRenderedComponentsWithType(root, type), (el) => {
-    if (_.isEqual(_.pick(el.props, Object.keys(props)), props)) {
-      return el;
-    }
-    return false;
-  }));
+  if (!root) {
+    throw new Error('Must supply a root to scryRenderedComponentsWithTypeAndProps');
+  }
+  return _.compact(
+    _.map(ReactTestUtils.scryRenderedComponentsWithType(root, type), el => {
+      if (_.isEqual(_.pick(el.props, Object.keys(props)), props)) {
+        return el;
+      }
+      return false;
+    })
+  );
 }
 
 let ReactElementContainers = [];

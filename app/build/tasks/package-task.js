@@ -1,4 +1,4 @@
-/* eslint global-require: 0 *//* eslint prefer-template: 0 */
+/* eslint global-require: 0 */ /* eslint prefer-template: 0 */
 /* eslint quote-props: 0 */
 const packager = require('electron-packager');
 const path = require('path');
@@ -8,13 +8,13 @@ const fs = require('fs-plus');
 const coffeereact = require('coffee-react');
 const glob = require('glob');
 const babel = require('babel-core');
-const {execSync} = require('child_process');
-const symlinkedPackages = []
+const { execSync } = require('child_process');
+const symlinkedPackages = [];
 
-module.exports = (grunt) => {
+module.exports = grunt => {
   const packageJSON = grunt.config('appJSON');
-  const babelPath = path.join(grunt.config('rootDir'), '.babelrc')
-  const babelOptions = JSON.parse(fs.readFileSync(babelPath))
+  const babelPath = path.join(grunt.config('rootDir'), '.babelrc');
+  const babelOptions = JSON.parse(fs.readFileSync(babelPath));
 
   function runCopyPlatformSpecificResources(buildPath, electronVersion, platform, arch, callback) {
     // these files (like nylas-mailto-default.reg) go alongside the ASAR,
@@ -41,33 +41,28 @@ module.exports = (grunt) => {
    * for the symlink copy function to use after the packaging is complete.
    */
   function resolveRealSymlinkPaths(appDir) {
-    console.log("---> Resolving symlinks");
-    const dirs = [
-      'internal_packages',
-      'src',
-      'spec',
-      'node_modules',
-    ];
+    console.log('---> Resolving symlinks');
+    const dirs = ['internal_packages', 'src', 'spec', 'node_modules'];
 
-    dirs.forEach((dir) => {
+    dirs.forEach(dir => {
       const absoluteDir = path.join(appDir, dir);
-      fs.readdirSync(absoluteDir).forEach((packageName) => {
-        const relativePackageDir = path.join(dir, packageName)
-        const absolutePackageDir = path.join(absoluteDir, packageName)
-        const realPackagePath = fs.realpathSync(absolutePackageDir).replace('/private/', '/')
+      fs.readdirSync(absoluteDir).forEach(packageName => {
+        const relativePackageDir = path.join(dir, packageName);
+        const absolutePackageDir = path.join(absoluteDir, packageName);
+        const realPackagePath = fs.realpathSync(absolutePackageDir).replace('/private/', '/');
         if (realPackagePath !== absolutePackageDir) {
-          console.log(`  ---> Resolving '${relativePackageDir}' to '${realPackagePath}'`)
-          symlinkedPackages.push({realPackagePath, relativePackageDir})
+          console.log(`  ---> Resolving '${relativePackageDir}' to '${realPackagePath}'`);
+          symlinkedPackages.push({ realPackagePath, relativePackageDir });
         }
       });
     });
   }
 
   function runCopySymlinkedPackages(buildPath, electronVersion, platform, arch, callback) {
-    console.log("---> Moving symlinked node modules / internal packages into build folder.")
+    console.log('---> Moving symlinked node modules / internal packages into build folder.');
 
-    symlinkedPackages.forEach(({realPackagePath, relativePackageDir}) => {
-      const packagePath = path.join(buildPath, relativePackageDir)
+    symlinkedPackages.forEach(({ realPackagePath, relativePackageDir }) => {
+      const packagePath = path.join(buildPath, relativePackageDir);
       console.log(`  ---> Copying ${realPackagePath} to ${packagePath}`);
       fs.removeSync(packagePath);
       fs.copySync(realPackagePath, packagePath);
@@ -77,13 +72,13 @@ module.exports = (grunt) => {
   }
 
   function runTranspilers(buildPath, electronVersion, platform, arch, callback) {
-    console.log("---> Running babel and coffeescript transpilers")
+    console.log('---> Running babel and coffeescript transpilers');
 
     grunt.config('source:coffeescript').forEach(pattern => {
-      glob.sync(pattern, {cwd: buildPath}).forEach((relPath) => {
-        const coffeepath = path.join(buildPath, relPath)
-        if (/(node_modules|\.js$)/.test(coffeepath)) return
-        console.log(`  ---> Compiling ${coffeepath.slice(coffeepath.indexOf("/app") + 4)}`)
+      glob.sync(pattern, { cwd: buildPath }).forEach(relPath => {
+        const coffeepath = path.join(buildPath, relPath);
+        if (/(node_modules|\.js$)/.test(coffeepath)) return;
+        console.log(`  ---> Compiling ${coffeepath.slice(coffeepath.indexOf('/app') + 4)}`);
         const outPath = coffeepath.replace(path.extname(coffeepath), '.js');
         const res = coffeereact.compile(grunt.file.read(coffeepath), {
           bare: false,
@@ -95,25 +90,34 @@ module.exports = (grunt) => {
           generatedFile: path.basename(outPath),
           sourceFiles: [path.relative(buildPath, coffeepath)],
         });
-        grunt.file.write(outPath, `${res.js}\n//# sourceMappingURL=${path.basename(outPath)}.map\n`);
+        grunt.file.write(
+          outPath,
+          `${res.js}\n//# sourceMappingURL=${path.basename(outPath)}.map\n`
+        );
         grunt.file.write(`${outPath}.map`, res.v3SourceMap);
         fs.unlinkSync(coffeepath);
       });
     });
 
     grunt.config('source:es6').forEach(pattern => {
-      glob.sync(pattern, {cwd: buildPath}).forEach((relPath) => {
-        const es6Path = path.join(buildPath, relPath)
-        if (/(node_modules|\.js$)/.test(es6Path)) return
+      glob.sync(pattern, { cwd: buildPath }).forEach(relPath => {
+        const es6Path = path.join(buildPath, relPath);
+        if (/(node_modules|\.js$)/.test(es6Path)) return;
         const outPath = es6Path.replace(path.extname(es6Path), '.js');
-        console.log(`  ---> Compiling ${es6Path.slice(es6Path.indexOf("/app") + 4)}`)
-        const res = babel.transformFileSync(es6Path, Object.assign(babelOptions, {
-          sourceMaps: true,
-          sourceRoot: '/',
-          sourceMapTarget: path.relative(buildPath, outPath),
-          sourceFileName: path.relative(buildPath, es6Path),
-        }));
-        grunt.file.write(outPath, `${res.code}\n//# sourceMappingURL=${path.basename(outPath)}.map\n`);
+        console.log(`  ---> Compiling ${es6Path.slice(es6Path.indexOf('/app') + 4)}`);
+        const res = babel.transformFileSync(
+          es6Path,
+          Object.assign(babelOptions, {
+            sourceMaps: true,
+            sourceRoot: '/',
+            sourceMapTarget: path.relative(buildPath, outPath),
+            sourceFileName: path.relative(buildPath, es6Path),
+          })
+        );
+        grunt.file.write(
+          outPath,
+          `${res.code}\n//# sourceMappingURL=${path.basename(outPath)}.map\n`
+        );
         grunt.file.write(`${outPath}.map`, JSON.stringify(res.map));
         fs.unlinkSync(es6Path);
       });
@@ -129,21 +133,30 @@ module.exports = (grunt) => {
     packager: {
       appVersion: packageJSON.version,
       platform: platform,
-      protocols: [{
-        name: "Mailspring Protocol",
-        schemes: ["mailspring"],
-      }, {
-        name: "Mailto Protocol",
-        schemes: ["mailto"],
-      }],
+      protocols: [
+        {
+          name: 'Mailspring Protocol',
+          schemes: ['mailspring'],
+        },
+        {
+          name: 'Mailto Protocol',
+          schemes: ['mailto'],
+        },
+      ],
       dir: grunt.config('appDir'),
-      appCategoryType: "public.app-category.business",
+      appCategoryType: 'public.app-category.business',
       tmpdir: tmpdir,
       arch: {
-        'win32': 'ia32',
+        win32: 'ia32',
       }[platform],
       icon: {
-        darwin: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'mailspring.icns'),
+        darwin: path.resolve(
+          grunt.config('appDir'),
+          'build',
+          'resources',
+          'mac',
+          'mailspring.icns'
+        ),
         win32: path.resolve(grunt.config('appDir'), 'build', 'resources', 'win', 'mailspring.ico'),
         linux: undefined,
       }[platform],
@@ -155,19 +168,23 @@ module.exports = (grunt) => {
       appCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,
       derefSymlinks: false,
       asar: {
-        'unpack': "{" + [
-          'mailsync',
-          'mailsync.exe',
-          '*.dll',
-          '*.node',
-          '**/vendor/**',
-          'examples/**',
-          '**/src/tasks/**',
-          '**/node_modules/spellchecker/**',
-          '**/node_modules/windows-shortcuts/**',
-        ].join(',') + "}",
+        unpack:
+          '{' +
+          [
+            'mailsync',
+            'mailsync.exe',
+            '*.dll',
+            '*.node',
+            '**/vendor/**',
+            'examples/**',
+            '**/src/tasks/**',
+            '**/node_modules/spellchecker/**',
+            '**/node_modules/windows-shortcuts/**',
+          ].join(',') +
+          '}',
       },
-      ignore: [ // These are all relative to client-app
+      ignore: [
+        // These are all relative to client-app
         // top level dirs we never want
         /^\/build.*/,
         /^\/dist.*/,
@@ -235,7 +252,7 @@ module.exports = (grunt) => {
       // Electron.app/Contents/Info.plist. A majority of the defaults are
       // left in the Electron Info.plist file
       extendInfo: path.resolve(grunt.config('appDir'), 'build', 'resources', 'mac', 'extra.plist'),
-      appBundleId: "com.mailspring.mailspring",
+      appBundleId: 'com.mailspring.mailspring',
       afterCopy: [
         runCopyPlatformSpecificResources,
         runWriteCommitHashIntoPackage,
@@ -243,7 +260,7 @@ module.exports = (grunt) => {
         runTranspilers,
       ],
     },
-  })
+  });
 
   grunt.registerTask('package', 'Package Mailspring', function pack() {
     const done = this.async();
@@ -253,14 +270,14 @@ module.exports = (grunt) => {
     console.log(util.inspect(grunt.config.get('packager'), true, 7, true));
 
     const ongoing = setInterval(() => {
-      const elapsed = Math.round((Date.now() - start) / 1000.0)
+      const elapsed = Math.round((Date.now() - start) / 1000.0);
       console.log(`---> Packaging for ${elapsed}s`);
-    }, 1000)
+    }, 1000);
 
-    resolveRealSymlinkPaths(grunt.config('appDir'))
+    resolveRealSymlinkPaths(grunt.config('appDir'));
 
     packager(grunt.config.get('packager'), (err, appPaths) => {
-      clearInterval(ongoing)
+      clearInterval(ongoing);
       if (err) {
         grunt.fail.fatal(err);
         return done(err);

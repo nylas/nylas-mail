@@ -1,7 +1,7 @@
 const chalk = require('chalk');
 const eslint = require('eslint');
 
-module.exports = (grunt) => {
+module.exports = grunt => {
   grunt.config.merge({
     eslint: {
       options: {

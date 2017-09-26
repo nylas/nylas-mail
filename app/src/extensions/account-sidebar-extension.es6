@@ -1,6 +1,4 @@
-
 class AccountSidebarExtension {
-
   /**
    * @param accountIds
    * @return {
@@ -11,7 +9,6 @@ class AccountSidebarExtension {
    * }
    */
   static sidebarItem() {}
-
 }
 
-export default AccountSidebarExtension
+export default AccountSidebarExtension;

@@ -1,20 +1,23 @@
-import React from 'react';
+import { remote, clipboard } from 'electron';
+import { React, PropTypes, Utils, Contact, ContactStore, RegExpUtils } from 'nylas-exports';
+import {
+  TokenizingTextField,
+  Menu,
+  InjectedComponent,
+  InjectedComponentSet,
+} from 'nylas-component-kit';
 
-import {remote, clipboard} from 'electron';
-import {Utils, Contact, ContactStore, RegExpUtils} from 'nylas-exports';
-import {TokenizingTextField, Menu, InjectedComponent, InjectedComponentSet} from 'nylas-component-kit';
-
-const TokenRenderer = (props) => {
-  const {email, name} = props.token
+const TokenRenderer = props => {
+  const { email, name } = props.token;
   let chipText = email;
-  if (name && (name.length > 0) && (name !== email)) {
+  if (name && name.length > 0 && name !== email) {
     chipText = name;
   }
   return (
     <div className="participant">
       <InjectedComponentSet
-        matching={{role: "Composer:RecipientChip"}}
-        exposedProps={{contact: props.token, collapsed: false}}
+        matching={{ role: 'Composer:RecipientChip' }}
+        exposedProps={{ contact: props.token, collapsed: false }}
         direction="row"
         inline
       />
@@ -24,7 +27,7 @@ const TokenRenderer = (props) => {
 };
 
 TokenRenderer.propTypes = {
-  token: React.PropTypes.object,
+  token: PropTypes.object,
 };
 
 export default class ParticipantsTextField extends React.Component {
@@ -33,32 +36,32 @@ export default class ParticipantsTextField extends React.Component {
   static propTypes = {
     // The name of the field, used for both display purposes and also
     // to modify the `participants` provided.
-    field: React.PropTypes.string,
+    field: PropTypes.string,
 
     // An object containing arrays of participants. Typically, this is
     // {to: [], cc: [], bcc: []}. Each ParticipantsTextField needs all of
     // the values, because adding an element to one field may remove it
     // from another.
-    participants: React.PropTypes.object.isRequired,
+    participants: PropTypes.object.isRequired,
 
     // The function to call with an updated `participants` object when
     // changes are made.
-    change: React.PropTypes.func.isRequired,
+    change: PropTypes.func.isRequired,
 
-    className: React.PropTypes.string,
+    className: PropTypes.string,
 
-    onEmptied: React.PropTypes.func,
+    onEmptied: PropTypes.func,
 
-    onFocus: React.PropTypes.func,
+    onFocus: PropTypes.func,
 
-    draft: React.PropTypes.object,
+    draft: PropTypes.object,
 
-    session: React.PropTypes.object,
-  }
+    session: PropTypes.object,
+  };
 
   static defaultProps = {
     visible: true,
-  }
+  };
 
   shouldComponentUpdate(nextProps, nextState) {
     return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
@@ -68,15 +71,13 @@ export default class ParticipantsTextField extends React.Component {
   // focus the input field.
   focus = () => {
     this._textfieldEl.focus();
-  }
+  };
 
-  _completionNode = (p) => {
-    const CustomComponent = p.customComponent
-    if (CustomComponent) return (<CustomComponent token={p} />)
-    return (
-      <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />
-    );
-  }
+  _completionNode = p => {
+    const CustomComponent = p.customComponent;
+    if (CustomComponent) return <CustomComponent token={p} />;
+    return <Menu.NameEmailItem name={p.name} email={p.email} key={p.id} />;
+  };
 
   _tokensForString = (string, options = {}) => {
     // If the input is a string, parse out email addresses and build
@@ -86,36 +87,36 @@ export default class ParticipantsTextField extends React.Component {
       return Promise.resolve([]);
     }
 
-    return ContactStore.parseContactsInString(string, options).then((contacts) => {
+    return ContactStore.parseContactsInString(string, options).then(contacts => {
       if (contacts.length > 0) {
         return Promise.resolve(contacts);
       }
       // If no contacts are returned, treat the entire string as a single
       // (malformed) contact object.
-      return [new Contact({email: string, name: null})];
+      return [new Contact({ email: string, name: null })];
     });
-  }
+  };
 
-  _remove = (values) => {
+  _remove = values => {
     const field = this.props.field;
     const updates = {};
-    updates[field] = this.props.participants[field].filter((p) =>
-      !(values.includes(p.email) || values.map(o => o.email).includes(p.email))
+    updates[field] = this.props.participants[field].filter(
+      p => !(values.includes(p.email) || values.map(o => o.email).includes(p.email))
     );
     this.props.change(updates);
-  }
+  };
 
   _edit = (token, replacementString) => {
     const field = this.props.field;
     const tokenIndex = this.props.participants[field].indexOf(token);
 
-    this._tokensForString(replacementString).then((replacements) => {
+    this._tokensForString(replacementString).then(replacements => {
       const updates = {};
       updates[field] = [].concat(this.props.participants[field]);
       updates[field].splice(tokenIndex, 1, ...replacements);
       this.props.change(updates);
     });
-  }
+  };
 
   _add = (values, options = {}) => {
     // It's important we return here (as opposed to ignoring the
@@ -135,12 +136,12 @@ export default class ParticipantsTextField extends React.Component {
       tokensPromise = Promise.resolve(values);
     }
 
-    tokensPromise.then((tokens) => {
+    tokensPromise.then(tokens => {
       // Safety check: remove anything from the incoming tokens that isn't
       // a Contact. We should never receive anything else in the tokens array.
       const contactTokens = tokens.filter(value => value instanceof Contact);
 
-      const updates = {}
+      const updates = {};
       for (const field of Object.keys(this.props.participants)) {
         updates[field] = [].concat(this.props.participants[field]);
       }
@@ -150,7 +151,7 @@ export default class ParticipantsTextField extends React.Component {
         // that drag and drop isn't "drag and copy." and you can't have the
         // same recipient in multiple places.
         for (const field of Object.keys(this.props.participants)) {
-          updates[field] = updates[field].filter(p => p.email !== token.email)
+          updates[field] = updates[field].filter(p => p.email !== token.email);
         }
 
         // add the participant to field
@@ -160,64 +161,72 @@ export default class ParticipantsTextField extends React.Component {
       this.props.change(updates);
     });
 
-    return "";
-  }
+    return '';
+  };
 
-  _onShowContextMenu = (participant) => {
+  _onShowContextMenu = participant => {
     // Warning: Menu is already initialized as Menu.cjsx!
     const MenuClass = remote.Menu;
     const MenuItem = remote.MenuItem;
 
     const menu = new MenuClass();
-    menu.append(new MenuItem({
-      label: `Copy ${participant.email}`,
-      click: () => clipboard.writeText(participant.email),
-    }))
-    menu.append(new MenuItem({
-      type: 'separator',
-    }))
-    menu.append(new MenuItem({
-      label: 'Remove',
-      click: () => this._remove([participant]),
-    }))
+    menu.append(
+      new MenuItem({
+        label: `Copy ${participant.email}`,
+        click: () => clipboard.writeText(participant.email),
+      })
+    );
+    menu.append(
+      new MenuItem({
+        type: 'separator',
+      })
+    );
+    menu.append(
+      new MenuItem({
+        label: 'Remove',
+        click: () => this._remove([participant]),
+      })
+    );
     menu.popup(remote.getCurrentWindow());
-  }
+  };
 
   _onInputTrySubmit = (inputValue, completions = [], selectedItem) => {
     if (RegExpUtils.emailRegex().test(inputValue)) {
-      return inputValue // no token default to raw value.
+      return inputValue; // no token default to raw value.
     }
-    return selectedItem || completions[0] // first completion if any
-  }
+    return selectedItem || completions[0]; // first completion if any
+  };
 
-  _shouldBreakOnKeydown = (event) => {
+  _shouldBreakOnKeydown = event => {
     const val = event.target.value.trim();
-    if (RegExpUtils.emailRegex().test(val) && event.key === " ") {
-      return true
+    if (RegExpUtils.emailRegex().test(val) && event.key === ' ') {
+      return true;
     }
-    return [",", ";"].includes(event.key)
-  }
+    return [',', ';'].includes(event.key);
+  };
 
   render() {
     const classSet = {
       [this.props.field]: true,
     };
-    const headerMessageId = this.props.draft ? this.props.draft.headerMessageId : null
+    const headerMessageId = this.props.draft ? this.props.draft.headerMessageId : null;
     // TODO Ahh now that this component is part of the component kit this
     // injected region feels out of place
     return (
       <div className={this.props.className}>
         <InjectedComponent
-          ref={(el) => { this._textfieldEl = el; }}
-          matching={{role: 'Composer:ParticipantsTextField'}}
+          ref={el => {
+            this._textfieldEl = el;
+          }}
+          matching={{ role: 'Composer:ParticipantsTextField' }}
           fallback={TokenizingTextField}
           requiredMethods={['focus']}
           exposedProps={{
             tokens: this.props.participants[this.props.field],
-            tokenKey: (p) => p.email,
-            tokenIsValid: (p) => ContactStore.isValidContact(p),
+            tokenKey: p => p.email,
+            tokenIsValid: p => ContactStore.isValidContact(p),
             tokenRenderer: TokenRenderer,
-            onRequestCompletions: (input) => ContactStore.searchContacts(input),
+            onRequestCompletions: input => ContactStore.searchContacts(input),
             shouldBreakOnKeydown: this._shouldBreakOnKeydown,
             onInputTrySubmit: this._onInputTrySubmit,
             completionNode: this._completionNode,

@@ -3,24 +3,22 @@
 // In general I think these should be created as sparingly as possible.
 // Only add one if you really can't use native `new Error("my msg")`
 
-
 // A wrapper around the three arguments we get back from node's `request`
 // method. We wrap it in an error object because Promises can only call
 // `reject` or `resolve` with one argument (not three).
 export class APIError extends Error {
-
   static NonReportableStatusCodes = [
-    0,   // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
+    0, // When errors like ETIMEDOUT, ECONNABORTED or ESOCKETTIMEDOUT occur from the client
     401, // Don't report `Incorrect username or password`
     404, // Don't report not-founds
     408, // Timeout error code
     429, // Too many requests
-  ]
+  ];
 
-  constructor({error, message, response, body, requestOptions, statusCode} = {}) {
+  constructor({ error, message, response, body, requestOptions, statusCode } = {}) {
     super();
 
-    this.name = "APIError";
+    this.name = 'APIError';
     this.error = error;
     this.body = body;
     this.requestOptions = requestOptions;
@@ -29,7 +27,7 @@ export class APIError extends Error {
 
     if (this.statusCode == null) {
       if (response && response.statusCode != null) {
-        this.statusCode = response.statusCode
+        this.statusCode = response.statusCode;
       }
 
       if (error) {
@@ -54,19 +52,19 @@ export class APIError extends Error {
       this.requestOptions = response ? response.requestOptions : null;
     }
 
-    this.stack = (new Error()).stack;
+    this.stack = new Error().stack;
     if (!this.message) {
       if (this.body) {
-        this.message = this.body.message || this.body.error || JSON.stringify(this.body)
+        this.message = this.body.message || this.body.error || JSON.stringify(this.body);
       } else {
         this.message = this.error ? this.error.message || this.error.toString() : null;
       }
     }
-    this.errorType = (this.body ? this.body.type : null);
+    this.errorType = this.body ? this.body.type : null;
   }
 
   shouldReportError() {
-    return !APIError.NonReportableStatusCodes.includes(this.statusCode)
+    return !APIError.NonReportableStatusCodes.includes(this.statusCode);
   }
 
   fromJSON(json = {}) {
@@ -77,6 +75,4 @@ export class APIError extends Error {
   }
 }
 
-export class RequestEnsureOnceError extends Error {
-
-}
+export class RequestEnsureOnceError extends Error {}

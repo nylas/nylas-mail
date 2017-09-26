@@ -1,4 +1,4 @@
-import {DOMUtils} from 'nylas-exports';
+import { DOMUtils } from 'nylas-exports';
 
 // A saved out selection object
 //
@@ -49,7 +49,7 @@ class ExportedSelection {
     if (this.type === 'None' && otherSelection.type === 'None') {
       return true;
     }
-    if ((otherSelection.anchorNode == null) || (otherSelection.focusNode == null)) {
+    if (otherSelection.anchorNode == null || otherSelection.focusNode == null) {
       return false;
     }
 
@@ -80,8 +80,14 @@ class ExportedSelection {
       focusOffsetEqual = otherSelection.focusOffset === this.anchorOffset;
     }
 
-    return (anchorEqual && anchorIndexEqual && anchorOffsetEqual &&
-      focusEqual && focusIndexEqual && focusOffsetEqual);
+    return (
+      anchorEqual &&
+      anchorIndexEqual &&
+      anchorOffsetEqual &&
+      focusEqual &&
+      focusIndexEqual &&
+      focusOffsetEqual
+    );
   }
 }
 

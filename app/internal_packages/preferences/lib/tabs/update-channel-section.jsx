@@ -1,8 +1,7 @@
 import React from 'react';
-import {UpdateChannelStore} from 'nylas-exports';
+import { UpdateChannelStore } from 'nylas-exports';
 
 class UpdateChannelSection extends React.Component {
-
   static displayName = 'UpdateChannelSection';
 
   constructor(props) {
@@ -12,7 +11,7 @@ class UpdateChannelSection extends React.Component {
 
   componentDidMount() {
     this._unsub = UpdateChannelStore.listen(() => {
-      this.setState(Object.assign(this.getStateFromStores(), {saving: false}));
+      this.setState(Object.assign(this.getStateFromStores(), { saving: false }));
     });
     UpdateChannelStore.refreshChannel();
   }
@@ -27,32 +26,32 @@ class UpdateChannelSection extends React.Component {
     return {
       current: UpdateChannelStore.current(),
       available: UpdateChannelStore.available(),
-    }
+    };
   }
 
-  _onSelectedChannel = (event) => {
-    this.setState({saving: true});
+  _onSelectedChannel = event => {
+    this.setState({ saving: true });
     UpdateChannelStore.setChannel(event.target.value);
-  }
+  };
 
   render() {
-    const {current, available, saving} = this.state;
+    const { current, available, saving } = this.state;
 
     // HACK: Temporarily do not allow users to move on to the Salesforce channel.
     // In the future we could implement this server-side via a "public" flag.
-    const allowedNames = ["stable", "nylas-mail", "beta"]
+    const allowedNames = ['stable', 'nylas-mail', 'beta'];
 
-    if (NylasEnv.config.get("salesforce")) {
-      allowedNames.push("salesforce");
+    if (NylasEnv.config.get('salesforce')) {
+      allowedNames.push('salesforce');
     }
 
     const allowed = available.filter(c => {
-      return allowedNames.includes(c.name) || c.name === current.name
+      return allowedNames.includes(c.name) || c.name === current.name;
     });
 
-    const displayNameForChannel = (channel) => {
-      return channel.name[0].toUpperCase() + channel.name.substr(1)
-    }
+    const displayNameForChannel = channel => {
+      return channel.name[0].toUpperCase() + channel.name.substr(1);
+    };
 
     return (
       <section>
@@ -60,27 +59,26 @@ class UpdateChannelSection extends React.Component {
         <label htmlFor="release-channel">Release channel: </label>
         <select
           id="release-channel"
-          style={{minWidth: 130}}
+          style={{ minWidth: 130 }}
           value={current.name}
           onChange={this._onSelectedChannel}
           disabled={saving}
         >
-          {
-            allowed.map((channel) => {
-              return (<option value={channel.name} key={channel.name}>
+          {allowed.map(channel => {
+            return (
+              <option value={channel.name} key={channel.name}>
                 {displayNameForChannel(channel)}
-              </option>);
-            })
-          }
+              </option>
+            );
+          })}
         </select>
         <p>
-          Subscribe to different update channels to receive previews of new features.
-          Note that some update channels may be less stable!
+          Subscribe to different update channels to receive previews of new features. Note that some
+          update channels may be less stable!
         </p>
       </section>
     );
   }
-
 }
 
 export default UpdateChannelSection;

@@ -10,7 +10,7 @@ const IGNORED_PROPS = /^(?:length|name|arguments|caller|callee|prototype|__isPro
  * @return {bool} True if this resembles a promise
  */
 function thatLooksLikeAPromiseToMe(o) {
-  return o && typeof o.then === "function" && typeof o.catch === "function";
+  return o && typeof o.then === 'function' && typeof o.catch === 'function';
 }
 
 function isPromisified(fn) {
@@ -74,7 +74,7 @@ function promisify(original, settings) {
 }
 
 function promisifyAll(target) {
-  Object.getOwnPropertyNames(target).forEach((key) => {
+  Object.getOwnPropertyNames(target).forEach(key => {
     const descriptor = Object.getOwnPropertyDescriptor(target, key);
 
     if (typeof descriptor.value !== 'function') {
@@ -91,7 +91,7 @@ function promisifyAll(target) {
 
     target[promisifiedKey] = promisify(target[key]);
 
-    [key, promisifiedKey].forEach((rkey) => {
+    [key, promisifiedKey].forEach(rkey => {
       Object.defineProperty(target[rkey], MAGIC_KEY, {
         value: true,
         configurable: true,
@@ -130,17 +130,18 @@ function props(obj) {
 
 async function getState() {
   const t = {};
-  return await Promise.race([this, t]).then(v =>
-    ((v === t) ? "pending" : "fulfilled")
-  , () => "rejected");
+  return await Promise.race([this, t]).then(
+    v => (v === t ? 'pending' : 'fulfilled'),
+    () => 'rejected'
+  );
 }
 
 async function isResolved() {
-  return await this.getState() === "fulfilled";
+  return (await this.getState()) === 'fulfilled';
 }
 
 async function isRejected() {
-  return await this.getState() === "rejected";
+  return (await this.getState()) === 'rejected';
 }
 
 global.Promise.prototype.getState = getState;

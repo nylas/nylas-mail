@@ -1,11 +1,7 @@
-module.exports = (grunt) => {
+module.exports = grunt => {
   grunt.config.merge({
     lesslint: {
-      src: [
-        'internal_packages/**/*.less',
-        'dot-nylas/**/*.less',
-        'static/**/*.less',
-      ],
+      src: ['internal_packages/**/*.less', 'dot-nylas/**/*.less', 'static/**/*.less'],
       options: {
         less: {
           paths: ['static', 'static/variables/'],
@@ -17,4 +13,4 @@ module.exports = (grunt) => {
 
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-lesslint');
-}
+};

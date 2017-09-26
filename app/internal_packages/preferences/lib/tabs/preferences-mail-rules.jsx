@@ -1,24 +1,24 @@
 import React from 'react';
 import _ from 'underscore';
 
-import {Actions,
+import {
+  Actions,
   AccountStore,
   MailRulesStore,
   MailRulesTemplates,
   TaskQueue,
-  ReprocessMailRulesTask} from 'nylas-exports';
+  ReprocessMailRulesTask,
+} from 'nylas-exports';
 
-import {Flexbox,
+import {
+  Flexbox,
   EditableList,
   RetinaImg,
   ScrollRegion,
-  ScenarioEditor} from 'nylas-component-kit';
+  ScenarioEditor,
+} from 'nylas-component-kit';
 
-const {
-  ActionTemplatesForAccount,
-  ConditionTemplatesForAccount,
-} = MailRulesTemplates;
-
+const { ActionTemplatesForAccount, ConditionTemplatesForAccount } = MailRulesTemplates;
 
 class PreferencesMailRules extends React.Component {
   static displayName = 'PreferencesMailRules';
@@ -41,12 +41,15 @@ class PreferencesMailRules extends React.Component {
   _getStateFromStores() {
     const accounts = AccountStore.accounts();
     const state = this.state || {};
-    let {currentAccount} = state;
+    let { currentAccount } = state;
     if (!accounts.find(acct => acct === currentAccount)) {
       currentAccount = accounts[0];
     }
     const rules = MailRulesStore.rulesForAccountId(currentAccount.id);
-    const selectedRule = this.state && this.state.selectedRule ? rules.find(r => r.id === this.state.selectedRule.id) : rules[0];
+    const selectedRule =
+      this.state && this.state.selectedRule
+        ? rules.find(r => r.id === this.state.selectedRule.id)
+        : rules[0];
 
     return {
       accounts: accounts,
@@ -56,16 +59,16 @@ class PreferencesMailRules extends React.Component {
       tasks: TaskQueue.findTasks(ReprocessMailRulesTask, {}),
       actionTemplates: ActionTemplatesForAccount(currentAccount),
       conditionTemplates: ConditionTemplatesForAccount(currentAccount),
-    }
+    };
   }
 
-  _onSelectAccount = (event) => {
+  _onSelectAccount = event => {
     const accountId = event.target.value;
     const currentAccount = this.state.accounts.find(acct => acct.id === accountId);
-    this.setState({currentAccount: currentAccount}, () => {
-      this.setState(this._getStateFromStores())
+    this.setState({ currentAccount: currentAccount }, () => {
+      this.setState(this._getStateFromStores());
     });
-  }
+  };
 
   _onReprocessRules = () => {
     const needsMessageBodies = () => {
@@ -77,43 +80,45 @@ class PreferencesMailRules extends React.Component {
         }
       }
       return false;
-    }
+    };
 
     if (needsMessageBodies()) {
-      NylasEnv.showErrorDialog("One or more of your mail rules requires the bodies of messages being processed. These rules can't be run on your entire mailbox.");
+      NylasEnv.showErrorDialog(
+        "One or more of your mail rules requires the bodies of messages being processed. These rules can't be run on your entire mailbox."
+      );
     }
 
-    const task = new ReprocessMailRulesTask(this.state.currentAccount.id)
+    const task = new ReprocessMailRulesTask(this.state.currentAccount.id);
     Actions.queueTask(task);
-  }
+  };
 
   _onAddRule = () => {
-    Actions.addMailRule({accountId: this.state.currentAccount.id});
-  }
+    Actions.addMailRule({ accountId: this.state.currentAccount.id });
+  };
 
-  _onSelectRule = (rule) => {
-    this.setState({selectedRule: rule});
-  }
+  _onSelectRule = rule => {
+    this.setState({ selectedRule: rule });
+  };
 
   _onReorderRule = (rule, startIdx, endIdx) => {
     Actions.reorderMailRule(rule.id, endIdx);
-  }
+  };
 
-  _onDeleteRule = (rule) => {
+  _onDeleteRule = rule => {
     Actions.deleteMailRule(rule.id);
-  }
+  };
 
   _onRuleNameEdited = (newName, rule) => {
-    Actions.updateMailRule(rule.id, {name: newName});
-  }
+    Actions.updateMailRule(rule.id, { name: newName });
+  };
 
-  _onRuleConditionModeEdited = (event) => {
-    Actions.updateMailRule(this.state.selectedRule.id, {conditionMode: event.target.value});
-  }
+  _onRuleConditionModeEdited = event => {
+    Actions.updateMailRule(this.state.selectedRule.id, { conditionMode: event.target.value });
+  };
 
   _onRuleEnabled = () => {
-    Actions.updateMailRule(this.state.selectedRule.id, {disabled: false, disabledReason: null});
-  }
+    Actions.updateMailRule(this.state.selectedRule.id, { disabled: false, disabledReason: null });
+  };
 
   _onRulesChanged = () => {
     const next = this._getStateFromStores();
@@ -126,22 +131,24 @@ class PreferencesMailRules extends React.Component {
     }
 
     this.setState(next);
-  }
+  };
 
   _onTasksChanged = () => {
-    this.setState({tasks: TaskQueue.findTasks(ReprocessMailRulesTask, {})})
-  }
+    this.setState({ tasks: TaskQueue.findTasks(ReprocessMailRulesTask, {}) });
+  };
 
   _renderAccountPicker() {
-    const options = this.state.accounts.map(account =>
-      <option value={account.id} key={account.id}>{account.label}</option>
-    );
+    const options = this.state.accounts.map(account => (
+      <option value={account.id} key={account.id}>
+        {account.label}
+      </option>
+    ));
 
     return (
       <select
         value={this.state.currentAccount.id}
         onChange={this._onSelectAccount}
-        style={{margin: 0, minWidth: 200}}
+        style={{ margin: 0, minWidth: 200 }}
       >
         {options}
       </select>
@@ -185,7 +192,7 @@ class PreferencesMailRules extends React.Component {
 
   _renderListItemContent(rule) {
     if (rule.disabled) {
-      return (<div className="item-rule-disabled">{rule.name}</div>);
+      return <div className="item-rule-disabled">{rule.name}</div>;
     }
     return rule.name;
   }
@@ -207,14 +214,14 @@ class PreferencesMailRules extends React.Component {
             <ScenarioEditor
               instances={rule.conditions}
               templates={this.state.conditionTemplates}
-              onChange={(conditions) => Actions.updateMailRule(rule.id, {conditions})}
+              onChange={conditions => Actions.updateMailRule(rule.id, { conditions })}
               className="well well-matchers"
             />
             <span>Perform the following actions:</span>
             <ScenarioEditor
               instances={rule.actions}
               templates={this.state.actionTemplates}
-              onChange={(actions) => Actions.updateMailRule(rule.id, {actions})}
+              onChange={actions => Actions.updateMailRule(rule.id, { actions })}
               className="well well-actions"
             />
           </div>
@@ -233,9 +240,10 @@ class PreferencesMailRules extends React.Component {
     if (!this.state.selectedRule.disabled) return false;
     return (
       <div className="disabled-reason">
-        <button className="btn" onClick={this._onRuleEnabled}>Enable</button>
-        This rule has been disabled. Make sure the actions below are valid
-        and re-enable the rule.
+        <button className="btn" onClick={this._onRuleEnabled}>
+          Enable
+        </button>
+        This rule has been disabled. Make sure the actions below are valid and re-enable the rule.
         <div>({this.state.selectedRule.disabledReason})</div>
       </div>
     );
@@ -244,18 +252,22 @@ class PreferencesMailRules extends React.Component {
   _renderTasks() {
     if (this.state.tasks.length === 0) return false;
     return (
-      <div style={{flex: 1, paddingLeft: 20}}>
-        {this.state.tasks.map((task) => {
+      <div style={{ flex: 1, paddingLeft: 20 }}>
+        {this.state.tasks.map(task => {
           return (
-            <Flexbox style={{alignItems: 'baseline'}}>
-              <div style={{paddingRight: "12px"}}>
-                <RetinaImg name="sending-spinner.gif" width={18} mode={RetinaImg.Mode.ContentPreserve} />
+            <Flexbox style={{ alignItems: 'baseline' }}>
+              <div style={{ paddingRight: '12px' }}>
+                <RetinaImg
+                  name="sending-spinner.gif"
+                  width={18}
+                  mode={RetinaImg.Mode.ContentPreserve}
+                />
               </div>
               <div>
                 <strong>{AccountStore.accountForId(task.accountId).emailAddress}</strong>
                 {` — ${Number(task.numberOfImpactedItems()).toLocaleString()} processed...`}
               </div>
-              <div style={{flex: 1}} />
+              <div style={{ flex: 1 }} />
               <button className="btn btn-sm" onClick={() => Actions.cancelTask(task)}>
                 Cancel
               </button>
@@ -267,8 +279,8 @@ class PreferencesMailRules extends React.Component {
   }
 
   render() {
-    const processDisabled = this.state.tasks.some((task) =>
-      task.accountId === this.state.currentAccount.id
+    const processDisabled = this.state.tasks.some(
+      task => task.accountId === this.state.currentAccount.id
     );
 
     return (
@@ -282,25 +294,28 @@ class PreferencesMailRules extends React.Component {
 
           {this._renderMailRules()}
 
-          <Flexbox style={{marginTop: 40, maxWidth: 600}}>
+          <Flexbox style={{ marginTop: 40, maxWidth: 600 }}>
             <div>
-              <button disabled={processDisabled} className="btn" style={{'float': 'right'}} onClick={this._onReprocessRules}>
+              <button
+                disabled={processDisabled}
+                className="btn"
+                style={{ float: 'right' }}
+                onClick={this._onReprocessRules}
+              >
                 Process entire inbox
               </button>
             </div>
             {this._renderTasks()}
           </Flexbox>
 
-          <p style={{marginTop: 10}}>
-            By default, mail rules are only applied to new mail as it arrives.
-            Applying rules to your entire inbox may take a long time and
-            degrade performance.
+          <p style={{ marginTop: 10 }}>
+            By default, mail rules are only applied to new mail as it arrives. Applying rules to
+            your entire inbox may take a long time and degrade performance.
           </p>
         </section>
       </div>
     );
   }
-
 }
 
 export default PreferencesMailRules;

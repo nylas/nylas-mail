@@ -1,14 +1,13 @@
-import fs from 'fs'
-import path from 'path'
-import classnames from 'classnames'
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import ReactDOM from 'react-dom'
-import {pickHTMLProps} from 'pick-react-known-prop'
-import RetinaImg from './retina-img'
-import Flexbox from './flexbox'
-import Spinner from './spinner'
-
+import fs from 'fs';
+import path from 'path';
+import classnames from 'classnames';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
+import { pickHTMLProps } from 'pick-react-known-prop';
+import RetinaImg from './retina-img';
+import Flexbox from './flexbox';
+import Spinner from './spinner';
 
 const propTypes = {
   className: PropTypes.string,
@@ -33,29 +32,28 @@ const propTypes = {
 
 const defaultProps = {
   draggable: true,
-}
+};
 
-const SPACE = ' '
+const SPACE = ' ';
 
 function ProgressBar(props) {
-  const {download} = props
+  const { download } = props;
   const isDownloading = download ? download.state === 'downloading' : false;
   if (!isDownloading) {
-    return <span />
+    return <span />;
   }
-  const {state: downloadState, percent: downloadPercent} = download
+  const { state: downloadState, percent: downloadPercent } = download;
   const downloadProgressStyle = {
     width: `${Math.min(downloadPercent, 97.5)}%`,
-  }
+  };
   return (
     <span className={`progress-bar-wrap state-${downloadState}`}>
       <span className="progress-background" />
       <span className="progress-foreground" style={downloadProgressStyle} />
     </span>
-  )
+  );
 }
-ProgressBar.propTypes = propTypes
-
+ProgressBar.propTypes = propTypes;
 
 function AttachmentActionIcon(props) {
   const {
@@ -66,39 +64,35 @@ function AttachmentActionIcon(props) {
     onAbortDownload,
     onRemoveAttachment,
     onDownloadAttachment,
-  } = props
+  } = props;
 
-  const isRemovable = onRemoveAttachment != null
+  const isRemovable = onRemoveAttachment != null;
   const isDownloading = download ? download.state === 'downloading' : false;
   const actionIconName = isRemovable || isDownloading ? removeIcon : downloadIcon;
 
-  const onClickActionIcon = (event) => {
-    event.stopPropagation() // Prevent 'onOpenAttachment'
+  const onClickActionIcon = event => {
+    event.stopPropagation(); // Prevent 'onOpenAttachment'
     if (isRemovable) {
-      onRemoveAttachment()
+      onRemoveAttachment();
     } else if (isDownloading && onAbortDownload != null) {
-      onAbortDownload()
+      onAbortDownload();
     } else if (onDownloadAttachment != null) {
-      onDownloadAttachment()
+      onDownloadAttachment();
     }
-  }
+  };
 
   return (
     <div className="file-action-icon" onClick={onClickActionIcon}>
-      <RetinaImg
-        name={actionIconName}
-        mode={retinaImgMode}
-      />
+      <RetinaImg name={actionIconName} mode={retinaImgMode} />
     </div>
-  )
+  );
 }
 AttachmentActionIcon.propTypes = {
   removeIcon: PropTypes.string,
   downloadIcon: PropTypes.string,
   retinaImgMode: PropTypes.string,
   ...propTypes,
-}
-
+};
 
 export class AttachmentItem extends Component {
   static displayName = 'AttachmentItem';
@@ -110,64 +104,62 @@ export class AttachmentItem extends Component {
   static defaultProps = defaultProps;
 
   _canPreview() {
-    const {filePath, previewable} = this.props
-    return (
-      previewable &&
-      process.platform === 'darwin' &&
-      fs.existsSync(filePath)
-    )
+    const { filePath, previewable } = this.props;
+    return previewable && process.platform === 'darwin' && fs.existsSync(filePath);
   }
 
   _previewAttachment() {
-    const {filePath} = this.props
-    const currentWin = NylasEnv.getCurrentWindow()
-    currentWin.previewFile(filePath)
+    const { filePath } = this.props;
+    const currentWin = NylasEnv.getCurrentWindow();
+    currentWin.previewFile(filePath);
   }
 
-  _onDragStart = (event) => {
-    const {contentType, filePath} = this.props
+  _onDragStart = event => {
+    const { contentType, filePath } = this.props;
     if (fs.existsSync(filePath)) {
       // Note: From trial and error, it appears that the second param /MUST/ be the
       // same as the last component of the filePath URL, or the download fails.
-      const downloadURL = `${contentType}:${path.basename(filePath)}:file://${filePath}`
-      event.dataTransfer.setData("DownloadURL", downloadURL)
-      event.dataTransfer.setData("text/nylas-file-url", downloadURL);
+      const downloadURL = `${contentType}:${path.basename(filePath)}:file://${filePath}`;
+      event.dataTransfer.setData('DownloadURL', downloadURL);
+      event.dataTransfer.setData('text/nylas-file-url', downloadURL);
       const el = ReactDOM.findDOMNode(this._fileIconComponent);
-      const rect = el.getBoundingClientRect()
-      const x = window.devicePixelRatio === 2 ? rect.height / 2 : rect.height
-      const y = window.devicePixelRatio === 2 ? rect.width / 2 : rect.width
-      event.dataTransfer.setDragImage(el, x, y)
+      const rect = el.getBoundingClientRect();
+      const x = window.devicePixelRatio === 2 ? rect.height / 2 : rect.height;
+      const y = window.devicePixelRatio === 2 ? rect.width / 2 : rect.width;
+      event.dataTransfer.setDragImage(el, x, y);
     } else {
-      event.preventDefault()
+      event.preventDefault();
     }
   };
 
   _onOpenAttachment = () => {
-    const {onOpenAttachment} = this.props
+    const { onOpenAttachment } = this.props;
     if (onOpenAttachment != null) {
-      onOpenAttachment()
+      onOpenAttachment();
     }
   };
 
-  _onAttachmentKeyDown = (event) => {
+  _onAttachmentKeyDown = event => {
     if (event.key === SPACE) {
-      if (!this._canPreview()) { return; }
-      event.preventDefault()
-      this._previewAttachment()
+      if (!this._canPreview()) {
+        return;
+      }
+      event.preventDefault();
+      this._previewAttachment();
     }
     if (event.key === 'Escape') {
-      const attachmentNode = ReactDOM.findDOMNode(this)
+      const attachmentNode = ReactDOM.findDOMNode(this);
       if (attachmentNode) {
-        attachmentNode.blur()
+        attachmentNode.blur();
       }
     }
-  }
+  };
 
-  _onClickQuicklookIcon = (event) => {
-    event.preventDefault()
-    event.stopPropagation()
-    this._previewAttachment()
-  }
+  _onClickQuicklookIcon = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    this._previewAttachment();
+  };
 
   render() {
     const {
@@ -180,16 +172,16 @@ export class AttachmentItem extends Component {
       fileIconName,
       filePreviewPath,
       ...extraProps
-    } = this.props
+    } = this.props;
     const classes = classnames({
       'nylas-attachment-item': true,
       'file-attachment-item': true,
       'has-preview': filePreviewPath,
       [className]: className,
-    })
-    const style = draggable ? {WebkitUserDrag: 'element'} : null;
-    const tabIndex = focusable ? 0 : null
-    const {devicePixelRatio} = window
+    });
+    const style = draggable ? { WebkitUserDrag: 'element' } : null;
+    const tabIndex = focusable ? 0 : null;
+    const { devicePixelRatio } = window;
 
     return (
       <div
@@ -199,16 +191,11 @@ export class AttachmentItem extends Component {
         onKeyDown={focusable ? this._onAttachmentKeyDown : null}
         {...pickHTMLProps(extraProps)}
       >
-        {filePreviewPath ?
+        {filePreviewPath ? (
           <div className="file-thumbnail-preview">
-            <img
-              role="presentation"
-              src={`file://${filePreviewPath}`}
-              style={{zoom: (1 / devicePixelRatio)}}
-            />
-          </div> :
-          null
-        }
+            <img alt="" src={`file://${filePreviewPath}`} style={{ zoom: 1 / devicePixelRatio }} />
+          </div>
+        ) : null}
         <div
           className="inner"
           draggable={draggable}
@@ -216,10 +203,12 @@ export class AttachmentItem extends Component {
           onDragStart={this._onDragStart}
         >
           <ProgressBar download={download} />
-          <Flexbox direction="row" style={{alignItems: 'center'}}>
+          <Flexbox direction="row" style={{ alignItems: 'center' }}>
             <div className="file-info-wrap">
               <RetinaImg
-                ref={(cm) => { this._fileIconComponent = cm; }}
+                ref={cm => {
+                  this._fileIconComponent = cm;
+                }}
                 className="file-icon"
                 fallback="file-fallback.png"
                 mode={RetinaImg.Mode.ContentPreserve}
@@ -227,15 +216,14 @@ export class AttachmentItem extends Component {
               />
               <span className="file-name">{displayName}</span>
               <span className="file-size">{displaySize ? `(${displaySize})` : ''}</span>
-              {this._canPreview() ?
+              {this._canPreview() ? (
                 <RetinaImg
                   className="quicklook-icon"
                   name="attachment-quicklook.png"
                   mode={RetinaImg.Mode.ContentIsMask}
                   onClick={this._onClickQuicklookIcon}
-                /> :
-                null
-              }
+                />
+              ) : null}
             </div>
             <AttachmentActionIcon
               {...this.props}
@@ -246,10 +234,9 @@ export class AttachmentItem extends Component {
           </Flexbox>
         </div>
       </div>
-    )
+    );
   }
 }
-
 
 export class ImageAttachmentItem extends Component {
   static displayName = 'ImageAttachmentItem';
@@ -264,9 +251,9 @@ export class ImageAttachmentItem extends Component {
   static containerRequired = false;
 
   _onOpenAttachment = () => {
-    const {onOpenAttachment} = this.props
+    const { onOpenAttachment } = this.props;
     if (onOpenAttachment != null) {
-      onOpenAttachment()
+      onOpenAttachment();
     }
   };
 
@@ -279,26 +266,25 @@ export class ImageAttachmentItem extends Component {
     if (el) {
       el.classList.add('loaded');
     }
-  }
+  };
 
   renderImage() {
-    const {download, filePath, draggable} = this.props
+    const { download, filePath, draggable } = this.props;
     if (download && download.percent <= 5) {
       return (
-        <div style={{width: "100%", height: "100px"}}>
+        <div style={{ width: '100%', height: '100px' }}>
           <Spinner visible />
         </div>
-      )
+      );
     }
-    const src = download && download.percent < 100 ? `${filePath}?percent=${download.percent}` : filePath;
-    return (
-      <img draggable={draggable} src={src} role="presentation" onLoad={this._onImgLoaded} />
-    )
+    const src =
+      download && download.percent < 100 ? `${filePath}?percent=${download.percent}` : filePath;
+    return <img draggable={draggable} src={src} alt="" onLoad={this._onImgLoaded} />;
   }
 
   render() {
-    const {className, displayName, download, ...extraProps} = this.props
-    const classes = `nylas-attachment-item image-attachment-item ${className || ''}`
+    const { className, displayName, download, ...extraProps } = this.props;
+    const classes = `nylas-attachment-item image-attachment-item ${className || ''}`;
     return (
       <div className={classes} {...pickHTMLProps(extraProps)}>
         <div>
@@ -318,6 +304,6 @@ export class ImageAttachmentItem extends Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }

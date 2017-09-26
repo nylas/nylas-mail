@@ -1,6 +1,7 @@
-React = require 'react'
-ReactDOM = require 'react-dom'
-{Utils,
+{React,
+ ReactDOM,
+ PropTypes,
+ Utils,
  RegExpUtils,
  IdentityStore,
  NylasAPIRequest,
@@ -33,8 +34,8 @@ class EventedIFrame extends React.Component
   @displayName = 'EventedIFrame'
 
   @propTypes =
-    searchable: React.PropTypes.bool
-    onResize: React.PropTypes.func
+    searchable: PropTypes.bool
+    onResize: PropTypes.func
 
   render: =>
     otherProps = Utils.fastOmit(@props, Object.keys(@constructor.propTypes))

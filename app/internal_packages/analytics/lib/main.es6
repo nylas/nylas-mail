@@ -1,5 +1,5 @@
-import AnalyticsStore from './analytics-store'
+import AnalyticsStore from './analytics-store';
 
 export function activate() {
-  AnalyticsStore.activate()
+  AnalyticsStore.activate();
 }

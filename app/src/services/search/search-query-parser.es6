@@ -13,7 +13,7 @@ import {
   HasAttachmentQueryExpression,
 } from './search-query-ast';
 
-const nextStringToken = (text) => {
+const nextStringToken = text => {
   if (text[0] !== '"') {
     throw new Error('Expected string token to begin with double quote (")');
   }
@@ -31,16 +31,18 @@ const nextStringToken = (text) => {
   throw new Error('Expected string but ran out of input');
 };
 
-const isWhitespace = (c) => {
+const isWhitespace = c => {
   switch (c) {
     case ' ':
     case '\t':
-    case '\n': return true;
-    default: return false;
+    case '\n':
+      return true;
+    default:
+      return false;
   }
 };
 
-const consumeWhitespace = (text) => {
+const consumeWhitespace = text => {
   let pos = 0;
   while (pos < text.length && isWhitespace(text[pos])) {
     pos += 1;
@@ -66,7 +68,7 @@ const reserved = [
   'attachment',
 ];
 
-const mightBeReserved = (text) => {
+const mightBeReserved = text => {
   for (const r of reserved) {
     if (r.startsWith(text) || r.toUpperCase().startsWith(text)) {
       return true;
@@ -75,16 +77,18 @@ const mightBeReserved = (text) => {
   return false;
 };
 
-const isValidNonStringChar = (c) => {
+const isValidNonStringChar = c => {
   switch (c) {
     case '(':
     case ')':
-    case ':': return false;
-    default: return !isWhitespace(c);
+    case ':':
+      return false;
+    default:
+      return !isWhitespace(c);
   }
 };
 
-const isValidNonStringText = (text) => {
+const isValidNonStringText = text => {
   if (text.length < 1) {
     return false;
   }
@@ -97,7 +101,7 @@ const isValidNonStringText = (text) => {
   return true;
 };
 
-const nextToken = (text) => {
+const nextToken = text => {
   const newText = consumeWhitespace(text);
   if (newText.length === 0) {
     return [null, newText];
@@ -177,7 +181,7 @@ const consumeExpectedToken = (text, token) => {
   return afterTok;
 };
 
-const parseText = (text) => {
+const parseText = text => {
   const [tok, afterTok] = nextToken(text);
   if (tok === null) {
     throw new Error('Expected text but none available');
@@ -185,7 +189,7 @@ const parseText = (text) => {
   return [new TextQueryExpression(tok), afterTok];
 };
 
-const parseIsQuery = (text) => {
+const parseIsQuery = text => {
   const afterColon = consumeExpectedToken(text, ':');
   const [tok, afterTok] = nextToken(afterColon);
   if (tok === null) {
@@ -201,12 +205,13 @@ const parseIsQuery = (text) => {
     case 'UNSTARRED': {
       return [new StarredStatusQueryExpression(tokText === 'STARRED'), afterTok];
     }
-    default: break;
+    default:
+      break;
   }
   return null;
 };
 
-const parseHasQuery = (text) => {
+const parseHasQuery = text => {
   const afterColon = consumeExpectedToken(text, ':');
   const [tok, afterTok] = nextToken(afterColon);
   if (tok === null) {
@@ -217,13 +222,14 @@ const parseHasQuery = (text) => {
     case 'ATTACHMENT': {
       return [new HasAttachmentQueryExpression(), afterTok];
     }
-    default: break;
+    default:
+      break;
   }
   return null;
 };
 
 let parseQuery = null; // Satisfy our robot overlords.
-const parseSimpleQuery = (text) => {
+const parseSimpleQuery = text => {
   const [tok, afterTok] = nextToken(text);
   if (tok === null) {
     return [null, afterTok];
@@ -276,7 +282,7 @@ const parseSimpleQuery = (text) => {
   return [new GenericQueryExpression(txt), afterTxt];
 };
 
-const parseOrQuery = (text) => {
+const parseOrQuery = text => {
   const [lhs, afterLhs] = parseSimpleQuery(text);
   const [tok, afterOr] = nextToken(afterLhs);
   if (tok === null) {
@@ -289,7 +295,7 @@ const parseOrQuery = (text) => {
   return [new OrQueryExpression(lhs, rhs), afterRhs];
 };
 
-const parseAndQuery = (text) => {
+const parseAndQuery = text => {
   const [lhs, afterLhs] = parseOrQuery(text);
   const [tok, afterAnd] = nextToken(afterLhs);
   if (tok === null) {
@@ -302,11 +308,11 @@ const parseAndQuery = (text) => {
   return [new AndQueryExpression(lhs, rhs), afterRhs];
 };
 
-parseQuery = (text) => {
+parseQuery = text => {
   return parseAndQuery(text);
-}
+};
 
-const parseQueryWrapper = (text) => {
+const parseQueryWrapper = text => {
   let currText = text;
   const exps = [];
   while (currText.length > 0) {

@@ -1,11 +1,12 @@
-import {ComponentRegistry, WorkspaceStore} from 'nylas-exports';
-import {HasTutorialTip} from 'nylas-component-kit';
+import { ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { HasTutorialTip } from 'nylas-component-kit';
 
 import ModeToggle from './mode-toggle';
 
 const ToggleWithTutorialTip = HasTutorialTip(ModeToggle, {
   title: 'Compose with context',
-  instructions: "Mailspring shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.",
+  instructions:
+    'Mailspring shows you everything about your contacts right inside your inbox. See LinkedIn profiles, Twitter bios, message history, and more.',
 });
 
 // NOTE: this is a hack to allow ComponentRegistry
@@ -13,7 +14,7 @@ const ToggleWithTutorialTip = HasTutorialTip(ModeToggle, {
 // different areas. if we do this more than once, let's
 // dry this out.
 class ToggleWithTutorialTipList extends ToggleWithTutorialTip {
-  static displayName = 'ModeToggleList'
+  static displayName = 'ModeToggleList';
 }
 
 export function activate() {

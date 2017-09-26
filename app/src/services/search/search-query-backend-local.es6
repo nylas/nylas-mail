@@ -6,7 +6,7 @@ import {
   StarredStatusQueryExpression,
   HasAttachmentQueryExpression,
   MatchQueryExpression,
-} from './search-query-ast'
+} from './search-query-ast';
 
 /*
  * This class visits a match-compatible subtree and condenses it into a single
@@ -54,7 +54,7 @@ class MatchQueryExpressionVisitor extends SearchQueryExpressionVisitor {
 
   visitGeneric(node) {
     const text = this.visitAndGetResult(node.text);
-    this._result = `("${text}"*)`
+    this._result = `("${text}"*)`;
   }
 
   visitText(node) {
@@ -220,7 +220,8 @@ class StructuredSearchQueryVisitor extends SearchQueryExpressionVisitor {
 
   visitMatch(node) {
     const searchTable = `${this._className}Search`;
-    this._result = `(\`${this._className}\`.\`id\` IN (SELECT \`content_id\` FROM \`${searchTable}\` WHERE \`${searchTable}\` MATCH '${node.rawQuery}' LIMIT 1000))`;
+    this._result = `(\`${this
+      ._className}\`.\`id\` IN (SELECT \`content_id\` FROM \`${searchTable}\` WHERE \`${searchTable}\` MATCH '${node.rawQuery}' LIMIT 1000))`;
   }
 }
 

@@ -1,18 +1,16 @@
-import React from 'react'
-import {Actions, SendActionsStore} from 'nylas-exports'
-import {Menu, RetinaImg, ButtonDropdown, ListensToFluxStore} from 'nylas-component-kit'
-
+import { React, PropTypes, Actions, SendActionsStore } from 'nylas-exports';
+import { Menu, RetinaImg, ButtonDropdown, ListensToFluxStore } from 'nylas-component-kit';
 
 class SendActionButton extends React.Component {
-  static displayName = "SendActionButton";
+  static displayName = 'SendActionButton';
 
-  static containerRequired = false
+  static containerRequired = false;
 
   static propTypes = {
-    draft: React.PropTypes.object,
-    isValidDraft: React.PropTypes.func,
-    sendActions: React.PropTypes.array,
-    orderedSendActions: React.PropTypes.object,
+    draft: PropTypes.object,
+    isValidDraft: PropTypes.func,
+    sendActions: PropTypes.array,
+    orderedSendActions: PropTypes.object,
   };
 
   primarySend() {
@@ -20,20 +18,20 @@ class SendActionButton extends React.Component {
   }
 
   _onPrimaryClick = () => {
-    const {orderedSendActions} = this.props
-    const {preferred} = orderedSendActions
+    const { orderedSendActions } = this.props;
+    const { preferred } = orderedSendActions;
     this._onSendWithAction(preferred);
-  }
+  };
 
-  _onSendWithAction = (sendAction) => {
-    const {isValidDraft, draft} = this.props
+  _onSendWithAction = sendAction => {
+    const { isValidDraft, draft } = this.props;
     if (isValidDraft()) {
-      Actions.sendDraft(draft.headerMessageId, sendAction.configKey)
+      Actions.sendDraft(draft.headerMessageId, sendAction.configKey);
     }
-  }
+  };
 
-  _renderSendActionItem = ({iconUrl}) => {
-    let plusHTML = "";
+  _renderSendActionItem = ({ iconUrl }) => {
+    let plusHTML = '';
     let additionalImg = false;
 
     if (iconUrl) {
@@ -44,18 +42,19 @@ class SendActionButton extends React.Component {
     return (
       <span>
         <RetinaImg name="icon-composer-send.png" mode={RetinaImg.Mode.ContentIsMask} />
-        <span className="text">Send{plusHTML}</span>{additionalImg}
+        <span className="text">Send{plusHTML}</span>
+        {additionalImg}
       </span>
     );
-  }
+  };
 
   _renderSingleButton() {
-    const {sendActions} = this.props
+    const { sendActions } = this.props;
     return (
       <button
         tabIndex={-1}
-        className={"btn btn-toolbar btn-normal btn-emphasis btn-text btn-send"}
-        style={{order: -100}}
+        className={'btn btn-toolbar btn-normal btn-emphasis btn-text btn-send'}
+        style={{ order: -100 }}
         onClick={this._onPrimaryClick}
       >
         {this._renderSendActionItem(sendActions[0])}
@@ -64,22 +63,22 @@ class SendActionButton extends React.Component {
   }
 
   _renderButtonDropdown() {
-    const {orderedSendActions} = this.props
-    const {preferred, rest} = orderedSendActions
+    const { orderedSendActions } = this.props;
+    const { preferred, rest } = orderedSendActions;
 
     const menu = (
       <Menu
         items={rest}
-        itemKey={(actionConfig) => actionConfig.configKey}
+        itemKey={actionConfig => actionConfig.configKey}
         itemContent={this._renderSendActionItem}
         onSelect={this._onSendWithAction}
       />
-  );
+    );
 
     return (
       <ButtonDropdown
-        className={"btn-send btn-emphasis btn-text"}
-        style={{order: -100}}
+        className={'btn-send btn-emphasis btn-text'}
+        style={{ order: -100 }}
         primaryItem={this._renderSendActionItem(preferred)}
         primaryTitle={preferred.title}
         primaryClick={this._onPrimaryClick}
@@ -90,7 +89,7 @@ class SendActionButton extends React.Component {
   }
 
   render() {
-    const {sendActions} = this.props
+    const { sendActions } = this.props;
     if (sendActions.length === 1) {
       return this._renderSingleButton();
     }
@@ -101,13 +100,13 @@ class SendActionButton extends React.Component {
 const EnhancedSendActionButton = ListensToFluxStore(SendActionButton, {
   stores: [SendActionsStore],
   getStateFromStores(props) {
-    const {draft} = props
+    const { draft } = props;
     return {
       sendActions: SendActionsStore.availableSendActionsForDraft(draft),
       orderedSendActions: SendActionsStore.orderedSendActionsForDraft(draft),
-    }
+    };
   },
-})
+});
 // TODO this is a hack so that the send button can still expose
 // the `primarySend` method required by the ComposerView. Ideally, this
 // decorator mechanism should expose whatever instance methods are exposed
@@ -118,11 +117,11 @@ const EnhancedSendActionButton = ListensToFluxStore(SendActionButton, {
 Object.assign(EnhancedSendActionButton.prototype, {
   primarySend() {
     if (this._composedComponent) {
-      this._composedComponent.primarySend()
+      this._composedComponent.primarySend();
     }
   },
-})
+});
 
-EnhancedSendActionButton.UndecoratedSendActionButton = SendActionButton
+EnhancedSendActionButton.UndecoratedSendActionButton = SendActionButton;
 
-export default EnhancedSendActionButton
+export default EnhancedSendActionButton;

@@ -10,7 +10,7 @@ The Attribute class also exposes convenience methods for generating {Matcher} ob
 Section: Database
 */
 export default class Attribute {
-  constructor({modelKey, queryable, jsonKey, loadFromColumn}) {
+  constructor({ modelKey, queryable, jsonKey, loadFromColumn }) {
     this.modelKey = modelKey;
     this.tableColumn = modelKey;
     this.jsonKey = jsonKey || modelKey;
@@ -26,7 +26,9 @@ export default class Attribute {
       throw new Error(`Attribute::${fnName} (${this.modelKey}) - you must provide a value`);
     }
     if (!this.queryable) {
-      throw new Error(`Attribute::${fnName} (${this.modelKey}) - this field cannot be queried against`);
+      throw new Error(
+        `Attribute::${fnName} (${this.modelKey}) - this field cannot be queried against`
+      );
     }
   }
 
@@ -37,25 +39,28 @@ export default class Attribute {
   }
 
   // Public: Returns a {Matcher} for objects `=` to the provided value.
-  in(val, {notIn} = {}) {
+  in(val, { notIn } = {}) {
     this._assertPresentAndQueryable('in', val);
 
     if (!(val instanceof Array)) {
       throw new Error(`Attribute.in: you must pass an array of values.`);
     }
     if (val.length === 0) {
-      console.warn(`Attribute::in (${this.modelKey}) called with an empty set. You should avoid this useless query!`);
+      console.warn(
+        `Attribute::in (${this
+          .modelKey}) called with an empty set. You should avoid this useless query!`
+      );
     }
     if (val.length === 1) {
-      const testChar = notIn ? "!=" : "="
-      return new Matcher(this, testChar, val[0])
+      const testChar = notIn ? '!=' : '=';
+      return new Matcher(this, testChar, val[0]);
     }
-    const matcherType = notIn ? "not in" : "in";
+    const matcherType = notIn ? 'not in' : 'in';
     return new Matcher(this, matcherType, val);
   }
 
   notIn(val) {
-    return this.in(val, {notIn: true})
+    return this.in(val, { notIn: true });
   }
 
   // Public: Returns a {Matcher} for objects `!=` to the provided value.
@@ -87,6 +92,6 @@ export default class Attribute {
   }
 
   needsColumn() {
-    return this.queryable && this.columnSQL && this.jsonKey !== 'id'
+    return this.queryable && this.columnSQL && this.jsonKey !== 'id';
   }
 }

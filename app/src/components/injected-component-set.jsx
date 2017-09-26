@@ -1,8 +1,4 @@
-import React from 'react';
-import {
-  Utils,
-  ComponentRegistry,
-} from "nylas-exports";
+import { React, PropTypes, Utils, ComponentRegistry } from 'nylas-exports';
 
 import UnsafeComponent from './unsafe-component';
 import Flexbox from './flexbox';
@@ -57,14 +53,14 @@ export default class InjectedComponentSet extends React.Component {
       will be applied to the {Flexbox} rendered by the InjectedComponentSet.
   */
   static propTypes = {
-    matching: React.PropTypes.object.isRequired,
-    children: React.PropTypes.array,
-    className: React.PropTypes.string,
-    matchLimit: React.PropTypes.number,
-    exposedProps: React.PropTypes.object,
-    containersRequired: React.PropTypes.bool,
-    onComponentsDidRender: React.PropTypes.func,
-  }
+    matching: PropTypes.object.isRequired,
+    children: PropTypes.array,
+    className: PropTypes.string,
+    matchLimit: PropTypes.number,
+    exposedProps: PropTypes.object,
+    containersRequired: PropTypes.bool,
+    onComponentsDidRender: PropTypes.func,
+  };
 
   static defaultProps = {
     direction: 'row',
@@ -107,32 +103,33 @@ export default class InjectedComponentSet extends React.Component {
     }
   }
 
-  _onComponentDidRender = (componentName) => {
+  _onComponentDidRender = componentName => {
     this._renderedComponents.add(componentName);
     if (this._renderedComponents.size === this.state.components.length) {
       this.props.onComponentsDidRender();
     }
-  }
+  };
 
   _getStateFromStores = (props = this.props) => {
     return {
-      components: ComponentRegistry.findComponentsMatching(props.matching).slice(0, props.matchLimit),
+      components: ComponentRegistry.findComponentsMatching(props.matching).slice(
+        0,
+        props.matchLimit
+      ),
       visible: ComponentRegistry.showComponentRegions(),
     };
-  }
+  };
 
   render() {
-    const {className, exposedProps, containersRequired, matching, children} = this.props;
+    const { className, exposedProps, containersRequired, matching, children } = this.props;
 
-    this._renderedComponents = new Set()
-    const flexboxProps = Utils.fastOmit(this.props, Object.keys(this.constructor.propTypes))
+    this._renderedComponents = new Set();
+    const flexboxProps = Utils.fastOmit(this.props, Object.keys(this.constructor.propTypes));
     let flexboxClassName = className;
 
-    const elements = this.state.components.map((Component) => {
-      if ((containersRequired === false) || (Component.containerRequired === false)) {
-        return (
-          <Component key={Component.displayName} {...exposedProps} />
-        );
+    const elements = this.state.components.map(Component => {
+      if (containersRequired === false || Component.containerRequired === false) {
+        return <Component key={Component.displayName} {...exposedProps} />;
       }
       return (
         <UnsafeComponent
@@ -141,13 +138,17 @@ export default class InjectedComponentSet extends React.Component {
           onComponentDidRender={() => this._onComponentDidRender(Component.displayName)}
           {...exposedProps}
         />
-      )
+      );
     });
 
     if (this.state.visible) {
-      flexboxClassName += " registered-region-visible"
-      elements.splice(0, 0, <InjectedComponentLabel key="_label" matching={matching} {...exposedProps} />)
-      elements.push(<span key="_clear" style={{clear: 'both'}} />)
+      flexboxClassName += ' registered-region-visible';
+      elements.splice(
+        0,
+        0,
+        <InjectedComponentLabel key="_label" matching={matching} {...exposedProps} />
+      );
+      elements.push(<span key="_clear" style={{ clear: 'both' }} />);
     }
 
     return (

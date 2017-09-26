@@ -1,12 +1,11 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types'
-import {RetinaImg} from 'nylas-component-kit';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { RetinaImg } from 'nylas-component-kit';
 import moment from 'moment';
 
-import {FocusedPerspectiveStore} from 'nylas-exports';
-import {updateReminderMetadata} from './send-reminders-utils'
-import {PLUGIN_ID} from './send-reminders-constants';
-
+import { FocusedPerspectiveStore } from 'nylas-exports';
+import { updateReminderMetadata } from './send-reminders-utils';
+import { PLUGIN_ID } from './send-reminders-constants';
 
 class SendRemindersThreadTimestamp extends Component {
   static displayName = 'SendRemindersThreadTimestamp';
@@ -24,15 +23,15 @@ class SendRemindersThreadTimestamp extends Component {
 
   render() {
     const Fallback = this.props.fallback;
-    const current = FocusedPerspectiveStore.current()
+    const current = FocusedPerspectiveStore.current();
 
     if (!current.isReminders) {
-      return <Fallback {...this.props} />
+      return <Fallback {...this.props} />;
     }
 
-    const {expiration} = this.props.thread.metadataForPluginId(PLUGIN_ID);
+    const { expiration } = this.props.thread.metadataForPluginId(PLUGIN_ID);
     if (!expiration) {
-      return <Fallback {...this.props} />
+      return <Fallback {...this.props} />;
     }
 
     const mExpiration = moment(expiration);
@@ -42,16 +41,11 @@ class SendRemindersThreadTimestamp extends Component {
         className="send-reminders-thread-timestamp timestamp"
         title={`Reminder set for ${mExpiration.fromNow(true)} from now`}
       >
-        <RetinaImg
-          name="ic-timestamp-reminder.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-        />
-        <span className="date-message">
-          {`in ${mExpiration.fromNow(true)}`}
-        </span>
+        <RetinaImg name="ic-timestamp-reminder.png" mode={RetinaImg.Mode.ContentIsMask} />
+        <span className="date-message">{`in ${mExpiration.fromNow(true)}`}</span>
       </span>
-    )
+    );
   }
 }
 
-export default SendRemindersThreadTimestamp
+export default SendRemindersThreadTimestamp;

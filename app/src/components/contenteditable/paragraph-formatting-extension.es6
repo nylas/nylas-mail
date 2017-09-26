@@ -1,4 +1,4 @@
-import {ContenteditableExtension} from 'nylas-exports';
+import { ContenteditableExtension } from 'nylas-exports';
 
 // This provides the default baisc formatting options for the
 // Contenteditable using the declarative extension API.
@@ -7,8 +7,8 @@ import {ContenteditableExtension} from 'nylas-exports';
 export default class ParagraphFormattingExtension extends ContenteditableExtension {
   static keyCommandHandlers() {
     return {
-      "contenteditable:indent": this._onIndent,
-      "contenteditable:outdent": this._onOutdent,
+      'contenteditable:indent': this._onIndent,
+      'contenteditable:outdent': this._onOutdent,
     };
   }
 
@@ -16,11 +16,11 @@ export default class ParagraphFormattingExtension extends ContenteditableExtensi
     return [];
   }
 
-  static _onIndent({editor}) {
+  static _onIndent({ editor }) {
     editor.indent();
   }
 
-  static _onOutdent({editor}) {
+  static _onOutdent({ editor }) {
     editor.outdent();
   }
 

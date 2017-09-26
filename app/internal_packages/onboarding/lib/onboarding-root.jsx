@@ -14,19 +14,18 @@ import AccountOnboardingSuccess from './page-account-onboarding-success';
 import AccountSettingsPageExchange from './page-account-settings-exchange';
 import InitialPreferencesPage from './page-initial-preferences';
 
-
 const PageComponents = {
-  "welcome": WelcomePage,
-  "tutorial": TutorialPage,
-  "authenticate": AuthenticatePage,
-  "account-choose": AccountChoosePage,
-  "account-settings": AccountSettingsPage,
-  "account-settings-gmail": AccountSettingsPageGmail,
-  "account-settings-imap": AccountSettingsPageIMAP,
-  "account-settings-exchange": AccountSettingsPageExchange,
-  "account-onboarding-success": AccountOnboardingSuccess,
-  "initial-preferences": InitialPreferencesPage,
-}
+  welcome: WelcomePage,
+  tutorial: TutorialPage,
+  authenticate: AuthenticatePage,
+  'account-choose': AccountChoosePage,
+  'account-settings': AccountSettingsPage,
+  'account-settings-gmail': AccountSettingsPageGmail,
+  'account-settings-imap': AccountSettingsPageIMAP,
+  'account-settings-exchange': AccountSettingsPageExchange,
+  'account-onboarding-success': AccountOnboardingSuccess,
+  'initial-preferences': InitialPreferencesPage,
+};
 
 export default class OnboardingRoot extends React.Component {
   static displayName = 'OnboardingRoot';
@@ -55,11 +54,11 @@ export default class OnboardingRoot extends React.Component {
       pageDepth: OnboardingStore.pageDepth(),
       account: OnboardingStore.account(),
     };
-  }
+  };
 
   _onStateChanged = () => {
     this.setState(this._getStateFromStore());
-  }
+  };
 
   render() {
     const Component = PageComponents[this.state.page];

@@ -8,10 +8,10 @@ import {
   Thread,
   Contact,
   DraftFactory,
-} from 'nylas-exports'
+} from 'nylas-exports';
 import NylasStore from 'nylas-store';
 
-import {PLUGIN_ID} from './send-reminders-constants'
+import { PLUGIN_ID } from './send-reminders-constants';
 import {
   updateReminderMetadata,
   transferReminderMetadataFromDraftToThread,
@@ -32,13 +32,13 @@ class SendRemindersStore extends NylasStore {
   }
 
   deactivate() {
-    this._unsubscribers.forEach((unsub) => unsub())
+    this._unsubscribers.forEach(unsub => unsub());
   }
 
   _sendReminderEmail = async (thread, sentHeaderMessageId) => {
     const account = AccountStore.accountForId(thread.accountId);
     const draft = await DraftFactory.createDraft({
-      from: [new Contact({email: account.emailAddress, name: `${account.name} via Mailspring`})],
+      from: [new Contact({ email: account.emailAddress, name: `${account.name} via Mailspring` })],
       to: [account.defaultMe()],
       cc: [],
       pristine: false,
@@ -52,19 +52,19 @@ class SendRemindersStore extends NylasStore {
         <p>--The Mailspring Team</p>`,
     });
 
-    const saveTask = new SyncbackDraftTask({draft})
-    Actions.queueTask(saveTask)
+    const saveTask = new SyncbackDraftTask({ draft });
+    Actions.queueTask(saveTask);
     await TaskQueue.waitForPerformLocal(saveTask);
     Actions.sendDraft(draft.headerMessageId);
-  }
+  };
 
-  _onDraftDeliverySucceeded = ({headerMessageId, accountId}) => {
+  _onDraftDeliverySucceeded = ({ headerMessageId, accountId }) => {
     // when a draft is sent a thread may be created for it for the first time.
     // Move the metadata from the message to the thread for much easier book-keeping.
-    transferReminderMetadataFromDraftToThread({headerMessageId, accountId});
-  }
+    transferReminderMetadataFromDraftToThread({ headerMessageId, accountId });
+  };
 
-  _onDatabaseChanged = ({type, objects, objectClass}) => {
+  _onDatabaseChanged = ({ type, objects, objectClass }) => {
     if (objectClass !== Thread.name) {
       return;
     }
@@ -76,7 +76,10 @@ class SendRemindersStore extends NylasStore {
       }
 
       // has a new message arrived on the thread? if so, clear the metadata completely
-      if (metadata.lastReplyTimestamp !== new Date(thread.lastMessageReceivedTimestamp).getTime() / 1000) {
+      if (
+        metadata.lastReplyTimestamp !==
+        new Date(thread.lastMessageReceivedTimestamp).getTime() / 1000
+      ) {
         updateReminderMetadata(thread, {});
         continue;
       }
@@ -85,19 +88,21 @@ class SendRemindersStore extends NylasStore {
       // advance metadata into the "notify" phase.
       if (type === 'metadata-expiration' && metadata.expiration <= new Date()) {
         // mark that the email should enter the notification highlight state
-        updateReminderMetadata(thread, Object.assign(metadata, {expiration: null, shouldNotify: true}));
+        updateReminderMetadata(
+          thread,
+          Object.assign(metadata, { expiration: null, shouldNotify: true })
+        );
         // send an email on the thread, causing the thread to move up in the inbox
         this._sendReminderEmail(thread, metadata.sentHeaderMessageId);
       }
     }
-  }
+  };
 
   _onFocusedContentChanged = () => {
-    const thread = FocusedContentStore.focused('thread') || null
-    const didUnfocusLastThread = (
+    const thread = FocusedContentStore.focused('thread') || null;
+    const didUnfocusLastThread =
       (!thread && this._lastFocusedThread) ||
-      (thread && this._lastFocusedThread && thread.id !== this._lastFocusedThread.id)
-    )
+      (thread && this._lastFocusedThread && thread.id !== this._lastFocusedThread.id);
     // When we unfocus a thread that had `shouldNotify == true`, it means that
     // we have acknowledged the notification, or in this case, the reminder. If
     // that's the case, set `shouldNotify` to false.
@@ -108,7 +113,7 @@ class SendRemindersStore extends NylasStore {
       }
     }
     this._lastFocusedThread = thread;
-  }
+  };
 }
 
-export default new SendRemindersStore()
+export default new SendRemindersStore();

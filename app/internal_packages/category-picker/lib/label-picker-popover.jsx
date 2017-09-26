@@ -1,12 +1,7 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import {
-  Menu,
-  RetinaImg,
-  LabelColorizer,
-  BoldedSearchResult,
-} from 'nylas-component-kit'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Menu, RetinaImg, LabelColorizer, BoldedSearchResult } from 'nylas-component-kit';
 import {
   Utils,
   Actions,
@@ -14,92 +9,92 @@ import {
   Label,
   SyncbackCategoryTask,
   ChangeLabelsTask,
-} from 'nylas-exports'
-import {Categories} from 'nylas-observables'
-
+} from 'nylas-exports';
+import { Categories } from 'nylas-observables';
 
 export default class LabelPickerPopover extends Component {
-
   static propTypes = {
     threads: PropTypes.array.isRequired,
     account: PropTypes.object.isRequired,
   };
 
   constructor(props) {
-    super(props)
-    this._labels = []
-    this.state = this._recalculateState(this.props, {searchValue: ''})
+    super(props);
+    this._labels = [];
+    this.state = this._recalculateState(this.props, { searchValue: '' });
   }
 
   componentDidMount() {
-    this._registerObservables()
+    this._registerObservables();
   }
 
   componentWillReceiveProps(nextProps) {
-    this._registerObservables(nextProps)
-    this.setState(this._recalculateState(nextProps))
+    this._registerObservables(nextProps);
+    this.setState(this._recalculateState(nextProps));
   }
 
   componentWillUnmount() {
-    this._unregisterObservables()
+    this._unregisterObservables();
   }
 
   _registerObservables = (props = this.props) => {
-    this._unregisterObservables()
+    this._unregisterObservables();
     this.disposables = [
-      Categories.forAccount(props.account).sort().subscribe(this._onLabelsChanged),
-    ]
+      Categories.forAccount(props.account)
+        .sort()
+        .subscribe(this._onLabelsChanged),
+    ];
   };
 
   _unregisterObservables = () => {
     if (this.disposables) {
-      this.disposables.forEach(disp => disp.dispose())
+      this.disposables.forEach(disp => disp.dispose());
     }
   };
 
-  _recalculateState = (props = this.props, {searchValue = (this.state.searchValue || "")} = {}) => {
-    const {threads} = props
+  _recalculateState = (props = this.props, { searchValue = this.state.searchValue || '' } = {}) => {
+    const { threads } = props;
 
     if (threads.length === 0) {
-      return {categoryData: [], searchValue}
+      return { categoryData: [], searchValue };
     }
 
-    const categoryData = this._labels.filter(label =>
-      Utils.wordSearchRegExp(searchValue).test(label.displayName)
-    ).map((label) => {
-      return {
-        id: label.id,
-        category: label,
-        displayName: label.displayName,
-        backgroundColor: LabelColorizer.backgroundColorDark(label),
-        usage: threads.filter(t => t.categories.find(c => c.id === label.id)).length,
-        numThreads: threads.length,
-      };
-    });
+    const categoryData = this._labels
+      .filter(label => Utils.wordSearchRegExp(searchValue).test(label.displayName))
+      .map(label => {
+        return {
+          id: label.id,
+          category: label,
+          displayName: label.displayName,
+          backgroundColor: LabelColorizer.backgroundColorDark(label),
+          usage: threads.filter(t => t.categories.find(c => c.id === label.id)).length,
+          numThreads: threads.length,
+        };
+      });
 
     if (searchValue.length > 0) {
       categoryData.push({
         searchValue: searchValue,
         newCategoryItem: true,
-        id: "category-create-new",
+        id: 'category-create-new',
       });
     }
-    return {categoryData, searchValue}
+    return { categoryData, searchValue };
   };
 
-  _onLabelsChanged = (categories) => {
+  _onLabelsChanged = categories => {
     this._labels = categories.filter(c => {
-      return (c instanceof Label) && (!c.role);
+      return c instanceof Label && !c.role;
     });
-    this.setState(this._recalculateState())
+    this.setState(this._recalculateState());
   };
 
   _onEscape = () => {
-    Actions.closePopover()
+    Actions.closePopover();
   };
 
-  _onSelectLabel = (item) => {
-    const {account, threads} = this.props
+  _onSelectLabel = item => {
+    const { account, threads } = this.props;
 
     if (threads.length === 0) return;
 
@@ -107,52 +102,56 @@ export default class LabelPickerPopover extends Component {
       const syncbackTask = new SyncbackCategoryTask({
         path: this.state.searchValue,
         accountId: account.id,
-      })
+      });
 
-      TaskQueue.waitForPerformRemote(syncbackTask).then((finishedTask) => {
+      TaskQueue.waitForPerformRemote(syncbackTask).then(finishedTask => {
         if (!finishedTask.created) {
-          NylasEnv.showErrorDialog({title: "Error", message: `Could not create label.`})
+          NylasEnv.showErrorDialog({ title: 'Error', message: `Could not create label.` });
           return;
         }
-        Actions.queueTask(new ChangeLabelsTask({
-          source: "Category Picker: New Category",
-          threads: threads,
-          labelsToRemove: [],
-          labelsToAdd: [finishedTask.created],
-        }));
-      })
+        Actions.queueTask(
+          new ChangeLabelsTask({
+            source: 'Category Picker: New Category',
+            threads: threads,
+            labelsToRemove: [],
+            labelsToAdd: [finishedTask.created],
+          })
+        );
+      });
       Actions.queueTask(syncbackTask);
     } else if (item.usage === threads.length) {
-      Actions.queueTask(new ChangeLabelsTask({
-        source: "Category Picker: Existing Category",
-        threads: threads,
-        labelsToRemove: [item.category],
-        labelsToAdd: [],
-      }));
+      Actions.queueTask(
+        new ChangeLabelsTask({
+          source: 'Category Picker: Existing Category',
+          threads: threads,
+          labelsToRemove: [item.category],
+          labelsToAdd: [],
+        })
+      );
     } else {
-      Actions.queueTask(new ChangeLabelsTask({
-        source: "Category Picker: Existing Category",
-        threads: threads,
-        labelsToRemove: [],
-        labelsToAdd: [item.category],
-      }));
+      Actions.queueTask(
+        new ChangeLabelsTask({
+          source: 'Category Picker: Existing Category',
+          threads: threads,
+          labelsToRemove: [],
+          labelsToAdd: [item.category],
+        })
+      );
     }
-    Actions.closePopover()
+    Actions.closePopover();
   };
 
-  _onSearchValueChange = (event) => {
-    this.setState(
-      this._recalculateState(this.props, {searchValue: event.target.value})
-    )
+  _onSearchValueChange = event => {
+    this.setState(this._recalculateState(this.props, { searchValue: event.target.value }));
   };
 
-  _renderCheckbox = (item) => {
-    const styles = {}
+  _renderCheckbox = item => {
+    const styles = {};
     let checkStatus;
-    styles.backgroundColor = item.backgroundColor
+    styles.backgroundColor = item.backgroundColor;
 
     if (item.usage === 0) {
-      checkStatus = <span />
+      checkStatus = <span />;
     } else if (item.usage < item.numThreads) {
       checkStatus = (
         <RetinaImg
@@ -161,7 +160,7 @@ export default class LabelPickerPopover extends Component {
           mode={RetinaImg.Mode.ContentPreserve}
           onClick={() => this._onSelectLabel(item)}
         />
-      )
+      );
     } else {
       checkStatus = (
         <RetinaImg
@@ -170,7 +169,7 @@ export default class LabelPickerPopover extends Component {
           mode={RetinaImg.Mode.ContentPreserve}
           onClick={() => this._onSelectLabel(item)}
         />
-      )
+      );
     }
 
     return (
@@ -183,10 +182,10 @@ export default class LabelPickerPopover extends Component {
         />
         {checkStatus}
       </div>
-    )
+    );
   };
 
-  _renderCreateNewItem = ({searchValue}) => {
+  _renderCreateNewItem = ({ searchValue }) => {
     return (
       <div className="category-item category-create-new">
         <RetinaImg
@@ -198,24 +197,24 @@ export default class LabelPickerPopover extends Component {
           <strong>&ldquo;{searchValue}&rdquo;</strong> (create new)
         </div>
       </div>
-    )
+    );
   };
 
-  _renderItem = (item) => {
+  _renderItem = item => {
     if (item.divider) {
-      return <Menu.Item key={item.id} divider={item.divider} />
+      return <Menu.Item key={item.id} divider={item.divider} />;
     } else if (item.newCategoryItem) {
-      return this._renderCreateNewItem(item)
+      return this._renderCreateNewItem(item);
     }
 
     return (
       <div className="category-item">
         {this._renderCheckbox(item)}
         <div className="category-display-name">
-          <BoldedSearchResult value={item.displayName} query={this.state.searchValue || ""} />
+          <BoldedSearchResult value={item.displayName} query={this.state.searchValue || ''} />
         </div>
       </div>
-    )
+    );
   };
 
   render() {
@@ -229,7 +228,7 @@ export default class LabelPickerPopover extends Component {
         value={this.state.searchValue}
         onChange={this._onSearchValueChange}
       />,
-    ]
+    ];
 
     return (
       <div className="category-picker-popover">
@@ -241,9 +240,9 @@ export default class LabelPickerPopover extends Component {
           itemContent={this._renderItem}
           onSelect={this._onSelectLabel}
           onEscape={this._onEscape}
-          defaultSelectedIndex={this.state.searchValue === "" ? -1 : 0}
+          defaultSelectedIndex={this.state.searchValue === '' ? -1 : 0}
         />
       </div>
-    )
+    );
   }
 }

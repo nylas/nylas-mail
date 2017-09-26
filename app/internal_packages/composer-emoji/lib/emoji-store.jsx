@@ -31,7 +31,7 @@ class EmojiStore extends NylasStore {
     const sortedEmoji = this._emoji;
     sortedEmoji.sort((a, b) => {
       if (a.frequency < b.frequency) return 1;
-      return (b.frequency < a.frequency) ? -1 : 0;
+      return b.frequency < a.frequency ? -1 : 0;
     });
     const sortedEmojiNames = [];
     for (const emoji of sortedEmoji) {
@@ -41,23 +41,23 @@ class EmojiStore extends NylasStore {
       return sortedEmojiNames.slice(0, 32);
     }
     return sortedEmojiNames;
-  }
+  };
 
   getImagePath(emojiName) {
-    emojiData = emojiData || require('./emoji-data').emojiData
+    emojiData = emojiData || require('./emoji-data').emojiData;
     for (const emoji of emojiData) {
       if (emoji.short_names.indexOf(emojiName) !== -1) {
-        if (process.platform === "darwin") {
+        if (process.platform === 'darwin') {
           return `images/composer-emoji/apple/${emoji.image}`;
         }
         return `images/composer-emoji/twitter/${emoji.image}`;
       }
     }
-    return ''
+    return '';
   }
 
-  _onUseEmoji = (emoji) => {
-    const savedEmoji = _.find(this._emoji, (curEmoji) => {
+  _onUseEmoji = emoji => {
+    const savedEmoji = _.find(this._emoji, curEmoji => {
       return curEmoji.emojiChar === emoji.emojiChar;
     });
     if (savedEmoji) {
@@ -66,17 +66,16 @@ class EmojiStore extends NylasStore {
       }
       savedEmoji.frequency++;
     } else {
-      Object.assign(emoji, {frequency: 1});
+      Object.assign(emoji, { frequency: 1 });
       this._emoji.push(emoji);
     }
     this._saveEmoji();
     this.trigger();
-  }
+  };
 
   _saveEmoji = () => {
     window.localStorage.setItem(EmojiJSONKey, JSON.stringify(this._emoji));
-  }
-
+  };
 }
 
 export default new EmojiStore();

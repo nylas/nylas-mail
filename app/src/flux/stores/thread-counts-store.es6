@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store'
+import NylasStore from 'nylas-store';
 import DatabaseStore from './database-store';
 import Thread from '../models/thread';
 
@@ -11,7 +11,7 @@ class ThreadCountsStore extends NylasStore {
     if (NylasEnv.isMainWindow()) {
       // For now, unread counts are only retrieved in the main window.
       this._onCountsChangedDebounced = _.throttle(this._onCountsChanged, 1000);
-      DatabaseStore.listen((change) => {
+      DatabaseStore.listen(change => {
         if (change.objectClass === Thread.name) {
           this._onCountsChangedDebounced();
         }
@@ -21,10 +21,10 @@ class ThreadCountsStore extends NylasStore {
   }
 
   _onCountsChanged = () => {
-    DatabaseStore._query("SELECT * FROM `ThreadCounts`").then((results) => {
+    DatabaseStore._query('SELECT * FROM `ThreadCounts`').then(results => {
       const nextCounts = {};
-      for (const {categoryId, unread, total} of results) {
-        nextCounts[categoryId] = {unread, total};
+      for (const { categoryId, unread, total } of results) {
+        nextCounts[categoryId] = { unread, total };
       }
       if (_.isEqual(nextCounts, this._counts)) {
         return;
@@ -32,7 +32,7 @@ class ThreadCountsStore extends NylasStore {
       this._counts = nextCounts;
       this.trigger();
     });
-  }
+  };
 
   unreadCountForCategoryId(catId) {
     if (this._counts[catId] === undefined) {
@@ -45,7 +45,7 @@ class ThreadCountsStore extends NylasStore {
     if (this._counts[catId] === undefined) {
       return null;
     }
-    return this._counts[catId]['total']
+    return this._counts[catId]['total'];
   }
 }
 

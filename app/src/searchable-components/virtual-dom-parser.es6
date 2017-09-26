@@ -1,43 +1,45 @@
-import _ from 'underscore'
-import React from 'react'
-import {VirtualDOMUtils} from 'nylas-exports'
+import _ from 'underscore';
+import React from 'react';
+import { VirtualDOMUtils } from 'nylas-exports';
 
-import SearchMatch from './search-match'
-import UnifiedDOMParser from './unified-dom-parser'
+import SearchMatch from './search-match';
+import UnifiedDOMParser from './unified-dom-parser';
 
 export default class VirtualDOMParser extends UnifiedDOMParser {
   getWalker(dom) {
-    const pruneFn = (node) => {
-      return node.type === "style";
-    }
-    return VirtualDOMUtils.walk({element: dom, pruneFn});
+    const pruneFn = node => {
+      return node.type === 'style';
+    };
+    return VirtualDOMUtils.walk({ element: dom, pruneFn });
   }
 
-  isTextNode({element}) {
-    return (typeof element === "string")
+  isTextNode({ element }) {
+    return typeof element === 'string';
   }
 
-  textNodeLength({element}) {
-    return element.length
+  textNodeLength({ element }) {
+    return element.length;
   }
 
   textNodeContents(textNode) {
-    return textNode.element
+    return textNode.element;
   }
 
-  looksLikeBlockElement({element}) {
-    if (!element) { return false; }
-    const blockTypes = ["br", "p", "blockquote", "div", "table", "iframe"]
-    if (_.isFunction(element.type)) {
-      return true
-    } else if (blockTypes.indexOf(element.type) >= 0) {
-      return true
+  looksLikeBlockElement({ element }) {
+    if (!element) {
+      return false;
     }
-    return false
+    const blockTypes = ['br', 'p', 'blockquote', 'div', 'table', 'iframe'];
+    if (_.isFunction(element.type)) {
+      return true;
+    } else if (blockTypes.indexOf(element.type) >= 0) {
+      return true;
+    }
+    return false;
   }
 
   getRawFullString(fullString) {
-    return _.pluck(fullString, "element").join('');
+    return _.pluck(fullString, 'element').join('');
   }
 
   removeMatchesAndNormalize(element) {
@@ -49,7 +51,7 @@ export default class VirtualDOMParser extends UnifiedDOMParser {
         newChildren.push(strAccumulator.join(''));
         strAccumulator = [];
       }
-    }
+    };
 
     if (React.isValidElement(element) || _.isArray(element)) {
       let children;
@@ -61,16 +63,16 @@ export default class VirtualDOMParser extends UnifiedDOMParser {
       }
 
       if (!children) {
-        newChildren = null
+        newChildren = null;
       } else if (React.isValidElement(children)) {
-        newChildren = children
-      } else if (typeof children === "string") {
-        strAccumulator.push(children)
+        newChildren = children;
+      } else if (typeof children === 'string') {
+        strAccumulator.push(children);
       } else if (children.length > 0) {
         for (let i = 0; i < children.length; i++) {
           const child = children[i];
-          if (typeof child === "string") {
-            strAccumulator.push(child)
+          if (typeof child === 'string') {
+            strAccumulator.push(child);
           } else if (this._isSearchElement(child)) {
             resetAccumulator();
             newChildren.push(child.props.children);
@@ -80,7 +82,7 @@ export default class VirtualDOMParser extends UnifiedDOMParser {
           }
         }
       } else {
-        newChildren = children
+        newChildren = children;
       }
 
       resetAccumulator();
@@ -88,28 +90,28 @@ export default class VirtualDOMParser extends UnifiedDOMParser {
       if (_.isArray(element)) {
         return newChildren;
       }
-      return React.cloneElement(element, {}, newChildren)
+      return React.cloneElement(element, {}, newChildren);
     }
     return element;
   }
   _isSearchElement(element) {
-    return element.type === SearchMatch
+    return element.type === SearchMatch;
   }
 
-  createTextNode({rawText}) {
-    return rawText
+  createTextNode({ rawText }) {
+    return rawText;
   }
-  createMatchNode({matchText, regionId, isCurrentMatch, renderIndex}) {
-    const className = isCurrentMatch ? "current-match" : ""
-    return React.createElement(SearchMatch, {className, regionId, renderIndex}, matchText);
+  createMatchNode({ matchText, regionId, isCurrentMatch, renderIndex }) {
+    const className = isCurrentMatch ? 'current-match' : '';
+    return React.createElement(SearchMatch, { className, regionId, renderIndex }, matchText);
   }
   textNodeKey(textElement) {
-    return textElement.parentNode
+    return textElement.parentNode;
   }
 
   highlightSearch(element, matchNodeMap) {
     if (React.isValidElement(element) || _.isArray(element)) {
-      let newChildren = []
+      let newChildren = [];
       let children;
 
       if (_.isArray(element)) {
@@ -127,36 +129,35 @@ export default class VirtualDOMParser extends UnifiedDOMParser {
       }
 
       if (!children) {
-        newChildren = null
+        newChildren = null;
       } else if (React.isValidElement(children)) {
         if (originalTextNode && originalTextNode.childOffset === 0) {
-          newChildren = newTextNodes
+          newChildren = newTextNodes;
         } else {
-          newChildren = this.highlightSearch(children, matchNodeMap)
+          newChildren = this.highlightSearch(children, matchNodeMap);
         }
       } else if (children instanceof Array && children.length > 0) {
         for (let i = 0; i < children.length; i++) {
           const child = children[i];
           if (originalTextNode && originalTextNode.childOffset === i) {
-            newChildren.push(newTextNodes)
+            newChildren.push(newTextNodes);
           } else {
-            newChildren.push(this.highlightSearch(child, matchNodeMap))
+            newChildren.push(this.highlightSearch(child, matchNodeMap));
           }
         }
       } else {
         if (originalTextNode && originalTextNode.childOffset === 0) {
-          newChildren = newTextNodes
+          newChildren = newTextNodes;
         } else {
-          newChildren = children
+          newChildren = children;
         }
       }
 
       if (_.isArray(element)) {
         return newChildren;
       }
-      return React.cloneElement(element, {}, newChildren)
+      return React.cloneElement(element, {}, newChildren);
     }
     return element;
   }
-
 }

@@ -1,6 +1,6 @@
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 import https from 'https';
-import {shell} from 'electron';
+import { shell } from 'electron';
 import url from 'url';
 
 class LinuxUpdaterAdapter extends EventEmitter {
@@ -9,9 +9,9 @@ class LinuxUpdaterAdapter extends EventEmitter {
     this.downloadURL = null;
   }
 
-  onError = (err) => {
+  onError = err => {
     this.emit('error', err.toString());
-  }
+  };
 
   checkForUpdates() {
     if (!this.feedURL) {
@@ -25,7 +25,7 @@ class LinuxUpdaterAdapter extends EventEmitter {
 
     // Hit the feed URL ourselves and see if an update is available.
     // On linux we can't autoupdate, but we can still show the "update available" bar.
-    https.get({ host: feedHost, path: feedPath }, (res) => {
+    https.get({ host: feedHost, path: feedPath }, res => {
       console.log(`Manual update check returned ${res.statusCode}`);
 
       if (res.statusCode === 204) {
@@ -35,7 +35,9 @@ class LinuxUpdaterAdapter extends EventEmitter {
 
       let data = '';
       res.on('error', this.onError);
-      res.on('data', (chunk) => { data += chunk; });
+      res.on('data', chunk => {
+        data += chunk;
+      });
       res.on('end', () => {
         try {
           const json = JSON.parse(data);
@@ -54,8 +56,8 @@ class LinuxUpdaterAdapter extends EventEmitter {
   }
 
   quitAndInstall() {
-    shell.openExternal(this.downloadURL || "https://getmailspring.com/download");
+    shell.openExternal(this.downloadURL || 'https://getmailspring.com/download');
   }
 }
 
-export default new LinuxUpdaterAdapter()
+export default new LinuxUpdaterAdapter();

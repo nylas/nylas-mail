@@ -1,4 +1,4 @@
-import LocalSearchQueryBackend from '../../services/search/search-query-backend-local'
+import LocalSearchQueryBackend from '../../services/search/search-query-backend-local';
 
 // https://www.sqlite.org/faq.html#q14
 // That's right. Two single quotes in a row…
@@ -6,7 +6,6 @@ const singleQuoteEscapeSequence = "''";
 
 // https://www.sqlite.org/fts5.html#section_3
 const doubleQuoteEscapeSequence = '""';
-
 
 /*
 Public: The Matcher class encapsulates a particular comparison clause on an {Attribute}.
@@ -61,48 +60,53 @@ class Matcher {
   evaluate(model) {
     let modelValue = model[this.attr.modelKey];
     if (modelValue instanceof Function) {
-      modelValue = modelValue()
+      modelValue = modelValue();
     }
     const matcherValue = this.val;
 
     // Given an array of strings or models, and a string or model search value,
     // will find if a match exists.
     const modelArrayContainsValue = (array, searchItem) => {
-      const asId = (v) => ((v && v.id) ? v.id : v);
-      const search = asId(searchItem)
+      const asId = v => (v && v.id ? v.id : v);
+      const search = asId(searchItem);
       for (const item of array) {
         if (asId(item) === search) {
           return true;
         }
       }
       return false;
-    }
+    };
 
     switch (this.comparator) {
       case '=':
-        return modelValue === matcherValue
+        return modelValue === matcherValue;
       case '<':
-        return modelValue < matcherValue
+        return modelValue < matcherValue;
       case '>':
-        return modelValue > matcherValue
+        return modelValue > matcherValue;
       case '<=':
-        return modelValue <= matcherValue
+        return modelValue <= matcherValue;
       case '>=':
-        return modelValue >= matcherValue
+        return modelValue >= matcherValue;
       case 'in':
-        return matcherValue.includes(modelValue)
+        return matcherValue.includes(modelValue);
       case 'not in':
-        return !(matcherValue.includes(modelValue))
+        return !matcherValue.includes(modelValue);
       case 'contains':
-        return modelArrayContainsValue(modelValue, matcherValue)
+        return modelArrayContainsValue(modelValue, matcherValue);
       case 'containsAny':
-        return !!matcherValue.find((submatcherValue) => modelArrayContainsValue(modelValue, submatcherValue))
+        return !!matcherValue.find(submatcherValue =>
+          modelArrayContainsValue(modelValue, submatcherValue)
+        );
       case 'startsWith':
-        return modelValue.startsWith(matcherValue)
+        return modelValue.startsWith(matcherValue);
       case 'like':
-        return modelValue.search(new RegExp(`.*${matcherValue}.*`, "gi")) >= 0
+        return modelValue.search(new RegExp(`.*${matcherValue}.*`, 'gi')) >= 0;
       default:
-        throw new Error(`Matcher.evaulate() not sure how to evaluate ${this.attr.modelKey} with comparator ${this.comparator}`)
+        throw new Error(
+          `Matcher.evaulate() not sure how to evaluate ${this.attr.modelKey} with comparator ${this
+            .comparator}`
+        );
     }
   }
 
@@ -124,19 +128,19 @@ class Matcher {
   }
 
   whereSQL(klass) {
-    const val = (this.comparator === "like") ? `%${this.val}%` : this.val;
+    const val = this.comparator === 'like' ? `%${this.val}%` : this.val;
     let escaped = null;
 
     if (typeof val === 'string') {
       escaped = `'${val.replace(/'/g, singleQuoteEscapeSequence)}'`;
     } else if (val === true) {
-      escaped = 1
+      escaped = 1;
     } else if (val === false) {
-      escaped = 0
+      escaped = 0;
     } else if (val instanceof Date) {
-      escaped = val.getTime() / 1000
+      escaped = val.getTime() / 1000;
     } else if (val instanceof Array) {
-      const escapedVals = []
+      const escapedVals = [];
       for (const v of val) {
         if (typeof v !== 'string') {
           throw new Error(`${this.attr.tableColumn} value ${v} must be a string.`);
@@ -162,7 +166,7 @@ class Matcher {
         return `\`${klass.name}\`.\`${this.attr.tableColumn}\` != ${escaped}`;
       }
       case 'startsWith':
-        return " RAISE `TODO`; ";
+        return ' RAISE `TODO`; ';
       case 'contains':
         return `\`${this.joinTableRef()}\`.\`value\` = ${escaped}`;
       case 'containsAny':
@@ -173,7 +177,7 @@ class Matcher {
   }
 }
 
-Matcher.muid = 0
+Matcher.muid = 0;
 
 class OrCompositeMatcher extends Matcher {
   constructor(children) {
@@ -190,23 +194,23 @@ class OrCompositeMatcher extends Matcher {
   }
 
   evaluate(model) {
-    return this.children.some((matcher) => matcher.evaluate(model));
+    return this.children.some(matcher => matcher.evaluate(model));
   }
 
   joinSQL(klass) {
-    const joins = []
+    const joins = [];
     for (const matcher of this.children) {
       const join = matcher.joinSQL(klass);
       if (join) {
         joins.push(join);
       }
     }
-    return (joins.length) ? joins.join(" ") : false;
+    return joins.length ? joins.join(' ') : false;
   }
 
   whereSQL(klass) {
-    const wheres = this.children.map((matcher) => matcher.whereSQL(klass));
-    return `(${wheres.join(" OR ")})`;
+    const wheres = this.children.map(matcher => matcher.whereSQL(klass));
+    return `(${wheres.join(' OR ')})`;
   }
 }
 
@@ -225,11 +229,11 @@ class AndCompositeMatcher extends Matcher {
   }
 
   evaluate(model) {
-    return this.children.every((m) => m.evaluate(model));
+    return this.children.every(m => m.evaluate(model));
   }
 
   joinSQL(klass) {
-    const joins = []
+    const joins = [];
     for (const matcher of this.children) {
       const join = matcher.joinSQL(klass);
       if (join) {
@@ -240,8 +244,8 @@ class AndCompositeMatcher extends Matcher {
   }
 
   whereSQL(klass) {
-    const wheres = this.children.map((m) => m.whereSQL(klass));
-    return `(${wheres.join(" AND ")})`;
+    const wheres = this.children.map(m => m.whereSQL(klass));
+    return `(${wheres.join(' AND ')})`;
   }
 }
 
@@ -262,7 +266,7 @@ class StructuredSearchMatcher extends Matcher {
   }
 
   value() {
-    return null
+    return null;
   }
 
   // The only way to truly check if a model matches this matcher is to run the query
@@ -274,23 +278,22 @@ class StructuredSearchMatcher extends Matcher {
   }
 
   whereSQL(klass) {
-    return (new LocalSearchQueryBackend(klass.name)).compile(this._searchQuery)
+    return new LocalSearchQueryBackend(klass.name).compile(this._searchQuery);
   }
 }
 
 class SearchMatcher extends Matcher {
   constructor(searchQuery) {
-    if ((typeof searchQuery !== 'string') || (searchQuery.length === 0)) {
-      throw new Error("You must pass a string with non-zero length to search.")
+    if (typeof searchQuery !== 'string' || searchQuery.length === 0) {
+      throw new Error('You must pass a string with non-zero length to search.');
     }
     super(null, null, null);
-    this.searchQuery = (
-      searchQuery.trim()
-      .replace(/^['"]/, "")
-      .replace(/['"]$/, "")
+    this.searchQuery = searchQuery
+      .trim()
+      .replace(/^['"]/, '')
+      .replace(/['"]$/, '')
       .replace(/'/g, singleQuoteEscapeSequence)
-      .replace(/"/g, doubleQuoteEscapeSequence)
-    )
+      .replace(/"/g, doubleQuoteEscapeSequence);
   }
 
   attribute() {
@@ -298,7 +301,7 @@ class SearchMatcher extends Matcher {
   }
 
   value() {
-    return null
+    return null;
   }
 
   // The only way to truly check if a model matches this matcher is to run the query
@@ -310,15 +313,16 @@ class SearchMatcher extends Matcher {
   }
 
   whereSQL(klass) {
-    const searchTable = `${klass.name}Search`
-    return `\`${klass.name}\`.\`id\` IN (SELECT \`content_id\` FROM \`${searchTable}\` WHERE \`${searchTable}\` MATCH '"${this.searchQuery}"*' LIMIT 1000)`;
+    const searchTable = `${klass.name}Search`;
+    return `\`${klass.name}\`.\`id\` IN (SELECT \`content_id\` FROM \`${searchTable}\` WHERE \`${searchTable}\` MATCH '"${this
+      .searchQuery}"*' LIMIT 1000)`;
   }
 }
 
-Matcher.Or = OrCompositeMatcher
-Matcher.And = AndCompositeMatcher
-Matcher.Not = NotCompositeMatcher
-Matcher.Search = SearchMatcher
-Matcher.StructuredSearch = StructuredSearchMatcher
+Matcher.Or = OrCompositeMatcher;
+Matcher.And = AndCompositeMatcher;
+Matcher.Not = NotCompositeMatcher;
+Matcher.Search = SearchMatcher;
+Matcher.StructuredSearch = StructuredSearchMatcher;
 
 export default Matcher;

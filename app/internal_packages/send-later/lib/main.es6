@@ -6,24 +6,25 @@ import {
   SendActionsStore,
   Actions,
 } from 'nylas-exports';
-import {HasTutorialTip} from 'nylas-component-kit';
+import { HasTutorialTip } from 'nylas-component-kit';
 
 import SendLaterButton from './send-later-button';
 import SendLaterStatus from './send-later-status';
-import {PLUGIN_ID} from './send-later-constants'
+import { PLUGIN_ID } from './send-later-constants';
 
 const SendLaterButtonWithTip = HasTutorialTip(SendLaterButton, {
-  title: "Send on your own schedule",
-  instructions: "Schedule this message to send at the ideal time. N1 makes it easy to control the fabric of spacetime!",
+  title: 'Send on your own schedule',
+  instructions:
+    'Schedule this message to send at the ideal time. N1 makes it easy to control the fabric of spacetime!',
 });
 
 let unlisten = null;
 
 export function activate() {
-  ComponentRegistry.register(SendLaterButtonWithTip, {role: 'Composer:ActionButton'})
-  ComponentRegistry.register(SendLaterStatus, {role: 'DraftList:DraftStatus'})
+  ComponentRegistry.register(SendLaterButtonWithTip, { role: 'Composer:ActionButton' });
+  ComponentRegistry.register(SendLaterStatus, { role: 'DraftList:DraftStatus' });
 
-  unlisten = DatabaseStore.listen((change) => {
+  unlisten = DatabaseStore.listen(change => {
     if (change.type !== 'metadata-expiration' || change.objectClass !== Message.name) {
       return;
     }
@@ -34,30 +35,30 @@ export function activate() {
       }
 
       // clear the metadata
-      Actions.queueTask(new SyncbackMetadataTask({
-        model: message,
-        pluginId: PLUGIN_ID,
-        value: {
-          expiration: null,
-        },
-      }));
+      Actions.queueTask(
+        new SyncbackMetadataTask({
+          model: message,
+          pluginId: PLUGIN_ID,
+          value: {
+            expiration: null,
+          },
+        })
+      );
 
       if (!message.draft) {
         continue;
       }
 
       // send the draft
-      Actions.sendDraft(message.headerMessageId, SendActionsStore.DefaultSendActionKey)
+      Actions.sendDraft(message.headerMessageId, SendActionsStore.DefaultSendActionKey);
     }
   });
 }
 
 export function deactivate() {
-  ComponentRegistry.unregister(SendLaterButtonWithTip)
-  ComponentRegistry.unregister(SendLaterStatus)
+  ComponentRegistry.unregister(SendLaterButtonWithTip);
+  ComponentRegistry.unregister(SendLaterStatus);
   unlisten();
 }
 
-export function serialize() {
-
-}
+export function serialize() {}

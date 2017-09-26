@@ -1,11 +1,11 @@
-import Message from './message'
-import Contact from './contact'
-import Folder from './folder'
-import Label from './label'
-import Category from './category'
-import Attributes from '../attributes'
-import DatabaseStore from '../stores/database-store'
-import ModelWithMetadata from './model-with-metadata'
+import Message from './message';
+import Contact from './contact';
+import Folder from './folder';
+import Label from './label';
+import Category from './category';
+import Attributes from '../attributes';
+import DatabaseStore from '../stores/database-store';
+import ModelWithMetadata from './model-with-metadata';
 
 /*
 Public: The Thread model represents an email thread.
@@ -36,9 +36,9 @@ Section: Models
 @class Thread
 */
 export default class Thread extends ModelWithMetadata {
-
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {
-    snippet: Attributes.String({ // TODO NONFUNCTIONAL
+    snippet: Attributes.String({
+      // TODO NONFUNCTIONAL
       modelKey: 'snippet',
     }),
 
@@ -67,7 +67,12 @@ export default class Thread extends ModelWithMetadata {
       queryable: true,
       modelKey: 'categories',
       joinOnField: 'id',
-      joinQueryableBy: ['inAllMail', 'lastMessageReceivedTimestamp', 'lastMessageSentTimestamp', 'unread'],
+      joinQueryableBy: [
+        'inAllMail',
+        'lastMessageReceivedTimestamp',
+        'lastMessageSentTimestamp',
+        'unread',
+      ],
       itemClass: Category,
     }),
 
@@ -79,7 +84,12 @@ export default class Thread extends ModelWithMetadata {
     labels: Attributes.Collection({
       modelKey: 'labels',
       joinOnField: 'id',
-      joinQueryableBy: ['inAllMail', 'lastMessageReceivedTimestamp', 'lastMessageSentTimestamp', 'unread'],
+      joinQueryableBy: [
+        'inAllMail',
+        'lastMessageReceivedTimestamp',
+        'lastMessageSentTimestamp',
+        'unread',
+      ],
       itemClass: Label,
     }),
 
@@ -108,24 +118,24 @@ export default class Thread extends ModelWithMetadata {
       queryable: true,
       modelKey: 'inAllMail',
     }),
-  })
+  });
 
   static sortOrderAttribute = () => {
-    return Thread.attributes.lastMessageReceivedTimestamp
-  }
+    return Thread.attributes.lastMessageReceivedTimestamp;
+  };
 
   static naturalSortOrder = () => {
-    return Thread.sortOrderAttribute().descending()
-  }
+    return Thread.sortOrderAttribute().descending();
+  };
 
-  async messages({includeHidden} = {}) {
+  async messages({ includeHidden } = {}) {
     const messages = await DatabaseStore.findAll(Message)
-      .where({threadId: this.id})
-      .include(Message.attributes.body)
+      .where({ threadId: this.id })
+      .include(Message.attributes.body);
     if (!includeHidden) {
-      return messages.filter(message => !message.isHidden())
+      return messages.filter(message => !message.isHidden());
     }
-    return messages
+    return messages;
   }
 
   get categories() {
@@ -144,46 +154,41 @@ export default class Thread extends ModelWithMetadata {
    * no `categories` yet.
    */
   fromJSON(json) {
-    super.fromJSON(json)
+    super.fromJSON(json);
 
     if (this.participants && this.participants instanceof Array) {
-      this.participants.forEach((item) => {
-        item.accountId = this.accountId
-      })
+      this.participants.forEach(item => {
+        item.accountId = this.accountId;
+      });
     }
-    return this
+    return this;
   }
 
   sortedCategories() {
     if (!this.categories) {
-      return []
+      return [];
     }
-    let out = []
-    const isImportant = (l) => l.role === 'important'
-    const isStandardCategory = (l) => l.isStandardCategory()
-    const isUnhiddenStandardLabel = (l) => (
-      !isImportant(l) &&
-      isStandardCategory(l) &&
-      !(l.isHiddenCategory())
-    )
+    let out = [];
+    const isImportant = l => l.role === 'important';
+    const isStandardCategory = l => l.isStandardCategory();
+    const isUnhiddenStandardLabel = l =>
+      !isImportant(l) && isStandardCategory(l) && !l.isHiddenCategory();
 
-    const importantLabel = this.categories.find(isImportant)
+    const importantLabel = this.categories.find(isImportant);
     if (importantLabel) {
-      out = out.concat(importantLabel)
+      out = out.concat(importantLabel);
     }
 
-    const standardLabels = this.categories.filter(isUnhiddenStandardLabel)
+    const standardLabels = this.categories.filter(isUnhiddenStandardLabel);
     if (standardLabels.length > 0) {
-      out = out.concat(standardLabels)
+      out = out.concat(standardLabels);
     }
 
-    const userLabels = this.categories.filter((l) =>
-      !isImportant(l) && !isStandardCategory(l)
-    )
+    const userLabels = this.categories.filter(l => !isImportant(l) && !isStandardCategory(l));
 
     if (userLabels.length > 0) {
-      out = out.concat(userLabels.sort((a, b) => a.displayName.localeCompare(b.displayName)))
+      out = out.concat(userLabels.sort((a, b) => a.displayName.localeCompare(b.displayName)));
     }
-    return out
+    return out;
   }
 }

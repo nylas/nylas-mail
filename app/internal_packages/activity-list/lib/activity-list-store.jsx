@@ -8,8 +8,7 @@ import {
 } from 'nylas-exports';
 import ActivityListActions from './activity-list-actions';
 import ActivityDataSource from './activity-data-source';
-import {pluginFor} from './plugin-helpers';
-
+import { pluginFor } from './plugin-helpers';
 
 class ActivityListStore extends NylasStore {
   activate() {
@@ -38,7 +37,7 @@ class ActivityListStore extends NylasStore {
     } else if (!this._unreadCount) {
       return null;
     }
-    return "999+";
+    return '999+';
   }
 
   hasBeenViewed(action) {
@@ -47,16 +46,18 @@ class ActivityListStore extends NylasStore {
   }
 
   focusThread(threadId) {
-    NylasEnv.displayWindow()
-    Actions.closePopover()
-    DatabaseStore.find(Thread, threadId).then((thread) => {
+    NylasEnv.displayWindow();
+    Actions.closePopover();
+    DatabaseStore.find(Thread, threadId).then(thread => {
       if (!thread) {
-        NylasEnv.reportError(new Error(`ActivityListStore::focusThread: Can't find thread`, {threadId}))
-        NylasEnv.showErrorDialog(`Can't find the selected thread in your mailbox`)
+        NylasEnv.reportError(
+          new Error(`ActivityListStore::focusThread: Can't find thread`, { threadId })
+        );
+        NylasEnv.showErrorDialog(`Can't find the selected thread in your mailbox`);
         return;
       }
       Actions.ensureCategoryIsFocused('sent', thread.accountId);
-      Actions.setFocus({collection: 'thread', item: thread});
+      Actions.setFocus({ collection: 'thread', item: thread });
     });
   }
 
@@ -85,14 +86,16 @@ class ActivityListStore extends NylasStore {
 
   _getActivity() {
     const dataSource = this._dataSource();
-    this._subscription = dataSource.buildObservable({
-      openTrackingId: NylasEnv.packages.pluginIdFor('open-tracking'),
-      linkTrackingId: NylasEnv.packages.pluginIdFor('link-tracking'),
-      messageLimit: 500,
-    }).subscribe((messages) => {
-      this._messages = messages;
-      this._updateActivity();
-    });
+    this._subscription = dataSource
+      .buildObservable({
+        openTrackingId: NylasEnv.packages.pluginIdFor('open-tracking'),
+        linkTrackingId: NylasEnv.packages.pluginIdFor('link-tracking'),
+        messageLimit: 500,
+      })
+      .subscribe(messages => {
+        this._messages = messages;
+        this._updateActivity();
+      });
   }
 
   _updateActivity() {
@@ -107,10 +110,12 @@ class ActivityListStore extends NylasStore {
     const sidebarAccountIds = FocusedPerspectiveStore.sidebarAccountIds();
     for (const message of messages) {
       if (sidebarAccountIds.length > 1 || message.accountId === sidebarAccountIds[0]) {
-        const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking')
-        const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking')
-        if (message.metadataForPluginId(openTrackingId) ||
-          message.metadataForPluginId(linkTrackingId)) {
+        const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking');
+        const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking');
+        if (
+          message.metadataForPluginId(openTrackingId) ||
+          message.metadataForPluginId(linkTrackingId)
+        ) {
           actions = actions.concat(this._openActionsForMessage(message));
           actions = actions.concat(this._linkActionsForMessage(message));
         }
@@ -119,7 +124,7 @@ class ActivityListStore extends NylasStore {
     if (!this._lastNotified) this._lastNotified = {};
     for (const notification of this._notifications) {
       const lastNotified = this._lastNotified[notification.threadId];
-      const {notificationInterval} = pluginFor(notification.pluginId);
+      const { notificationInterval } = pluginFor(notification.pluginId);
       if (!lastNotified || lastNotified < Date.now() - notificationInterval) {
         NativeNotifications.displayNotification(notification.data);
         this._lastNotified[notification.threadId] = Date.now();
@@ -137,7 +142,7 @@ class ActivityListStore extends NylasStore {
   }
 
   _openActionsForMessage(message) {
-    const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking')
+    const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking');
     const openMetadata = message.metadataForPluginId(openTrackingId);
     const recipients = message.to.concat(message.cc, message.bcc);
     const actions = [];
@@ -150,10 +155,12 @@ class ActivityListStore extends NylasStore {
               pluginId: openTrackingId,
               threadId: message.threadId,
               data: {
-                title: "New open",
-                subtitle: `${recipient ? recipient.displayName() : "Someone"} just opened ${message.subject}`,
+                title: 'New open',
+                subtitle: `${recipient
+                  ? recipient.displayName()
+                  : 'Someone'} just opened ${message.subject}`,
                 canReply: false,
-                tag: "message-open",
+                tag: 'message-open',
                 onActivate: () => {
                   this.focusThread(message.threadId);
                 },
@@ -176,8 +183,8 @@ class ActivityListStore extends NylasStore {
   }
 
   _linkActionsForMessage(message) {
-    const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking')
-    const linkMetadata = message.metadataForPluginId(linkTrackingId)
+    const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking');
+    const linkMetadata = message.metadataForPluginId(linkTrackingId);
     const recipients = message.to.concat(message.cc, message.bcc);
     const actions = [];
     if (linkMetadata && linkMetadata.links) {
@@ -189,10 +196,12 @@ class ActivityListStore extends NylasStore {
               pluginId: linkTrackingId,
               threadId: message.threadId,
               data: {
-                title: "New click",
-                subtitle: `${recipient ? recipient.displayName() : "Someone"} just clicked ${link.url}.`,
+                title: 'New click',
+                subtitle: `${recipient
+                  ? recipient.displayName()
+                  : 'Someone'} just clicked ${link.url}.`,
                 canReply: false,
-                tag: "link-open",
+                tag: 'link-open',
                 onActivate: () => {
                   this.focusThread(message.threadId);
                 },

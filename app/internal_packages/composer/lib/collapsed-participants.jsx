@@ -1,20 +1,19 @@
-import React from 'react';
-import {Utils} from 'nylas-exports';
-import {DropZone, InjectedComponentSet} from 'nylas-component-kit';
+import { React, PropTypes, Utils } from 'nylas-exports';
+import { DropZone, InjectedComponentSet } from 'nylas-component-kit';
 
 const NUM_TO_DISPLAY_MAX = 999;
 
 export default class CollapsedParticipants extends React.Component {
-  static displayName = "CollapsedParticipants";
+  static displayName = 'CollapsedParticipants';
 
   static propTypes = {
     // Arrays of Contact objects.
-    to: React.PropTypes.array,
-    cc: React.PropTypes.array,
-    bcc: React.PropTypes.array,
-    onDrop: React.PropTypes.func,
-    onDragChange: React.PropTypes.func,
-  }
+    to: PropTypes.array,
+    cc: PropTypes.array,
+    bcc: PropTypes.array,
+    onDrop: PropTypes.func,
+    onDragChange: PropTypes.func,
+  };
 
   static defaultProps = {
     to: [],
@@ -22,7 +21,7 @@ export default class CollapsedParticipants extends React.Component {
     bcc: [],
     onDrop: () => {},
     onDragChange: () => {},
-  }
+  };
 
   constructor(props = {}) {
     super(props);
@@ -30,7 +29,7 @@ export default class CollapsedParticipants extends React.Component {
       numToDisplay: NUM_TO_DISPLAY_MAX,
       numRemaining: 0,
       numBccRemaining: 0,
-    }
+    };
   }
 
   componentDidMount() {
@@ -60,8 +59,8 @@ export default class CollapsedParticipants extends React.Component {
 
   _setNumHiddenParticipants() {
     const $wrap = this._participantsWrapEl;
-    const $regulars = Array.from($wrap.getElementsByClassName("regular-contact"));
-    const $bccs = Array.from($wrap.getElementsByClassName("bcc-contact"));
+    const $regulars = Array.from($wrap.getElementsByClassName('regular-contact'));
+    const $bccs = Array.from($wrap.getElementsByClassName('bcc-contact'));
 
     const availableSpace = $wrap.getBoundingClientRect().width;
     let numRemaining = this.props.to.length + this.props.cc.length;
@@ -87,7 +86,7 @@ export default class CollapsedParticipants extends React.Component {
       numToDisplay += 1;
     }
 
-    this.setState({numToDisplay, numRemaining, numBccRemaining});
+    this.setState({ numToDisplay, numRemaining, numBccRemaining });
   }
 
   _renderNumRemaining() {
@@ -99,7 +98,8 @@ export default class CollapsedParticipants extends React.Component {
     } else if (this.state.numRemaining === 0 && this.state.numBccRemaining > 0) {
       str = `${this.state.numBccRemaining} Bcc`;
     } else if (this.state.numRemaining > 0 && this.state.numBccRemaining > 0) {
-      str = `${this.state.numRemaining + this.state.numBccRemaining} more (${this.state.numBccRemaining} Bcc)`;
+      str = `${this.state.numRemaining + this.state.numBccRemaining} more (${this.state
+        .numBccRemaining} Bcc)`;
     }
 
     return (
@@ -110,25 +110,22 @@ export default class CollapsedParticipants extends React.Component {
     );
   }
 
-  _collapsedContact = (contact) => {
+  _collapsedContact = contact => {
     const name = contact.displayName();
     const key = contact.email + contact.name;
 
     return (
-      <span
-        key={key}
-        className="collapsed-contact regular-contact"
-      >
+      <span key={key} className="collapsed-contact regular-contact">
         <InjectedComponentSet
-          matching={{role: "Composer:RecipientChip"}}
-          exposedProps={{contact: contact, collapsed: true}}
+          matching={{ role: 'Composer:RecipientChip' }}
+          exposedProps={{ contact: contact, collapsed: true }}
           direction="row"
           inline
         />
         {name}
       </span>
     );
-  }
+  };
 
   _collapsedBccContact = (contact, i) => {
     let name = contact.displayName();
@@ -137,18 +134,20 @@ export default class CollapsedParticipants extends React.Component {
       name = `Bcc: ${name}`;
     }
     return (
-      <span key={key} className="collapsed-contact bcc-contact">{name}</span>
+      <span key={key} className="collapsed-contact bcc-contact">
+        {name}
+      </span>
     );
-  }
+  };
 
   render() {
-    const contacts = this.props.to.concat(this.props.cc).map(this._collapsedContact)
+    const contacts = this.props.to.concat(this.props.cc).map(this._collapsedContact);
     const bcc = this.props.bcc.map(this._collapsedBccContact);
 
     let toDisplay = contacts.concat(bcc);
     toDisplay = toDisplay.splice(0, this.state.numToDisplay);
     if (toDisplay.length === 0) {
-      toDisplay = "Recipients";
+      toDisplay = 'Recipients';
     }
 
     return (
@@ -159,7 +158,9 @@ export default class CollapsedParticipants extends React.Component {
       >
         <div
           tabIndex={0}
-          ref={(el) => { this._participantsWrapEl = el; }}
+          ref={el => {
+            this._participantsWrapEl = el;
+          }}
           className="collapsed-composer-participants"
         >
           {this._renderNumRemaining()}

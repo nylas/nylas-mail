@@ -1,13 +1,12 @@
 /* eslint no-unused-vars: 0*/
 import _ from 'underscore';
 import Thread from '../models/thread';
-import Actions from '../actions'
+import Actions from '../actions';
 import Attributes from '../attributes';
 import DatabaseStore from '../stores/database-store';
 import ChangeMailTask from './change-mail-task';
 
 export default class ChangeUnreadTask extends ChangeMailTask {
-
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
     unread: Attributes.Boolean({
       modelKey: 'unread',
@@ -25,7 +24,7 @@ export default class ChangeUnreadTask extends ChangeMailTask {
   }
 
   label() {
-    return this.unread ? "Marking as unread" : "Marking as read";
+    return this.unread ? 'Marking as unread' : 'Marking as read';
   }
 
   description() {
@@ -36,7 +35,7 @@ export default class ChangeUnreadTask extends ChangeMailTask {
       return `Undoing changes to ${count} ${type}`;
     }
 
-    const newState = this.unread ? "unread" : "read";
+    const newState = this.unread ? 'unread' : 'read';
     if (count > 1) {
       return `Marked ${count} ${type} as ${newState}`;
     }

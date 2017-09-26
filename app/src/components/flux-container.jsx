@@ -1,12 +1,11 @@
-import React from 'react';
-import {Utils} from 'nylas-exports';
+import { React, PropTypes, Utils } from 'nylas-exports';
 
 class FluxContainer extends React.Component {
   static displayName = 'FluxContainer';
   static propTypes = {
-    children: React.PropTypes.element,
-    stores: React.PropTypes.array.isRequired,
-    getStateFromStores: React.PropTypes.func.isRequired,
+    children: PropTypes.element,
+    stores: PropTypes.array.isRequired,
+    getStateFromStores: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -36,10 +35,8 @@ class FluxContainer extends React.Component {
       unlisten();
     }
 
-    this._unlisteners = props.stores.map((store) => {
-      return store.listen(() =>
-        this.setState(props.getStateFromStores())
-      );
+    this._unlisteners = props.stores.map(store => {
+      return store.listen(() => this.setState(props.getStateFromStores()));
     });
   }
 

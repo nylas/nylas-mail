@@ -5,9 +5,9 @@ import ReprocessMailRulesTask from '../tasks/reprocess-mail-rules-task';
 import Utils from '../models/utils';
 import Actions from '../actions';
 
-import {ConditionMode, ConditionTemplates, ActionTemplates} from '../../mail-rules-templates';
+import { ConditionMode, ConditionTemplates, ActionTemplates } from '../../mail-rules-templates';
 
-const RulesJSONKey = "MailRules-V2"
+const RulesJSONKey = 'MailRules-V2';
 
 class MailRulesStore extends NylasStore {
   constructor() {
@@ -20,7 +20,7 @@ class MailRulesStore extends NylasStore {
         this._rules = JSON.parse(txt);
       }
     } catch (err) {
-      console.warn("Could not load saved mail rules", err);
+      console.warn('Could not load saved mail rules', err);
     }
 
     this.listenTo(Actions.addMailRule, this._onAddMailRule);
@@ -35,21 +35,21 @@ class MailRulesStore extends NylasStore {
   }
 
   rulesForAccountId(accountId) {
-    return this._rules.filter((f) => f.accountId === accountId);
+    return this._rules.filter(f => f.accountId === accountId);
   }
 
   disabledRules(accountId) {
-    return this._rules.filter((f) => f.accountId === accountId && f.disabled);
+    return this._rules.filter(f => f.accountId === accountId && f.disabled);
   }
 
-  _onDeleteMailRule = (id) => {
-    this._rules = this._rules.filter((f) => f.id !== id);
+  _onDeleteMailRule = id => {
+    this._rules = this._rules.filter(f => f.id !== id);
     this._saveMailRules();
     this.trigger();
-  }
+  };
 
   _onReorderMailRule = (id, newIdx) => {
-    const currentIdx = _.findIndex(this._rules, _.matcher({id}))
+    const currentIdx = _.findIndex(this._rules, _.matcher({ id }));
     if (currentIdx === -1) {
       return;
     }
@@ -58,12 +58,12 @@ class MailRulesStore extends NylasStore {
     this._rules.splice(newIdx, 0, rule);
     this._saveMailRules();
     this.trigger();
-  }
+  };
 
-  _onAddMailRule = (properties) => {
+  _onAddMailRule = properties => {
     const defaults = {
       id: Utils.generateTempId(),
-      name: "Untitled Rule",
+      name: 'Untitled Rule',
       conditionMode: ConditionMode.All,
       conditions: [ConditionTemplates[0].createDefaultInstance()],
       actions: [ActionTemplates[0].createDefaultInstance()],
@@ -71,20 +71,20 @@ class MailRulesStore extends NylasStore {
     };
 
     if (!properties.accountId) {
-      throw new Error("AddMailRule: you must provide an account id.");
+      throw new Error('AddMailRule: you must provide an account id.');
     }
 
     this._rules.push(Object.assign(defaults, properties));
     this._saveMailRules();
     this.trigger();
-  }
+  };
 
   _onUpdateMailRule = (id, properties) => {
     const existing = this._rules.find(f => id === f.id);
     Object.assign(existing, properties);
     this._saveMailRules();
     this.trigger();
-  }
+  };
 
   _onDisableMailRule = (id, reason) => {
     const existing = this._rules.find(f => id === f.id);
@@ -103,14 +103,16 @@ class MailRulesStore extends NylasStore {
     }
 
     this.trigger();
-  }
+  };
 
   _saveMailRules() {
-    this._saveMailRulesDebounced = this._saveMailRulesDebounced || _.debounce(() => {
-      window.localStorage.setItem(RulesJSONKey, JSON.stringify(this._rules));
-    }, 1000);
+    this._saveMailRulesDebounced =
+      this._saveMailRulesDebounced ||
+      _.debounce(() => {
+        window.localStorage.setItem(RulesJSONKey, JSON.stringify(this._rules));
+      }, 1000);
     this._saveMailRulesDebounced();
   }
 }
 
-export default new MailRulesStore()
+export default new MailRulesStore();

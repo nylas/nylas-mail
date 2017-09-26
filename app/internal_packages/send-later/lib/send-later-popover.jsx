@@ -1,8 +1,7 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import {DateUtils} from 'nylas-exports'
-import {DatePickerPopover} from 'nylas-component-kit'
-
+import React from 'react';
+import PropTypes from 'prop-types';
+import { DateUtils } from 'nylas-exports';
+import { DatePickerPopover } from 'nylas-component-kit';
 
 const SendLaterOptions = {
   'In 1 hour': DateUtils.in1Hour,
@@ -12,12 +11,12 @@ const SendLaterOptions = {
   'Tomorrow evening': DateUtils.tomorrowEvening,
   'This weekend': DateUtils.thisWeekend,
   'Next week': DateUtils.nextWeek,
-}
+};
 
 function SendLaterPopover(props) {
   let footer;
-  const {onAssignSendLaterDate, onCancelSendLater, sendLaterDate} = props
-  const header = <span key="send-later-header">Send later:</span>
+  const { onAssignSendLaterDate, onCancelSendLater, sendLaterDate } = props;
+  const header = <span key="send-later-header">Send later:</span>;
   if (sendLaterDate) {
     footer = [
       <div key="divider-unschedule" className="divider" />,
@@ -26,7 +25,7 @@ function SendLaterPopover(props) {
           Unschedule Send
         </button>
       </div>,
-    ]
+    ];
   }
 
   return (
@@ -46,4 +45,4 @@ SendLaterPopover.propTypes = {
   onCancelSendLater: PropTypes.func.isRequired,
 };
 
-export default SendLaterPopover
+export default SendLaterPopover;

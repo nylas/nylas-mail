@@ -1,29 +1,32 @@
-import {React, APIError, NylasAPIRequest} from 'nylas-exports'
-import {MetadataComposerToggleButton} from 'nylas-component-kit'
-import {PLUGIN_ID, PLUGIN_NAME} from './open-tracking-constants'
+import { React, PropTypes, APIError, NylasAPIRequest } from 'nylas-exports';
+import { MetadataComposerToggleButton } from 'nylas-component-kit';
+import { PLUGIN_ID, PLUGIN_NAME } from './open-tracking-constants';
 
 export default class OpenTrackingButton extends React.Component {
   static displayName = 'OpenTrackingButton';
 
   static propTypes = {
-    draft: React.PropTypes.object.isRequired,
-    session: React.PropTypes.object.isRequired,
+    draft: PropTypes.object.isRequired,
+    session: PropTypes.object.isRequired,
   };
 
   shouldComponentUpdate(nextProps) {
-    return (nextProps.draft.metadataForPluginId(PLUGIN_ID) !== this.props.draft.metadataForPluginId(PLUGIN_ID));
+    return (
+      nextProps.draft.metadataForPluginId(PLUGIN_ID) !==
+      this.props.draft.metadataForPluginId(PLUGIN_ID)
+    );
   }
 
   _title(enabled) {
-    const dir = enabled ? "Disable" : "Enable";
-    return `${dir} open tracking`
+    const dir = enabled ? 'Disable' : 'Enable';
+    return `${dir} open tracking`;
   }
 
   _errorMessage(error) {
     if (error instanceof APIError && NylasAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
-      return `Open tracking does not work offline. Please re-enable when you come back online.`
+      return `Open tracking does not work offline. Please re-enable when you come back online.`;
     }
-    return `Unfortunately, open tracking is currently not available. Please try again later. Error: ${error.message}`
+    return `Unfortunately, open tracking is currently not available. Please try again later. Error: ${error.message}`;
   }
 
   render() {
@@ -44,7 +47,7 @@ export default class OpenTrackingButton extends React.Component {
         draft={this.props.draft}
         session={this.props.session}
       />
-    )
+    );
   }
 }
 

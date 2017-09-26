@@ -1,11 +1,10 @@
 /* eslint global-require: 0 */
-import React, {Component} from 'react';
-import PropTypes from 'prop-types'
-import {EditableList, NewsletterSignup} from 'nylas-component-kit';
-import {RegExpUtils, Account} from 'nylas-exports';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { EditableList, NewsletterSignup } from 'nylas-component-kit';
+import { RegExpUtils, Account } from 'nylas-exports';
 
 class PreferencesAccountDetails extends Component {
-
   static propTypes = {
     account: PropTypes.object,
     onAccountUpdated: PropTypes.func.isRequired,
@@ -13,17 +12,16 @@ class PreferencesAccountDetails extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {account: props.account.clone()};
+    this.state = { account: props.account.clone() };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({account: nextProps.account.clone()});
+    this.setState({ account: nextProps.account.clone() });
   }
 
   componentWillUnmount() {
     this._saveChanges();
   }
-
 
   // Helpers
 
@@ -58,26 +56,25 @@ class PreferencesAccountDetails extends Component {
 
   _setState = (updates, callback = () => {}) => {
     const account = Object.assign(this.state.account.clone(), updates);
-    this.setState({account}, callback);
+    this.setState({ account }, callback);
   };
 
-  _setStateAndSave = (updates) => {
+  _setStateAndSave = updates => {
     this._setState(updates, () => {
       this._saveChanges();
     });
   };
 
-
   // Handlers
 
-  _onAccountLabelUpdated = (event) => {
-    this._setState({label: event.target.value});
+  _onAccountLabelUpdated = event => {
+    this._setState({ label: event.target.value });
   };
 
-  _onAccountAliasCreated = (newAlias) => {
+  _onAccountAliasCreated = newAlias => {
     const coercedAlias = this._makeAlias(newAlias);
     const aliases = this.state.account.aliases.concat([coercedAlias]);
-    this._setStateAndSave({aliases})
+    this._setStateAndSave({ aliases });
   };
 
   _onAccountAliasUpdated = (newAlias, alias, idx) => {
@@ -88,7 +85,7 @@ class PreferencesAccountDetails extends Component {
       defaultAlias = coercedAlias;
     }
     aliases[idx] = coercedAlias;
-    this._setStateAndSave({aliases, defaultAlias});
+    this._setStateAndSave({ aliases, defaultAlias });
   };
 
   _onAccountAliasRemoved = (alias, idx) => {
@@ -98,23 +95,26 @@ class PreferencesAccountDetails extends Component {
       defaultAlias = null;
     }
     aliases.splice(idx, 1);
-    this._setStateAndSave({aliases, defaultAlias});
+    this._setStateAndSave({ aliases, defaultAlias });
   };
 
-  _onDefaultAliasSelected = (event) => {
+  _onDefaultAliasSelected = event => {
     const defaultAlias = event.target.value === 'None' ? null : event.target.value;
-    this._setStateAndSave({defaultAlias});
+    this._setStateAndSave({ defaultAlias });
   };
 
   _onReconnect = () => {
     const ipc = require('electron').ipcRenderer;
-    ipc.send('command', 'application:add-account', {existingAccount: this.state.account, source: 'Reconnect from preferences'});
-  }
+    ipc.send('command', 'application:add-account', {
+      existingAccount: this.state.account,
+      source: 'Reconnect from preferences',
+    });
+  };
 
   _onContactSupport = () => {
-    const {shell} = require("electron");
-    shell.openExternal("https://support.getmailspring.com/hc/en-us/requests/new");
-  }
+    const { shell } = require('electron');
+    shell.openExternal('https://support.getmailspring.com/hc/en-us/requests/new');
+  };
 
   // Renderers
 
@@ -127,7 +127,11 @@ class PreferencesAccountDetails extends Component {
           <div>Default for new messages:</div>
           <select value={defaultAlias} onChange={this._onDefaultAliasSelected}>
             <option value="None">{`${account.name} <${account.emailAddress}>`}</option>
-            {aliases.map((alias, idx) => <option key={`alias-${idx}`} value={alias}>{alias}</option>)}
+            {aliases.map((alias, idx) => (
+              <option key={`alias-${idx}`} value={alias}>
+                {alias}
+              </option>
+            ))}
           </select>
         </div>
       );
@@ -135,16 +139,19 @@ class PreferencesAccountDetails extends Component {
     return null;
   }
 
-
   _renderErrorDetail(message, buttonText, buttonAction) {
-    return (<div className="account-error-detail">
-      <div className="message">{message}</div>
-      <a className="action" onClick={buttonAction}>{buttonText}</a>
-    </div>)
+    return (
+      <div className="account-error-detail">
+        <div className="message">{message}</div>
+        <a className="action" onClick={buttonAction}>
+          {buttonText}
+        </a>
+      </div>
+    );
   }
 
   _renderSyncErrorDetails() {
-    const {account} = this.state;
+    const { account } = this.state;
     if (account.hasSyncStateError()) {
       switch (account.syncState) {
         case Account.N1_Cloud_AUTH_FAILED:
@@ -152,30 +159,31 @@ class PreferencesAccountDetails extends Component {
             `Mailspring can no longer authenticate with Mailspring cloud services for
             ${account.emailAddress}. The password or authentication may
             have changed.`,
-            "Reconnect",
-            this._onReconnect);
+            'Reconnect',
+            this._onReconnect
+          );
         case Account.SYNC_STATE_AUTH_FAILED:
           return this._renderErrorDetail(
             `Mailspring can no longer authenticate with ${account.emailAddress}. The password
             or authentication may have changed.`,
-            "Reconnect",
-            this._onReconnect);
+            'Reconnect',
+            this._onReconnect
+          );
         default:
           return this._renderErrorDetail(
             `Mailspring encountered an error while syncing mail for ${account.emailAddress}.
             Try re-adding the account and contact Mailspring support if the problem persists.`,
-            "Contact support",
-            this._onContactSupport);
+            'Contact support',
+            this._onContactSupport
+          );
       }
     }
     return null;
   }
 
   render() {
-    const {account} = this.state;
-    const aliasPlaceholder = this._makeAlias(
-      `alias@${account.emailAddress.split('@')[1]}`
-    );
+    const { account } = this.state;
+    const aliasPlaceholder = this._makeAlias(`alias@${account.emailAddress.split('@')[1]}`);
 
     return (
       <div className="account-details">
@@ -197,14 +205,14 @@ class PreferencesAccountDetails extends Component {
         <h3>Aliases</h3>
 
         <div className="platform-note">
-          You may need to configure aliases with your
-          mail provider (Outlook, Gmail) before using them.
+          You may need to configure aliases with your mail provider (Outlook, Gmail) before using
+          them.
         </div>
 
         <EditableList
           showEditIcon
           items={account.aliases}
-          createInputProps={{placeholder: aliasPlaceholder}}
+          createInputProps={{ placeholder: aliasPlaceholder }}
           onItemCreated={this._onAccountAliasCreated}
           onItemEdited={this._onAccountAliasUpdated}
           onDeleteItem={this._onAccountAliasRemoved}
@@ -215,11 +223,9 @@ class PreferencesAccountDetails extends Component {
         <div className="newsletter">
           <NewsletterSignup emailAddress={account.emailAddress} name={account.name} />
         </div>
-
       </div>
     );
   }
-
 }
 
 export default PreferencesAccountDetails;

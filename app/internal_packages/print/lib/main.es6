@@ -9,6 +9,4 @@ export function deactivate() {
   if (printer) printer.deactivate();
 }
 
-export function serialize() {
-
-}
+export function serialize() {}

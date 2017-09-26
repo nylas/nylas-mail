@@ -1,5 +1,5 @@
-React = require 'react'
 {Actions,
+ React, PropTypes,
  CategoryStore,
  TaskFactory,
  AccountStore,
@@ -8,7 +8,7 @@ React = require 'react'
 class ThreadArchiveQuickAction extends React.Component
   @displayName: 'ThreadArchiveQuickAction'
   @propTypes:
-    thread: React.PropTypes.object
+    thread: PropTypes.object
 
   render: =>
     allowed = FocusedPerspectiveStore.current().canArchiveThreads([@props.thread])
@@ -36,7 +36,7 @@ class ThreadArchiveQuickAction extends React.Component
 class ThreadTrashQuickAction extends React.Component
   @displayName: 'ThreadTrashQuickAction'
   @propTypes:
-    thread: React.PropTypes.object
+    thread: PropTypes.object
 
   render: =>
     allowed = FocusedPerspectiveStore.current().canMoveThreadsTo([@props.thread], 'trash')

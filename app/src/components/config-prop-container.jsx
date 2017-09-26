@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default class ConfigPropContainer extends React.Component {
-  static displayName = 'ConfigPropContainer'
+  static displayName = 'ConfigPropContainer';
 
   constructor(props) {
     super(props);
@@ -28,18 +28,18 @@ export default class ConfigPropContainer extends React.Component {
 
   getConfigWithMutators() {
     return Object.assign(NylasEnv.config.get(), {
-      get: (key) => {
+      get: key => {
         return NylasEnv.config.get(key);
       },
       set: (key, value) => {
         NylasEnv.config.set(key, value);
       },
-      toggle: (key) => {
+      toggle: key => {
         NylasEnv.config.set(key, !NylasEnv.config.get(key));
       },
       contains: (key, val) => {
         const vals = NylasEnv.config.get(key);
-        return (vals && vals instanceof Array) ? vals.includes(val) : false;
+        return vals && vals instanceof Array ? vals.includes(val) : false;
       },
       toggleContains: (key, val) => {
         let vals = NylasEnv.config.get(key);
@@ -47,7 +47,7 @@ export default class ConfigPropContainer extends React.Component {
           vals = [];
         }
         if (vals.includes(val)) {
-          NylasEnv.config.set(key, vals.filter((v) => v !== val));
+          NylasEnv.config.set(key, vals.filter(v => v !== val));
         } else {
           NylasEnv.config.set(key, vals.concat([val]));
         }

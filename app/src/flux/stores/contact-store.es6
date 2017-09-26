@@ -13,7 +13,6 @@ with additional actions.
 Section: Stores
 */
 class ContactStore extends NylasStore {
-
   // Public: Search the user's contact list for the given search term.
   // This method compares the `search` string against each Contact's
   // `name` and `email`.
@@ -31,7 +30,7 @@ class ContactStore extends NylasStore {
 
     const accountCount = AccountStore.accounts().length;
     const extensions = ComponentRegistry.findComponentsMatching({
-      role: "ContactSearchResults",
+      role: 'ContactSearchResults',
     });
 
     if (!search || search.length === 0) {
@@ -48,7 +47,7 @@ class ContactStore extends NylasStore {
       .limit(limit * accountCount)
       .order(Contact.attributes.refs.descending());
 
-    return query.then(async (_results) => {
+    return query.then(async _results => {
       // remove query results that were already found in ranked contacts
       let results = this._distinctByEmail(_results);
       for (const ext of extensions) {
@@ -62,32 +61,33 @@ class ContactStore extends NylasStore {
   }
 
   isValidContact(contact) {
-    return (contact instanceof Contact) ? contact.isValid() : false;
+    return contact instanceof Contact ? contact.isValid() : false;
   }
 
-  parseContactsInString(contactString, {skipNameLookup} = {}) {
+  parseContactsInString(contactString, { skipNameLookup } = {}) {
     const detected = [];
     const emailRegex = RegExpUtils.emailRegex();
     let lastMatchEnd = 0;
     let match = null;
 
-    while (match = emailRegex.exec(contactString)) { // eslint-disable-line
-      let email = match[0]
-      let name = null
+    // eslint-disable-next-line
+    while ((match = emailRegex.exec(contactString))) {
+      let email = match[0];
+      let name = null;
 
-      const startsWithQuote = ['\'', '"'].includes(email[0])
-      const hasTrailingQuote = ['\'', '"'].includes(contactString[match.index + email.length]);
+      const startsWithQuote = ["'", '"'].includes(email[0]);
+      const hasTrailingQuote = ["'", '"'].includes(contactString[match.index + email.length]);
       if (startsWithQuote && hasTrailingQuote) {
         email = email.slice(1, email.length - 1);
       }
 
-      const hasLeadingParen = ['(', '<'].includes(contactString[match.index - 1])
+      const hasLeadingParen = ['(', '<'].includes(contactString[match.index - 1]);
       const hasTrailingParen = [')', '>'].includes(contactString[match.index + email.length]);
 
       if (hasLeadingParen && hasTrailingParen) {
         let nameStart = lastMatchEnd;
         for (const char of [',', '\n', '\r']) {
-          const i = contactString.lastIndexOf(char, match.index)
+          const i = contactString.lastIndexOf(char, match.index);
           if (i + 1 > nameStart) {
             nameStart = i + 1;
           }
@@ -110,21 +110,23 @@ class ContactStore extends NylasStore {
         name = name.slice(1, name.length - 1);
       }
 
-      detected.push(new Contact({email, name}))
+      detected.push(new Contact({ email, name }));
     }
 
     if (skipNameLookup) {
       return Promise.resolve(detected);
     }
 
-    return Promise.all(detected.map((contact) => {
-      if (contact.name !== contact.email) {
-        return contact;
-      }
-      return this.searchContacts(contact.email, {limit: 1}).then(([smatch]) =>
-        ((smatch && smatch.email === contact.email) ? smatch : contact)
-      );
-    }));
+    return Promise.all(
+      detected.map(contact => {
+        if (contact.name !== contact.email) {
+          return contact;
+        }
+        return this.searchContacts(contact.email, { limit: 1 }).then(
+          ([smatch]) => (smatch && smatch.email === contact.email ? smatch : contact)
+        );
+      })
+    );
   }
 
   _distinctByEmail(contacts) {

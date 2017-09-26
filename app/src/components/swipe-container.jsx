@@ -1,24 +1,21 @@
-import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
 import _ from 'underscore';
-import {exec} from 'child_process';
-import {Utils} from 'nylas-exports';
-import PropTypes from 'prop-types'
+import { exec } from 'child_process';
+import { React, PropTypes, ReactDOM, Utils } from 'nylas-exports';
 
 // This is a stripped down version of
 // https://github.com/michaelvillar/dynamics.js/blob/master/src/dynamics.coffee#L1179,
 //
-const SpringBounceFactory = (options) => {
+const SpringBounceFactory = options => {
   const frequency = Math.max(1, options.frequency / 20);
   const friction = 20 ** (options.friction / 100);
-  return (t) => {
-    return 1 - ((friction / 10) ** (-t) * (1 - t) * Math.cos(frequency * t));
+  return t => {
+    return 1 - (friction / 10) ** -t * (1 - t) * Math.cos(frequency * t);
   };
 };
 const SpringBounceFunction = SpringBounceFactory({
   frequency: 360,
   friction: 440,
-})
+});
 
 const Phase = {
   // No wheel events received yet, container is inactive.
@@ -32,13 +29,13 @@ const Phase = {
 
   // Fingers lifted, we are animating to a final state.
   Settling: 'settling',
-}
+};
 
 let SwipeInverted = false;
 
 if (process.platform === 'darwin') {
-  exec("defaults read -g com.apple.swipescrolldirection", (err, stdout) => {
-    SwipeInverted = (stdout.toString().trim() !== '0');
+  exec('defaults read -g com.apple.swipescrolldirection', (err, stdout) => {
+    SwipeInverted = stdout.toString().trim() !== '0';
   });
 } else if (process.platform === 'win32') {
   // Currently does not matter because we don't support trackpad gestures on Win.
@@ -47,24 +44,17 @@ if (process.platform === 'darwin') {
   // vertical, not horizontal, behavior.
 }
 
-
-export default class SwipeContainer extends Component {
+export default class SwipeContainer extends React.Component {
   static displayName = 'SwipeContainer';
 
   static propTypes = {
     children: PropTypes.object.isRequired,
-    shouldEnableSwipe: React.PropTypes.func,
-    onSwipeLeft: React.PropTypes.func,
-    onSwipeLeftClass: React.PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-    ]),
-    onSwipeRight: React.PropTypes.func,
-    onSwipeRightClass: React.PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-    ]),
-    onSwipeCenter: React.PropTypes.func,
+    shouldEnableSwipe: PropTypes.func,
+    onSwipeLeft: PropTypes.func,
+    onSwipeLeftClass: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+    onSwipeRight: PropTypes.func,
+    onSwipeRightClass: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+    onSwipeCenter: PropTypes.func,
   };
 
   static defaultProps = {
@@ -117,15 +107,13 @@ export default class SwipeContainer extends Component {
   _isEnabled = () => {
     if (this.isEnabled === null) {
       // Cache this value so we don't have to recalculate on every swipe
-      this.isEnabled = (
-        (this.props.onSwipeLeft || this.props.onSwipeRight) &&
-        this.props.shouldEnableSwipe()
-      );
+      this.isEnabled =
+        (this.props.onSwipeLeft || this.props.onSwipeRight) && this.props.shouldEnableSwipe();
     }
     return this.isEnabled;
   };
 
-  _onWheel = (e) => {
+  _onWheel = e => {
     let velocity = e.deltaX / 3;
     if (SwipeInverted) {
       velocity = -velocity;
@@ -137,8 +125,8 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onDragWithVelocity = (velocity) => {
-    if ((this.tracking === false) || !this._isEnabled()) {
+  _onDragWithVelocity = velocity => {
+    if (this.tracking === false || !this._isEnabled()) {
       return;
     }
     const velocityConfirmsGesture = Math.abs(velocity) > 3;
@@ -147,18 +135,18 @@ export default class SwipeContainer extends Component {
       this.phase = Phase.GestureStarting;
     }
 
-    if (velocityConfirmsGesture || (this.phase === Phase.Settling)) {
+    if (velocityConfirmsGesture || this.phase === Phase.Settling) {
       this.phase = Phase.GestureConfirmed;
     }
 
-    let {fullDistance, thresholdDistance} = this.state;
+    let { fullDistance, thresholdDistance } = this.state;
 
     if (fullDistance === 'unknown') {
       fullDistance = ReactDOM.findDOMNode(this).clientWidth;
       thresholdDistance = 110;
     }
 
-    const clipToMax = (v) => Math.max(-fullDistance, Math.min(fullDistance, v))
+    const clipToMax = v => Math.max(-fullDistance, Math.min(fullDistance, v));
     const currentX = clipToMax(this.state.currentX + velocity);
     const estimatedSettleX = clipToMax(currentX + velocity * 8);
     const lastDragX = currentX;
@@ -169,10 +157,10 @@ export default class SwipeContainer extends Component {
     // center.
 
     if (this.trackingInitialTargetX === 0) {
-      if (this.props.onSwipeRight && (estimatedSettleX > thresholdDistance)) {
+      if (this.props.onSwipeRight && estimatedSettleX > thresholdDistance) {
         targetX = fullDistance;
       }
-      if (this.props.onSwipeLeft && (estimatedSettleX < -thresholdDistance)) {
+      if (this.props.onSwipeLeft && estimatedSettleX < -thresholdDistance) {
         targetX = -fullDistance;
       }
     } else if (this.trackingInitialTargetX < 0) {
@@ -184,7 +172,7 @@ export default class SwipeContainer extends Component {
         targetX = fullDistance;
       }
     }
-    this.setState({thresholdDistance, fullDistance, currentX, targetX, lastDragX});
+    this.setState({ thresholdDistance, fullDistance, currentX, targetX, lastDragX });
   };
 
   _onScrollTouchBegin = () => {
@@ -194,7 +182,7 @@ export default class SwipeContainer extends Component {
 
   _onScrollTouchEnd = () => {
     this.tracking = false;
-    if ((this.phase !== Phase.None) && (this.phase !== Phase.Settling)) {
+    if (this.phase !== Phase.None && this.phase !== Phase.Settling) {
       this.phase = Phase.Settling;
       this.fired = false;
       this.setState({
@@ -203,8 +191,8 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onTouchStart = (e) => {
-    if ((this.trackingTouchIdentifier === null) && (e.targetTouches.length > 0)) {
+  _onTouchStart = e => {
+    if (this.trackingTouchIdentifier === null && e.targetTouches.length > 0) {
       const touch = e.targetTouches.item(0);
       this.trackingTouchIdentifier = touch.identifier;
       this.trackingTouchX = touch.clientX;
@@ -212,7 +200,7 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onTouchMove = (e) => {
+  _onTouchMove = e => {
     if (this.trackingTouchIdentifier === null) {
       return;
     }
@@ -230,7 +218,7 @@ export default class SwipeContainer extends Component {
       }
     }
     if (trackingTouch !== null) {
-      const velocity = (trackingTouch.clientX - this.trackingTouchX);
+      const velocity = trackingTouch.clientX - this.trackingTouchX;
       this.trackingTouchX = trackingTouch.clientX;
       this._onDragWithVelocity(velocity);
 
@@ -240,7 +228,7 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onTouchEnd = (e) => {
+  _onTouchEnd = e => {
     if (this.trackingTouchIdentifier === null) {
       return;
     }
@@ -253,7 +241,7 @@ export default class SwipeContainer extends Component {
     }
   };
 
-  _onSwipeActionCompleted = (rowWillDisappear) => {
+  _onSwipeActionCompleted = rowWillDisappear => {
     let delay = 0;
     if (rowWillDisappear) {
       delay = 550;
@@ -275,15 +263,16 @@ export default class SwipeContainer extends Component {
   }
 
   _settle() {
-    const {targetX, settleStartTime, lastDragX} = this.state;
-    let {currentX} = this.state;
+    const { targetX, settleStartTime, lastDragX } = this.state;
+    let { currentX } = this.state;
 
     const f = (Date.now() - settleStartTime) / 1400.0;
     currentX = lastDragX + SpringBounceFunction(f) * (targetX - lastDragX);
 
-    const shouldFinish = (f >= 1.0);
-    const mostlyFinished = ((Math.abs(currentX) / Math.abs(targetX)) > 0.8);
-    const shouldFire = mostlyFinished && (this.fired === false) && (this.trackingInitialTargetX !== targetX);
+    const shouldFinish = f >= 1.0;
+    const mostlyFinished = Math.abs(currentX) / Math.abs(targetX) > 0.8;
+    const shouldFire =
+      mostlyFinished && this.fired === false && this.trackingInitialTargetX !== targetX;
 
     if (shouldFire) {
       this.fired = true;
@@ -291,7 +280,7 @@ export default class SwipeContainer extends Component {
         this.props.onSwipeRight(this._onSwipeActionCompleted);
       } else if (targetX < 0) {
         this.props.onSwipeLeft(this._onSwipeActionCompleted);
-      } else if ((targetX === 0) && this.props.onSwipeCenter) {
+      } else if (targetX === 0 && this.props.onSwipeCenter) {
         this.props.onSwipeCenter();
       }
     }
@@ -306,19 +295,21 @@ export default class SwipeContainer extends Component {
       });
     } else {
       this.phase = Phase.Settling;
-      this.setState({currentX, lastDragX});
+      this.setState({ currentX, lastDragX });
     }
   }
 
   render() {
-    const {currentX, targetX} = this.state;
+    const { currentX, targetX } = this.state;
     const otherProps = Utils.fastOmit(this.props, Object.keys(this.constructor.propTypes));
-    const backingStyles = {top: 0, bottom: 0, position: 'absolute'};
+    const backingStyles = { top: 0, bottom: 0, position: 'absolute' };
     let backingClass = 'swipe-backing';
 
-    if ((currentX < 0) && (this.trackingInitialTargetX <= 0)) {
-      const {onSwipeLeftClass} = this.props
-      const swipeLeftClass = _.isFunction(onSwipeLeftClass) ? onSwipeLeftClass() : onSwipeLeftClass || ''
+    if (currentX < 0 && this.trackingInitialTargetX <= 0) {
+      const { onSwipeLeftClass } = this.props;
+      const swipeLeftClass = _.isFunction(onSwipeLeftClass)
+        ? onSwipeLeftClass()
+        : onSwipeLeftClass || '';
 
       backingClass += ` ${swipeLeftClass}`;
       backingStyles.right = 0;
@@ -326,9 +317,11 @@ export default class SwipeContainer extends Component {
       if (targetX < 0) {
         backingClass += ' confirmed';
       }
-    } else if ((currentX > 0) && (this.trackingInitialTargetX >= 0)) {
-      const {onSwipeRightClass} = this.props
-      const swipeRightClass = _.isFunction(onSwipeRightClass) ? onSwipeRightClass() : onSwipeRightClass || ''
+    } else if (currentX > 0 && this.trackingInitialTargetX >= 0) {
+      const { onSwipeRightClass } = this.props;
+      const swipeRightClass = _.isFunction(onSwipeRightClass)
+        ? onSwipeRightClass()
+        : onSwipeRightClass || '';
 
       backingClass += ` ${swipeRightClass}`;
       backingStyles.left = 0;
@@ -347,9 +340,7 @@ export default class SwipeContainer extends Component {
         {...otherProps}
       >
         <div style={backingStyles} className={backingClass} />
-        <div style={{transform: `translate3d(${currentX}px, 0, 0)`}}>
-          {this.props.children}
-        </div>
+        <div style={{ transform: `translate3d(${currentX}px, 0, 0)` }}>{this.props.children}</div>
       </div>
     );
   }

@@ -4,7 +4,7 @@
 // their precious load time performing the same expensive operation.
 export default class FileListCache {
   constructor() {
-    this.imageData = "{}" // A JSON stringified hash
-    this.packagePaths = []
+    this.imageData = '{}'; // A JSON stringified hash
+    this.packagePaths = [];
   }
 }

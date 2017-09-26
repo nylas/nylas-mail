@@ -1,57 +1,50 @@
-import {
-  Thread,
-  MailboxPerspective,
-  MutableQuerySubscription,
-  DatabaseStore,
-} from 'nylas-exports'
+import { Thread, MailboxPerspective, MutableQuerySubscription, DatabaseStore } from 'nylas-exports';
 
-import {PLUGIN_ID} from './send-reminders-constants';
+import { PLUGIN_ID } from './send-reminders-constants';
 
 class SendRemindersMailboxPerspective extends MailboxPerspective {
-
   constructor(accountIds) {
-    super(accountIds)
-    this.accountIds = accountIds
-    this.name = 'Reminders'
-    this.iconName = 'reminders.png'
+    super(accountIds);
+    this.accountIds = accountIds;
+    this.name = 'Reminders';
+    this.iconName = 'reminders.png';
   }
 
   get isReminders() {
-    return true
+    return true;
   }
 
   emptyMessage() {
-    return "No reminders set"
+    return 'No reminders set';
   }
 
   threads() {
     let query = DatabaseStore.findAll(Thread)
       .where(Thread.attributes.pluginMetadata.contains(PLUGIN_ID))
-      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending());
 
     if (this.accountIds.length === 1) {
-      query = query.where({accountId: this.accountIds[0]})
+      query = query.where({ accountId: this.accountIds[0] });
     }
 
-    return new MutableQuerySubscription(query, {emitResultSet: true});
+    return new MutableQuerySubscription(query, { emitResultSet: true });
   }
 
   canReceiveThreadsFromAccountIds() {
-    return false
+    return false;
   }
 
   canArchiveThreads() {
-    return false
+    return false;
   }
 
   canTrashThreads() {
-    return false
+    return false;
   }
 
   canMoveThreadsTo() {
-    return false
+    return false;
   }
-
 }
 
-export default SendRemindersMailboxPerspective
+export default SendRemindersMailboxPerspective;

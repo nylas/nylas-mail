@@ -3,14 +3,17 @@
 
 // They're designed to better separate concerns of the Contenteditable
 export default class ContenteditableService {
-  constructor({data, methods}) {
+  constructor({ data, methods }) {
     this.data = data;
     this.methods = methods;
-    ({props: this.props, state: this.state, innerState: this.innerState} = this.data);
-    ({setInnerState: this.setInnerState, dispatchEventToExtensions: this.dispatchEventToExtensions} = this.methods);
+    ({ props: this.props, state: this.state, innerState: this.innerState } = this.data);
+    ({
+      setInnerState: this.setInnerState,
+      dispatchEventToExtensions: this.dispatchEventToExtensions,
+    } = this.methods);
   }
 
-  setData({props, state, innerState}) {
+  setData({ props, state, innerState }) {
     this.props = props;
     this.state = state;
     this.innerState = innerState;
@@ -20,6 +23,5 @@ export default class ContenteditableService {
     return {};
   }
 
-  teardown() {
-  }
+  teardown() {}
 }

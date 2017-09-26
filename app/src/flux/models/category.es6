@@ -5,39 +5,36 @@ import Attributes from '../attributes';
 // We look for a few standard categories and display them in the Mailboxes
 // portion of the left sidebar. Note that these may not all be present on
 // a particular account.
-const ToObject = (arr) => {
+const ToObject = arr => {
   return arr.reduce((o, v) => {
     o[v] = v;
     return o;
   }, {});
-}
+};
 
 const StandardRoleMap = ToObject([
-  "inbox",
-  "important",
-  "snoozed",
-  "sent",
-  "drafts",
-  "all",
-  "spam",
-  "archive",
-  "trash",
+  'inbox',
+  'important',
+  'snoozed',
+  'sent',
+  'drafts',
+  'all',
+  'spam',
+  'archive',
+  'trash',
 ]);
 
-const LockedRoleMap = ToObject([
-  "sent",
-  "drafts",
-]);
+const LockedRoleMap = ToObject(['sent', 'drafts']);
 
 const HiddenRoleMap = ToObject([
-  "sent",
-  "drafts",
-  "all",
-  "archive",
-  "starred",
-  "important",
-  "snoozed",
-  "[Mailspring]",
+  'sent',
+  'drafts',
+  'all',
+  'archive',
+  'starred',
+  'important',
+  'snoozed',
+  '[Mailspring]',
 ]);
 
 /**
@@ -59,7 +56,6 @@ Folders and Labels have different semantics. The `Category` class only exists to
 Section: Models
 */
 export default class Category extends Model {
-
   get displayName() {
     for (const prefix of ['INBOX', '[Gmail]', '[Mailspring]']) {
       if (this.path.startsWith(prefix) && this.path.length > prefix.length + 1) {
@@ -96,25 +92,25 @@ export default class Category extends Model {
     Locked: 'locked',
     User: 'user',
     Hidden: 'hidden',
-  }
+  };
 
-  static StandardRoles = Object.keys(StandardRoleMap)
-  static LockedRoles = Object.keys(LockedRoleMap)
-  static HiddenRoles = Object.keys(HiddenRoleMap)
+  static StandardRoles = Object.keys(StandardRoleMap);
+  static LockedRoles = Object.keys(LockedRoleMap);
+  static HiddenRoles = Object.keys(HiddenRoleMap);
 
   static categoriesSharedRole(cats) {
     if (!cats || cats.length === 0) {
       return null;
     }
-    const role = cats[0].role
-    if (!cats.every((cat) => cat.role === role)) {
+    const role = cats[0].role;
+    if (!cats.every(cat => cat.role === role)) {
       return null;
     }
     return role;
   }
 
   displayType() {
-    throw new Error("Base class");
+    throw new Error('Base class');
   }
 
   hue() {
@@ -126,7 +122,7 @@ export default class Category extends Model {
     for (let i = 0; i < this.displayName.length; i++) {
       hue += this.displayName.charCodeAt(i);
     }
-    hue *= (396.0 / 512.0);
+    hue *= 396.0 / 512.0;
     return hue;
   }
 
@@ -138,7 +134,7 @@ export default class Category extends Model {
     if (showImportant === true) {
       return !!StandardRoleMap[this.role];
     }
-    return !!StandardRoleMap[this.role] && (this.role !== 'important');
+    return !!StandardRoleMap[this.role] && this.role !== 'important';
   }
 
   isLockedCategory() {

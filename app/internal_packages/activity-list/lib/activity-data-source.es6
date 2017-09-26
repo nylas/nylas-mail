@@ -1,9 +1,8 @@
-import {Rx, Message, DatabaseStore} from 'nylas-exports';
+import { Rx, Message, DatabaseStore } from 'nylas-exports';
 
 export default class ActivityDataSource {
-  buildObservable({openTrackingId, linkTrackingId, messageLimit}) {
-    const query = DatabaseStore
-      .findAll(Message)
+  buildObservable({ openTrackingId, linkTrackingId, messageLimit }) {
+    const query = DatabaseStore.findAll(Message)
       .order(Message.attributes.date.descending())
       .where(Message.attributes.pluginMetadata.contains(openTrackingId, linkTrackingId))
       .limit(messageLimit);

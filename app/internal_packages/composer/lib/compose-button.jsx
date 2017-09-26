@@ -1,13 +1,13 @@
 import React from 'react';
-import {Actions} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import { Actions } from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
 
 export default class ComposeButton extends React.Component {
   static displayName = 'ComposeButton';
 
   _onNewCompose = () => {
-    Actions.composeNewBlankDraft()
-  }
+    Actions.composeNewBlankDraft();
+  };
 
   render() {
     return (

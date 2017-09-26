@@ -1,5 +1,5 @@
 /* eslint global-require: 0 */
-import {PreferencesUIStore, ComponentRegistry, ExtensionRegistry} from 'nylas-exports';
+import { PreferencesUIStore, ComponentRegistry, ExtensionRegistry } from 'nylas-exports';
 import TemplatePicker from './template-picker';
 import TemplateStatusBar from './template-status-bar';
 import TemplateComposerExtension from './template-composer-extension';
@@ -11,8 +11,8 @@ export function activate(state = {}) {
     displayName: 'Quick Replies',
     componentClassFn: () => require('./preferences-templates').default,
   });
-  ComponentRegistry.register(TemplatePicker, {role: 'Composer:ActionButton'});
-  ComponentRegistry.register(TemplateStatusBar, {role: 'Composer:Footer'});
+  ComponentRegistry.register(TemplatePicker, { role: 'Composer:ActionButton' });
+  ComponentRegistry.register(TemplateStatusBar, { role: 'Composer:Footer' });
   PreferencesUIStore.registerPreferencesTab(this.preferencesTab);
   ExtensionRegistry.Composer.register(TemplateComposerExtension);
 }

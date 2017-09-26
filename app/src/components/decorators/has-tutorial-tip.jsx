@@ -1,9 +1,7 @@
 /* eslint react/no-danger: 0 */
-import React from 'react';
-import ReactDOM from 'react-dom';
 import _ from 'underscore';
 
-import {Actions, WorkspaceStore, DOMUtils} from 'nylas-exports';
+import { React, ReactDOM, PropTypes, Actions, WorkspaceStore, DOMUtils } from 'nylas-exports';
 import NylasStore from 'nylas-store';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
@@ -11,7 +9,6 @@ const TipsBackgroundEl = document.createElement('tutorial-tip-background');
 const TipsContainerEl = document.createElement('div');
 TipsContainerEl.classList.add('tooltips-container');
 document.body.insertBefore(TipsContainerEl, document.body.children[0]);
-
 
 class TipsStoreCls extends NylasStore {
   constructor() {
@@ -32,34 +29,34 @@ class TipsStoreCls extends NylasStore {
   // Actions: Since this is a private store just inside this file, we call
   // these methods directly for now.
 
-  mountedTip = (key) => {
+  mountedTip = key => {
     if (!this._tipKeys.includes(key)) {
       this._tipKeys.push(key);
     }
     this.trigger();
-  }
+  };
 
-  seenTip = (key) => {
+  seenTip = key => {
     this._tipKeys = this._tipKeys.filter(t => t !== key);
     NylasEnv.config.pushAtKeyPath('core.tutorial.seen', key);
     this.trigger();
-  }
+  };
 
-  unmountedTip = (key) => {
+  unmountedTip = key => {
     this._tipKeys = this._tipKeys.filter(t => t !== key);
     this.trigger();
-  }
+  };
 }
 
 const TipsStore = new TipsStoreCls();
 
 class TipPopoverContents extends React.Component {
   static propTypes = {
-    title: React.PropTypes.string,
-    tipKey: React.PropTypes.string,
-    instructions: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.element]),
-    onDismissed: React.PropTypes.func,
-  }
+    title: PropTypes.string,
+    tipKey: PropTypes.string,
+    instructions: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
+    onDismissed: PropTypes.func,
+  };
 
   componentDidMount() {
     if (TipsBackgroundEl.parentNode === null) {
@@ -80,22 +77,24 @@ class TipPopoverContents extends React.Component {
   onDone = () => {
     TipsStore.seenTip(this.props.tipKey);
     Actions.closePopover();
-  }
+  };
 
   render() {
     let content = null;
 
     if (typeof this.props.instructions === 'string') {
-      content = <p dangerouslySetInnerHTML={{__html: this.props.instructions}} />;
+      content = <p dangerouslySetInnerHTML={{ __html: this.props.instructions }} />;
     } else {
-      content = <p>{this.props.instructions}</p>
+      content = <p>{this.props.instructions}</p>;
     }
 
     return (
-      <div style={{width: 250, padding: 20, paddingTop: 0}}>
+      <div style={{ width: 250, padding: 20, paddingTop: 0 }}>
         <h2>{this.props.title}</h2>
         {content}
-        <button className="btn" onClick={this.onDone}>Got it!</button>
+        <button className="btn" onClick={this.onDone}>
+          Got it!
+        </button>
       </div>
     );
   }
@@ -105,7 +104,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
   const TipKey = ComposedComponent.displayName;
 
   if (!TipKey) {
-    throw new Error("To use the HasTutorialTip decorator, your component must have a displayName.");
+    throw new Error('To use the HasTutorialTip decorator, your component must have a displayName.');
   }
   if (TipsStore.hasSeenTip(TipKey)) {
     return ComposedComponent;
@@ -119,7 +118,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
     constructor(props) {
       super(props);
       this._unlisteners = [];
-      this.state = {visible: false};
+      this.state = { visible: false };
     }
 
     componentDidMount() {
@@ -130,12 +129,12 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
         WorkspaceStore.listen(() => {
           this._workspaceTimer = setTimeout(this._onTooltipStateChanged, 0);
         }),
-      ]
+      ];
       this._disposables = [
         NylasEnv.themes.onDidChangeActiveThemes(() => {
           this._themesTimer = setTimeout(this._onRecomputeTooltipPosition, 0);
         }),
-      ]
+      ];
       window.addEventListener('resize', this._onRecomputeTooltipPosition);
 
       // unfortunately, we can't render() a container around ComposedComponent
@@ -161,8 +160,8 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
     }
 
     componentWillUnmount() {
-      this._unlisteners.forEach((unlisten) => unlisten())
-      this._disposables.forEach((disposable) => disposable.dispose())
+      this._unlisteners.forEach(unlisten => unlisten());
+      this._disposables.forEach(disposable => disposable.dispose());
 
       window.removeEventListener('resize', this._onRecomputeTooltipPosition);
       this.tipNode.parentNode.removeChild(this.tipNode);
@@ -172,13 +171,13 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       TipsStore.unmountedTip(TipKey);
     }
 
-    _containingSheetIsVisible = (el) => {
+    _containingSheetIsVisible = el => {
       const sheetEl = el.closest('.sheet') || el.closest('.sheet-toolbar-container');
       if (!sheetEl) {
         return true;
       }
-      return (sheetEl.dataset.id === WorkspaceStore.topSheet().id);
-    }
+      return sheetEl.dataset.id === WorkspaceStore.topSheet().id;
+    };
 
     _isVisible = () => {
       const el = ReactDOM.findDOMNode(this);
@@ -186,13 +185,13 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
         TipsStore.isTipVisible(TipKey) &&
         this._containingSheetIsVisible(el) &&
         DOMUtils.nodeIsVisible(el)
-      )
-    }
+      );
+    };
 
     _onTooltipStateChanged = () => {
-      const visible = this._isVisible()
+      const visible = this._isVisible();
       if (this.state.visible !== visible) {
-        this.setState({visible});
+        this.setState({ visible });
         if (visible) {
           this.tipNode.classList.add('visible');
           this._onRecomputeTooltipPosition();
@@ -200,7 +199,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
           this.tipNode.classList.remove('visible');
         }
       }
-    }
+    };
 
     _onMouseOver = () => {
       if (!this.state.visible) {
@@ -217,7 +216,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
       const rectCY = Math.round(rect.top + rect.height / 2 - tipFocusCircleRadius);
       TipsBackgroundEl.style.webkitMaskPosition = `0 0, ${rectCX}px ${rectCY}px`;
 
-      Actions.openPopover((
+      Actions.openPopover(
         <TipPopoverContents
           tipKey={TipKey}
           title={TipConfig.title}
@@ -225,41 +224,40 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
           onDismissed={() => {
             el.addEventListener('mouseover', this._onMouseOver);
           }}
-        />
-      ), {
-        originRect: tipRect,
-        direction: 'down',
-        fallbackDirection: 'up',
-      })
-    }
+        />,
+        {
+          originRect: tipRect,
+          direction: 'down',
+          fallbackDirection: 'up',
+        }
+      );
+    };
 
     _onRecomputeTooltipPosition = () => {
       const el = ReactDOM.findDOMNode(this);
       let settled = 0;
       let last = {};
       const attempt = () => {
-        const {left, top} = el.getBoundingClientRect();
+        const { left, top } = el.getBoundingClientRect();
         const anchorRect = this.tipAnchor.getBoundingClientRect();
 
         this.tipNode.style.left = `${left - anchorRect.left + 5}px`;
         this.tipNode.style.top = `${Math.max(top - anchorRect.top + 5, 10)}px`;
 
-        if (!_.isEqual(last, {left, top})) {
+        if (!_.isEqual(last, { left, top })) {
           settled = 0;
-          last = {left, top};
+          last = { left, top };
         }
         settled += 1;
         if (settled < 5) {
           window.requestAnimationFrame(attempt);
         }
-      }
+      };
       attempt();
-    }
+    };
 
     render() {
-      return (
-        <ComposedComponent {...this.props} />
-      );
+      return <ComposedComponent {...this.props} />;
     }
-  }
+  };
 }

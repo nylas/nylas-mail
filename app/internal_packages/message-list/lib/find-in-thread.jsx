@@ -1,22 +1,22 @@
-import React from 'react'
-import classnames from 'classnames'
-import {Actions, MessageStore, SearchableComponentStore} from 'nylas-exports'
-import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit'
+import React from 'react';
+import classnames from 'classnames';
+import { Actions, MessageStore, SearchableComponentStore } from 'nylas-exports';
+import { RetinaImg, KeyCommandsRegion } from 'nylas-component-kit';
 
 export default class FindInThread extends React.Component {
-  static displayName = "FindInThread";
+  static displayName = 'FindInThread';
 
   constructor(props) {
     super(props);
-    this.state = SearchableComponentStore.getCurrentSearchData()
+    this.state = SearchableComponentStore.getCurrentSearchData();
   }
 
   componentDidMount() {
-    this._usub = SearchableComponentStore.listen(this._onSearchableChange)
+    this._usub = SearchableComponentStore.listen(this._onSearchableChange);
   }
 
   componentWillUnmount() {
-    this._usub()
+    this._usub();
   }
 
   _globalKeymapHandlers() {
@@ -24,42 +24,42 @@ export default class FindInThread extends React.Component {
       'core:find-in-thread': this._onFindInThread,
       'core:find-in-thread-next': this._onNextResult,
       'core:find-in-thread-previous': this._onPrevResult,
-    }
+    };
   }
 
   _onFindInThread = () => {
     if (this.state.searchTerm === null) {
-      Actions.findInThread("");
+      Actions.findInThread('');
       if (MessageStore.hasCollapsedItems()) {
-        Actions.toggleAllMessagesExpanded()
+        Actions.toggleAllMessagesExpanded();
       }
     }
-    this._focusSearch()
-  }
+    this._focusSearch();
+  };
 
   _onSearchableChange = () => {
-    this.setState(SearchableComponentStore.getCurrentSearchData())
-  }
+    this.setState(SearchableComponentStore.getCurrentSearchData());
+  };
 
-  _onFindChange = (event) => {
-    Actions.findInThread(event.target.value)
-  }
+  _onFindChange = event => {
+    Actions.findInThread(event.target.value);
+  };
 
-  _onFindKeyDown = (event) => {
-    if (event.key === "Enter") {
-      return event.shiftKey ? this._onPrevResult() : this._onNextResult()
-    } else if (event.key === "Escape") {
-      this._clearSearch()
-      this._searchBoxEl.blur()
+  _onFindKeyDown = event => {
+    if (event.key === 'Enter') {
+      return event.shiftKey ? this._onPrevResult() : this._onNextResult();
+    } else if (event.key === 'Escape') {
+      this._clearSearch();
+      this._searchBoxEl.blur();
     }
-    return null
-  }
+    return null;
+  };
 
   _selectionText() {
     if (this.state.globalIndex !== null && this.state.resultsLength > 0) {
-      return `${this.state.globalIndex + 1} of ${this.state.resultsLength}`
+      return `${this.state.globalIndex + 1} of ${this.state.resultsLength}`;
     }
-    return ""
+    return '';
   }
 
   _navEnabled() {
@@ -67,45 +67,52 @@ export default class FindInThread extends React.Component {
   }
 
   _onPrevResult = () => {
-    if (this._navEnabled()) { Actions.previousSearchResult() }
-  }
+    if (this._navEnabled()) {
+      Actions.previousSearchResult();
+    }
+  };
 
   _onNextResult = () => {
-    if (this._navEnabled()) { Actions.nextSearchResult() }
-  }
+    if (this._navEnabled()) {
+      Actions.nextSearchResult();
+    }
+  };
 
   _clearSearch = () => {
-    Actions.findInThread(null)
-  }
+    Actions.findInThread(null);
+  };
 
-  _focusSearch = (event) => {
+  _focusSearch = event => {
     if (!event || !(this._controlsWrapEl && this._controlsWrapEl.contains(event.target))) {
-      this._searchBoxEl.focus()
+      this._searchBoxEl.focus();
     }
-  }
+  };
 
   render() {
     const rootCls = classnames({
-      "find-in-thread": true,
-      "enabled": this.state.searchTerm !== null,
-    })
-    const btnCls = "btn btn-find-in-thread";
+      'find-in-thread': true,
+      enabled: this.state.searchTerm !== null,
+    });
+    const btnCls = 'btn btn-find-in-thread';
     return (
       <div className={rootCls} onClick={this._focusSearch}>
         <KeyCommandsRegion globalHandlers={this._globalKeymapHandlers()}>
           <div
             className="controls-wrap"
-            ref={(el) => { this._controlsWrapEl = el; }}
+            ref={el => {
+              this._controlsWrapEl = el;
+            }}
           >
             <div className="input-wrap">
-
               <input
                 type="text"
-                ref={(el) => { this._searchBoxEl = el; }}
+                ref={el => {
+                  this._searchBoxEl = el;
+                }}
                 placeholder="Find in thread"
                 onChange={this._onFindChange}
                 onKeyDown={this._onFindKeyDown}
-                value={this.state.searchTerm || ""}
+                value={this.state.searchTerm || ''}
               />
 
               <div className="selection-progress">{this._selectionText()}</div>
@@ -129,25 +136,17 @@ export default class FindInThread extends React.Component {
                   disabled={!this._navEnabled()}
                   onClick={this._onNextResult}
                 >
-                  <RetinaImg
-                    name="ic-findinthread-next.png"
-                    mode={RetinaImg.Mode.ContentIsMask}
-                  />
+                  <RetinaImg name="ic-findinthread-next.png" mode={RetinaImg.Mode.ContentIsMask} />
                 </button>
               </div>
-
             </div>
 
-            <button className={btnCls} onClick={this._clearSearch} >
-              <RetinaImg
-                name="ic-findinthread-close.png"
-                mode={RetinaImg.Mode.ContentIsMask}
-              />
+            <button className={btnCls} onClick={this._clearSearch}>
+              <RetinaImg name="ic-findinthread-close.png" mode={RetinaImg.Mode.ContentIsMask} />
             </button>
           </div>
         </KeyCommandsRegion>
       </div>
-    )
+    );
   }
-
 }

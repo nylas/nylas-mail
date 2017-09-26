@@ -1,13 +1,12 @@
 /* eslint global-require: "off" */
 
-import {BrowserWindow, Menu, app, ipcMain, dialog, powerMonitor,
-        crashReporter} from 'electron';
+import { BrowserWindow, Menu, app, ipcMain, dialog, powerMonitor } from 'electron';
 
 import fs from 'fs-plus';
 import url from 'url';
 import path from 'path';
-import proc from 'child_process'
-import {EventEmitter} from 'events';
+import proc from 'child_process';
+import { EventEmitter } from 'events';
 
 import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
@@ -26,7 +25,7 @@ let clipboard = null;
 //
 export default class Application extends EventEmitter {
   async start(options) {
-    const {resourcePath, configDirPath, version, devMode, specMode, safeMode} = options;
+    const { resourcePath, configDirPath, version, devMode, specMode, safeMode } = options;
 
     // Normalize to make sure drive letter case is consistent on Windows
     this.resourcePath = resourcePath;
@@ -37,7 +36,11 @@ export default class Application extends EventEmitter {
     this.safeMode = safeMode;
 
     this.fileListCache = new FileListCache();
-    this.mailspringProtocolHandler = new MailspringProtocolHandler({configDirPath, resourcePath, safeMode});
+    this.mailspringProtocolHandler = new MailspringProtocolHandler({
+      configDirPath,
+      resourcePath,
+      safeMode,
+    });
 
     try {
       const mailsync = new MailsyncProcess(options, null);
@@ -51,18 +54,18 @@ export default class Application extends EventEmitter {
       this._deleteDatabase(() => {
         app.relaunch();
         app.quit();
-      })
-      return
+      });
+      return;
     }
 
     const Config = require('../config');
     const config = new Config();
     this.config = config;
-    this.configPersistenceManager = new ConfigPersistenceManager({configDirPath, resourcePath});
+    this.configPersistenceManager = new ConfigPersistenceManager({ configDirPath, resourcePath });
     config.load();
 
     this.configMigrator = new ConfigMigrator(this.config);
-    this.configMigrator.migrate()
+    this.configMigrator.migrate();
 
     let initializeInBackground = options.background;
     if (initializeInBackground === undefined) {
@@ -97,7 +100,11 @@ export default class Application extends EventEmitter {
       const addedToDock = config.get('addedToDock');
       const appPath = process.argv[0];
       if (!addedToDock && appPath.includes('/Applications/') && appPath.includes('.app/')) {
-        proc.exec(`defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${appPath.split('.app/')[0]}.app/</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"`);
+        proc.exec(
+          `defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${appPath.split(
+            '.app/'
+          )[0]}.app/</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"`
+        );
         config.set('addedToDock', true);
       }
     }
@@ -108,7 +115,7 @@ export default class Application extends EventEmitter {
   }
 
   getAllWindowDimensions() {
-    return this.windowManager.getAllWindowDimensions()
+    return this.windowManager.getAllWindowDimensions();
   }
 
   isQuitting() {
@@ -117,18 +124,33 @@ export default class Application extends EventEmitter {
 
   // Opens a new window based on the options provided.
   handleLaunchOptions(options) {
-    const {specMode, pathsToOpen, urlsToOpen} = options;
+    const { specMode, pathsToOpen, urlsToOpen } = options;
 
     if (specMode) {
-      const {resourcePath, specDirectory, specFilePattern, logFile, showSpecsInWindow, jUnitXmlPath} = options;
+      const {
+        resourcePath,
+        specDirectory,
+        specFilePattern,
+        logFile,
+        showSpecsInWindow,
+        jUnitXmlPath,
+      } = options;
       const exitWhenDone = true;
-      this.runSpecs({exitWhenDone, showSpecsInWindow, resourcePath, specDirectory, specFilePattern, logFile, jUnitXmlPath});
+      this.runSpecs({
+        exitWhenDone,
+        showSpecsInWindow,
+        resourcePath,
+        specDirectory,
+        specFilePattern,
+        logFile,
+        jUnitXmlPath,
+      });
       return;
     }
 
     this.openWindowsForTokenState();
 
-    if ((pathsToOpen instanceof Array) && (pathsToOpen.length > 0)) {
+    if (pathsToOpen instanceof Array && pathsToOpen.length > 0) {
       this.openComposerWithFiles(pathsToOpen);
     }
     if (urlsToOpen instanceof Array) {
@@ -143,8 +165,8 @@ export default class Application extends EventEmitter {
   // exit and then delete the file. It's hard to tell when this happens, so we just
   // retry the deletion a few times.
   deleteFileWithRetry(filePath, callback = () => {}, retries = 5) {
-    const callbackWithRetry = (err) => {
-      if (err && (err.message.indexOf('no such file') === -1)) {
+    const callbackWithRetry = err => {
+      if (err && err.message.indexOf('no such file') === -1) {
         console.log(`File Error: ${err.message} - retrying in 150msec`);
         setTimeout(() => {
           this.deleteFileWithRetry(filePath, callback, retries - 1);
@@ -152,11 +174,11 @@ export default class Application extends EventEmitter {
       } else {
         callback(null);
       }
-    }
+    };
 
     if (!fs.existsSync(filePath)) {
       callback(null);
-      return
+      return;
     }
 
     if (retries > 0) {
@@ -180,17 +202,17 @@ export default class Application extends EventEmitter {
       this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW);
     } else {
       this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-        title: "Welcome to Mailspring",
+        title: 'Welcome to Mailspring',
       });
     }
   }
 
-  _relaunchToInitialWindows = ({resetConfig, resetDatabase} = {}) => {
+  _relaunchToInitialWindows = ({ resetConfig, resetDatabase } = {}) => {
     // This will re-fetch the NylasID to update the feed url
     this.autoUpdateManager.updateFeedURL();
     this.windowManager.destroyAllWindows();
 
-    let fn = (callback) => callback()
+    let fn = callback => callback();
     if (resetDatabase) {
       fn = this._deleteDatabase;
     }
@@ -205,17 +227,19 @@ export default class Application extends EventEmitter {
       }
       this.openWindowsForTokenState();
     });
-  }
+  };
 
-  _deleteDatabase = (callback) => {
+  _deleteDatabase = callback => {
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db'), callback);
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db-wal'));
     this.deleteFileWithRetry(path.join(this.configDirPath, 'edgehill.db-shm'));
-  }
+  };
 
-  rebuildDatabase = ({showErrorDialog = true, detail = ''} = {}) => {
-    if (this._rebuildingDatabase) { return }
-    this._rebuildingDatabase = true
+  rebuildDatabase = ({ showErrorDialog = true, detail = '' } = {}) => {
+    if (this._rebuildingDatabase) {
+      return;
+    }
+    this._rebuildingDatabase = true;
     if (showErrorDialog) {
       dialog.showMessageBox({
         type: 'warning',
@@ -234,11 +258,11 @@ export default class Application extends EventEmitter {
       this.windowManager.destroyAllWindows();
       this._deleteDatabase(async () => {
         // TODO BG Invoke db helepr
-        this._rebuildingDatabase = false
+        this._rebuildingDatabase = false;
         this.openWindowsForTokenState();
       });
     }, 0);
-  }
+  };
 
   // Registers basic application commands, non-idempotent.
   // Note: If these events are triggered while an application window is open, the window
@@ -256,31 +280,34 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:run-package-specs', () => {
-      dialog.showOpenDialog({
-        title: 'Choose a Package Directory',
-        defaultPath: this.configDirPath,
-        buttonLabel: 'Choose',
-        properties: ['openDirectory'],
-      }, (filenames) => {
-        if (!filenames || filenames.length === 0) {
-          return;
+      dialog.showOpenDialog(
+        {
+          title: 'Choose a Package Directory',
+          defaultPath: this.configDirPath,
+          buttonLabel: 'Choose',
+          properties: ['openDirectory'],
+        },
+        filenames => {
+          if (!filenames || filenames.length === 0) {
+            return;
+          }
+          this.runSpecs({
+            exitWhenDone: false,
+            showSpecsInWindow: true,
+            resourcePath: this.resourcePath,
+            specDirectory: filenames[0],
+          });
         }
-        this.runSpecs({
-          exitWhenDone: false,
-          showSpecsInWindow: true,
-          resourcePath: this.resourcePath,
-          specDirectory: filenames[0],
-        });
-      });
+      );
     });
 
     this.on('application:relaunch-to-initial-windows', this._relaunchToInitialWindows);
 
     this.on('application:quit', () => {
-      app.quit()
+      app.quit();
     });
 
-    this.on('application:inspect', ({x, y, nylasWindow}) => {
+    this.on('application:inspect', ({ x, y, nylasWindow }) => {
       const win = nylasWindow || this.windowManager.focusedWindow();
       if (!win) {
         return;
@@ -288,17 +315,17 @@ export default class Application extends EventEmitter {
       win.browserWindow.inspectElement(x, y);
     });
 
-    this.on('application:add-account', ({existingAccount, accountProvider} = {}) => {
+    this.on('application:add-account', ({ existingAccount, accountProvider } = {}) => {
       const onboarding = this.windowManager.get(WindowManager.ONBOARDING_WINDOW);
       if (onboarding) {
         if (onboarding.browserWindow.webContents) {
-          onboarding.browserWindow.webContents.send('set-account-provider', accountProvider)
+          onboarding.browserWindow.webContents.send('set-account-provider', accountProvider);
         }
         onboarding.show();
         onboarding.focus();
       } else {
         this.windowManager.ensureWindow(WindowManager.ONBOARDING_WINDOW, {
-          title: "Add an Account",
+          title: 'Add an Account',
           windowProps: { addingAccount: true, existingAccount, accountProvider },
         });
       }
@@ -306,17 +333,22 @@ export default class Application extends EventEmitter {
 
     this.on('application:new-message', () => {
       const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
-      if (main) { main.sendMessage('new-message') }
+      if (main) {
+        main.sendMessage('new-message');
+      }
     });
 
     this.on('application:view-help', () => {
-      const helpUrl = 'https://support.getmailspring.com/hc/en-us/categories/200419318-Help-for-N1-users';
+      const helpUrl =
+        'https://support.getmailspring.com/hc/en-us/categories/200419318-Help-for-N1-users';
       require('electron').shell.openExternal(helpUrl);
     });
 
     this.on('application:open-preferences', () => {
       const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
-      if (main) { main.sendMessage('open-preferences') }
+      if (main) {
+        main.sendMessage('open-preferences');
+      }
     });
 
     this.on('application:show-main-window', () => {
@@ -338,51 +370,55 @@ export default class Application extends EventEmitter {
       if (args.includes('--dev')) {
         args = args.filter(a => a !== '--dev');
       } else {
-        args.push('--dev')
+        args.push('--dev');
       }
-      app.relaunch({args});
+      app.relaunch({ args });
       app.quit();
     });
 
     if (process.platform === 'darwin') {
       this.on('application:about', () => {
-        Menu.sendActionToFirstResponder('orderFrontStandardAboutPanel:')
+        Menu.sendActionToFirstResponder('orderFrontStandardAboutPanel:');
       });
       this.on('application:bring-all-windows-to-front', () => {
-        Menu.sendActionToFirstResponder('arrangeInFront:')
+        Menu.sendActionToFirstResponder('arrangeInFront:');
       });
       this.on('application:hide', () => {
-        Menu.sendActionToFirstResponder('hide:')
+        Menu.sendActionToFirstResponder('hide:');
       });
       this.on('application:hide-other-applications', () => {
-        Menu.sendActionToFirstResponder('hideOtherApplications:')
+        Menu.sendActionToFirstResponder('hideOtherApplications:');
       });
       this.on('application:minimize', () => {
-        Menu.sendActionToFirstResponder('performMiniaturize:')
+        Menu.sendActionToFirstResponder('performMiniaturize:');
       });
       this.on('application:unhide-all-applications', () => {
-        Menu.sendActionToFirstResponder('unhideAllApplications:')
+        Menu.sendActionToFirstResponder('unhideAllApplications:');
       });
       this.on('application:zoom', () => {
-        Menu.sendActionToFirstResponder('zoom:')
+        Menu.sendActionToFirstResponder('zoom:');
       });
     } else {
       this.on('application:minimize', () => {
         const win = this.windowManager.focusedWindow();
-        if (win) { win.minimize() }
+        if (win) {
+          win.minimize();
+        }
       });
       this.on('application:zoom', () => {
         const win = this.windowManager.focusedWindow();
-        if (win) { win.maximize() }
+        if (win) {
+          win.maximize();
+        }
       });
     }
 
     powerMonitor.on('resume', () => {
-      this.windowManager.sendToAllWindows('app-resumed-from-sleep', {})
-    })
+      this.windowManager.sendToAllWindows('app-resumed-from-sleep', {});
+    });
 
     app.on('window-all-closed', () => {
-      this.windowManager.quitWinLinuxIfNoWindows()
+      this.windowManager.quitWinLinuxIfNoWindows();
     });
 
     // Called before the app tries to close any windows.
@@ -414,7 +450,7 @@ export default class Application extends EventEmitter {
       if (app.dock && app.dock.setBadge) {
         app.dock.setBadge(value);
       } else if (app.setBadgeCount) {
-        app.setBadgeCount(value.length ? (value.replace("+", "") / 1) : 0);
+        app.setBadgeCount(value.length ? value.replace('+', '') / 1 : 0);
       }
     });
 
@@ -431,9 +467,9 @@ export default class Application extends EventEmitter {
     ipcMain.on('ensure-worker-window', () => {
       // TODO BG
       // this.windowManager.ensureWindow(WindowManager.MAIN_WINDOW)
-    })
+    });
 
-    ipcMain.on('inline-style-parse', (event, {html, key}) => {
+    ipcMain.on('inline-style-parse', (event, { html, key }) => {
       const juice = require('juice');
       let out = null;
       try {
@@ -443,10 +479,10 @@ export default class Application extends EventEmitter {
         // reason), then just return the body. We will still push it
         // through the HTML sanitizer which will strip the style tags. Oh
         // well.
-        out = html
+        out = html;
       }
       // win = BrowserWindow.fromWebContents(event.sender)
-      event.sender.send('inline-styles-result', {html: out, key});
+      event.sender.send('inline-styles-result', { html: out, key });
     });
 
     app.on('activate', (event, hasVisibleWindows) => {
@@ -475,7 +511,7 @@ export default class Application extends EventEmitter {
       if (!win[method]) {
         console.error(`Method ${method} does not exist on BrowserWindow!`);
       }
-      win[method](...args)
+      win[method](...args);
     });
 
     ipcMain.on('call-devtools-webcontents-method', (event, method, ...args) => {
@@ -493,17 +529,17 @@ export default class Application extends EventEmitter {
     });
 
     ipcMain.on('mailsync-bridge-rebroadcast-to-all', (event, ...args) => {
-      const win = BrowserWindow.fromWebContents(event.sender)
-      this.windowManager.sendToAllWindows('mailsync-bridge-message', {except: win}, ...args)
+      const win = BrowserWindow.fromWebContents(event.sender);
+      this.windowManager.sendToAllWindows('mailsync-bridge-message', { except: win }, ...args);
     });
 
     ipcMain.on('action-bridge-rebroadcast-to-all', (event, ...args) => {
-      const win = BrowserWindow.fromWebContents(event.sender)
-      this.windowManager.sendToAllWindows('action-bridge-message', {except: win}, ...args)
+      const win = BrowserWindow.fromWebContents(event.sender);
+      this.windowManager.sendToAllWindows('action-bridge-message', { except: win }, ...args);
     });
 
     ipcMain.on('action-bridge-rebroadcast-to-default', (event, ...args) => {
-      const mainWindow = this.windowManager.get(WindowManager.MAIN_WINDOW)
+      const mainWindow = this.windowManager.get(WindowManager.MAIN_WINDOW);
       if (!mainWindow || !mainWindow.browserWindow.webContents) {
         return;
       }
@@ -529,7 +565,7 @@ export default class Application extends EventEmitter {
     ipcMain.on('run-in-window', (event, params) => {
       const sourceWindow = BrowserWindow.fromWebContents(event.sender);
       this._sourceWindows = this._sourceWindows || {};
-      this._sourceWindows[params.taskId] = sourceWindow
+      this._sourceWindows[params.taskId] = sourceWindow;
 
       const targetWindowKey = {
         main: WindowManager.MAIN_WINDOW,
@@ -551,39 +587,39 @@ export default class Application extends EventEmitter {
       delete this._sourceWindows[params.taskId];
     });
 
-    ipcMain.on("report-error", (event, params = {}) => {
+    ipcMain.on('report-error', (event, params = {}) => {
       try {
-        const errorParams = JSON.parse(params.errorJSON || "{}");
-        const extra = JSON.parse(params.extra || "{}");
+        const errorParams = JSON.parse(params.errorJSON || '{}');
+        const extra = JSON.parse(params.extra || '{}');
         let err = new Error();
         err = Object.assign(err, errorParams);
-        global.errorLogger.reportError(err, extra)
+        global.errorLogger.reportError(err, extra);
       } catch (parseError) {
-        console.error(parseError)
-        global.errorLogger.reportError(parseError, {})
+        console.error(parseError);
+        global.errorLogger.reportError(parseError, {});
       }
-      event.returnValue = true
-    })
+      event.returnValue = true;
+    });
 
-    ipcMain.on("move-to-applications", () => {
-      if (process.platform !== "darwin") {
+    ipcMain.on('move-to-applications', () => {
+      if (process.platform !== 'darwin') {
         return;
       }
       const re = /(^.*?\.app)/i;
       const appPath = (re.exec(process.argv[0]) || [])[0];
       if (!appPath) {
-        throw new Error(`Couldn't find .app in launch path: ${process.argv[0]}`)
+        throw new Error(`Couldn't find .app in launch path: ${process.argv[0]}`);
       }
-      let appName = appPath.split("/");
-      appName = appName[appName.length - 1]
+      let appName = appPath.split('/');
+      appName = appName[appName.length - 1];
       if (!appName) {
-        throw new Error(`Couldn't find .app in app path: ${appPath}`)
+        throw new Error(`Couldn't find .app in app path: ${appPath}`);
       }
       const escapedName = this._escapeShell(appName);
       const escapedPath = this._escapeShell(appPath);
 
       if (!escapedName || escapedName.trim().length === 0) {
-        throw new Error(`escapedName is invalid: ${escapedName}`)
+        throw new Error(`escapedName is invalid: ${escapedName}`);
       }
 
       // We separate the commands with a `;` instead of `&&` so in case the
@@ -591,17 +627,21 @@ export default class Application extends EventEmitter {
       // We need the sleep to let the first app fully finish quitting.
       // Otherwise it'll attempt to re-open the existing app (the one in
       // the process of quitting)
-      const newAppDest = `/Applications/${escapedName}`
-      let move = `mv`
-      try { fs.accessSync(appPath, fs.W_OK) } catch (e) { move = `cp -r` }
+      const newAppDest = `/Applications/${escapedName}`;
+      let move = `mv`;
+      try {
+        fs.accessSync(appPath, fs.W_OK);
+      } catch (e) {
+        move = `cp -r`;
+      }
       const cmd = `rm -rf ${newAppDest}; ${move} ${escapedPath} ${newAppDest}; sleep 0.5; open ${newAppDest}`;
       app.once('will-quit', () => {
         // We need to use `exec` since that will start a new shell process and
         // allow us to kill this one.
-        proc.exec(cmd)
-      })
-      app.quit()
-    })
+        proc.exec(cmd);
+      });
+      app.quit();
+    });
   }
 
   _escapeShell(cmd) {
@@ -621,7 +661,7 @@ export default class Application extends EventEmitter {
     if (this.emit(command, ...args)) {
       return;
     }
-    const focusedWindow = this.windowManager.focusedWindow()
+    const focusedWindow = this.windowManager.focusedWindow();
     if (focusedWindow) {
       focusedWindow.sendCommand(command, ...args);
     } else {
@@ -629,8 +669,8 @@ export default class Application extends EventEmitter {
         return;
       }
 
-      const focusedBrowserWindow = BrowserWindow.getFocusedWindow()
-      const mainWindow = this.windowManager.get(WindowManager.MAIN_WINDOW)
+      const focusedBrowserWindow = BrowserWindow.getFocusedWindow();
+      const mainWindow = this.windowManager.get(WindowManager.MAIN_WINDOW);
       if (focusedBrowserWindow) {
         switch (command) {
           case 'window:reload':
@@ -671,7 +711,7 @@ export default class Application extends EventEmitter {
 
   // Translates the command into OS X action and sends it to application's first
   // responder.
-  sendCommandToFirstResponder = (command) => {
+  sendCommandToFirstResponder = command => {
     if (process.platform !== 'darwin') {
       return false;
     }
@@ -734,7 +774,9 @@ export default class Application extends EventEmitter {
 
   openComposerWithFiles(pathsToOpen) {
     const main = this.windowManager.get(WindowManager.MAIN_WINDOW);
-    if (main) { main.sendMessage('mailfiles', pathsToOpen) }
+    if (main) {
+      main.sendMessage('mailfiles', pathsToOpen);
+    }
   }
 
   // Opens up a new {NylasWindow} to run specs within.
@@ -752,16 +794,20 @@ export default class Application extends EventEmitter {
   //   :jUnitXmlPath - The path to output jUnit XML reports to, if desired.
   runSpecs(specWindowOptionsArg) {
     const specWindowOptions = specWindowOptionsArg;
-    let {resourcePath} = specWindowOptions;
-    if ((resourcePath !== this.resourcePath) && (!fs.existsSync(resourcePath))) {
+    let { resourcePath } = specWindowOptions;
+    if (resourcePath !== this.resourcePath && !fs.existsSync(resourcePath)) {
       resourcePath = this.resourcePath;
     }
 
     let bootstrapScript = null;
     try {
-      bootstrapScript = require.resolve(path.resolve(this.resourcePath, 'spec', 'n1-spec-runner', 'spec-bootstrap'));
+      bootstrapScript = require.resolve(
+        path.resolve(this.resourcePath, 'spec', 'n1-spec-runner', 'spec-bootstrap')
+      );
     } catch (error) {
-      bootstrapScript = require.resolve(path.resolve(__dirname, '..', '..', 'spec', 'n1-spec-runner', 'spec-bootstrap'));
+      bootstrapScript = require.resolve(
+        path.resolve(__dirname, '..', '..', 'spec', 'n1-spec-runner', 'spec-bootstrap')
+      );
     }
 
     // Important: Use .nylas-spec instead of .nylas-mail to avoid overwriting the

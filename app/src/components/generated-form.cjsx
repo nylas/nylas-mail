@@ -2,13 +2,13 @@ _ = require 'underscore'
 classNames = require 'classnames'
 React = require 'react'
 ReactDOM = require 'react-dom'
-{Utils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, Utils} = require 'nylas-exports'
 DatePicker = require('./date-picker').default
 TabGroupRegion = require('./tab-group-region')
 
-idPropType = React.PropTypes.oneOfType([
-  React.PropTypes.string
-  React.PropTypes.number
+idPropType = PropTypes.oneOfType([
+  PropTypes.string
+  PropTypes.number
 ])
 
 # The FormItem acts like a React controlled input.
@@ -47,72 +47,72 @@ class FormItem extends React.Component
 
     # Either a type of input or any type that can be passed into
     # `React.createElement(type, ...)`
-    type: React.PropTypes.string.isRequired
+    type: PropTypes.string.isRequired
 
     # The name as POSTed to the eventual endpoint.
-    name: React.PropTypes.string
+    name: PropTypes.string
 
     # The human-readable display label for the formItem
-    label: React.PropTypes.node
+    label: PropTypes.node
 
     # Most input types take strings, numbers, and bools. Some types (like
     # "reference" can get passed arrays)
-    value: React.PropTypes.oneOfType([
-      React.PropTypes.string
-      React.PropTypes.number
-      React.PropTypes.bool
+    value: PropTypes.oneOfType([
+      PropTypes.string
+      PropTypes.number
+      PropTypes.bool
     ])
-    defaultValue: React.PropTypes.string
+    defaultValue: PropTypes.string
 
     # A function that takes two arguments:
     #   - The id of this FormItem
     #   - The new value of the FormItem
-    onChange: React.PropTypes.func
+    onChange: PropTypes.func
 
     # FormItems can either explicitly set the disabled state, or determine
     # the disabled state by whether or not this is a 'new' or 'update'
     # form.
-    formType: React.PropTypes.oneOf(['new', 'update'])
-    disabled: React.PropTypes.bool
-    editableForNew: React.PropTypes.bool
-    editableForUpdate: React.PropTypes.bool
+    formType: PropTypes.oneOf(['new', 'update'])
+    disabled: PropTypes.bool
+    editableForNew: PropTypes.bool
+    editableForUpdate: PropTypes.bool
 
-    formItemError: React.PropTypes.shape(
+    formItemError: PropTypes.shape(
       id: idPropType # The formItemId
-      message: React.PropTypes.string
+      message: PropTypes.string
     )
 
     # selectOptions
     # An array of options.
-    selectOptions: React.PropTypes.arrayOf(React.PropTypes.shape(
-      label: React.PropTypes.node
-      value: React.PropTypes.string
+    selectOptions: PropTypes.arrayOf(PropTypes.shape(
+      label: PropTypes.node
+      value: PropTypes.string
     ))
 
     # Common <input> props.
     # Anything that can be passed into a standard React <input> item will
     # be passed along. Here are some common ones. There can be many more
-    multiple: React.PropTypes.bool
-    required: React.PropTypes.bool
-    prefilled: React.PropTypes.bool
-    maxlength: React.PropTypes.number
-    placeholder: React.PropTypes.node
-    tabIndex: React.PropTypes.oneOfType([
-      React.PropTypes.number,
-      React.PropTypes.string,
+    multiple: PropTypes.bool
+    required: PropTypes.bool
+    prefilled: PropTypes.bool
+    maxlength: PropTypes.number
+    placeholder: PropTypes.node
+    tabIndex: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string,
     ]),
 
     #### Used by "reference" type objects
-    customComponent: React.PropTypes.func
-    contextData: React.PropTypes.object,
-    referenceTo: React.PropTypes.oneOfType([
-      React.PropTypes.array,
-      React.PropTypes.string,
+    customComponent: PropTypes.func
+    contextData: PropTypes.object,
+    referenceTo: PropTypes.oneOfType([
+      PropTypes.array,
+      PropTypes.string,
     ])
-    referenceType: React.PropTypes.oneOf(["belongsTo", "hasMany", "hasManyThrough"])
-    referenceThrough: React.PropTypes.string
+    referenceType: PropTypes.oneOf(["belongsTo", "hasMany", "hasManyThrough"])
+    referenceThrough: PropTypes.string
 
-    currentFormValues: React.PropTypes.object
+    currentFormValues: PropTypes.object
 
   render: =>
     classes = classNames
@@ -192,31 +192,31 @@ class GeneratedFieldset extends React.Component
     # Some sort of unique identifier
     id: idPropType.isRequired
 
-    formItems: React.PropTypes.arrayOf(React.PropTypes.shape(
+    formItems: PropTypes.arrayOf(PropTypes.shape(
       Object.assign(FormItem.propTypes,
-        row: React.PropTypes.number
-        column: React.PropTypes.number
+        row: PropTypes.number
+        column: PropTypes.number
       )
     ))
 
     # The key is the formItem id, the value is the error object
-    formItemErrors: React.PropTypes.arrayOf(FormItem.propTypes.formItemError)
+    formItemErrors: PropTypes.arrayOf(FormItem.propTypes.formItemError)
 
     # A function that takes two arguments:
     #   - The id of this GeneratedFieldset
     #   - A new array of updated formItems with the correct value.
-    onChange: React.PropTypes.func
+    onChange: PropTypes.func
 
-    heading: React.PropTypes.node
-    useHeading: React.PropTypes.bool
-    formType: React.PropTypes.oneOf(['new', 'update'])
-    zIndex: React.PropTypes.number
+    heading: PropTypes.node
+    useHeading: PropTypes.bool
+    formType: PropTypes.oneOf(['new', 'update'])
+    zIndex: PropTypes.number
 
-    lastFieldset: React.PropTypes.bool
-    firstFieldset: React.PropTypes.bool
-    contextData: React.PropTypes.object
+    lastFieldset: PropTypes.bool
+    firstFieldset: PropTypes.bool
+    contextData: PropTypes.object
 
-    currentFormValues: React.PropTypes.object
+    currentFormValues: PropTypes.object
 
   render: =>
     classStr = classNames
@@ -301,28 +301,28 @@ class GeneratedForm extends React.Component
     # Some sort of unique identifier
     id: idPropType
 
-    errors: React.PropTypes.shape(
-      formError: React.PropTypes.shape(
-        message: React.PropTypes.string
-        location: React.PropTypes.string # Can be "header" (default) or "footer"
+    errors: PropTypes.shape(
+      formError: PropTypes.shape(
+        message: PropTypes.string
+        location: PropTypes.string # Can be "header" (default) or "footer"
       )
       formItemErrors: GeneratedFieldset.propTypes.formItemErrors
     )
 
-    fieldsets: React.PropTypes.arrayOf(
-      React.PropTypes.shape(GeneratedFieldset.propTypes)
+    fieldsets: PropTypes.arrayOf(
+      PropTypes.shape(GeneratedFieldset.propTypes)
     )
 
     # A function whose argument is a new set of Props
-    onChange: React.PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired
 
-    onSubmit: React.PropTypes.func.isRequired
+    onSubmit: PropTypes.func.isRequired
 
-    style: React.PropTypes.object
+    style: PropTypes.object
 
-    formType: React.PropTypes.oneOf(['new', 'update'])
-    prefilled: React.PropTypes.bool
-    contextData: React.PropTypes.object,
+    formType: PropTypes.oneOf(['new', 'update'])
+    prefilled: PropTypes.bool
+    contextData: PropTypes.object,
 
   @defaultProps:
     style: {}

@@ -1,5 +1,5 @@
-import _ from 'underscore'
-import NylasStore from 'nylas-store'
+import _ from 'underscore';
+import NylasStore from 'nylas-store';
 
 /**
 Public: The ComponentRegistry maintains an index of React components registered
@@ -11,9 +11,9 @@ Section: Stores
 class ComponentRegistry extends NylasStore {
   constructor() {
     super();
-    this._registry = {}
-    this._cache = {}
-    this._showComponentRegions = false
+    this._registry = {};
+    this._cache = {};
+    this._showComponentRegions = false;
   }
 
   // Public: Register a new component with the Component Registry.
@@ -42,30 +42,41 @@ class ComponentRegistry extends NylasStore {
   //
   register(component, options) {
     if (component.view) {
-      return console.warn("Ignoring component trying to register with old CommandRegistry.register syntax");
+      return console.warn(
+        'Ignoring component trying to register with old CommandRegistry.register syntax'
+      );
     }
 
     if (!options) {
-      throw new Error("ComponentRegistry.register() requires `options` that describe the component");
+      throw new Error(
+        'ComponentRegistry.register() requires `options` that describe the component'
+      );
     }
     if (!component) {
-      throw new Error("ComponentRegistry.register() requires `component`, a React component");
+      throw new Error('ComponentRegistry.register() requires `component`, a React component');
     }
     if (!component.displayName) {
-      throw new Error("ComponentRegistry.register() requires that your React Component defines a `displayName`");
+      throw new Error(
+        'ComponentRegistry.register() requires that your React Component defines a `displayName`'
+      );
     }
 
-    const {locations, modes, roles} = this._pluralizeDescriptor(options);
+    const { locations, modes, roles } = this._pluralizeDescriptor(options);
     if (!roles && !locations) {
-      throw new Error("ComponentRegistry.register() requires `role` or `location`");
+      throw new Error('ComponentRegistry.register() requires `role` or `location`');
     }
 
-    if (this._registry[component.displayName] && this._registry[component.displayName].component !== component) {
-      throw new Error(`ComponentRegistry.register(): A different component was already registered with the name ${component.displayName}`);
+    if (
+      this._registry[component.displayName] &&
+      this._registry[component.displayName].component !== component
+    ) {
+      throw new Error(
+        `ComponentRegistry.register(): A different component was already registered with the name ${component.displayName}`
+      );
     }
 
     this._cache = {};
-    this._registry[component.displayName] = {component, locations, modes, roles};
+    this._registry[component.displayName] = { component, locations, modes, roles };
 
     // Trigger listeners. It's very important the component registry is debounced.
     // During app launch packages register tons of components and if we re-rendered
@@ -78,7 +89,7 @@ class ComponentRegistry extends NylasStore {
 
   unregister(component) {
     if (typeof component === 'string') {
-      throw new Error("ComponentRegistry.unregister() must be called with a component.");
+      throw new Error('ComponentRegistry.unregister() must be called with a component.');
     }
     this._cache = {};
     delete this._registry[component.displayName];
@@ -127,26 +138,25 @@ class ComponentRegistry extends NylasStore {
   */
   findComponentsMatching(descriptor) {
     if (!descriptor) {
-      throw new Error("ComponentRegistry.findComponentsMatching called without descriptor");
+      throw new Error('ComponentRegistry.findComponentsMatching called without descriptor');
     }
 
-    const {locations, modes, roles} = this._pluralizeDescriptor(descriptor);
+    const { locations, modes, roles } = this._pluralizeDescriptor(descriptor);
 
     if (!locations && !modes && !roles) {
-      throw new Error("ComponentRegistry.findComponentsMatching called with an empty descriptor");
+      throw new Error('ComponentRegistry.findComponentsMatching called with an empty descriptor');
     }
 
-    const cacheKey = JSON.stringify({locations, modes, roles})
+    const cacheKey = JSON.stringify({ locations, modes, roles });
     if (this._cache[cacheKey]) {
       return [].concat(this._cache[cacheKey]);
     }
 
     // Made into a convenience function because default
     // values (`[]`) are necessary and it was getting messy.
-    const overlaps = (entry = [], search = []) =>
-      _.intersection(entry, search).length > 0
+    const overlaps = (entry = [], search = []) => _.intersection(entry, search).length > 0;
 
-    const entries = Object.values(this._registry).filter((entry) => {
+    const entries = Object.values(this._registry).filter(entry => {
       if (modes && entry.modes && !overlaps(modes, entry.modes)) {
         return false;
       }
@@ -159,7 +169,7 @@ class ComponentRegistry extends NylasStore {
       return true;
     });
 
-    const results = entries.map((entry) => entry.component);
+    const results = entries.map(entry => entry.component);
     this._cache[cacheKey] = results;
 
     return [].concat(results);
@@ -178,14 +188,20 @@ class ComponentRegistry extends NylasStore {
   // We set the debouce interval to 1 "frame" (16ms) to balance
   // responsiveness and efficient batching.
   //
-  triggerDebounced = _.debounce(() => this.trigger(this), 16)
+  triggerDebounced = _.debounce(() => this.trigger(this), 16);
 
   _pluralizeDescriptor(descriptor) {
-    let {locations, modes, roles} = descriptor;
-    if (descriptor.mode) { modes = [descriptor.mode] }
-    if (descriptor.role) { roles = [descriptor.role] }
-    if (descriptor.location) { locations = [descriptor.location] }
-    return {locations, modes, roles};
+    let { locations, modes, roles } = descriptor;
+    if (descriptor.mode) {
+      modes = [descriptor.mode];
+    }
+    if (descriptor.role) {
+      roles = [descriptor.role];
+    }
+    if (descriptor.location) {
+      locations = [descriptor.location];
+    }
+    return { locations, modes, roles };
   }
 
   _clear() {
@@ -205,4 +221,4 @@ class ComponentRegistry extends NylasStore {
   }
 }
 
-export default new ComponentRegistry()
+export default new ComponentRegistry();

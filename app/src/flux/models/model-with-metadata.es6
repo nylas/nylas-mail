@@ -1,5 +1,5 @@
-import Model from './model'
-import Attributes from '../attributes'
+import Model from './model';
+import Attributes from '../attributes';
 
 /**
  Cloud-persisted data that is associated with a single Nylas API object
@@ -20,19 +20,18 @@ export class PluginMetadata extends Model {
   };
 
   constructor(...args) {
-    super(...args)
+    super(...args);
     this.version = this.version || 0;
   }
 
   get id() {
-    return this.pluginId
+    return this.pluginId;
   }
 
   set id(pluginId) {
-    this.pluginId = pluginId
+    this.pluginId = pluginId;
   }
 }
-
 
 /**
  Plugins can attach arbitrary JSON data to any model that subclasses
@@ -56,11 +55,11 @@ export default class ModelWithMetadata extends Model {
   });
 
   static naturalSortOrder() {
-    return null
+    return null;
   }
 
   constructor(...args) {
-    super(...args)
+    super(...args);
     this.pluginMetadata = this.pluginMetadata || [];
   }
 
@@ -87,7 +86,7 @@ export default class ModelWithMetadata extends Model {
   directlyAttachMetadata(pluginId, metadataValue) {
     let metadata = this.metadataObjectForPluginId(pluginId);
     if (!metadata) {
-      metadata = new PluginMetadata({pluginId, version: 0});
+      metadata = new PluginMetadata({ pluginId, version: 0 });
       this.pluginMetadata.push(metadata);
     }
     metadata.value = Object.assign({}, metadataValue);
@@ -101,8 +100,8 @@ export default class ModelWithMetadata extends Model {
   // Private helpers
 
   metadataObjectForPluginId(pluginId) {
-    if (typeof pluginId !== "string") {
-      throw new Error(`Invalid pluginId. Must be a valid string: '${pluginId}'`, pluginId)
+    if (typeof pluginId !== 'string') {
+      throw new Error(`Invalid pluginId. Must be a valid string: '${pluginId}'`, pluginId);
     }
     return this.pluginMetadata.find(metadata => metadata.pluginId === pluginId);
   }

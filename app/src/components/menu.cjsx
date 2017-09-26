@@ -1,8 +1,6 @@
-React = require 'react'
-ReactDOM = require 'react-dom'
 classNames = require 'classnames'
 _ = require 'underscore'
-{DOMUtils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, DOMUtils} = require 'nylas-exports'
 {CompositeDisposable} = require 'event-kit'
 
 ###
@@ -24,9 +22,9 @@ class MenuItem extends React.Component
    - `checked` (optional) Pass a {Boolean} to specify whether the item is checked.
   ###
   @propTypes:
-    divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool])
-    selected: React.PropTypes.bool
-    checked: React.PropTypes.bool
+    divider: PropTypes.oneOfType([PropTypes.string, PropTypes.bool])
+    selected: PropTypes.bool
+    checked: PropTypes.bool
 
   render: =>
     if @props.divider
@@ -58,8 +56,8 @@ class MenuNameEmailItem extends React.Component
    - `email` (optional) The {String} email address to be displayed.
   ###
   @propTypes:
-    name: React.PropTypes.string
-    email: React.PropTypes.string
+    name: PropTypes.string
+    email: PropTypes.string
 
   render: =>
     if @props.name?.length > 0 and @props.name isnt @props.email
@@ -140,21 +138,21 @@ class Menu extends React.Component
 
   ###
   @propTypes:
-    className: React.PropTypes.string,
-    footerComponents: React.PropTypes.node,
-    headerComponents: React.PropTypes.node,
-    itemContext: React.PropTypes.object,
-    itemContent: React.PropTypes.func.isRequired,
-    itemKey: React.PropTypes.func.isRequired,
-    itemChecked: React.PropTypes.func,
+    className: PropTypes.string,
+    footerComponents: PropTypes.node,
+    headerComponents: PropTypes.node,
+    itemContext: PropTypes.object,
+    itemContent: PropTypes.func.isRequired,
+    itemKey: PropTypes.func.isRequired,
+    itemChecked: PropTypes.func,
 
-    items: React.PropTypes.array.isRequired
+    items: PropTypes.array.isRequired
 
-    onSelect: React.PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired,
 
-    onEscape: React.PropTypes.func,
+    onEscape: PropTypes.func,
 
-    defaultSelectedIndex: React.PropTypes.number
+    defaultSelectedIndex: PropTypes.number
 
   @defaultProps:
     onEscape: ->

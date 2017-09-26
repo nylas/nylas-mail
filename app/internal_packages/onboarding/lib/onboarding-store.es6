@@ -1,5 +1,5 @@
-import {AccountStore, Account, Actions, IdentityStore} from 'nylas-exports';
-import {ipcRenderer} from 'electron';
+import { AccountStore, Account, Actions, IdentityStore } from 'nylas-exports';
+import { ipcRenderer } from 'electron';
 import NylasStore from 'nylas-store';
 
 import OnboardingActions from './onboarding-actions';
@@ -8,29 +8,29 @@ class OnboardingStore extends NylasStore {
   constructor() {
     super();
 
-    this.listenTo(OnboardingActions.moveToPreviousPage, this._onMoveToPreviousPage)
-    this.listenTo(OnboardingActions.moveToPage, this._onMoveToPage)
+    this.listenTo(OnboardingActions.moveToPreviousPage, this._onMoveToPreviousPage);
+    this.listenTo(OnboardingActions.moveToPage, this._onMoveToPage);
     this.listenTo(OnboardingActions.setAccount, this._onSetAccount);
     this.listenTo(OnboardingActions.chooseAccountProvider, this._onChooseAccountProvider);
-    this.listenTo(OnboardingActions.finishAndAddAccount, this._onFinishAndAddAccount)
-    this.listenTo(OnboardingActions.identityJSONReceived, this._onIdentityJSONReceived)
-    
+    this.listenTo(OnboardingActions.finishAndAddAccount, this._onFinishAndAddAccount);
+    this.listenTo(OnboardingActions.identityJSONReceived, this._onIdentityJSONReceived);
+
     ipcRenderer.on('set-account-provider', (e, provider) => {
       if (provider) {
-        this._onChooseAccountProvider(provider)
+        this._onChooseAccountProvider(provider);
       } else {
-        this._pageStack = ['account-choose']
-        this.trigger()
+        this._pageStack = ['account-choose'];
+        this.trigger();
       }
-    })
+    });
 
-    const {existingAccount, addingAccount, accountProvider} = NylasEnv.getWindowProps();
+    const { existingAccount, addingAccount, accountProvider } = NylasEnv.getWindowProps();
 
-    const hasAccounts = (AccountStore.accounts().length > 0)
+    const hasAccounts = AccountStore.accounts().length > 0;
     const identity = IdentityStore.identity();
 
     this._account = new Account({
-      name: identity ? `${identity.firstName || ""} ${identity.lastName || ""}` : '',
+      name: identity ? `${identity.firstName || ''} ${identity.lastName || ''}` : '',
       emailAddress: identity ? identity.emailAddress : '',
       settings: {},
     });
@@ -72,14 +72,14 @@ class OnboardingStore extends NylasStore {
     setTimeout(() => {
       ipcRenderer.send('account-setup-successful');
     }, 100);
-  }
+  };
 
-  _onChooseAccountProvider = (provider) => {
-    let nextPage = "account-settings";
+  _onChooseAccountProvider = provider => {
+    let nextPage = 'account-settings';
     if (provider === 'gmail') {
-      nextPage = "account-settings-gmail";
+      nextPage = 'account-settings-gmail';
     } else if (provider === 'exchange') {
-      nextPage = "account-settings-exchange";
+      nextPage = 'account-settings-exchange';
     }
 
     Actions.recordUserEvent('Selected Account Provider', {
@@ -87,35 +87,37 @@ class OnboardingStore extends NylasStore {
     });
 
     // Don't carry over any type-specific account information
-    this._onSetAccount(new Account({
-      emailAddress: this._account.emailAddress,
-      name: this._account.name,
-      settings: {},
-      provider,
-    }));
+    this._onSetAccount(
+      new Account({
+        emailAddress: this._account.emailAddress,
+        name: this._account.name,
+        settings: {},
+        provider,
+      })
+    );
 
     this._onMoveToPage(nextPage);
-  }
+  };
 
-  _onSetAccount = (acct) => {
+  _onSetAccount = acct => {
     if (!(acct instanceof Account)) {
-      throw new Error("OnboardingActions.setAccount expects an Account instance.");
+      throw new Error('OnboardingActions.setAccount expects an Account instance.');
     }
     this._account = acct;
     this.trigger();
-  }
+  };
 
   _onMoveToPreviousPage = () => {
     this._pageStack.pop();
     this.trigger();
-  }
+  };
 
-  _onMoveToPage = (page) => {
-    this._pageStack.push(page)
+  _onMoveToPage = page => {
+    this._pageStack.push(page);
     this.trigger();
-  }
+  };
 
-  _onIdentityJSONReceived = async (json) => {
+  _onIdentityJSONReceived = async json => {
     const isFirstAccount = AccountStore.accounts().length === 0;
 
     await IdentityStore.saveIdentity(json);
@@ -123,7 +125,7 @@ class OnboardingStore extends NylasStore {
     setTimeout(() => {
       if (isFirstAccount) {
         const next = this._account.clone();
-        next.name = `${json.firstName || ""} ${json.lastName || ""}`;
+        next.name = `${json.firstName || ''} ${json.lastName || ''}`;
         next.emailAddress = json.emailAddress;
         this._onSetAccount(next);
         OnboardingActions.moveToPage('account-choose');
@@ -131,9 +133,9 @@ class OnboardingStore extends NylasStore {
         this._onOnboardingComplete();
       }
     }, 1000);
-  }
+  };
 
-  _onFinishAndAddAccount = async (account) => {
+  _onFinishAndAddAccount = async account => {
     try {
       const isFirstAccount = AccountStore.accounts().length === 0;
 
@@ -158,9 +160,12 @@ class OnboardingStore extends NylasStore {
       }
     } catch (e) {
       NylasEnv.reportError(e);
-      NylasEnv.showErrorDialog("Unable to Connect Account", "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@getmailspring.com.");
+      NylasEnv.showErrorDialog(
+        'Unable to Connect Account',
+        "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@getmailspring.com."
+      );
     }
-  }
+  };
 
   page() {
     return this._pageStack[this._pageStack.length - 1];

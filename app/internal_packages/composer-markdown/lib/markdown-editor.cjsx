@@ -1,6 +1,6 @@
 Utils = require './utils'
 SimpleMDE = require 'simplemde'
-{React, ReactDOM, QuotedHTMLTransformer} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, QuotedHTMLTransformer} = require 'nylas-exports'
 
 # Keep a file-scope variable containing the contents of the markdown stylesheet.
 # This will be embedded in the markdown preview iFrame, as well as the email body.
@@ -19,11 +19,11 @@ class MarkdownEditor extends React.Component
   @containerRequired: false
 
   @contextTypes:
-    parentTabGroup: React.PropTypes.object,
+    parentTabGroup: PropTypes.object,
 
   @propTypes:
-    body: React.PropTypes.string.isRequired,
-    onBodyChanged: React.PropTypes.func.isRequired,
+    body: PropTypes.string.isRequired,
+    onBodyChanged: PropTypes.func.isRequired,
 
   componentDidMount: =>
     @mde = new SimpleMDE(

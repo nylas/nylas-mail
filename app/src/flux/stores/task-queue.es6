@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import NylasStore from 'nylas-store';
-import {Rx} from 'nylas-exports';
-import Task from "../tasks/task";
+import { Rx } from 'nylas-exports';
+import Task from '../tasks/task';
 import DatabaseStore from './database-store';
 
 /**
@@ -49,13 +49,13 @@ class TaskQueue extends NylasStore {
     this._waitingForLocal = [];
     this._waitingForRemote = [];
 
-    Rx.Observable.fromQuery(DatabaseStore.findAll(Task)).subscribe((tasks => {
+    Rx.Observable.fromQuery(DatabaseStore.findAll(Task)).subscribe(tasks => {
       const finished = [Task.Status.Complete, Task.Status.Cancelled];
       this._queue = tasks.filter(t => !finished.includes(t.status));
       this._completed = tasks.filter(t => finished.includes(t.status));
       const all = [].concat(this._queue, this._completed);
 
-      this._waitingForLocal.filter(({task, resolve}) => {
+      this._waitingForLocal.filter(({ task, resolve }) => {
         const match = all.find(t => task.id === t.id);
         if (match) {
           resolve(match);
@@ -64,7 +64,7 @@ class TaskQueue extends NylasStore {
         return true;
       });
 
-      this._waitingForRemote.filter(({task, resolve}) => {
+      this._waitingForRemote.filter(({ task, resolve }) => {
         const match = this._completed.find(t => task.id === t.id);
         if (match) {
           resolve(match);
@@ -74,7 +74,7 @@ class TaskQueue extends NylasStore {
       });
 
       this.trigger();
-    }));
+    });
   }
 
   queue() {
@@ -89,12 +89,14 @@ class TaskQueue extends NylasStore {
     return [].concat(this._queue, this._completed);
   }
 
-  findTasks(typeOrClass, matching = {}, {includeCompleted} = {}) {
+  findTasks(typeOrClass, matching = {}, { includeCompleted } = {}) {
     const type = typeOrClass instanceof String ? typeOrClass : typeOrClass.name;
     const tasks = includeCompleted ? [].concat(this._queue, this._completed) : this._queue;
 
-    const matches = tasks.filter((task) => {
-      if (task.constructor.name !== type) { return false; }
+    const matches = tasks.filter(task => {
+      if (task.constructor.name !== type) {
+        return false;
+      }
       if (matching instanceof Function) {
         return matching(task);
       }
@@ -104,23 +106,27 @@ class TaskQueue extends NylasStore {
     return matches;
   }
 
-  waitForPerformLocal = (task) => {
+  waitForPerformLocal = task => {
     const upToDateTask = [].concat(this._queue, this._completed).find(t => t.id === task.id);
-    if (upToDateTask && upToDateTask.status !== Task.Status.Local) { return Promise.resolve(upToDateTask); }
+    if (upToDateTask && upToDateTask.status !== Task.Status.Local) {
+      return Promise.resolve(upToDateTask);
+    }
 
-    return new Promise((resolve) => {
-      this._waitingForLocal.push({task, resolve});
+    return new Promise(resolve => {
+      this._waitingForLocal.push({ task, resolve });
     });
-  }
+  };
 
-  waitForPerformRemote = (task) => {
+  waitForPerformRemote = task => {
     const upToDateTask = [].concat(this._queue, this._completed).find(t => t.id === task.id);
-    if (upToDateTask && upToDateTask.status === Task.Status.Complete) { return Promise.resolve(upToDateTask); }
+    if (upToDateTask && upToDateTask.status === Task.Status.Complete) {
+      return Promise.resolve(upToDateTask);
+    }
 
-    return new Promise((resolve) => {
-      this._waitingForRemote.push({task, resolve});
+    return new Promise(resolve => {
+      this._waitingForRemote.push({ task, resolve });
     });
-  }
+  };
 }
 
 export default new TaskQueue();

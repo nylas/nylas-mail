@@ -1,9 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {
-  Utils,
-  ComponentRegistry,
-} from 'nylas-exports';
+import { React, ReactDOM, PropTypes, Utils, ComponentRegistry } from 'nylas-exports';
 
 import UnsafeComponent from './unsafe-component';
 import InjectedComponentLabel from './injected-component-label';
@@ -54,19 +49,19 @@ export default class InjectedComponent extends React.Component {
 
   */
   static propTypes = {
-    matching: React.PropTypes.object.isRequired,
-    className: React.PropTypes.string,
-    exposedProps: React.PropTypes.object,
-    fallback: React.PropTypes.func,
-    onComponentDidRender: React.PropTypes.func,
-    style: React.PropTypes.object,
-    requiredMethods: React.PropTypes.arrayOf(React.PropTypes.string),
-    onComponentDidChange: React.PropTypes.func,
+    matching: PropTypes.object.isRequired,
+    className: PropTypes.string,
+    exposedProps: PropTypes.object,
+    fallback: PropTypes.func,
+    onComponentDidRender: PropTypes.func,
+    style: PropTypes.object,
+    requiredMethods: PropTypes.arrayOf(PropTypes.string),
+    onComponentDidChange: PropTypes.func,
   };
 
   static defaultProps = {
     style: {},
-    className: "",
+    className: '',
     exposedProps: {},
     requiredMethods: [],
     onComponentDidRender: () => {},
@@ -75,9 +70,9 @@ export default class InjectedComponent extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = this._getStateFromStores()
-    this._verifyRequiredMethods()
-    this._setRequiredMethods(this.props.requiredMethods)
+    this.state = this._getStateFromStores();
+    this._verifyRequiredMethods();
+    this._setRequiredMethods(this.props.requiredMethods);
   }
 
   componentDidMount() {
@@ -99,7 +94,7 @@ export default class InjectedComponent extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     this._setRequiredMethods(this.props.requiredMethods);
     if (this.state.component && this.state.component.containerRequired === false) {
-      this.props.onComponentDidRender()
+      this.props.onComponentDidRender();
       if (this.state.component !== prevState.component) {
         this.props.onComponentDidChange();
       }
@@ -114,11 +109,11 @@ export default class InjectedComponent extends React.Component {
 
   focus = () => {
     this._runInnerDOMMethod('focus');
-  }
+  };
 
   blur = () => {
     this._runInnerDOMMethod('blur');
-  }
+  };
 
   // Private: Attempts to run the DOM method, ie 'focus', on
   // 1. Any implementation provided by the inner component
@@ -139,52 +134,58 @@ export default class InjectedComponent extends React.Component {
     if (target[method]) {
       target[method].bind(target)(...rest);
     }
-  }
+  };
 
-  _setRequiredMethods = (methods) => {
-    methods.forEach((method) => {
+  _setRequiredMethods = methods => {
+    methods.forEach(method => {
       Object.defineProperty(this, method, {
         configurable: true,
         enumerable: true,
         value: (...rest) => this._runInnerDOMMethod(method, ...rest),
       });
     });
-  }
+  };
 
   _verifyRequiredMethods = () => {
     if (this.state.component) {
       const component = this.state.component;
-      this.props.requiredMethods.forEach((method) => {
+      this.props.requiredMethods.forEach(method => {
         if (component.prototype[method] === undefined) {
           throw new Error(
-            `${component.name} must implement method ${method} when registering for ${JSON.stringify(this.props.matching)}`
+            `${component.name} must implement method ${method} when registering for ${JSON.stringify(
+              this.props.matching
+            )}`
           );
         }
       });
     }
-  }
+  };
 
   _getStateFromStores = (props = this.props) => {
-    const components = ComponentRegistry.findComponentsMatching(props.matching)
+    const components = ComponentRegistry.findComponentsMatching(props.matching);
     if (components.length > 1) {
-      console.warn(`There are multiple components available for ${JSON.stringify(props.matching)}. <InjectedComponent> is only rendering the first one.`);
+      console.warn(
+        `There are multiple components available for ${JSON.stringify(
+          props.matching
+        )}. <InjectedComponent> is only rendering the first one.`
+      );
     }
     return {
       component: components.length === 0 ? this.props.fallback : components[0],
       visible: ComponentRegistry.showComponentRegions(),
     };
-  }
+  };
 
   render() {
     if (!this.state.component) {
-      return (
-        <div />
-      );
+      return <div />;
     }
-    const exposedProps = Object.assign({}, this.props.exposedProps, {fallback: this.props.fallback});
+    const exposedProps = Object.assign({}, this.props.exposedProps, {
+      fallback: this.props.fallback,
+    });
     let className = this.props.className;
     if (this.state.visible) {
-      className += " registered-region-visible";
+      className += ' registered-region-visible';
     }
 
     const Component = this.state.component;
@@ -193,16 +194,11 @@ export default class InjectedComponent extends React.Component {
     if (Component.containerRequired === false) {
       const privateProps = {
         key: Component.displayName,
-      }
+      };
       if (Object.prototype.isPrototypeOf.call(React.Component, Component)) {
         privateProps.ref = 'inner';
       }
-      element = (
-        <Component
-          {...privateProps}
-          {...exposedProps}
-        />
-      );
+      element = <Component {...privateProps} {...exposedProps} />;
     } else {
       element = (
         <UnsafeComponent
@@ -214,7 +210,7 @@ export default class InjectedComponent extends React.Component {
           onComponentDidRender={this.props.onComponentDidRender}
           {...exposedProps}
         />
-      )
+      );
     }
 
     if (this.state.visible) {
@@ -222,7 +218,7 @@ export default class InjectedComponent extends React.Component {
         <div className={className} style={this.props.style}>
           {element}
           <InjectedComponentLabel matching={this.props.matching} {...exposedProps} />
-          <span style={{clear: 'both'}} />
+          <span style={{ clear: 'both' }} />
         </div>
       );
     }

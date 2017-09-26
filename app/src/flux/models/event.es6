@@ -8,7 +8,6 @@ import Contact from './contact';
 let chrono = null;
 
 export default class Event extends Model {
-
   static attributes = Object.assign({}, Model.attributes, {
     calendarId: Attributes.String({
       queryable: true,
@@ -122,17 +121,17 @@ export default class Event extends Model {
     }),
   });
 
-  static searchable = true
+  static searchable = true;
 
-  static searchFields = ['title', 'description', 'location', 'participants']
+  static searchFields = ['title', 'description', 'location', 'participants'];
 
   static sortOrderAttribute = () => {
-    return Event.attributes.id
-  }
+    return Event.attributes.id;
+  };
 
   static naturalSortOrder = () => {
-    return Event.sortOrderAttribute().descending()
-  }
+    return Event.sortOrderAttribute().descending();
+  };
 
   // We use moment to parse the date so we can more easily pick up the
   // current timezone of the current locale.
@@ -141,12 +140,15 @@ export default class Event extends Model {
   _unixRangeForDatespan(startDate, endDate) {
     return {
       start: moment(startDate).unix(),
-      end: moment(endDate).add(1, 'day').subtract(1, 'second').unix(),
+      end: moment(endDate)
+        .add(1, 'day')
+        .subtract(1, 'second')
+        .unix(),
     };
   }
 
   fromJSON(json) {
-    super.fromJSON(json)
+    super.fromJSON(json);
 
     const when = this.when;
 
@@ -179,11 +181,11 @@ export default class Event extends Model {
     }
 
     if (!this.participants || this.participants.length === 0) {
-      this.participants = draft.participants().map((contact) => {
+      this.participants = draft.participants().map(contact => {
         return {
           name: contact.name,
           email: contact.email,
-          status: "noreply",
+          status: 'noreply',
         };
       });
     }
@@ -192,27 +194,27 @@ export default class Event extends Model {
 
   isAllDay() {
     const daySpan = 86400 - 1;
-    return (this.end - this.start) >= daySpan;
+    return this.end - this.start >= daySpan;
   }
 
   displayTitle() {
-    const displayTitle = this.title.replace(/.*Invitation: /, "")
-    const [displayTitleWithoutDate, date] = displayTitle.split(" @ ")
+    const displayTitle = this.title.replace(/.*Invitation: /, '');
+    const [displayTitleWithoutDate, date] = displayTitle.split(' @ ');
     if (!chrono) {
       chrono = require('chrono-node').default; //eslint-disable-line
     }
     if (date && chrono.parseDate(date)) {
-      return displayTitleWithoutDate
+      return displayTitleWithoutDate;
     }
-    return displayTitle
+    return displayTitle;
   }
 
   participantForMe = () => {
     for (const p of this.participants) {
-      if ((new Contact({email: p.email})).isMe()) {
+      if (new Contact({ email: p.email }).isMe()) {
         return p;
       }
     }
     return null;
-  }
+  };
 }

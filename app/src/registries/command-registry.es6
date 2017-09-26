@@ -23,7 +23,9 @@ export default class CommandRegistry {
     }
 
     if (typeof target === 'string') {
-      throw new Error("Commands can no longer be registered to CSS selectors. Consider using KeyCommandRegion instead.");
+      throw new Error(
+        'Commands can no longer be registered to CSS selectors. Consider using KeyCommandRegion instead.'
+      );
     }
 
     target.addEventListener(commandName, callback);
@@ -51,12 +53,14 @@ export default class CommandRegistry {
   // * `target` The DOM node at which to start bubbling the command event.
   // * `commandName` {String} indicating the name of the command to dispatch.
   dispatch(commandName, detail) {
-    const event = new CustomEvent(commandName, {bubbles: true, detail});
+    const event = new CustomEvent(commandName, { bubbles: true, detail });
     return document.activeElement.dispatchEvent(event);
   }
 
   flushChangesSoon = () => {
-    if (this.pendingEmit) { return; }
+    if (this.pendingEmit) {
+      return;
+    }
     this.pendingEmit = true;
 
     setTimeout(() => {
@@ -66,14 +70,16 @@ export default class CommandRegistry {
       for (const commandName of Object.keys(this.listenerCountChanges)) {
         const val = this.listenerCountChanges[commandName];
         this.listenerCounts[commandName] = (this.listenerCounts[commandName] || 0) + val;
-        if (val !== 0) { changed = true; }
+        if (val !== 0) {
+          changed = true;
+        }
       }
       this.listenerCountChanges = {};
       if (changed) {
         this.emitter.emit('commands-changed');
       }
     }, 100);
-  }
+  };
 
   onRegistedCommandsChanged(callback) {
     return this.emitter.on('commands-changed', callback);

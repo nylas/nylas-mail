@@ -1,7 +1,6 @@
-import {React} from 'nylas-exports';
+import { React, PropTypes } from 'nylas-exports';
 
 export default class MyComposerButton extends React.Component {
-
   // Note: You should assign a new displayName to avoid naming
   // conflicts when injecting your item
   static displayName = 'MyComposerButton';
@@ -10,8 +9,8 @@ export default class MyComposerButton extends React.Component {
   // reference to the draft, and you can look it up to perform
   // actions and retrieve data.
   static propTypes = {
-    draft: React.PropTypes.object.isRequired,
-    session: React.PropTypes.object.isRequired,
+    draft: PropTypes.object.isRequired,
+    session: PropTypes.object.isRequired,
   };
 
   shouldComponentUpdate(nextProps) {
@@ -21,7 +20,7 @@ export default class MyComposerButton extends React.Component {
   }
 
   _onClick = () => {
-    const {session, draft} = this.props;
+    const { session, draft } = this.props;
 
     // To retrieve information about the draft, we fetch the current editing
     // session from the draft store. We can access attributes of the draft
@@ -36,8 +35,8 @@ export default class MyComposerButton extends React.Component {
       type: 'info',
     });
 
-    session.changes.add({subject: newSubject});
-  }
+    session.changes.add({ subject: newSubject });
+  };
 
   _getDialog() {
     return require('electron').remote.dialog;

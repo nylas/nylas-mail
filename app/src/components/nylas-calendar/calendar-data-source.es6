@@ -1,12 +1,12 @@
-import Rx from 'rx-lite'
-import Event from '../../flux/models/event'
-import Matcher from '../../flux/attributes/matcher'
-import DatabaseStore from '../../flux/stores/database-store'
+import Rx from 'rx-lite';
+import Event from '../../flux/models/event';
+import Matcher from '../../flux/attributes/matcher';
+import DatabaseStore from '../../flux/stores/database-store';
 
 export default class CalendarDataSource {
-  buildObservable({startTime, endTime, disabledCalendars}) {
-    const end = Event.attributes.end
-    const start = Event.attributes.start
+  buildObservable({ startTime, endTime, disabledCalendars }) {
+    const end = Event.attributes.end;
+    const start = Event.attributes.start;
 
     const matcher = new Matcher.And([
       new Matcher.Or([
@@ -18,14 +18,14 @@ export default class CalendarDataSource {
       Event.attributes.calendarId.notIn(disabledCalendars || []),
     ]);
 
-    const query = DatabaseStore.findAll(Event).where(matcher)
-    this.observable = Rx.Observable.fromQuery(query).flatMapLatest((results) => {
-      return Rx.Observable.from([{events: results}]);
+    const query = DatabaseStore.findAll(Event).where(matcher);
+    this.observable = Rx.Observable.fromQuery(query).flatMapLatest(results => {
+      return Rx.Observable.from([{ events: results }]);
     });
     return this.observable;
   }
 
   subscribe(callback) {
-    return this.observable.subscribe(callback)
+    return this.observable.subscribe(callback);
   }
 }

@@ -1,15 +1,14 @@
-import {React, ReactDOM} from 'nylas-exports';
+import { React, ReactDOM, PropTypes } from 'nylas-exports';
 import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';
 
-
 class EmojiPicker extends React.Component {
-  static displayName = "EmojiPicker";
+  static displayName = 'EmojiPicker';
   static propTypes = {
-    emojiOptions: React.PropTypes.array,
-    selectedEmoji: React.PropTypes.string,
+    emojiOptions: PropTypes.array,
+    selectedEmoji: PropTypes.string,
   };
 
   constructor(props) {
@@ -18,14 +17,14 @@ class EmojiPicker extends React.Component {
   }
 
   componentDidUpdate() {
-    const selectedButton = ReactDOM.findDOMNode(this).querySelector(".emoji-option");
+    const selectedButton = ReactDOM.findDOMNode(this).querySelector('.emoji-option');
     if (selectedButton) {
       selectedButton.scrollIntoViewIfNeeded();
     }
   }
 
   onMouseDown(emojiName) {
-    EmojiActions.selectEmoji({emojiName, replaceSelection: true});
+    EmojiActions.selectEmoji({ emojiName, replaceSelection: true });
   }
 
   render() {
@@ -34,7 +33,7 @@ class EmojiPicker extends React.Component {
     if (emojiIndex === -1) emojiIndex = 0;
     if (this.props.emojiOptions) {
       this.props.emojiOptions.forEach((emojiOption, i) => {
-        const emojiClass = emojiIndex === i ? "btn btn-icon emoji-option" : "btn btn-icon";
+        const emojiClass = emojiIndex === i ? 'btn btn-icon emoji-option' : 'btn btn-icon';
         let emojiChar = emoji.get(emojiOption);
         emojiChar = (
           <img
@@ -42,7 +41,7 @@ class EmojiPicker extends React.Component {
             src={EmojiStore.getImagePath(emojiOption)}
             width="16"
             height="16"
-            style={{marginTop: "-4px", marginRight: "3px"}}
+            style={{ marginTop: '-4px', marginRight: '3px' }}
           />
         );
         emojiButtons.push(
@@ -57,11 +56,7 @@ class EmojiPicker extends React.Component {
         emojiButtons.push(<br key={`${emojiOption} br`} />);
       });
     }
-    return (
-      <div className="emoji-picker">
-        {emojiButtons}
-      </div>
-    );
+    return <div className="emoji-picker">{emojiButtons}</div>;
   }
 }
 

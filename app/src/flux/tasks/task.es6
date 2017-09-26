@@ -2,15 +2,15 @@
 import _ from 'underscore';
 import Model from '../models/model';
 import Attributes from '../attributes';
-import {generateTempId} from '../models/utils';
-import {PermanentErrorCodes} from '../nylas-api-request';
-import {APIError} from '../errors';
+import { generateTempId } from '../models/utils';
+import { PermanentErrorCodes } from '../nylas-api-request';
+import { APIError } from '../errors';
 
 const Status = {
-  Local: "local",
-  Remote: "remote",
-  Complete: "complete",
-  Cancelled: "cancelled",
+  Local: 'local',
+  Remote: 'remote',
+  Complete: 'complete',
+  Cancelled: 'cancelled',
 };
 
 export default class Task extends Model {
@@ -50,15 +50,13 @@ export default class Task extends Model {
 
   // Public: Override to raise exceptions if your task is missing required
   // arguments. This logic used to go in performLocal.
-  validate() {
-
-  }
+  validate() {}
 
   // Public: Return from `createIdenticalTask` and set a flag so your
   // `performLocal` and `performRemote` methods know that this is an undo
   // task.
   createUndoTask() {
-    throw new Error("Unimplemented");
+    throw new Error('Unimplemented');
   }
 
   // Public: Return a deep-cloned task to be used for an undo task
@@ -73,18 +71,14 @@ export default class Task extends Model {
   // Public: code to run if (someone tries to dequeue your task while it is)
   // in flight.
   //
-  cancel() {
-
-  }
+  cancel() {}
 
   // Public: (optional) A string displayed to users when your task is run.
   //
   // When tasks are run, we automatically display a notification to users
   // of the form "label (numberOfImpactedItems)". if (this does not a return)
   // a string, no notification is displayed
-  label() {
-
-  }
+  label() {}
 
   // Public: A string displayed to users indicating how many items your
   // task affected.

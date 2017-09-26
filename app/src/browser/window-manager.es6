@@ -1,23 +1,38 @@
 import _ from 'underscore';
-import {app} from 'electron';
+import { app } from 'electron';
 import WindowLauncher from './window-launcher';
 
-const MAIN_WINDOW = "default"
-const SPEC_WINDOW = "spec"
-const ONBOARDING_WINDOW = "onboarding"
+const MAIN_WINDOW = 'default';
+const SPEC_WINDOW = 'spec';
+const ONBOARDING_WINDOW = 'onboarding';
 // const CALENDAR_WINDOW = "calendar"
 
 export default class WindowManager {
-
-  constructor({devMode, safeMode, specMode, resourcePath, configDirPath, initializeInBackground, config}) {
+  constructor({
+    devMode,
+    safeMode,
+    specMode,
+    resourcePath,
+    configDirPath,
+    initializeInBackground,
+    config,
+  }) {
     this.initializeInBackground = initializeInBackground;
     this._windows = {};
 
-    const onCreatedHotWindow = (win) => {
+    const onCreatedHotWindow = win => {
       this._registerWindow(win);
       this._didCreateNewWindow(win);
-    }
-    this.windowLauncher = new WindowLauncher({devMode, safeMode, specMode, resourcePath, configDirPath, config, onCreatedHotWindow});
+    };
+    this.windowLauncher = new WindowLauncher({
+      devMode,
+      safeMode,
+      specMode,
+      resourcePath,
+      configDirPath,
+      config,
+      onCreatedHotWindow,
+    });
   }
 
   get(windowKey) {
@@ -26,31 +41,30 @@ export default class WindowManager {
 
   getOpenWindows() {
     const values = [];
-    Object.keys(this._windows).forEach((key) => {
+    Object.keys(this._windows).forEach(key => {
       const win = this._windows[key];
       if (win.windowType !== WindowLauncher.EMPTY_WINDOW) {
         values.push(win);
       }
     });
 
-    const score = (win) =>
-      (win.loadSettings().mainWindow ? 1000 : win.browserWindow.id);
+    const score = win => (win.loadSettings().mainWindow ? 1000 : win.browserWindow.id);
 
     return values.sort((a, b) => score(b) - score(a));
   }
 
   getAllWindowDimensions() {
-    const dims = {}
-    Object.keys(this._windows).forEach((key) => {
+    const dims = {};
+    Object.keys(this._windows).forEach(key => {
       const win = this._windows[key];
       if (win.windowType !== WindowLauncher.EMPTY_WINDOW) {
-        const {x, y, width, height} = win.browserWindow.getBounds()
-        const maximized = win.browserWindow.isMaximized()
-        const fullScreen = win.browserWindow.isFullScreen()
-        dims[key] = {x, y, width, height, maximized, fullScreen}
+        const { x, y, width, height } = win.browserWindow.getBounds();
+        const maximized = win.browserWindow.isMaximized();
+        const fullScreen = win.browserWindow.isFullScreen();
+        dims[key] = { x, y, width, height, maximized, fullScreen };
       }
     });
-    return dims
+    return dims;
   }
 
   newWindow(options = {}) {
@@ -69,20 +83,22 @@ export default class WindowManager {
     return win;
   }
 
-  _registerWindow = (win) => {
+  _registerWindow = win => {
     if (!win.windowKey) {
-      throw new Error("WindowManager: You must provide a windowKey");
+      throw new Error('WindowManager: You must provide a windowKey');
     }
 
     if (this._windows[win.windowKey]) {
-      throw new Error(`WindowManager: Attempting to register a new window for an existing windowKey (${win.windowKey}). Use 'get()' to retrieve the existing window instead.`);
+      throw new Error(
+        `WindowManager: Attempting to register a new window for an existing windowKey (${win.windowKey}). Use 'get()' to retrieve the existing window instead.`
+      );
     }
 
     this._windows[win.windowKey] = win;
-  }
+  };
 
-  _didCreateNewWindow = (win) => {
-    win.browserWindow.on("closed", () => {
+  _didCreateNewWindow = win => {
+    win.browserWindow.on('closed', () => {
       delete this._windows[win.windowKey];
       this.quitWinLinuxIfNoWindows();
     });
@@ -91,9 +107,9 @@ export default class WindowManager {
     // The applicationMenu automatically listens to the `closed` event of
     // the browserWindow to unregister itself
     global.application.applicationMenu.addWindow(win.browserWindow);
-  }
+  };
 
-  _registeredKeyForWindow = (win) => {
+  _registeredKeyForWindow = win => {
     for (const key of Object.keys(this._windows)) {
       const otherWin = this._windows[key];
       if (win === otherWin) {
@@ -101,7 +117,7 @@ export default class WindowManager {
       }
     }
     return null;
-  }
+  };
 
   ensureWindow(windowKey, extraOpts) {
     const win = this._windows[windowKey];
@@ -125,7 +141,7 @@ export default class WindowManager {
     }
   }
 
-  sendToAllWindows(msg, {except}, ...args) {
+  sendToAllWindows(msg, { except }, ...args) {
     for (const windowKey of Object.keys(this._windows)) {
       const win = this._windows[windowKey];
       if (win.browserWindow === except) {
@@ -146,7 +162,7 @@ export default class WindowManager {
     for (const windowKey of Object.keys(this._windows)) {
       this._windows[windowKey].browserWindow.destroy();
     }
-    this._windows = {}
+    this._windows = {};
   }
 
   cleanupBeforeAppQuit() {
@@ -165,30 +181,32 @@ export default class WindowManager {
     // would be to pull up the Task Manager. Ew.
 
     if (['win32', 'linux'].includes(process.platform)) {
-      this.quitCheck = this.quitCheck || _.debounce(() => {
-        const visibleWindows = _.filter(this._windows, (win) => win.isVisible())
-        const mainWindow = this.get(WindowManager.MAIN_WINDOW);
-        const noMainWindowLoaded = !mainWindow || !mainWindow.isLoaded();
-        if (visibleWindows.length === 0 && noMainWindowLoaded) {
-          app.quit();
-        }
-      }, 25000);
+      this.quitCheck =
+        this.quitCheck ||
+        _.debounce(() => {
+          const visibleWindows = _.filter(this._windows, win => win.isVisible());
+          const mainWindow = this.get(WindowManager.MAIN_WINDOW);
+          const noMainWindowLoaded = !mainWindow || !mainWindow.isLoaded();
+          if (visibleWindows.length === 0 && noMainWindowLoaded) {
+            app.quit();
+          }
+        }, 25000);
       this.quitCheck();
     }
   }
 
   focusedWindow() {
-    return _.find(this._windows, (win) => win.isFocused());
+    return _.find(this._windows, win => win.isFocused());
   }
 
   _coreWindowOpts(windowKey, extraOpts = {}) {
-    const coreWinOpts = {}
+    const coreWinOpts = {};
     coreWinOpts[WindowManager.MAIN_WINDOW] = {
       windowKey: WindowManager.MAIN_WINDOW,
       windowType: WindowManager.MAIN_WINDOW,
-      title: "Message Viewer",
+      title: 'Message Viewer',
       neverClose: true,
-      bootstrapScript: require.resolve("../window-bootstrap"),
+      bootstrapScript: require.resolve('../window-bootstrap'),
       mainWindow: true,
       width: 640, // Gets reset once app boots up
       height: 396, // Gets reset once app boots up
@@ -200,26 +218,26 @@ export default class WindowManager {
     coreWinOpts[WindowManager.ONBOARDING_WINDOW] = {
       windowKey: WindowManager.ONBOARDING_WINDOW,
       windowType: WindowManager.ONBOARDING_WINDOW,
-      title: "Account Setup",
+      title: 'Account Setup',
       hidden: true, // Displayed by PageRouter::_initializeWindowSize
       frame: false, // Always false on Mac, explicitly set for Win & Linux
       toolbar: false,
       resizable: false,
       width: 900,
       height: 600,
-    }
+    };
 
     // The SPEC_WINDOW gets passed its own bootstrapScript
     coreWinOpts[WindowManager.SPEC_WINDOW] = {
       windowKey: WindowManager.SPEC_WINDOW,
       windowType: WindowManager.SPEC_WINDOW,
-      title: "Specs",
+      title: 'Specs',
       frame: true,
       hidden: true,
       isSpec: true,
       devMode: true,
       toolbar: false,
-    }
+    };
 
     const defaultOptions = coreWinOpts[windowKey] || {};
 

@@ -1,5 +1,6 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
+PropTypes = require 'prop-types'
 {Utils} = require 'nylas-exports'
 _ = require 'underscore'
 
@@ -35,8 +36,8 @@ class UnsafeComponent extends React.Component
      passed on to this component.
   ###
   @propTypes:
-    component: React.PropTypes.func.isRequired
-    onComponentDidRender: React.PropTypes.func
+    component: PropTypes.func.isRequired
+    onComponentDidRender: PropTypes.func
 
   @defaultProps:
     onComponentDidRender: ->

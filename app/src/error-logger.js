@@ -15,7 +15,7 @@ if (process.type === 'renderer') {
   app = require('electron').app;
 }
 
-var crashReporter = require('electron').crashReporter
+var crashReporter = require('electron').crashReporter;
 var RavenErrorReporter = require('./error-logger-extensions/raven-error-reporter');
 
 // A globally available ErrorLogger that can report errors to various
@@ -34,12 +34,11 @@ var RavenErrorReporter = require('./error-logger-extensions/raven-error-reporter
 // The errorLogger will report errors to a log file as well as to 3rd
 // party reporting services if enabled.
 module.exports = ErrorLogger = (function() {
-
   function ErrorLogger(args) {
-    this.reportError = this.reportError.bind(this)
-    this.inSpecMode = args.inSpecMode
-    this.inDevMode = args.inDevMode
-    this.resourcePath = args.resourcePath
+    this.reportError = this.reportError.bind(this);
+    this.inSpecMode = args.inSpecMode;
+    this.inDevMode = args.inDevMode;
+    this.resourcePath = args.resourcePath;
 
     this._startCrashReporter();
 
@@ -53,9 +52,11 @@ module.exports = ErrorLogger = (function() {
         inDevMode: args.inDevMode,
         resourcePath: args.resourcePath,
       }),
-    ]
+    ];
 
-    if (this.inSpecMode) { return }
+    if (this.inSpecMode) {
+      return;
+    }
 
     this._cleanOldLogFiles();
     this._setupNewLogFile();
@@ -67,26 +68,32 @@ module.exports = ErrorLogger = (function() {
   /////////////////////////////////////////////////////////////////////
 
   ErrorLogger.prototype.reportError = function(error, extra = {}) {
-    if (this.inSpecMode) { return }
-    if (!error) { error = {stack: ""} }
-    this._appendLog(error.stack)
-    if (extra) { this._appendLog(extra) }
-    if (process.type === "renderer") {
-      var errorJSON = "{}";
+    if (this.inSpecMode) {
+      return;
+    }
+    if (!error) {
+      error = { stack: '' };
+    }
+    this._appendLog(error.stack);
+    if (extra) {
+      this._appendLog(extra);
+    }
+    if (process.type === 'renderer') {
+      var errorJSON = '{}';
       try {
         errorJSON = JSON.stringify(error);
       } catch (err) {
         var recoveredError = new Error();
         recoveredError.stack = error.stack;
         recoveredError.message = `Recovered Error: ${error.message}`;
-        errorJSON = JSON.stringify(recoveredError)
+        errorJSON = JSON.stringify(recoveredError);
       }
 
       var extraJSON;
       try {
         extraJSON = JSON.stringify(extra);
       } catch (err) {
-        extraJSON = "{}";
+        extraJSON = '{}';
       }
 
       /**
@@ -100,19 +107,17 @@ module.exports = ErrorLogger = (function() {
        * This is a rare use of `sendSync` to ensure the command has made
        * it before the window closes.
        */
-      ipcRenderer.sendSync("report-error", {errorJSON: errorJSON, extra: extraJSON})
-
+      ipcRenderer.sendSync('report-error', { errorJSON: errorJSON, extra: extraJSON });
     } else {
-      this._notifyExtensions("reportError", error, extra)
+      this._notifyExtensions('reportError', error, extra);
     }
     console.error(error, extra);
-  }
+  };
 
   ErrorLogger.prototype.openLogs = function() {
     var shell = require('electron').shell;
     shell.openItem(this._logPath());
   };
-
 
   /////////////////////////////////////////////////////////////////////
   ////////////////////////// PRIVATE METHODS //////////////////////////
@@ -125,28 +130,28 @@ module.exports = ErrorLogger = (function() {
       submitURL: 'http://mailspring_prod.bugsplat.com/post/bp/crash/postBP.php',
       uploadToServer: true,
       autoSubmit: true,
-    })
-  }
+    });
+  };
 
   ErrorLogger.prototype._extendNativeConsole = function(args) {
-    console.debug = this._consoleDebug.bind(this)
+    console.debug = this._consoleDebug.bind(this);
 
     if (process.type === 'browser' && process.platform === 'darwin') {
       var nslog = require('nslog');
       console.log = nslog;
       console.error = nslog;
     }
-  }
+  };
 
   // globally define Error.toJSON. This allows us to pass errors via IPC
   // and through the Action Bridge. Note:they are not re-inflated into
   // Error objects automatically.
   ErrorLogger.prototype._extendErrorObject = function(args) {
     Object.defineProperty(Error.prototype, 'toJSON', {
-      value: function () {
+      value: function() {
         var alt = {};
 
-        Object.getOwnPropertyNames(this).forEach(function (key) {
+        Object.getOwnPropertyNames(this).forEach(function(key) {
           alt[key] = this[key];
         }, this);
 
@@ -154,17 +159,17 @@ module.exports = ErrorLogger = (function() {
       },
       configurable: true,
     });
-  }
+  };
 
   ErrorLogger.prototype._logPath = function() {
     var tmpPath = app.getPath('temp');
 
     var logpid = process.pid;
     if (process.type === 'renderer') {
-      logpid = remote.process.pid + "." +  process.pid;
+      logpid = remote.process.pid + '.' + process.pid;
     }
     return path.join(tmpPath, 'Nylas-Mail-' + logpid + '.log');
-  }
+  };
 
   // If we're the browser process, remove log files that are more than
   // two days old. These log files get pretty big because we're logging
@@ -178,7 +183,7 @@ module.exports = ErrorLogger = (function() {
           return;
         }
 
-        var logFilter = new RegExp("Nylas-Mail-[.0-9]*.log$");
+        var logFilter = new RegExp('Nylas-Mail-[.0-9]*.log$');
         files.forEach(function(file) {
           if (logFilter.test(file) === true) {
             var filepath = path.join(tmpPath, file);
@@ -186,7 +191,8 @@ module.exports = ErrorLogger = (function() {
               if (!err && stats) {
                 var lastModified = new Date(stats.mtime);
                 var fileAge = Date.now() - lastModified.getTime();
-                if (fileAge > (1000 * 60 * 60 * 24 * 2)) { // two days
+                if (fileAge > 1000 * 60 * 60 * 24 * 2) {
+                  // two days
                   fs.unlink(filepath, () => {});
                 }
               }
@@ -195,11 +201,11 @@ module.exports = ErrorLogger = (function() {
         });
       });
     }
-  }
+  };
 
   ErrorLogger.prototype._setupNewLogFile = function() {
     // Open a file write stream to log output from this process
-    console.log("Streaming log data to " + this._logPath());
+    console.log('Streaming log data to ' + this._logPath());
 
     this.loghost = os.hostname();
     this.logstream = fs.createWriteStream(this._logPath(), {
@@ -208,7 +214,7 @@ module.exports = ErrorLogger = (function() {
       fd: null,
       mode: 666,
     });
-  }
+  };
 
   ErrorLogger.prototype._hookProcessOutputsToLogFile = function() {
     var self = this;
@@ -217,15 +223,15 @@ module.exports = ErrorLogger = (function() {
     function hook_process_output(channel, callback) {
       var old_write = process[channel].write;
       process[channel].write = (function(write) {
-          return function(string, encoding, fd) {
-              write.apply(process[channel], arguments)
-              callback(string, encoding, fd)
-          }
-      })(process[channel].write)
+        return function(string, encoding, fd) {
+          write.apply(process[channel], arguments);
+          callback(string, encoding, fd);
+        };
+      })(process[channel].write);
 
       // Return a function that can be used to undo this change
       return function() {
-        process[channel].write = old_write
+        process[channel].write = old_write;
       };
     }
 
@@ -235,17 +241,17 @@ module.exports = ErrorLogger = (function() {
     hook_process_output('stderr', function(string, encoding, fd) {
       self._appendLog.apply(self, [string]);
     });
-  }
+  };
 
   ErrorLogger.prototype._notifyExtensions = function() {
     var command, args;
-    command = arguments[0]
+    command = arguments[0];
     args = 2 <= arguments.length ? Array.prototype.slice.call(arguments, 1) : [];
     for (var i = 0; i < this.extensions.length; i++) {
-      const extension = this.extensions[i]
+      const extension = this.extensions[i];
       extension[command].apply(extension, args);
     }
-  }
+  };
 
   // Create a new console.debug option, which takes `true` (print)
   // or `false`, don't print in console as the first parameter.
@@ -257,29 +263,32 @@ module.exports = ErrorLogger = (function() {
     for (var ii = 1; ii < arguments.length; ii++) {
       args.push(arguments[ii]);
     }
-    if ((this.inDevMode === true) && (showIt === true)) {
+    if (this.inDevMode === true && showIt === true) {
       console.log.apply(console, args);
     }
     this._appendLog.apply(this, [args]);
-  }
+  };
 
   ErrorLogger.prototype._appendLog = function(obj) {
-    if (this.inSpecMode) { return; }
+    if (this.inSpecMode) {
+      return;
+    }
 
     try {
-      var message = JSON.stringify({
-        host: this.loghost,
-        timestamp: (new Date()).toISOString(),
-        payload: obj
-      }) + "\n";
+      var message =
+        JSON.stringify({
+          host: this.loghost,
+          timestamp: new Date().toISOString(),
+          payload: obj,
+        }) + '\n';
 
-      this.logstream.write(message, 'utf8', function (err) {
+      this.logstream.write(message, 'utf8', function(err) {
         if (err) {
-          console.error("ErrorLogger: Unable to write to the log stream!" + err.toString());
+          console.error('ErrorLogger: Unable to write to the log stream!' + err.toString());
         }
       });
     } catch (err) {
-      console.error("ErrorLogger: Unable to write to the log stream." + err.toString());
+      console.error('ErrorLogger: Unable to write to the log stream.' + err.toString());
     }
   };
 

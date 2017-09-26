@@ -1,9 +1,9 @@
 /* eslint global-require:0 */
-import Attributes from '../attributes'
-import ModelWithMetadata from './model-with-metadata'
+import Attributes from '../attributes';
+import ModelWithMetadata from './model-with-metadata';
 
-let CategoryStore = null
-let Contact = null
+let CategoryStore = null;
+let Contact = null;
 
 /*
  * Public: The Account model represents a Account served by the Nylas Platform API.
@@ -24,12 +24,11 @@ let Contact = null
  * Section: Models
  */
 export default class Account extends ModelWithMetadata {
+  static SYNC_STATE_OK = 'ok';
 
-  static SYNC_STATE_OK = "ok"
+  static SYNC_STATE_AUTH_FAILED = 'invalid';
 
-  static SYNC_STATE_AUTH_FAILED = "invalid"
-
-  static SYNC_STATE_ERROR = "sync_error"
+  static SYNC_STATE_ERROR = 'sync_error';
 
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {
     name: Attributes.String({
@@ -71,7 +70,7 @@ export default class Account extends ModelWithMetadata {
   });
 
   constructor(args) {
-    super(args)
+    super(args);
     this.aliases = this.aliases || [];
     this.label = this.label || this.emailAddress;
     this.syncState = this.syncState || Account.SYNC_STATE_OK;
@@ -87,7 +86,7 @@ export default class Account extends ModelWithMetadata {
 
   // Returns a {Contact} model that represents the current user.
   me() {
-    Contact = Contact || require('./contact').default
+    Contact = Contact || require('./contact').default;
 
     return new Contact({
       // used to give them random strings, let's try for something consistent
@@ -95,53 +94,53 @@ export default class Account extends ModelWithMetadata {
       accountId: this.id,
       name: this.name,
       email: this.emailAddress,
-    })
+    });
   }
 
   meUsingAlias(alias) {
-    Contact = Contact || require('./contact').default
+    Contact = Contact || require('./contact').default;
 
     if (!alias) {
-      return this.me()
+      return this.me();
     }
     return Contact.fromString(alias, {
       accountId: this.id,
-    })
+    });
   }
 
   defaultMe() {
     if (this.defaultAlias) {
-      return this.meUsingAlias(this.defaultAlias)
+      return this.meUsingAlias(this.defaultAlias);
     }
-    return this.me()
+    return this.me();
   }
 
   // Public: Returns the localized, properly capitalized provider name,
   // like Gmail, Exchange, or Outlook 365
   displayProvider() {
     if (this.provider === 'eas') {
-      return 'Exchange'
+      return 'Exchange';
     } else if (this.provider === 'gmail') {
-      return 'Gmail'
+      return 'Gmail';
     } else if (this.provider === 'office365') {
-      return 'Office 365'
+      return 'Office 365';
     }
-    return this.provider
+    return this.provider;
   }
 
   canArchiveThreads() {
-    CategoryStore = CategoryStore || require('../stores/category-store').default
-    return CategoryStore.getArchiveCategory(this)
+    CategoryStore = CategoryStore || require('../stores/category-store').default;
+    return CategoryStore.getArchiveCategory(this);
   }
 
   canTrashThreads() {
-    CategoryStore = CategoryStore || require('../stores/category-store').default
-    return CategoryStore.getTrashCategory(this)
+    CategoryStore = CategoryStore || require('../stores/category-store').default;
+    return CategoryStore.getTrashCategory(this);
   }
 
   preferredRemovalDestination() {
-    CategoryStore = CategoryStore || require('../stores/category-store').default
-    const preferDelete = NylasEnv.config.get('core.reading.backspaceDelete')
+    CategoryStore = CategoryStore || require('../stores/category-store').default;
+    const preferDelete = NylasEnv.config.get('core.reading.backspaceDelete');
     if (preferDelete || !CategoryStore.getArchiveCategory(this)) {
       return CategoryStore.getTrashCategory(this);
     }
@@ -149,6 +148,6 @@ export default class Account extends ModelWithMetadata {
   }
 
   hasSyncStateError() {
-    return this.syncState !== Account.SYNC_STATE_OK
+    return this.syncState !== Account.SYNC_STATE_OK;
   }
 }

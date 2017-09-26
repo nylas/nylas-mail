@@ -1,5 +1,5 @@
-import {React} from 'nylas-exports';
-import {Notification} from 'nylas-component-kit';
+import { React } from 'nylas-exports';
+import { Notification } from 'nylas-component-kit';
 
 export default class DevModeNotification extends React.Component {
   static displayName = 'DevModeNotification';
@@ -10,18 +10,15 @@ export default class DevModeNotification extends React.Component {
     // the entire window anyway
     this.state = {
       inDevMode: NylasEnv.inDevMode(),
-    }
+    };
   }
 
   render() {
     if (!this.state.inDevMode) {
-      return <span />
+      return <span />;
     }
     return (
-      <Notification
-        priority="0"
-        title="Mailspring is running in dev mode and may be slower!"
-      />
-    )
+      <Notification priority="0" title="Mailspring is running in dev mode and may be slower!" />
+    );
   }
 }

@@ -1,15 +1,15 @@
-import {ComposerExtension, RegExpUtils} from 'nylas-exports';
-import {PLUGIN_ID, PLUGIN_URL} from './link-tracking-constants'
+import { ComposerExtension, RegExpUtils } from 'nylas-exports';
+import { PLUGIN_ID, PLUGIN_URL } from './link-tracking-constants';
 
 function forEachATagInBody(draftBodyRootNode, callback) {
   const treeWalker = document.createTreeWalker(draftBodyRootNode, NodeFilter.SHOW_ELEMENT, {
-    acceptNode: (node) => {
+    acceptNode: node => {
       if (node.classList.contains('gmail_quote')) {
         return NodeFilter.FILTER_REJECT; // skips the entire subtree
       }
-      return (node.hasAttribute('href')) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      return node.hasAttribute('href') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
     },
-  })
+  });
 
   while (treeWalker.nextNode()) {
     callback(treeWalker.currentNode);
@@ -34,7 +34,7 @@ function forEachATagInBody(draftBodyRootNode, callback) {
  * their own link tracks.
  */
 export default class LinkTrackingComposerExtension extends ComposerExtension {
-  static applyTransformsForSending({draftBodyRootNode, draft}) {
+  static applyTransformsForSending({ draftBodyRootNode, draft }) {
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
     if (!metadata) {
       return;
@@ -42,7 +42,7 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
     const messageUid = draft.clientId;
     const links = [];
 
-    forEachATagInBody(draftBodyRootNode, (el) => {
+    forEachATagInBody(draftBodyRootNode, el => {
       const url = el.getAttribute('href');
       if (!RegExpUtils.urlRegex().test(url)) {
         return;
@@ -66,8 +66,8 @@ export default class LinkTrackingComposerExtension extends ComposerExtension {
     draft.directlyAttachMetadata(PLUGIN_ID, metadata);
   }
 
-  static unapplyTransformsForSending({draftBodyRootNode}) {
-    forEachATagInBody(draftBodyRootNode, (el) => {
+  static unapplyTransformsForSending({ draftBodyRootNode }) {
+    forEachATagInBody(draftBodyRootNode, el => {
       const url = el.getAttribute('href');
       if (url.indexOf(PLUGIN_URL) !== -1) {
         const userURLEncoded = url.split('?redirect=')[1];

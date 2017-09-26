@@ -1,58 +1,58 @@
-import {React, Utils} from 'nylas-exports';
+import { React, Utils, PropTypes } from 'nylas-exports';
 
 export default class SyncbackActivity extends React.Component {
   static propTypes = {
-    syncbackTasks: React.PropTypes.array,
-  }
+    syncbackTasks: PropTypes.array,
+  };
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !Utils.isEqualReact(nextProps, this.props) ||
-      !Utils.isEqualReact(nextState, this.state);
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   render() {
-    const {syncbackTasks} = this.props;
-    if (!syncbackTasks || syncbackTasks.length === 0) { return false; }
+    const { syncbackTasks } = this.props;
+    if (!syncbackTasks || syncbackTasks.length === 0) {
+      return false;
+    }
 
-    const counts = {}
-    this.props.syncbackTasks.forEach((task) => {
+    const counts = {};
+    this.props.syncbackTasks.forEach(task => {
       const label = task.label ? task.label() : null;
-      if (!label) { return; }
+      if (!label) {
+        return;
+      }
       if (!counts[label]) {
         counts[label] = 0;
       }
-      counts[label] += +task.numberOfImpactedItems()
+      counts[label] += +task.numberOfImpactedItems();
     });
 
-    const ellipses = [1, 2, 3].map((i) => (
-      <span key={`ellipsis${i}`} className={`ellipsis${i}`}>.</span>)
-    );
+    const ellipses = [1, 2, 3].map(i => (
+      <span key={`ellipsis${i}`} className={`ellipsis${i}`}>
+        .
+      </span>
+    ));
 
     const items = Object.entries(counts).map(([label, count]) => {
       return (
         <div className="item" key={label}>
           <div className="inner">
             <span className="count">({count.toLocaleString()})</span>
-            {label}{ellipses}
+            {label}
+            {ellipses}
           </div>
         </div>
-      )
+      );
     });
 
     if (items.length === 0) {
       items.push(
         <div className="item" key="no-labels">
-          <div className="inner">
-            Applying tasks
-          </div>
+          <div className="inner">Applying tasks</div>
         </div>
-      )
+      );
     }
 
-    return (
-      <div>
-        {items}
-      </div>
-    )
+    return <div>{items}</div>;
   }
 }

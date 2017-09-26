@@ -1,12 +1,11 @@
-React = require 'react'
-{Utils} = require 'nylas-exports'
+{React, PropTypes, Utils} = require 'nylas-exports'
 _ = require 'underscore'
 
 class ThreadListParticipants extends React.Component
   @displayName: 'ThreadListParticipants'
 
   @propTypes:
-    thread: React.PropTypes.object.isRequired
+    thread: PropTypes.object.isRequired
 
   shouldComponentUpdate: (nextProps) =>
     return false if nextProps.thread is @props.thread

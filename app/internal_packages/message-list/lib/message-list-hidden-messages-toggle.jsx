@@ -1,12 +1,6 @@
-import {
-  React,
-  Actions,
-  MessageStore,
-  FocusedPerspectiveStore,
-} from 'nylas-exports';
+import { React, Actions, MessageStore, FocusedPerspectiveStore } from 'nylas-exports';
 
 export default class MessageListHiddenMessagesToggle extends React.Component {
-
   static displayName = 'MessageListHiddenMessagesToggle';
 
   constructor() {
@@ -29,11 +23,10 @@ export default class MessageListHiddenMessagesToggle extends React.Component {
   }
 
   render() {
-    const {numberOfHiddenItems} = this.state;
+    const { numberOfHiddenItems } = this.state;
     if (numberOfHiddenItems === 0) {
-      return (<span />);
+      return <span />;
     }
-
 
     const viewing = FocusedPerspectiveStore.current().categoriesSharedRole();
     let message = null;
@@ -55,7 +48,13 @@ export default class MessageListHiddenMessagesToggle extends React.Component {
     return (
       <div className="show-hidden-messages">
         {message}
-        <a onClick={function toggle() { Actions.toggleHiddenMessages() }}>Show all messages</a>
+        <a
+          onClick={function toggle() {
+            Actions.toggleHiddenMessages();
+          }}
+        >
+          Show all messages
+        </a>
       </div>
     );
   }

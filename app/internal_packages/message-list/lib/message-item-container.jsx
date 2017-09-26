@@ -1,10 +1,5 @@
-import React from 'react';
 import classNames from 'classnames';
-import {
-  Utils,
-  DraftStore,
-  ComponentRegistry,
-} from 'nylas-exports';
+import { React, PropTypes, Utils, DraftStore, ComponentRegistry } from 'nylas-exports';
 
 import MessageItem from './message-item';
 
@@ -12,13 +7,13 @@ export default class MessageItemContainer extends React.Component {
   static displayName = 'MessageItemContainer';
 
   static propTypes = {
-    thread: React.PropTypes.object.isRequired,
-    message: React.PropTypes.object.isRequired,
-    messages: React.PropTypes.array.isRequired,
-    collapsed: React.PropTypes.bool,
-    isMostRecent: React.PropTypes.bool,
-    isBeforeReplyArea: React.PropTypes.bool,
-    scrollTo: React.PropTypes.func,
+    thread: PropTypes.object.isRequired,
+    message: PropTypes.object.isRequired,
+    messages: PropTypes.array.isRequired,
+    collapsed: PropTypes.bool,
+    isMostRecent: PropTypes.bool,
+    isBeforeReplyArea: PropTypes.bool,
+    scrollTo: PropTypes.func,
   };
 
   constructor(props, context) {
@@ -48,23 +43,23 @@ export default class MessageItemContainer extends React.Component {
 
   focus = () => {
     this._messageComponent.focus();
-  }
+  };
 
   _classNames() {
     return classNames({
-      "draft": this.props.message.draft,
-      "unread": this.props.message.unread,
-      "collapsed": this.props.collapsed,
-      "message-item-wrap": true,
-      "before-reply-area": this.props.isBeforeReplyArea,
+      draft: this.props.message.draft,
+      unread: this.props.message.unread,
+      collapsed: this.props.collapsed,
+      'message-item-wrap': true,
+      'before-reply-area': this.props.isBeforeReplyArea,
     });
   }
 
-  _onSendingStateChanged = ({headerMessageId}) => {
+  _onSendingStateChanged = ({ headerMessageId }) => {
     if (headerMessageId === this.props.message.headerMessageId) {
       this.setState(this._getStateFromStores());
     }
-  }
+  };
 
   _getStateFromStores(props = this.props) {
     return {
@@ -72,10 +67,12 @@ export default class MessageItemContainer extends React.Component {
     };
   }
 
-  _renderMessage({pending}) {
+  _renderMessage({ pending }) {
     return (
       <MessageItem
-        ref={(cm) => { this._messageComponent = cm }}
+        ref={cm => {
+          this._messageComponent = cm;
+        }}
         pending={pending}
         thread={this.props.thread}
         message={this.props.message}
@@ -88,16 +85,18 @@ export default class MessageItemContainer extends React.Component {
   }
 
   _renderComposer() {
-    const Composer = ComponentRegistry.findComponentsMatching({role: 'Composer'})[0];
+    const Composer = ComponentRegistry.findComponentsMatching({ role: 'Composer' })[0];
     if (!Composer) {
-      return (<span>No Composer Component Present</span>);
+      return <span>No Composer Component Present</span>;
     }
     return (
       <Composer
-        ref={(cm) => { this._messageComponent = cm }}
+        ref={cm => {
+          this._messageComponent = cm;
+        }}
         headerMessageId={this.props.message.headerMessageId}
         className={this._classNames()}
-        mode={"inline"}
+        mode={'inline'}
         threadId={this.props.thread.id}
         scrollTo={this.props.scrollTo}
       />
@@ -106,11 +105,11 @@ export default class MessageItemContainer extends React.Component {
 
   render() {
     if (this.state.isSending) {
-      return this._renderMessage({pending: true});
+      return this._renderMessage({ pending: true });
     }
     if (this.props.message.draft && !this.props.collapsed) {
       return this._renderComposer();
     }
-    return this._renderMessage({pending: false});
+    return this._renderMessage({ pending: false });
   }
 }

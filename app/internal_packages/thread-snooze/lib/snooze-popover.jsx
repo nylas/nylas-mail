@@ -1,43 +1,33 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types'
-import {DateUtils, Actions} from 'nylas-exports'
-import {RetinaImg, DateInput} from 'nylas-component-kit';
-import SnoozeActions from './snooze-actions'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { DateUtils, Actions } from 'nylas-exports';
+import { RetinaImg, DateInput } from 'nylas-component-kit';
+import SnoozeActions from './snooze-actions';
 
-const {DATE_FORMAT_LONG} = DateUtils
-
+const { DATE_FORMAT_LONG } = DateUtils;
 
 const SnoozeOptions = [
-  [
-    'Later today',
-    'Tonight',
-    'Tomorrow',
-  ],
-  [
-    'This weekend',
-    'Next week',
-    'Next month',
-  ],
-]
+  ['Later today', 'Tonight', 'Tomorrow'],
+  ['This weekend', 'Next week', 'Next month'],
+];
 
 const SnoozeDatesFactory = {
   'Later today': DateUtils.laterToday,
-  'Tonight': DateUtils.tonight,
-  'Tomorrow': DateUtils.tomorrow,
+  Tonight: DateUtils.tonight,
+  Tomorrow: DateUtils.tomorrow,
   'This weekend': DateUtils.thisWeekend,
   'Next week': DateUtils.nextWeek,
   'Next month': DateUtils.nextMonth,
-}
+};
 
 const SnoozeIconNames = {
   'Later today': 'later',
-  'Tonight': 'tonight',
-  'Tomorrow': 'tomorrow',
+  Tonight: 'tonight',
+  Tomorrow: 'tomorrow',
   'This weekend': 'weekend',
   'Next week': 'week',
   'Next month': 'month',
-}
-
+};
 
 class SnoozePopover extends Component {
   static displayName = 'SnoozePopover';
@@ -74,30 +64,26 @@ class SnoozePopover extends Component {
 
   onSelectCustomDate = (date, inputValue) => {
     if (date) {
-      this.onSnooze(date, "Custom");
+      this.onSnooze(date, 'Custom');
     } else {
       NylasEnv.showErrorDialog(`Sorry, we can't parse ${inputValue} as a valid date.`);
     }
   };
 
-  renderItem = (itemLabel) => {
+  renderItem = itemLabel => {
     const date = SnoozeDatesFactory[itemLabel]();
     const iconName = SnoozeIconNames[itemLabel];
     const iconPath = `mailspring://thread-snooze/assets/ic-snoozepopover-${iconName}@2x.png`;
     return (
-      <div
-        key={itemLabel}
-        className="snooze-item"
-        onClick={() => this.onSnooze(date, itemLabel)}
-      >
+      <div key={itemLabel} className="snooze-item" onClick={() => this.onSnooze(date, itemLabel)}>
         <RetinaImg
           url={iconPath}
           mode={RetinaImg.Mode.ContentIsMask}
-          style={{width: 45, height: 45}}
+          style={{ width: 45, height: 45 }}
         />
         {itemLabel}
       </div>
-    )
+    );
   };
 
   renderRow = (options, idx) => {
@@ -123,7 +109,6 @@ class SnoozePopover extends Component {
       </div>
     );
   }
-
 }
 
 export default SnoozePopover;

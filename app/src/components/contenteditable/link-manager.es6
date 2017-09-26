@@ -4,24 +4,26 @@ import LinkEditor from './link-editor';
 export default class LinkManager extends ContenteditableExtension {
   static keyCommandHandlers() {
     return {
-      "contenteditable:insert-link": LinkManager._onInsertLink,
+      'contenteditable:insert-link': LinkManager._onInsertLink,
     };
   }
 
   static toolbarButtons() {
-    return [{
-      className: "btn-link",
-      onClick: LinkManager._onInsertLink,
-      tooltip: "Edit Link",
-      iconUrl: null, // Defined in the css of btn-link
-    }];
+    return [
+      {
+        className: 'btn-link',
+        onClick: LinkManager._onInsertLink,
+        tooltip: 'Edit Link',
+        iconUrl: null, // Defined in the css of btn-link
+      },
+    ];
   }
 
   // By default, if you're typing next to an existing anchor tag, it won't
   // continue the anchor text. This is important for us since we want you
   // to be able to select and then override the existing anchor text with
   // something new.
-  static onContentChanged({editor}) {
+  static onContentChanged({ editor }) {
     const sel = editor.currentSelection();
     if (sel.anchorNode && sel.isCollapsed) {
       const node = sel.anchorNode;
@@ -36,13 +38,13 @@ export default class LinkManager extends ContenteditableExtension {
       if (node.nodeType !== Node.TEXT_NODE) {
         return;
       }
-      if (sibling.nodeName !== "A") {
+      if (sibling.nodeName !== 'A') {
         return;
       }
       if (/^\s+/.test(node.data)) {
         return;
       }
-      if (RegExpUtils.punctuation({exclude: ['\\-', '_']}).test(node.data[0])) {
+      if (RegExpUtils.punctuation({ exclude: ['\\-', '_'] }).test(node.data[0])) {
         return;
       }
 
@@ -56,7 +58,7 @@ export default class LinkManager extends ContenteditableExtension {
     }
   }
 
-  static toolbarComponentConfig({toolbarState}) {
+  static toolbarComponentConfig({ toolbarState }) {
     if (toolbarState.dragging || toolbarState.doubleDown) {
       return null;
     }
@@ -74,10 +76,10 @@ export default class LinkManager extends ContenteditableExtension {
       component: LinkEditor,
       props: {
         onSaveUrl: (url, link) => {
-          toolbarState.atomicEdit(LinkManager._onSaveUrl, {url, linkToModify: link});
+          toolbarState.atomicEdit(LinkManager._onSaveUrl, { url, linkToModify: link });
         },
         onDoneWithLink: () => {
-          toolbarState.atomicEdit(LinkManager._onDoneWithLink)
+          toolbarState.atomicEdit(LinkManager._onDoneWithLink);
         },
         linkToModify: linkToModify,
         focusOnMount: LinkManager._shouldFocusOnMount(toolbarState),
@@ -93,13 +95,15 @@ export default class LinkManager extends ContenteditableExtension {
   }
 
   static _linkAttributeHref(linkToModify) {
-    return ((linkToModify && linkToModify.getAttribute) ? linkToModify.getAttribute('href') : null) || "";
+    return (
+      (linkToModify && linkToModify.getAttribute ? linkToModify.getAttribute('href') : null) || ''
+    );
   }
 
   static _linkWidth(linkToModify) {
     const href = LinkManager._linkAttributeHref(linkToModify);
     const WIDTH_PER_CHAR = 8;
-    return Math.max((href.length * WIDTH_PER_CHAR) + 95, 210);
+    return Math.max(href.length * WIDTH_PER_CHAR + 95, 210);
   }
 
   static _linkAtCursor(toolbarState) {
@@ -107,7 +111,10 @@ export default class LinkManager extends ContenteditableExtension {
       const anchor = toolbarState.selectionSnapshot.anchorNode;
       const node = DOMUtils.closest(anchor, 'a, n1-prompt-link');
       const lastTextNode = DOMUtils.findLastTextNode(anchor);
-      if (lastTextNode && toolbarState.selectionSnapshot.anchorOffset === lastTextNode.data.length) {
+      if (
+        lastTextNode &&
+        toolbarState.selectionSnapshot.anchorOffset === lastTextNode.data.length
+      ) {
         return null;
       }
       return node;
@@ -143,24 +150,24 @@ export default class LinkManager extends ContenteditableExtension {
   //
   // The temporary fix is adding a _.defer block to change the ordering of
   // these keyboard events.
-  static _onInsertLink({editor}) {
+  static _onInsertLink({ editor }) {
     setTimeout(() => {
       if (editor.currentSelection().isCollapsed) {
-        const html = "<n1-prompt-link>link text</n1-prompt-link>";
-        editor.insertHTML(html, {selectInsertion: true});
+        const html = '<n1-prompt-link>link text</n1-prompt-link>';
+        editor.insertHTML(html, { selectInsertion: true });
       } else {
-        editor.wrapSelection("n1-prompt-link");
+        editor.wrapSelection('n1-prompt-link');
       }
     }, 0);
   }
 
-  static _onDoneWithLink({editor}) {
-    for (const node of Array.from(editor.rootNode.querySelectorAll("n1-prompt-link"))) {
+  static _onDoneWithLink({ editor }) {
+    for (const node of Array.from(editor.rootNode.querySelectorAll('n1-prompt-link'))) {
       editor.unwrapNodeAndSelectAll(node);
     }
   }
 
-  static _onSaveUrl({editor, url, linkToModify}) {
+  static _onSaveUrl({ editor, url, linkToModify }) {
     let toSelect = null;
 
     if (linkToModify != null) {
@@ -193,7 +200,7 @@ export default class LinkManager extends ContenteditableExtension {
       }
     }
 
-    for (const node of Array.from(editor.rootNode.querySelectorAll("n1-prompt-link"))) {
+    for (const node of Array.from(editor.rootNode.querySelectorAll('n1-prompt-link'))) {
       editor.unwrapNodeAndSelectAll(node);
     }
   }

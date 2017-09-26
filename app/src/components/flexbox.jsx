@@ -1,5 +1,4 @@
-import React from 'react';
-import {Utils} from "nylas-exports";
+import { React, PropTypes, Utils } from 'nylas-exports';
 
 /*
 Public: A simple wrapper that provides a Flexbox layout with the given direction and style.
@@ -17,10 +16,10 @@ export default class Flexbox extends React.Component {
    - `style` (optional) An {Object} with styles to apply to the flexbox.
   */
   static propTypes = {
-    direction: React.PropTypes.string,
-    inline: React.PropTypes.bool,
-    style: React.PropTypes.object,
-    height: React.PropTypes.string,
+    direction: PropTypes.string,
+    inline: PropTypes.bool,
+    style: PropTypes.object,
+    height: PropTypes.string,
   };
 
   static defaultProps = {
@@ -29,12 +28,16 @@ export default class Flexbox extends React.Component {
   };
 
   render() {
-    const style = Object.assign({}, {
-      flexDirection: this.props.direction,
-      position: 'relative',
-      display: 'flex',
-      height: this.props.height,
-    }, this.props.style);
+    const style = Object.assign(
+      {},
+      {
+        flexDirection: this.props.direction,
+        position: 'relative',
+        display: 'flex',
+        height: this.props.height,
+      },
+      this.props.style
+    );
 
     if (this.props.inline === true) {
       style.display = 'inline-flex';

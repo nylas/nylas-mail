@@ -1,8 +1,8 @@
-import path from 'path'
-import fs from 'fs'
-import os from 'os'
-import {exec} from 'child_process'
-import ws from 'windows-shortcuts'
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { exec } from 'child_process';
+import ws from 'windows-shortcuts';
 
 class SystemStartServiceBase {
   checkAvailability() {
@@ -10,122 +10,155 @@ class SystemStartServiceBase {
   }
 
   doesLaunchOnSystemStart() {
-    throw new Error("doesLaunchOnSystemStart is not available");
+    throw new Error('doesLaunchOnSystemStart is not available');
   }
 
   configureToLaunchOnSystemStart() {
-    throw new Error("configureToLaunchOnSystemStart is not available")
+    throw new Error('configureToLaunchOnSystemStart is not available');
   }
 
   dontLaunchOnSystemStart() {
-    throw new Error("dontLaunchOnSystemStart is not available")
+    throw new Error('dontLaunchOnSystemStart is not available');
   }
 }
 
 class SystemStartServiceDarwin extends SystemStartServiceBase {
   checkAvailability() {
-    return new Promise((resolve) => {
-      fs.access(this._launcherPath(), fs.R_OK | fs.W_OK, (err) => {
-        if (err) { resolve(false) } else { resolve(true) }
+    return new Promise(resolve => {
+      fs.access(this._launcherPath(), fs.R_OK | fs.W_OK, err => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       });
     });
   }
 
   doesLaunchOnSystemStart() {
-    return new Promise((resolve) => {
-      fs.access(this._plistPath(), fs.R_OK | fs.W_OK, (err) => {
-        if (err) { resolve(false) } else { resolve(true) }
+    return new Promise(resolve => {
+      fs.access(this._plistPath(), fs.R_OK | fs.W_OK, err => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       });
     });
   }
 
   configureToLaunchOnSystemStart() {
-    fs.writeFile(this._plistPath(), JSON.stringify(this._launchdPlist()), (err) => {
+    fs.writeFile(this._plistPath(), JSON.stringify(this._launchdPlist()), err => {
       if (!err) {
-        exec(`plutil -convert xml1 ${this._plistPath()}`)
+        exec(`plutil -convert xml1 ${this._plistPath()}`);
       }
-    })
+    });
   }
 
   dontLaunchOnSystemStart() {
-    return fs.unlink(this._plistPath(), () => {})
+    return fs.unlink(this._plistPath(), () => {});
   }
 
   _launcherPath() {
-    return path.join("/", "Applications", "Mailspring.app", "Contents",
-                     "MacOS", "Mailspring")
+    return path.join('/', 'Applications', 'Mailspring.app', 'Contents', 'MacOS', 'Mailspring');
   }
 
   _plistPath() {
-    return path.join(process.env.HOME, "Library",
-                     "LaunchAgents", "com.mailspring.plist");
+    return path.join(process.env.HOME, 'Library', 'LaunchAgents', 'com.mailspring.plist');
   }
 
   _launchdPlist() {
     return {
-      Label: "com.mailspring.mailspring",
+      Label: 'com.mailspring.mailspring',
       Program: this._launcherPath(),
-      ProgramArguments: ["--background"],
+      ProgramArguments: ['--background'],
       RunAtLoad: true,
-    }
+    };
   }
 }
 
 class SystemStartServiceWin32 extends SystemStartServiceBase {
   checkAvailability() {
-    return new Promise((resolve) => {
-      fs.access(this._launcherPath(), fs.R_OK | fs.W_OK, (err) => {
-        if (err) { resolve(false) } else { resolve(true) }
+    return new Promise(resolve => {
+      fs.access(this._launcherPath(), fs.R_OK | fs.W_OK, err => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       });
     });
   }
 
   doesLaunchOnSystemStart() {
-    return new Promise((resolve) => {
-      fs.access(this._shortcutPath(), fs.R_OK | fs.W_OK, (err) => {
-        if (err) { resolve(false) } else { resolve(true) }
+    return new Promise(resolve => {
+      fs.access(this._shortcutPath(), fs.R_OK | fs.W_OK, err => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       });
     });
   }
 
   configureToLaunchOnSystemStart() {
-    ws.create(this._shortcutPath(), {
-      target: this._launcherPath(),
-      args: "--processStart=mailspring.exe --process-start-args=--background",
-      runStyle: ws.MIN,
-      desc: "An extensible, open-source mail client built on the modern web.",
-    }, (err) => {
-      if (err) NylasEnv.reportError(err)
-    });
+    ws.create(
+      this._shortcutPath(),
+      {
+        target: this._launcherPath(),
+        args: '--processStart=mailspring.exe --process-start-args=--background',
+        runStyle: ws.MIN,
+        desc: 'An extensible, open-source mail client built on the modern web.',
+      },
+      err => {
+        if (err) NylasEnv.reportError(err);
+      }
+    );
   }
 
   dontLaunchOnSystemStart() {
-    return fs.unlink(this._shortcutPath(), () => {})
+    return fs.unlink(this._shortcutPath(), () => {});
   }
 
   _launcherPath() {
-    return path.join(process.env.LOCALAPPDATA, "mailspring", "Update.exe")
+    return path.join(process.env.LOCALAPPDATA, 'mailspring', 'Update.exe');
   }
 
   _shortcutPath() {
-    return path.join(process.env.APPDATA, "Microsoft", "Windows",
-                     "Start Menu", "Programs", "Startup", "Mailspring.lnk")
+    return path.join(
+      process.env.APPDATA,
+      'Microsoft',
+      'Windows',
+      'Start Menu',
+      'Programs',
+      'Startup',
+      'Mailspring.lnk'
+    );
   }
 }
 
 class SystemStartServiceLinux extends SystemStartServiceBase {
   checkAvailability() {
-    return new Promise((resolve) => {
-      fs.access(this._launcherPath(), fs.R_OK, (err) => {
-        if (err) { resolve(false) } else { resolve(true) }
+    return new Promise(resolve => {
+      fs.access(this._launcherPath(), fs.R_OK, err => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       });
     });
   }
 
   doesLaunchOnSystemStart() {
-    return new Promise((resolve) => {
-      fs.access(this._shortcutPath(), fs.R_OK | fs.W_OK, (err) => {
-        if (err) { resolve(false) } else { resolve(true) }
+    return new Promise(resolve => {
+      fs.access(this._shortcutPath(), fs.R_OK | fs.W_OK, err => {
+        if (err) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       });
     });
   }
@@ -140,7 +173,7 @@ class SystemStartServiceLinux extends SystemStartServiceBase {
   }
 
   dontLaunchOnSystemStart() {
-    return fs.unlink(this._shortcutPath(), () => {})
+    return fs.unlink(this._shortcutPath(), () => {});
   }
 
   _launcherPath() {
@@ -155,14 +188,14 @@ class SystemStartServiceLinux extends SystemStartServiceBase {
 
 /* eslint import/no-mutable-exports: 0*/
 let SystemStartService;
-if (process.platform === "darwin") {
+if (process.platform === 'darwin') {
   SystemStartService = SystemStartServiceDarwin;
-} else if (process.platform === "linux") {
+} else if (process.platform === 'linux') {
   SystemStartService = SystemStartServiceLinux;
-} else if (process.platform === "win32") {
+} else if (process.platform === 'win32') {
   SystemStartService = SystemStartServiceWin32;
 } else {
   SystemStartService = SystemStartServiceBase;
 }
 
-export default SystemStartService
+export default SystemStartService;

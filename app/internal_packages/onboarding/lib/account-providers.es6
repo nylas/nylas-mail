@@ -43,6 +43,6 @@ const AccountProviders = [
     headerIcon: 'setup-icon-provider-imap.png',
     color: '#aaa',
   },
-]
+];
 
 export default AccountProviders;

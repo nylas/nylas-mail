@@ -12,13 +12,17 @@ export default class AttributeDateTime extends Attribute {
       return null;
     }
     if (!(val instanceof Date)) {
-      throw new Error(`Attempting to toJSON AttributeDateTime which is not a date: ${this.modelKey} = ${val}`);
+      throw new Error(
+        `Attempting to toJSON AttributeDateTime which is not a date: ${this.modelKey} = ${val}`
+      );
     }
     return val.getTime() / 1000.0;
   }
 
   fromJSON(val) {
-    if (!val || val instanceof Date) { return val; }
+    if (!val || val instanceof Date) {
+      return val;
+    }
     return new Date(val * 1000);
   }
 
@@ -29,7 +33,7 @@ export default class AttributeDateTime extends Attribute {
   // Public: Returns a {Matcher} for objects greater than the provided value.
   greaterThan(val) {
     this._assertPresentAndQueryable('greaterThan', val);
-    return new Matcher(this, '>', val)
+    return new Matcher(this, '>', val);
   }
 
   // Public: Returns a {Matcher} for objects less than the provided value.

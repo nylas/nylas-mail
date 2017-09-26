@@ -3,9 +3,9 @@ import _ from 'underscore';
 export default class UndoStack {
   constructor(options) {
     this._options = options;
-    this._stack = []
-    this._redoStack = []
-    this._MAX_STACK_SIZE = 1000
+    this._stack = [];
+    this._redoStack = [];
+    this._MAX_STACK_SIZE = 1000;
     this._accumulated = {};
   }
 
@@ -14,7 +14,9 @@ export default class UndoStack {
   }
 
   undo() {
-    if (this._stack.length <= 1) { return null; }
+    if (this._stack.length <= 1) {
+      return null;
+    }
     const item = this._stack.pop();
     this._redoStack.push(item);
     return this.current();
@@ -22,21 +24,25 @@ export default class UndoStack {
 
   redo() {
     const item = this._redoStack.pop();
-    if (!item) { return null; }
+    if (!item) {
+      return null;
+    }
     this._stack.push(item);
     return this.current();
   }
 
-  accumulate = (state) => {
+  accumulate = state => {
     Object.assign(this._accumulated, state);
-    const shouldSnapshot = this._options.shouldSnapshot && this._options.shouldSnapshot(this.current(), this._accumulated);
+    const shouldSnapshot =
+      this._options.shouldSnapshot &&
+      this._options.shouldSnapshot(this.current(), this._accumulated);
     if (!this.current() || shouldSnapshot) {
       this.save(this._accumulated);
       this._accumulated = {};
     }
-  }
+  };
 
-  save = (historyItem) => {
+  save = historyItem => {
     if (_.isEqual(this.current(), historyItem)) {
       return;
     }
@@ -46,9 +52,9 @@ export default class UndoStack {
     while (this._stack.length > this._MAX_STACK_SIZE) {
       this._stack.shift();
     }
-  }
+  };
 
-  saveAndUndo = (currentItem) => {
+  saveAndUndo = currentItem => {
     const top = this._stack.length - 1;
     const snapshot = this._stack[top];
     if (!snapshot) {
@@ -58,5 +64,5 @@ export default class UndoStack {
     this.undo();
 
     return snapshot;
-  }
+  };
 }

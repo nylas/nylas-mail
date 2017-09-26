@@ -1,4 +1,4 @@
-import {RegExpUtils} from 'nylas-exports'
+import { RegExpUtils } from 'nylas-exports';
 
 export default {
   applySignature(body, signature) {
@@ -9,8 +9,8 @@ export default {
     let paddingBefore = '';
 
     // Remove any existing signature in the body
-    newBody = newBody.replace(signatureRegex, "");
-    const signatureInPrevious = newBody !== body
+    newBody = newBody.replace(signatureRegex, '');
+    const signatureInPrevious = newBody !== body;
 
     // http://www.regexpal.com/?fam=94390
     // prefer to put the signature one <br> before the beginning of the quote,
@@ -18,7 +18,7 @@ export default {
     let insertionPoint = newBody.search(RegExpUtils.n1QuoteStartRegex());
     if (insertionPoint === -1) {
       insertionPoint = newBody.length;
-      if (!signatureInPrevious) paddingBefore = '<br><br>'
+      if (!signatureInPrevious) paddingBefore = '<br><br>';
     }
 
     const contentBefore = newBody.slice(0, insertionPoint);

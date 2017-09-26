@@ -4,7 +4,7 @@ import LessCache from 'less-cache';
 
 // {LessCache} wrapper used by {ThemeManager} to read stylesheets.
 export default class LessCompileCache {
-  constructor({configDirPath, resourcePath, importPaths}) {
+  constructor({ configDirPath, resourcePath, importPaths }) {
     this.lessSearchPaths = [
       path.join(resourcePath, 'static', 'variables'),
       path.join(resourcePath, 'static'),

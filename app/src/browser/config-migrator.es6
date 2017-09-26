@@ -3,6 +3,5 @@ export default class ConfigMigrator {
     this.config = config;
   }
 
-  migrate() {
-  }
+  migrate() {}
 }

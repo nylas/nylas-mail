@@ -1,18 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import fs from 'fs-plus';
 import path from 'path';
 
-import {EventedIFrame} from 'nylas-component-kit';
-import LessCompileCache from '../../../src/less-compile-cache'
-
+import { EventedIFrame } from 'nylas-component-kit';
+import LessCompileCache from '../../../src/less-compile-cache';
 
 class ThemeOption extends React.Component {
   static propTypes = {
-    theme: React.PropTypes.object.isRequired,
-    active: React.PropTypes.bool.isRequired,
-    onSelect: React.PropTypes.func.isRequired,
-  }
+    theme: PropTypes.object.isRequired,
+    active: PropTypes.bool.isRequired,
+    onSelect: PropTypes.func.isRequired,
+  };
 
   constructor(props) {
     super(props);
@@ -38,21 +38,23 @@ class ThemeOption extends React.Component {
   }
 
   _loadLessStylesheet(lessStylesheetPath) {
-    const {configDirPath, resourcePath} = NylasEnv.getLoadSettings();
+    const { configDirPath, resourcePath } = NylasEnv.getLoadSettings();
     if (this.lessCache) {
       this.lessCache.setImportPaths(this._getImportPaths());
     } else {
       const importPaths = this._getImportPaths();
-      this.lessCache = new LessCompileCache({configDirPath, resourcePath, importPaths});
+      this.lessCache = new LessCompileCache({ configDirPath, resourcePath, importPaths });
     }
-    const themeVarPath = path.relative(`${resourcePath}/internal_packages/theme-picker/preview-styles`,
-                                      this.props.theme.getStylesheetsPath());
-    let varImports = `@import "../../../static/variables/ui-variables";`
+    const themeVarPath = path.relative(
+      `${resourcePath}/internal_packages/theme-picker/preview-styles`,
+      this.props.theme.getStylesheetsPath()
+    );
+    let varImports = `@import "../../../static/variables/ui-variables";`;
     if (fs.existsSync(`${this.props.theme.getStylesheetsPath()}/ui-variables.less`)) {
-      varImports += `@import "${themeVarPath}/ui-variables";`
+      varImports += `@import "${themeVarPath}/ui-variables";`;
     }
     if (fs.existsSync(`${this.props.theme.getStylesheetsPath()}/theme-colors.less`)) {
-      varImports += `@import "${themeVarPath}/theme-colors";`
+      varImports += `@import "${themeVarPath}/theme-colors";`;
     }
     const less = fs.readFileSync(lessStylesheetPath, 'utf8');
     return this.lessCache.cssForFile(lessStylesheetPath, [varImports, less].join('\n'));
@@ -62,8 +64,10 @@ class ThemeOption extends React.Component {
     const doc = ReactDOM.findDOMNode(this._iframeComponent).contentDocument;
     if (!doc) return;
 
-    const {resourcePath} = NylasEnv.getLoadSettings();
-    const css = `<style>${this._loadStylesheet(`${resourcePath}/internal_packages/theme-picker/preview-styles/theme-option.less`)}</style>`
+    const { resourcePath } = NylasEnv.getLoadSettings();
+    const css = `<style>${this._loadStylesheet(
+      `${resourcePath}/internal_packages/theme-picker/preview-styles/theme-option.less`
+    )}</style>`;
     const html = `<!DOCTYPE html>
                   ${css}
                   <body>
@@ -78,7 +82,7 @@ class ThemeOption extends React.Component {
                       <div class="divider-white"></div>
                       <div class="strip"></div>
                     </div>
-                  </body>`
+                  </body>`;
 
     doc.open();
     doc.write(html);
@@ -89,7 +93,9 @@ class ThemeOption extends React.Component {
     return (
       <div className="clickable-theme-option" onMouseDown={this.props.onSelect}>
         <EventedIFrame
-          ref={(cm) => { this._iframeComponent = cm; }}
+          ref={cm => {
+            this._iframeComponent = cm;
+          }}
           className={`theme-preview-${this.props.theme.name.replace(/\./g, '-')}`}
           frameBorder="0"
           width="115px"

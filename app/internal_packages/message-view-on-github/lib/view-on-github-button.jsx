@@ -1,8 +1,8 @@
-import {shell} from 'electron'
-import {Actions, React} from 'nylas-exports'
-import {RetinaImg, KeyCommandsRegion} from 'nylas-component-kit'
+import { shell } from 'electron';
+import { Actions, React, PropTypes } from 'nylas-exports';
+import { RetinaImg, KeyCommandsRegion } from 'nylas-component-kit';
 
-import GithubStore from './github-store'
+import GithubStore from './github-store';
 
 /**
 The `ViewOnGithubButton` displays a button whenever there's a relevant
@@ -47,13 +47,13 @@ simple button with a GitHub logo in it.
 We'll also display nothing if there is no link.
 */
 export default class ViewOnGithubButton extends React.Component {
-  static displayName = "ViewOnGithubButton"
+  static displayName = 'ViewOnGithubButton';
 
-  static containerRequired = false
+  static containerRequired = false;
 
   static propTypes = {
-    items: React.PropTypes.array,
-  }
+    items: PropTypes.array,
+  };
 
   /** ** React methods ****
   * The following methods are React methods that we override. See {React}
@@ -61,8 +61,8 @@ export default class ViewOnGithubButton extends React.Component {
   */
 
   constructor(props) {
-    super(props)
-    this.state = this._getStateFromStores()
+    super(props);
+    this.state = this._getStateFromStores();
   }
 
   /*
@@ -79,17 +79,17 @@ export default class ViewOnGithubButton extends React.Component {
     * are cleaned up. Every time the `GithubStore` calls its `trigger`
     * method, the `_onStoreChanged` callback will be fired.
     */
-    this._unlisten = GithubStore.listen(this._onStoreChanged)
+    this._unlisten = GithubStore.listen(this._onStoreChanged);
   }
 
   componentWillUnmount() {
-    this._unlisten()
+    this._unlisten();
   }
 
   _keymapHandlers() {
     return {
       'github:open': this._openLink,
-    }
+    };
   }
 
   /** ** Super common N1 Component private methods ****
@@ -112,8 +112,8 @@ export default class ViewOnGithubButton extends React.Component {
   * fat arrow (`=>`)
   */
   _onStoreChanged = () => {
-    this.setState(this._getStateFromStores())
-  }
+    this.setState(this._getStateFromStores());
+  };
 
   /*
   * getStateFromStores fetches the data the view needs from the
@@ -123,7 +123,7 @@ export default class ViewOnGithubButton extends React.Component {
   _getStateFromStores() {
     return {
       link: GithubStore.link(),
-    }
+    };
   }
 
   /** ** Other utility "private" methods ****
@@ -140,21 +140,25 @@ export default class ViewOnGithubButton extends React.Component {
   * request.
   */
   _openLink = () => {
-    Actions.recordUserEvent("Github Thread Opened", {pageUrl: this.state.link})
+    Actions.recordUserEvent('Github Thread Opened', { pageUrl: this.state.link });
     if (this.state.link) {
-      shell.openExternal(this.state.link)
+      shell.openExternal(this.state.link);
     }
-  }
+  };
 
   render() {
-    if (this.props.items.length !== 1) { return false }
-    if (!this.state.link) { return false }
+    if (this.props.items.length !== 1) {
+      return false;
+    }
+    if (!this.state.link) {
+      return false;
+    }
     return (
       <KeyCommandsRegion globalHandlers={this._keymapHandlers()}>
         <button
           className="btn btn-toolbar btn-view-on-github"
           onClick={this._openLink}
-          title={"Visit Thread on GitHub"}
+          title={'Visit Thread on GitHub'}
         >
           <RetinaImg
             mode={RetinaImg.Mode.ContentIsMask}
@@ -162,6 +166,6 @@ export default class ViewOnGithubButton extends React.Component {
           />
         </button>
       </KeyCommandsRegion>
-    )
+    );
   }
 }

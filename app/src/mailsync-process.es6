@@ -12,35 +12,40 @@ import fs from 'fs';
 let Utils = null;
 
 export const LocalizedErrorStrings = {
-  ErrorConnection: "Connection Error - Unable to connect to the server / port you provided.",
-  ErrorInvalidAccount: "This account is invalid, or does not have an inbox or all folder.",
-  ErrorTLSNotAvailable: "TLS Not Available",
-  ErrorParse: "Parsing Error",
-  ErrorCertificate: "Certificate Error",
-  ErrorAuthentication: "Authentication Error - Check your username and password.",
-  ErrorGmailIMAPNotEnabled: "Gmail IMAP is not enabled. Visit Gmail settings to turn it on.",
-  ErrorGmailExceededBandwidthLimit: "Gmail bandwidth exceeded. Please try again later.",
-  ErrorGmailTooManySimultaneousConnections: "There are too many active connections to your Gmail account. Please try again later.",
-  ErrorMobileMeMoved: "MobileMe has moved.",
-  ErrorYahooUnavailable: "Yahoo is unavailable.",
-  ErrorNonExistantFolder: "Sorry, this folder does not exist.",
-  ErrorStartTLSNotAvailable: "StartTLS is not available.",
-  ErrorGmailApplicationSpecificPasswordRequired: "A Gmail application-specific password is required.",
-  ErrorOutlookLoginViaWebBrowser: "The Outlook server said you must sign in via a web browser.",
-  ErrorNeedsConnectToWebmail: "The server said you must sign in via your webmail.",
-  ErrorNoValidServerFound: "No valid server found.",
-  ErrorAuthenticationRequired: "Authentication required.",
+  ErrorConnection: 'Connection Error - Unable to connect to the server / port you provided.',
+  ErrorInvalidAccount: 'This account is invalid, or does not have an inbox or all folder.',
+  ErrorTLSNotAvailable: 'TLS Not Available',
+  ErrorParse: 'Parsing Error',
+  ErrorCertificate: 'Certificate Error',
+  ErrorAuthentication: 'Authentication Error - Check your username and password.',
+  ErrorGmailIMAPNotEnabled: 'Gmail IMAP is not enabled. Visit Gmail settings to turn it on.',
+  ErrorGmailExceededBandwidthLimit: 'Gmail bandwidth exceeded. Please try again later.',
+  ErrorGmailTooManySimultaneousConnections:
+    'There are too many active connections to your Gmail account. Please try again later.',
+  ErrorMobileMeMoved: 'MobileMe has moved.',
+  ErrorYahooUnavailable: 'Yahoo is unavailable.',
+  ErrorNonExistantFolder: 'Sorry, this folder does not exist.',
+  ErrorStartTLSNotAvailable: 'StartTLS is not available.',
+  ErrorGmailApplicationSpecificPasswordRequired:
+    'A Gmail application-specific password is required.',
+  ErrorOutlookLoginViaWebBrowser: 'The Outlook server said you must sign in via a web browser.',
+  ErrorNeedsConnectToWebmail: 'The server said you must sign in via your webmail.',
+  ErrorNoValidServerFound: 'No valid server found.',
+  ErrorAuthenticationRequired: 'Authentication required.',
 
   // sending related
-  ErrorSendMessageNotAllowed: "Sending is not enabled for this account.",
-  ErrorSendMessageIllegalAttachment: "The message contains an illegial attachment that is not allowed by the server.",
-  ErrorYahooSendMessageSpamSuspected: "The message has been blocked by Yahoo's outbound spam filter.",
-  ErrorYahooSendMessageDailyLimitExceeded: "The message has been blocked by Yahoo - you have exceeded your daily sending limit.",
-  ErrorNoSender: "The message has been blocked because no sender is configured.",
+  ErrorSendMessageNotAllowed: 'Sending is not enabled for this account.',
+  ErrorSendMessageIllegalAttachment:
+    'The message contains an illegial attachment that is not allowed by the server.',
+  ErrorYahooSendMessageSpamSuspected:
+    "The message has been blocked by Yahoo's outbound spam filter.",
+  ErrorYahooSendMessageDailyLimitExceeded:
+    'The message has been blocked by Yahoo - you have exceeded your daily sending limit.',
+  ErrorNoSender: 'The message has been blocked because no sender is configured.',
 };
 
 export default class MailsyncProcess extends EventEmitter {
-  constructor({configDirPath, resourcePath}, identity, account) {
+  constructor({ configDirPath, resourcePath }, identity, account) {
     super();
     this.configDirPath = configDirPath;
     this.account = account;
@@ -59,10 +64,12 @@ export default class MailsyncProcess extends EventEmitter {
       env.IDENTITY_SERVER = rootURLForServer('identity');
     }
 
-    this._proc = spawn(this.binaryPath, [`--mode`, mode], {env});
+    this._proc = spawn(this.binaryPath, [`--mode`, mode], { env });
     if (this.account) {
       this._proc.stdout.once('data', () => {
-        this._proc.stdin.write(`${JSON.stringify(this.account)}\n${JSON.stringify(this.identity)}\n`);
+        this._proc.stdin.write(
+          `${JSON.stringify(this.account)}\n${JSON.stringify(this.identity)}\n`
+        );
       });
     }
   }
@@ -71,18 +78,21 @@ export default class MailsyncProcess extends EventEmitter {
     return new Promise((resolve, reject) => {
       this._spawnProcess(mode);
       let buffer = Buffer.from([]);
-      this._proc.stdout.on('data', (data) => {
+      this._proc.stdout.on('data', data => {
         buffer += data;
       });
-      this._proc.stderr.on('data', (data) => {
+      this._proc.stderr.on('data', data => {
         buffer += data;
       });
-      this._proc.on('error', (err) => {
+      this._proc.on('error', err => {
         reject(err);
       });
-      this._proc.on('close', (code) => {
+      this._proc.on('close', code => {
         try {
-          const lastLine = buffer.toString('UTF-8').split('\n').pop();
+          const lastLine = buffer
+            .toString('UTF-8')
+            .split('\n')
+            .pop();
           const response = JSON.parse(lastLine);
           if (code === 0) {
             resolve(response);
@@ -101,13 +111,13 @@ export default class MailsyncProcess extends EventEmitter {
   }
 
   kill() {
-    console.warn("Terminating mailsync...");
+    console.warn('Terminating mailsync...');
     this._proc.kill();
   }
 
   sync() {
     this._spawnProcess('sync');
-    let buffer = "";
+    let buffer = '';
     let errBuffer = null;
 
     /* Allow us to buffer up to 1MB on stdin instead of 16k. This is necessary
@@ -116,7 +126,7 @@ export default class MailsyncProcess extends EventEmitter {
     the channel. */
     this._proc.stdin.highWaterMark = 1024 * 1024;
 
-    this._proc.stdout.on('data', (data) => {
+    this._proc.stdout.on('data', data => {
       const added = data.toString();
       buffer += added;
 
@@ -126,14 +136,14 @@ export default class MailsyncProcess extends EventEmitter {
         this.emit('deltas', msgs);
       }
     });
-    this._proc.stderr.on('data', (data) => {
+    this._proc.stderr.on('data', data => {
       errBuffer += data.toString();
     });
-    this._proc.on('error', (err) => {
+    this._proc.on('error', err => {
       console.log(`Sync worker exited with ${err}`);
       this.emit('error', err);
     });
-    this._proc.on('close', (code) => {
+    this._proc.on('close', code => {
       let error = null;
 
       if (buffer.length) {
@@ -153,12 +163,14 @@ export default class MailsyncProcess extends EventEmitter {
         error = new Error(errBuffer);
       }
 
-      this.emit('close', {code, error, signal: this._proc.signalCode});
+      this.emit('close', { code, error, signal: this._proc.signalCode });
     });
   }
 
   sendMessage(json) {
-    if (!Utils) { Utils = require('nylas-exports').Utils; }
+    if (!Utils) {
+      Utils = require('nylas-exports').Utils;
+    }
     console.log(`Sending to mailsync ${this.account.id}`, json);
     const msg = `${JSON.stringify(json)}\n`;
     this._proc.stdin.write(msg, 'UTF8');
@@ -174,7 +186,9 @@ export default class MailsyncProcess extends EventEmitter {
 
   attachToXcode() {
     const tmppath = path.join(os.tmpdir(), 'attach.applescript');
-    fs.writeFileSync(tmppath, `
+    fs.writeFileSync(
+      tmppath,
+      `
 tell application "Xcode"
   activate
 end tell
@@ -192,7 +206,8 @@ tell application "System Events"
   end tell
   
 end tell
-    `);
+    `
+    );
     exec(`osascript ${tmppath}`);
   }
 }

@@ -1,17 +1,16 @@
 import NylasStore from 'nylas-store';
-import {remote} from 'electron';
-import url from 'url'
+import { remote } from 'electron';
+import url from 'url';
 
 import Utils from '../models/utils';
 import Actions from '../actions';
 import KeyManager from '../../key-manager';
-import {makeRequest, rootURLForServer} from '../nylas-api-request';
+import { makeRequest, rootURLForServer } from '../nylas-api-request';
 
 // Note this key name is used when migrating to Nylas Pro accounts from old N1.
 const KEYCHAIN_NAME = 'Mailspring Account';
 
 class IdentityStore extends NylasStore {
-
   constructor() {
     super();
     this._identity = null;
@@ -23,24 +22,24 @@ class IdentityStore extends NylasStore {
       */
       NylasEnv.onWindowPropsReceived(() => {
         this._onIdentityChanged();
-      })
-      return
+      });
+      return;
     }
 
     NylasEnv.config.onDidChange('identity', this._onIdentityChanged);
     this._onIdentityChanged();
 
     this.listenTo(Actions.logoutNylasIdentity, this._onLogoutNylasIdentity);
-    this._fetchAndPollRemoteIdentity()
+    this._fetchAndPollRemoteIdentity();
   }
 
   deactivate() {
     if (this._disp) this._disp.dispose();
-    this.stopListeningToAll()
+    this.stopListeningToAll();
   }
 
   identity() {
-    if (!this._identity || !this._identity.id) return null
+    if (!this._identity || !this._identity.id) return null;
     return Utils.deepClone(this._identity);
   }
 
@@ -53,8 +52,12 @@ class IdentityStore extends NylasStore {
 
   _fetchAndPollRemoteIdentity() {
     if (!NylasEnv.isMainWindow()) return;
-    setTimeout(() => { this.fetchIdentity(); }, 1000);
-    setInterval(() => { this.fetchIdentity(); }, 1000 * 60 * 10); // 10 minutes
+    setTimeout(() => {
+      this.fetchIdentity();
+    }, 1000);
+    setInterval(() => {
+      this.fetchIdentity();
+    }, 1000 * 60 * 10); // 10 minutes
   }
 
   saveIdentity(identity) {
@@ -65,7 +68,7 @@ class IdentityStore extends NylasStore {
       return;
     }
 
-    const {token, ...rest} = identity;
+    const { token, ...rest } = identity;
 
     // allow someone to call saveIdentity without the token,
     // and only save it if it's been changed (expensive call.)
@@ -90,15 +93,15 @@ class IdentityStore extends NylasStore {
     this._identity = NylasEnv.config.get('identity') || {};
     this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
     this.trigger();
-  }
+  };
 
   _onLogoutNylasIdentity = () => {
-    this.saveIdentity(null)
+    this.saveIdentity(null);
     // We need to relaunch the app to clear the webview session
     // and prevent the webview from re signing in with the same NylasID
-    remote.app.relaunch()
-    remote.app.quit()
-  }
+    remote.app.relaunch();
+    remote.app.quit();
+  };
 
   /**
    * This passes utm_source, utm_campaign, and utm_content params to the
@@ -106,25 +109,31 @@ class IdentityStore extends NylasStore {
    * https://paper.dropbox.com/doc/Analytics-ID-Unification-oVDTkakFsiBBbk9aeuiA3
    * for the full list of utm_ labels.
    */
-  async fetchSingleSignOnURL(path, {source, campaign, content} = {}) {
+  async fetchSingleSignOnURL(path, { source, campaign, content } = {}) {
     if (!this._identity) {
-      return Promise.reject(new Error("fetchSingleSignOnURL: no identity set."));
+      return Promise.reject(new Error('fetchSingleSignOnURL: no identity set.'));
     }
 
-    const qs = {utm_medium: "N1"}
-    if (source) { qs.utm_source = source }
-    if (campaign) { qs.utm_campaign = campaign }
-    if (content) { qs.utm_content = content }
+    const qs = { utm_medium: 'N1' };
+    if (source) {
+      qs.utm_source = source;
+    }
+    if (campaign) {
+      qs.utm_campaign = campaign;
+    }
+    if (content) {
+      qs.utm_content = content;
+    }
 
     let pathWithUtm = url.parse(path, true);
-    pathWithUtm.query = Object.assign({}, qs, (pathWithUtm.query || {}));
+    pathWithUtm.query = Object.assign({}, qs, pathWithUtm.query || {});
     pathWithUtm = url.format({
       pathname: pathWithUtm.pathname,
       query: pathWithUtm.query,
-    })
+    });
 
     if (!pathWithUtm.startsWith('/')) {
-      throw new Error("fetchSingleSignOnURL: path must start with a leading slash.");
+      throw new Error('fetchSingleSignOnURL: path must start with a leading slash.');
     }
 
     const body = new FormData();
@@ -161,7 +170,7 @@ class IdentityStore extends NylasStore {
 
     if (!json || !json.id || json.id !== this._identity.id) {
       console.error(json);
-      NylasEnv.reportError(new Error("Remote Identity returned invalid json"), json || {})
+      NylasEnv.reportError(new Error('Remote Identity returned invalid json'), json || {});
       return this._identity;
     }
     const nextIdentity = Object.assign({}, this._identity, json);
@@ -170,4 +179,4 @@ class IdentityStore extends NylasStore {
   }
 }
 
-export default new IdentityStore()
+export default new IdentityStore();

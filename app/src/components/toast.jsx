@@ -1,81 +1,82 @@
-import React, {Component} from 'react'
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import PropTypes from 'prop-types'
-
+import React, { Component } from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import PropTypes from 'prop-types';
 
 class Toast extends Component {
-  static displayName = 'Toast'
+  static displayName = 'Toast';
 
   static propTypes = {
     className: PropTypes.string,
     visible: PropTypes.bool,
     visibleDuration: PropTypes.number,
     onDidHide: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     visible: false,
     visibleDuration: 3000,
     onDidHide: () => {},
-  }
+  };
 
   constructor(props) {
-    super(props)
-    this._timeout = null
-    this._mounted = false
+    super(props);
+    this._timeout = null;
+    this._mounted = false;
     this.state = {
       visible: props.visible,
-    }
+    };
   }
 
   componentDidMount() {
-    this._mounted = true
-    this._ensureTimeout()
+    this._mounted = true;
+    this._ensureTimeout();
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({visible: nextProps.visible})
+    this.setState({ visible: nextProps.visible });
   }
 
   componentDidUpdate() {
-    this._ensureTimeout()
+    this._ensureTimeout();
   }
 
   componentWillUnmount() {
-    const {onDidHide} = this.props
-    this._mounted = false
-    onDidHide()
+    const { onDidHide } = this.props;
+    this._mounted = false;
+    onDidHide();
   }
 
   _clearTimeout() {
-    clearTimeout(this._timeout)
-    this._timeout = null
+    clearTimeout(this._timeout);
+    this._timeout = null;
   }
 
   _ensureTimeout() {
-    const {visible} = this.state
-    const {visibleDuration, onDidHide} = this.props
-    this._clearTimeout()
+    const { visible } = this.state;
+    const { visibleDuration, onDidHide } = this.props;
+    this._clearTimeout();
     if (visible) {
-      if (visibleDuration == null) { return }
+      if (visibleDuration == null) {
+        return;
+      }
       this._timeout = setTimeout(() => {
-        this._mounted = false
-        this.setState({visible: false}, onDidHide)
-      }, visibleDuration)
+        this._mounted = false;
+        this.setState({ visible: false }, onDidHide);
+      }, visibleDuration);
     }
   }
 
   _onMouseEnter = () => {
-    this._clearTimeout()
-  }
+    this._clearTimeout();
+  };
 
   _onMouseLeave = () => {
-    this._ensureTimeout()
-  }
+    this._ensureTimeout();
+  };
 
   render() {
-    const {className, children} = this.props
-    const {visible} = this.state
+    const { className, children } = this.props;
+    const { visible } = this.state;
     return (
       <ReactCSSTransitionGroup
         className={`nylas-toast ${className}`}
@@ -83,19 +84,18 @@ class Toast extends Component {
         transitionEnterTimeout={150}
         transitionName="nylas-toast-item"
       >
-        {visible ?
+        {visible ? (
           <div
             className="nylas-toast-wrap"
             onMouseEnter={this._onMouseEnter}
             onMouseLeave={this._onMouseLeave}
           >
             {children}
-          </div> :
-          null
-        }
+          </div>
+        ) : null}
       </ReactCSSTransitionGroup>
-    )
+    );
   }
 }
 
-export default Toast
+export default Toast;

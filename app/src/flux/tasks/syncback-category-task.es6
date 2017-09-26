@@ -2,7 +2,6 @@ import Task from './task';
 import Attributes from '../attributes';
 
 export default class SyncbackCategoryTask extends Task {
-
   static attributes = Object.assign({}, Task.attributes, {
     path: Attributes.String({
       modelKey: 'path',
@@ -15,7 +14,7 @@ export default class SyncbackCategoryTask extends Task {
     }),
   });
 
-  constructor({existingPath, path, accountId, ...rest} = {}) {
+  constructor({ existingPath, path, accountId, ...rest } = {}) {
     super(rest);
     this.existingPath = existingPath;
     this.path = path;

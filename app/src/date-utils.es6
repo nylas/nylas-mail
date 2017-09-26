@@ -1,51 +1,50 @@
-import moment from 'moment-timezone'
-import _ from 'underscore'
+import moment from 'moment-timezone';
 
 // Init locale for moment
-moment.locale(navigator.language)
+moment.locale(navigator.language);
 
 // Initialise moment timezone
-const tz = moment.tz.guess()
+const tz = moment.tz.guess();
 if (!tz) {
-  console.error("DateUtils: TimeZone could not be determined. This should not happen!")
+  console.error('DateUtils: TimeZone could not be determined. This should not happen!');
 }
 
-const yearRegex = / ?YY(YY)?/
+const yearRegex = / ?YY(YY)?/;
 
 const Hours = {
   Morning: 9,
   Evening: 20,
   Midnight: 24,
-}
+};
 
 const Days = {
   // The value for next monday and next weekend varies depending if the current
   // day is saturday or sunday. See http://momentjs.com/docs/#/get-set/day/
   NextMonday: day => (day === 0 ? 1 : 8),
   ThisWeekend: day => (day === 6 ? 13 : 6),
-}
+};
 
 function oclock(momentDate) {
-  return momentDate.minute(0).second(0)
+  return momentDate.minute(0).second(0);
 }
 
 function morning(momentDate, morningHour = Hours.Morning) {
-  return oclock(momentDate.hour(morningHour))
+  return oclock(momentDate.hour(morningHour));
 }
 
 function evening(momentDate, eveningHour = Hours.Evening) {
-  return oclock(momentDate.hour(eveningHour))
+  return oclock(momentDate.hour(eveningHour));
 }
 
 function midnight(momentDate, midnightHour = Hours.Midnight) {
-  return oclock(momentDate.hour(midnightHour))
+  return oclock(momentDate.hour(midnightHour));
 }
 
 function isPastDate(inputDateObj, currentDate) {
-  const inputMoment = moment({...inputDateObj, month: inputDateObj.month - 1})
-  const currentMoment = moment(currentDate)
+  const inputMoment = moment({ ...inputDateObj, month: inputDateObj.month - 1 });
+  const currentMoment = moment(currentDate);
 
-  return inputMoment.isBefore(currentMoment)
+  return inputMoment.isBefore(currentMoment);
 }
 
 let _chronoFuture = null;
@@ -66,7 +65,7 @@ function getChronoFuture() {
   const chrono = getChrono();
   const EnforceFutureDate = new chrono.Refiner();
   EnforceFutureDate.refine = (text, results) => {
-    results.forEach((result) => {
+    results.forEach(result => {
       const current = Object.assign({}, result.start.knownValues, result.start.impliedValues);
 
       if (result.start.isCertain('weekday') && !result.start.isCertain('day')) {
@@ -94,20 +93,32 @@ function getChronoFuture() {
   return _chronoFuture;
 }
 
-
 const DateUtils = {
-
   // Localized format: ddd, MMM D, YYYY h:mmA
   DATE_FORMAT_LONG: 'llll',
 
-  DATE_FORMAT_LONG_NO_YEAR: moment.localeData().longDateFormat('llll').replace(yearRegex, ''),
+  DATE_FORMAT_LONG_NO_YEAR: moment
+    .localeData()
+    .longDateFormat('llll')
+    .replace(yearRegex, ''),
 
   // Localized format: MMM D, h:mmA
-  DATE_FORMAT_SHORT: moment.localeData().longDateFormat('lll').replace(yearRegex, ''),
+  DATE_FORMAT_SHORT: moment
+    .localeData()
+    .longDateFormat('lll')
+    .replace(yearRegex, ''),
 
-  DATE_FORMAT_llll_NO_TIME: moment.localeData().longDateFormat("llll").replace(/h:mm/, "").replace(" A", ""),
+  DATE_FORMAT_llll_NO_TIME: moment
+    .localeData()
+    .longDateFormat('llll')
+    .replace(/h:mm/, '')
+    .replace(' A', ''),
 
-  DATE_FORMAT_LLLL_NO_TIME: moment.localeData().longDateFormat("LLLL").replace(/h:mm/, "").replace(" A", ""),
+  DATE_FORMAT_LLLL_NO_TIME: moment
+    .localeData()
+    .longDateFormat('LLLL')
+    .replace(/h:mm/, '')
+    .replace(' A', ''),
 
   timeZone: tz,
 
@@ -145,7 +156,7 @@ const DateUtils = {
     if (now.hour() >= Hours.Evening) {
       return midnight(now);
     }
-    return evening(now)
+    return evening(now);
   },
 
   tomorrow(now = moment()) {
@@ -157,7 +168,7 @@ const DateUtils = {
   },
 
   thisWeekend(now = moment()) {
-    return morning(now.day(Days.ThisWeekend(now.day())))
+    return morning(now.day(Days.ThisWeekend(now.day())));
   },
 
   weeksFromNow(weeks, now = moment()) {
@@ -165,7 +176,7 @@ const DateUtils = {
   },
 
   nextWeek(now = moment()) {
-    return morning(now.day(Days.NextMonday(now.day())))
+    return morning(now.day(Days.NextMonday(now.day())));
   },
 
   monthsFromNow(months, now = moment()) {
@@ -173,47 +184,50 @@ const DateUtils = {
   },
 
   nextMonth(now = moment()) {
-    return morning(now.add(1, 'month').date(1))
+    return morning(now.add(1, 'month').date(1));
   },
 
   parseDateString(dateLikeString) {
-    const parsed = getChrono().parse(dateLikeString)
-    const gotTime = {start: false, end: false};
-    const gotDay = {start: false, end: false};
+    const parsed = getChrono().parse(dateLikeString);
+    const gotTime = { start: false, end: false };
+    const gotDay = { start: false, end: false };
     const now = moment();
-    const results = {start: moment(now), end: moment(now), leftoverText: dateLikeString};
+    const results = { start: moment(now), end: moment(now), leftoverText: dateLikeString };
     for (const item of parsed) {
       for (const val of ['start', 'end']) {
         if (!(val in item)) {
           continue;
         }
-        const {day: knownDay, weekday: knownWeekday, hour: knownHour} = item[val].knownValues;
-        const {year, month, day, hour, minute} = Object.assign(item[val].knownValues, item[val].impliedValues)
+        const { day: knownDay, weekday: knownWeekday, hour: knownHour } = item[val].knownValues;
+        const { year, month, day, hour, minute } = Object.assign(
+          item[val].knownValues,
+          item[val].impliedValues
+        );
         if (!gotTime[val] && knownHour) {
           gotTime[val] = true;
-          results[val].minute(minute)
-          results[val].hour(hour)
+          results[val].minute(minute);
+          results[val].hour(hour);
 
           if (!gotDay[val]) {
-            results[val].date(day)
-            results[val].month(month - 1) // moment zero-indexes month
-            results[val].year(year)
+            results[val].date(day);
+            results[val].month(month - 1); // moment zero-indexes month
+            results[val].year(year);
           }
 
-          results.leftoverText = results.leftoverText.replace(item.text, '')
+          results.leftoverText = results.leftoverText.replace(item.text, '');
         }
         if (!gotDay[val] && (knownDay || knownWeekday)) {
-          gotDay[val] = true
-          results[val].year(year)
-          results[val].month(month - 1) // moment zero-indexes month
-          results[val].date(day)
+          gotDay[val] = true;
+          results[val].year(year);
+          results[val].month(month - 1); // moment zero-indexes month
+          results[val].date(day);
 
           if (!gotTime) {
-            results[val].hour(hour)
-            results[val].minute(minute)
+            results[val].hour(hour);
+            results[val].minute(minute);
           }
 
-          results.leftoverText = results.leftoverText.replace(item.text, '')
+          results.leftoverText = results.leftoverText.replace(item.text, '');
         }
       }
     }
@@ -235,17 +249,16 @@ const DateUtils = {
    * @return {moment} - moment object representing date
    */
   futureDateFromString(dateLikeString) {
-    const date = getChronoFuture().parseDate(dateLikeString)
+    const date = getChronoFuture().parseDate(dateLikeString);
     if (!date) {
-      return null
+      return null;
     }
-    const inThePast = date.valueOf() < Date.now()
+    const inThePast = date.valueOf() < Date.now();
     if (inThePast) {
-      return null
+      return null;
     }
-    return moment(date)
+    return moment(date);
   },
-
 
   /**
    * Return a formatting string for displaying time
@@ -257,29 +270,28 @@ const DateUtils = {
    * Checks whether or not to use 24 hour time format.
    */
   getTimeFormat(opts) {
-    const use24HourClock = NylasEnv.config.get('core.workspace.use24HourClock')
-    let timeFormat = use24HourClock ? "HH:mm" : "h:mm"
+    const use24HourClock = NylasEnv.config.get('core.workspace.use24HourClock');
+    let timeFormat = use24HourClock ? 'HH:mm' : 'h:mm';
 
     if (opts && opts.seconds) {
-      timeFormat += ":ss"
+      timeFormat += ':ss';
     }
 
     // Append meridian if not using 24 hour clock
     if (!use24HourClock) {
       if (opts && opts.upperCase) {
-        timeFormat += " A"
+        timeFormat += ' A';
       } else {
-        timeFormat += " a"
+        timeFormat += ' a';
       }
     }
 
     if (opts && opts.timeZone) {
-      timeFormat += " z"
+      timeFormat += ' z';
     }
 
-    return timeFormat
+    return timeFormat;
   },
-
 
   /**
    * Return a short format date/time
@@ -290,28 +302,27 @@ const DateUtils = {
    * The returned date/time format depends on how long ago the timestamp is.
    */
   shortTimeString(datetime) {
-    const now = moment()
-    const diff = now.diff(datetime, 'days', true)
-    const isSameDay = now.isSame(datetime, 'days')
-    let format = null
+    const now = moment();
+    const diff = now.diff(datetime, 'days', true);
+    const isSameDay = now.isSame(datetime, 'days');
+    let format = null;
 
     if (diff <= 1 && isSameDay) {
       // Time if less than 1 day old
-      format = DateUtils.getTimeFormat(null)
+      format = DateUtils.getTimeFormat(null);
     } else if (diff < 2 && !isSameDay) {
       // Month and day with time if up to 2 days ago
-      format = `MMM D, ${DateUtils.getTimeFormat(null)}`
+      format = `MMM D, ${DateUtils.getTimeFormat(null)}`;
     } else if (diff >= 2 && diff < 365) {
       // Month and day up to 1 year old
-      format = "MMM D"
+      format = 'MMM D';
     } else {
       // Month, day and year if over a year old
-      format = "MMM D YYYY"
+      format = 'MMM D YYYY';
     }
 
-    return moment(datetime).format(format)
+    return moment(datetime).format(format);
   },
-
 
   /**
    * Return a medium format date/time
@@ -320,12 +331,11 @@ const DateUtils = {
    * @return {String} Formated date/time
    */
   mediumTimeString(datetime) {
-    let format = "MMMM D, YYYY, "
-    format += DateUtils.getTimeFormat({seconds: false, upperCase: true, timeZone: false})
+    let format = 'MMMM D, YYYY, ';
+    format += DateUtils.getTimeFormat({ seconds: false, upperCase: true, timeZone: false });
 
-    return moment(datetime).format(format)
+    return moment(datetime).format(format);
   },
-
 
   /**
    * Return a long format date/time
@@ -334,12 +344,13 @@ const DateUtils = {
    * @return {String} Formated date/time
    */
   fullTimeString(datetime) {
-    let format = "dddd, MMMM Do YYYY, "
-    format += DateUtils.getTimeFormat({seconds: true, upperCase: true, timeZone: true})
+    let format = 'dddd, MMMM Do YYYY, ';
+    format += DateUtils.getTimeFormat({ seconds: true, upperCase: true, timeZone: true });
 
-    return moment(datetime).tz(tz).format(format)
+    return moment(datetime)
+      .tz(tz)
+      .format(format);
   },
-
 };
 
-export default DateUtils
+export default DateUtils;

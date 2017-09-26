@@ -9,18 +9,17 @@
 import {
   React,
   ReactDOM,
+  PropTypes,
   ComponentRegistry,
   QuotedHTMLTransformer,
   Actions,
 } from 'nylas-exports';
 
-import {
-  Menu,
-  RetinaImg,
-} from 'nylas-component-kit';
+import { Menu, RetinaImg } from 'nylas-component-kit';
 
 const YandexTranslationURL = 'https://translate.yandex.net/api/v1.5/tr.json/translate';
-const YandexTranslationKey = 'trnsl.1.1.20150415T044616Z.24814c314120d022.0a339e2bc2d2337461a98d5ec9863fc46e42735e';
+const YandexTranslationKey =
+  'trnsl.1.1.20150415T044616Z.24814c314120d022.0a339e2bc2d2337461a98d5ec9863fc46e42735e';
 const YandexLanguages = {
   English: 'en',
   Spanish: 'es',
@@ -35,7 +34,6 @@ const YandexLanguages = {
 };
 
 class TranslateButton extends React.Component {
-
   // Adding a `displayName` makes debugging React easier
   static displayName = 'TranslateButton';
 
@@ -43,8 +41,8 @@ class TranslateButton extends React.Component {
   // we receive the local id of the current draft as a `prop` (a read-only
   // property). Since our code depends on this prop, we mark it as a requirement.
   static propTypes = {
-    draft: React.PropTypes.object.isRequired,
-    session: React.PropTypes.object.isRequired,
+    draft: PropTypes.object.isRequired,
+    session: PropTypes.object.isRequired,
   };
 
   shouldComponentUpdate(nextProps) {
@@ -54,13 +52,13 @@ class TranslateButton extends React.Component {
   }
 
   _onError(error) {
-    Actions.closePopover()
+    Actions.closePopover();
     const dialog = require('electron').remote.dialog;
     dialog.showErrorBox('Language Conversion Failed', error.toString());
   }
 
-  _onTranslate = async (lang) => {
-    Actions.closePopover()
+  _onTranslate = async lang => {
+    Actions.closePopover();
 
     // Obtain the session for the current draft. The draft session provides us
     // the draft object and also manages saving changes to the local cache and
@@ -68,9 +66,9 @@ class TranslateButton extends React.Component {
     const draftHtml = this.props.draft.body;
     const text = QuotedHTMLTransformer.removeQuotedHTML(draftHtml);
 
-    Actions.recordUserEvent("Email Translated", {
+    Actions.recordUserEvent('Email Translated', {
       language: YandexLanguages[lang],
-    })
+    });
 
     const queryParams = new URLSearchParams();
     queryParams.set('key', YandexTranslationKey);
@@ -79,9 +77,9 @@ class TranslateButton extends React.Component {
     queryParams.set('format', 'html');
 
     try {
-      const resp = await fetch(YandexTranslationURL, {body: queryParams});
+      const resp = await fetch(YandexTranslationURL, { body: queryParams });
       if (!resp.ok) {
-        throw new Error("Sorry, we were unable to complete the translation request.");
+        throw new Error('Sorry, we were unable to complete the translation request.');
       }
       const json = await resp.json();
       let translated = json.text.join('');
@@ -93,7 +91,7 @@ class TranslateButton extends React.Component {
       // To update the draft, we add the new body to it's session. The session object
       // automatically marshalls changes to the database and ensures that others accessing
       // the same draft are notified of changes.
-      this.props.session.changes.add({body: translated});
+      this.props.session.changes.add({ body: translated });
       this.props.session.changes.commit();
     } catch (error) {
       this._onError(error);
@@ -101,29 +99,24 @@ class TranslateButton extends React.Component {
   };
 
   _onClickTranslateButton = () => {
-    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect()
-    Actions.openPopover(
-      this._renderPopover(),
-      {originRect: buttonRect, direction: 'up'}
-    )
+    const buttonRect = ReactDOM.findDOMNode(this).getBoundingClientRect();
+    Actions.openPopover(this._renderPopover(), { originRect: buttonRect, direction: 'up' });
   };
 
   // Helper method that will render the contents of our popover.
   _renderPopover() {
-    const headerComponents = [
-      <span>Translate:</span>,
-    ];
+    const headerComponents = [<span>Translate:</span>];
     return (
       <Menu
         className="translate-language-picker"
         items={Object.keys(YandexLanguages)}
-        itemKey={(item) => item}
-        itemContent={(item) => item}
+        itemKey={item => item}
+        itemContent={item => item}
         headerComponents={headerComponents}
         defaultSelectedIndex={-1}
         onSelect={this._onTranslate}
       />
-    )
+    );
   }
 
   // The `render` method returns a React Virtual DOM element. This code looks
@@ -152,10 +145,7 @@ class TranslateButton extends React.Component {
           url="mailspring://composer-translate/assets/icon-composer-translate@2x.png"
         />
         &nbsp;
-        <RetinaImg
-          name="icon-composer-dropdown.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-        />
+        <RetinaImg name="icon-composer-dropdown.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     );
   }
@@ -183,9 +173,7 @@ export function activate() {
   });
 }
 
-export function serialize() {
-
-}
+export function serialize() {}
 
 export function deactivate() {
   ComponentRegistry.unregister(TranslateButton);

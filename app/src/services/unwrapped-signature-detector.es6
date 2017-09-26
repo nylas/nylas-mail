@@ -1,10 +1,10 @@
-import DOMWalkers from '../dom-walkers'
-import Utils from '../flux/models/utils'
+import DOMWalkers from '../dom-walkers';
+import Utils from '../flux/models/utils';
 
 function textAndNodesAfterNode(node) {
-  let text = "";
+  let text = '';
   let curNode = node;
-  const nodes = []
+  const nodes = [];
   while (curNode) {
     let sibling = curNode.nextSibling;
     while (sibling) {
@@ -14,7 +14,7 @@ function textAndNodesAfterNode(node) {
     }
     curNode = curNode.parentNode;
   }
-  return {text, nodes}
+  return { text, nodes };
 }
 
 /**
@@ -39,14 +39,16 @@ export default function unwrappedSignatureDetector(doc, quoteElements) {
       continue;
     }
 
-    const {text, nodes} = textAndNodes;
-    const maybeSig = text.replace(/\s/g, "");
+    const { text, nodes } = textAndNodes;
+    const maybeSig = text.replace(/\s/g, '');
     if (maybeSig.length > 0) {
-      if ((focusNode.textContent || "").replace(/\s/g, "").search(Utils.escapeRegExp(maybeSig)) >= 0) {
+      if (
+        (focusNode.textContent || '').replace(/\s/g, '').search(Utils.escapeRegExp(maybeSig)) >= 0
+      ) {
         return nodes;
       }
     }
     break;
   }
-  return []
+  return [];
 }

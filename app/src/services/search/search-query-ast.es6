@@ -1,4 +1,3 @@
-
 class SearchQueryExpressionVisitor {
   constructor() {
     this._result = null;
@@ -11,18 +10,42 @@ class SearchQueryExpressionVisitor {
     return result;
   }
 
-  visitAnd(node) { throw new Error('Abstract function not implemented!', node); }
-  visitOr(node) { throw new Error('Abstract function not implemented!', node); }
-  visitFrom(node) { throw new Error('Abstract function not implemented!', node); }
-  visitTo(node) { throw new Error('Abstract function not implemented!', node); }
-  visitSubject(node) { throw new Error('Abstract function not implemented!', node); }
-  visitGeneric(node) { throw new Error('Abstract function not implemented!', node); }
-  visitText(node) { throw new Error('Abstract function not implemented!', node); }
-  visitUnread(node) { throw new Error('Abstract function not implemented!', node); }
-  visitStarred(node) { throw new Error('Abstract function not implemented!', node); }
-  visitMatch(node) { throw new Error('Abstract function not implemented!', node); }
-  visitIn(node) { throw new Error('Abstract function not implemented!', node); }
-  visitHasAttachment(node) { throw new Error('Abstract function not implemented!', node); }
+  visitAnd(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitOr(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitFrom(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitTo(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitSubject(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitGeneric(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitText(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitUnread(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitStarred(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitMatch(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitIn(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
+  visitHasAttachment(node) {
+    throw new Error('Abstract function not implemented!', node);
+  }
 }
 
 class QueryExpression {
@@ -168,7 +191,6 @@ class UnreadStatusQueryExpression extends QueryExpression {
     this.status = status;
   }
 
-
   accept(visitor) {
     visitor.visitUnread(this);
   }
@@ -279,7 +301,7 @@ class HasAttachmentQueryExpression extends QueryExpression {
   }
 
   equals(other) {
-    return (other instanceof HasAttachmentQueryExpression);
+    return other instanceof HasAttachmentQueryExpression;
   }
 }
 

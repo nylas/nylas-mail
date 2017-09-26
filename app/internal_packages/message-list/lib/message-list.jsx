@@ -1,14 +1,15 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import classNames from 'classnames'
+import classNames from 'classnames';
 
 import {
+  React,
+  ReactDOM,
+  PropTypes,
   Utils,
   Actions,
   MessageStore,
   SearchableComponentStore,
   SearchableComponentMaker,
-} from "nylas-exports"
+} from 'nylas-exports';
 
 import {
   Spinner,
@@ -18,16 +19,16 @@ import {
   MailImportantIcon,
   KeyCommandsRegion,
   InjectedComponentSet,
-} from 'nylas-component-kit'
+} from 'nylas-component-kit';
 
-import FindInThread from './find-in-thread'
-import MessageItemContainer from './message-item-container'
+import FindInThread from './find-in-thread';
+import MessageItemContainer from './message-item-container';
 
 class MessageListScrollTooltip extends React.Component {
   static displayName = 'MessageListScrollTooltip';
   static propTypes = {
-    viewportCenter: React.PropTypes.number.isRequired,
-    totalHeight: React.PropTypes.number.isRequired,
+    viewportCenter: PropTypes.number.isRequired,
+    totalHeight: PropTypes.number.isRequired,
   };
 
   componentWillMount() {
@@ -46,8 +47,8 @@ class MessageListScrollTooltip extends React.Component {
     // Technically, we could have MessageList provide the currently visible
     // item index, but the DOM approach is simple and self-contained.
     //
-    const els = document.querySelectorAll('.message-item-wrap')
-    let idx = Array.from(els).findIndex((el) => el.offsetTop > props.viewportCenter);
+    const els = document.querySelectorAll('.message-item-wrap');
+    let idx = Array.from(els).findIndex(el => el.offsetTop > props.viewportCenter);
     if (idx === -1) {
       idx = els.length;
     }
@@ -86,15 +87,15 @@ class MessageList extends React.Component {
   componentDidMount() {
     this._unsubscribers = [];
     this._unsubscribers.push(MessageStore.listen(this._onChange));
-    this._unsubscribers.push(Actions.focusDraft.listen(async ({headerMessageId}) => {
-      Utils.waitFor(() =>
-        this._getMessageContainer(headerMessageId) !== undefined
-      ).then(() =>
-        this._focusDraft(this._getMessageContainer(headerMessageId))
-      ).catch(() => {
-        // may have been a popout composer
+    this._unsubscribers.push(
+      Actions.focusDraft.listen(async ({ headerMessageId }) => {
+        Utils.waitFor(() => this._getMessageContainer(headerMessageId) !== undefined)
+          .then(() => this._focusDraft(this._getMessageContainer(headerMessageId)))
+          .catch(() => {
+            // may have been a popout composer
+          });
       })
-    }));
+    );
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -112,15 +113,17 @@ class MessageList extends React.Component {
   }
 
   _globalMenuItems() {
-    const toggleExpandedLabel = this.state.hasCollapsedItems ? "Expand" : "Collapse";
+    const toggleExpandedLabel = this.state.hasCollapsedItems ? 'Expand' : 'Collapse';
     return [
       {
-        label: "Thread",
-        submenu: [{
-          label: `${toggleExpandedLabel} conversation`,
-          command: "message-list:toggle-expanded",
-          position: "endof=view-actions",
-        }],
+        label: 'Thread',
+        submenu: [
+          {
+            label: `${toggleExpandedLabel} conversation`,
+            command: 'message-list:toggle-expanded',
+            position: 'endof=view-actions',
+          },
+        ],
       },
     ];
   }
@@ -167,7 +170,7 @@ class MessageList extends React.Component {
       position: ScrollRegion.ScrollPosition.Top,
       settle: true,
       done: () => {
-        this._draftScrollInProgress = false
+        this._draftScrollInProgress = false;
       },
     });
   }
@@ -176,8 +179,8 @@ class MessageList extends React.Component {
     if (!this.state.currentThread) {
       return;
     }
-    Actions.composeForward({thread: this.state.currentThread})
-  }
+    Actions.composeForward({ thread: this.state.currentThread });
+  };
 
   _lastMessage() {
     return (this.state.messages || []).filter(m => !m.draft).pop();
@@ -199,20 +202,20 @@ class MessageList extends React.Component {
 
   _onToggleAllMessagesExpanded = () => {
     Actions.toggleAllMessagesExpanded();
-  }
+  };
 
   _onPrintThread = () => {
-    const node = ReactDOM.findDOMNode(this)
-    Actions.printThread(this.state.currentThread, node.innerHTML)
-  }
+    const node = ReactDOM.findDOMNode(this);
+    Actions.printThread(this.state.currentThread, node.innerHTML);
+  };
 
   _onPopThreadIn = () => {
     if (!this.state.currentThread) {
       return;
     }
-    Actions.focusThreadMainWindow(this.state.currentThread)
-    NylasEnv.close()
-  }
+    Actions.focusThreadMainWindow(this.state.currentThread);
+    NylasEnv.close();
+  };
 
   _onPopoutThread = () => {
     if (!this.state.currentThread) {
@@ -222,7 +225,7 @@ class MessageList extends React.Component {
     // This returns the single-pane view to the inbox, and does nothing for
     // double-pane view because we're at the root sheet.
     Actions.popSheet();
-  }
+  };
 
   _onClickReplyArea = () => {
     if (!this.state.currentThread) {
@@ -234,10 +237,10 @@ class MessageList extends React.Component {
       type: this._replyType(),
       behavior: 'prefer-existing-if-pristine',
     });
-  }
+  };
 
   _messageElements() {
-    const {messagesExpandedState, currentThread} = this.state;
+    const { messagesExpandedState, currentThread } = this.state;
     const elements = [];
 
     let messages = this._messagesWithMinification(this.state.messages);
@@ -249,9 +252,9 @@ class MessageList extends React.Component {
       messages = messages.reverse();
     }
 
-    messages.forEach((message) => {
-      if (message.type === "minifiedBundle") {
-        elements.push(this._renderMinifiedBundle(message))
+    messages.forEach(message => {
+      if (message.type === 'minifiedBundle') {
+        elements.push(this._renderMinifiedBundle(message));
         return;
       }
 
@@ -287,8 +290,8 @@ class MessageList extends React.Component {
     }
 
     const messages = [].concat(allMessages);
-    const minifyRanges = []
-    let consecutiveCollapsed = 0
+    const minifyRanges = [];
+    let consecutiveCollapsed = 0;
 
     messages.forEach((message, idx) => {
       // Never minify the 1st message
@@ -299,17 +302,17 @@ class MessageList extends React.Component {
       const expandState = this.state.messagesExpandedState[message.id];
 
       if (!expandState) {
-        consecutiveCollapsed += 1
+        consecutiveCollapsed += 1;
       } else {
         // We add a +1 because we don't minify the last collapsed message,
         // but the MINIFY_THRESHOLD refers to the smallest N that can be in
         // the "N older messages" minified block.
-        const minifyOffset = (expandState === "default") ? 1 : 0;
+        const minifyOffset = expandState === 'default' ? 1 : 0;
 
         if (consecutiveCollapsed >= this.MINIFY_THRESHOLD + minifyOffset) {
           minifyRanges.push({
             start: idx - consecutiveCollapsed,
-            length: (consecutiveCollapsed - minifyOffset),
+            length: consecutiveCollapsed - minifyOffset,
           });
         }
         consecutiveCollapsed = 0;
@@ -318,15 +321,15 @@ class MessageList extends React.Component {
 
     let indexOffset = 0;
     for (const range of minifyRanges) {
-      const start = range.start - indexOffset
+      const start = range.start - indexOffset;
       const minified = {
-        type: "minifiedBundle",
+        type: 'minifiedBundle',
         messages: messages.slice(start, start + range.length),
-      }
+      };
       messages.splice(start, range.length, minified);
 
       // While we removed `range.length` items, we also added 1 back in.
-      indexOffset += (range.length - 1);
+      indexOffset += range.length - 1;
     }
     return messages;
   }
@@ -337,7 +340,7 @@ class MessageList extends React.Component {
   //
   // If messageId and location are defined, that means we want to scroll
   // smoothly to the top of a particular message.
-  _scrollTo = ({id, rect, position} = {}) => {
+  _scrollTo = ({ id, rect, position } = {}) => {
     if (this._draftScrollInProgress) {
       return;
     }
@@ -354,26 +357,26 @@ class MessageList extends React.Component {
         position: ScrollRegion.ScrollPosition.CenterIfInvisible,
       });
     } else {
-      throw new Error("onChildScrollRequest: expected id or rect")
+      throw new Error('onChildScrollRequest: expected id or rect');
     }
-  }
+  };
 
-  _onScrollByPage = (direction) => {
+  _onScrollByPage = direction => {
     const height = ReactDOM.findDOMNode(this._messageWrapEl).clientHeight;
     this._messageWrapEl.scrollTop += height * direction;
-  }
+  };
 
   _onChange = () => {
-    const newState = this._getStateFromStores()
+    const newState = this._getStateFromStores();
     if ((this.state.currentThread || {}).id !== (newState.currentThread || {}).id) {
       newState.minified = true;
     }
     this.setState(newState);
-  }
+  };
 
   _getStateFromStores() {
     return {
-      messages: (MessageStore.items() || []),
+      messages: MessageStore.items() || [],
       messagesExpandedState: MessageStore.itemsExpandedState(),
       canCollapse: MessageStore.items().length > 1,
       hasCollapsedItems: MessageStore.hasCollapsedItems(),
@@ -383,15 +386,15 @@ class MessageList extends React.Component {
   }
 
   _renderSubject() {
-    let subject = this.state.currentThread.subject
+    let subject = this.state.currentThread.subject;
     if (!subject || subject.length === 0) {
-      subject = "(No Subject)";
+      subject = '(No Subject)';
     }
 
     return (
       <div className="message-subject-wrap">
         <MailImportantIcon thread={this.state.currentThread} />
-        <div style={{flex: 1}}>
+        <div style={{ flex: 1 }}>
           <span className="message-subject">{subject}</span>
           <MailLabelSet
             removable
@@ -419,14 +422,14 @@ class MessageList extends React.Component {
 
   _renderExpandToggle() {
     if (!this.state.canCollapse) {
-      return (<span />);
+      return <span />;
     }
 
     return (
       <div onClick={this._onToggleAllMessagesExpanded}>
         <RetinaImg
-          name={this.state.hasCollapsedItems ? "expand.png" : "collapse.png"}
-          title={this.state.hasCollapsedItems ? "Expand All" : "Collapse All"}
+          name={this.state.hasCollapsedItems ? 'expand.png' : 'collapse.png'}
+          title={this.state.hasCollapsedItems ? 'Expand All' : 'Collapse All'}
           mode={RetinaImg.Mode.ContentIsMask}
         />
       </div>
@@ -437,13 +440,21 @@ class MessageList extends React.Component {
     if (NylasEnv.isThreadWindow()) {
       return (
         <div onClick={this._onPopThreadIn}>
-          <RetinaImg name="thread-popin.png" title="Pop thread in" mode={RetinaImg.Mode.ContentIsMask} />
+          <RetinaImg
+            name="thread-popin.png"
+            title="Pop thread in"
+            mode={RetinaImg.Mode.ContentIsMask}
+          />
         </div>
       );
     }
     return (
       <div onClick={this._onPopoutThread}>
-        <RetinaImg name="thread-popout.png" title="Popout thread" mode={RetinaImg.Mode.ContentIsMask} />
+        <RetinaImg
+          name="thread-popout.png"
+          title="Popout thread"
+          mode={RetinaImg.Mode.ContentIsMask}
+        />
       </div>
     );
   }
@@ -467,14 +478,14 @@ class MessageList extends React.Component {
     return (
       <div
         className="minified-bundle"
-        onClick={() => this.setState({minified: false})}
+        onClick={() => this.setState({ minified: false })}
         key={Utils.generateTempId()}
       >
         <div className="num-messages">{bundle.messages.length} older messages</div>
-        <div className="msg-lines" style={{height: h * lines.length}}>
-          {lines.map((msg, i) =>
-            <div key={msg.id} style={{height: h * 2, top: -h * i}} className="msg-line" />
-          )}
+        <div className="msg-lines" style={{ height: h * lines.length }}>
+          {lines.map((msg, i) => (
+            <div key={msg.id} style={{ height: h * 2, top: -h * i }} className="msg-line" />
+          ))}
         </div>
       </div>
     );
@@ -482,17 +493,17 @@ class MessageList extends React.Component {
 
   render() {
     if (!this.state.currentThread) {
-      return (<span />);
+      return <span />;
     }
 
     const wrapClass = classNames({
-      "messages-wrap": true,
-      "ready": !this.state.loading,
-    })
+      'messages-wrap': true,
+      ready: !this.state.loading,
+    });
 
     const messageListClass = classNames({
-      "message-list": true,
-      "height-fix": SearchableComponentStore.searchTerm !== null,
+      'message-list': true,
+      'height-fix': SearchableComponentStore.searchTerm !== null,
     });
 
     return (
@@ -507,14 +518,16 @@ class MessageList extends React.Component {
             className={wrapClass}
             scrollbarTickProvider={SearchableComponentStore}
             scrollTooltipComponent={MessageListScrollTooltip}
-            ref={(el) => { this._messageWrapEl = el }}
+            ref={el => {
+              this._messageWrapEl = el;
+            }}
           >
             {this._renderSubject()}
-            <div className="headers" style={{position: 'relative'}}>
+            <div className="headers" style={{ position: 'relative' }}>
               <InjectedComponentSet
                 className="message-list-headers"
-                matching={{role: "MessageListHeaders"}}
-                exposedProps={{thread: this.state.currentThread, messages: this.state.messages}}
+                matching={{ role: 'MessageListHeaders' }}
+                exposedProps={{ thread: this.state.currentThread, messages: this.state.messages }}
                 direction="column"
               />
             </div>

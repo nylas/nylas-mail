@@ -4,10 +4,10 @@
  * directly from a powershell command.
  */
 const path = require('path');
-const {createWindowsInstaller} = require('electron-winstaller');
+const { createWindowsInstaller } = require('electron-winstaller');
 
-const appDir = path.join(__dirname, "..");
-const {version} = require(path.join(appDir, 'package.json'));
+const appDir = path.join(__dirname, '..');
+const { version } = require(path.join(appDir, 'package.json'));
 
 const config = {
   usePackageJson: false,
@@ -17,23 +17,25 @@ const config = {
   iconUrl: 'http://edgehill.s3.amazonaws.com/static/mailspring.ico',
   certificateFile: process.env.CERTIFICATE_FILE,
   certificatePassword: process.env.WINDOWS_CODESIGN_KEY_PASSWORD,
-  description: "Mailspring",
+  description: 'Mailspring',
   version: version,
-  title: "mailspring",
+  title: 'mailspring',
   authors: 'Foundry 376, LLC',
   setupIcon: path.join(appDir, 'build', 'resources', 'win', 'mailspring.ico'),
   setupExe: 'MailspringSetup.exe',
   exe: 'mailspring.exe',
   name: 'Mailspring',
-}
+};
 
 console.log(config);
-console.log("---> Starting")
+console.log('---> Starting');
 
-createWindowsInstaller(config).then(() => {
-  console.log("createWindowsInstaller succeeded.")
-  process.exit(0);
-}).catch((e) => {
-  console.error(`createWindowsInstaller failed: ${e.message}`);
-  process.exit(1);
-});
+createWindowsInstaller(config)
+  .then(() => {
+    console.log('createWindowsInstaller succeeded.');
+    process.exit(0);
+  })
+  .catch(e => {
+    console.error(`createWindowsInstaller failed: ${e.message}`);
+    process.exit(1);
+  });

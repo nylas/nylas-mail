@@ -1,5 +1,6 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
+PropTypes = require 'prop-types'
 _ = require 'underscore'
 classNames = require 'classnames'
 
@@ -19,9 +20,9 @@ class Spinner extends React.Component
    - `style` (optional) Additional styles to apply to the spinner.
   ###
   @propTypes =
-    visible: React.PropTypes.bool
-    withCover: React.PropTypes.bool
-    style: React.PropTypes.object
+    visible: PropTypes.bool
+    withCover: PropTypes.bool
+    style: PropTypes.object
 
   constructor: (@props) ->
     @timer = null

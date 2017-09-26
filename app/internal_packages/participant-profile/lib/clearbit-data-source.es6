@@ -1,10 +1,10 @@
-import {NylasAPIRequest} from 'nylas-exports';
-const {makeRequest} = NylasAPIRequest;
+import { NylasAPIRequest } from 'nylas-exports';
+const { makeRequest } = NylasAPIRequest;
 
 const MAX_RETRY = 10;
 
 export default class ClearbitDataSource {
-  async find({email, tryCount = 0}) {
+  async find({ email, tryCount = 0 }) {
     if (tryCount >= MAX_RETRY) {
       return null;
     }
@@ -26,7 +26,9 @@ export default class ClearbitDataSource {
             this.find({
               email: requestedEmail,
               tryCount: tryCount + 1,
-            }).then(resolve).catch(reject);
+            })
+              .then(resolve)
+              .catch(reject);
           }, 1000);
         } else {
           resolve(null);
@@ -34,19 +36,22 @@ export default class ClearbitDataSource {
         return;
       }
 
-      let person = body.person
+      let person = body.person;
 
       // This means there was no data about the person available. Return a
       // valid, but empty object for us to cache. This can happen when we
       // have company data, but no personal data.
       if (!person) {
-        person = {email: requestedEmail};
+        person = { email: requestedEmail };
       }
 
       resolve({
         cacheDate: Date.now(),
         email: requestedEmail, // Used as checksum
-        bio: person.bio || (person.twitter && person.twitter.bio) || (person.aboutme && person.aboutme.bio),
+        bio:
+          person.bio ||
+          (person.twitter && person.twitter.bio) ||
+          (person.aboutme && person.aboutme.bio),
         location: person.location || (person.geo && person.geo.city) || null,
         currentTitle: person.employment && person.employment.title,
         currentEmployer: person.employment && person.employment.name,
@@ -60,23 +65,23 @@ export default class ClearbitDataSource {
   _socialProfiles(person = {}) {
     const profiles = {};
 
-    if (((person.twitter && person.twitter.handle) || "").length > 0) {
+    if (((person.twitter && person.twitter.handle) || '').length > 0) {
       profiles.twitter = {
         handle: person.twitter.handle,
         url: `https://twitter.com/${person.twitter.handle}`,
-      }
+      };
     }
-    if (((person.facebook && person.facebook.handle) || "").length > 0) {
+    if (((person.facebook && person.facebook.handle) || '').length > 0) {
       profiles.facebook = {
         handle: person.facebook.handle,
         url: `https://facebook.com/${person.facebook.handle}`,
       };
     }
-    if (((person.linkedin && person.linkedin.handle) || "").length > 0) {
+    if (((person.linkedin && person.linkedin.handle) || '').length > 0) {
       profiles.linkedin = {
         handle: person.linkedin.handle,
         url: `https://linkedin.com/${person.linkedin.handle}`,
-      }
+      };
     }
     return profiles;
   }

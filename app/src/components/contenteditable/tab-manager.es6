@@ -1,7 +1,7 @@
 import { DOMUtils, ContenteditableExtension } from 'nylas-exports';
 
 export default class TabManager extends ContenteditableExtension {
-  static onKeyDown({editor, event}) {
+  static onKeyDown({ editor, event }) {
     // This is a special case where we don't want to bubble up the event to
     // the keymap manager if the extension prevented the default behavior
     if (event.defaultPrevented) {
@@ -9,7 +9,7 @@ export default class TabManager extends ContenteditableExtension {
       return;
     }
 
-    if (event.key === "Tab") {
+    if (event.key === 'Tab') {
       this._onTabDownDefaultBehavior(editor, event);
       return;
     }
@@ -26,13 +26,13 @@ export default class TabManager extends ContenteditableExtension {
           return; // Don't stop propagation
         }
       } else {
-        editor.insertText("\t");
+        editor.insertText('\t');
       }
     } else {
       if (event.shiftKey) {
-        editor.insertText("");
+        editor.insertText('');
       } else {
-        editor.insertText("\t");
+        editor.insertText('\t');
       }
     }
     event.preventDefault();

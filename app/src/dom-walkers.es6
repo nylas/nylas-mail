@@ -1,5 +1,5 @@
 const DOMWalkers = {
-  * walk(...treeWalkerArgs) {
+  *walk(...treeWalkerArgs) {
     const walker = document.createTreeWalker(...treeWalkerArgs);
     let node = walker.nextNode();
     while (node) {
@@ -9,8 +9,10 @@ const DOMWalkers = {
     return;
   },
 
-  * walkBackwards(node) {
-    if (!node) { return; }
+  *walkBackwards(node) {
+    if (!node) {
+      return;
+    }
     if (node.childNodes.length > 0) {
       for (let i = node.childNodes.length - 1; i >= 0; i--) {
         yield* this.walkBackwards(node.childNodes[i]);
@@ -19,5 +21,5 @@ const DOMWalkers = {
     yield node;
     return;
   },
-}
-export default DOMWalkers
+};
+export default DOMWalkers;

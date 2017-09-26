@@ -1,8 +1,6 @@
 _ = require 'underscore'
 classNames = require 'classnames'
-React = require 'react'
-
-{Utils, DOMUtils, ExtensionRegistry} = require 'nylas-exports'
+{React, PropTypes, Utils, DOMUtils, ExtensionRegistry} = require 'nylas-exports'
 
 # Positions and renders a FloatingToolbar in the composer.
 #
@@ -27,14 +25,14 @@ class FloatingToolbar extends React.Component
   # Every time the `innerState` of the `Contenteditable` change, we get
   # passed the data as new `innerProps`.
   @propTypes:
-    atomicEdit: React.PropTypes.func
-    extensions: React.PropTypes.array
+    atomicEdit: PropTypes.func
+    extensions: PropTypes.array
   @innerPropTypes:
-    dragging: React.PropTypes.bool
-    selection: React.PropTypes.object
-    doubleDown: React.PropTypes.bool
-    hoveringOver: React.PropTypes.object
-    editableNode: React.PropTypes.object
+    dragging: PropTypes.bool
+    selection: PropTypes.object
+    doubleDown: PropTypes.bool
+    hoveringOver: PropTypes.object
+    editableNode: PropTypes.object
 
   @defaultProps:
     extensions: []

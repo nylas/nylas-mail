@@ -1,18 +1,16 @@
 RetinaImg = require('./retina-img').default
-{Utils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, Utils} = require 'nylas-exports'
 classnames = require 'classnames'
 
-React = require 'react'
-ReactDOM = require 'react-dom'
 class ButtonDropdown extends React.Component
   @displayName: "ButtonDropdown"
   @propTypes:
-    primaryItem: React.PropTypes.element
-    primaryClick: React.PropTypes.func
-    bordered: React.PropTypes.bool
-    menu: React.PropTypes.element
-    style: React.PropTypes.object
-    closeOnMenuClick: React.PropTypes.bool
+    primaryItem: PropTypes.element
+    primaryClick: PropTypes.func
+    bordered: PropTypes.bool
+    menu: PropTypes.element
+    style: PropTypes.object
+    closeOnMenuClick: PropTypes.bool
 
   @defaultProps:
     style: {}

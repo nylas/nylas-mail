@@ -1,24 +1,30 @@
-import {React, Actions, NylasAPIRequest, NylasAPIHelpers, APIError} from 'nylas-exports'
-import {RetinaImg} from 'nylas-component-kit'
-import classnames from 'classnames'
-import _ from 'underscore'
+import {
+  React,
+  PropTypes,
+  Actions,
+  NylasAPIRequest,
+  NylasAPIHelpers,
+  APIError,
+} from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
+import classnames from 'classnames';
+import _ from 'underscore';
 
 export default class MetadataComposerToggleButton extends React.Component {
-
   static displayName = 'MetadataComposerToggleButton';
 
   static propTypes = {
-    title: React.PropTypes.func.isRequired,
-    iconUrl: React.PropTypes.string,
-    iconName: React.PropTypes.string,
-    pluginId: React.PropTypes.string.isRequired,
-    pluginName: React.PropTypes.string.isRequired,
-    metadataEnabledValue: React.PropTypes.object.isRequired,
-    stickyToggle: React.PropTypes.bool,
-    errorMessage: React.PropTypes.func.isRequired,
+    title: PropTypes.func.isRequired,
+    iconUrl: PropTypes.string,
+    iconName: PropTypes.string,
+    pluginId: PropTypes.string.isRequired,
+    pluginName: PropTypes.string.isRequired,
+    metadataEnabledValue: PropTypes.object.isRequired,
+    stickyToggle: PropTypes.bool,
+    errorMessage: PropTypes.func.isRequired,
 
-    draft: React.PropTypes.object.isRequired,
-    session: React.PropTypes.object.isRequired,
+    draft: PropTypes.object.isRequired,
+    session: PropTypes.object.isRequired,
   };
 
   static defaultProps = {
@@ -40,11 +46,11 @@ export default class MetadataComposerToggleButton extends React.Component {
   }
 
   _configKey() {
-    return `plugins.${this.props.pluginId}.defaultOn`
+    return `plugins.${this.props.pluginId}.defaultOn`;
   }
 
   _isEnabled() {
-    const {pluginId, draft, metadataEnabledValue} = this.props;
+    const { pluginId, draft, metadataEnabledValue } = this.props;
     const value = draft.metadataForPluginId(pluginId);
     return _.isEqual(value, metadataEnabledValue) || _.isMatch(value, metadataEnabledValue);
   }
@@ -54,42 +60,44 @@ export default class MetadataComposerToggleButton extends React.Component {
   }
 
   async _setEnabled(enabled) {
-    const {pluginId, pluginName, draft, session, metadataEnabledValue} = this.props;
+    const { pluginId, pluginName, draft, session, metadataEnabledValue } = this.props;
 
     const metadataValue = enabled ? metadataEnabledValue : null;
-    this.setState({pending: true});
+    this.setState({ pending: true });
 
     try {
-      await NylasAPIHelpers.authPlugin(pluginId, pluginName, draft.accountId)
+      await NylasAPIHelpers.authPlugin(pluginId, pluginName, draft.accountId);
       session.changes.addPluginMetadata(pluginId, metadataValue);
     } catch (error) {
-      const {stickyToggle, errorMessage} = this.props;
+      const { stickyToggle, errorMessage } = this.props;
 
       if (stickyToggle) {
-        NylasEnv.config.set(this._configKey(), false)
+        NylasEnv.config.set(this._configKey(), false);
       }
 
-      let title = "Error"
+      let title = 'Error';
       if (!(error instanceof APIError)) {
         NylasEnv.reportError(error);
       } else if (error.statusCode === 400) {
         NylasEnv.reportError(error);
       } else if (NylasAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
-        title = "Offline"
+        title = 'Offline';
       }
 
-      NylasEnv.showErrorDialog({title, message: errorMessage(error)});
+      NylasEnv.showErrorDialog({ title, message: errorMessage(error) });
     }
 
-    this.setState({pending: false});
+    this.setState({ pending: false });
   }
 
   _onClick = () => {
-    if (this.state.pending) { return; }
+    if (this.state.pending) {
+      return;
+    }
 
     const enabled = this._isEnabled();
-    const dir = enabled ? "Disabled" : "Enabled"
-    Actions.recordUserEvent(`${this.props.pluginName} ${dir}`)
+    const dir = enabled ? 'Disabled' : 'Enabled';
+    Actions.recordUserEvent(`${this.props.pluginName} ${dir}`);
     if (this.props.stickyToggle) {
       NylasEnv.config.set(this._configKey(), !enabled);
     }
@@ -101,29 +109,23 @@ export default class MetadataComposerToggleButton extends React.Component {
     const title = this.props.title(enabled);
 
     const className = classnames({
-      "btn": true,
-      "btn-toolbar": true,
-      "btn-pending": this.state.pending,
-      "btn-enabled": enabled,
+      btn: true,
+      'btn-toolbar': true,
+      'btn-pending': this.state.pending,
+      'btn-enabled': enabled,
     });
 
-    const attrs = {}
+    const attrs = {};
     if (this.props.iconUrl) {
-      attrs.url = this.props.iconUrl
+      attrs.url = this.props.iconUrl;
     } else if (this.props.iconName) {
-      attrs.name = this.props.iconName
+      attrs.name = this.props.iconName;
     }
 
     return (
-      <button
-        className={className}
-        onClick={this._onClick}
-        title={title}
-        tabIndex={-1}
-      >
+      <button className={className} onClick={this._onClick} title={title} tabIndex={-1}>
         <RetinaImg {...attrs} mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     );
   }
-
 }

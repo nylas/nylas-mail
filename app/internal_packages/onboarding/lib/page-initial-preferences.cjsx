@@ -1,4 +1,5 @@
 React = require 'react'
+PropTypes = require 'prop-types'
 path = require 'path'
 fs = require 'fs'
 _ = require 'underscore'
@@ -9,9 +10,9 @@ OnboardingActions = require('./onboarding-actions').default
 # NOTE: Temporarily copied from preferences module
 class AppearanceModeOption extends React.Component
   @propTypes:
-    mode: React.PropTypes.string.isRequired
-    active: React.PropTypes.bool
-    onClick: React.PropTypes.func
+    mode: PropTypes.string.isRequired
+    active: PropTypes.bool
+    onClick: PropTypes.func
 
   render: =>
     classname = "appearance-mode"
@@ -30,7 +31,7 @@ class AppearanceModeOption extends React.Component
 
 class InitialPreferencesOptions extends React.Component
   @propTypes:
-    config: React.PropTypes.object
+    config: PropTypes.object
 
   constructor: (@props) ->
     @state =

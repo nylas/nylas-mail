@@ -1,12 +1,12 @@
-import {PreferencesUIStore, ExtensionRegistry, ComponentRegistry} from 'nylas-exports';
+import { PreferencesUIStore, ExtensionRegistry, ComponentRegistry } from 'nylas-exports';
 
 import SignatureComposerExtension from './signature-composer-extension';
 import SignatureComposerDropdown from './signature-composer-dropdown';
 
 export function activate() {
   this.preferencesTab = new PreferencesUIStore.TabItem({
-    tabId: "Signatures",
-    displayName: "Signatures",
+    tabId: 'Signatures',
+    displayName: 'Signatures',
     componentClassFn: () => require('./preferences-signatures').default, // eslint-disable-line
   });
 

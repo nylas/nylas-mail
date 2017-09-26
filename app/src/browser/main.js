@@ -1,11 +1,11 @@
 /* eslint dot-notation: 0 */
 /* eslint global-require: 0 */
 global.shellStartTime = Date.now();
-const util = require('util')
+const util = require('util');
 
 console.inspect = function consoleInspect(val) {
   console.log(util.inspect(val, true, 7, true));
-}
+};
 
 const app = require('electron').app;
 const path = require('path');
@@ -15,13 +15,13 @@ if (typeof process.setFdLimit === 'function') {
   process.setFdLimit(1024);
 }
 
-const setupConfigDir = (args) => {
-  let defaultDirName = "Mailspring";
+const setupConfigDir = args => {
+  let defaultDirName = 'Mailspring';
   if (args.devMode) {
-    defaultDirName = "Mailspring-dev";
+    defaultDirName = 'Mailspring-dev';
   }
   if (args.specMode) {
-    defaultDirName = "Mailspring-spec";
+    defaultDirName = 'Mailspring-spec';
   }
   const configDirPath = path.join(app.getPath('appData'), defaultDirName);
   mkdirp.sync(configDirPath);
@@ -29,7 +29,7 @@ const setupConfigDir = (args) => {
   return configDirPath;
 };
 
-const setupCompileCache = (configDirPath) => {
+const setupCompileCache = configDirPath => {
   const compileCache = require('../compile-cache');
   return compileCache.setHomeDirectory(configDirPath);
 };
@@ -46,24 +46,61 @@ const setupErrorLogger = (args = {}) => {
   return errorLogger;
 };
 
-const declareOptions = (argv) => {
+const declareOptions = argv => {
   const optimist = require('optimist');
   const options = optimist(argv);
-  options.usage(`Mailspring\n\nUsage: mailspring [options]\n\nRun Mailspring: The open source extensible email client\n\n\`mailspring --dev\` to start the client in dev mode.\n\n\`mailspring --test\` to run unit tests.`);
-  options.alias('d', 'dev').boolean('d').describe('d', 'Run in development mode.');
-  options.alias('t', 'test').boolean('t').describe('t', 'Run the specified specs and exit with error code on failures.');
-  options.boolean('safe').describe('safe', 'Do not load packages from the settings `packages` or `dev/packages` folders.');
-  options.alias('h', 'help').boolean('h').describe('h', 'Print this usage message.');
-  options.alias('l', 'log-file').string('l').describe('l', 'Log all test output to file.');
-  options.alias('c', 'config-dir-path').string('c').describe('c', 'Override the path to the Mailspring configuration directory');
-  options.alias('s', 'spec-directory').string('s').describe('s', 'Override the directory from which to run package specs');
-  options.alias('f', 'spec-file-pattern').string('f').describe('f', 'Override the default file regex to determine which tests should run (defaults to "-spec.(coffee|js|jsx|cjsx|es6|es)$" )');
-  options.alias('v', 'version').boolean('v').describe('v', 'Print the version.');
-  options.alias('b', 'background').boolean('b').describe('b', 'Start Mailspring in the background');
+  options.usage(
+    `Mailspring\n\nUsage: mailspring [options]\n\nRun Mailspring: The open source extensible email client\n\n\`mailspring --dev\` to start the client in dev mode.\n\n\`mailspring --test\` to run unit tests.`
+  );
+  options
+    .alias('d', 'dev')
+    .boolean('d')
+    .describe('d', 'Run in development mode.');
+  options
+    .alias('t', 'test')
+    .boolean('t')
+    .describe('t', 'Run the specified specs and exit with error code on failures.');
+  options
+    .boolean('safe')
+    .describe(
+      'safe',
+      'Do not load packages from the settings `packages` or `dev/packages` folders.'
+    );
+  options
+    .alias('h', 'help')
+    .boolean('h')
+    .describe('h', 'Print this usage message.');
+  options
+    .alias('l', 'log-file')
+    .string('l')
+    .describe('l', 'Log all test output to file.');
+  options
+    .alias('c', 'config-dir-path')
+    .string('c')
+    .describe('c', 'Override the path to the Mailspring configuration directory');
+  options
+    .alias('s', 'spec-directory')
+    .string('s')
+    .describe('s', 'Override the directory from which to run package specs');
+  options
+    .alias('f', 'spec-file-pattern')
+    .string('f')
+    .describe(
+      'f',
+      'Override the default file regex to determine which tests should run (defaults to "-spec.(coffee|js|jsx|cjsx|es6|es)$" )'
+    );
+  options
+    .alias('v', 'version')
+    .boolean('v')
+    .describe('v', 'Print the version.');
+  options
+    .alias('b', 'background')
+    .boolean('b')
+    .describe('b', 'Start Mailspring in the background');
   return options;
 };
 
-const parseCommandLine = (argv) => {
+const parseCommandLine = argv => {
   const pkg = require('../../package.json');
   const version = `${pkg.version}-${pkg.commitHash}`;
 
@@ -87,7 +124,7 @@ const parseCommandLine = (argv) => {
   const configDirPath = args['config-dir-path'];
   const specDirectory = args['spec-directory'];
   const specFilePattern = args['spec-file-pattern'];
-  const showSpecsInWindow = specMode === "window";
+  const showSpecsInWindow = specMode === 'window';
   const resourcePath = path.normalize(path.resolve(path.dirname(path.dirname(__dirname))));
   const urlsToOpen = [];
   const pathsToOpen = [];
@@ -111,7 +148,7 @@ const parseCommandLine = (argv) => {
     }
     if (arg.startsWith('mailto:') || arg.startsWith('mailspring:')) {
       urlsToOpen.push(arg);
-    } else if ((arg[0] !== '-') && (/[/|\\]/.test(arg))) {
+    } else if (arg[0] !== '-' && /[/|\\]/.test(arg)) {
       pathsToOpen.push(arg);
     }
   }
@@ -160,24 +197,20 @@ const handleStartupEventWithSquirrel = () => {
   switch (squirrelCommand) {
     case '--squirrel-install':
       WindowsUpdater.createRegistryEntries(options, () =>
-        WindowsUpdater.createShortcuts(() =>
-          app.quit()
-        )
-      )
-      return true
+        WindowsUpdater.createShortcuts(() => app.quit())
+      );
+      return true;
     case '--squirrel-updated':
-      WindowsUpdater.restartMailspring(app)
-      return true
+      WindowsUpdater.restartMailspring(app);
+      return true;
     case '--squirrel-uninstall':
-      WindowsUpdater.removeShortcuts(() =>
-        app.quit()
-      )
-      return true
+      WindowsUpdater.removeShortcuts(() => app.quit());
+      return true;
     case '--squirrel-obsolete':
-      app.quit()
-      return true
+      app.quit();
+      return true;
     default:
-      return false
+      return false;
   }
 };
 
@@ -190,13 +223,13 @@ const start = () => {
   const options = parseCommandLine(process.argv);
 
   if (!options.devMode) {
-    const otherInstanceRunning = app.makeSingleInstance((commandLine) => {
+    const otherInstanceRunning = app.makeSingleInstance(commandLine => {
       const otherOpts = parseCommandLine(commandLine);
       global.application.handleLaunchOptions(otherOpts);
     });
 
     if (otherInstanceRunning) {
-      console.log("Exiting because another instance of the app is already running.")
+      console.log('Exiting because another instance of the app is already running.');
       app.quit();
     }
   }
@@ -223,12 +256,13 @@ const start = () => {
     app.removeListener('open-url', onOpenUrlBeforeReady);
 
     // eslint-disable-next-line
-    const Application = require(path.join(options.resourcePath, 'src', 'browser', 'application')).default;
+    const Application = require(path.join(options.resourcePath, 'src', 'browser', 'application'))
+      .default;
     global.application = new Application();
     global.application.start(options);
 
     if (!options.specMode) {
-      console.log(`App load time: ${(Date.now() - global.shellStartTime)}ms`);
+      console.log(`App load time: ${Date.now() - global.shellStartTime}ms`);
     }
   });
 };

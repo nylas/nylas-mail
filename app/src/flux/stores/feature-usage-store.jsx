@@ -1,12 +1,12 @@
-import Rx from 'rx-lite'
-import React from 'react'
-import NylasStore from 'nylas-store'
-import {FeatureUsedUpModal} from 'nylas-component-kit'
-import Actions from '../actions'
-import IdentityStore from './identity-store'
-import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task'
+import Rx from 'rx-lite';
+import React from 'react';
+import NylasStore from 'nylas-store';
+import { FeatureUsedUpModal } from 'nylas-component-kit';
+import Actions from '../actions';
+import IdentityStore from './identity-store';
+import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task';
 
-class NoProAccessError extends Error { }
+class NoProAccessError extends Error {}
 
 /**
  * FeatureUsageStore is backed by the IdentityStore
@@ -47,7 +47,7 @@ class NoProAccessError extends Error { }
  */
 class FeatureUsageStore extends NylasStore {
   constructor() {
-    super()
+    super();
     this._waitForModalClose = [];
     this.NoProAccessError = NoProAccessError;
 
@@ -66,8 +66,8 @@ class FeatureUsageStore extends NylasStore {
     this._usub();
   }
 
-  displayUpgradeModal(feature, {lexicon}) {
-    const {headerText, rechargeText} = this._modalText(feature, lexicon);
+  displayUpgradeModal(feature, { lexicon }) {
+    const { headerText, rechargeText } = this._modalText(feature, lexicon);
 
     Actions.openModal({
       height: 575,
@@ -89,15 +89,15 @@ class FeatureUsageStore extends NylasStore {
       return true;
     }
 
-    this.displayUpgradeModal(feature, {lexicon});
+    this.displayUpgradeModal(feature, { lexicon });
 
     return new Promise((resolve, reject) => {
-      this._waitForModalClose.push({resolve, reject, feature})
-    })
+      this._waitForModalClose.push({ resolve, reject, feature });
+    });
   }
 
   _onModalClose = async () => {
-    for (const {feature, resolve, reject} of this._waitForModalClose) {
+    for (const { feature, resolve, reject } of this._waitForModalClose) {
       if (this._isUsable(feature)) {
         this._markFeatureUsed(feature);
         resolve();
@@ -106,33 +106,33 @@ class FeatureUsageStore extends NylasStore {
       }
     }
     this._waitForModalClose = [];
-  }
+  };
 
   _modalText(feature, lexicon = {}) {
     const featureData = this._dataForFeature(feature);
 
-    let headerText = "";
-    let rechargeText = "";
+    let headerText = '';
+    let rechargeText = '';
     if (!featureData.quota) {
       headerText = `Uhoh - that's a pro feature!`;
-      rechargeText = `Upgrade to Mailspring Pro to ${lexicon.usagePhrase}.`
+      rechargeText = `Upgrade to Mailspring Pro to ${lexicon.usagePhrase}.`;
     } else {
       headerText = lexicon.usedUpHeader || "You've reached your quota";
-      let time = "later";
-      if (featureData.period === "hourly") {
-        time = "an hour"
-      } else if (featureData.period === "daily") {
-        time = "a day"
-      } else if (featureData.period === "weekly") {
-        time = "a week"
-      } else if (featureData.period === "monthly") {
-        time = "a month"
-      } else if (featureData.period === "yearly") {
-        time = "a year"
+      let time = 'later';
+      if (featureData.period === 'hourly') {
+        time = 'an hour';
+      } else if (featureData.period === 'daily') {
+        time = 'a day';
+      } else if (featureData.period === 'weekly') {
+        time = 'a week';
+      } else if (featureData.period === 'monthly') {
+        time = 'a month';
+      } else if (featureData.period === 'yearly') {
+        time = 'a year';
       }
       rechargeText = `You can ${lexicon.usagePhrase} ${featureData.quota} emails ${time} with Mailspring Basic. Upgrade to Pro today!`;
     }
-    return {headerText, rechargeText}
+    return { headerText, rechargeText };
   }
 
   _dataForFeature(feature) {
@@ -145,7 +145,7 @@ class FeatureUsageStore extends NylasStore {
   }
 
   _isUsable(feature) {
-    const {usedInPeriod, quota} = this._dataForFeature(feature);
+    const { usedInPeriod, quota } = this._dataForFeature(feature);
     if (!quota) {
       return true;
     }
@@ -158,8 +158,8 @@ class FeatureUsageStore extends NylasStore {
       next.featureUsage[feature].usedInPeriod += 1;
       IdentityStore.saveIdentity(next);
     }
-    Actions.queueTask(new SendFeatureUsageEventTask({feature}));
+    Actions.queueTask(new SendFeatureUsageEventTask({ feature }));
   }
 }
 
-export default new FeatureUsageStore()
+export default new FeatureUsageStore();

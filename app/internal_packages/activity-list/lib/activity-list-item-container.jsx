@@ -1,19 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-import {DisclosureTriangle,
-  Flexbox,
-  RetinaImg} from 'nylas-component-kit';
-import {DateUtils} from 'nylas-exports';
+import { DisclosureTriangle, Flexbox, RetinaImg } from 'nylas-component-kit';
+import { DateUtils } from 'nylas-exports';
 import ActivityListStore from './activity-list-store';
-import {pluginFor} from './plugin-helpers';
-
+import { pluginFor } from './plugin-helpers';
 
 class ActivityListItemContainer extends React.Component {
-
   static displayName = 'ActivityListItemContainer';
 
   static propTypes = {
-    group: React.PropTypes.array,
+    group: PropTypes.array,
   };
 
   constructor(props) {
@@ -27,15 +24,15 @@ class ActivityListItemContainer extends React.Component {
     ActivityListStore.focusThread(threadId);
   }
 
-  _onCollapseToggled = (event) => {
+  _onCollapseToggled = event => {
     event.stopPropagation();
-    this.setState({collapsed: !this.state.collapsed});
-  }
+    this.setState({ collapsed: !this.state.collapsed });
+  };
 
   _getText() {
     const text = {
-      recipient: "Someone",
-      title: "(No Subject)",
+      recipient: 'Someone',
+      title: '(No Subject)',
       date: new Date(0),
     };
     const lastAction = this.props.group[0];
@@ -64,18 +61,13 @@ class ActivityListItemContainer extends React.Component {
       const date = new Date(0);
       date.setUTCSeconds(action.timestamp);
       actions.push(
-        <div
-          key={`${action.messageId}-${action.timestamp}`}
-          className="activity-list-toggle-item"
-        >
+        <div key={`${action.messageId}-${action.timestamp}`} className="activity-list-toggle-item">
           <Flexbox direction="row">
             <div className="action-message">
-              {action.recipient ? action.recipient.displayName() : "Someone"}
+              {action.recipient ? action.recipient.displayName() : 'Someone'}
             </div>
             <div className="spacer" />
-            <div className="timestamp">
-              {DateUtils.shortTimeString(date)}
-            </div>
+            <div className="timestamp">{DateUtils.shortTimeString(date)}</div>
           </Flexbox>
         </div>
       );
@@ -83,7 +75,7 @@ class ActivityListItemContainer extends React.Component {
     return (
       <div
         key={`activity-toggle-container`}
-        className={`activity-toggle-container ${this.state.collapsed ? "hidden" : ""}`}
+        className={`activity-toggle-container ${this.state.collapsed ? 'hidden' : ''}`}
       >
         {actions}
       </div>
@@ -92,10 +84,10 @@ class ActivityListItemContainer extends React.Component {
 
   render() {
     const lastAction = this.props.group[0];
-    let className = "activity-list-item";
-    if (!ActivityListStore.hasBeenViewed(lastAction)) className += " unread";
+    let className = 'activity-list-item';
+    if (!ActivityListStore.hasBeenViewed(lastAction)) className += ' unread';
     const text = this._getText();
-    let disclosureTriangle = (<div style={{width: "7px"}} />);
+    let disclosureTriangle = <div style={{ width: '7px' }} />;
     if (this.props.group.length > 1) {
       disclosureTriangle = (
         <DisclosureTriangle
@@ -106,11 +98,13 @@ class ActivityListItemContainer extends React.Component {
       );
     }
     return (
-      <div onClick={() => { this._onClick(lastAction.threadId) }}>
+      <div
+        onClick={() => {
+          this._onClick(lastAction.threadId);
+        }}
+      >
         <Flexbox direction="column" className={className}>
-          <Flexbox
-            direction="row"
-          >
+          <Flexbox direction="row">
             <div className="activity-icon-container">
               <RetinaImg
                 className="activity-icon"
@@ -123,19 +117,14 @@ class ActivityListItemContainer extends React.Component {
               {text.recipient} {pluginFor(lastAction.pluginId).predicate}:
             </div>
             <div className="spacer" />
-            <div className="timestamp">
-              {DateUtils.shortTimeString(text.date)}
-            </div>
+            <div className="timestamp">{DateUtils.shortTimeString(text.date)}</div>
           </Flexbox>
-          <div className="title">
-            {text.title}
-          </div>
+          <div className="title">{text.title}</div>
         </Flexbox>
         {this.renderActivityContainer()}
       </div>
     );
   }
-
 }
 
 export default ActivityListItemContainer;

@@ -1,15 +1,14 @@
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import {exec} from 'child_process';
-import {remote, shell} from 'electron';
+import { exec } from 'child_process';
+import { remote, shell } from 'electron';
 import mkdirp from 'mkdirp';
 import NylasStore from 'nylas-store';
 import DraftStore from './draft-store';
 import Actions from '../actions';
 import File from '../models/file';
 import Utils from '../models/utils';
-
 
 Promise.promisifyAll(fs);
 const mkdirpAsync = Promise.promisify(mkdirp);
@@ -28,14 +27,13 @@ const NonPreviewableExtensions = [
   'dmg',
   'exe',
   'ics',
-]
+];
 
-const THUMBNAIL_WIDTH = 320
+const THUMBNAIL_WIDTH = 320;
 
 class AttachmentStore extends NylasStore {
-
   constructor() {
-    super()
+    super();
 
     // viewing messages
     this.listenTo(Actions.fetchFile, this._fetch);
@@ -59,12 +57,21 @@ class AttachmentStore extends NylasStore {
   // which causes operations to happen on the directory (badness!)
   //
   pathForFile(file) {
-    if (!file) { return null; }
+    if (!file) {
+      return null;
+    }
     const id = file.id.toLowerCase();
-    return path.join(this._filesDirectory, id.substr(0, 2), id.substr(2, 2), id, file.safeDisplayName());
+    return path.join(
+      this._filesDirectory,
+      id.substr(0, 2),
+      id.substr(2, 2),
+      id,
+      file.safeDisplayName()
+    );
   }
 
-  getDownloadDataForFile() { // fileId
+  getDownloadDataForFile() {
+    // fileId
     // if we ever support downloads again, put this back
     return null;
   }
@@ -73,7 +80,7 @@ class AttachmentStore extends NylasStore {
   //
   getDownloadDataForFiles(fileIds = []) {
     const downloadData = {};
-    fileIds.forEach((fileId) => {
+    fileIds.forEach(fileId => {
       downloadData[fileId] = this.getDownloadDataForFile(fileId);
     });
     return downloadData;
@@ -81,7 +88,7 @@ class AttachmentStore extends NylasStore {
 
   previewPathsForFiles(fileIds = []) {
     const previewPaths = {};
-    fileIds.forEach((fileId) => {
+    fileIds.forEach(fileId => {
       previewPaths[fileId] = this.previewPathForFile(fileId);
     });
     return previewPaths;
@@ -100,51 +107,60 @@ class AttachmentStore extends NylasStore {
   }
 
   _generatePreview(file) {
-    if (process.platform !== 'darwin') { return Promise.resolve() }
+    if (process.platform !== 'darwin') {
+      return Promise.resolve();
+    }
     if (!NylasEnv.config.get('core.attachments.displayFilePreview')) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
     if (NonPreviewableExtensions.includes(file.displayExtension())) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
-    const filePath = this.pathForFile(file)
-    const previewPath = `${filePath}.png`
-    return fs.accessAsync(filePath, fs.F_OK)
-    .then(() => {
-      fs.accessAsync(previewPath, fs.F_OK)
-      .then(() => {
-        // If the preview file already exists, set our state and bail
-        this._filePreviewPaths[file.id] = previewPath
-        this.trigger()
-      })
-      .catch(() => {
-        // If the preview file doesn't exist yet, generate it
-        const fileDir = `"${path.dirname(filePath)}"`
-        const escapedPath = `"${filePath}"`
-        return new Promise((resolve) => {
-          const previewSize = THUMBNAIL_WIDTH * (11 / 8.5)
-          exec(`qlmanage -t -f ${window.devicePixelRatio} -s ${previewSize} -o ${fileDir} ${escapedPath}`, (error, stdout, stderr) => {
-            if (error) {
-              // Ignore errors, we don't really mind if we can't generate a preview
-              // for a file
-              NylasEnv.reportError(error)
-              resolve()
-              return
-            }
-            if (stdout.match(/No thumbnail created/i) || stderr) {
-              resolve()
-              return
-            }
-            this._filePreviewPaths[file.id] = previewPath
-            this.trigger()
-            resolve()
-          })
+    const filePath = this.pathForFile(file);
+    const previewPath = `${filePath}.png`;
+    return (
+      fs
+        .accessAsync(filePath, fs.F_OK)
+        .then(() => {
+          fs
+            .accessAsync(previewPath, fs.F_OK)
+            .then(() => {
+              // If the preview file already exists, set our state and bail
+              this._filePreviewPaths[file.id] = previewPath;
+              this.trigger();
+            })
+            .catch(() => {
+              // If the preview file doesn't exist yet, generate it
+              const fileDir = `"${path.dirname(filePath)}"`;
+              const escapedPath = `"${filePath}"`;
+              return new Promise(resolve => {
+                const previewSize = THUMBNAIL_WIDTH * (11 / 8.5);
+                exec(
+                  `qlmanage -t -f ${window.devicePixelRatio} -s ${previewSize} -o ${fileDir} ${escapedPath}`,
+                  (error, stdout, stderr) => {
+                    if (error) {
+                      // Ignore errors, we don't really mind if we can't generate a preview
+                      // for a file
+                      NylasEnv.reportError(error);
+                      resolve();
+                      return;
+                    }
+                    if (stdout.match(/No thumbnail created/i) || stderr) {
+                      resolve();
+                      return;
+                    }
+                    this._filePreviewPaths[file.id] = previewPath;
+                    this.trigger();
+                    resolve();
+                  }
+                );
+              });
+            });
         })
-      })
-    })
-    // If the file doesn't exist, ignore the error.
-    .catch(() => Promise.resolve())
+        // If the file doesn't exist, ignore the error.
+        .catch(() => Promise.resolve())
+    );
   }
 
   // Returns a promise that resolves with true or false. True if the file has
@@ -161,21 +177,23 @@ class AttachmentStore extends NylasStore {
 
   // Section: Retrieval of Files
 
-  _fetch = (file) => {
-    return this._ensureFile(file)
-    .catch(this._catchFSErrors)
-    // Passively ignore
-    .catch(() => {});
-  }
+  _fetch = file => {
+    return (
+      this._ensureFile(file)
+        .catch(this._catchFSErrors)
+        // Passively ignore
+        .catch(() => {})
+    );
+  };
 
-  _fetchAndOpen = (file) => {
+  _fetchAndOpen = file => {
     return this._ensureFile(file)
-    .then(() => shell.openItem(this.pathForFile(file)))
-    .catch(this._catchFSErrors)
-    .catch((error) => {
-      return this._presentError({file, error});
-    });
-  }
+      .then(() => shell.openItem(this.pathForFile(file)))
+      .catch(this._catchFSErrors)
+      .catch(error => {
+        return this._presentError({ file, error });
+      });
+  };
 
   _writeToExternalPath = (file, savePath) => {
     return new Promise((resolve, reject) => {
@@ -184,39 +202,41 @@ class AttachmentStore extends NylasStore {
       stream.on('error', err => reject(err));
       stream.on('end', () => resolve());
     });
-  }
+  };
 
-  _fetchAndSave = (file) => {
+  _fetchAndSave = file => {
     const defaultPath = this._defaultSavePath(file);
     const defaultExtension = path.extname(defaultPath);
 
-    NylasEnv.showSaveDialog({defaultPath}, (savePath) => {
-      if (!savePath) { return; }
+    NylasEnv.showSaveDialog({ defaultPath }, savePath => {
+      if (!savePath) {
+        return;
+      }
 
       const saveExtension = path.extname(savePath);
       const newDownloadDirectory = path.dirname(savePath);
       const didLoseExtension = defaultExtension !== '' && saveExtension === '';
-      let actualSavePath = savePath
+      let actualSavePath = savePath;
       if (didLoseExtension) {
         actualSavePath += defaultExtension;
       }
 
       this._ensureFile(file)
-      .then((download) => this._writeToExternalPath(download, actualSavePath))
-      .then(() => {
-        if (NylasEnv.savedState.lastDownloadDirectory !== newDownloadDirectory) {
-          shell.showItemInFolder(actualSavePath);
-          NylasEnv.savedState.lastDownloadDirectory = newDownloadDirectory;
-        }
-      })
-      .catch(this._catchFSErrors)
-      .catch(error => {
-        this._presentError({file, error});
-      });
+        .then(download => this._writeToExternalPath(download, actualSavePath))
+        .then(() => {
+          if (NylasEnv.savedState.lastDownloadDirectory !== newDownloadDirectory) {
+            shell.showItemInFolder(actualSavePath);
+            NylasEnv.savedState.lastDownloadDirectory = newDownloadDirectory;
+          }
+        })
+        .catch(this._catchFSErrors)
+        .catch(error => {
+          this._presentError({ file, error });
+        });
     });
-  }
+  };
 
-  _fetchAndSaveAll = (files) => {
+  _fetchAndSaveAll = files => {
     const defaultPath = this._defaultSaveDir();
     const options = {
       defaultPath,
@@ -225,43 +245,48 @@ class AttachmentStore extends NylasStore {
       properties: ['openDirectory', 'createDirectory'],
     };
 
-    return new Promise((resolve) => {
-      NylasEnv.showOpenDialog(options, (selected) => {
-        if (!selected) { return; }
+    return new Promise(resolve => {
+      NylasEnv.showOpenDialog(options, selected => {
+        if (!selected) {
+          return;
+        }
         const dirPath = selected[0];
-        if (!dirPath) { return; }
+        if (!dirPath) {
+          return;
+        }
         NylasEnv.savedState.lastDownloadDirectory = dirPath;
 
         const lastSavePaths = [];
-        const savePromises = files.map((file) => {
+        const savePromises = files.map(file => {
           const savePath = path.join(dirPath, file.safeDisplayName());
           return this._ensureFile(file)
-          .then((download) => this._writeToExternalPath(download, savePath))
-          .then(() => lastSavePaths.push(savePath));
+            .then(download => this._writeToExternalPath(download, savePath))
+            .then(() => lastSavePaths.push(savePath));
         });
 
         Promise.all(savePromises)
-        .then(() => {
-          if (lastSavePaths.length > 0) {
-            shell.showItemInFolder(lastSavePaths[0]);
-          }
-          return resolve(lastSavePaths);
-        })
-        .catch(this._catchFSErrors)
-        .catch((error) => {
-          return this._presentError({error});
-        });
+          .then(() => {
+            if (lastSavePaths.length > 0) {
+              shell.showItemInFolder(lastSavePaths[0]);
+            }
+            return resolve(lastSavePaths);
+          })
+          .catch(this._catchFSErrors)
+          .catch(error => {
+            return this._presentError({ error });
+          });
       });
     });
-  }
+  };
 
-  _abortFetchFile = () => { // file
+  _abortFetchFile = () => {
+    // file
     // put this back if we ever support downloading individual files again
     return;
-  }
+  };
 
   _defaultSaveDir() {
-    let home = ''
+    let home = '';
     if (process.platform === 'win32') {
       home = process.env.USERPROFILE;
     } else {
@@ -287,33 +312,34 @@ class AttachmentStore extends NylasStore {
     return path.join(downloadDir, file.safeDisplayName());
   }
 
-  _presentError({file, error} = {}) {
-    const name = file ? file.displayName() : "one or more files";
-    const errorString = error ? error.toString() : "";
+  _presentError({ file, error } = {}) {
+    const name = file ? file.displayName() : 'one or more files';
+    const errorString = error ? error.toString() : '';
 
     return remote.dialog.showMessageBox({
       type: 'warning',
-      message: "Download Failed",
+      message: 'Download Failed',
       detail: `Unable to download ${name}. Check your network connection and try again. ${errorString}`,
-      buttons: ["OK"],
+      buttons: ['OK'],
     });
   }
 
   _catchFSErrors(error) {
     let message = null;
     if (['EPERM', 'EMFILE', 'EACCES'].includes(error.code)) {
-      message = "N1 could not save an attachment. Check that permissions are set correctly and try restarting N1 if the issue persists.";
+      message =
+        'N1 could not save an attachment. Check that permissions are set correctly and try restarting N1 if the issue persists.';
     }
     if (['ENOSPC'].includes(error.code)) {
-      message = "N1 could not save an attachment because you have run out of disk space.";
+      message = 'N1 could not save an attachment because you have run out of disk space.';
     }
 
     if (message) {
       remote.dialog.showMessageBox({
         type: 'warning',
-        message: "Download Failed",
+        message: 'Download Failed',
         detail: `${message}\n\n${error.message}`,
-        buttons: ["OK"],
+        buttons: ['OK'],
       });
       return Promise.resolve();
     }
@@ -324,13 +350,18 @@ class AttachmentStore extends NylasStore {
 
   _assertIdPresent(headerMessageId) {
     if (!headerMessageId) {
-      throw new Error("You need to pass the headerID of the message (draft) this Action refers to");
+      throw new Error('You need to pass the headerID of the message (draft) this Action refers to');
     }
   }
 
   _getFileStats(filepath) {
-    return fs.statAsync(filepath)
-    .catch(() => Promise.reject(new Error(`${filepath} could not be found, or has invalid file permissions.`)));
+    return fs
+      .statAsync(filepath)
+      .catch(() =>
+        Promise.reject(
+          new Error(`${filepath} could not be found, or has invalid file permissions.`)
+        )
+      );
   }
 
   _copyToInternalPath(originPath, targetPath) {
@@ -339,7 +370,9 @@ class AttachmentStore extends NylasStore {
       const writeStream = fs.createWriteStream(targetPath);
 
       readStream.on('error', () => reject(new Error(`Could not read file at path: ${originPath}`)));
-      writeStream.on('error', () => reject(new Error(`Could not write ${path.basename(targetPath)} to files directory.`)));
+      writeStream.on('error', () =>
+        reject(new Error(`Could not write ${path.basename(targetPath)} to files directory.`))
+      );
       readStream.on('end', () => resolve());
       readStream.pipe(writeStream);
     });
@@ -348,8 +381,8 @@ class AttachmentStore extends NylasStore {
   async _deleteFile(file) {
     try {
       // Delete the file and it's containing folder. Todo: possibly other empty dirs?
-      await fs.unlinkAsync(this.pathForFile(file))
-      await fs.rmdirAsync(path.dirname(this.pathForFile(file)))
+      await fs.unlinkAsync(this.pathForFile(file));
+      await fs.rmdirAsync(path.dirname(this.pathForFile(file)));
     } catch (err) {
       throw new Error(`Error deleting file file ${file.filename}:\n\n${err.message}`);
     }
@@ -358,29 +391,34 @@ class AttachmentStore extends NylasStore {
   async _applySessionChanges(headerMessageId, changeFunction) {
     const session = await DraftStore.sessionForClientId(headerMessageId);
     const files = changeFunction(session.draft().files);
-    session.changes.add({files});
+    session.changes.add({ files });
   }
 
   // Handlers
 
-  _onSelectAttachment = ({headerMessageId}) => {
+  _onSelectAttachment = ({ headerMessageId }) => {
     this._assertIdPresent(headerMessageId);
 
     // When the dialog closes, it triggers `Actions.addAttachment`
-    return NylasEnv.showOpenDialog({properties: ['openFile', 'multiSelections']},
-      (paths) => {
-        if (paths == null) { return; }
-        let pathsToOpen = paths
-        if (typeof pathsToOpen === 'string') {
-          pathsToOpen = [pathsToOpen];
-        }
-
-        pathsToOpen.forEach((filePath) => Actions.addAttachment({headerMessageId, filePath}));
+    return NylasEnv.showOpenDialog({ properties: ['openFile', 'multiSelections'] }, paths => {
+      if (paths == null) {
+        return;
       }
-    );
-  }
+      let pathsToOpen = paths;
+      if (typeof pathsToOpen === 'string') {
+        pathsToOpen = [pathsToOpen];
+      }
 
-  _onAddAttachment = async ({headerMessageId, filePath, inline = false, onCreated = (() => {})}) => {
+      pathsToOpen.forEach(filePath => Actions.addAttachment({ headerMessageId, filePath }));
+    });
+  };
+
+  _onAddAttachment = async ({
+    headerMessageId,
+    filePath,
+    inline = false,
+    onCreated = () => {},
+  }) => {
     this._assertIdPresent(headerMessageId);
 
     try {
@@ -404,7 +442,7 @@ class AttachmentStore extends NylasStore {
       await mkdirpAsync(path.dirname(this.pathForFile(file)));
       await this._copyToInternalPath(filePath, this.pathForFile(file));
 
-      await this._applySessionChanges(headerMessageId, (files) => {
+      await this._applySessionChanges(headerMessageId, files => {
         if (files.reduce((c, f) => c + f.size, 0) >= 15 * 1000000) {
           throw new Error(`Can't file more than 15MB of attachments`);
         }
@@ -414,23 +452,23 @@ class AttachmentStore extends NylasStore {
     } catch (err) {
       NylasEnv.showErrorDialog(err.message);
     }
-  }
+  };
 
   _onRemoveAttachment = async (headerMessageId, fileToRemove) => {
     if (!fileToRemove) {
       return;
     }
 
-    await this._applySessionChanges(headerMessageId, (files) =>
-      files.filter(({id}) => id !== fileToRemove.id)
+    await this._applySessionChanges(headerMessageId, files =>
+      files.filter(({ id }) => id !== fileToRemove.id)
     );
 
     try {
-      await this._deleteFile(fileToRemove)
+      await this._deleteFile(fileToRemove);
     } catch (err) {
       NylasEnv.showErrorDialog(err.message);
     }
-  }
+  };
 }
 
-export default new AttachmentStore()
+export default new AttachmentStore();

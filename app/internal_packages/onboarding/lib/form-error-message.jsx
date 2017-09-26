@@ -1,13 +1,12 @@
-import React from 'react';
-import {RegExpUtils} from 'nylas-exports';
+import { React, PropTypes, RegExpUtils } from 'nylas-exports';
 
-const FormErrorMessage = (props) => {
-  const {message, empty} = props;
+const FormErrorMessage = props => {
+  const { message, empty } = props;
   if (!message) {
     return <div className="message empty">{empty}</div>;
   }
 
-  const result = RegExpUtils.urlRegex({matchEntireString: false}).exec(message);
+  const result = RegExpUtils.urlRegex({ matchEntireString: false }).exec(message);
   if (result) {
     const link = result[0];
     return (
@@ -19,16 +18,12 @@ const FormErrorMessage = (props) => {
     );
   }
 
-  return (
-    <div className="message error">
-      {message}
-    </div>
-  );
-}
+  return <div className="message error">{message}</div>;
+};
 
 FormErrorMessage.propTypes = {
-  empty: React.PropTypes.string,
-  message: React.PropTypes.string,
+  empty: PropTypes.string,
+  message: PropTypes.string,
 };
 
 export default FormErrorMessage;

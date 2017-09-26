@@ -1,11 +1,10 @@
-import React, {Component} from 'react'
-import classnames from 'classnames'
-import PropTypes from 'prop-types'
+import React, { Component } from 'react';
+import classnames from 'classnames';
+import PropTypes from 'prop-types';
 
-import Menu from './menu'
-import RetinaImg from './retina-img'
-import KeyCommandsRegion from './key-commands-region'
-
+import Menu from './menu';
+import RetinaImg from './retina-img';
+import KeyCommandsRegion from './key-commands-region';
 
 class SearchBar extends Component {
   static displayName = 'SearchBar';
@@ -24,7 +23,7 @@ class SearchBar extends Component {
     onSearchQueryChanged: PropTypes.func,
     onSubmitSearchQuery: PropTypes.func,
     onSelectSuggestion: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     query: '',
@@ -33,7 +32,7 @@ class SearchBar extends Component {
     inputProps: {},
     placeholder: 'Search',
     onSubmitSearchQuery: () => {},
-  }
+  };
 
   componentDidMount() {
     this._mounted = true;
@@ -44,8 +43,8 @@ class SearchBar extends Component {
   }
 
   clearAndBlur() {
-    const {onClearSearchQuery} = this.props
-    onClearSearchQuery()
+    const { onClearSearchQuery } = this.props;
+    onClearSearchQuery();
 
     if (this._searchInputEl) {
       this._searchInputEl.blur();
@@ -54,41 +53,43 @@ class SearchBar extends Component {
 
   _onFocusSearch = () => {
     this._searchInputEl.focus();
-  }
+  };
 
-  _onInputKeyDown = (event) => {
-    const {key, target: {value}} = event;
+  _onInputKeyDown = event => {
+    const { key, target: { value } } = event;
     if (value.length > 0 && key === 'Escape') {
       this.clearAndBlur();
     }
-  }
+  };
 
-  _onInputChange = (event) => {
-    const {onSearchQueryChanged} = this.props
+  _onInputChange = event => {
+    const { onSearchQueryChanged } = this.props;
     onSearchQueryChanged(event.target.value);
-  }
+  };
 
   _onInputBlur = () => {
     // Don't immediately hide the menu when the text input is blurred,
     // because the user might have clicked an item in the menu. Wait to
     // handle the touch event, then dismiss the menu.
     setTimeout(() => {
-      if (!this._mounted) { return; }
-      const {onClearSearchSuggestions} = this.props
-      onClearSearchSuggestions()
+      if (!this._mounted) {
+        return;
+      }
+      const { onClearSearchSuggestions } = this.props;
+      onClearSearchSuggestions();
     }, 150);
-  }
+  };
 
-  renderSuggestion = (item) => {
+  renderSuggestion = item => {
     if (item.divider) {
       return <Menu.Item divider={item.divider} key={item.divider} />;
     }
-    const {suggestionRenderer} = this.props
+    const { suggestionRenderer } = this.props;
     if (suggestionRenderer) {
-      return suggestionRenderer(item)
+      return suggestionRenderer(item);
     }
     return item.label || '';
-  }
+  };
 
   render() {
     const {
@@ -102,7 +103,7 @@ class SearchBar extends Component {
       onSelectSuggestion,
       onSubmitSearchQuery,
       onClearSearchQuery,
-    } = this.props
+    } = this.props;
 
     const inputClass = classnames({
       empty: query.length === 0,
@@ -129,7 +130,9 @@ class SearchBar extends Component {
       <input
         type="text"
         key="input"
-        ref={(el) => { this._searchInputEl = el; }}
+        ref={el => {
+          this._searchInputEl = el;
+        }}
         className={inputClass}
         placeholder={placeholder}
         value={query}
@@ -146,8 +149,7 @@ class SearchBar extends Component {
         mode={RetinaImg.Mode.ContentDark}
         onClick={onClearSearchQuery}
       />,
-    ]
-
+    ];
 
     return (
       <KeyCommandsRegion
@@ -175,4 +177,4 @@ class SearchBar extends Component {
   }
 }
 
-export default SearchBar
+export default SearchBar;

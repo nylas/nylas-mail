@@ -1,10 +1,7 @@
 module.exports = [
   {
     title: 'Application',
-    items: [
-      ['application:new-message', 'New Message'],
-      ['core:focus-search', 'Search'],
-    ],
+    items: [['application:new-message', 'New Message'], ['core:focus-search', 'Search']],
   },
   {
     title: 'Actions',
@@ -67,4 +64,4 @@ module.exports = [
       ['navigation:go-to-all', 'Go to "All Mail"'],
     ],
   },
-]
+];

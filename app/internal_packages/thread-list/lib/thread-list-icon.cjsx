@@ -1,6 +1,7 @@
 _ = require 'underscore'
-React = require 'react'
-{DraftHelpers,
+{React,
+ PropTypes,
+ DraftHelpers,
  Actions,
  Thread,
  ChangeStarredTask,
@@ -11,7 +12,7 @@ React = require 'react'
 class ThreadListIcon extends React.Component
   @displayName: 'ThreadListIcon'
   @propTypes:
-    thread: React.PropTypes.object
+    thread: PropTypes.object
 
   _extensionsIconClassNames: =>
     return ExtensionRegistry.ThreadList.extensions()

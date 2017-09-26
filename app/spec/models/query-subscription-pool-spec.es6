@@ -2,7 +2,7 @@ import QuerySubscriptionPool from '../../src/flux/models/query-subscription-pool
 import DatabaseStore from '../../src/flux/stores/database-store';
 import Label from '../../src/flux/models/label';
 
-describe("QuerySubscriptionPool", function QuerySubscriptionPoolSpecs() {
+describe('QuerySubscriptionPool', function QuerySubscriptionPoolSpecs() {
   beforeEach(() => {
     this.query = DatabaseStore.findAll(Label);
     this.queryKey = this.query.sql();
@@ -10,8 +10,8 @@ describe("QuerySubscriptionPool", function QuerySubscriptionPoolSpecs() {
     QuerySubscriptionPool._cleanupChecks = [];
   });
 
-  describe("add", () => {
-    it("should add a new subscription with the callback", () => {
+  describe('add', () => {
+    it('should add a new subscription with the callback', () => {
       const callback = jasmine.createSpy('callback');
       QuerySubscriptionPool.add(this.query, callback);
       expect(QuerySubscriptionPool._subscriptions[this.queryKey]).toBeDefined();
@@ -20,23 +20,23 @@ describe("QuerySubscriptionPool", function QuerySubscriptionPoolSpecs() {
       expect(subscription.hasCallback(callback)).toBe(true);
     });
 
-    it("should yield database changes to the subscription", () => {
+    it('should yield database changes to the subscription', () => {
       const callback = jasmine.createSpy('callback');
       QuerySubscriptionPool.add(this.query, callback);
       const subscription = QuerySubscriptionPool._subscriptions[this.queryKey];
       spyOn(subscription, 'applyChangeRecord');
 
-      const record = {objectType: 'whateves'};
+      const record = { objectType: 'whateves' };
       QuerySubscriptionPool._onChange(record);
       expect(subscription.applyChangeRecord).toHaveBeenCalledWith(record);
     });
 
-    describe("unsubscribe", () => {
-      it("should return an unsubscribe method", () => {
+    describe('unsubscribe', () => {
+      it('should return an unsubscribe method', () => {
         expect(QuerySubscriptionPool.add(this.query, () => {}) instanceof Function).toBe(true);
       });
 
-      it("should remove the callback from the subscription", () => {
+      it('should remove the callback from the subscription', () => {
         const cb = () => {};
 
         const unsub = QuerySubscriptionPool.add(this.query, cb);

@@ -28,8 +28,8 @@ it figures that out, it makes that data available for the
 `ViewOnGithubButton` to display.
 */
 
-import {ComponentRegistry} from 'nylas-exports';
-import ViewOnGithubButton from "./view-on-github-button";
+import { ComponentRegistry } from 'nylas-exports';
+import ViewOnGithubButton from './view-on-github-button';
 
 /*
 All packages must export a basic object that has at least the following 3

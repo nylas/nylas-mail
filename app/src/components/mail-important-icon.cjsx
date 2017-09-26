@@ -1,7 +1,8 @@
 _ = require 'underscore'
-React = require 'react'
 classNames = require 'classnames'
-{Actions,
+{React,
+ PropTypes,
+ Actions,
  Utils,
  Thread,
  ChangeLabelsTask,
@@ -14,8 +15,8 @@ ShowImportantKey = 'core.workspace.showImportant'
 class MailImportantIcon extends React.Component
   @displayName: 'MailImportantIcon'
   @propTypes:
-    thread: React.PropTypes.object
-    showIfAvailableForAnyAccount: React.PropTypes.bool
+    thread: PropTypes.object
+    showIfAvailableForAnyAccount: PropTypes.bool
 
   constructor: (@props) ->
     @state = @getState()

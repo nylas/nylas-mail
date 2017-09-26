@@ -3,6 +3,7 @@ _ = require 'underscore'
 {convertStackTrace} = require 'coffeestack'
 React = require 'react'
 ReactDOM = require 'react-dom'
+PropTypes = require 'prop-types'
 marked = require 'marked'
 
 sourceMaps = {}
@@ -155,8 +156,8 @@ class N1GuiReporter extends React.Component
 
 class SuiteResultView extends React.Component
   @propTypes: ->
-    suite: React.PropTypes.object
-    allSpecs: React.PropTypes.array
+    suite: PropTypes.object
+    allSpecs: PropTypes.array
 
   render: ->
     items = []
@@ -189,7 +190,7 @@ class SuiteResultView extends React.Component
 
 class SpecResultView extends React.Component
   @propTypes: ->
-    spec: React.PropTypes.object
+    spec: PropTypes.object
 
   render: ->
     description = @props.spec.description

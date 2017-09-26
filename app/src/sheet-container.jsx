@@ -1,12 +1,11 @@
-import React from 'react'
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import {WorkspaceStore} from "nylas-exports";
+import React from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import { WorkspaceStore } from 'nylas-exports';
 
-import Sheet from './sheet'
-import Toolbar from './sheet-toolbar'
-import Flexbox from './components/flexbox'
-import InjectedComponentSet from './components/injected-component-set'
-
+import Sheet from './sheet';
+import Toolbar from './sheet-toolbar';
+import Flexbox from './components/flexbox';
+import InjectedComponentSet from './components/injected-component-set';
 
 export default class SheetContainer extends React.Component {
   static displayName = 'SheetContainer';
@@ -14,7 +13,7 @@ export default class SheetContainer extends React.Component {
   constructor(props) {
     super(props);
     this._toolbarComponents = {};
-    this.state = this._getStateFromStores()
+    this.state = this._getStateFromStores();
   }
 
   componentDidMount() {
@@ -34,34 +33,36 @@ export default class SheetContainer extends React.Component {
     };
   }
 
-  _onColumnSizeChanged = (sheet) => {
+  _onColumnSizeChanged = sheet => {
     const toolbar = this._toolbarComponents[sheet.props.depth];
     if (toolbar) {
       toolbar.recomputeLayout();
     }
     window.dispatchEvent(new Event('resize'));
-  }
+  };
 
   _onStoreChange = () => {
     this.setState(this._getStateFromStores());
-  }
+  };
 
   _toolbarContainerElement() {
-    const {toolbar} = NylasEnv.getLoadSettings();
+    const { toolbar } = NylasEnv.getLoadSettings();
     if (!toolbar) {
       return [];
     }
 
-    const components = this.state.stack.map((sheet, index) =>
+    const components = this.state.stack.map((sheet, index) => (
       <Toolbar
         data={sheet}
-        ref={(cm) => { this._toolbarComponents[index] = cm; }}
+        ref={cm => {
+          this._toolbarComponents[index] = cm;
+        }}
         key={`${index}:${sheet.id}:toolbar`}
         depth={index}
       />
-    )
+    ));
     return (
-      <div name="Toolbar" style={{order: 0, zIndex: 3}} className="sheet-toolbar">
+      <div name="Toolbar" style={{ order: 0, zIndex: 3 }} className="sheet-toolbar">
         {components[0]}
         <ReactCSSTransitionGroup
           transitionLeaveTimeout={125}
@@ -79,37 +80,35 @@ export default class SheetContainer extends React.Component {
     const topSheet = this.state.stack[totalSheets - 1];
 
     if (!topSheet) {
-      return (
-        <div />
-      );
+      return <div />;
     }
 
-    const sheetComponents = this.state.stack.map((sheet, index) =>
+    const sheetComponents = this.state.stack.map((sheet, index) => (
       <Sheet
         data={sheet}
         depth={index}
         key={`${index}:${sheet.id}`}
         onColumnSizeChanged={this._onColumnSizeChanged}
       />
-    );
+    ));
 
     return (
       <Flexbox
         direction="column"
         className={`layout-mode-${this.state.mode}`}
-        style={{overflow: 'hidden'}}
+        style={{ overflow: 'hidden' }}
       >
         {this._toolbarContainerElement()}
 
-        <div name="Header" style={{order: 1, zIndex: 2}}>
+        <div name="Header" style={{ order: 1, zIndex: 2 }}>
           <InjectedComponentSet
-            matching={{locations: [topSheet.Header, WorkspaceStore.Sheet.Global.Header]}}
+            matching={{ locations: [topSheet.Header, WorkspaceStore.Sheet.Global.Header] }}
             direction="column"
             id={topSheet.id}
           />
         </div>
 
-        <div name="Center" style={{order: 2, flex: 1, position: 'relative', zIndex: 1}}>
+        <div name="Center" style={{ order: 2, flex: 1, position: 'relative', zIndex: 1 }}>
           {sheetComponents[0]}
           <ReactCSSTransitionGroup
             transitionLeaveTimeout={125}
@@ -120,9 +119,9 @@ export default class SheetContainer extends React.Component {
           </ReactCSSTransitionGroup>
         </div>
 
-        <div name="Footer" style={{order: 3, zIndex: 4}}>
+        <div name="Footer" style={{ order: 3, zIndex: 4 }}>
           <InjectedComponentSet
-            matching={{locations: [topSheet.Footer, WorkspaceStore.Sheet.Global.Footer]}}
+            matching={{ locations: [topSheet.Footer, WorkspaceStore.Sheet.Global.Footer] }}
             direction="column"
             id={topSheet.id}
           />

@@ -1,5 +1,5 @@
-import {ComponentRegistry} from 'nylas-exports'
-import PersonalLevelIcon from './personal-level-icon'
+import { ComponentRegistry } from 'nylas-exports';
+import PersonalLevelIcon from './personal-level-icon';
 
 /*
 All packages must export a basic object that has at least the following 3

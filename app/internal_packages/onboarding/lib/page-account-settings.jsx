@@ -1,58 +1,57 @@
-import React from 'react';
-import {RegExpUtils} from 'nylas-exports';
+import { React, PropTypes, RegExpUtils } from 'nylas-exports';
 
 import OnboardingActions from './onboarding-actions';
 import CreatePageForForm from './decorators/create-page-for-form';
-import {expandAccountWithCommonSettings} from './onboarding-helpers';
+import { expandAccountWithCommonSettings } from './onboarding-helpers';
 import FormField from './form-field';
 
 class AccountBasicSettingsForm extends React.Component {
   static displayName = 'AccountBasicSettingsForm';
 
   static propTypes = {
-    account: React.PropTypes.object,
-    errorFieldNames: React.PropTypes.array,
-    submitting: React.PropTypes.bool,
-    onConnect: React.PropTypes.func,
-    onFieldChange: React.PropTypes.func,
-    onFieldKeyPress: React.PropTypes.func,
+    account: PropTypes.object,
+    errorFieldNames: PropTypes.array,
+    submitting: PropTypes.bool,
+    onConnect: PropTypes.func,
+    onFieldChange: PropTypes.func,
+    onFieldKeyPress: PropTypes.func,
   };
 
-  static submitLabel = (account) => {
-    return (account.provider === 'imap') ? 'Continue' : 'Connect Account';
-  }
+  static submitLabel = account => {
+    return account.provider === 'imap' ? 'Continue' : 'Connect Account';
+  };
 
-  static titleLabel = (providerConfig) => {
+  static titleLabel = providerConfig => {
     return providerConfig.title || `Add your ${providerConfig.displayName} account`;
-  }
+  };
 
   static subtitleLabel = () => {
     return `Enter your email account credentials to get started. Mailspring\nstores your email password securely and it is never sent to our servers.`;
-  }
+  };
 
-  static validateAccount = (account) => {
+  static validateAccount = account => {
     const errorFieldNames = [];
     let errorMessage = null;
 
     if (!account.emailAddress || !account.settings.imap_password || !account.name) {
-      return {errorMessage, errorFieldNames, populated: false};
+      return { errorMessage, errorFieldNames, populated: false };
     }
 
     if (!RegExpUtils.emailRegex().test(account.emailAddress)) {
-      errorFieldNames.push('email')
-      errorMessage = "Please provide a valid email address."
+      errorFieldNames.push('email');
+      errorMessage = 'Please provide a valid email address.';
     }
     if (!account.name) {
-      errorFieldNames.push('name')
-      errorMessage = "Please provide your name."
+      errorFieldNames.push('name');
+      errorMessage = 'Please provide your name.';
     }
     if (!account.settings.imap_password) {
-      errorFieldNames.push('password')
-      errorMessage = "Please provide a password for your account."
+      errorFieldNames.push('password');
+      errorMessage = 'Please provide a password for your account.';
     }
 
-    return {errorMessage, errorFieldNames, populated: true};
-  }
+    return { errorMessage, errorFieldNames, populated: true };
+  };
 
   submit() {
     const account = expandAccountWithCommonSettings(this.props.account);
@@ -72,9 +71,14 @@ class AccountBasicSettingsForm extends React.Component {
       <form className="settings">
         <FormField field="name" title="Name" {...this.props} />
         <FormField field="emailAddress" title="Email" {...this.props} />
-        <FormField field="settings.imap_password" title="Password" type="password" {...this.props} />
+        <FormField
+          field="settings.imap_password"
+          title="Password"
+          type="password"
+          {...this.props}
+        />
       </form>
-    )
+    );
   }
 }
 

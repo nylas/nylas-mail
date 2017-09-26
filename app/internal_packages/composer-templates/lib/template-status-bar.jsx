@@ -1,17 +1,17 @@
-import {React} from 'nylas-exports';
+import { React, PropTypes } from 'nylas-exports';
 
 class TemplateStatusBar extends React.Component {
   static displayName = 'TemplateStatusBar';
 
   static propTypes = {
-    draft: React.PropTypes.object.isRequired,
+    draft: PropTypes.object.isRequired,
   };
 
   shouldComponentUpdate(nextProps) {
-    return (this._usingTemplate(nextProps) !== this._usingTemplate(this.props));
+    return this._usingTemplate(nextProps) !== this._usingTemplate(this.props);
   }
 
-  _usingTemplate({draft}) {
+  _usingTemplate({ draft }) {
     return draft && draft.body.search(/<code[^>]*class="var[^>]*>/i) > 0;
   }
 
@@ -19,13 +19,13 @@ class TemplateStatusBar extends React.Component {
     if (this._usingTemplate(this.props)) {
       return (
         <div className="template-status-bar">
-          Press &quot;tab&quot; to quickly move between the blanks - highlighting will not be visible to recipients.
+          Press &quot;tab&quot; to quickly move between the blanks - highlighting will not be
+          visible to recipients.
         </div>
       );
     }
     return <div />;
   }
-
 }
 
 TemplateStatusBar.containerStyles = {

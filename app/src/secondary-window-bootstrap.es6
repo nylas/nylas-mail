@@ -23,6 +23,6 @@ NylasEnv.startSecondaryWindow();
 // Workaround for focus getting cleared upon window creation
 const windowFocused = () => {
   window.removeEventListener('focus', windowFocused);
-  return setTimeout((() => document.querySelector('body').focus()), 0);
+  return setTimeout(() => document.querySelector('body').focus(), 0);
 };
 window.addEventListener('focus', windowFocused);

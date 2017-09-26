@@ -1,10 +1,9 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types'
-import {FocusedPerspectiveStore} from 'nylas-exports';
-import {RetinaImg, MailLabel} from 'nylas-component-kit';
-import {PLUGIN_ID} from './snooze-constants';
-import {snoozedUntilMessage} from './snooze-utils';
-
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { FocusedPerspectiveStore } from 'nylas-exports';
+import { RetinaImg, MailLabel } from 'nylas-component-kit';
+import { PLUGIN_ID } from './snooze-constants';
+import { snoozedUntilMessage } from './snooze-utils';
 
 class SnoozeMailLabel extends Component {
   static displayName = 'SnoozeMailLabel';
@@ -16,17 +15,15 @@ class SnoozeMailLabel extends Component {
   static containerRequired = false;
 
   render() {
-    const current = FocusedPerspectiveStore.current()
-    const isSnoozedPerspective = (
-      current.categories().length > 0 &&
-      current.categories()[0].role === 'snoozed'
-    )
+    const current = FocusedPerspectiveStore.current();
+    const isSnoozedPerspective =
+      current.categories().length > 0 && current.categories()[0].role === 'snoozed';
 
     if (!isSnoozedPerspective) {
-      return false
+      return false;
     }
 
-    const {thread} = this.props;
+    const { thread } = this.props;
     if (!thread.categories.find(c => c.role === 'snoozed')) {
       return false;
     }
@@ -37,26 +34,18 @@ class SnoozeMailLabel extends Component {
     }
     const content = (
       <span className="snooze-mail-label">
-        <RetinaImg
-          name="icon-snoozed.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-        />
+        <RetinaImg name="icon-snoozed.png" mode={RetinaImg.Mode.ContentIsMask} />
         <span className="date-message">
           {snoozedUntilMessage(metadata.expiration).replace('Snoozed', '')}
         </span>
       </span>
-    )
+    );
     const label = {
       displayName: content,
       isLockedCategory: () => true,
       hue: () => 259,
-    }
-    return (
-      <MailLabel
-        label={label}
-        key={`snooze-message-${thread.id}`}
-      />
-    );
+    };
+    return <MailLabel label={label} key={`snooze-message-${thread.id}`} />;
   }
 }
 

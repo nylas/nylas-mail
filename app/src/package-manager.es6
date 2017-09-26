@@ -4,7 +4,7 @@ import fs from 'fs';
 import Package from './package';
 
 export default class PackageManager {
-  constructor({configDirPath, devMode, safeMode, resourcePath, specMode}) {
+  constructor({ configDirPath, devMode, safeMode, resourcePath, specMode }) {
     this.packageDirectories = [];
 
     this.available = {};
@@ -12,13 +12,13 @@ export default class PackageManager {
     this.waiting = [];
 
     if (specMode) {
-      this.packageDirectories.push(path.join(resourcePath, "spec", "fixtures", "packages"));
+      this.packageDirectories.push(path.join(resourcePath, 'spec', 'fixtures', 'packages'));
     } else {
-      this.packageDirectories.push(path.join(resourcePath, "internal_packages"));
+      this.packageDirectories.push(path.join(resourcePath, 'internal_packages'));
       if (!safeMode) {
-        this.packageDirectories.push(path.join(configDirPath, "packages"))
+        this.packageDirectories.push(path.join(configDirPath, 'packages'));
         if (devMode) {
-          this.packageDirectories.push(path.join(configDirPath, "dev", "packages"))
+          this.packageDirectories.push(path.join(configDirPath, 'dev', 'packages'));
         }
       }
     }
@@ -28,7 +28,7 @@ export default class PackageManager {
 
   pluginIdFor(packageName) {
     // Plugin IDs are now package names - the ID concept was complicated and nobody got it.
-    return packageName
+    return packageName;
   }
 
   discoverPackages() {
@@ -49,7 +49,9 @@ export default class PackageManager {
           if (err instanceof Package.NoPackageJSONError) {
             continue;
           }
-          const wrapped = new Error(`Unable to read package.json for ${filename}: ${err.toString()}`);
+          const wrapped = new Error(
+            `Unable to read package.json for ${filename}: ${err.toString()}`
+          );
           NylasEnv.reportError(wrapped);
         }
       }
@@ -76,7 +78,9 @@ export default class PackageManager {
 
       if (!pkg.json.engines.mailspring) {
         // don't use NylasEnv.reportError, I don't want to know about these.
-        console.error(`The package ${pkg.name} does not list "mailspring" in it's package.json's "engines" field. Ask the developer to test the plugin with Mailspring and add it.`);
+        console.error(
+          `The package ${pkg.name} does not list "mailspring" in it's package.json's "engines" field. Ask the developer to test the plugin with Mailspring and add it.`
+        );
         continue;
       }
 
@@ -102,9 +106,7 @@ export default class PackageManager {
     pkg.activate();
   }
 
-  deactivatePackages() {
-
-  }
+  deactivatePackages() {}
 
   getAvailablePacakges() {
     return Object.values(this.available);

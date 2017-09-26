@@ -2,14 +2,14 @@
 /* eslint jsx-a11y/tabindex-no-positive:0 */
 
 import _ from 'underscore';
-import {Utils} from 'nylas-exports'
+import { Utils } from 'nylas-exports';
 import classnames from 'classnames';
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import DisclosureTriangle from './disclosure-triangle';
 import DropZone from './drop-zone';
 import RetinaImg from './retina-img';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 /*
  * Enum for counter styles
@@ -20,7 +20,6 @@ const CounterStyles = {
   Default: 'def',
   Alt: 'alt',
 };
-
 
 /*
  * Renders an item that may contain more arbitrarily nested items
@@ -146,7 +145,7 @@ class OutlineViewItem extends Component {
     this.state = {
       isDropping: false,
       editing: props.item.editing || false,
-    }
+    };
   }
 
   componentDidMount() {
@@ -157,13 +156,12 @@ class OutlineViewItem extends Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.editing) {
-      this.setState({editing: newProps.editing});
+      this.setState({ editing: newProps.editing });
     }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !Utils.isEqualReact(nextProps, this.props) ||
-      !Utils.isEqualReact(nextState, this.state);
+    return !Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state);
   }
 
   componentWillUnmount() {
@@ -187,23 +185,22 @@ class OutlineViewItem extends Component {
     return this.props.item.onDelete != null || this.props.item.onEdited != null;
   };
 
-  _shouldAcceptDrop = (event) => {
+  _shouldAcceptDrop = event => {
     return this._runCallback('shouldAcceptDrop', event);
   };
 
-  _clearEditingState = (event) => {
-    this.setState({editing: false});
+  _clearEditingState = event => {
+    this.setState({ editing: false });
     this._runCallback('onInputCleared', event);
   };
 
-
   // Handlers
 
-  _onDragStateChange = ({isDropping}) => {
-    this.setState({isDropping});
+  _onDragStateChange = ({ isDropping }) => {
+    this.setState({ isDropping });
 
-    const {item} = this.props;
-    if ((isDropping === true) && (item.children.length > 0) && (item.collapsed)) {
+    const { item } = this.props;
+    if (isDropping === true && item.children.length > 0 && item.collapsed) {
       this._expandTimeout = setTimeout(this._onCollapseToggled, 650);
     } else if (isDropping === false && this._expandTimeout) {
       clearTimeout(this._expandTimeout);
@@ -211,7 +208,7 @@ class OutlineViewItem extends Component {
     }
   };
 
-  _onDrop = (event) => {
+  _onDrop = event => {
     this._runCallback('onDrop', event);
   };
 
@@ -219,7 +216,7 @@ class OutlineViewItem extends Component {
     this._runCallback('onCollapseToggled');
   };
 
-  _onClick = (event) => {
+  _onClick = event => {
     event.preventDefault();
     this._runCallback('onSelect');
   };
@@ -228,26 +225,26 @@ class OutlineViewItem extends Component {
     this._runCallback('onDelete');
   };
 
-  _onEdited = (value) => {
+  _onEdited = value => {
     this._runCallback('onEdited', value);
   };
 
   _onEdit = () => {
     if (this.props.item.onEdited) {
-      this.setState({editing: true});
+      this.setState({ editing: true });
     }
   };
 
-  _onInputFocus = (event) => {
+  _onInputFocus = event => {
     const input = event.target;
     input.selectionStart = input.selectionEnd = input.value.length;
   };
 
-  _onInputBlur = (event) => {
+  _onInputBlur = event => {
     this._clearEditingState(event);
   };
 
-  _onInputKeyDown = (event) => {
+  _onInputKeyDown = event => {
     if (event.key === 'Escape') {
       this._clearEditingState(event);
     }
@@ -257,30 +254,33 @@ class OutlineViewItem extends Component {
     }
   };
 
-  _onShowContextMenu = (event) => {
-    event.stopPropagation()
+  _onShowContextMenu = event => {
+    event.stopPropagation();
     const item = this.props.item;
-    const contextMenuLabel = item.contextMenuLabel || item.name
-    const {remote} = require('electron');
-    const {Menu, MenuItem} = remote;
+    const contextMenuLabel = item.contextMenuLabel || item.name;
+    const { remote } = require('electron');
+    const { Menu, MenuItem } = remote;
     const menu = new Menu();
 
     if (this.props.item.onEdited) {
-      menu.append(new MenuItem({
-        label: `Rename ${contextMenuLabel}`,
-        click: this._onEdit,
-      }));
+      menu.append(
+        new MenuItem({
+          label: `Rename ${contextMenuLabel}`,
+          click: this._onEdit,
+        })
+      );
     }
 
     if (this.props.item.onDelete) {
-      menu.append(new MenuItem({
-        label: `Delete ${contextMenuLabel}`,
-        click: this._onDelete,
-      }));
+      menu.append(
+        new MenuItem({
+          label: `Delete ${contextMenuLabel}`,
+          click: this._onDelete,
+        })
+      );
     }
     menu.popup(remote.getCurrentWindow());
   };
-
 
   // Renderers
 
@@ -324,7 +324,11 @@ class OutlineViewItem extends Component {
         />
       );
     }
-    return <div className="name" title={item.name}>{item.name}</div>;
+    return (
+      <div className="name" title={item.name}>
+        {item.name}
+      </div>
+    );
   }
 
   _renderItem(item = this.props.item, state = this.state) {
@@ -356,9 +360,7 @@ class OutlineViewItem extends Component {
     if (item.children.length > 0 && !item.collapsed) {
       return (
         <section className="item-children" key={`${item.id}-children`}>
-          {item.children.map(
-            child => <OutlineViewItem key={child.id} item={child} />
-          )}
+          {item.children.map(child => <OutlineViewItem key={child.id} item={child} />)}
         </section>
       );
     }
@@ -369,8 +371,8 @@ class OutlineViewItem extends Component {
     const item = this.props.item;
     const containerClasses = classnames({
       'item-container': true,
-      'dropping': this.state.isDropping,
-    })
+      dropping: this.state.isDropping,
+    });
     return (
       <div>
         <span className={containerClasses}>

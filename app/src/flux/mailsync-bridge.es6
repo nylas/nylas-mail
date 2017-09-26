@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import {ipcRenderer} from 'electron';
+import { ipcRenderer } from 'electron';
 
 import Task from './tasks/task';
 import TaskQueue from './stores/task-queue';
@@ -41,21 +41,21 @@ class CrashTracker {
     delete this._tooManyFailures[key];
   }
 
-  recordClientCrash(fullAccountJSON, {code, error, signal}) {
+  recordClientCrash(fullAccountJSON, { code, error, signal }) {
     this._appendCrashToHistory(fullAccountJSON);
 
     const overview = `SyncWorker crashed with ${signal} (code ${code})`;
-    let [message, stack] = (`${error}`).split('*** Stack trace');
+    let [message, stack] = `${error}`.split('*** Stack trace');
 
     if (message) {
-      const lines = message.split('\n')
+      const lines = message
+        .split('\n')
         .map(l => l.replace(/\*\*\*/g, '').trim())
         .filter(l => !l.startsWith('[') && !l.startsWith('Error: null['));
       message = `${overview}:\n${lines.join('\n')}`;
     }
     if (stack) {
-      const lines = stack.split('\n')
-        .map(l => l.replace(/\*\*\*/g, '').trim())
+      const lines = stack.split('\n').map(l => l.replace(/\*\*\*/g, '').trim());
       lines.shift();
       message = `${message}${lines[0]}`;
       stack = lines.join('\n');
@@ -64,14 +64,14 @@ class CrashTracker {
     const err = new Error(message);
     err.stack = stack;
 
-    let log = "";
+    let log = '';
     try {
-      const logpath = path.join(NylasEnv.getConfigDirPath(), 'mailsync.log')
-      const {size} = fs.statSync(logpath);
+      const logpath = path.join(NylasEnv.getConfigDirPath(), 'mailsync.log');
+      const { size } = fs.statSync(logpath);
       const tailSize = Math.min(1200, size);
       const buffer = new Buffer(tailSize);
-      const fd = fs.openSync(logpath, 'r')
-      fs.readSync(fd, buffer, 0, tailSize, size - tailSize)
+      const fd = fs.openSync(logpath, 'r');
+      fs.readSync(fd, buffer, 0, tailSize, size - tailSize);
       log = buffer.toString('UTF8');
       log = log.substr(log.indexOf('\n') + 1);
     } catch (logErr) {
@@ -85,8 +85,8 @@ class CrashTracker {
     });
   }
 
-  _keyFor({id, settings}) {
-    return JSON.stringify({id, settings});
+  _keyFor({ id, settings }) {
+    return JSON.stringify({ id, settings });
   }
 
   _appendCrashToHistory(fullAccountJSON) {
@@ -98,7 +98,10 @@ class CrashTracker {
 
     // has the client crashed more than 5 times in the last 5 minutes?
     // If so, do not restart. We'll mark that the account is not syncing.
-    if (this._timestamps[key].length >= 5 && (Date.now() - this._timestamps[key][4] < 5 * 60 * 1000)) {
+    if (
+      this._timestamps[key].length >= 5 &&
+      Date.now() - this._timestamps[key][4] < 5 * 60 * 1000
+    ) {
       this._tooManyFailures[key] = true;
     }
   }
@@ -108,7 +111,6 @@ class CrashTracker {
     return this._tooManyFailures[key];
   }
 }
-
 
 export default class MailsyncBridge {
   constructor() {
@@ -137,7 +139,7 @@ export default class MailsyncBridge {
   // Public
 
   openLogs() {
-    const {configDirPath} = NylasEnv.getLoadSettings();
+    const { configDirPath } = NylasEnv.getLoadSettings();
     const logPath = path.join(configDirPath, 'mailsync.log');
     require('electron').shell.openItem(logPath); // eslint-disable-line
   }
@@ -168,13 +170,13 @@ export default class MailsyncBridge {
   }
 
   forceRelaunchClient(account) {
-    this._launchClient(account, {force: true});
+    this._launchClient(account, { force: true });
   }
 
   sendSyncMailNow() {
-    console.warn("Sending `wake` to all mailsync workers...");
+    console.warn('Sending `wake` to all mailsync workers...');
     for (const client of Object.values(this._clients)) {
-      client.sendMessage({type: "wake-workers"});
+      client.sendMessage({ type: 'wake-workers' });
     }
   }
 
@@ -190,7 +192,7 @@ export default class MailsyncBridge {
 
   // Private
 
-  _launchClient(account, {force} = {}) {
+  _launchClient(account, { force } = {}) {
     const fullAccountJSON = KeyManager.insertAccountSecrets(account).toJSON();
     const identity = IdentityStore.identity();
     const id = account.id;
@@ -204,21 +206,20 @@ export default class MailsyncBridge {
     const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, fullAccountJSON);
     client.sync();
     client.on('deltas', this._onIncomingMessages);
-    client.on('close', ({code, error, signal}) => {
+    client.on('close', ({ code, error, signal }) => {
       delete this._clients[id];
       if (signal !== 'SIGTERM') {
-        this._crashTracker.recordClientCrash(fullAccountJSON, {code, error, signal})
+        this._crashTracker.recordClientCrash(fullAccountJSON, { code, error, signal });
 
-        const isAuthFailure = (
-          `${error}`.includes("Response Code: 401") || // mailspring services
-          `${error}`.includes("Response Code: 403") || // mailspring services
-          `${error}`.includes("ErrorAuthentication") // mailcore
-        );
+        const isAuthFailure =
+          `${error}`.includes('Response Code: 401') || // mailspring services
+          `${error}`.includes('Response Code: 403') || // mailspring services
+          `${error}`.includes('ErrorAuthentication'); // mailcore
 
         if (this._crashTracker.tooManyFailures(fullAccountJSON)) {
           Actions.updateAccount(id, {
             syncState: isAuthFailure ? Account.SYNC_STATE_AUTH_FAILED : Account.SYNC_STATE_ERROR,
-            syncError: {code, error, signal},
+            syncError: { code, error, signal },
           });
         } else {
           this.ensureClients();
@@ -239,49 +240,59 @@ export default class MailsyncBridge {
   _onQueueTask(task) {
     if (!DatabaseObjectRegistry.isInRegistry(task.constructor.name)) {
       console.log(task);
-      throw new Error("You must queue a `Task` instance which is registred with the DatabaseObjectRegistry")
+      throw new Error(
+        'You must queue a `Task` instance which is registred with the DatabaseObjectRegistry'
+      );
     }
     if (!task.id) {
       console.log(task);
-      throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`");
+      throw new Error(
+        'Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`'
+      );
     }
     if (!task.accountId) {
-      throw new Error(`Tasks must have an accountId. Check your instance of ${task.constructor.name}.`);
+      throw new Error(
+        `Tasks must have an accountId. Check your instance of ${task.constructor.name}.`
+      );
     }
 
     task.validate();
     task.status = 'local';
-    this.sendMessageToAccount(task.accountId, {type: 'queue-task', task: task});
+    this.sendMessageToAccount(task.accountId, { type: 'queue-task', task: task });
   }
 
   _onQueueTasks(tasks) {
-    if (!tasks || !tasks.length) { return; }
-    for (const task of tasks) { this._onQueueTask(task); }
+    if (!tasks || !tasks.length) {
+      return;
+    }
+    for (const task of tasks) {
+      this._onQueueTask(task);
+    }
   }
 
   _onCancelTask(taskOrId) {
     let task = taskOrId;
-    if (typeof taskOrId === "string") {
+    if (typeof taskOrId === 'string') {
       task = TaskQueue.queue().find(t => t.id === taskOrId);
     }
     if (task) {
-      this.sendMessageToAccount(task.accountId, {type: 'cancel-task', taskId: task.id});
+      this.sendMessageToAccount(task.accountId, { type: 'cancel-task', taskId: task.id });
     }
   }
 
-  _onIncomingMessages = (msgs) => {
+  _onIncomingMessages = msgs => {
     for (const msg of msgs) {
       if (msg.length === 0) {
         continue;
       }
       if (msg[0] !== '{') {
-        console.log(`Sync worker sent non-JSON formatted message: ${msg}`)
+        console.log(`Sync worker sent non-JSON formatted message: ${msg}`);
         continue;
       }
 
-      const {type, modelJSONs, modelClass} = JSON.parse(msg);
+      const { type, modelJSONs, modelClass } = JSON.parse(msg);
       if (!modelJSONs || !type || !modelClass) {
-        console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`)
+        console.log(`Sync worker sent a JSON formatted message with unexpected keys: ${msg}`);
         continue;
       }
 
@@ -289,14 +300,17 @@ export default class MailsyncBridge {
       ipcRenderer.send('mailsync-bridge-rebroadcast-to-all', msg);
 
       const models = modelJSONs.map(Utils.convertToModel);
-      this._onIncomingChangeRecord(new DatabaseChangeRecord({
-        type, // TODO BG move to "model" naming style, finding all uses might be tricky
-        objectClass: modelClass,
-        objects: models}));
+      this._onIncomingChangeRecord(
+        new DatabaseChangeRecord({
+          type, // TODO BG move to "model" naming style, finding all uses might be tricky
+          objectClass: modelClass,
+          objects: models,
+        })
+      );
     }
-  }
+  };
 
-  _onIncomingChangeRecord = (record) => {
+  _onIncomingChangeRecord = record => {
     // Allow observers of the database to handle this change
     DatabaseStore.trigger(record);
 
@@ -313,17 +327,19 @@ export default class MailsyncBridge {
         }
       }
     }
-  }
+  };
 
   _onIncomingRebroadcastMessage = (event, msg) => {
-    const {type, modelJSONs, modelClass} = JSON.parse(msg);
+    const { type, modelJSONs, modelClass } = JSON.parse(msg);
     const models = modelJSONs.map(Utils.convertToModel);
-    DatabaseStore.trigger(new DatabaseChangeRecord({
-      type,
-      objectClass: modelClass,
-      objects: models,
-    }));
-  }
+    DatabaseStore.trigger(
+      new DatabaseChangeRecord({
+        type,
+        objectClass: modelClass,
+        objects: models,
+      })
+    );
+  };
 
   _onFetchBodies(messages) {
     const byAccountId = {};
@@ -332,7 +348,7 @@ export default class MailsyncBridge {
       byAccountId[msg.accountId].push(msg.id);
     }
     for (const accountId of Object.keys(byAccountId)) {
-      this.sendMessageToAccount(accountId, {type: 'need-bodies', ids: byAccountId[accountId]});
+      this.sendMessageToAccount(accountId, { type: 'need-bodies', ids: byAccountId[accountId] });
     }
   }
 
@@ -342,11 +358,11 @@ export default class MailsyncBridge {
     }
     this._clients = [];
     return true;
-  }
+  };
 
-  _onOnlineStatusChanged = ({onlineDidChange}) => {
+  _onOnlineStatusChanged = ({ onlineDidChange }) => {
     if (onlineDidChange && OnlineStatusStore.isOnline()) {
       this.sendSyncMailNow();
     }
-  }
+  };
 }

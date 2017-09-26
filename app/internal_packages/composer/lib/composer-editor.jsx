@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types'
-import {ExtensionRegistry, DOMUtils} from 'nylas-exports';
-import {DropZone, ScrollRegion, Contenteditable} from 'nylas-component-kit';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { ExtensionRegistry, DOMUtils } from 'nylas-exports';
+import { DropZone, ScrollRegion, Contenteditable } from 'nylas-component-kit';
 
 /**
  * Renders the text editor for the composer
@@ -89,7 +89,6 @@ class ComposerEditor extends Component {
     this.unsub();
   }
 
-
   // Public methods
 
   // TODO Get rid of these selection methods
@@ -110,21 +109,21 @@ class ComposerEditor extends Component {
     // the body. Be sure to choose the last node /above/ the signature and any
     // quoted text that is visible. (as in forwarded messages.)
     //
-    this._contenteditableComponent.atomicEdit(({editor}) => {
+    this._contenteditableComponent.atomicEdit(({ editor }) => {
       editor.rootNode.focus();
-      const lastNode = this._findLastNodeBeforeQuoteOrSignature(editor)
+      const lastNode = this._findLastNodeBeforeQuoteOrSignature(editor);
       if (lastNode) {
-        this._selectNode(lastNode, {collapseTo: NODE_END});
+        this._selectNode(lastNode, { collapseTo: NODE_END });
       } else {
-        this._selectNode(editor.rootNode, {collapseTo: NODE_BEGINNING});
+        this._selectNode(editor.rootNode, { collapseTo: NODE_BEGINNING });
       }
     });
   }
 
   focusAbsoluteEnd() {
-    this._contenteditableComponent.atomicEdit(({editor}) => {
+    this._contenteditableComponent.atomicEdit(({ editor }) => {
       editor.rootNode.focus();
-      this._selectNode(editor.rootNode, {collapseTo: NODE_END});
+      this._selectNode(editor.rootNode, { collapseTo: NODE_END });
     });
   }
 
@@ -132,7 +131,9 @@ class ComposerEditor extends Component {
   // <br> tags contain no text nodes.
   _findLastNodeBeforeQuoteOrSignature(editor) {
     const walker = document.createTreeWalker(editor.rootNode, NodeFilter.SHOW_TEXT);
-    const nodesBelowUserBody = editor.rootNode.querySelectorAll('signature, .gmail_quote, blockquote');
+    const nodesBelowUserBody = editor.rootNode.querySelectorAll(
+      'signature, .gmail_quote, blockquote'
+    );
 
     let lastNode = null;
     let node = walker.nextNode();
@@ -150,10 +151,10 @@ class ComposerEditor extends Component {
       lastNode = node;
       node = walker.nextNode();
     }
-    return lastNode
+    return lastNode;
   }
 
-  _selectNode(node, {collapseTo} = {}) {
+  _selectNode(node, { collapseTo } = {}) {
     const range = document.createRange();
     range.selectNodeContents(node);
     range.collapse(collapseTo);
@@ -171,17 +172,17 @@ class ComposerEditor extends Component {
     this._contenteditableComponent._onDOMMutated(mutations);
   }
 
-  _onDrop = (event) => {
-    this._contenteditableComponent._onDrop(event)
-  }
+  _onDrop = event => {
+    this._contenteditableComponent._onDrop(event);
+  };
 
-  _onDragOver = (event) => {
-    this._contenteditableComponent._onDragOver(event)
-  }
+  _onDragOver = event => {
+    this._contenteditableComponent._onDragOver(event);
+  };
 
-  _shouldAcceptDrop = (event) => {
-    return this._contenteditableComponent._shouldAcceptDrop(event)
-  }
+  _shouldAcceptDrop = event => {
+    return this._contenteditableComponent._shouldAcceptDrop(event);
+  };
   // Helpers
 
   _scrollToBottom = () => {
@@ -200,7 +201,7 @@ class ComposerEditor extends Component {
    * of the contenteditable. props.parentActions.scrollToBottom moves to the bottom of
    * the "send" button.
    */
-  _bottomIsNearby = (editableNode) => {
+  _bottomIsNearby = editableNode => {
     const parentRect = this.props.parentActions.getComposerBoundingRect();
     const selfRect = editableNode.getBoundingClientRect();
     return Math.abs(parentRect.bottom - selfRect.bottom) <= 250;
@@ -246,18 +247,16 @@ class ComposerEditor extends Component {
         rect = DOMUtils.getSelectionRectFromDOM(selection);
       }
       if (rect) {
-        this.props.parentActions.scrollTo({rect});
+        this.props.parentActions.scrollTo({ rect });
       }
     }
   };
 
-
   // Handlers
 
   _onExtensionsChanged = () => {
-    this.setState({extensions: ExtensionRegistry.Composer.extensions()});
+    this.setState({ extensions: ExtensionRegistry.Composer.extensions() });
   };
-
 
   // Renderers
 
@@ -270,7 +269,11 @@ class ComposerEditor extends Component {
         shouldAcceptDrop={this._shouldAcceptDrop}
       >
         <Contenteditable
-          ref={(cm) => { if (cm) { this._contenteditableComponent = cm; } }}
+          ref={cm => {
+            if (cm) {
+              this._contenteditableComponent = cm;
+            }
+          }}
           value={this.props.body}
           onChange={this.props.onBodyChanged}
           onFilePaste={this.props.onFilePaste}
@@ -281,6 +284,6 @@ class ComposerEditor extends Component {
     );
   }
 }
-ComposerEditor.containerRequired = false
+ComposerEditor.containerRequired = false;
 
 export default ComposerEditor;

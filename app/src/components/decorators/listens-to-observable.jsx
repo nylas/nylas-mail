@@ -1,47 +1,45 @@
-import React from 'react'
+import React from 'react';
 
-function ListensToObservable(ComposedComponent, {getObservable, getStateFromObservable}) {
+function ListensToObservable(ComposedComponent, { getObservable, getStateFromObservable }) {
   return class extends ComposedComponent {
     static displayName = ComposedComponent.displayName;
     static containerRequired = ComposedComponent.containerRequired;
     static containerStyles = ComposedComponent.containerStyles;
 
     constructor(props) {
-      super(props)
-      this.state = getStateFromObservable(null, {props})
-      this.disposable = null
-      this.observable = getObservable(props)
+      super(props);
+      this.state = getStateFromObservable(null, { props });
+      this.disposable = null;
+      this.observable = getObservable(props);
     }
 
     componentDidMount() {
-      this.unmounted = false
-      this.disposable = this.observable.subscribe(this.onObservableChanged)
+      this.unmounted = false;
+      this.disposable = this.observable.subscribe(this.onObservableChanged);
     }
 
     componentWillReceiveProps(nextProps) {
       if (this.disposable) {
-        this.disposable.dispose()
+        this.disposable.dispose();
       }
-      this.observable = getObservable(nextProps)
-      this.disposable = this.observable.subscribe(this.onObservableChanged)
+      this.observable = getObservable(nextProps);
+      this.disposable = this.observable.subscribe(this.onObservableChanged);
     }
 
     componentWillUnmount() {
-      this.unmounted = true
-      this.disposable.dispose()
+      this.unmounted = true;
+      this.disposable.dispose();
     }
 
-    onObservableChanged = (data) => {
+    onObservableChanged = data => {
       if (this.unmounted) return;
-      this.setState(getStateFromObservable(data, {props: this.props}))
+      this.setState(getStateFromObservable(data, { props: this.props }));
     };
 
     render() {
-      return (
-        <ComposedComponent {...this.state} {...this.props} />
-      )
+      return <ComposedComponent {...this.state} {...this.props} />;
     }
-  }
+  };
 }
 
-export default ListensToObservable
+export default ListensToObservable;

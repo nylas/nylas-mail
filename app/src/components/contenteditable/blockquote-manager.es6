@@ -4,12 +4,12 @@ import { DOMUtils, ContenteditableExtension } from 'nylas-exports';
 export default class BlockquoteManager extends ContenteditableExtension {
   static keyCommandHandlers() {
     return {
-      "contenteditable:quote": this._onCreateBlockquote,
+      'contenteditable:quote': this._onCreateBlockquote,
     };
   }
 
-  static onKeyDown({editor, event}) {
-    if (event.key === "Backspace") {
+  static onKeyDown({ editor, event }) {
+    if (event.key === 'Backspace') {
       if (this._isInBlockquote(editor) && this._isAtStartOfLine(editor)) {
         editor.outdent();
         event.preventDefault();
@@ -17,8 +17,8 @@ export default class BlockquoteManager extends ContenteditableExtension {
     }
   }
 
-  static _onCreateBlockquote({editor}) {
-    editor.formatBlock("BLOCKQUOTE");
+  static _onCreateBlockquote({ editor }) {
+    editor.formatBlock('BLOCKQUOTE');
   }
 
   static _isInBlockquote(editor) {
@@ -26,14 +26,20 @@ export default class BlockquoteManager extends ContenteditableExtension {
     if (!sel.isCollapsed) {
       return false;
     }
-    return DOMUtils.closest(sel.anchorNode, "blockquote") != null;
+    return DOMUtils.closest(sel.anchorNode, 'blockquote') != null;
   }
 
   static _isAtStartOfLine(editor) {
     const sel = editor.currentSelection();
-    if (!sel.anchorNode) { return false; }
-    if (!sel.isCollapsed) { return false; }
-    if (sel.anchorOffset !== 0) { return false; }
+    if (!sel.anchorNode) {
+      return false;
+    }
+    if (!sel.isCollapsed) {
+      return false;
+    }
+    if (sel.anchorOffset !== 0) {
+      return false;
+    }
 
     return this._ancestorRelativeLooksLikeBlock(sel.anchorNode);
   }
@@ -44,7 +50,7 @@ export default class BlockquoteManager extends ContenteditableExtension {
     }
 
     let sibling = node;
-    while (sibling = sibling.previousSibling) {
+    while ((sibling = sibling.previousSibling)) {
       if (DOMUtils.looksLikeBlockElement(sibling)) {
         return true;
       }

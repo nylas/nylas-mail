@@ -55,7 +55,6 @@ teardown: ->
 Section: General
 */
 class Actions {
-
   /*
   Public: Fired when the Nylas API Connector receives new data from the API.
 
@@ -419,7 +418,6 @@ class Actions {
   // Account Sidebar
   static setCollapsedSidebarItem = ActionScopeWindow;
 
-
   // File Actions
   // Some file actions only need to be processed in their current window
   static addAttachment = ActionScopeWindow;
@@ -490,7 +488,6 @@ class Actions {
   static nextSearchResult = ActionScopeWindow;
   static previousSearchResult = ActionScopeWindow;
 
-
   // Actions for the signature preferences and shared with the composer
   static addSignature = ActionScopeWindow;
   static removeSignature = ActionScopeWindow;
@@ -504,7 +501,6 @@ class Actions {
 
   static resetEmailCache = ActionScopeGlobal;
 }
-
 
 // Read the actions we declared on the dummy Actions object above
 // and translate them into Reflux Actions
@@ -524,7 +520,13 @@ const scopes = {
 };
 
 for (const name of Object.getOwnPropertyNames(Actions)) {
-  if (name === 'length' || name === 'name' || name === 'arguments' || name === 'caller' || name === 'prototype') {
+  if (
+    name === 'length' ||
+    name === 'name' ||
+    name === 'arguments' ||
+    name === 'caller' ||
+    name === 'prototype'
+  ) {
     continue;
   }
   if (Actions[name] !== 'window' && Actions[name] !== 'global' && Actions[name] !== 'main') {

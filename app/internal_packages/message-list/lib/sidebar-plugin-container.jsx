@@ -1,13 +1,12 @@
-import React from "react";
-import {FocusedContactsStore} from "nylas-exports";
-import {InjectedComponentSet} from "nylas-component-kit";
+import { React, PropTypes, FocusedContactsStore } from 'nylas-exports';
+import { InjectedComponentSet } from 'nylas-component-kit';
 
 class FocusedContactStorePropsContainer extends React.Component {
   static displayName = 'FocusedContactStorePropsContainer';
 
   constructor(props) {
     super(props);
-    this.state = this._getStateFromStores()
+    this.state = this._getStateFromStores();
   }
 
   componentDidMount() {
@@ -20,7 +19,7 @@ class FocusedContactStorePropsContainer extends React.Component {
 
   _onChange = () => {
     this.setState(this._getStateFromStores());
-  }
+  };
 
   _getStateFromStores() {
     return {
@@ -31,24 +30,22 @@ class FocusedContactStorePropsContainer extends React.Component {
   }
 
   render() {
-    let classname = "sidebar-section";
+    let classname = 'sidebar-section';
     let inner = null;
     if (this.state.focusedContact) {
-      classname += " visible";
+      classname += ' visible';
       inner = React.cloneElement(this.props.children, this.state);
     }
-    return (
-      <div className={classname}>{inner}</div>
-    );
+    return <div className={classname}>{inner}</div>;
   }
 }
 
-const SidebarPluginContainerInner = (props) => {
+const SidebarPluginContainerInner = props => {
   return (
     <InjectedComponentSet
       className="sidebar-contact-card"
       key={props.focusedContact.email}
-      matching={{role: "MessageListSidebar:ContactCard"}}
+      matching={{ role: 'MessageListSidebar:ContactCard' }}
       direction="column"
       exposedProps={{
         contact: props.focusedContact,
@@ -56,11 +53,11 @@ const SidebarPluginContainerInner = (props) => {
       }}
     />
   );
-}
+};
 
 SidebarPluginContainerInner.propTypes = {
-  focusedContact: React.PropTypes.object,
-  focusedContactThreads: React.PropTypes.array,
+  focusedContact: PropTypes.object,
+  focusedContactThreads: PropTypes.array,
 };
 
 export default class SidebarPluginContainer extends React.Component {

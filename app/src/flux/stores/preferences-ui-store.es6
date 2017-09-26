@@ -1,12 +1,11 @@
-import {ipcRenderer} from 'electron';
-import _ from 'underscore'
-import NylasStore from 'nylas-store'
-import WorkspaceStore from './workspace-store'
-import FocusedPerspectiveStore from './focused-perspective-store'
-import Actions from '../actions'
+import { ipcRenderer } from 'electron';
+import _ from 'underscore';
+import NylasStore from 'nylas-store';
+import WorkspaceStore from './workspace-store';
+import FocusedPerspectiveStore from './focused-perspective-store';
+import Actions from '../actions';
 
-
-const MAIN_TAB_ITEM_ID = 'General'
+const MAIN_TAB_ITEM_ID = 'General';
 
 class TabItem {
   constructor(opts = {}) {
@@ -16,23 +15,22 @@ class TabItem {
 }
 
 class PreferencesUIStore extends NylasStore {
-
   constructor() {
     super();
 
-    const perspective = FocusedPerspectiveStore.current()
+    const perspective = FocusedPerspectiveStore.current();
     this._tabs = [];
     this._selection = {
       tabId: null,
       accountId: perspective.account ? perspective.account.id : null,
     };
 
-    this._triggerDebounced = _.debounce(() => this.trigger(), 20)
-    this.setupListeners()
+    this._triggerDebounced = _.debounce(() => this.trigger(), 20);
+    this.setupListeners();
   }
 
   get TabItem() {
-    return TabItem
+    return TabItem;
   }
 
   setupListeners() {
@@ -62,7 +60,7 @@ class PreferencesUIStore extends NylasStore {
     if (WorkspaceStore.topSheet() !== WorkspaceStore.Sheet.Preferences) {
       Actions.pushSheet(WorkspaceStore.Sheet.Preferences);
     }
-  }
+  };
 
   switchPreferencesTab = (tabId, options = {}) => {
     this._selection.tabId = tabId;
@@ -70,7 +68,7 @@ class PreferencesUIStore extends NylasStore {
       this._selection.accountId = options.accountId;
     }
     this.trigger();
-  }
+  };
 
   /*
   Public: Register a new top-level section to preferences
@@ -86,21 +84,19 @@ class PreferencesUIStore extends NylasStore {
   into {PreferencesUIStore::registerPreferences}
 
   */
-  registerPreferencesTab = (tabItem) => {
-    this._tabs.push(tabItem)
-    this._tabs.sort((a, b) =>
-      a.order > b.order
-    )
+  registerPreferencesTab = tabItem => {
+    this._tabs.push(tabItem);
+    this._tabs.sort((a, b) => a.order > b.order);
     if (tabItem.tabId === MAIN_TAB_ITEM_ID) {
       this._selection.tabId = tabItem.tabId;
     }
     this._triggerDebounced();
-  }
+  };
 
-  unregisterPreferencesTab = (tabItemOrId) => {
-    this._tabs = this._tabs.filter(s => (s.tabId !== tabItemOrId) && (s !== tabItemOrId));
+  unregisterPreferencesTab = tabItemOrId => {
+    this._tabs = this._tabs.filter(s => s.tabId !== tabItemOrId && s !== tabItemOrId);
     this._triggerDebounced();
-  }
+  };
 }
 
 export default new PreferencesUIStore();

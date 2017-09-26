@@ -1,9 +1,8 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
 import classnames from 'classnames';
-import React, {Component} from 'react';
-import {DateUtils} from 'nylas-exports';
-import PropTypes from 'prop-types'
-
+import React, { Component } from 'react';
+import { DateUtils } from 'nylas-exports';
+import PropTypes from 'prop-types';
 
 class DateInput extends Component {
   static displayName = 'DateInput';
@@ -21,25 +20,25 @@ class DateInput extends Component {
   };
 
   constructor(props) {
-    super(props)
-    this._mounted = false
+    super(props);
+    this._mounted = false;
     this.state = {
       inputDate: null,
       inputValue: '',
-    }
+    };
   }
 
   componentDidMount() {
-    this._mounted = true
+    this._mounted = true;
   }
 
   componentWillUnmount() {
-    this._mounted = false
+    this._mounted = false;
   }
 
-  onInputKeyDown = (event) => {
-    const {key, target: {value}} = event;
-    if (value.length > 0 && ["Enter", "Return"].includes(key)) {
+  onInputKeyDown = event => {
+    const { key, target: { value } } = event;
+    if (value.length > 0 && ['Enter', 'Return'].includes(key)) {
       // This prevents onInputChange from being fired
       event.stopPropagation();
       const date = DateUtils.futureDateFromString(value);
@@ -47,35 +46,37 @@ class DateInput extends Component {
     }
   };
 
-  onInputChange = (event) => {
-    const {target: {value}} = event
-    const nextDate = DateUtils.futureDateFromString(value)
+  onInputChange = event => {
+    const { target: { value } } = event;
+    const nextDate = DateUtils.futureDateFromString(value);
     if (nextDate) {
-      this.props.onDateInterpreted(nextDate.clone(), value)
+      this.props.onDateInterpreted(nextDate.clone(), value);
     }
-    this.setState({inputDate: nextDate, inputValue: value});
+    this.setState({ inputDate: nextDate, inputValue: value });
   };
 
   clearInput() {
     setImmediate(() => {
-      if (!this._mounted) { return }
-      this.setState({inputValue: '', inputDate: null})
-    })
+      if (!this._mounted) {
+        return;
+      }
+      this.setState({ inputValue: '', inputDate: null });
+    });
   }
 
   render() {
-    const {className} = this.props
-    const {inputDate, inputValue} = this.state
+    const { className } = this.props;
+    const { inputDate, inputValue } = this.state;
     const classes = classnames({
-      "nylas-date-input": true,
+      'nylas-date-input': true,
       [className]: className != null,
-    })
+    });
     const formatted = (
       <span className="date-interpretation">
         {DateUtils.format(this.state.inputDate, this.props.dateFormat)}
       </span>
-    )
-    const dateInterpretation = inputDate ? formatted : <span />
+    );
+    const dateInterpretation = inputDate ? formatted : <span />;
 
     return (
       <div className={classes}>
@@ -89,8 +90,8 @@ class DateInput extends Component {
         />
         {dateInterpretation}
       </div>
-    )
+    );
   }
 }
 
-export default DateInput
+export default DateInput;

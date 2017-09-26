@@ -7,10 +7,11 @@ const _ = require('underscore');
 marked.setOptions({
   highlight(code) {
     return require('highlight.js').highlightAuto(code).value;
-  }
+  },
 });
 
-let standardClassURLRoot = 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
+let standardClassURLRoot =
+  'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/';
 
 let standardClasses = [
   'string',
@@ -29,22 +30,21 @@ let standardClasses = [
   'typeerror',
   'syntaxerror',
   'referenceerror',
-  'rangeerror'
+  'rangeerror',
 ];
 
 let thirdPartyClasses = {
   'react.component': 'https://facebook.github.io/react/docs/component-api.html',
-  'promise': 'https://github.com/petkaantonov/bluebird/blob/master/API.md',
-  'range': 'https://developer.mozilla.org/en-US/docs/Web/API/Range',
-  'selection': 'https://developer.mozilla.org/en-US/docs/Web/API/Selection',
-  'node': 'https://developer.mozilla.org/en-US/docs/Web/API/Node',
+  promise: 'https://github.com/petkaantonov/bluebird/blob/master/API.md',
+  range: 'https://developer.mozilla.org/en-US/docs/Web/API/Range',
+  selection: 'https://developer.mozilla.org/en-US/docs/Web/API/Selection',
+  node: 'https://developer.mozilla.org/en-US/docs/Web/API/Node',
 };
 
 module.exports = function(grunt) {
+  let { cp, mkdir, rm } = grunt.config('taskHelpers');
 
-  let {cp, mkdir, rm} = grunt.config('taskHelpers');
-
-  let relativePathForClass = classname => classname+'.html';
+  let relativePathForClass = classname => classname + '.html';
 
   let outputPathFor = function(relativePath) {
     let classDocsOutputDir = grunt.config.get('classDocsOutputDir');
@@ -53,8 +53,12 @@ module.exports = function(grunt) {
 
   var processFields = function(json, fields, tasks) {
     let val;
-    if (fields == null) { fields = []; }
-    if (tasks == null) { tasks = []; }
+    if (fields == null) {
+      fields = [];
+    }
+    if (tasks == null) {
+      tasks = [];
+    }
     if (json instanceof Array) {
       return (() => {
         let result = [];
@@ -86,7 +90,6 @@ module.exports = function(grunt) {
   };
 
   return grunt.registerTask('docs-render', 'Builds html from the API docs', function() {
-
     let documentation, filename, html, match, meta, name, result, section, val;
     let classDocsOutputDir = grunt.config.get('classDocsOutputDir');
 
@@ -95,7 +98,6 @@ module.exports = function(grunt) {
     let classes = [];
     let apiJsonPath = path.join(classDocsOutputDir, 'api.json');
     let apiJSON = JSON.parse(grunt.file.read(apiJsonPath));
-
 
     for (var classname in apiJSON.classes) {
       // Parse a "@Section" out of the description if one is present
@@ -111,36 +113,34 @@ module.exports = function(grunt) {
 
       // Replace superClass "React" with "React.Component". The Coffeescript Lexer
       // is so bad.
-      if (contents.superClass === "React") {
-        contents.superClass = "React.Component";
+      if (contents.superClass === 'React') {
+        contents.superClass = 'React.Component';
       }
 
       classes.push({
         name: classname,
         documentation: contents,
-        section
+        section,
       });
     }
-
 
     // Build Sidebar metadata we can hand off to each of the templates to
     // generate the sidebar
     let sidebar = {};
     for (var i = 0; i < classes.length; i++) {
-        var current_class = classes[i];
-        console.log(current_class.name + ' ' + current_class.section)
+      var current_class = classes[i];
+      console.log(current_class.name + ' ' + current_class.section);
 
-        if (!(current_class.section in sidebar)) {
-          sidebar[current_class.section] = []
-        }
-        sidebar[current_class.section].push(current_class.name)
+      if (!(current_class.section in sidebar)) {
+        sidebar[current_class.section] = [];
+      }
+      sidebar[current_class.section].push(current_class.name);
     }
-
 
     // Prepare to render by loading handlebars partials
     let templatesPath = path.resolve(grunt.config('buildDir'), 'docs_templates');
     grunt.file.recurse(templatesPath, function(abspath, root, subdir, filename) {
-      if ((filename[0] === '_') && (path.extname(filename) === '.html')) {
+      if (filename[0] === '_' && path.extname(filename) === '.html') {
         return Handlebars.registerPartial(filename, grunt.file.read(abspath));
       }
     });
@@ -153,7 +153,6 @@ module.exports = function(grunt) {
       knownClassnames[classname.toLowerCase()] = val;
     }
 
-
     let expandTypeReferences = function(val) {
       let refRegex = /{([\w.]*)}/g;
       while ((match = refRegex.exec(val)) !== null) {
@@ -161,12 +160,12 @@ module.exports = function(grunt) {
         let label = match[1];
         let url = false;
         if (Array.from(standardClasses).includes(term)) {
-          url = standardClassURLRoot+term;
+          url = standardClassURLRoot + term;
         } else if (thirdPartyClasses[term]) {
           url = thirdPartyClasses[term];
         } else if (knownClassnames[term]) {
           url = relativePathForClass(knownClassnames[term].name);
-          grunt.log.ok("Found: " + term)
+          grunt.log.ok('Found: ' + term);
         } else {
           console.warn(`Cannot find class named ${term}`);
         }
@@ -205,28 +204,26 @@ module.exports = function(grunt) {
     let classTemplatePath = path.join(templatesPath, 'class.md');
     let classTemplate = Handlebars.compile(grunt.file.read(classTemplatePath));
 
-    for ({name, documentation, section} of Array.from(classes)) {
+    for ({ name, documentation, section } of Array.from(classes)) {
       // Recursively process `description` and `type` fields to process markdown,
       // expand references to types, functions and other files.
       processFields(documentation, ['description'], [expandFuncReferences]);
       processFields(documentation, ['type'], [expandTypeReferences]);
 
-      result = classTemplate({name, documentation, section});
+      result = classTemplate({ name, documentation, section });
       grunt.file.write(outputPathFor(name + '.md'), result);
     }
 
     let sidebarTemplatePath = path.join(templatesPath, 'sidebar.md');
     let sidebarTemplate = Handlebars.compile(grunt.file.read(sidebarTemplatePath));
 
-    grunt.file.write(outputPathFor('Sidebar.md'),
-                     sidebarTemplate({sidebar}));
-
+    grunt.file.write(outputPathFor('Sidebar.md'), sidebarTemplate({ sidebar }));
 
     // Remove temp cjsx output
-    return fs.removeSync(outputPathFor("temp-cjsx"));
+    return fs.removeSync(outputPathFor('temp-cjsx'));
   });
 };
 
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null ? transform(value) : undefined;
 }

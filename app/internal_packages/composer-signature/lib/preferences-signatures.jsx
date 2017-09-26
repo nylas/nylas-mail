@@ -1,104 +1,97 @@
 import React from 'react';
 import {
-    Flexbox,
-    RetinaImg,
-    EditableList,
-    Contenteditable,
-    ScrollRegion,
-    MultiselectDropdown,
+  Flexbox,
+  RetinaImg,
+  EditableList,
+  Contenteditable,
+  ScrollRegion,
+  MultiselectDropdown,
 } from 'nylas-component-kit';
-import {AccountStore, SignatureStore, Actions} from 'nylas-exports';
-
+import { AccountStore, SignatureStore, Actions } from 'nylas-exports';
 
 export default class PreferencesSignatures extends React.Component {
   static displayName = 'PreferencesSignatures';
 
   constructor() {
-    super()
-    this.state = this._getStateFromStores()
+    super();
+    this.state = this._getStateFromStores();
   }
 
   componentDidMount() {
-    this.unsubscribers = [
-      SignatureStore.listen(this._onChange),
-    ]
+    this.unsubscribers = [SignatureStore.listen(this._onChange)];
   }
 
   componentWillUnmount() {
     this.unsubscribers.forEach(unsubscribe => unsubscribe());
   }
 
-
   _onChange = () => {
-    this.setState(this._getStateFromStores())
-  }
+    this.setState(this._getStateFromStores());
+  };
 
   _getStateFromStores() {
-    const signatures = SignatureStore.getSignatures()
-    const accountsAndAliases = AccountStore.aliases()
-    const selected = SignatureStore.selectedSignature()
-    const defaults = SignatureStore.getDefaults()
+    const signatures = SignatureStore.getSignatures();
+    const accountsAndAliases = AccountStore.aliases();
+    const selected = SignatureStore.selectedSignature();
+    const defaults = SignatureStore.getDefaults();
     return {
       signatures: signatures,
       selectedSignature: selected,
       defaults: defaults,
       accountsAndAliases: accountsAndAliases,
       editAsHTML: this.state ? this.state.editAsHTML : false,
-    }
+    };
   }
-
 
   _onCreateButtonClick = () => {
-    this._onAddSignature()
-  }
+    this._onAddSignature();
+  };
 
   _onAddSignature = () => {
-    Actions.addSignature()
-  }
+    Actions.addSignature();
+  };
 
-  _onDeleteSignature = (signature) => {
-    Actions.removeSignature(signature)
-  }
+  _onDeleteSignature = signature => {
+    Actions.removeSignature(signature);
+  };
 
-  _onEditSignature = (edit) => {
+  _onEditSignature = edit => {
     let editedSig;
-    if (typeof edit === "object") {
+    if (typeof edit === 'object') {
       editedSig = {
         title: this.state.selectedSignature.title,
         body: edit.target.value,
-      }
+      };
     } else {
       editedSig = {
         title: edit,
         body: this.state.selectedSignature.body,
-      }
+      };
     }
-    Actions.updateSignature(editedSig, this.state.selectedSignature.id)
-  }
+    Actions.updateSignature(editedSig, this.state.selectedSignature.id);
+  };
 
-  _onSelectSignature = (sig) => {
-    Actions.selectSignature(sig.id)
-  }
+  _onSelectSignature = sig => {
+    Actions.selectSignature(sig.id);
+  };
 
-  _onToggleAccount = (account) => {
-    Actions.toggleAccount(account.email)
-  }
+  _onToggleAccount = account => {
+    Actions.toggleAccount(account.email);
+  };
 
   _onToggleEditAsHTML = () => {
-    const toggled = !this.state.editAsHTML
-    this.setState({editAsHTML: toggled})
-  }
+    const toggled = !this.state.editAsHTML;
+    this.setState({ editAsHTML: toggled });
+  };
 
-  _renderListItemContent = (sig) => {
-    return sig.title
-  }
+  _renderListItemContent = sig => {
+    return sig.title;
+  };
 
   _renderSignatureToolbar() {
     return (
       <div className="editable-toolbar">
-        <div className="account-picker">
-          Default for: {this._renderAccountPicker()}
-        </div>
+        <div className="account-picker">Default for: {this._renderAccountPicker()}</div>
         <div className="render-mode">
           <input
             type="checkbox"
@@ -109,30 +102,30 @@ export default class PreferencesSignatures extends React.Component {
           <label htmlFor="render-mode">Edit raw HTML</label>
         </div>
       </div>
-    )
+    );
   }
 
-  _selectItemKey = (accountOrAlias) => {
-    return accountOrAlias.id
-  }
+  _selectItemKey = accountOrAlias => {
+    return accountOrAlias.id;
+  };
 
-  _isChecked = (accountOrAlias) => {
+  _isChecked = accountOrAlias => {
     if (!this.state.selectedSignature) {
       return false;
     }
-    return (this.state.defaults[accountOrAlias.email] === this.state.selectedSignature.id);
-  }
+    return this.state.defaults[accountOrAlias.email] === this.state.selectedSignature.id;
+  };
 
   _labelForAccountPicker() {
-    const sel = this.state.accountsAndAliases.filter((accountOrAlias) => {
-      return this._isChecked(accountOrAlias)
-    })
+    const sel = this.state.accountsAndAliases.filter(accountOrAlias => {
+      return this._isChecked(accountOrAlias);
+    });
     const numSelected = sel.length;
-    return numSelected.toString() + (numSelected === 1 ? " Account" : " Accounts")
+    return numSelected.toString() + (numSelected === 1 ? ' Account' : ' Accounts');
   }
 
   _renderAccountPicker() {
-    const buttonText = this._labelForAccountPicker()
+    const buttonText = this._labelForAccountPicker();
 
     return (
       <MultiselectDropdown
@@ -143,33 +136,24 @@ export default class PreferencesSignatures extends React.Component {
         itemKey={this._selectItemKey}
         current={this.selectedSignature}
         buttonText={buttonText}
-        itemContent={(accountOrAlias) => accountOrAlias.email}
-      />
-    )
-  }
-
-  _renderEditableSignature() {
-    const selectedBody = this.state.selectedSignature ? this.state.selectedSignature.body : ""
-    return (
-      <Contenteditable
-        value={selectedBody}
-        spellcheck={false}
-        onChange={this._onEditSignature}
-      />
-    )
-  }
-
-  _renderHTMLSignature() {
-    return (
-      <textarea
-        value={this.state.selectedSignature.body}
-        onChange={this._onEditSignature}
+        itemContent={accountOrAlias => accountOrAlias.email}
       />
     );
   }
 
+  _renderEditableSignature() {
+    const selectedBody = this.state.selectedSignature ? this.state.selectedSignature.body : '';
+    return (
+      <Contenteditable value={selectedBody} spellcheck={false} onChange={this._onEditSignature} />
+    );
+  }
+
+  _renderHTMLSignature() {
+    return <textarea value={this.state.selectedSignature.body} onChange={this._onEditSignature} />;
+  }
+
   _renderSignatures() {
-    const sigArr = Object.values(this.state.signatures)
+    const sigArr = Object.values(this.state.signatures);
     if (sigArr.length === 0) {
       return (
         <div className="empty-list">
@@ -208,16 +192,14 @@ export default class PreferencesSignatures extends React.Component {
           {this._renderSignatureToolbar()}
         </div>
       </Flexbox>
-    )
+    );
   }
 
   render() {
     return (
       <div className="preferences-signatures-container">
-        <section>
-          {this._renderSignatures()}
-        </section>
+        <section>{this._renderSignatures()}</section>
       </div>
-    )
+    );
   }
 }

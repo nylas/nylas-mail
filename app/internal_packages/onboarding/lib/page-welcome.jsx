@@ -1,9 +1,9 @@
 import React from 'react';
-import {RetinaImg} from 'nylas-component-kit';
+import { RetinaImg } from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 
 export default class WelcomePage extends React.Component {
-  static displayName = "WelcomePage";
+  static displayName = 'WelcomePage';
 
   _onContinue = () => {
     // We don't have a NylasId yet and therefore can't track the "Welcome
@@ -15,20 +15,28 @@ export default class WelcomePage extends React.Component {
     // analytics users thinking it's part of the full funnel.
     //
     // Actions.recordUserEvent('Welcome Page Finished');
-    OnboardingActions.moveToPage("tutorial");
-  }
+    OnboardingActions.moveToPage('tutorial');
+  };
 
   render() {
     return (
       <div className="page welcome">
         <div className="steps-container">
           <div>
-            <p className="hero-text" style={{fontSize: 46, marginTop: 257}}>Welcome to Mailspring</p>
-            <RetinaImg className="icons" url="mailspring://onboarding/assets/icons-bg@2x.png" mode={RetinaImg.Mode.ContentPreserve} />
+            <p className="hero-text" style={{ fontSize: 46, marginTop: 257 }}>
+              Welcome to Mailspring
+            </p>
+            <RetinaImg
+              className="icons"
+              url="mailspring://onboarding/assets/icons-bg@2x.png"
+              mode={RetinaImg.Mode.ContentPreserve}
+            />
           </div>
         </div>
         <div className="footer">
-          <button key="next" className="btn btn-large btn-continue" onClick={this._onContinue}>Get Started</button>
+          <button key="next" className="btn btn-large btn-continue" onClick={this._onContinue}>
+            Get Started
+          </button>
         </div>
       </div>
     );

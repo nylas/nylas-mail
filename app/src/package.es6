@@ -1,8 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-class NoPackageJSONError extends Error {
-}
+class NoPackageJSONError extends Error {}
 
 export default class Package {
   static NoPackageJSONError = NoPackageJSONError;
@@ -25,7 +24,7 @@ export default class Package {
     this.displayName = this.json.displayName || this.json.name;
     this.disposables = [];
     this.syncInit = this.json.syncInit;
-    this.windowTypes = this.json.windowTypes || {'default': true};
+    this.windowTypes = this.json.windowTypes || { default: true };
   }
 
   activate() {
@@ -37,14 +36,14 @@ export default class Package {
 
     if (this.json.main) {
       const root = path.join(this.directory, this.json.main);
-      const module = require(root) // eslint-disable-line
+      const module = require(root); // eslint-disable-line
 
       module.activate();
 
       if (module.config && typeof module.config === 'object') {
-        NylasEnv.config.setSchema(this.name, {type: 'object', properties: module.config});
+        NylasEnv.config.setSchema(this.name, { type: 'object', properties: module.config });
       } else if (module.configDefaults && typeof module.configDefaults === 'object') {
-        NylasEnv.config.setDefaults(this.name, module.configDefaults)
+        NylasEnv.config.setDefaults(this.name, module.configDefaults);
       }
       if (module.activateConfig) {
         module.activateConfig();
@@ -87,7 +86,8 @@ export default class Package {
     let keymapPaths = [];
     const keymapsRoot = path.join(this.directory, 'keymaps');
     try {
-      keymapPaths = fs.readdirSync(keymapsRoot)
+      keymapPaths = fs
+        .readdirSync(keymapsRoot)
         .filter(fn => fn.endsWith('.json'))
         .map(fn => path.join(keymapsRoot, fn));
     } catch (err) {
@@ -111,14 +111,16 @@ export default class Package {
       } else {
         stylesheets = filenames
           .filter(fn => fn.endsWith('ss'))
-          .map(fn => path.join(stylesRoot, fn))
+          .map(fn => path.join(stylesRoot, fn));
       }
     } catch (err) {
       // styles directory not found
     }
     for (const sourcePath of stylesheets) {
       const source = NylasEnv.themes.loadStylesheet(sourcePath, true);
-      this.disposables.push(NylasEnv.styles.addStyleSheet(source, {sourcePath, priority: 0, context: null}))
+      this.disposables.push(
+        NylasEnv.styles.addStyleSheet(source, { sourcePath, priority: 0, context: null })
+      );
     }
   }
 
@@ -127,7 +129,8 @@ export default class Package {
     let menuPaths = [];
 
     try {
-      menuPaths = fs.readdirSync(menusRoot)
+      menuPaths = fs
+        .readdirSync(menusRoot)
         .filter(fn => fn.endsWith('.json'))
         .map(fn => path.join(menusRoot, fn));
     } catch (err) {

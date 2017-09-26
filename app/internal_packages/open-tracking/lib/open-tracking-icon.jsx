@@ -1,19 +1,18 @@
-import {React, ReactDOM, Actions} from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import { React, ReactDOM, PropTypes, Actions } from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
 import OpenTrackingMessagePopover from './open-tracking-message-popover';
-import {PLUGIN_ID} from './open-tracking-constants';
-
+import { PLUGIN_ID } from './open-tracking-constants';
 
 export default class OpenTrackingIcon extends React.Component {
   static displayName = 'OpenTrackingIcon';
 
   static propTypes = {
-    thread: React.PropTypes.object.isRequired,
+    thread: PropTypes.object.isRequired,
   };
 
   constructor(props) {
     super(props);
-    this.state = this._getStateFromThread(props.thread)
+    this.state = this._getStateFromThread(props.thread);
   }
 
   componentWillReceiveProps(newProps) {
@@ -27,12 +26,12 @@ export default class OpenTrackingIcon extends React.Component {
         message={this.state.message}
         openMetadata={this.state.message.metadataForPluginId(PLUGIN_ID)}
       />,
-      {originRect: rect, direction: 'down'}
-    )
-  }
+      { originRect: rect, direction: 'down' }
+    );
+  };
 
   _getStateFromThread(thread) {
-    const messages = thread.__messages || []
+    const messages = thread.__messages || [];
 
     let lastMessage = null;
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -65,7 +64,7 @@ export default class OpenTrackingIcon extends React.Component {
   _renderImage() {
     return (
       <RetinaImg
-        className={this.state.opened ? "opened" : "unopened"}
+        className={this.state.opened ? 'opened' : 'unopened'}
         url="mailspring://open-tracking/assets/icon-tracking-opened@2x.png"
         mode={RetinaImg.Mode.ContentIsMask}
       />
@@ -73,9 +72,9 @@ export default class OpenTrackingIcon extends React.Component {
   }
 
   render() {
-    if (!this.state.hasMetadata) return <span style={{width: "19px"}} />;
-    const openedTitle = `${this.state.openCount} open${this.state.openCount === 1 ? "" : "s"}`;
-    const title = this.state.opened ? openedTitle : "This message has not been opened";
+    if (!this.state.hasMetadata) return <span style={{ width: '19px' }} />;
+    const openedTitle = `${this.state.openCount} open${this.state.openCount === 1 ? '' : 's'}`;
+    const title = this.state.opened ? openedTitle : 'This message has not been opened';
     return (
       <div
         title={title}

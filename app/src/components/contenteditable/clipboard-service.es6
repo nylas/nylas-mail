@@ -1,10 +1,5 @@
 /* eslint global-require: 0 */
-import {
-  InlineStyleTransformer,
-  SanitizeTransformer,
-  RegExpUtils,
-  Utils,
-} from 'nylas-exports';
+import { InlineStyleTransformer, SanitizeTransformer, RegExpUtils, Utils } from 'nylas-exports';
 
 import ContenteditableService from './contenteditable-service';
 
@@ -25,7 +20,7 @@ export default class ClipboardService extends ContenteditableService {
     };
   }
 
-  onPaste = (event) => {
+  onPaste = event => {
     if (event.clipboardData.items.length === 0) {
       return;
     }
@@ -40,11 +35,12 @@ export default class ClipboardService extends ContenteditableService {
       const path = require('path');
       const fs = require('fs');
       const blob = item.getAsFile();
-      const ext = {
-        'image/png': '.png',
-        'image/jpg': '.jpg',
-        'image/tiff': '.tiff',
-      }[item.type] || '';
+      const ext =
+        {
+          'image/png': '.png',
+          'image/jpg': '.jpg',
+          'image/tiff': '.tiff',
+        }[item.type] || '';
 
       const reader = new FileReader();
       reader.addEventListener('loadend', () => {
@@ -61,29 +57,31 @@ export default class ClipboardService extends ContenteditableService {
       });
       reader.readAsArrayBuffer(blob);
     } else {
-      const {input, mimetype} = this._getBestRepresentation(event.clipboardData);
+      const { input, mimetype } = this._getBestRepresentation(event.clipboardData);
 
       if (mimetype === 'text/plain') {
         const encoded = Utils.encodeHTMLEntities(input);
-        const htmlified = encoded.replace(/[\r\n]|&#1[03];/g, "<br/>").replace(/\s\s/g, " &nbsp;");
-        document.execCommand("insertHTML", false, htmlified);
+        const htmlified = encoded.replace(/[\r\n]|&#1[03];/g, '<br/>').replace(/\s\s/g, ' &nbsp;');
+        document.execCommand('insertHTML', false, htmlified);
       } else if (mimetype === 'text/html') {
-        this._sanitizeHTMLInput(input).then(cleanHtml => document.execCommand("insertHTML", false, cleanHtml));
+        this._sanitizeHTMLInput(input).then(cleanHtml =>
+          document.execCommand('insertHTML', false, cleanHtml)
+        );
       } else {
         // Do nothing. No appropriate format is available
       }
     }
-  }
+  };
 
   _getBestRepresentation(clipboardData) {
-    for (const mimetype of ["text/html", "text/plain"]) {
-      const data = clipboardData.getData(mimetype) || "";
+    for (const mimetype of ['text/html', 'text/plain']) {
+      const data = clipboardData.getData(mimetype) || '';
       if (data.length > 0) {
-        return {input: data, mimetype};
+        return { input: data, mimetype };
       }
     }
 
-    return {input: null, mimetype: null};
+    return { input: null, mimetype: null };
   }
 
   // This is used when pasting text in
@@ -93,23 +91,23 @@ export default class ClipboardService extends ContenteditableService {
       decodeURIComponent(p1)
     );
 
-    return InlineStyleTransformer.run(withoutTracking)
-    .then((inlined) => {
-      return SanitizeTransformer.run(inlined, SanitizeTransformer.Preset.Permissive)
-      .then((sanitized) => {
+    return InlineStyleTransformer.run(withoutTracking).then(inlined => {
+      return SanitizeTransformer.run(
+        inlined,
+        SanitizeTransformer.Preset.Permissive
+      ).then(sanitized => {
         return Promise.resolve(
           sanitized
-          // We never want more then 2 line breaks in a row.
-          // https://regex101.com/r/gF6bF4/4
-          .replace(/(<br\s*\/?>\s*){3,}/g, "<br/><br/>")
-
-          // We never want to keep leading and trailing <brs>, since the user
-          // would have started a new paragraph themselves if they wanted space
-          // before what they paste.
-          // BAD:    "<p>begins at<br>12AM</p>" => "<br><br>begins at<br>12AM<br><br>"
-          // Better: "<p>begins at<br>12AM</p>" => "begins at<br>12"
-          .replace(/^(<br ?\/>)+/, '')
-          .replace(/(<br ?\/>)+$/, '')
+            // We never want more then 2 line breaks in a row.
+            // https://regex101.com/r/gF6bF4/4
+            .replace(/(<br\s*\/?>\s*){3,}/g, '<br/><br/>')
+            // We never want to keep leading and trailing <brs>, since the user
+            // would have started a new paragraph themselves if they wanted space
+            // before what they paste.
+            // BAD:    "<p>begins at<br>12AM</p>" => "<br><br>begins at<br>12AM<br><br>"
+            // Better: "<p>begins at<br>12AM</p>" => "begins at<br>12"
+            .replace(/^(<br ?\/>)+/, '')
+            .replace(/(<br ?\/>)+$/, '')
         );
       });
     });

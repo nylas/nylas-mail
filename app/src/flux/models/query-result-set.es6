@@ -18,10 +18,9 @@ array, and "offset" refers to it's position in the query result set. For example
 an item might be at index 20 in the _ids array, but at offset 120 in the result.
 */
 export default class QueryResultSet {
-
   static setByApplyingModels(set, models) {
     if (models instanceof Array) {
-      throw new Error("setByApplyingModels: A hash of models is required.");
+      throw new Error('setByApplyingModels: A hash of models is required.');
     }
     const out = set.clone();
     out._modelsHash = models;
@@ -30,11 +29,11 @@ export default class QueryResultSet {
   }
 
   constructor(other = {}) {
-    this._offset = (other._offset !== undefined) ? other._offset : null;
-    this._query = (other._query !== undefined) ? other._query : null;
-    this._idToIndexHash = (other._idToIndexHash !== undefined) ? other._idToIndexHash : null;
+    this._offset = other._offset !== undefined ? other._offset : null;
+    this._query = other._query !== undefined ? other._query : null;
+    this._idToIndexHash = other._idToIndexHash !== undefined ? other._idToIndexHash : null;
     // Clone, since the others may be frozen
-    this._modelsHash = Object.assign({}, other._modelsHash || {})
+    this._modelsHash = Object.assign({}, other._modelsHash || {});
     this._ids = [].concat(other._ids || []);
   }
 
@@ -49,11 +48,11 @@ export default class QueryResultSet {
   }
 
   isComplete() {
-    return this._ids.every((id) => this._modelsHash[id]);
+    return this._ids.every(id => this._modelsHash[id]);
   }
 
   range() {
-    return new QueryRange({offset: this._offset, limit: this._ids.length});
+    return new QueryRange({ offset: this._offset, limit: this._ids.length });
   }
 
   query() {
@@ -77,7 +76,7 @@ export default class QueryResultSet {
   }
 
   models() {
-    return this._ids.map((id) => this._modelsHash[id]);
+    return this._ids.map(id => this._modelsHash[id]);
   }
 
   modelCacheCount() {
@@ -86,7 +85,9 @@ export default class QueryResultSet {
 
   modelAtOffset(offset) {
     if (!Number.isInteger(offset)) {
-      throw new Error("QueryResultSet.modelAtOffset() takes a numeric index. Maybe you meant modelWithId()?");
+      throw new Error(
+        'QueryResultSet.modelAtOffset() takes a numeric index. Maybe you meant modelWithId()?'
+      );
     }
     return this._modelsHash[this._ids[offset - this._offset]];
   }
@@ -96,7 +97,7 @@ export default class QueryResultSet {
   }
 
   buildIdToIndexHash() {
-    this._idToIndexHash = {}
+    this._idToIndexHash = {};
     this._ids.forEach((id, idx) => {
       this._idToIndexHash[id] = idx;
     });
@@ -110,6 +111,6 @@ export default class QueryResultSet {
     if (this._idToIndexHash[id] === undefined) {
       return -1;
     }
-    return this._idToIndexHash[id] + this._offset
+    return this._idToIndexHash[id] + this._offset;
   }
 }

@@ -1,4 +1,3 @@
-
 function _getDimension(node, dim) {
   const raw = node.style[dim] || node[dim];
   if (!raw) {
@@ -25,7 +24,7 @@ function _runOnImageNode(node) {
   // VW is like %, but always basd on the iframe width, regardless of whether
   // a container is position: relative.
   // https://web-design-weekly.com/2014/11/18/viewport-units-vw-vh-vmin-vmax/
-  if (width && height && (widthUnits === heightUnits)) {
+  if (width && height && widthUnits === heightUnits) {
     node.style.maxWidth = '100vw';
     node.style.maxHeight = `${100 * height / width}vw`;
   } else if (!height) {
@@ -39,7 +38,7 @@ function _runOnImageNode(node) {
 
 export function autoscaleImages(doc) {
   const imgTagWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
-    acceptNode: (node) => {
+    acceptNode: node => {
       if (node.nodeName === 'IMG') {
         return NodeFilter.FILTER_ACCEPT;
       }

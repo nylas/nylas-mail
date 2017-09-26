@@ -1,4 +1,4 @@
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 import path from 'path';
 import fs from 'fs-plus';
 
@@ -18,7 +18,7 @@ const CONFIG_THEME_KEY = 'core.theme';
  *  - ThemeManager directly updates <style> tags when recompiling LESS.
  */
 export default class ThemeManager {
-  constructor({packageManager, resourcePath, configDirPath, safeMode}) {
+  constructor({ packageManager, resourcePath, configDirPath, safeMode }) {
     this.packageManager = packageManager;
     this.resourcePath = resourcePath;
     this.configDirPath = configDirPath;
@@ -45,11 +45,11 @@ export default class ThemeManager {
   }
 
   watchCoreStyles() {
-    console.log('Watching /static and /internal_packages for LESS changes')
-    const watchStylesIn = (folder) => {
+    console.log('Watching /static and /internal_packages for LESS changes');
+    const watchStylesIn = folder => {
       const stylePaths = fs.listTreeSync(folder);
       const PathWatcher = require('pathwatcher'); //eslint-disable-line
-      stylePaths.forEach((stylePath) => {
+      stylePaths.forEach(stylePath => {
         if (!stylePath.endsWith('.less')) {
           return;
         }
@@ -77,7 +77,10 @@ export default class ThemeManager {
   }
 
   getActiveTheme() {
-    return this.packageManager.getPackageNamed(NylasEnv.config.get(CONFIG_THEME_KEY)) || this.getBaseTheme();
+    return (
+      this.packageManager.getPackageNamed(NylasEnv.config.get(CONFIG_THEME_KEY)) ||
+      this.getBaseTheme()
+    );
   }
 
   getAvailableThemes() {
@@ -117,10 +120,12 @@ export default class ThemeManager {
   requireStylesheet(stylesheetPath) {
     const sourcePath = this.resolveStylesheet(stylesheetPath);
     if (!sourcePath) {
-      throw new Error(`Could not find a file at path '${stylesheetPath}'`)
+      throw new Error(`Could not find a file at path '${stylesheetPath}'`);
     }
     const content = this.loadStylesheet(sourcePath);
-    this.styleSheetDisposablesBySourcePath[sourcePath] = NylasEnv.styles.addStyleSheet(content, {sourcePath})
+    this.styleSheetDisposablesBySourcePath[sourcePath] = NylasEnv.styles.addStyleSheet(content, {
+      sourcePath,
+    });
   }
 
   loadBaseStylesheets() {
@@ -169,7 +174,7 @@ export default class ThemeManager {
           ${error.message}
         `;
       }
-      console.error(message, {detail, dismissable: true});
+      console.error(message, { detail, dismissable: true });
       console.error(detail);
       throw error;
     }

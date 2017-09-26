@@ -1,4 +1,4 @@
-module.exports = (grunt) => {
+module.exports = grunt => {
   grunt.config.merge({
     csslint: {
       options: {
@@ -11,9 +11,9 @@ module.exports = (grunt) => {
         'display-property-grouping': false,
         'fallback-colors': false,
         'font-sizes': false,
-        'gradients': false,
-        'ids': false,
-        'important': false,
+        gradients: false,
+        ids: false,
+        important: false,
         'known-properties': false,
         'outline-none': false,
         'overqualified-elements': false,
@@ -23,11 +23,9 @@ module.exports = (grunt) => {
         'vendor-prefix': false,
         'duplicate-properties': false, // doesn't place nice with mixins
       },
-      src: [
-        'static/**/*.css',
-      ],
+      src: ['static/**/*.css'],
     },
   });
 
   grunt.loadNpmTasks('grunt-contrib-csslint');
-}
+};

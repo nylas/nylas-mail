@@ -1,22 +1,22 @@
-import {PLUGIN_ID} from './send-reminders-constants'
+import { PLUGIN_ID } from './send-reminders-constants';
 
-export const name = 'SendRemindersThreadListExtension'
+export const name = 'SendRemindersThreadListExtension';
 
 export function cssClassNamesForThreadListItem(thread) {
-  const {shouldNotify} = thread.metadataForPluginId(PLUGIN_ID) || {}
+  const { shouldNotify } = thread.metadataForPluginId(PLUGIN_ID) || {};
   if (shouldNotify) {
-    return 'thread-list-reminder-item'
+    return 'thread-list-reminder-item';
   }
-  return ''
+  return '';
 }
 
 export function cssClassNamesForThreadListIcon(thread) {
-  const {expiration, shouldNotify} = thread.metadataForPluginId(PLUGIN_ID) || {}
+  const { expiration, shouldNotify } = thread.metadataForPluginId(PLUGIN_ID) || {};
   if (shouldNotify) {
-    return 'thread-icon-reminder-triggered'
+    return 'thread-icon-reminder-triggered';
   }
   if (expiration) {
-    return 'thread-icon-reminder-pending'
+    return 'thread-icon-reminder-pending';
   }
-  return ''
+  return '';
 }

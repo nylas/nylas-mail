@@ -15,7 +15,7 @@ export default class AttributeString extends Attribute {
   }
 
   fromJSON(val) {
-    return (val === null || val === undefined || val === false) ? null : `${val}`;
+    return val === null || val === undefined || val === false ? null : `${val}`;
   }
 
   // Public: Returns a {Matcher} for objects starting with the provided value.

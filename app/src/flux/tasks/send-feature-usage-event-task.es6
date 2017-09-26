@@ -3,7 +3,6 @@ import Attributes from '../attributes';
 import AccountStore from '../stores/account-store';
 
 export default class SendFeatureUsageEventTask extends Task {
-
   static attributes = Object.assign({}, Task.attributes, {
     feature: Attributes.String({
       modelKey: 'feature',

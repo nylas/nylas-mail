@@ -1,14 +1,13 @@
-import {OnlineStatusStore, React, Actions} from 'nylas-exports';
-import {Notification, ListensToFluxStore} from 'nylas-component-kit';
+import { OnlineStatusStore, React, PropTypes, Actions } from 'nylas-exports';
+import { Notification, ListensToFluxStore } from 'nylas-component-kit';
 
-
-function OfflineNotification({isOnline, retryingInSeconds}) {
+function OfflineNotification({ isOnline, retryingInSeconds }) {
   if (isOnline) {
-    return false
+    return false;
   }
-  const subtitle = retryingInSeconds ?
-    `Retrying in ${retryingInSeconds} second${retryingInSeconds > 1 ? 's' : ''}` :
-    `Retrying now...`;
+  const subtitle = retryingInSeconds
+    ? `Retrying in ${retryingInSeconds} second${retryingInSeconds > 1 ? 's' : ''}`
+    : `Retrying now...`;
 
   return (
     <Notification
@@ -17,19 +16,21 @@ function OfflineNotification({isOnline, retryingInSeconds}) {
       subtitle={subtitle}
       priority="5"
       icon="volstead-offline.png"
-      actions={[{
-        id: 'try_now',
-        label: 'Try now',
-        fn: () => Actions.checkOnlineStatus(),
-      }]}
+      actions={[
+        {
+          id: 'try_now',
+          label: 'Try now',
+          fn: () => Actions.checkOnlineStatus(),
+        },
+      ]}
     />
-  )
+  );
 }
-OfflineNotification.displayName = 'OfflineNotification'
+OfflineNotification.displayName = 'OfflineNotification';
 OfflineNotification.propTypes = {
-  isOnline: React.PropTypes.bool,
-  retryingInSeconds: React.PropTypes.number,
-}
+  isOnline: PropTypes.bool,
+  retryingInSeconds: PropTypes.number,
+};
 
 export default ListensToFluxStore(OfflineNotification, {
   stores: [OnlineStatusStore],
@@ -37,6 +38,6 @@ export default ListensToFluxStore(OfflineNotification, {
     return {
       isOnline: OnlineStatusStore.isOnline(),
       retryingInSeconds: OnlineStatusStore.retryingInSeconds(),
-    }
+    };
   },
-})
+});

@@ -1,41 +1,45 @@
-import React from 'react'
 import {
+  React,
+  PropTypes,
   Actions,
   DOMUtils,
   TaskFactory,
   FocusedPerspectiveStore,
 } from 'nylas-exports';
-import {RetinaImg} from 'nylas-component-kit';
+import { RetinaImg } from 'nylas-component-kit';
 
 export default class ThreadTrashButton extends React.Component {
-  static displayName = "ThreadTrashButton";
+  static displayName = 'ThreadTrashButton';
   static containerRequired = false;
   static propTypes = {
-    thread: React.PropTypes.object.isRequired,
+    thread: PropTypes.object.isRequired,
   };
 
-  _onRemove = (e) => {
+  _onRemove = e => {
     if (!DOMUtils.nodeIsVisible(e.currentTarget)) {
       return;
     }
     const tasks = TaskFactory.tasksForMovingToTrash({
-      source: "Toolbar Button: Thread List",
+      source: 'Toolbar Button: Thread List',
       threads: [this.props.thread],
     });
     Actions.queueTasks(tasks);
     Actions.popSheet();
     e.stopPropagation();
-  }
+  };
 
   render() {
-    const allowed = FocusedPerspectiveStore.current().canMoveThreadsTo([this.props.thread], 'trash');
+    const allowed = FocusedPerspectiveStore.current().canMoveThreadsTo(
+      [this.props.thread],
+      'trash'
+    );
     if (!allowed) {
-      return (<span />);
+      return <span />;
     }
     return (
       <button
         className="btn btn-toolbar"
-        style={{order: -106}}
+        style={{ order: -106 }}
         title="Move to Trash"
         onClick={this._onRemove}
       >

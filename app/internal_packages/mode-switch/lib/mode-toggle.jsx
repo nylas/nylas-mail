@@ -1,26 +1,23 @@
-import {ComponentRegistry,
- WorkspaceStore,
- Actions} from "nylas-exports"
-import {RetinaImg} from 'nylas-component-kit'
-import React from "react"
-import _ from "underscore"
+import { WorkspaceStore, Actions } from 'nylas-exports';
+import { RetinaImg } from 'nylas-component-kit';
+import React from 'react';
 
 export default class ModeToggle extends React.Component {
   static displayName = 'ModeToggle';
 
   constructor(props) {
     super(props);
-    this.column = WorkspaceStore.Location.MessageListSidebar
-    this.state = this._getStateFromStores()
+    this.column = WorkspaceStore.Location.MessageListSidebar;
+    this.state = this._getStateFromStores();
   }
 
   componentDidMount() {
-    this._unsubscriber = WorkspaceStore.listen(this._onStateChanged)
+    this._unsubscriber = WorkspaceStore.listen(this._onStateChanged);
     this._mounted = true;
   }
 
   componentWillUnmount() {
-    this._mounted = false
+    this._mounted = false;
     if (this._unsubscriber) {
       this._unsubscriber();
     }
@@ -44,24 +41,21 @@ export default class ModeToggle extends React.Component {
       return;
     }
     this.setState(this._getStateFromStores());
-  }
+  };
 
   _onToggleMode = () => {
-    Actions.toggleWorkspaceLocationHidden(this.column)
-  }
+    Actions.toggleWorkspaceLocationHidden(this.column);
+  };
 
   render() {
     return (
       <button
         className={`btn btn-toolbar mode-toggle mode-${this.state.hidden}`}
-        style={{order: 500}}
-        title={this.state.hidden ? "Show sidebar" : "Hide sidebar"}
+        style={{ order: 500 }}
+        title={this.state.hidden ? 'Show sidebar' : 'Hide sidebar'}
         onClick={this._onToggleMode}
       >
-        <RetinaImg
-          name="toolbar-person-sidebar.png"
-          mode={RetinaImg.Mode.ContentIsMask}
-        />
+        <RetinaImg name="toolbar-person-sidebar.png" mode={RetinaImg.Mode.ContentIsMask} />
       </button>
     );
   }

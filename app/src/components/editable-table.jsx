@@ -1,11 +1,10 @@
-import React, {Component} from 'react'
-import {pickHTMLProps} from 'pick-react-known-prop'
-import ReactDOM from 'react-dom'
-import PropTypes from 'prop-types'
+import React, { Component } from 'react';
+import { pickHTMLProps } from 'pick-react-known-prop';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
-import RetinaImg from './retina-img'
-import SelectableTable, {SelectableTableCell} from './selectable-table'
-
+import RetinaImg from './retina-img';
+import SelectableTable, { SelectableTableCell } from './selectable-table';
 
 /*
  * EditableTable component which renders a {SelectableTable} that supports
@@ -66,7 +65,6 @@ import SelectableTable, {SelectableTableCell} from './selectable-table'
  */
 
 export class EditableTableCell extends Component {
-
   static propTypes = {
     tableDataSource: SelectableTableCell.propTypes.tableDataSource,
     rowIdx: SelectableTableCell.propTypes.colIdx,
@@ -76,60 +74,64 @@ export class EditableTableCell extends Component {
     InputRenderer: SelectableTable.propTypes.RowRenderer,
     onAddRow: PropTypes.func,
     onCellEdited: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
     inputProps: {},
-    InputRenderer: (props) => <input {...pickHTMLProps(props)} defaultValue={props.defaultValue} />,
-  }
+    InputRenderer: props => <input {...pickHTMLProps(props)} defaultValue={props.defaultValue} />,
+  };
 
   componentDidMount() {
     if (this.shouldFocusInput()) {
-      ReactDOM.findDOMNode(this.refs.inputContainer).querySelector('input').focus()
+      ReactDOM.findDOMNode(this.refs.inputContainer)
+        .querySelector('input')
+        .focus();
     }
   }
 
   componentDidUpdate() {
     if (this.shouldFocusInput()) {
-      ReactDOM.findDOMNode(this.refs.inputContainer).querySelector('input').focus()
+      ReactDOM.findDOMNode(this.refs.inputContainer)
+        .querySelector('input')
+        .focus();
     }
   }
 
-  onInputBlur = (event) => {
-    const {target: {value}} = event
-    const {tableDataSource, isHeader, rowIdx, colIdx, onCellEdited} = this.props
-    const currentValue = tableDataSource.cellAt({rowIdx, colIdx})
+  onInputBlur = event => {
+    const { target: { value } } = event;
+    const { tableDataSource, isHeader, rowIdx, colIdx, onCellEdited } = this.props;
+    const currentValue = tableDataSource.cellAt({ rowIdx, colIdx });
     if (value != null && value !== currentValue) {
-      onCellEdited({rowIdx, colIdx, isHeader, value})
+      onCellEdited({ rowIdx, colIdx, isHeader, value });
     }
-  }
+  };
 
-  onInputKeyDown = (event) => {
-    const {key} = event
-    const {onAddRow} = this.props
+  onInputKeyDown = event => {
+    const { key } = event;
+    const { onAddRow } = this.props;
 
     if (['Enter', 'Return'].includes(key)) {
       if (this.refs.cell.isInLastRow()) {
-        event.stopPropagation()
-        onAddRow()
+        event.stopPropagation();
+        onAddRow();
       }
     } else if (key === 'Escape') {
-      event.stopPropagation()
-      ReactDOM.findDOMNode(this.refs.inputContainer).focus()
+      event.stopPropagation();
+      ReactDOM.findDOMNode(this.refs.inputContainer).focus();
     }
-  }
+  };
 
   shouldFocusInput() {
     return (
       this.refs.cell.isSelectedUsingKey('Tab') ||
       this.refs.cell.isSelectedUsingKey('Enter') ||
       this.refs.cell.isSelectedUsingKey('Return')
-    )
+    );
   }
 
   render() {
-    const {rowIdx, colIdx, tableDataSource, isHeader, inputProps, InputRenderer} = this.props
-    const cellValue = tableDataSource.cellAt({rowIdx, colIdx})
+    const { rowIdx, colIdx, tableDataSource, isHeader, inputProps, InputRenderer } = this.props;
+    const cellValue = tableDataSource.cellAt({ rowIdx, colIdx });
 
     return (
       <SelectableTableCell ref="cell" {...this.props}>
@@ -147,7 +149,7 @@ export class EditableTableCell extends Component {
           />
         </div>
       </SelectableTableCell>
-    )
+    );
   }
 }
 
@@ -161,11 +163,11 @@ function EditableTable(props) {
     onAddColumn,
     onRemoveColumn,
     ...otherProps
-  } = props
+  } = props;
 
   const tableProps = {
     ...otherProps,
-    className: "editable-table",
+    className: 'editable-table',
     extraProps: {
       onAddRow,
       onRemoveRow,
@@ -174,33 +176,27 @@ function EditableTable(props) {
       InputRenderer,
     },
     CellRenderer: EditableTableCell,
-  }
+  };
 
   if (!onAddColumn || !onRemoveColumn) {
-    return <SelectableTable {...tableProps} />
+    return <SelectableTable {...tableProps} />;
   }
   return (
     <div className="editable-table-container">
       <SelectableTable {...tableProps} />
       <div className="column-actions">
         <div className="btn btn-small" onClick={onAddColumn}>
-          <RetinaImg
-            name="icon-column-plus.png"
-            mode={RetinaImg.Mode.ContentPreserve}
-          />
+          <RetinaImg name="icon-column-plus.png" mode={RetinaImg.Mode.ContentPreserve} />
         </div>
         <div className="btn btn-small" onClick={onRemoveColumn}>
-          <RetinaImg
-            name="icon-column-minus.png"
-            mode={RetinaImg.Mode.ContentPreserve}
-          />
+          <RetinaImg name="icon-column-minus.png" mode={RetinaImg.Mode.ContentPreserve} />
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-EditableTable.displayName = 'EditableTable'
+EditableTable.displayName = 'EditableTable';
 
 EditableTable.propTypes = {
   tableDataSource: SelectableTable.propTypes.tableDataSource,
@@ -211,6 +207,6 @@ EditableTable.propTypes = {
   onRemoveColumn: PropTypes.func,
   onAddRow: PropTypes.func,
   onRemoveRow: PropTypes.func,
-}
+};
 
-export default EditableTable
+export default EditableTable;

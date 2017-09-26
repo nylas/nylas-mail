@@ -9,7 +9,6 @@
  * @class TableDataSource
  */
 export default class TableDataSource {
-
   /**
    * Takes an Object of the form:
    *
@@ -32,7 +31,7 @@ export default class TableDataSource {
     this._tableData = tableData || {
       columns: [],
       rows: [[]],
-    }
+    };
   }
 
   /**
@@ -45,8 +44,8 @@ export default class TableDataSource {
    * @method colAt
    */
   colAt(colIdx) {
-    const col = this._tableData.columns[colIdx]
-    return col != null ? col : null
+    const col = this._tableData.columns[colIdx];
+    return col != null ? col : null;
   }
 
   /**
@@ -65,9 +64,9 @@ export default class TableDataSource {
    */
   rowAt(rowIdx) {
     if (rowIdx == null) {
-      return this.columns()
+      return this.columns();
     }
-    return this._tableData.rows[rowIdx] || null
+    return this._tableData.rows[rowIdx] || null;
   }
 
   /**
@@ -86,13 +85,13 @@ export default class TableDataSource {
    * @return {any} - value for cell at given indices or null if it does not exist
    * @method cellAt
    */
-  cellAt({rowIdx, colIdx} = {}) {
+  cellAt({ rowIdx, colIdx } = {}) {
     if (rowIdx == null) {
-      return this.colAt(colIdx)
+      return this.colAt(colIdx);
     }
-    const row = this.rowAt(rowIdx)
-    const cell = row ? row[colIdx] : null
-    return cell != null ? cell : null
+    const row = this.rowAt(rowIdx);
+    const cell = row ? row[colIdx] : null;
+    return cell != null ? cell : null;
   }
 
   /**
@@ -108,24 +107,24 @@ export default class TableDataSource {
    * @return {any} - value for cell at given indices or null if it does not exist
    * @method cellAt
    */
-  isEmpty({rowIdx, colIdx} = {}) {
+  isEmpty({ rowIdx, colIdx } = {}) {
     if (rowIdx == null && colIdx == null) {
-      throw new Error('TableDataSource::isEmpty - Must provide rowIdx and/or colIdx')
+      throw new Error('TableDataSource::isEmpty - Must provide rowIdx and/or colIdx');
     }
     if (rowIdx == null) {
-      const col = this.colAt(colIdx)
+      const col = this.colAt(colIdx);
       if (col == null) {
-        throw new Error('TableDataSource::isEmpty - Must provide a valid colIdx')
+        throw new Error('TableDataSource::isEmpty - Must provide a valid colIdx');
       }
     }
-    const row = this.rowAt(rowIdx)
+    const row = this.rowAt(rowIdx);
     if (!row) {
-      throw new Error('TableDataSource::isEmpty - Must provide a valid rowIdx')
+      throw new Error('TableDataSource::isEmpty - Must provide a valid rowIdx');
     }
     if (colIdx == null) {
-      return row.every((el) => !el)
+      return row.every(el => !el);
     }
-    return !this.cellAt({rowIdx, colIdx})
+    return !this.cellAt({ rowIdx, colIdx });
   }
 
   /**
@@ -137,7 +136,7 @@ export default class TableDataSource {
    * @method rows
    */
   rows() {
-    return this._tableData.rows
+    return this._tableData.rows;
   }
 
   /**
@@ -149,7 +148,7 @@ export default class TableDataSource {
    * @method rows
    */
   columns() {
-    return this._tableData.columns
+    return this._tableData.columns;
   }
 
   /**
@@ -159,13 +158,13 @@ export default class TableDataSource {
    * @method addColumn
    */
   addColumn(name = null) {
-    const rows = this.rows()
-    const columns = this.columns()
+    const rows = this.rows();
+    const columns = this.columns();
     return new TableDataSource({
       ...this._tableData,
       rows: rows.map(row => row.concat(null)),
       columns: columns.concat([name]),
-    })
+    });
   }
 
   /**
@@ -175,14 +174,14 @@ export default class TableDataSource {
    * @method removeLastColumn
    */
   removeLastColumn() {
-    const nextNumColumns = this.columns().length - 1
-    const nextRows = this.rows().map(row => row.slice(0, nextNumColumns))
-    const nextColumns = this.columns().slice(0, nextNumColumns)
+    const nextNumColumns = this.columns().length - 1;
+    const nextRows = this.rows().map(row => row.slice(0, nextNumColumns));
+    const nextColumns = this.columns().slice(0, nextNumColumns);
     return new TableDataSource({
       ...this._tableData,
       rows: nextRows,
       columns: nextColumns,
-    })
+    });
   }
 
   /**
@@ -192,12 +191,12 @@ export default class TableDataSource {
    * @method addRow
    */
   addRow() {
-    const rows = this.rows()
-    const nextRows = rows.concat([rows[0].map(() => null)])
+    const rows = this.rows();
+    const nextRows = rows.concat([rows[0].map(() => null)]);
     return new TableDataSource({
       ...this._tableData,
       rows: nextRows,
-    })
+    });
   }
 
   /**
@@ -207,11 +206,11 @@ export default class TableDataSource {
    * @method removeRow
    */
   removeRow() {
-    const rows = this.rows()
+    const rows = this.rows();
     return new TableDataSource({
       ...this._tableData,
       rows: rows.slice(0, rows.length - 1),
-    })
+    });
   }
 
   /**
@@ -225,24 +224,24 @@ export default class TableDataSource {
    * @return {TableDataSource} - updated data source instance
    * @method updateCell
    */
-  updateCell({rowIdx, colIdx, isHeader, value} = {}) {
+  updateCell({ rowIdx, colIdx, isHeader, value } = {}) {
     if (isHeader) {
-      const nextColumns = this.columns().slice()
-      nextColumns.splice(colIdx, 1, value)
+      const nextColumns = this.columns().slice();
+      nextColumns.splice(colIdx, 1, value);
       return new TableDataSource({
         ...this._tableData,
         columns: nextColumns,
-      })
+      });
     }
 
-    const nextRows = this.rows().slice()
-    const nextRow = nextRows[rowIdx].slice()
-    nextRow.splice(colIdx, 1, value)
-    nextRows[rowIdx] = nextRow
+    const nextRows = this.rows().slice();
+    const nextRow = nextRows[rowIdx].slice();
+    nextRow.splice(colIdx, 1, value);
+    nextRows[rowIdx] = nextRow;
     return new TableDataSource({
       ...this._tableData,
       rows: nextRows,
-    })
+    });
   }
 
   /**
@@ -252,19 +251,19 @@ export default class TableDataSource {
    * @method clear
    */
   clear() {
-    return new TableDataSource()
+    return new TableDataSource();
   }
 
   filterRows(filterFn) {
-    const rows = this.rows()
-    const nextRows = rows.filter(filterFn)
+    const rows = this.rows();
+    const nextRows = rows.filter(filterFn);
     return new TableDataSource({
       ...this._tableData,
       rows: nextRows,
-    })
+    });
   }
 
   toJSON() {
-    return {...this._tableData}
+    return { ...this._tableData };
   }
 }

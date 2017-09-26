@@ -5,30 +5,29 @@ import {
   Thread,
   Actions,
   Folder,
-} from 'nylas-exports'
-import * as SnoozeUtils from '../lib/snooze-utils'
-import SnoozeStore from '../lib/snooze-store'
-
+} from 'nylas-exports';
+import * as SnoozeUtils from '../lib/snooze-utils';
+import SnoozeStore from '../lib/snooze-store';
 
 xdescribe('SnoozeStore', function snoozeStore() {
   beforeEach(() => {
-    this.store = new SnoozeStore('plug-id', 'plug-name')
-    this.name = 'Snooze folder'
-    this.accounts = [{id: 123}, {id: 321}]
+    this.store = new SnoozeStore('plug-id', 'plug-name');
+    this.name = 'Snooze folder';
+    this.accounts = [{ id: 123 }, { id: 321 }];
 
     this.snoozeCatsByAccount = {
-      123: new Folder({accountId: 123, displayName: this.name, id: 'sn-1'}),
-      321: new Folder({accountId: 321, displayName: this.name, id: 'sn-2'}),
-    }
+      123: new Folder({ accountId: 123, displayName: this.name, id: 'sn-1' }),
+      321: new Folder({ accountId: 321, displayName: this.name, id: 'sn-2' }),
+    };
     this.inboxCatsByAccount = {
-      123: new Folder({accountId: 123, name: 'inbox', id: 'in-1'}),
-      321: new Folder({accountId: 321, name: 'inbox', id: 'in-2'}),
-    }
+      123: new Folder({ accountId: 123, name: 'inbox', id: 'in-1' }),
+      321: new Folder({ accountId: 321, name: 'inbox', id: 'in-2' }),
+    };
     this.threads = [
-      new Thread({accountId: 123, id: 's-1'}),
-      new Thread({accountId: 123, id: 's-2'}),
-      new Thread({accountId: 321, id: 's-3'}),
-    ]
+      new Thread({ accountId: 123, id: 's-1' }),
+      new Thread({ accountId: 123, id: 's-2' }),
+      new Thread({ accountId: 321, id: 's-3' }),
+    ];
     this.updatedThreadsByAccountId = {
       123: {
         threads: [this.threads[0], this.threads[1]],
@@ -40,58 +39,59 @@ xdescribe('SnoozeStore', function snoozeStore() {
         snoozeCategoryId: 'sn-2',
         returnCategoryId: 'in-2',
       },
-    }
-    this.store.snoozeCategoriesPromise = Promise.resolve()
-    spyOn(this.store, 'recordSnoozeEvent')
-    spyOn(this.store, 'groupUpdatedThreads').andReturn(Promise.resolve(this.updatedThreadsByAccountId))
+    };
+    this.store.snoozeCategoriesPromise = Promise.resolve();
+    spyOn(this.store, 'recordSnoozeEvent');
+    spyOn(this.store, 'groupUpdatedThreads').andReturn(
+      Promise.resolve(this.updatedThreadsByAccountId)
+    );
 
-    spyOn(AccountStore, 'accountsForItems').andReturn(this.accounts)
-    spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve())
-    spyOn(SnoozeUtils, 'moveThreads')
-    spyOn(Actions, 'closePopover')
-    spyOn(NylasEnv, 'reportError')
-    spyOn(NylasEnv, 'showErrorDialog')
-  })
+    spyOn(AccountStore, 'accountsForItems').andReturn(this.accounts);
+    spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
+    spyOn(SnoozeUtils, 'moveThreads');
+    spyOn(Actions, 'closePopover');
+    spyOn(NylasEnv, 'reportError');
+    spyOn(NylasEnv, 'showErrorDialog');
+  });
 
   describe('groupUpdatedThreads', () => {
     it('groups the threads correctly by account id, with their snooze and inbox categories', () => {
-      spyOn(CategoryStore, 'getInboxCategory').andCallFake(accId => this.inboxCatsByAccount[accId])
+      spyOn(CategoryStore, 'getInboxCategory').andCallFake(accId => this.inboxCatsByAccount[accId]);
 
       waitsForPromise(() => {
-        return this.store.groupUpdatedThreads(this.threads, this.snoozeCatsByAccount)
-        .then((result) => {
-          expect(result['123']).toEqual({
-            threads: [this.threads[0], this.threads[1]],
-            snoozeCategoryId: 'sn-1',
-            returnCategoryId: 'in-1',
-          })
-          expect(result['321']).toEqual({
-            threads: [this.threads[2]],
-            snoozeCategoryId: 'sn-2',
-            returnCategoryId: 'in-2',
-          })
-        })
-      })
+        return this.store
+          .groupUpdatedThreads(this.threads, this.snoozeCatsByAccount)
+          .then(result => {
+            expect(result['123']).toEqual({
+              threads: [this.threads[0], this.threads[1]],
+              snoozeCategoryId: 'sn-1',
+              returnCategoryId: 'in-1',
+            });
+            expect(result['321']).toEqual({
+              threads: [this.threads[2]],
+              snoozeCategoryId: 'sn-2',
+              returnCategoryId: 'in-2',
+            });
+          });
+      });
     });
   });
 
   describe('onSnoozeThreads', () => {
     it('auths plugin against all present accounts', () => {
       waitsForPromise(() => {
-        return this.store.onSnoozeThreads(this.threads, 'date', 'label')
-        .then(() => {
-          expect(NylasAPIHelpers.authPlugin).toHaveBeenCalled()
-          expect(NylasAPIHelpers.authPlugin.calls[0].args[2]).toEqual(this.accounts[0])
-          expect(NylasAPIHelpers.authPlugin.calls[1].args[2]).toEqual(this.accounts[1])
-        })
-      })
+        return this.store.onSnoozeThreads(this.threads, 'date', 'label').then(() => {
+          expect(NylasAPIHelpers.authPlugin).toHaveBeenCalled();
+          expect(NylasAPIHelpers.authPlugin.calls[0].args[2]).toEqual(this.accounts[0]);
+          expect(NylasAPIHelpers.authPlugin.calls[1].args[2]).toEqual(this.accounts[1]);
+        });
+      });
     });
 
     it('calls Actions.queueTask with the correct metadata', () => {
       waitsForPromise(() => {
-        return this.store.onSnoozeThreads(this.threads, 'date', 'label')
-        .then(() => {
-          expect(Actions.queueTask).toHaveBeenCalled()
+        return this.store.onSnoozeThreads(this.threads, 'date', 'label').then(() => {
+          expect(Actions.queueTask).toHaveBeenCalled();
           const task1 = Actions.queueTask.calls[0].args[0];
           expect(task1.pluginId).toEqual('plug-id');
           expect(task1.modelId).toEqual(this.updatedThreadsByAccountId['123'].threads[0].id);
@@ -109,24 +109,24 @@ xdescribe('SnoozeStore', function snoozeStore() {
             snoozeCategoryId: 'sn-2',
             returnCategoryId: 'in-2',
           });
-        })
-      })
+        });
+      });
     });
 
     it('displays dialog on error', () => {
-      jasmine.unspy(SnoozeUtils, 'moveThreads')
-      spyOn(SnoozeUtils, 'moveThreads').andReturn(Promise.reject(new Error('Oh no!')))
+      jasmine.unspy(SnoozeUtils, 'moveThreads');
+      spyOn(SnoozeUtils, 'moveThreads').andReturn(Promise.reject(new Error('Oh no!')));
 
       waitsForPromise(async () => {
         try {
-          await this.store.onSnoozeThreads(this.threads, 'date', 'label')
+          await this.store.onSnoozeThreads(this.threads, 'date', 'label');
         } catch (err) {
           //
         }
-        expect(SnoozeUtils.moveThreads).toHaveBeenCalled()
-        expect(NylasEnv.reportError).toHaveBeenCalled()
-        expect(NylasEnv.showErrorDialog).toHaveBeenCalled()
+        expect(SnoozeUtils.moveThreads).toHaveBeenCalled();
+        expect(NylasEnv.reportError).toHaveBeenCalled();
+        expect(NylasEnv.showErrorDialog).toHaveBeenCalled();
       });
     });
   });
-})
+});

@@ -1,13 +1,13 @@
-import _ from 'underscore'
-import moment from 'moment'
+import _ from 'underscore';
+import moment from 'moment';
 
-import File from './file'
-import Utils from './utils'
-import Event from './event'
-import Contact from './contact'
-import Folder from './folder'
-import Attributes from '../attributes'
-import ModelWithMetadata from './model-with-metadata'
+import File from './file';
+import Utils from './utils';
+import Event from './event';
+import Contact from './contact';
+import Folder from './folder';
+import Attributes from '../attributes';
+import ModelWithMetadata from './model-with-metadata';
 
 /*
 Public: The Message model represents an email message or draft.
@@ -63,7 +63,6 @@ This class also inherits attributes from {Model}
 Section: Models
 */
 export default class Message extends ModelWithMetadata {
-
   static attributes = Object.assign({}, ModelWithMetadata.attributes, {
     to: Attributes.Collection({
       modelKey: 'to',
@@ -165,179 +164,180 @@ export default class Message extends ModelWithMetadata {
       modelKey: 'folder',
       itemClass: Folder,
     }),
-
   });
 
   static naturalSortOrder() {
-    return Message.attributes.date.ascending()
+    return Message.attributes.date.ascending();
   }
 
   constructor(data) {
     super(data);
-    this.subject = this.subject || ""
-    this.to = this.to || []
-    this.cc = this.cc || []
-    this.bcc = this.bcc || []
-    this.from = this.from || []
-    this.replyTo = this.replyTo || []
-    this.files = this.files || []
-    this.events = this.events || []
+    this.subject = this.subject || '';
+    this.to = this.to || [];
+    this.cc = this.cc || [];
+    this.bcc = this.bcc || [];
+    this.from = this.from || [];
+    this.replyTo = this.replyTo || [];
+    this.files = this.files || [];
+    this.events = this.events || [];
   }
 
   toJSON(options) {
-    const json = super.toJSON(options)
-    json.file_ids = this.fileIds()
+    const json = super.toJSON(options);
+    json.file_ids = this.fileIds();
     if (this.draft) {
-      json.object = 'draft'
+      json.object = 'draft';
     }
 
     if (this.events && this.events.length) {
-      json.event_id = this.events[0].id
+      json.event_id = this.events[0].id;
     }
 
-    return json
+    return json;
   }
 
   fromJSON(json = {}) {
-    super.fromJSON(json)
+    super.fromJSON(json);
 
     // Only change the `draft` bit if the incoming json has an `object`
     // property. Because of `DraftChangeSet`, it's common for incoming json
     // to be an empty hash. In this case we want to leave the pre-existing
     // draft bit alone.
     if (json.object) {
-      this.draft = (json.object === 'draft')
+      this.draft = json.object === 'draft';
     }
 
-    return this
+    return this;
   }
 
   canReplyAll() {
-    const {to, cc} = this.participantsForReplyAll()
-    return to.length > 1 || cc.length > 0
+    const { to, cc } = this.participantsForReplyAll();
+    return to.length > 1 || cc.length > 0;
   }
 
   // Public: Returns a set of uniqued message participants by combining the
   // `to`, `cc`, `bcc` && (optionally) `from` fields.
-  participants({includeFrom = true, includeBcc = false} = {}) {
-    const seen = {}
-    const all = []
-    let contacts = [].concat(this.to, this.cc)
+  participants({ includeFrom = true, includeBcc = false } = {}) {
+    const seen = {};
+    const all = [];
+    let contacts = [].concat(this.to, this.cc);
     if (includeFrom) {
-      contacts = _.union(contacts, (this.from || []))
+      contacts = _.union(contacts, this.from || []);
     }
     if (includeBcc) {
-      contacts = _.union(contacts, (this.bcc || []))
+      contacts = _.union(contacts, this.bcc || []);
     }
     for (const contact of contacts) {
       if (!contact.email) {
-        continue
+        continue;
       }
-      const key = contact.toString().trim().toLowerCase()
+      const key = contact
+        .toString()
+        .trim()
+        .toLowerCase();
       if (seen[key]) {
         continue;
       }
-      seen[key] = true
-      all.push(contact)
+      seen[key] = true;
+      all.push(contact);
     }
-    return all
+    return all;
   }
 
   // Public: Returns a hash with `to` && `cc` keys for authoring a new draft in
   // "reply all" to this message. This method takes into account whether the
   // message === from the current user, && also looks at the replyTo field.
   participantsForReplyAll() {
-    const excludedFroms = this.from.map((c) =>
-      Utils.toEquivalentEmailForm(c.email)
-    );
+    const excludedFroms = this.from.map(c => Utils.toEquivalentEmailForm(c.email));
 
-    const excludeMeAndFroms = (cc) =>
-      _.reject(cc, (p) =>
-        p.isMe() || _.contains(excludedFroms, Utils.toEquivalentEmailForm(p.email))
+    const excludeMeAndFroms = cc =>
+      _.reject(
+        cc,
+        p => p.isMe() || _.contains(excludedFroms, Utils.toEquivalentEmailForm(p.email))
       );
 
-    let to = null
-    let cc = null
+    let to = null;
+    let cc = null;
 
     if (this.replyTo.length) {
-      to = this.replyTo
-      cc = excludeMeAndFroms([].concat(this.to, this.cc))
+      to = this.replyTo;
+      cc = excludeMeAndFroms([].concat(this.to, this.cc));
     } else if (this.isFromMe()) {
-      to = this.to
-      cc = excludeMeAndFroms(this.cc)
+      to = this.to;
+      cc = excludeMeAndFroms(this.cc);
     } else {
-      to = this.from
-      cc = excludeMeAndFroms([].concat(this.to, this.cc))
+      to = this.from;
+      cc = excludeMeAndFroms([].concat(this.to, this.cc));
     }
 
-    to = _.uniq(to, (p) => Utils.toEquivalentEmailForm(p.email))
-    cc = _.uniq(cc, (p) => Utils.toEquivalentEmailForm(p.email))
-    return {to, cc}
+    to = _.uniq(to, p => Utils.toEquivalentEmailForm(p.email));
+    cc = _.uniq(cc, p => Utils.toEquivalentEmailForm(p.email));
+    return { to, cc };
   }
 
   // Public: Returns a hash with `to` && `cc` keys for authoring a new draft in
   // "reply" to this message. This method takes into account whether the
   // message === from the current user, && also looks at the replyTo field.
   participantsForReply() {
-    let to = []
-    const cc = []
+    let to = [];
+    const cc = [];
 
     if (this.replyTo.length) {
       to = this.replyTo;
     } else if (this.isFromMe()) {
-      to = this.to
+      to = this.to;
     } else {
-      to = this.from
+      to = this.from;
     }
 
-    to = _.uniq(to, (p) => Utils.toEquivalentEmailForm(p.email))
-    return {to, cc}
+    to = _.uniq(to, p => Utils.toEquivalentEmailForm(p.email));
+    return { to, cc };
   }
 
   // Public: Returns an {Array} of {File} IDs
   fileIds() {
-    return this.files.map((file) => file.id)
+    return this.files.map(file => file.id);
   }
 
   // Public: Returns true if this message === from the current user's email
   // address. In the future, this method will take into account all of the
   // user's email addresses && accounts.
   isFromMe() {
-    return this.from[0] ? this.from[0].isMe() : false
+    return this.from[0] ? this.from[0].isMe() : false;
   }
 
   fromContact() {
-    return ((this.from || [])[0] || new Contact({name: 'Unknown', email: 'Unknown'}))
+    return (this.from || [])[0] || new Contact({ name: 'Unknown', email: 'Unknown' });
   }
 
   // Public: Returns the standard attribution line for this message,
   // localized for the current user.
   // ie "On Dec. 12th, 2015 at 4:00PM, Ben Gotow wrote:"
   replyAttributionLine() {
-    return `On ${this.formattedDate()}, ${this.fromContact().toString()} wrote:`
+    return `On ${this.formattedDate()}, ${this.fromContact().toString()} wrote:`;
   }
 
   formattedDate() {
-    return moment(this.date).format("MMM D YYYY, [at] h:mm a")
+    return moment(this.date).format('MMM D YYYY, [at] h:mm a');
   }
 
   hasEmptyBody() {
-    if (!this.body) { return true }
+    if (!this.body) {
+      return true;
+    }
 
     // https://regex101.com/r/hR7zN3/1
-    const re = /(?:<signature>.*<\/signature>)|(?:<.+?>)|\s/gmi;
-    return this.body.replace(re, "").length === 0;
+    const re = /(?:<signature>.*<\/signature>)|(?:<.+?>)|\s/gim;
+    return this.body.replace(re, '').length === 0;
   }
 
   isHidden() {
-    const isReminder = (
-      this.to.length === 1 && this.from.length === 1 &&
+    const isReminder =
+      this.to.length === 1 &&
+      this.from.length === 1 &&
       this.to[0].email === this.from[0].email &&
-      (this.snippet || "").startsWith('Mailspring Reminder:')
-    )
-    const isDraftBeingDeleted = (
-      this.id.startsWith('deleted-')
-    );
+      (this.snippet || '').startsWith('Mailspring Reminder:');
+    const isDraftBeingDeleted = this.id.startsWith('deleted-');
 
     return isReminder || isDraftBeingDeleted;
   }

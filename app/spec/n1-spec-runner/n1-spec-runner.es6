@@ -2,28 +2,28 @@
 import _ from 'underscore';
 
 import ReactTestUtils from 'react-dom/test-utils';
-import Config from '../../src/config'
-import N1SpecLoader from './n1-spec-loader'
-import TimeReporter from './time-reporter'
+import Config from '../../src/config';
+import N1SpecLoader from './n1-spec-loader';
+import TimeReporter from './time-reporter';
 import N1GuiReporter from './n1-gui-reporter';
 import jasmineExports from './jasmine';
-import ConsoleReporter from './console-reporter'
-import MasterAfterEach from './master-after-each'
-import MasterBeforeEach from './master-before-each'
-import nylasTestConstants from './nylas-test-constants'
-import * as jasmineExtensions from './jasmine-extensions'
-import * as reactTestUtilsExtensions from './react-test-utils-extensions'
+import ConsoleReporter from './console-reporter';
+import MasterAfterEach from './master-after-each';
+import MasterBeforeEach from './master-before-each';
+import nylasTestConstants from './nylas-test-constants';
+import * as jasmineExtensions from './jasmine-extensions';
+import * as reactTestUtilsExtensions from './react-test-utils-extensions';
 
 class N1SpecRunner {
   runSpecs(loadSettings) {
-    this.loadSettings = loadSettings
+    this.loadSettings = loadSettings;
     this._extendGlobalWindow();
     this._setupJasmine();
     this._setupNylasEnv();
     this._setupWindow();
-    Object.assign(ReactTestUtils, reactTestUtilsExtensions)
-    MasterBeforeEach.setup(this.loadSettings, window.beforeEach)
-    MasterAfterEach.setup(this.loadSettings, window.afterEach)
+    Object.assign(ReactTestUtils, reactTestUtilsExtensions);
+    MasterBeforeEach.setup(this.loadSettings, window.beforeEach);
+    MasterAfterEach.setup(this.loadSettings, window.afterEach);
     N1SpecLoader.loadSpecs(this.loadSettings, this.jasmineEnv);
     this.jasmineEnv.execute();
   }
@@ -33,62 +33,65 @@ class N1SpecRunner {
    * without importing jasmine.
    */
   _extendGlobalWindow() {
-    Object.assign(window, {
-      jasmine: jasmineExports.jasmine,
+    Object.assign(
+      window,
+      {
+        jasmine: jasmineExports.jasmine,
 
-      it: this._makeItAsync(jasmineExports.it),
-      // it: jasmineExports.it,
-      fit: this._makeItAsync(jasmineExports.fit),
-      xit: jasmineExports.xit,
-      runs: jasmineExports.runs,
-      waits: jasmineExports.waits,
-      spyOn: jasmineExports.spyOn,
-      expect: jasmineExports.expect,
-      waitsFor: jasmineExports.waitsFor,
-      describe: jasmineExports.describe,
-      xdescribe: jasmineExports.xdescribe,
-      afterEach: this._makeSurroundAsync(jasmineExports.afterEach),
-      beforeEach: this._makeSurroundAsync(jasmineExports.beforeEach),
-      testNowMoment: jasmineExtensions.testNowMoment,
-      waitsForPromise: jasmineExtensions.waitsForPromise,
-    }, nylasTestConstants)
+        it: this._makeItAsync(jasmineExports.it),
+        // it: jasmineExports.it,
+        fit: this._makeItAsync(jasmineExports.fit),
+        xit: jasmineExports.xit,
+        runs: jasmineExports.runs,
+        waits: jasmineExports.waits,
+        spyOn: jasmineExports.spyOn,
+        expect: jasmineExports.expect,
+        waitsFor: jasmineExports.waitsFor,
+        describe: jasmineExports.describe,
+        xdescribe: jasmineExports.xdescribe,
+        afterEach: this._makeSurroundAsync(jasmineExports.afterEach),
+        beforeEach: this._makeSurroundAsync(jasmineExports.beforeEach),
+        testNowMoment: jasmineExtensions.testNowMoment,
+        waitsForPromise: jasmineExtensions.waitsForPromise,
+      },
+      nylasTestConstants
+    );
 
     this.jasmineEnv = jasmineExports.jasmine.getEnv();
   }
 
-
   _runAsync(userFn) {
-    if (!userFn) return true
+    if (!userFn) return true;
     const resp = userFn.apply(this);
     if (resp && resp.then) {
       return jasmineExtensions.waitsForPromise(() => {
-        return resp
-      })
+        return resp;
+      });
     }
-    return resp
+    return resp;
   }
 
   _makeItAsync(jasmineIt) {
     const self = this;
     return (desc, userFn) => {
       return jasmineIt(desc, function asyncIt() {
-        self._runAsync.call(this, userFn)
-      })
-    }
+        self._runAsync.call(this, userFn);
+      });
+    };
   }
 
   _makeSurroundAsync(jasmineBeforeAfter) {
     const self = this;
-    return (userFn) => {
+    return userFn => {
       return jasmineBeforeAfter(function asyncBeforeAfter() {
-        self._runAsync.call(this, userFn)
-      })
-    }
+        self._runAsync.call(this, userFn);
+      });
+    };
   }
 
   _setupJasmine() {
-    this._addReporters()
-    this._initializeDOM()
+    this._addReporters();
+    this._initializeDOM();
     this._extendJasmineMethods();
 
     // On load, this will require "jasmine-focused" which looks up the
@@ -103,7 +106,7 @@ class N1SpecRunner {
   _setupNylasEnv() {
     // We need to mock the config even before `beforeEach` runs because it
     // gets accessed on module definitions
-    const fakePersistedConfig = {env: 'production'};
+    const fakePersistedConfig = { env: 'production' };
     NylasEnv.config = new Config();
     NylasEnv.config.settings = fakePersistedConfig;
 
@@ -149,7 +152,7 @@ class N1SpecRunner {
       // NOTE: this reporter MUST be added last as it exits the test process
       // when complete, which may result in e.g. your XML output not getting
       // written to disk if that reporter is added afterward.
-      const N1TerminalReporter = require('./terminal-reporter').default
+      const N1TerminalReporter = require('./terminal-reporter').default;
 
       const terminalReporter = new N1TerminalReporter();
       this.jasmineEnv.addReporter(terminalReporter);
@@ -170,8 +173,8 @@ class N1SpecRunner {
     // Use underscore's definition of equality for toEqual assertions
     jasmine.getEnv().addEqualityTester(_.isEqual);
 
-    jasmine.unspy = jasmineExtensions.unspy
-    jasmine.attachToDOM = jasmineExtensions.attachToDOM
+    jasmine.unspy = jasmineExtensions.unspy;
+    jasmine.attachToDOM = jasmineExtensions.attachToDOM;
 
     const origEmitObject = jasmine.StringPrettyPrinter.prototype.emitObject;
     jasmine.StringPrettyPrinter.prototype.emitObject = function emitObject(obj) {
@@ -182,4 +185,4 @@ class N1SpecRunner {
     };
   }
 }
-export default new N1SpecRunner()
+export default new N1SpecRunner();

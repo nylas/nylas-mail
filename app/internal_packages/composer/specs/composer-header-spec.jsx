@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
 
-import {Contact, Message} from 'nylas-exports';
+import { Contact, Message } from 'nylas-exports';
 import ComposerHeader from '../lib/composer-header';
 import Fields from '../lib/fields';
 
@@ -10,24 +10,20 @@ const DRAFT_HEADER_MSG_ID = 'DRAFT_HEADER_MSG_ID';
 
 describe('ComposerHeader', function composerHeader() {
   beforeEach(() => {
-    this.createWithDraft = (draft) => {
+    this.createWithDraft = draft => {
       const session = {
         changes: {
           add: jasmine.createSpy('changes.add'),
         },
       };
       this.component = ReactTestUtils.renderIntoDocument(
-        <ComposerHeader
-          draft={draft}
-          initiallyFocused={false}
-          session={session}
-        />
-      )
+        <ComposerHeader draft={draft} initiallyFocused={false} session={session} />
+      );
     };
-    advanceClock()
+    advanceClock();
   });
 
-  describe("showAndFocusField", () => {
+  describe('showAndFocusField', () => {
     beforeEach(() => {
       const draft = new Message({
         draft: true,
@@ -37,13 +33,22 @@ describe('ComposerHeader', function composerHeader() {
       this.createWithDraft(draft);
     });
 
-    it("should ensure the field is in enabledFields", () => {
-      expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField', 'textFieldSubject'])
+    it('should ensure the field is in enabledFields', () => {
+      expect(this.component.state.enabledFields).toEqual([
+        'textFieldTo',
+        'fromField',
+        'textFieldSubject',
+      ]);
       this.component.showAndFocusField(Fields.Bcc);
-      expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField', 'textFieldSubject', 'textFieldBcc'])
+      expect(this.component.state.enabledFields).toEqual([
+        'textFieldTo',
+        'fromField',
+        'textFieldSubject',
+        'textFieldBcc',
+      ]);
     });
 
-    it("should ensure participantsFocused is true if necessary", () => {
+    it('should ensure participantsFocused is true if necessary', () => {
       expect(this.component.state.participantsFocused).toEqual(false);
       this.component.showAndFocusField(Fields.Subject);
       expect(this.component.state.participantsFocused).toEqual(false);
@@ -51,7 +56,7 @@ describe('ComposerHeader', function composerHeader() {
       expect(this.component.state.participantsFocused).toEqual(true);
     });
 
-    it("should wait for the field to become available and then focus it", () => {
+    it('should wait for the field to become available and then focus it', () => {
       const $el = ReactDOM.findDOMNode(this.component);
       expect($el.querySelector('.bcc-field')).toBe(null);
       this.component.showAndFocusField(Fields.Bcc);
@@ -60,13 +65,17 @@ describe('ComposerHeader', function composerHeader() {
     });
   });
 
-  describe("hideField", () => {
+  describe('hideField', () => {
     beforeEach(() => {
-      const draft = new Message({draft: true, accountId: TEST_ACCOUNT_ID, headerMessageId: DRAFT_HEADER_MSG_ID});
+      const draft = new Message({
+        draft: true,
+        accountId: TEST_ACCOUNT_ID,
+        headerMessageId: DRAFT_HEADER_MSG_ID,
+      });
       this.createWithDraft(draft);
     });
 
-    it("should remove the field from enabledFields", () => {
+    it('should remove the field from enabledFields', () => {
       const $el = ReactDOM.findDOMNode(this.component);
 
       this.component.showAndFocusField(Fields.Bcc);
@@ -78,42 +87,80 @@ describe('ComposerHeader', function composerHeader() {
     });
   });
 
-  describe("initial state", () => {
-    it("should enable any fields that are populated", () => {
+  describe('initial state', () => {
+    it('should enable any fields that are populated', () => {
       let draft = null;
-
-      draft = new Message({draft: true, accountId: TEST_ACCOUNT_ID, headerMessageId: DRAFT_HEADER_MSG_ID});
-      this.createWithDraft(draft);
-      expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField', 'textFieldSubject'])
 
       draft = new Message({
         draft: true,
-        cc: [new Contact({id: 'a', email: 'a'})],
-        bcc: [new Contact({id: 'b', email: 'b'})],
+        accountId: TEST_ACCOUNT_ID,
+        headerMessageId: DRAFT_HEADER_MSG_ID,
+      });
+      this.createWithDraft(draft);
+      expect(this.component.state.enabledFields).toEqual([
+        'textFieldTo',
+        'fromField',
+        'textFieldSubject',
+      ]);
+
+      draft = new Message({
+        draft: true,
+        cc: [new Contact({ id: 'a', email: 'a' })],
+        bcc: [new Contact({ id: 'b', email: 'b' })],
         headerMessageId: DRAFT_HEADER_MSG_ID,
         accountId: TEST_ACCOUNT_ID,
       });
       this.createWithDraft(draft);
-      expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'textFieldCc', 'textFieldBcc', 'fromField', 'textFieldSubject'])
+      expect(this.component.state.enabledFields).toEqual([
+        'textFieldTo',
+        'textFieldCc',
+        'textFieldBcc',
+        'fromField',
+        'textFieldSubject',
+      ]);
     });
 
-    describe("subject", () => {
-      it("should be enabled if it is empty", () => {
-        const draft = new Message({draft: true, subject: '', accountId: TEST_ACCOUNT_ID, headerMessageId: DRAFT_HEADER_MSG_ID});
+    describe('subject', () => {
+      it('should be enabled if it is empty', () => {
+        const draft = new Message({
+          draft: true,
+          subject: '',
+          accountId: TEST_ACCOUNT_ID,
+          headerMessageId: DRAFT_HEADER_MSG_ID,
+        });
         this.createWithDraft(draft);
-        expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField', 'textFieldSubject'])
+        expect(this.component.state.enabledFields).toEqual([
+          'textFieldTo',
+          'fromField',
+          'textFieldSubject',
+        ]);
       });
 
-      it("should be enabled if the message is a forward", () => {
-        const draft = new Message({draft: true, subject: 'Fwd: 1234', accountId: TEST_ACCOUNT_ID, headerMessageId: DRAFT_HEADER_MSG_ID});
+      it('should be enabled if the message is a forward', () => {
+        const draft = new Message({
+          draft: true,
+          subject: 'Fwd: 1234',
+          accountId: TEST_ACCOUNT_ID,
+          headerMessageId: DRAFT_HEADER_MSG_ID,
+        });
         this.createWithDraft(draft);
-        expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField', 'textFieldSubject'])
+        expect(this.component.state.enabledFields).toEqual([
+          'textFieldTo',
+          'fromField',
+          'textFieldSubject',
+        ]);
       });
 
-      it("should be hidden if the message is a reply", () => {
-        const draft = new Message({draft: true, subject: 'Re: 1234', replyToHeaderMessageId: '123', accountId: TEST_ACCOUNT_ID, headerMessageId: DRAFT_HEADER_MSG_ID});
+      it('should be hidden if the message is a reply', () => {
+        const draft = new Message({
+          draft: true,
+          subject: 'Re: 1234',
+          replyToHeaderMessageId: '123',
+          accountId: TEST_ACCOUNT_ID,
+          headerMessageId: DRAFT_HEADER_MSG_ID,
+        });
         this.createWithDraft(draft);
-        expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField'])
+        expect(this.component.state.enabledFields).toEqual(['textFieldTo', 'fromField']);
       });
     });
   });

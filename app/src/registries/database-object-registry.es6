@@ -1,6 +1,6 @@
-import SerializableRegistry from './serializable-registry'
+import SerializableRegistry from './serializable-registry';
 
-class DatabaseObjectRegistry extends SerializableRegistry { }
+class DatabaseObjectRegistry extends SerializableRegistry {}
 
-const registry = new DatabaseObjectRegistry()
-export default registry
+const registry = new DatabaseObjectRegistry();
+export default registry;

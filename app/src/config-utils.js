@@ -1,5 +1,5 @@
 (function() {
-  var isPlainObject, plus, splitKeyPath
+  var isPlainObject, plus, splitKeyPath;
 
   splitKeyPath = function(keyPath) {
     var char, i, keyPathArray, startIndex, _i, _len;
@@ -37,9 +37,9 @@
           return plus.deepClone(value);
         });
       } else if (_.isObject(object) && !_.isFunction(object)) {
-        return _.mapObject(object, (function(value) {
+        return _.mapObject(object, function(value) {
           return plus.deepClone(value);
-        }))
+        });
       } else {
         return object;
       }
@@ -85,13 +85,12 @@
         object = object[key];
       }
       if (value != null) {
-        return object[keys.shift()] = value;
+        return (object[keys.shift()] = value);
       } else {
         return delete object[keys.shift()];
       }
-    }
-  }
+    },
+  };
 
-  module.exports = plus
-
-}).call(this)
+  module.exports = plus;
+}.call(this));

@@ -1,8 +1,8 @@
 _ = require 'underscore'
 path = require 'path'
-React = require 'react'
 {RetinaImg} = require 'nylas-component-kit'
 {Actions,
+ React, PropTypes,
  DateUtils,
  Message,
  Event,
@@ -16,7 +16,7 @@ class EventHeader extends React.Component
   @displayName: 'EventHeader'
 
   @propTypes:
-    message: React.PropTypes.instanceOf(Message).isRequired
+    message: PropTypes.instanceOf(Message).isRequired
 
   constructor: (@props) ->
     @state =

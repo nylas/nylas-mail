@@ -1,9 +1,8 @@
 import _ from 'underscore';
-import {Listener, Publisher} from '../flux/modules/reflux-coffee';
-import {includeModule} from '../flux/coffee-helpers';
+import { Listener, Publisher } from '../flux/modules/reflux-coffee';
+import { includeModule } from '../flux/coffee-helpers';
 
 export class Registry {
-
   static include = includeModule;
 
   constructor(name) {
@@ -11,14 +10,16 @@ export class Registry {
     this.clear();
   }
 
-  register(extension, {priority = 0} = {}) {
+  register(extension, { priority = 0 } = {}) {
     this.validateExtension(extension, 'register');
 
     if (this._registry.find(entry => entry.name === extension.name)) {
-      throw new Error(`ExtensionRegistry.${this.name}.register requires each extension to have a unique name.`);
+      throw new Error(
+        `ExtensionRegistry.${this.name}.register requires each extension to have a unique name.`
+      );
     }
 
-    this._registry.push({name: extension.name, extension, priority});
+    this._registry.push({ name: extension.name, extension, priority });
     this._registry.sort((a, b) => a.priority < b.priority);
     this.triggerDebounced();
     return this;
@@ -42,10 +43,17 @@ export class Registry {
 
   validateExtension(extension, method) {
     if (!extension || Array.isArray(extension) || !_.isObject(extension)) {
-      throw new Error(`ExtensionRegistry.${this.name}.${method} requires a valid extension object that implements one of the functions defined by ${this.name}Extension`);
+      throw new Error(
+        `ExtensionRegistry.${this
+          .name}.${method} requires a valid extension object that implements one of the functions defined by ${this
+          .name}Extension`
+      );
     }
     if (!extension.name) {
-      throw new Error(`ExtensionRegistry.${this.name}.${method} requires a \`name\` property defined on the extension object`);
+      throw new Error(
+        `ExtensionRegistry.${this
+          .name}.${method} requires a \`name\` property defined on the extension object`
+      );
     }
   }
 }

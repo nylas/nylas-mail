@@ -1,5 +1,5 @@
 /* eslint quote-props: 0 */
-import {SignatureStore} from 'nylas-exports'
+import { SignatureStore } from 'nylas-exports';
 
 let SIGNATURES = {
   '1': {
@@ -12,35 +12,36 @@ let SIGNATURES = {
     title: 'two',
     body: 'Here is my second sig!',
   },
-}
+};
 
 const DEFAULTS = {
   'one@nylas.com': '2',
   'two@nylas.com': '2',
   'three@nylas.com': null,
-}
+};
 
 describe('SignatureStore', function signatureStore() {
   beforeEach(() => {
-    spyOn(NylasEnv.config, 'get').andCallFake((key) => (key === 'nylas.signatures' ? SIGNATURES : null))
+    spyOn(NylasEnv.config, 'get').andCallFake(
+      key => (key === 'nylas.signatures' ? SIGNATURES : null)
+    );
 
     spyOn(SignatureStore, '_saveSignatures').andCallFake(() => {
-      NylasEnv.config.set(`nylas.signatures`, SignatureStore.signatures)
-    })
-    spyOn(SignatureStore, 'signatureForEmail').andCallFake((email) => SIGNATURES[DEFAULTS[email]])
-    spyOn(SignatureStore, 'selectedSignature').andCallFake(() => SIGNATURES['1'])
-    SignatureStore.activate()
-  })
-
+      NylasEnv.config.set(`nylas.signatures`, SignatureStore.signatures);
+    });
+    spyOn(SignatureStore, 'signatureForEmail').andCallFake(email => SIGNATURES[DEFAULTS[email]]);
+    spyOn(SignatureStore, 'selectedSignature').andCallFake(() => SIGNATURES['1']);
+    SignatureStore.activate();
+  });
 
   describe('signatureForAccountId', () => {
     it('should return the default signature for that account', () => {
-      const titleForAccount1 = SignatureStore.signatureForEmail('one@nylas.com').title
-      expect(titleForAccount1).toEqual(SIGNATURES['2'].title)
-      const account2Def = SignatureStore.signatureForEmail('three@nylas.com')
-      expect(account2Def).toEqual(undefined)
-    })
-  })
+      const titleForAccount1 = SignatureStore.signatureForEmail('one@nylas.com').title;
+      expect(titleForAccount1).toEqual(SIGNATURES['2'].title);
+      const account2Def = SignatureStore.signatureForEmail('three@nylas.com');
+      expect(account2Def).toEqual(undefined);
+    });
+  });
 
   describe('removeSignature', () => {
     beforeEach(() => {
@@ -48,17 +49,17 @@ describe('SignatureStore', function signatureStore() {
         if (key === 'nylas.signatures') {
           SIGNATURES = newObject;
         }
-      })
-    })
+      });
+    });
     it('should remove the signature from our list of signatures', () => {
-      const toRemove = SIGNATURES[SignatureStore.selectedSignatureId]
-      SignatureStore._onRemoveSignature(toRemove)
-      expect(SIGNATURES['1']).toEqual(undefined)
-    })
+      const toRemove = SIGNATURES[SignatureStore.selectedSignatureId];
+      SignatureStore._onRemoveSignature(toRemove);
+      expect(SIGNATURES['1']).toEqual(undefined);
+    });
     it('should reset selectedSignatureId to a different signature', () => {
-      const toRemove = SIGNATURES[SignatureStore.selectedSignatureId]
-      SignatureStore._onRemoveSignature(toRemove)
-      expect(SignatureStore.selectedSignatureId).toNotEqual('1')
-    })
-  })
-})
+      const toRemove = SIGNATURES[SignatureStore.selectedSignatureId];
+      SignatureStore._onRemoveSignature(toRemove);
+      expect(SignatureStore.selectedSignatureId).toNotEqual('1');
+    });
+  });
+});

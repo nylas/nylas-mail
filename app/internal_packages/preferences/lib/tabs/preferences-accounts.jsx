@@ -1,9 +1,8 @@
 import React from 'react';
-import {ipcRenderer} from 'electron';
-import {AccountStore, Actions} from 'nylas-exports';
+import { ipcRenderer } from 'electron';
+import { AccountStore, Actions } from 'nylas-exports';
 import PreferencesAccountList from './preferences-account-list';
 import PreferencesAccountDetails from './preferences-account-details';
-
 
 class PreferencesAccounts extends React.Component {
   static displayName = 'PreferencesAccounts';
@@ -14,7 +13,7 @@ class PreferencesAccounts extends React.Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = AccountStore.listen(this._onAccountsChanged)
+    this.unsubscribe = AccountStore.listen(this._onAccountsChanged);
   }
 
   componentWillUnmount() {
@@ -23,11 +22,11 @@ class PreferencesAccounts extends React.Component {
     }
   }
 
-  getStateFromStores({selected} = {}) {
-    const accounts = AccountStore.accounts()
+  getStateFromStores({ selected } = {}) {
+    const accounts = AccountStore.accounts();
     let selectedAccount;
     if (selected) {
-      selectedAccount = accounts.find(a => a.id === selected.id)
+      selectedAccount = accounts.find(a => a.id === selected.id);
     }
     // If selected was null or no longer exists in the AccountStore,
     // just use the first account.
@@ -42,20 +41,20 @@ class PreferencesAccounts extends React.Component {
 
   _onAccountsChanged = () => {
     this.setState(this.getStateFromStores(this.state));
-  }
+  };
 
   // Update account list actions
   _onAddAccount() {
-    ipcRenderer.send('command', 'application:add-account', {source: 'Preferences'});
+    ipcRenderer.send('command', 'application:add-account', { source: 'Preferences' });
   }
 
   _onReorderAccount(account, oldIdx, newIdx) {
     Actions.reorderAccount(account.id, newIdx);
   }
 
-  _onSelectAccount = (account) => {
-    this.setState({selected: account});
-  }
+  _onSelectAccount = account => {
+    this.setState({ selected: account });
+  };
 
   _onRemoveAccount(account) {
     Actions.removeAccount(account.id);
@@ -86,7 +85,6 @@ class PreferencesAccounts extends React.Component {
       </div>
     );
   }
-
 }
 
 export default PreferencesAccounts;

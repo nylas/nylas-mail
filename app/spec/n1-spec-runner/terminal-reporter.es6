@@ -1,5 +1,5 @@
 import { remote } from 'electron';
-import {TerminalReporter} from 'jasmine-tagged';
+import { TerminalReporter } from 'jasmine-tagged';
 
 export default class N1TerminalReporter extends TerminalReporter {
   constructor(opts = {}) {
@@ -15,6 +15,6 @@ export default class N1TerminalReporter extends TerminalReporter {
         return NylasEnv.exit(0);
       },
     });
-    super(options)
+    super(options);
   }
 }

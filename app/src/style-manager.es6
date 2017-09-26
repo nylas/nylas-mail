@@ -1,4 +1,4 @@
-import {Disposable} from 'event-kit';
+import { Disposable } from 'event-kit';
 
 export default class StyleManager {
   constructor() {
@@ -12,7 +12,7 @@ export default class StyleManager {
     return Array.from(this.el.children);
   }
 
-  addStyleSheet(source, {sourcePath, priority} = {}) {
+  addStyleSheet(source, { sourcePath, priority } = {}) {
     let styleElement = sourcePath ? this.styleElementsBySourcePath[sourcePath] : null;
 
     if (styleElement) {
@@ -32,13 +32,13 @@ export default class StyleManager {
       this.insertStyleElementIntoDOM(styleElement);
     }
 
-
     return new Disposable(() => this.removeStyleElement(styleElement));
   }
 
   insertStyleElementIntoDOM(styleElement) {
-    const {priority} = styleElement;
-    const beforeEl = (priority !== undefined) && this.getStyleElements().find(el => el.priority > priority);
+    const { priority } = styleElement;
+    const beforeEl =
+      priority !== undefined && this.getStyleElements().find(el => el.priority > priority);
     if (!beforeEl) {
       this.el.appendChild(styleElement);
     } else {
@@ -62,8 +62,8 @@ export default class StyleManager {
       this.removeStyleElement(el);
     }
     for (const el of styleElements) {
-      const {sourcePath, priority} = el;
-      this.addStyleSheet(el.textContent, {sourcePath, priority});
+      const { sourcePath, priority } = el;
+      this.addStyleSheet(el.textContent, { sourcePath, priority });
     }
   }
 }

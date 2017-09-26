@@ -1,5 +1,5 @@
 const categorizedEmojiList = {
-  'People': [
+  People: [
     'grinning',
     'grimacing',
     'grin',
@@ -205,7 +205,7 @@ const categorizedEmojiList = {
     'ring',
     'closed_umbrella',
   ],
-  'Nature': [
+  Nature: [
     'dog',
     'cat',
     'mouse',
@@ -422,7 +422,7 @@ const categorizedEmojiList = {
     'fork_and_knife',
     'knife_fork_plate',
   ],
-  'Activity': [
+  Activity: [
     'soccer',
     'basketball',
     'football',
@@ -598,7 +598,7 @@ const categorizedEmojiList = {
     'kaaba',
     'shinto_shrine',
   ],
-  'Objects': [
+  Objects: [
     'watch',
     'iphone',
     'calling',
@@ -777,7 +777,7 @@ const categorizedEmojiList = {
     'mag',
     'mag_right',
   ],
-  'Symbols': [
+  Symbols: [
     'heart',
     'yellow_heart',
     'green_heart',
@@ -1048,7 +1048,7 @@ const categorizedEmojiList = {
     'clock1130',
     'clock1230',
   ],
-  'Flags': [
+  Flags: [
     'flag-ac',
     'flag-ad',
     'flag-ae',
@@ -1307,5 +1307,5 @@ const categorizedEmojiList = {
     'flag-zm',
     'flag-zw',
   ],
-}
-export default categorizedEmojiList
+};
+export default categorizedEmojiList;

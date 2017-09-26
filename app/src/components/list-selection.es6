@@ -4,11 +4,10 @@ import Model from '../flux/models/model';
 import DatabaseStore from '../flux/stores/database-store';
 
 export default class ListSelection {
-
   constructor(_view, callback) {
     this._view = _view;
     if (!this._view) {
-      throw new Error("new ListSelection(): You must provide a view.");
+      throw new Error('new ListSelection(): You must provide a view.');
     }
     this._unlisten = DatabaseStore.listen(this._applyChangeRecord, this);
     this._caches = {};
@@ -51,7 +50,9 @@ export default class ListSelection {
   set(items) {
     this._items = [];
     for (const item of items) {
-      if (!(item instanceof Model)) { throw new Error("set must be called with Models"); }
+      if (!(item instanceof Model)) {
+        throw new Error('set must be called with Models');
+      }
       this._items.push(item);
     }
     this.trigger(this);
@@ -62,7 +63,7 @@ export default class ListSelection {
       return;
     }
     if (!(item instanceof Model)) {
-      throw new Error("toggle must be called with a Model");
+      throw new Error('toggle must be called with a Model');
     }
 
     const without = _.reject(this._items, t => t.id === item.id);
@@ -79,7 +80,7 @@ export default class ListSelection {
       return;
     }
     if (!(item instanceof Model)) {
-      throw new Error("add must be called with a Model");
+      throw new Error('add must be called with a Model');
     }
 
     const updated = this._items.filter(t => t.id !== item.id);
@@ -103,7 +104,7 @@ export default class ListSelection {
 
     for (const item of items) {
       if (!(item instanceof Model)) {
-        throw new Error("remove: Must be passed a model or array of models");
+        throw new Error('remove: Must be passed a model or array of models');
       }
     }
 
@@ -128,7 +129,7 @@ export default class ListSelection {
       return;
     }
     if (!(item instanceof Model)) {
-      throw new Error("expandTo must be called with a Model");
+      throw new Error('expandTo must be called with a Model');
     }
 
     if (this._items.length === 0) {
@@ -145,20 +146,20 @@ export default class ListSelection {
       if (startIdx === -1 || endIdx === -1) {
         return;
       }
-      const count = Math.abs(startIdx - endIdx) + 1
+      const count = Math.abs(startIdx - endIdx) + 1;
       const indexes = new Array(count)
         .fill(0)
-        .map((val, idx) => (startIdx > endIdx ? startIdx - idx : startIdx + idx))
-      indexes.forEach((idx) => {
+        .map((val, idx) => (startIdx > endIdx ? startIdx - idx : startIdx + idx));
+      indexes.forEach(idx => {
         const idxItem = this._view.get(idx);
         this._items = _.reject(this._items, t => t.id === idxItem.id);
         this._items.push(idxItem);
-      })
+      });
     }
     this.trigger();
   }
 
-  walk({current, next}) {
+  walk({ current, next }) {
     // When the user holds shift and uses the arrow keys to modify their selection,
     // we call that "walking". When walking you're usually selecting items. However,
     // if you're walking "back" through your selection in the same order you selected
@@ -168,11 +169,16 @@ export default class ListSelection {
 
     const ids = this.ids();
     const noSelection = this._items.length === 0;
-    const neitherSelected = (!current || ids.indexOf(current.id) === -1) && (!next || ids.indexOf(next.id) === -1);
+    const neitherSelected =
+      (!current || ids.indexOf(current.id) === -1) && (!next || ids.indexOf(next.id) === -1);
 
     if (noSelection || neitherSelected) {
-      if (current) { this._items.push(current); }
-      if (next) { this._items.push(next); }
+      if (current) {
+        this._items.push(current);
+      }
+      if (next) {
+        this._items.push(next);
+      }
     } else {
       let selectionPostPopHeadId = null;
       if (this._items.length > 1) {
@@ -194,8 +200,12 @@ export default class ListSelection {
   }
 
   _applyChangeRecord(change) {
-    if (this._items.length === 0) { return; }
-    if (change.objectClass !== this._items[0].constructor.name) { return; }
+    if (this._items.length === 0) {
+      return;
+    }
+    if (change.objectClass !== this._items[0].constructor.name) {
+      return;
+    }
 
     if (change.type === 'unpersist') {
       this.remove(change.objects);

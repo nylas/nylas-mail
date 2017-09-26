@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import NylasStore from 'nylas-store';
-import {MessageStore} from 'nylas-exports';
+import { MessageStore } from 'nylas-exports';
 
 class GithubStore extends NylasStore {
   // It's very common practive for {NylasStore}s to listen to other parts of N1.
@@ -28,8 +28,8 @@ class GithubStore extends NylasStore {
       return;
     }
 
-    const itemIds = _.pluck(MessageStore.items(), "id");
-    if ((itemIds.length === 0) || _.isEqual(itemIds, this._lastItemIds)) {
+    const itemIds = _.pluck(MessageStore.items(), 'id');
+    if (itemIds.length === 0 || _.isEqual(itemIds, this._lastItemIds)) {
       return;
     }
 
@@ -51,7 +51,7 @@ class GithubStore extends NylasStore {
     // Use a regex to parse the message body for GitHub URLs - this is a quick
     // and dirty method to determine the GitHub object the email is about:
     // https://regex101.com/r/aW8bI4/2
-    const re = /<a.*?href=['"](.*?)['"].*?view.*?it.*?on.*?github.*?\/a>/gmi;
+    const re = /<a.*?href=['"](.*?)['"].*?view.*?it.*?on.*?github.*?\/a>/gim;
     const firstMatch = re.exec(msg.body);
     if (firstMatch) {
       // [0] is the full match and [1] is the matching group

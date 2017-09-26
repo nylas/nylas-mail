@@ -10,11 +10,11 @@ import {
 } from 'nylas-exports';
 
 export function snoozedUntilMessage(snoozeDate, now = moment()) {
-  let message = 'Snoozed'
+  let message = 'Snoozed';
   if (snoozeDate) {
-    let dateFormat = DateUtils.DATE_FORMAT_SHORT
-    const date = moment(snoozeDate)
-    const hourDifference = moment.duration(date.diff(now)).asHours()
+    let dateFormat = DateUtils.DATE_FORMAT_SHORT;
+    const date = moment(snoozeDate);
+    const hourDifference = moment.duration(date.diff(now)).asHours();
 
     if (hourDifference < 24) {
       dateFormat = dateFormat.replace('MMM D, ', '');
@@ -28,14 +28,14 @@ export function snoozedUntilMessage(snoozeDate, now = moment()) {
   return message;
 }
 
-export function moveThreads(threads, {snooze, description} = {}) {
+export function moveThreads(threads, { snooze, description } = {}) {
   const tasks = TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
     const snoozeCat = CategoryStore.getCategoryByRole(accountId, 'snoozed');
     const inboxCat = CategoryStore.getInboxCategory(accountId);
 
     if (snoozeCat instanceof Label) {
       return new ChangeLabelsTask({
-        source: "Snooze Move",
+        source: 'Snooze Move',
         threads: accountThreads,
         taskDescription: description,
         labelsToAdd: snooze ? [snoozeCat] : [inboxCat],
@@ -43,7 +43,7 @@ export function moveThreads(threads, {snooze, description} = {}) {
       });
     }
     return new ChangeFolderTask({
-      source: "Snooze Move",
+      source: 'Snooze Move',
       threads: accountThreads,
       taskDescription: description,
       folder: snooze ? snoozeCat : inboxCat,

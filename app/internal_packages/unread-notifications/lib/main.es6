@@ -1,4 +1,4 @@
-import _ from 'underscore'
+import _ from 'underscore';
 import {
   Thread,
   Actions,
@@ -15,9 +15,7 @@ export class Notifier {
     this.hasScheduledNotify = false;
 
     this.activeNotifications = {};
-    this.unlisteners = [
-      DatabaseStore.listen(this._onDatabaseChanged, this),
-    ];
+    this.unlisteners = [DatabaseStore.listen(this._onDatabaseChanged, this)];
   }
 
   unlisten() {
@@ -27,12 +25,12 @@ export class Notifier {
   }
 
   // async for testing
-  async _onDatabaseChanged({objectClass, objects}) {
+  async _onDatabaseChanged({ objectClass, objects }) {
     if (objectClass === Thread.name) {
       // Ensure notifications are dismissed when the user reads a thread
-      objects.forEach(({id, unread}) => {
+      objects.forEach(({ id, unread }) => {
         if (!unread && this.activeNotifications[id]) {
-          this.activeNotifications[id].forEach((n) => n.close());
+          this.activeNotifications[id].forEach(n => n.close());
           delete this.activeNotifications[id];
         }
       });
@@ -42,7 +40,7 @@ export class Notifier {
       if (NylasEnv.config.get('core.notifications.enabled') === false) {
         return;
       }
-      const newUnread = objects.filter((msg) => {
+      const newUnread = objects.filter(msg => {
         // ensure the message is unread
         if (msg.unread !== true) return false;
         // ensure the message was just saved (eg: this is not a modification)
@@ -68,8 +66,8 @@ export class Notifier {
     this.unnotifiedQueue = [];
   }
 
-  _notifyOne({message, thread}) {
-    const from = (message.from[0]) ? message.from[0].displayName() : "Unknown";
+  _notifyOne({ message, thread }) {
+    const from = message.from[0] ? message.from[0].displayName() : 'Unknown';
     const title = from;
     let subtitle = null;
     let body = null;
@@ -77,8 +75,8 @@ export class Notifier {
       subtitle = message.subject;
       body = message.snippet;
     } else {
-      subtitle = message.snippet
-      body = null
+      subtitle = message.snippet;
+      body = null;
     }
 
     const notification = NativeNotifications.displayNotification({
@@ -87,19 +85,19 @@ export class Notifier {
       body: body,
       canReply: true,
       tag: 'unread-update',
-      onActivate: ({response, activationType}) => {
-        if ((activationType === 'replied') && response && typeof response === 'string') {
-          Actions.sendQuickReply({thread, message}, response);
+      onActivate: ({ response, activationType }) => {
+        if (activationType === 'replied' && response && typeof response === 'string') {
+          Actions.sendQuickReply({ thread, message }, response);
         } else {
-          NylasEnv.displayWindow()
+          NylasEnv.displayWindow();
         }
 
         if (!thread) {
-          NylasEnv.showErrorDialog(`Can't find that thread`)
-          return
+          NylasEnv.showErrorDialog(`Can't find that thread`);
+          return;
         }
         Actions.ensureCategoryIsFocused('inbox', thread.accountId);
-        Actions.setFocus({collection: 'thread', item: thread});
+        Actions.setFocus({ collection: 'thread', item: thread });
       },
     });
 
@@ -112,7 +110,7 @@ export class Notifier {
 
   _notifyMessages() {
     if (this.unnotifiedQueue.length >= 5) {
-      this._notifyAll()
+      this._notifyAll();
     } else if (this.unnotifiedQueue.length > 0) {
       this._notifyOne(this.unnotifiedQueue.shift());
     }
@@ -131,33 +129,38 @@ export class Notifier {
     // the local cache.
 
     const threadIds = {};
-    for (const {threadId} of newMessages) {
+    for (const { threadId } of newMessages) {
       threadIds[threadId] = true;
     }
 
     // TODO: Use xGMLabels + folder on message to identify which ones
     // are in the inbox to avoid needing threads here.
-    return DatabaseStore.findAll(Thread, Thread.attributes.id.in(Object.keys(threadIds))).then((threadsArray) => {
+    return DatabaseStore.findAll(
+      Thread,
+      Thread.attributes.id.in(Object.keys(threadIds))
+    ).then(threadsArray => {
       const threads = {};
       for (const t of threadsArray) {
         threads[t.id] = t;
       }
 
       // Filter new messages to just the ones in the inbox
-      const newMessagesInInbox = newMessages.filter(({threadId}) => {
+      const newMessagesInInbox = newMessages.filter(({ threadId }) => {
         return threads[threadId] && threads[threadId].categories.find(c => c.role === 'inbox');
-      })
+      });
 
       if (newMessagesInInbox.length === 0) {
         return;
       }
 
       for (const msg of newMessagesInInbox) {
-        this.unnotifiedQueue.push({message: msg, thread: threads[msg.threadId]});
+        this.unnotifiedQueue.push({ message: msg, thread: threads[msg.threadId] });
       }
       if (!this.hasScheduledNotify) {
-        if (NylasEnv.config.get("core.notifications.sounds")) {
-          this._playNewMailSound = this._playNewMailSound || _.debounce(() => SoundRegistry.playSound('new-mail'), 5000, true);
+        if (NylasEnv.config.get('core.notifications.sounds')) {
+          this._playNewMailSound =
+            this._playNewMailSound ||
+            _.debounce(() => SoundRegistry.playSound('new-mail'), 5000, true);
           this._playNewMailSound();
         }
         this._notifyMessages();
@@ -168,8 +171,8 @@ export class Notifier {
 
 export const config = {
   enabled: {
-    'type': 'boolean',
-    'default': true,
+    type: 'boolean',
+    default: true,
   },
 };
 

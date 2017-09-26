@@ -57,24 +57,23 @@ class ActionBridge {
     }
   }
 
-  registerGlobalActions({pluginName, actions}) {
+  registerGlobalActions({ pluginName, actions }) {
     return Object.entries(actions).forEach(([name, actionFn]) => {
-      this.globalActions.push({name, actionFn, scope: pluginName});
+      this.globalActions.push({ name, actionFn, scope: pluginName });
       const callback = (...args) => {
         const broadcastName = `${pluginName}::${name}`;
         return this.onRebroadcast(TargetWindows.ALL, broadcastName, args);
       };
       return actionFn.listen(callback, this);
-    }
-    );
+    });
   }
 
   _isExtensionAction(name) {
-    return name.split("::").length === 2;
+    return name.split('::').length === 2;
   }
 
   _globalExtensionAction(broadcastName) {
-    const [scope, name] = broadcastName.split("::");
+    const [scope, name] = broadcastName.split('::');
     const action = this.globalActions.find(a => a.scope === scope && a.name === name);
     return action ? action.actionFn : null;
   }
@@ -91,7 +90,10 @@ class ActionBridge {
     // I believe this resolves issues like https://sentry.nylas.com/sentry/edgehill/group/2735/,
     // which are React exceptions in a direct stack (no next ticks) from an IPC event.
     setTimeout(() => {
-      console.debug(printToConsole, `ActionBridge: ${this.initiatorId} Action Bridge Received: ${name}`);
+      console.debug(
+        printToConsole,
+        `ActionBridge: ${this.initiatorId} Action Bridge Received: ${name}`
+      );
 
       const args = JSON.parse(json, Utils.modelTypesReviver);
 
@@ -123,16 +125,21 @@ class ActionBridge {
     }
 
     const params = [];
-    args.forEach((arg) => {
+    args.forEach(arg => {
       if (arg instanceof Function) {
-        throw new Error("ActionBridge cannot forward action argument of type `function` to another window.");
+        throw new Error(
+          'ActionBridge cannot forward action argument of type `function` to another window.'
+        );
       }
       return params.push(arg);
     });
 
     const json = JSON.stringify(params, Utils.registeredObjectReplacer);
 
-    console.debug(printToConsole, `ActionBridge: ${this.initiatorId} Action Bridge Broadcasting: ${name}`);
+    console.debug(
+      printToConsole,
+      `ActionBridge: ${this.initiatorId} Action Bridge Broadcasting: ${name}`
+    );
     this.ipc.send(`action-bridge-rebroadcast-to-${target}`, this.initiatorId, name, json);
     this.ipcLastSendTime = Date.now();
   }

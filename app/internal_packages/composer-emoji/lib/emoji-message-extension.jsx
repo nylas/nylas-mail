@@ -1,5 +1,5 @@
 /* eslint no-cond-assign:0 */
-import {MessageViewExtension, RegExpUtils} from 'nylas-exports';
+import { MessageViewExtension, RegExpUtils } from 'nylas-exports';
 import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';
@@ -15,7 +15,7 @@ function makeIntoEmojiTag(nodeArg, emojiName) {
 }
 
 class EmojiMessageExtension extends MessageViewExtension {
-  static renderedMessageBodyIntoDocument({document}) {
+  static renderedMessageBodyIntoDocument({ document }) {
     const emojiRegex = RegExpUtils.emojiRegex();
 
     // Look for emoji in the content of text nodes
@@ -27,10 +27,10 @@ class EmojiMessageExtension extends MessageViewExtension {
       const node = treeWalker.currentNode;
       let match = null;
 
-      while (match = emojiRegex.exec(node.textContent)) {
+      while ((match = emojiRegex.exec(node.textContent))) {
         const matchEmojiName = emoji.which(match[0]);
         if (matchEmojiName) {
-          const matchNode = (match.index === 0) ? node : node.splitText(match.index);
+          const matchNode = match.index === 0 ? node : node.splitText(match.index);
           matchNode.splitText(match[0].length);
           const imageNode = document.createElement('img');
           makeIntoEmojiTag(imageNode, matchEmojiName);

@@ -1,16 +1,7 @@
-import {
-  Actions,
-  DestroyModelTask,
-  CalendarDataSource,
-} from 'nylas-exports';
-import {
-  NylasCalendar,
-  KeyCommandsRegion,
-  CalendarEventPopover,
-} from 'nylas-component-kit';
+import { Actions, DestroyModelTask, CalendarDataSource } from 'nylas-exports';
+import { NylasCalendar, KeyCommandsRegion, CalendarEventPopover } from 'nylas-component-kit';
 import React from 'react';
-import {remote} from 'electron';
-
+import { remote } from 'electron';
 
 export default class CalendarWrapper extends React.Component {
   static displayName = 'CalendarWrapper';
@@ -19,32 +10,32 @@ export default class CalendarWrapper extends React.Component {
   constructor(props) {
     super(props);
     this._dataSource = new CalendarDataSource();
-    this.state = {selectedEvents: []};
+    this.state = { selectedEvents: [] };
   }
 
   _openEventPopover(eventModel) {
     const eventEl = document.getElementById(eventModel.id);
-    if (!eventEl) { return; }
-    const eventRect = eventEl.getBoundingClientRect()
+    if (!eventEl) {
+      return;
+    }
+    const eventRect = eventEl.getBoundingClientRect();
 
-    Actions.openPopover(
-      <CalendarEventPopover event={eventModel} />
-    , {
+    Actions.openPopover(<CalendarEventPopover event={eventModel} />, {
       originRect: eventRect,
       direction: 'right',
       fallbackDirection: 'left',
-    })
+    });
   }
 
   _onEventClick = (e, event) => {
     let next = [].concat(this.state.selectedEvents);
 
     if (e.shiftKey || e.metaKey) {
-      const idx = next.findIndex(({id}) => event.id === id)
+      const idx = next.findIndex(({ id }) => event.id === id);
       if (idx === -1) {
-        next.push(event)
+        next.push(event);
       } else {
-        next.splice(idx, 1)
+        next.splice(idx, 1);
       }
     } else {
       next = [event];
@@ -53,15 +44,15 @@ export default class CalendarWrapper extends React.Component {
     this.setState({
       selectedEvents: next,
     });
-  }
+  };
 
-  _onEventDoubleClick = (eventModel) => {
-    this._openEventPopover(eventModel)
-  }
+  _onEventDoubleClick = eventModel => {
+    this._openEventPopover(eventModel);
+  };
 
-  _onEventFocused = (eventModel) => {
-    this._openEventPopover(eventModel)
-  }
+  _onEventFocused = eventModel => {
+    this._openEventPopover(eventModel);
+  };
 
   _onDeleteSelectedEvents = () => {
     if (this.state.selectedEvents.length === 0) {
@@ -73,18 +64,19 @@ export default class CalendarWrapper extends React.Component {
       message: 'Delete or decline these events?',
       detail: `Are you sure you want to delete or decline invitations for the selected event(s)?`,
     });
-    if (response === 0) { // response is button array index
+    if (response === 0) {
+      // response is button array index
       for (const event of this.state.selectedEvents) {
         const task = new DestroyModelTask({
           id: event.id,
           modelName: event.constructor.name,
           endpoint: '/events',
           accountId: event.accountId,
-        })
+        });
         Actions.queueTask(task);
       }
     }
-  }
+  };
 
   render() {
     return (
@@ -102,6 +94,6 @@ export default class CalendarWrapper extends React.Component {
           selectedEvents={this.state.selectedEvents}
         />
       </KeyCommandsRegion>
-    )
+    );
   }
 }

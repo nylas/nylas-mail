@@ -1,5 +1,5 @@
-import {remote} from 'electron'
-import keytar from 'keytar'
+import { remote } from 'electron';
+import keytar from 'keytar';
 
 /**
  * A basic wrap around keytar's secure key management. Consolidates all of
@@ -16,11 +16,11 @@ class KeyManager {
      * the names of these keys. If you change them be sure that old N1 is
      * fully deprecated or updated as well.
      */
-    this.SERVICE_NAME = "Mailspring";
+    this.SERVICE_NAME = 'Mailspring';
     if (NylasEnv.inDevMode()) {
-      this.SERVICE_NAME = "Mailspring Dev";
+      this.SERVICE_NAME = 'Mailspring Dev';
     }
-    this.KEY_NAME = "Mailspring Keys"
+    this.KEY_NAME = 'Mailspring Keys';
   }
 
   deleteAccountSecrets(account) {
@@ -62,7 +62,7 @@ class KeyManager {
       const keys = this._getKeyHash();
       keys[keyName] = newVal;
       return this._writeKeyHash(keys);
-    })
+    });
   }
 
   deletePassword(keyName) {
@@ -70,20 +70,20 @@ class KeyManager {
       const keys = this._getKeyHash();
       delete keys[keyName];
       return this._writeKeyHash(keys);
-    })
+    });
   }
 
   getPassword(keyName) {
     const keys = this._getKeyHash();
-    return keys[keyName]
+    return keys[keyName];
   }
 
   _getKeyHash() {
-    const raw = keytar.getPassword(this.SERVICE_NAME, this.KEY_NAME) || "{}";
+    const raw = keytar.getPassword(this.SERVICE_NAME, this.KEY_NAME) || '{}';
     try {
-      return JSON.parse(raw)
+      return JSON.parse(raw);
     } catch (err) {
-      return {}
+      return {};
     }
   }
 
@@ -93,15 +93,16 @@ class KeyManager {
   }
 
   _try(fn) {
-    const ERR_MSG = "We couldn't store your password securely! For more information, visit https://support.getmailspring.com/hc/en-us/articles/223790028";
+    const ERR_MSG =
+      "We couldn't store your password securely! For more information, visit https://support.getmailspring.com/hc/en-us/articles/223790028";
     try {
       if (!fn()) {
-        remote.dialog.showErrorBox("Password Management Error", ERR_MSG)
-        NylasEnv.reportError(new Error(`Password Management Error: ${ERR_MSG}`))
+        remote.dialog.showErrorBox('Password Management Error', ERR_MSG);
+        NylasEnv.reportError(new Error(`Password Management Error: ${ERR_MSG}`));
       }
     } catch (err) {
-      remote.dialog.showErrorBox("Password Management Error", ERR_MSG)
-      NylasEnv.reportError(err)
+      remote.dialog.showErrorBox('Password Management Error', ERR_MSG);
+      NylasEnv.reportError(err);
     }
   }
 }

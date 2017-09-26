@@ -12,10 +12,10 @@ class OutboxStore extends NylasStore {
   }
 
   _populate() {
-    const nextTasks = TaskQueue.queue().filter((task) =>
-      (task instanceof SendDraftTask) || (task instanceof SyncbackDraftTask)
+    const nextTasks = TaskQueue.queue().filter(
+      task => task instanceof SendDraftTask || task instanceof SyncbackDraftTask
     );
-    if ((this._tasks.length === 0) && (nextTasks.length === 0)) {
+    if (this._tasks.length === 0 && nextTasks.length === 0) {
       return;
     }
     this._tasks = nextTasks;
@@ -23,9 +23,9 @@ class OutboxStore extends NylasStore {
   }
 
   itemsForAccount(accountId) {
-    return this._tasks.filter((task) => task.draftAccountId === accountId);
+    return this._tasks.filter(task => task.draftAccountId === accountId);
   }
 }
 
-const store = new OutboxStore()
-export default store
+const store = new OutboxStore();
+export default store;

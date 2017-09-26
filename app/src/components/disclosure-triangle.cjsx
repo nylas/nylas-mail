@@ -1,12 +1,13 @@
 React = require 'react'
+PropTypes = require 'prop-types'
 
 class DisclosureTriangle extends React.Component
   @displayName: 'DisclosureTriangle'
 
   @propTypes:
-    collapsed: React.PropTypes.bool
-    visible: React.PropTypes.bool
-    onCollapseToggled: React.PropTypes.func
+    collapsed: PropTypes.bool
+    visible: PropTypes.bool
+    onCollapseToggled: PropTypes.func
 
   @defaultProps:
     onCollapseToggled: ->

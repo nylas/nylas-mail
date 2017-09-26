@@ -1,5 +1,5 @@
-import {React, MailRulesStore, Actions} from 'nylas-exports';
-import {Notification} from 'nylas-component-kit';
+import { React, MailRulesStore, Actions } from 'nylas-exports';
+import { Notification } from 'nylas-component-kit';
 
 export default class DisabledMailRulesNotification extends React.Component {
   static displayName = 'DisabledMailRulesNotification';
@@ -20,17 +20,19 @@ export default class DisabledMailRulesNotification extends React.Component {
   getStateFromStores() {
     return {
       disabledRules: MailRulesStore.disabledRules(),
-    }
+    };
   }
 
   _onOpenMailRulesPreferences = () => {
-    Actions.switchPreferencesTab('Mail Rules', {accountId: this.state.disabledRules[0].accountId})
-    Actions.openPreferences()
-  }
+    Actions.switchPreferencesTab('Mail Rules', {
+      accountId: this.state.disabledRules[0].accountId,
+    });
+    Actions.openPreferences();
+  };
 
   render() {
     if (this.state.disabledRules.length === 0) {
-      return <span />
+      return <span />;
     }
     return (
       <Notification
@@ -38,11 +40,13 @@ export default class DisabledMailRulesNotification extends React.Component {
         title="One or more of your mail rules have been disabled."
         icon="volstead-defaultclient.png"
         isError
-        actions={[{
-          label: 'View Mail Rules',
-          fn: this._onOpenMailRulesPreferences,
-        }]}
+        actions={[
+          {
+            label: 'View Mail Rules',
+            fn: this._onOpenMailRulesPreferences,
+          },
+        ]}
       />
-    )
+    );
   }
 }

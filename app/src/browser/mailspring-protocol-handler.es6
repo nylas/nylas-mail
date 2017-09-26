@@ -1,4 +1,4 @@
-import {protocol} from 'electron';
+import { protocol } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
@@ -14,7 +14,7 @@ import path from 'path';
 //   * RESOURCE_PATH/node_modules
 //
 export default class MailspringProtocolHandler {
-  constructor({configDirPath, resourcePath, safeMode}) {
+  constructor({ configDirPath, resourcePath, safeMode }) {
     this.loadPaths = [];
 
     if (!safeMode) {
@@ -28,7 +28,7 @@ export default class MailspringProtocolHandler {
 
   // Creates the 'Mailspring' custom protocol handler.
   registerProtocol() {
-    const scheme = 'mailspring'
+    const scheme = 'mailspring';
     protocol.registerFileProtocol(scheme, (request, callback) => {
       const relativePath = path.normalize(request.url.substr(scheme.length + 1));
 

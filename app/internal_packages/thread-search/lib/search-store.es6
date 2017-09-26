@@ -22,10 +22,10 @@ class SearchStore extends NylasStore {
   constructor() {
     super();
 
-    this._searchQuery = FocusedPerspectiveStore.current().searchQuery || "";
+    this._searchQuery = FocusedPerspectiveStore.current().searchQuery || '';
     this._searchSuggestionsVersion = 1;
     this._isSearching = false;
-    this._extensionData = []
+    this._extensionData = [];
     this._clearResults();
 
     this.listenTo(FocusedPerspectiveStore, this._onPerspectiveChanged);
@@ -54,24 +54,24 @@ class SearchStore extends NylasStore {
   _onSearchCompleted = () => {
     this._isSearching = false;
     this.trigger();
-  }
+  };
 
   _onPerspectiveChanged = () => {
-    this._searchQuery = FocusedPerspectiveStore.current().searchQuery || "";
+    this._searchQuery = FocusedPerspectiveStore.current().searchQuery || '';
     this.trigger();
-  }
+  };
 
-  _onQueryChanged = (query) => {
+  _onQueryChanged = query => {
     this._searchQuery = query;
     if (this._searchQuery.length <= 1) {
-      this.trigger()
-      return
+      this.trigger();
+      return;
     }
     this._compileResults();
     setTimeout(() => this._rebuildResults(), 0);
-  }
+  };
 
-  _onQuerySubmitted = (query) => {
+  _onQuerySubmitted = query => {
     this._searchQuery = query;
     const current = FocusedPerspectiveStore.current();
 
@@ -92,11 +92,11 @@ class SearchStore extends NylasStore {
     }
 
     this._clearResults();
-  }
+  };
 
   _onSearchBlurred = () => {
     this._clearResults();
-  }
+  };
 
   _clearResults() {
     this._searchSuggestionsVersion = 1;
@@ -113,18 +113,20 @@ class SearchStore extends NylasStore {
     }
     this._searchSuggestionsVersion += 1;
     const searchExtensions = ComponentRegistry.findComponentsMatching({
-      role: "SearchBarResults",
-    })
+      role: 'SearchBarResults',
+    });
 
-    Promise.all(searchExtensions.map((ext) => {
-      return Promise.props({
-        label: ext.searchLabel(),
-        suggestions: ext.fetchSearchSuggestions(this._searchQuery),
+    Promise.all(
+      searchExtensions.map(ext => {
+        return Promise.props({
+          label: ext.searchLabel(),
+          suggestions: ext.fetchSearchSuggestions(this._searchQuery),
+        });
       })
-    })).then((extensionData = []) => {
+    ).then((extensionData = []) => {
       this._extensionData = extensionData;
       this._compileResults();
-    })
+    });
 
     this._fetchThreadResults();
     this._fetchContactResults();
@@ -132,7 +134,7 @@ class SearchStore extends NylasStore {
 
   _fetchContactResults() {
     const version = this._searchSuggestionsVersion;
-    ContactStore.searchContacts(this._searchQuery, {limit: 10}).then(contacts => {
+    ContactStore.searchContacts(this._searchQuery, { limit: 10 }).then(contacts => {
       if (version !== this._searchSuggestionsVersion) {
         return;
       }
@@ -142,13 +144,15 @@ class SearchStore extends NylasStore {
   }
 
   _fetchThreadResults() {
-    if (this._fetchingThreadResultsVersion) { return; }
+    if (this._fetchingThreadResultsVersion) {
+      return;
+    }
     this._fetchingThreadResultsVersion = this._searchSuggestionsVersion;
 
-    const {accountIds} = FocusedPerspectiveStore.current();
-    let dbQuery = DatabaseStore.findAll(Thread).distinct()
+    const { accountIds } = FocusedPerspectiveStore.current();
+    let dbQuery = DatabaseStore.findAll(Thread).distinct();
     if (Array.isArray(accountIds) && accountIds.length === 1) {
-      dbQuery = dbQuery.where({accountId: accountIds[0]})
+      dbQuery = dbQuery.where({ accountId: accountIds[0] });
     }
 
     try {
@@ -159,9 +163,7 @@ class SearchStore extends NylasStore {
       // console.info('Failed to parse local search query, falling back to generic query', e);
       dbQuery = dbQuery.search(this._searchQuery);
     }
-    dbQuery = dbQuery
-      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
-      .limit(10)
+    dbQuery = dbQuery.order(Thread.attributes.lastMessageReceivedTimestamp.descending()).limit(10);
 
     dbQuery.background().then(results => {
       // We've fetched the latest thread results - display them!
@@ -169,15 +171,14 @@ class SearchStore extends NylasStore {
         this._fetchingThreadResultsVersion = null;
         this._threadResults = results;
         this._compileResults();
-      // We're behind and need to re-run the search for the latest results
+        // We're behind and need to re-run the search for the latest results
       } else if (this._searchSuggestionsVersion > this._fetchingThreadResultsVersion) {
         this._fetchingThreadResultsVersion = null;
         this._fetchThreadResults();
       } else {
         this._fetchingThreadResultsVersion = null;
       }
-    }
-    );
+    });
   }
 
   _compileResults() {
@@ -189,14 +190,14 @@ class SearchStore extends NylasStore {
     });
 
     if (this._threadResults.length) {
-      this._suggestions.push({divider: 'Threads'});
+      this._suggestions.push({ divider: 'Threads' });
       for (const thread of this._threadResults) {
-        this._suggestions.push({thread});
+        this._suggestions.push({ thread });
       }
     }
 
     if (this._contactResults.length) {
-      this._suggestions.push({divider: 'People'});
+      this._suggestions.push({ divider: 'People' });
       for (const contact of this._contactResults) {
         this._suggestions.push({
           contact: contact,
@@ -206,9 +207,9 @@ class SearchStore extends NylasStore {
     }
 
     if (this._extensionData.length) {
-      for (const {label, suggestions} of this._extensionData) {
-        this._suggestions.push({divider: label});
-        this._suggestions = this._suggestions.concat(suggestions)
+      for (const { label, suggestions } of this._extensionData) {
+        this._suggestions.push({ divider: label });
+        this._suggestions = this._suggestions.concat(suggestions);
       }
     }
 

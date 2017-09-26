@@ -1,4 +1,4 @@
-import {AccountStore, FolderSyncProgressStore, React} from 'nylas-exports';
+import { AccountStore, FolderSyncProgressStore, React } from 'nylas-exports';
 
 export default class InitialSyncActivity extends React.Component {
   static displayName = 'InitialSyncActivity';
@@ -7,13 +7,13 @@ export default class InitialSyncActivity extends React.Component {
     super(props);
     this.state = {
       syncState: FolderSyncProgressStore.getSyncState(),
-    }
+    };
     this.mounted = false;
   }
 
   componentDidMount() {
     this.mounted = true;
-    this.unsub = FolderSyncProgressStore.listen(this.onDataChanged)
+    this.unsub = FolderSyncProgressStore.listen(this.onDataChanged);
   }
 
   componentWillUnmount() {
@@ -22,10 +22,10 @@ export default class InitialSyncActivity extends React.Component {
   }
 
   onDataChanged = () => {
-    this.setState({syncState: FolderSyncProgressStore.getSyncState()});
-  }
+    this.setState({ syncState: FolderSyncProgressStore.getSyncState() });
+  };
 
-  renderFolderProgress(folderPath, {progress, busy}) {
+  renderFolderProgress(folderPath, { progress, busy }) {
     let status = 'complete';
     let progressLabel = '';
 
@@ -42,14 +42,13 @@ export default class InitialSyncActivity extends React.Component {
       <div className={`model-progress ${status}`} key={folderPath}>
         {folderPath} <span className="progress-label">{progressLabel}</span>
       </div>
-    )
+    );
   }
 
   render() {
     if (FolderSyncProgressStore.isSyncComplete()) {
       return false;
     }
-
 
     let maxHeight = 0;
     let accounts = Object.entries(this.state.syncState).map(([accountId, accountSyncState]) => {
@@ -59,15 +58,19 @@ export default class InitialSyncActivity extends React.Component {
       }
 
       let folderStates = Object.entries(accountSyncState).map(([folderPath, folderState]) => {
-        return this.renderFolderProgress(folderPath, folderState)
-      })
+        return this.renderFolderProgress(folderPath, folderState);
+      });
 
       if (folderStates.length === 0) {
-        folderStates = <div><br />Gathering folders...</div>
+        folderStates = (
+          <div>
+            <br />Gathering folders...
+          </div>
+        );
       }
 
       // A row for the account email address plus a row for each folder state,
-      const numRows = 1 + (folderStates.length || 1)
+      const numRows = 1 + (folderStates.length || 1);
       maxHeight += 50 * numRows;
 
       return (
@@ -75,22 +78,25 @@ export default class InitialSyncActivity extends React.Component {
           <h2>{account.emailAddress}</h2>
           {folderStates}
         </div>
-      )
+      );
     });
 
     if (accounts.length === 0) {
-      accounts = <div><br />Looking for accounts...</div>
+      accounts = (
+        <div>
+          <br />Looking for accounts...
+        </div>
+      );
     }
 
     return (
       <div
         className="account-detail-area"
         key="expanded-sync-state"
-        style={{maxHeight: `${maxHeight + 500}px`}}
+        style={{ maxHeight: `${maxHeight + 500}px` }}
       >
         {accounts}
       </div>
-    )
+    );
   }
-
 }

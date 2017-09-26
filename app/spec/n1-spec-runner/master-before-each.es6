@@ -7,15 +7,14 @@ import {
   MailboxPerspective,
   FocusedPerspectiveStore,
 } from 'nylas-exports';
-import {clipboard} from 'electron';
+import { clipboard } from 'electron';
 import pathwatcher from 'pathwatcher';
 
 import Config from '../../src/config';
-import configUtils from '../../src/config-utils'
+import configUtils from '../../src/config-utils';
 import TimeOverride from './time-override';
-import nylasTestConstants from './nylas-test-constants'
-import * as jasmineExtensions from './jasmine-extensions'
-
+import nylasTestConstants from './nylas-test-constants';
+import * as jasmineExtensions from './jasmine-extensions';
 
 class MasterBeforeEach {
   setup(loadSettings, beforeEach) {
@@ -26,15 +25,15 @@ class MasterBeforeEach {
       const currentSpec = this;
       currentSpec.addMatchers({
         toHaveLength: jasmineExtensions.toHaveLength,
-      })
+      });
 
-      self._resetNylasEnv()
-      self._resetDatabase()
-      self._resetTaskQueue()
-      self._resetTimeOverride()
-      self._resetAccountStore()
-      self._resetConfig()
-      self._resetClipboard()
+      self._resetNylasEnv();
+      self._resetDatabase();
+      self._resetTaskQueue();
+      self._resetTimeOverride();
+      self._resetAccountStore();
+      self._resetConfig();
+      self._resetClipboard();
       ComponentRegistry._clear();
 
       advanceClock(1000);
@@ -53,7 +52,10 @@ class MasterBeforeEach {
 
     FocusedPerspectiveStore._current = MailboxPerspective.forNothing();
 
-    spyOn(pathwatcher.File.prototype, "detectResurrectionAfterDelay").andCallFake(function detectResurrection() {
+    spyOn(
+      pathwatcher.File.prototype,
+      'detectResurrectionAfterDelay'
+    ).andCallFake(function detectResurrection() {
       return this.detectResurrection();
     });
   }
@@ -70,8 +72,7 @@ class MasterBeforeEach {
     // DatabaseStore._query never runs because the @_open flag is always
     // false because we never setup the DB when `NylasEnv.inSpecMode` is
     // true.
-    spyOn(DatabaseStore, '_query')
-    .andCallFake(() => Promise.resolve([]));
+    spyOn(DatabaseStore, '_query').andCallFake(() => Promise.resolve([]));
   }
 
   _resetTaskQueue() {
@@ -89,7 +90,7 @@ class MasterBeforeEach {
     // Log in a fake user, and ensure that accountForId, etc. work
     AccountStore._accounts = [
       new Account({
-        provider: "gmail",
+        provider: 'gmail',
         name: nylasTestConstants.TEST_ACCOUNT_NAME,
         emailAddress: nylasTestConstants.TEST_ACCOUNT_EMAIL,
         id: nylasTestConstants.TEST_ACCOUNT_ID,
@@ -99,7 +100,7 @@ class MasterBeforeEach {
       }),
 
       new Account({
-        provider: "gmail",
+        provider: 'gmail',
         name: 'Second',
         emailAddress: 'second@gmail.com',
         id: 'second-test-account-id',
@@ -143,4 +144,4 @@ class MasterBeforeEach {
     spyOn(clipboard, 'readText').andCallFake(() => clipboardContent);
   }
 }
-export default new MasterBeforeEach()
+export default new MasterBeforeEach();

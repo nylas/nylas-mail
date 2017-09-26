@@ -14,7 +14,7 @@ import SearchQueryParser from '../../services/search/search-query-parser';
 // A store that handles the focuses collections of and individual contacts
 class FocusedContactsStore extends NylasStore {
   constructor() {
-    super()
+    super();
     this.listenTo(MessageStore, this._onMessageStoreChanged);
     this.listenTo(Actions.focusContact, this._onFocusContact);
     this._clearCurrentParticipants();
@@ -22,11 +22,17 @@ class FocusedContactsStore extends NylasStore {
     this._loadCurrentParticipantThreads = _.debounce(this._loadCurrentParticipantThreads, 250);
   }
 
-  sortedContacts() { return this._currentContacts; }
+  sortedContacts() {
+    return this._currentContacts;
+  }
 
-  focusedContact() { return this._currentFocusedContact; }
+  focusedContact() {
+    return this._currentFocusedContact;
+  }
 
-  focusedContactThreads() { return this._currentParticipantThreads || []; }
+  focusedContactThreads() {
+    return this._currentParticipantThreads || [];
+  }
 
   // We need to wait now for the MessageStore to grab all of the
   // appropriate messages for the given thread.
@@ -44,16 +50,16 @@ class FocusedContactsStore extends NylasStore {
     // important because the FocusedContactStore powers tons of third-party extensions,
     // which could do /horrible/ things when we trigger.
     const thread = MessageStore.itemsLoading() ? null : MessageStore.thread();
-    if (thread && thread.id !== ((this._currentThread || {}).id)) {
+    if (thread && thread.id !== (this._currentThread || {}).id) {
       this._currentThread = thread;
       this._populateCurrentParticipants();
     }
-  }
+  };
 
   // For now we take the last message
   _populateCurrentParticipants() {
     this._scoreAllParticipants();
-    const sorted = _.sortBy(Object.values(this._contactScores), "score").reverse();
+    const sorted = _.sortBy(Object.values(this._contactScores), 'score').reverse();
     this._currentContacts = sorted.map(obj => obj.contact);
     return this._onFocusContact(this._currentContacts[0]);
   }
@@ -71,7 +77,7 @@ class FocusedContactsStore extends NylasStore {
     this._currentParticipantThreads = [];
   }
 
-  _onFocusContact = (contact) => {
+  _onFocusContact = contact => {
     if (this._unsubFocusedContact) {
       this._unsubFocusedContact.dispose();
       this._unsubFocusedContact = null;
@@ -84,7 +90,7 @@ class FocusedContactsStore extends NylasStore {
         accountId: this._currentThread.accountId,
         email: contact.email,
       });
-      this._unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe((match) => {
+      this._unsubFocusedContact = Rx.Observable.fromQuery(query).subscribe(match => {
         if (match) {
           match.name = contact.name; // always show the name from the current email
         }
@@ -96,20 +102,21 @@ class FocusedContactsStore extends NylasStore {
       this._currentFocusedContact = null;
       this._triggerLater();
     }
-  }
+  };
 
   _loadCurrentParticipantThreads() {
-    const currentContact = this._currentFocusedContact || {}
+    const currentContact = this._currentFocusedContact || {};
     const email = currentContact.email;
     if (!email) {
-      return
+      return;
     }
     DatabaseStore.findAll(Thread)
       .structuredSearch(SearchQueryParser.parse(`from:${email}`))
-      .limit(100).background()
+      .limit(100)
+      .background()
       .then((threads = []) => {
         if (currentContact.email !== email) {
-          return
+          return;
         }
         this._currentParticipantThreads = threads;
         this.trigger();
@@ -121,8 +128,8 @@ class FocusedContactsStore extends NylasStore {
   _scoreAllParticipants() {
     const score = (message, msgNum, field, multiplier) => {
       (message[field] || []).forEach((contact, j) => {
-        const bonus = message[field].length - j
-        this._assignScore(contact, (msgNum + 1) * multiplier + bonus)
+        const bonus = message[field].length - j;
+        this._assignScore(contact, (msgNum + 1) * multiplier + bonus);
       });
     };
 
@@ -130,12 +137,12 @@ class FocusedContactsStore extends NylasStore {
     for (let msgNum = iterable.length - 1; msgNum >= 0; msgNum--) {
       const message = iterable[msgNum];
       if (message.draft) {
-        score(message, msgNum, "to", 10000);
-        score(message, msgNum, "cc", 1000);
+        score(message, msgNum, 'to', 10000);
+        score(message, msgNum, 'cc', 1000);
       } else {
-        score(message, msgNum, "from", 100);
-        score(message, msgNum, "to", 10);
-        score(message, msgNum, "cc", 1);
+        score(message, msgNum, 'from', 100);
+        score(message, msgNum, 'to', 10);
+        score(message, msgNum, 'cc', 1);
       }
     }
 
@@ -144,8 +151,12 @@ class FocusedContactsStore extends NylasStore {
 
   // Self always gets a score of 0
   _assignScore(contact, score = 0) {
-    if (!contact || !contact.email) { return; }
-    if (contact.email.trim().length === 0) { return; }
+    if (!contact || !contact.email) {
+      return;
+    }
+    if (contact.email.trim().length === 0) {
+      return;
+    }
 
     const key = Utils.toEquivalentEmailForm(contact.email);
 
@@ -153,7 +164,7 @@ class FocusedContactsStore extends NylasStore {
       this._contactScores[key] = {
         contact: contact,
         score: score - this._calculatePenalties(contact, score),
-      }
+      };
     }
   }
 
@@ -162,8 +173,8 @@ class FocusedContactsStore extends NylasStore {
     const email = contact.email.toLowerCase().trim();
 
     const accountId = (this._currentThread || {}).accountId;
-    const account = AccountStore.accountForId(accountId) || {}
-    const myEmail = account.emailAddress
+    const account = AccountStore.accountForId(accountId) || {};
+    const myEmail = account.emailAddress;
 
     if (email === myEmail) {
       // The whole thing which will penalize to zero

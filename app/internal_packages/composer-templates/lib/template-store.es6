@@ -1,12 +1,11 @@
 /* eslint global-require: 0*/
 
-import {DraftStore, Actions, QuotedHTMLTransformer} from 'nylas-exports';
+import { DraftStore, Actions, QuotedHTMLTransformer } from 'nylas-exports';
 import NylasStore from 'nylas-store';
 import path from 'path';
 import fs from 'fs';
 
 class TemplateStore extends NylasStore {
-
   // Support accented characters in template names
   // https://regex101.com/r/nD3eY8/1
   static INVALID_TEMPLATE_NAME_REGEX = /[^a-zA-Z\u00C0-\u017F0-9_\- ]+/g;
@@ -42,7 +41,7 @@ class TemplateStore extends NylasStore {
 
     // I know this is a bit of pain but don't do anything that
     // could possibly slow down app launch
-    fs.exists(this._templatesDir, (exists) => {
+    fs.exists(this._templatesDir, exists => {
       if (exists) {
         this._populate();
         this.watch();
@@ -92,15 +91,18 @@ class TemplateStore extends NylasStore {
     fs.readdir(this._templatesDir, (err, filenames) => {
       if (err) {
         NylasEnv.showErrorDialog({
-          title: "Cannot scan templates directory",
-          message: `N1 was unable to read the contents of your templates directory (${this._templatesDir}). You may want to delete this folder or ensure filesystem permissions are set correctly.`,
+          title: 'Cannot scan templates directory',
+          message: `N1 was unable to read the contents of your templates directory (${this
+            ._templatesDir}). You may want to delete this folder or ensure filesystem permissions are set correctly.`,
         });
         return;
       }
       this._items = [];
       for (let i = 0, filename; i < filenames.length; i++) {
         filename = filenames[i];
-        if (filename[0] === '.') { continue; }
+        if (filename[0] === '.') {
+          continue;
+        }
         const displayname = path.basename(filename, path.extname(filename));
         this._items.push({
           id: filename,
@@ -112,11 +114,12 @@ class TemplateStore extends NylasStore {
     });
   }
 
-  _onCreateTemplate({headerMessageId, name, contents} = {}) {
+  _onCreateTemplate({ headerMessageId, name, contents } = {}) {
     if (headerMessageId) {
-      DraftStore.sessionForClientId(headerMessageId).then((session) => {
+      DraftStore.sessionForClientId(headerMessageId).then(session => {
         const draft = session.draft();
-        const draftName = name || draft.subject.replace(TemplateStore.INVALID_TEMPLATE_NAME_REGEX, '');
+        const draftName =
+          name || draft.subject.replace(TemplateStore.INVALID_TEMPLATE_NAME_REGEX, '');
         let draftContents = contents || QuotedHTMLTransformer.removeQuotedHTML(draft.body);
 
         const sigIndex = draftContents.indexOf('<signature>');
@@ -125,7 +128,9 @@ class TemplateStore extends NylasStore {
           this._displayError('Give your draft a subject to name your template.');
         }
         if (!draftContents || draftContents.length === 0) {
-          this._displayError('To create a template you need to fill the body of the current draft.');
+          this._displayError(
+            'To create a template you need to fill the body of the current draft.'
+          );
         }
         this.saveNewTemplate(draftName, draftContents, this._onShowTemplates);
       });
@@ -151,13 +156,15 @@ class TemplateStore extends NylasStore {
   }
   _displayDialog(title, message, buttons) {
     const dialog = require('electron').remote.dialog;
-    return (dialog.showMessageBox({
-      title: title,
-      message: title,
-      detail: message,
-      buttons: buttons,
-      type: 'info',
-    }) === 0);
+    return (
+      dialog.showMessageBox({
+        title: title,
+        message: title,
+        detail: message,
+        buttons: buttons,
+        type: 'info',
+      }) === 0
+    );
   }
 
   saveNewTemplate(name, contents, callback) {
@@ -167,7 +174,9 @@ class TemplateStore extends NylasStore {
     }
 
     if (name.match(TemplateStore.INVALID_TEMPLATE_NAME_REGEX)) {
-      this._displayError('Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.');
+      this._displayError(
+        'Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.'
+      );
       return;
     }
 
@@ -195,9 +204,11 @@ class TemplateStore extends NylasStore {
 
     let template = this._getTemplate(name);
     this.unwatch();
-    fs.writeFile(templatePath, contents, (err) => {
+    fs.writeFile(templatePath, contents, err => {
       this.watch();
-      if (err) { this._displayError(err); }
+      if (err) {
+        this._displayError(err);
+      }
       if (template === null) {
         template = {
           id: filename,
@@ -214,13 +225,17 @@ class TemplateStore extends NylasStore {
 
   deleteTemplate(name, callback) {
     const template = this._getTemplate(name);
-    if (!template) { return; }
+    if (!template) {
+      return;
+    }
 
-    if (this._displayDialog(
+    if (
+      this._displayDialog(
         'Delete this template?',
         'The template and its file will be permanently deleted.',
         ['Delete', 'Cancel']
-    )) {
+      )
+    ) {
       fs.unlink(template.path, () => {
         this._populate();
         if (callback) {
@@ -232,10 +247,14 @@ class TemplateStore extends NylasStore {
 
   renameTemplate(oldName, newName, callback) {
     const template = this._getTemplate(oldName);
-    if (!template) { return; }
+    if (!template) {
+      return;
+    }
 
     if (newName.match(TemplateStore.INVALID_TEMPLATE_NAME_REGEX)) {
-      this._displayError('Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.');
+      this._displayError(
+        'Invalid template name! Names can only contain letters, numbers, spaces, dashes, and underscores.'
+      );
       return;
     }
     if (newName.length === 0) {
@@ -255,16 +274,16 @@ class TemplateStore extends NylasStore {
     });
   }
 
-  _onInsertTemplateId({templateId, headerMessageId} = {}) {
-    this.getTemplateContents(templateId, (templateBody) => {
-      DraftStore.sessionForClientId(headerMessageId).then((session) => {
+  _onInsertTemplateId({ templateId, headerMessageId } = {}) {
+    this.getTemplateContents(templateId, templateBody => {
+      DraftStore.sessionForClientId(headerMessageId).then(session => {
         let proceed = true;
         if (!session.draft().pristine && !session.draft().hasEmptyBody()) {
           proceed = this._displayDialog(
-              'Replace draft contents?',
-              'It looks like your draft already has some content. Loading this template will ' +
+            'Replace draft contents?',
+            'It looks like your draft already has some content. Loading this template will ' +
               'overwrite all draft contents.',
-              ['Replace contents', 'Cancel']
+            ['Replace contents', 'Cancel']
           );
         }
 
@@ -273,9 +292,12 @@ class TemplateStore extends NylasStore {
           const sigIndex = draftContents.indexOf('<signature>');
           const signature = sigIndex > -1 ? draftContents.slice(sigIndex) : '';
 
-          const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(templateBody + signature, session.draft().body);
-          Actions.recordUserEvent("Email Template Inserted")
-          session.changes.add({body: draftHtml});
+          const draftHtml = QuotedHTMLTransformer.appendQuotedHTML(
+            templateBody + signature,
+            session.draft().body
+          );
+          Actions.recordUserEvent('Email Template Inserted');
+          session.changes.add({ body: draftHtml });
         }
       });
     });
@@ -283,7 +305,9 @@ class TemplateStore extends NylasStore {
 
   getTemplateContents(templateId, callback) {
     const template = this._getTemplate(null, templateId);
-    if (!template) { return; }
+    if (!template) {
+      return;
+    }
 
     fs.readFile(template.path, (err, data) => {
       const body = data.toString();
@@ -293,4 +317,4 @@ class TemplateStore extends NylasStore {
 }
 
 const store = new TemplateStore();
-export default store
+export default store;

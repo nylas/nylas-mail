@@ -1,17 +1,17 @@
-import {DatabaseStore} from 'nylas-exports'
-import Message from '../models/message'
-import * as ExtensionRegistry from '../../registries/extension-registry'
-import DOMUtils from '../../dom-utils'
+import { DatabaseStore } from 'nylas-exports';
+import Message from '../models/message';
+import * as ExtensionRegistry from '../../registries/extension-registry';
+import DOMUtils from '../../dom-utils';
 
-import QuotedHTMLTransformer from '../../services/quoted-html-transformer'
-import InlineStyleTransformer from '../../services/inline-style-transformer'
-import SanitizeTransformer from '../../services/sanitize-transformer'
-import MessageUtils from '../models/message-utils'
+import QuotedHTMLTransformer from '../../services/quoted-html-transformer';
+import InlineStyleTransformer from '../../services/inline-style-transformer';
+import SanitizeTransformer from '../../services/sanitize-transformer';
+import MessageUtils from '../models/message-utils';
 
 class DraftHelpers {
-  AllowedTransformFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body']
+  AllowedTransformFields = ['to', 'from', 'cc', 'bcc', 'subject', 'body'];
 
-  DraftNotFoundError = class DraftNotFoundError extends Error { }
+  DraftNotFoundError = class DraftNotFoundError extends Error {};
 
   /**
    * Returns true if the message contains "Forwarded" or "Fwd" in the first
@@ -19,56 +19,60 @@ class DraftHelpers {
    * shown. Needs to be limited to first 250 to prevent replies to
    * forwarded messages from also being expanded.
   */
-  isForwardedMessage({body, subject} = {}) {
-    let bodyFwd = false
-    let bodyForwarded = false
-    let subjectFwd = false
+  isForwardedMessage({ body, subject } = {}) {
+    let bodyFwd = false;
+    let bodyForwarded = false;
+    let subjectFwd = false;
 
     if (body) {
-      const indexFwd = body.search(/fwd/i)
-      const indexForwarded = body.search(/forwarded/i)
-      bodyForwarded = indexForwarded >= 0 && indexForwarded < 250
-      bodyFwd = indexFwd >= 0 && indexFwd < 250
+      const indexFwd = body.search(/fwd/i);
+      const indexForwarded = body.search(/forwarded/i);
+      bodyForwarded = indexForwarded >= 0 && indexForwarded < 250;
+      bodyFwd = indexFwd >= 0 && indexFwd < 250;
     }
     if (subject) {
-      subjectFwd = subject.slice(0, 3).toLowerCase() === "fwd"
+      subjectFwd = subject.slice(0, 3).toLowerCase() === 'fwd';
     }
 
-    return bodyForwarded || bodyFwd || subjectFwd
+    return bodyForwarded || bodyFwd || subjectFwd;
   }
 
-  shouldAppendQuotedText({body = '', replyToHeaderMessageId = false} = {}) {
-    return replyToHeaderMessageId &&
+  shouldAppendQuotedText({ body = '', replyToHeaderMessageId = false } = {}) {
+    return (
+      replyToHeaderMessageId &&
       !body.includes('<div id="n1-quoted-text-marker">') &&
       !body.includes(`nylas-quote-id-${replyToHeaderMessageId}`)
+    );
   }
 
-  prepareBodyForQuoting(body = "") {
+  prepareBodyForQuoting(body = '') {
     // TODO: Fix inline images
     const cidRE = MessageUtils.cidRegexString;
 
     // Be sure to match over multiple lines with [\s\S]*
     // Regex explanation here: https://regex101.com/r/vO6eN2/1
-    body.replace(new RegExp(`<img.*${cidRE}[\\s\\S]*?>`, "igm"), "")
+    body.replace(new RegExp(`<img.*${cidRE}[\\s\\S]*?>`, 'igm'), '');
 
-    return InlineStyleTransformer.run(body).then((inlineStyled) =>
+    return InlineStyleTransformer.run(body).then(inlineStyled =>
       SanitizeTransformer.run(inlineStyled, SanitizeTransformer.Preset.UnsafeOnly)
-    )
+    );
   }
 
-  messageMentionsAttachment({body} = {}) {
-    if (body == null) { throw new Error('DraftHelpers::messageMentionsAttachment - Message has no body loaded') }
+  messageMentionsAttachment({ body } = {}) {
+    if (body == null) {
+      throw new Error('DraftHelpers::messageMentionsAttachment - Message has no body loaded');
+    }
     let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
     const signatureIndex = cleaned.indexOf('<signature>');
     if (signatureIndex !== -1) {
       cleaned = cleaned.substr(0, signatureIndex - 1);
     }
-    return (cleaned.indexOf("attach") >= 0);
+    return cleaned.indexOf('attach') >= 0;
   }
 
   async pruneRemovedInlineFiles(draft) {
     draft.files = draft.files.filter(f => {
-      return !(f.contentId && !draft.body.includes(`cid:${f.id}`))
+      return !(f.contentId && !draft.body.includes(`cid:${f.id}`));
     });
 
     return draft;
@@ -80,11 +84,11 @@ class DraftHelpers {
       accountId: draft.accountId,
     }).include(Message.attributes.body);
 
-    return query.then((prevMessage) => {
+    return query.then(prevMessage => {
       if (!prevMessage) {
         return Promise.resolve(draft);
       }
-      return this.prepareBodyForQuoting(prevMessage.body).then((prevBodySanitized) => {
+      return this.prepareBodyForQuoting(prevMessage.body).then(prevBodySanitized => {
         draft.body = `${draft.body}
           <div class="gmail_quote nylas-quote nylas-quote-id-${draft.replyToHeaderMessageId}">
             <br>
@@ -97,7 +101,7 @@ class DraftHelpers {
           </div>`;
         return Promise.resolve(draft);
       });
-    })
+    });
   }
 
   async applyExtensionTransforms(draft) {
@@ -116,8 +120,8 @@ class DraftHelpers {
         continue;
       }
 
-      await extUnapply({draft, draftBodyRootNode})
-      await extApply({draft, draftBodyRootNode});
+      await extUnapply({ draft, draftBodyRootNode });
+      await extApply({ draft, draftBodyRootNode });
     }
 
     draft.body = draftBodyRootNode.innerHTML;
@@ -125,10 +129,10 @@ class DraftHelpers {
   }
 
   async draftPreparedForSyncback(session) {
-    await session.ensureCorrectAccount({noSyncback: true})
+    await session.ensureCorrectAccount({ noSyncback: true });
     let draft = session.draft();
 
-    draft = await this.applyExtensionTransforms(draft)
+    draft = await this.applyExtensionTransforms(draft);
     draft = await this.pruneRemovedInlineFiles(draft);
     if (draft.replyToHeaderMessageId && this.shouldAppendQuotedText(draft)) {
       draft = await this.appendQuotedTextToDraft(draft);

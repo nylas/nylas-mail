@@ -17,17 +17,20 @@ export default class QuerySubscription {
 
     if (this._query) {
       if (this._query._count) {
-        throw new Error("QuerySubscription::constructor - You cannot listen to count queries.")
+        throw new Error('QuerySubscription::constructor - You cannot listen to count queries.');
       }
 
       this._query.finalize();
 
       if (this._options.initialModels) {
         this._set = new MutableQueryResultSet();
-        this._set.addModelsInRange(this._options.initialModels, new QueryRange({
-          limit: this._options.initialModels.length,
-          offset: 0,
-        }));
+        this._set.addModelsInRange(
+          this._options.initialModels,
+          new QueryRange({
+            limit: this._options.initialModels.length,
+            offset: 0,
+          })
+        );
         this._createResultAndTrigger();
       } else {
         this.update();
@@ -37,9 +40,9 @@ export default class QuerySubscription {
 
   query = () => {
     return this._query;
-  }
+  };
 
-  addCallback = (callback) => {
+  addCallback = callback => {
     if (!(callback instanceof Function)) {
       throw new Error(`QuerySubscription:addCallback - expects a function, received ${callback}`);
     }
@@ -47,31 +50,31 @@ export default class QuerySubscription {
     if (this._lastResult !== undefined) {
       callback(this._lastResult);
     }
-  }
+  };
 
-  hasCallback = (callback) => {
-    return (this._callbacks.indexOf(callback) !== -1);
-  }
+  hasCallback = callback => {
+    return this._callbacks.indexOf(callback) !== -1;
+  };
 
   removeCallback(callback) {
     if (!(callback instanceof Function)) {
-      throw new Error(`QuerySubscription:removeCallback - expects a function, received ${callback}`)
+      throw new Error(
+        `QuerySubscription:removeCallback - expects a function, received ${callback}`
+      );
     }
     this._callbacks = _.without(this._callbacks, callback);
     if (this.callbackCount() === 0) {
-      this.onLastCallbackRemoved()
+      this.onLastCallbackRemoved();
     }
   }
 
-  onLastCallbackRemoved() {
-
-  }
+  onLastCallbackRemoved() {}
 
   callbackCount = () => {
     return this._callbacks.length;
-  }
+  };
 
-  applyChangeRecord = (record) => {
+  applyChangeRecord = record => {
     if (!this._query || record.objectClass !== this._query.objectClass()) {
       return;
     }
@@ -83,12 +86,12 @@ export default class QuerySubscription {
     if (!this._updateInFlight) {
       this._processChangeRecords();
     }
-  }
+  };
 
   cancelPendingUpdate = () => {
     this._queryVersion += 1;
     this._updateInFlight = false;
-  }
+  };
 
   // Scan through change records and apply them to the last result set.
   _processChangeRecords = () => {
@@ -103,10 +106,10 @@ export default class QuerySubscription {
     let knownImpacts = 0;
     let unknownImpacts = 0;
 
-    this._queuedChangeRecords.forEach((record) => {
+    this._queuedChangeRecords.forEach(record => {
       if (record.type === 'unpersist') {
         for (const item of record.objects) {
-          const offset = this._set.offsetOfId(item.id)
+          const offset = this._set.offsetOfId(item.id);
           if (offset !== -1) {
             this._set.removeModelAtOffset(item, offset);
             unknownImpacts += 1;
@@ -119,27 +122,30 @@ export default class QuerySubscription {
           const itemShouldBeInSet = item.matches(this._query.matchers());
 
           if (itemIsInSet && !itemShouldBeInSet) {
-            this._set.removeModelAtOffset(item, offset)
-            unknownImpacts += 1
+            this._set.removeModelAtOffset(item, offset);
+            unknownImpacts += 1;
           } else if (itemShouldBeInSet && !itemIsInSet) {
-            this._set.updateModel(item)
+            this._set.updateModel(item);
             unknownImpacts += 1;
           } else if (itemIsInSet) {
             const oldItem = this._set.modelWithId(item.id);
             this._set.updateModel(item);
 
             if (this._itemSortOrderHasChanged(oldItem, item)) {
-              unknownImpacts += 1
+              unknownImpacts += 1;
             } else {
-              knownImpacts += 1
+              knownImpacts += 1;
             }
           }
         }
         // If we're not at the top of the result set, we can't be sure whether an
         // item previously matched the set and doesn't anymore, impacting the items
         // in the query range. We need to refetch IDs to be sure our set === correct.
-        if ((this._query.range().offset > 0) && (unknownImpacts + knownImpacts) < record.objects.length) {
-          unknownImpacts += 1
+        if (
+          this._query.range().offset > 0 &&
+          unknownImpacts + knownImpacts < record.objects.length
+        ) {
+          unknownImpacts += 1;
         }
       }
     });
@@ -147,11 +153,11 @@ export default class QuerySubscription {
     this._queuedChangeRecords = [];
 
     if (unknownImpacts > 0) {
-      this.update({mustRefetchEntireRange: true});
+      this.update({ mustRefetchEntireRange: true });
     } else if (knownImpacts > 0) {
       this._createResultAndTrigger();
     }
-  }
+  };
 
   _itemSortOrderHasChanged(old, updated) {
     for (const descriptor of this._query.orderSortDescriptors()) {
@@ -166,12 +172,13 @@ export default class QuerySubscription {
     return false;
   }
 
-  update({mustRefetchEntireRange} = {}) {
+  update({ mustRefetchEntireRange } = {}) {
     this._updateInFlight = true;
 
     const desiredRange = this._query.range();
     const currentRange = this._set ? this._set.range() : null;
-    const hasNonInfiniteRange = currentRange && !currentRange.isInfinite() && !desiredRange.isInfinite();
+    const hasNonInfiniteRange =
+      currentRange && !currentRange.isInfinite() && !desiredRange.isInfinite();
 
     // If we have a limited range, and changes don't require that we refetch
     // the entire range, just fetch the missing items. This is the path typically
@@ -194,10 +201,10 @@ export default class QuerySubscription {
   _getMissingRange = (desiredRange, currentRange) => {
     if (currentRange && !currentRange.isInfinite() && !desiredRange.isInfinite()) {
       const ranges = QueryRange.rangesBySubtracting(desiredRange, currentRange);
-      return (ranges.length === 1) ? ranges[0] : desiredRange;
+      return ranges.length === 1 ? ranges[0] : desiredRange;
     }
     return desiredRange;
-  }
+  };
 
   _getQueryForRange = (range, fetchEntireModels) => {
     let rangeQuery = null;
@@ -211,12 +218,12 @@ export default class QuerySubscription {
     }
     rangeQuery = rangeQuery || this._query;
     return rangeQuery;
-  }
+  };
 
-  _fetchRange(range, {version, fetchEntireModels}) {
+  _fetchRange(range, { version, fetchEntireModels }) {
     const rangeQuery = this._getQueryForRange(range, fetchEntireModels);
 
-    DatabaseStore.run(rangeQuery, {format: false}).then((results) => {
+    DatabaseStore.run(rangeQuery, { format: false }).then(results => {
       if (this._queryVersion !== version) {
         return;
       }
@@ -235,7 +242,7 @@ export default class QuerySubscription {
       this._set.clipToRange(this._query.range());
 
       // todo: this is returning fewer objects because they're being deleted immediately after being saved
-      this._fetchMissingModels().then((models) => {
+      this._fetchMissingModels().then(models => {
         if (this._queryVersion !== version) {
           return;
         }
@@ -252,19 +259,21 @@ export default class QuerySubscription {
     if (missingIds.length === 0) {
       return Promise.resolve([]);
     }
-    return DatabaseStore.findAll(this._query._klass, {id: missingIds});
+    return DatabaseStore.findAll(this._query._klass, { id: missingIds });
   }
 
   _createResultAndTrigger = () => {
-    const allCompleteModels = this._set.isComplete()
-    const allUniqueIds = _.uniq(this._set.ids()).length === this._set.ids().length
+    const allCompleteModels = this._set.isComplete();
+    const allUniqueIds = _.uniq(this._set.ids()).length === this._set.ids().length;
 
     let error = null;
     if (!allCompleteModels) {
-      error = new Error("QuerySubscription: Applied all changes and result set is missing models.");
+      error = new Error('QuerySubscription: Applied all changes and result set is missing models.');
     }
     if (!allUniqueIds) {
-      error = new Error("QuerySubscription: Applied all changes and result set contains duplicate IDs.");
+      error = new Error(
+        'QuerySubscription: Applied all changes and result set contains duplicate IDs.'
+      );
     }
 
     if (error) {
@@ -281,12 +290,12 @@ export default class QuerySubscription {
       this._lastResult = this._query.formatResult(this._set.models());
     }
 
-    this._callbacks.forEach((callback) => callback(this._lastResult));
+    this._callbacks.forEach(callback => callback(this._lastResult));
 
     // process any additional change records that have arrived
     if (this._updateInFlight) {
       this._updateInFlight = false;
       this._processChangeRecords();
     }
-  }
+  };
 }

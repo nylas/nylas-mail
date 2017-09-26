@@ -30,8 +30,16 @@ The value of this attribute is always an array of other model objects.
 Section: Database
 */
 export default class AttributeCollection extends Attribute {
-  constructor({modelKey, jsonKey, itemClass, joinOnField, joinQueryableBy, joinTableName, queryable}) {
-    super({modelKey, jsonKey, queryable});
+  constructor({
+    modelKey,
+    jsonKey,
+    itemClass,
+    joinOnField,
+    joinQueryableBy,
+    joinTableName,
+    queryable,
+  }) {
+    super({ modelKey, jsonKey, queryable });
     this.itemClass = itemClass;
     this.joinOnField = joinOnField;
     this.joinTableName = joinTableName;
@@ -47,11 +55,14 @@ export default class AttributeCollection extends Attribute {
       throw new Error(`AttributeCollection::toJSON: ${this.modelKey} is not an array.`);
     }
 
-    return vals.map((val) => {
+    return vals.map(val => {
       if (this.itemClass && !(val instanceof this.itemClass)) {
-        throw new Error(`AttributeCollection::toJSON: Value \`${val}\` in ${this.modelKey} is not an ${this.itemClass.name}`);
+        throw new Error(
+          `AttributeCollection::toJSON: Value \`${val}\` in ${this.modelKey} is not an ${this
+            .itemClass.name}`
+        );
       }
-      return (val.toJSON !== undefined) ? val.toJSON() : val;
+      return val.toJSON !== undefined ? val.toJSON() : val;
     });
   }
 
@@ -61,7 +72,7 @@ export default class AttributeCollection extends Attribute {
     if (!json || !(json instanceof Array)) {
       return [];
     }
-    return json.map((objJSON) => {
+    return json.map(objJSON => {
       if (!objJSON || !Klass || objJSON instanceof Klass) {
         return objJSON;
       }

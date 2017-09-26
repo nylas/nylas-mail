@@ -1,10 +1,10 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import path from 'path';
-import {Actions, AttachmentStore} from 'nylas-exports'
-import {ImageAttachmentItem} from 'nylas-component-kit'
+import { Actions, AttachmentStore } from 'nylas-exports';
+import { ImageAttachmentItem } from 'nylas-component-kit';
 
 export default class InlineImageUploadContainer extends Component {
   static displayName = 'InlineImageUploadContainer';
@@ -16,11 +16,13 @@ export default class InlineImageUploadContainer extends Component {
     fileId: PropTypes.string.isRequired,
     session: PropTypes.object,
     isPreview: PropTypes.bool,
-  }
+  };
 
   _onGoEdit = () => {
     if (!this.props.session) {
-      console.warn("InlineImage editor cannot be activated, `session` prop not present. (isPreview?)")
+      console.warn(
+        'InlineImage editor cannot be activated, `session` prop not present. (isPreview?)'
+      );
       return;
     }
     // This is just a fun temporary hack because I was jealous of Apple Mail.
@@ -43,30 +45,39 @@ export default class InlineImageUploadContainer extends Component {
     editorCanvas.style.height = `${rect.height}px`;
     editorEl.appendChild(editorCanvas);
 
-    const editorCtx = editorCanvas.getContext("2d");
-    editorCtx.drawImage(el.querySelector('.file-preview img'), 0, 0, editorCanvas.width, editorCanvas.height);
-    editorCtx.strokeStyle = "#df4b26";
-    editorCtx.lineJoin = "round";
+    const editorCtx = editorCanvas.getContext('2d');
+    editorCtx.drawImage(
+      el.querySelector('.file-preview img'),
+      0,
+      0,
+      editorCanvas.width,
+      editorCanvas.height
+    );
+    editorCtx.strokeStyle = '#df4b26';
+    editorCtx.lineJoin = 'round';
     editorCtx.lineWidth = 3 * window.devicePixelRatio;
 
     let penDown = false;
     let penXY = null;
-    editorCanvas.addEventListener('mousedown', (event) => {
+    editorCanvas.addEventListener('mousedown', event => {
       penDown = true;
       penXY = {
         x: event.offsetX,
         y: event.offsetY,
-      }
+      };
     });
-    editorCanvas.addEventListener('mousemove', (event) => {
+    editorCanvas.addEventListener('mousemove', event => {
       if (penDown) {
         const nextPenXY = {
           x: event.offsetX,
           y: event.offsetY,
-        }
+        };
         editorCtx.beginPath();
         editorCtx.moveTo(penXY.x * window.devicePixelRatio, penXY.y * window.devicePixelRatio);
-        editorCtx.lineTo(nextPenXY.x * window.devicePixelRatio, nextPenXY.y * window.devicePixelRatio);
+        editorCtx.lineTo(
+          nextPenXY.x * window.devicePixelRatio,
+          nextPenXY.y * window.devicePixelRatio
+        );
         editorCtx.closePath();
         editorCtx.stroke();
         penXY = nextPenXY;
@@ -87,22 +98,20 @@ export default class InlineImageUploadContainer extends Component {
     backgroundEl.style.bottom = '0px';
     backgroundEl.style.zIndex = 1999;
     backgroundEl.addEventListener('click', () => {
-      editorCanvas.toBlob((blob) => {
+      editorCanvas.toBlob(blob => {
         const reader = new FileReader();
         reader.addEventListener('loadend', () => {
-          const {draft, session, fileId} = this.props;
+          const { draft, session, fileId } = this.props;
           const buffer = new Buffer(new Uint8Array(reader.result));
-          const file = draft.files.find(u =>
-            u.id === fileId
-          );
+          const file = draft.files.find(u => u.id === fileId);
 
           const filepath = AttachmentStore.pathForFile(file);
           const nextFileName = `edited-${Date.now()}.png`;
           const nextFilePath = path.join(path.dirname(filepath), nextFileName);
 
-          fs.writeFile(nextFilePath, buffer, (err) => {
+          fs.writeFile(nextFilePath, buffer, err => {
             if (err) {
-              NylasEnv.showErrorDialog(err.toString())
+              NylasEnv.showErrorDialog(err.toString());
               return;
             }
             const img = el.querySelector('.file-preview img');
@@ -113,12 +122,12 @@ export default class InlineImageUploadContainer extends Component {
             fs.unlink(filepath, () => {});
 
             const nextFiles = [].concat(draft.files);
-            nextFiles.forEach((f) => {
+            nextFiles.forEach(f => {
               if (f.id === file.id) {
                 f.filename = nextFileName;
               }
             });
-            session.changes.add({files: nextFiles});
+            session.changes.add({ files: nextFiles });
           });
         });
         reader.readAsArrayBuffer(blob);
@@ -128,21 +137,17 @@ export default class InlineImageUploadContainer extends Component {
     });
     document.body.appendChild(backgroundEl);
     document.body.appendChild(editorEl);
-  }
+  };
 
   render() {
-    const {draft, fileId, isPreview} = this.props;
+    const { draft, fileId, isPreview } = this.props;
     const file = draft.files.find(u => fileId === u.id);
 
     if (!file) {
-      return (
-        <span />
-      );
+      return <span />;
     }
     if (isPreview) {
-      return (
-        <img src={`cid:${file.id}`} alt={file.name} />
-      );
+      return <img src={`cid:${file.id}`} alt={file.name} />;
     }
 
     return (
@@ -159,6 +164,6 @@ export default class InlineImageUploadContainer extends Component {
           onRemoveAttachment={() => Actions.removeAttachment(draft.headerMessageId, file)}
         />
       </div>
-    )
+    );
   }
 }

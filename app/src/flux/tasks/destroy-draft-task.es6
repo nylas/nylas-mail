@@ -9,6 +9,6 @@ export default class DestroyDraftTask extends Task {
   });
 
   label() {
-    return "Deleting draft";
+    return 'Deleting draft';
   }
 }
