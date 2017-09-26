@@ -40,7 +40,7 @@ class DraftHelpers {
   shouldAppendQuotedText({ body = '', replyToHeaderMessageId = false } = {}) {
     return (
       replyToHeaderMessageId &&
-      !body.includes('<div id="n1-quoted-text-marker">') &&
+      !body.includes('<div id="mailspring-quoted-text-marker">') &&
       !body.includes(`nylas-quote-id-${replyToHeaderMessageId}`)
     );
   }

@@ -16,7 +16,7 @@ MovePickerPopover = require('../lib/move-picker-popover').default
  SyncbackCategoryTask,
  FocusedPerspectiveStore,
  MailboxPerspective,
- NylasTestUtils,
+ MailspringTestUtils,
  TaskQueue} = require 'mailspring-exports'
 
 {Categories} = require 'mailspring-observables'
@@ -34,7 +34,7 @@ describe 'MovePickerPopover', ->
     @archiveCategory = new Folder(id: 'id-456', role: 'archive', path: "ArCHIVe", accountId: TEST_ACCOUNT_ID)
     @userCategory = new Folder(id: 'id-789', role: null, path: "MyCategory", accountId: TEST_ACCOUNT_ID)
 
-    observable = NylasTestUtils.mockObservable([@inboxCategory, @archiveCategory, @userCategory])
+    observable = MailspringTestUtils.mockObservable([@inboxCategory, @archiveCategory, @userCategory])
     observable.sort = => observable
 
     spyOn(Categories, "forAccount").andReturn observable

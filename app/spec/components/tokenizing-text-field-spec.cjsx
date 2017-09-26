@@ -4,7 +4,7 @@ ReactDOM = require 'react-dom'
 {mount} = require 'enzyme'
 
 
-{NylasTestUtils,
+{MailspringTestUtils,
  Account,
  AccountStore,
  Contact,

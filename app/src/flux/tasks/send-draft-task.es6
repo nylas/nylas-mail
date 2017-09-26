@@ -154,9 +154,9 @@ export default class SendDraftTask extends Task {
     let body = _body;
 
     // This adds a `recipient` param to the open tracking src url.
-    body = body.replace(/<img class="n1-open".*?src="(.*?)">/g, (match, src) => {
+    body = body.replace(/<img class="mailspring-open".*?src="(.*?)">/g, (match, src) => {
       const newSrc = addRecipientToUrl(src, recipient.email);
-      return `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${newSrc}">`;
+      return `<img class="mailspring-open" width="0" height="0" style="border:0; width:0; height:0;" src="${newSrc}">`;
     });
     // This adds a `recipient` param to the link tracking tracking href url.
     const trackedLinkRegexp = new RegExp(

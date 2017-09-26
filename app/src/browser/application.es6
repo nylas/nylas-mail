@@ -307,8 +307,8 @@ export default class Application extends EventEmitter {
       app.quit();
     });
 
-    this.on('application:inspect', ({ x, y, nylasWindow }) => {
-      const win = nylasWindow || this.windowManager.focusedWindow();
+    this.on('application:inspect', ({ x, y, MailspringWindow }) => {
+      const win = MailspringWindow || this.windowManager.focusedWindow();
       if (!win) {
         return;
       }
@@ -694,16 +694,16 @@ export default class Application extends EventEmitter {
   // Public: Executes the given command on the given window.
   //
   // command - The string representing the command.
-  // nylasWindow - The {NylasWindow} to send the command to.
+  // MailspringWindow - The {MailspringWindow} to send the command to.
   // args - The optional arguments to pass along.
-  sendCommandToWindow = (command, nylasWindow, ...args) => {
+  sendCommandToWindow = (command, MailspringWindow, ...args) => {
     console.log('sendCommandToWindow');
     console.log(command);
     if (this.emit(command, ...args)) {
       return;
     }
-    if (nylasWindow) {
-      nylasWindow.sendCommand(command, ...args);
+    if (MailspringWindow) {
+      MailspringWindow.sendCommand(command, ...args);
     } else {
       this.sendCommandToFirstResponder(command);
     }
@@ -779,7 +779,7 @@ export default class Application extends EventEmitter {
     }
   }
 
-  // Opens up a new {NylasWindow} to run specs within.
+  // Opens up a new {MailspringWindow} to run specs within.
   //
   // options -
   //   :exitWhenDone - A Boolean that, if true, will close the window upon
@@ -802,11 +802,11 @@ export default class Application extends EventEmitter {
     let bootstrapScript = null;
     try {
       bootstrapScript = require.resolve(
-        path.resolve(this.resourcePath, 'spec', 'n1-spec-runner', 'spec-bootstrap')
+        path.resolve(this.resourcePath, 'spec', 'spec-runner', 'spec-bootstrap')
       );
     } catch (error) {
       bootstrapScript = require.resolve(
-        path.resolve(__dirname, '..', '..', 'spec', 'n1-spec-runner', 'spec-bootstrap')
+        path.resolve(__dirname, '..', '..', 'spec', 'spec-runner', 'spec-bootstrap')
       );
     }
 

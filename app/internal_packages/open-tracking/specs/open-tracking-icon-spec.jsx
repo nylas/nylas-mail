@@ -2,11 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { findRenderedDOMComponentWithClass } from 'react-addons-test-utils';
 
-import { Message, NylasTestUtils } from 'mailspring-exports';
+import { Message, MailspringTestUtils } from 'mailspring-exports';
 import OpenTrackingIcon from '../lib/open-tracking-icon';
 import { PLUGIN_ID } from '../lib/open-tracking-constants';
 
-const { renderIntoDocument } = NylasTestUtils;
+const { renderIntoDocument } = MailspringTestUtils;
 
 function makeIcon(thread, props = {}) {
   return renderIntoDocument(<OpenTrackingIcon {...props} thread={thread} />);

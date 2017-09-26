@@ -1,4 +1,4 @@
-import NylasWindow from './nylas-window';
+import MailspringWindow from './mailspring-window';
 
 const DEBUG_SHOW_HOT_WINDOW = process.env.SHOW_HOT_WINDOW || false;
 let winNum = 0;
@@ -48,7 +48,7 @@ export default class WindowLauncher {
 
     let win;
     if (this._mustUseColdWindow(opts)) {
-      win = new NylasWindow(opts);
+      win = new MailspringWindow(opts);
     } else {
       // Check if the hot window has been deleted. This may happen when we are
       // relaunching the app
@@ -97,7 +97,7 @@ export default class WindowLauncher {
   }
 
   createHotWindow() {
-    this.hotWindow = new NylasWindow(this._hotWindowOpts());
+    this.hotWindow = new MailspringWindow(this._hotWindowOpts());
     this.onCreatedHotWindow(this.hotWindow);
     if (DEBUG_SHOW_HOT_WINDOW) {
       this.hotWindow.showWhenLoaded();
@@ -117,7 +117,7 @@ export default class WindowLauncher {
 
   // Some properties, like the `frame` or `toolbar` can't be updated once
   // a window has been setup. If we detect this case we have to bootup a
-  // plain NylasWindow instead of using a hot window.
+  // plain MailspringWindow instead of using a hot window.
   _mustUseColdWindow(opts) {
     const { bootstrapScript, frame } = this.defaultWindowOpts;
 

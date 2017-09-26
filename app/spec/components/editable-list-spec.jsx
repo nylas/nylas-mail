@@ -7,25 +7,23 @@ import {
 } from 'react-dom/test-utils';
 
 import EditableList from '../../src/components/editable-list';
-import {renderIntoDocument, simulateCommand} from '../nylas-test-utils'
+import { renderIntoDocument, simulateCommand } from '../mailspring-test-utils';
 
-const {findDOMNode} = ReactDOM;
+const { findDOMNode } = ReactDOM;
 
 const makeList = (items = [], props = {}) => {
-  const list = renderIntoDocument(
-    <EditableList {...props} items={items} />
-  );
+  const list = renderIntoDocument(<EditableList {...props} items={items} />);
   if (props.initialState) {
-    list.setState(props.initialState)
+    list.setState(props.initialState);
   }
-  return list
+  return list;
 };
 
 describe('EditableList', function editableList() {
   describe('_onItemClick', () => {
     it('calls onSelectItem', () => {
       const onSelectItem = jasmine.createSpy('onSelectItem');
-      const list = makeList(['1', '2'], {onSelectItem});
+      const list = makeList(['1', '2'], { onSelectItem });
       const item = scryRenderedDOMComponentsWithClass(list, 'editable-item')[0];
 
       Simulate.click(item);
@@ -42,7 +40,7 @@ describe('EditableList', function editableList() {
 
       Simulate.doubleClick(item);
 
-      expect(list.setState).toHaveBeenCalledWith({editingIndex: 0});
+      expect(list.setState).toHaveBeenCalledWith({ editingIndex: 0 });
     });
 
     it('enters editing mode when edit icon clicked', () => {
@@ -52,47 +50,51 @@ describe('EditableList', function editableList() {
 
       Simulate.click(editIcon);
 
-      expect(list.setState).toHaveBeenCalledWith({editingIndex: 0});
+      expect(list.setState).toHaveBeenCalledWith({ editingIndex: 0 });
     });
   });
 
   describe('core:previous-item / core:next-item', () => {
     it('calls onSelectItem', () => {
       const onSelectItem = jasmine.createSpy('onSelectItem');
-      const list = makeList(['1', '2'], {selected: '1', onSelectItem});
+      const list = makeList(['1', '2'], { selected: '1', onSelectItem });
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      simulateCommand(innerList, 'core:next-item')
+      simulateCommand(innerList, 'core:next-item');
 
       expect(onSelectItem).toHaveBeenCalledWith('2', 1);
     });
 
     it('does not select an item when at the bottom of the list and moves down', () => {
       const onSelectItem = jasmine.createSpy('onSelectItem');
-      const list = makeList(['1', '2'], {selected: '2', onSelectItem});
+      const list = makeList(['1', '2'], { selected: '2', onSelectItem });
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      simulateCommand(innerList, 'core:next-item')
+      simulateCommand(innerList, 'core:next-item');
 
       expect(onSelectItem).not.toHaveBeenCalled();
     });
 
     it('does not select an item when at the top of the list and moves up', () => {
       const onSelectItem = jasmine.createSpy('onSelectItem');
-      const list = makeList(['1', '2'], {selected: '1', onSelectItem});
+      const list = makeList(['1', '2'], { selected: '1', onSelectItem });
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      simulateCommand(innerList, 'core:previous-item')
+      simulateCommand(innerList, 'core:previous-item');
 
       expect(onSelectItem).not.toHaveBeenCalled();
     });
 
     it('does not clear the selection when esc pressed but prop does not allow it', () => {
       const onSelectItem = jasmine.createSpy('onSelectItem');
-      const list = makeList(['1', '2'], {selected: '1', allowEmptySelection: false, onSelectItem});
+      const list = makeList(['1', '2'], {
+        selected: '1',
+        allowEmptySelection: false,
+        onSelectItem,
+      });
       const innerList = findRenderedDOMComponentWithClass(list, 'items-wrapper');
 
-      Simulate.keyDown(innerList, {key: 'Escape'});
+      Simulate.keyDown(innerList, { key: 'Escape' });
 
       expect(onSelectItem).not.toHaveBeenCalled();
     });
@@ -101,24 +103,24 @@ describe('EditableList', function editableList() {
   describe('_onCreateInputKeyDown', () => {
     it('calls onItemCreated', () => {
       const onItemCreated = jasmine.createSpy('onItemCreated');
-      const list = makeList(['1', '2'], {initialState: {creatingItem: true}, onItemCreated});
+      const list = makeList(['1', '2'], { initialState: { creatingItem: true }, onItemCreated });
       const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
       const input = createItem.querySelector('input');
       findDOMNode(input).value = 'New Item';
 
-      Simulate.keyDown(input, {key: 'Enter'});
+      Simulate.keyDown(input, { key: 'Enter' });
 
       expect(onItemCreated).toHaveBeenCalledWith('New Item');
     });
 
     it('does not call onItemCreated when no value entered', () => {
       const onItemCreated = jasmine.createSpy('onItemCreated');
-      const list = makeList(['1', '2'], {initialState: {creatingItem: true}, onItemCreated});
+      const list = makeList(['1', '2'], { initialState: { creatingItem: true }, onItemCreated });
       const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
       const input = createItem.querySelector('input');
       findDOMNode(input).value = '';
 
-      Simulate.keyDown(input, {key: 'Enter'});
+      Simulate.keyDown(input, { key: 'Enter' });
 
       expect(onItemCreated).not.toHaveBeenCalled();
     });
@@ -127,7 +129,7 @@ describe('EditableList', function editableList() {
   describe('_onCreateItem', () => {
     it('should call prop callback when provided', () => {
       const onCreateItem = jasmine.createSpy('onCreateItem');
-      const list = makeList(['1', '2'], {onCreateItem});
+      const list = makeList(['1', '2'], { onCreateItem });
 
       list._onCreateItem();
       expect(onCreateItem).toHaveBeenCalled();
@@ -137,7 +139,7 @@ describe('EditableList', function editableList() {
       const list = makeList(['1', '2']);
       spyOn(list, 'setState');
       list._onCreateItem();
-      expect(list.setState).toHaveBeenCalledWith({creatingItem: true});
+      expect(list.setState).toHaveBeenCalledWith({ creatingItem: true });
     });
   });
 
@@ -147,48 +149,46 @@ describe('EditableList', function editableList() {
     beforeEach(() => {
       onSelectItem = jasmine.createSpy('onSelectItem');
       onDeleteItem = jasmine.createSpy('onDeleteItem');
-    })
+    });
     it('deletes the item from the list', () => {
-      const list = makeList(['1', '2'], {selected: '2', onDeleteItem, onSelectItem});
+      const list = makeList(['1', '2'], { selected: '2', onDeleteItem, onSelectItem });
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
       Simulate.click(button);
       expect(onDeleteItem).toHaveBeenCalledWith('2', 1);
-    })
+    });
     it('sets the selected item to the one above if it exists', () => {
-      const list = makeList(['1', '2'], {selected: '2', onDeleteItem, onSelectItem});
+      const list = makeList(['1', '2'], { selected: '2', onDeleteItem, onSelectItem });
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
       Simulate.click(button);
-      expect(onSelectItem).toHaveBeenCalledWith('1', 0)
-    })
+      expect(onSelectItem).toHaveBeenCalledWith('1', 0);
+    });
     it('sets the selected item to the one below if it is at the top', () => {
-      const list = makeList(['1', '2'], {selected: '1', onDeleteItem, onSelectItem});
+      const list = makeList(['1', '2'], { selected: '1', onDeleteItem, onSelectItem });
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
       Simulate.click(button);
-      expect(onSelectItem).toHaveBeenCalledWith('2', 1)
-    })
+      expect(onSelectItem).toHaveBeenCalledWith('2', 1);
+    });
     it('sets the selected item to nothing when you delete the last item', () => {
-      const list = makeList(['1'], {selected: '1', onDeleteItem, onSelectItem});
+      const list = makeList(['1'], { selected: '1', onDeleteItem, onSelectItem });
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
       Simulate.click(button);
-      expect(onSelectItem).not.toHaveBeenCalled()
-    })
-  })
+      expect(onSelectItem).not.toHaveBeenCalled();
+    });
+  });
   describe('_renderItem', () => {
     const makeItem = (item, idx, state = {}, handlers = {}) => {
-      const list = makeList([], {initialState: state});
-      return renderIntoDocument(
-        list._renderItem(item, idx, state, handlers)
-      );
+      const list = makeList([], { initialState: state });
+      return renderIntoDocument(list._renderItem(item, idx, state, handlers));
     };
 
     it('binds correct click callbacks', () => {
       const onClick = jasmine.createSpy('onClick');
       const onEdit = jasmine.createSpy('onEdit');
-      const item = makeItem('item 1', 0, {}, {onClick, onEdit});
+      const item = makeItem('item 1', 0, {}, { onClick, onEdit });
 
       Simulate.click(item);
       expect(onClick.calls[0].args[1]).toEqual('item 1');
@@ -200,7 +200,7 @@ describe('EditableList', function editableList() {
     });
 
     it('renders correctly when item is selected', () => {
-      const item = findDOMNode(makeItem('item 1', 0, {selected: 'item 1'}));
+      const item = findDOMNode(makeItem('item 1', 0, { selected: 'item 1' }));
       expect(item.className.indexOf('selected')).not.toEqual(-1);
     });
 
@@ -223,8 +223,13 @@ describe('EditableList', function editableList() {
       const onInputFocus = jasmine.createSpy('onInputFocus');
       const onInputKeyDown = jasmine.createSpy('onInputKeyDown');
 
-      const item = makeItem('item 1', 0, {editingIndex: 0}, {onInputBlur, onInputFocus, onInputKeyDown});
-      const input = item.querySelector('input')
+      const item = makeItem(
+        'item 1',
+        0,
+        { editingIndex: 0 },
+        { onInputBlur, onInputFocus, onInputKeyDown }
+      );
+      const input = item.querySelector('input');
 
       Simulate.focus(input);
       Simulate.keyDown(input);
@@ -256,7 +261,7 @@ describe('EditableList', function editableList() {
 
     it('renders create input as an item when creating', () => {
       const items = ['1', '2', '3'];
-      const list = makeList(items, {initialState: {creatingItem: true}});
+      const list = makeList(items, { initialState: { creatingItem: true } });
       const createItem = findRenderedDOMComponentWithClass(list, 'create-item-input');
       expect(createItem).toBeDefined();
     });
@@ -269,7 +274,7 @@ describe('EditableList', function editableList() {
     });
 
     it('renders delete button', () => {
-      const list = makeList(['1', '2'], {selected: '2'});
+      const list = makeList(['1', '2'], { selected: '2' });
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
       expect(findDOMNode(button).textContent).toEqual('—');
@@ -278,7 +283,7 @@ describe('EditableList', function editableList() {
     it('disables the delete button when no item is selected', () => {
       const onSelectItem = jasmine.createSpy('onSelectItem');
       const onDeleteItem = jasmine.createSpy('onDeleteItem');
-      const list = makeList(['1', '2'], {selected: null, onDeleteItem, onSelectItem});
+      const list = makeList(['1', '2'], { selected: null, onDeleteItem, onSelectItem });
       const button = scryRenderedDOMComponentsWithClass(list, 'btn-editable-list')[1];
 
       Simulate.click(button);

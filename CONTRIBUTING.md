@@ -1,6 +1,6 @@
 # Filing an Issue
 
-Thanks for checking out Mailspring! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/n1-open-source-roadmap). If someone has already requested
+Thanks for checking out Mailspring! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/mailspring-open-source-roadmap). If someone has already requested
 the feature you have in mind, you can upvote the card on Trello—to keep things organized, we
 often close feature requests on GitHub after creating Trello cards.
 

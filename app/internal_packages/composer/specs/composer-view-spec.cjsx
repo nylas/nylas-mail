@@ -11,7 +11,7 @@ ReactTestUtils = require('react-dom/test-utils')
  Account,
  DraftStore,
  DatabaseStore,
- NylasTestUtils,
+ MailspringTestUtils,
  AccountStore,
  ContactStore,
  FocusedContentStore,
@@ -65,7 +65,7 @@ useFullDraft = ->
     replyToHeaderMessageId: null
 
 makeComposer = (props={}) ->
-  @composer = NylasTestUtils.renderIntoDocument(
+  @composer = MailspringTestUtils.renderIntoDocument(
     <ComposerView draft={@draft} session={@session} {...props} />
   )
   advanceClock()
@@ -89,7 +89,7 @@ describe "ComposerView", ->
     ComposerEditor.containerRequired = undefined
     ComponentRegistry.unregister(ComposerEditor)
     DraftStore._cleanupAllSessions()
-    NylasTestUtils.removeFromDocument(@composer)
+    MailspringTestUtils.removeFromDocument(@composer)
 
   describe "when sending a new message", ->
     it 'makes a request with the message contents', ->

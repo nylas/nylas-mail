@@ -1,18 +1,19 @@
 /* eslint react/prefer-es6-class: "off" */
 /* eslint react/prefer-stateless-function: "off" */
 
-import {React, ComponentRegistry, NylasTestUtils} from 'mailspring-exports';
-import {InjectedComponentSet} from 'mailspring-component-kit';
+import { React, ComponentRegistry, MailspringTestUtils } from 'mailspring-exports';
+import { InjectedComponentSet } from 'mailspring-component-kit';
 
-const {renderIntoDocument} = NylasTestUtils;
+const { renderIntoDocument } = MailspringTestUtils;
 
-const reactStub = (displayName) => {
+const reactStub = displayName => {
   return React.createClass({
     displayName,
-    render() { return <div className={displayName} /> },
+    render() {
+      return <div className={displayName} />;
+    },
   });
 };
-
 
 describe('InjectedComponentSet', function injectedComponentSet() {
   describe('render', () => {
@@ -28,15 +29,14 @@ describe('InjectedComponentSet', function injectedComponentSet() {
       };
       runs(() => {
         renderIntoDocument(
-          <InjectedComponentSet
-            matching={{}}
-            onComponentsDidRender={onComponentsDidRender}
-          />
+          <InjectedComponentSet matching={{}} onComponentsDidRender={onComponentsDidRender} />
         );
       });
 
       waitsFor(
-        () => { return rendered; },
+        () => {
+          return rendered;
+        },
         '`onComponentsDidMount` should be called',
         100
       );

@@ -3,18 +3,18 @@ import _ from 'underscore';
 
 import ReactTestUtils from 'react-dom/test-utils';
 import Config from '../../src/config';
-import N1SpecLoader from './n1-spec-loader';
+import SpecLoader from './spec-loader';
 import TimeReporter from './time-reporter';
-import N1GuiReporter from './n1-gui-reporter';
+import GuiReporter from './gui-reporter';
 import jasmineExports from './jasmine';
 import ConsoleReporter from './console-reporter';
 import MasterAfterEach from './master-after-each';
 import MasterBeforeEach from './master-before-each';
-import nylasTestConstants from './nylas-test-constants';
+import TestConstants from './test-constants';
 import * as jasmineExtensions from './jasmine-extensions';
 import * as reactTestUtilsExtensions from './react-test-utils-extensions';
 
-class N1SpecRunner {
+class SpecRunner {
   runSpecs(loadSettings) {
     this.loadSettings = loadSettings;
     this._extendGlobalWindow();
@@ -24,7 +24,7 @@ class N1SpecRunner {
     Object.assign(ReactTestUtils, reactTestUtilsExtensions);
     MasterBeforeEach.setup(this.loadSettings, window.beforeEach);
     MasterAfterEach.setup(this.loadSettings, window.afterEach);
-    N1SpecLoader.loadSpecs(this.loadSettings, this.jasmineEnv);
+    SpecLoader.loadSpecs(this.loadSettings, this.jasmineEnv);
     this.jasmineEnv.execute();
   }
 
@@ -54,7 +54,7 @@ class N1SpecRunner {
         testNowMoment: jasmineExtensions.testNowMoment,
         waitsForPromise: jasmineExtensions.waitsForPromise,
       },
-      nylasTestConstants
+      TestConstants
     );
 
     this.jasmineEnv = jasmineExports.jasmine.getEnv();
@@ -144,7 +144,7 @@ class N1SpecRunner {
     this.jasmineEnv.addReporter(consoleReporter);
 
     if (loadSettings.showSpecsInWindow) {
-      this.jasmineEnv.addReporter(N1GuiReporter);
+      this.jasmineEnv.addReporter(GuiReporter);
       AppEnv.show();
     } else {
       // this package's dep `jasmine-focused` also adds methods to the
@@ -152,9 +152,9 @@ class N1SpecRunner {
       // NOTE: this reporter MUST be added last as it exits the test process
       // when complete, which may result in e.g. your XML output not getting
       // written to disk if that reporter is added afterward.
-      const N1TerminalReporter = require('./terminal-reporter').default;
+      const TerminalReporter = require('./terminal-reporter').default;
 
-      const terminalReporter = new N1TerminalReporter();
+      const terminalReporter = new TerminalReporter();
       this.jasmineEnv.addReporter(terminalReporter);
     }
   }
@@ -185,4 +185,4 @@ class N1SpecRunner {
     };
   }
 }
-export default new N1SpecRunner();
+export default new SpecRunner();

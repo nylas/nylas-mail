@@ -5,7 +5,7 @@ import { PLUGIN_ID, PLUGIN_URL } from '../lib/open-tracking-constants';
 const accountId = 'fake-accountId';
 const clientId = 'local-31d8df57-1442';
 const beforeBody = `TEST_BODY <blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;"> On Feb 25 2016, at 3:38 pm, Drew &lt;drew@nylas.com&gt; wrote: <br> twst </blockquote>`;
-const afterBody = `TEST_BODY <img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" src="${PLUGIN_URL}/open/${accountId}/${clientId}"><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;"> On Feb 25 2016, at 3:38 pm, Drew &lt;drew@nylas.com&gt; wrote: <br> twst </blockquote>`;
+const afterBody = `TEST_BODY <img class="mailspring-open" width="0" height="0" style="border:0; width:0; height:0;" src="${PLUGIN_URL}/open/${accountId}/${clientId}"><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;"> On Feb 25 2016, at 3:38 pm, Drew &lt;drew@nylas.com&gt; wrote: <br> twst </blockquote>`;
 
 const nodeForHTML = html => {
   const fragment = document.createDocumentFragment();

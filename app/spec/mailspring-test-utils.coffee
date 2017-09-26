@@ -3,7 +3,7 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 ReactTestUtils = require('react-dom/test-utils')
 
-NylasTestUtils =
+MailspringTestUtils =
 
   loadKeymap: (path) =>
     AppEnv.keymaps.loadKeymap(path)
@@ -47,4 +47,4 @@ NylasTestUtils =
         func(nextData)
     }
 
-module.exports = NylasTestUtils
+module.exports = MailspringTestUtils

@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 // On import this will extend the `moment` object
 import 'moment-round';
 
-import nylasTestConstants from './nylas-test-constants';
+import TestConstants from './test-constants';
 
 export function waitsForPromise(...args) {
   let shouldReject;
@@ -80,5 +80,5 @@ export function attachToDOM(element) {
 
 // This date was chosen because it's close to a DST boundary
 export function testNowMoment() {
-  return moment.tz('2016-03-15 12:00', nylasTestConstants.TEST_TIME_ZONE);
+  return moment.tz('2016-03-15 12:00', TestConstants.TEST_TIME_ZONE);
 }

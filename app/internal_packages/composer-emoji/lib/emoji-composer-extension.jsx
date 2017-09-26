@@ -13,22 +13,22 @@ class EmojiComposerExtension extends ComposerExtension {
     const { emojiOptions, triggerWord } = EmojiComposerExtension._findEmojiOptions(sel);
     if (sel.anchorNode && sel.isCollapsed) {
       if (emojiOptions.length > 0) {
-        if (!DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete')) {
+        if (!DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete')) {
           const anchorOffset = Math.max(sel.anchorOffset - triggerWord.length - 1, 0);
           editor.select(sel.anchorNode, anchorOffset, sel.focusNode, sel.focusOffset);
 
-          DOMUtils.wrap(sel.getRangeAt(0), 'n1-emoji-autocomplete');
+          DOMUtils.wrap(sel.getRangeAt(0), 'emoji-autocomplete');
           editor.currentSelection().collapseToEnd();
         }
       } else {
-        if (DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete')) {
-          editor.unwrapNodeAndSelectAll(DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete'));
+        if (DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete')) {
+          editor.unwrapNodeAndSelectAll(DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete'));
           editor.currentSelection().collapseToEnd();
         }
       }
     } else {
-      if (DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete')) {
-        editor.unwrapNodeAndSelectAll(DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete'));
+      if (DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete')) {
+        editor.unwrapNodeAndSelectAll(DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete'));
         editor.currentSelection().collapseToEnd();
       }
     }
@@ -50,7 +50,7 @@ class EmojiComposerExtension extends ComposerExtension {
     if (sel) {
       const { emojiOptions } = EmojiComposerExtension._findEmojiOptions(sel);
       if (emojiOptions.length > 0 && !toolbarState.dragging && !toolbarState.doubleDown) {
-        const locationRefNode = DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete');
+        const locationRefNode = DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete');
         if (!locationRefNode) {
           return null;
         }
@@ -92,7 +92,7 @@ class EmojiComposerExtension extends ComposerExtension {
       ) {
         event.preventDefault();
         const moveToNext = event.key === 'ArrowDown' || event.key === 'ArrowRight';
-        const emojiNameNode = DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete');
+        const emojiNameNode = DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete');
         if (!emojiNameNode) return null;
         const selectedEmoji = emojiNameNode.getAttribute('selectedEmoji');
         if (selectedEmoji) {
@@ -111,7 +111,7 @@ class EmojiComposerExtension extends ComposerExtension {
         }
       } else if (event.key === 'Enter' || event.key === 'Tab') {
         event.preventDefault();
-        const emojiNameNode = DOMUtils.closest(sel.anchorNode, 'n1-emoji-autocomplete');
+        const emojiNameNode = DOMUtils.closest(sel.anchorNode, 'emoji-autocomplete');
         if (!emojiNameNode) return null;
         let selectedEmoji = emojiNameNode.getAttribute('selectedEmoji');
         if (!selectedEmoji) selectedEmoji = emojiOptions[0];

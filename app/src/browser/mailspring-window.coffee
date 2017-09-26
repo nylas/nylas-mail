@@ -9,7 +9,7 @@ WindowIconPath = null
 idNum = 0
 
 module.exports =
-class NylasWindow
+class MailspringWindow
   _.extend @prototype, EventEmitter.prototype
 
   @includeShellLoadTime: true

@@ -199,7 +199,7 @@ lazyLoad(`DefaultClientHelper`, 'default-client-helper');
 lazyLoad(`SystemStartService`, 'system-start-service');
 
 // Testing
-lazyLoadWithGetter(`NylasTestUtils`, () => require('../../spec/nylas-test-utils'));
+lazyLoadWithGetter(`MailspringTestUtils`, () => require('../../spec/mailspring-test-utils'));
 
 process.nextTick(() => {
   let c = 0;

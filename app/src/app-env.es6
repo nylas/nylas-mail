@@ -1024,7 +1024,7 @@ export default class AppEnvConstructor {
   // work and then call finishUnload. We do not support cancelling quit!
   // https://phab.nylas.com/D1932#inline-11722
   //
-  // Also see logic in browser/NylasWindow::handleEvents where we listen
+  // Also see logic in browser/MailspringWindow::handleEvents where we listen
   // to the browserWindow.on 'close' event to catch "unclosable" windows.
   onBeforeUnload(callback) {
     return this.windowEventHandler.addUnloadCallback(callback);

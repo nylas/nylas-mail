@@ -1,12 +1,12 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
-{NylasTestUtils} = require 'mailspring-exports'
+{MailspringTestUtils} = require 'mailspring-exports'
 Contact = require('../../src/flux/models/contact').default
 ContactStore = require('../../src/flux/stores/contact-store').default
 DatabaseStore = require('../../src/flux/stores/database-store').default
 AccountStore = require('../../src/flux/stores/account-store').default
 
-{mockObservable} = NylasTestUtils
+{mockObservable} = MailspringTestUtils
 
 xdescribe "ContactStore", ->
   beforeEach ->

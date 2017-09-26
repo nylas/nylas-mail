@@ -15,7 +15,7 @@ ReactTestUtils = require 'react-dom/test-utils'
  DraftStore,
  MessageStore,
  AccountStore,
- NylasTestUtils,
+ MailspringTestUtils,
  ComponentRegistry} = require "mailspring-exports"
 
 MessageParticipants = require("../lib/message-participants").default
@@ -185,7 +185,7 @@ describe "MessageList", ->
       MessageStore._expandItemsToDefault()
       MessageStore.trigger(MessageStore)
       @messageList.setState(currentThread: testThread)
-      NylasTestUtils.loadKeymap("keymaps/base")
+      MailspringTestUtils.loadKeymap("keymaps/base")
 
     it "renders all the correct number of messages", ->
       items = ReactTestUtils.scryRenderedComponentsWithType(@messageList,

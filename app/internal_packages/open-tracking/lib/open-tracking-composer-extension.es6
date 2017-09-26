@@ -37,7 +37,7 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
     const imgFragment = document
       .createRange()
       .createContextualFragment(
-        `<img class="n1-open" width="0" height="0" style="border:0; width:0; height:0;" data-open-tracking-src="${serverUrl}">`
+        `<img class="mailspring-open" width="0" height="0" style="border:0; width:0; height:0;" data-open-tracking-src="${serverUrl}">`
       );
     const beforeEl = draftBodyRootNode.querySelector('.gmail_quote');
     if (beforeEl) {
@@ -52,7 +52,7 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
   }
 
   static unapplyTransformsForSending({ draftBodyRootNode }) {
-    const imgEl = draftBodyRootNode.querySelector('.n1-open');
+    const imgEl = draftBodyRootNode.querySelector('.mailspring-open');
     if (imgEl) {
       imgEl.parentNode.removeChild(imgEl);
     }

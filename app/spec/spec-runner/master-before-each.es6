@@ -13,7 +13,7 @@ import pathwatcher from 'pathwatcher';
 import Config from '../../src/config';
 import configUtils from '../../src/config-utils';
 import TimeOverride from './time-override';
-import nylasTestConstants from './nylas-test-constants';
+import TestConstants from './test-constants';
 import * as jasmineExtensions from './jasmine-extensions';
 
 class MasterBeforeEach {
@@ -91,11 +91,11 @@ class MasterBeforeEach {
     AccountStore._accounts = [
       new Account({
         provider: 'gmail',
-        name: nylasTestConstants.TEST_ACCOUNT_NAME,
-        emailAddress: nylasTestConstants.TEST_ACCOUNT_EMAIL,
-        id: nylasTestConstants.TEST_ACCOUNT_ID,
+        name: TestConstants.TEST_ACCOUNT_NAME,
+        emailAddress: TestConstants.TEST_ACCOUNT_EMAIL,
+        id: TestConstants.TEST_ACCOUNT_ID,
         aliases: [
-          `${nylasTestConstants.TEST_ACCOUNT_NAME} Alternate <${nylasTestConstants.TEST_ACCOUNT_ALIAS_EMAIL}>`,
+          `${TestConstants.TEST_ACCOUNT_NAME} Alternate <${TestConstants.TEST_ACCOUNT_ALIAS_EMAIL}>`,
         ],
       }),
 

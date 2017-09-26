@@ -20,7 +20,7 @@ describe "Composer Quoted Text", ->
 
     @onChange = jasmine.createSpy('onChange')
     @htmlNoQuote = 'Test <strong>HTML</strong><br>'
-    @htmlWithQuote = 'Test <strong>HTML</strong><div id="n1-quoted-text-marker"></div><br><blockquote class="gmail_quote">QUOTE</blockquote>'
+    @htmlWithQuote = 'Test <strong>HTML</strong><div id="mailspring-quoted-text-marker"></div><br><blockquote class="gmail_quote">QUOTE</blockquote>'
 
     @draft = new Message(draft: true, id: "client-123", headerMessageId: 'hmid')
     @session =

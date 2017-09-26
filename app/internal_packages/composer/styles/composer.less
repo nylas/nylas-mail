@@ -1,7 +1,7 @@
 // The ui-variables file is provided by base themes provided by N1.
-@import "ui-variables";
-@import "ui-mixins";
-@import "buttons";
+@import 'ui-variables';
+@import 'ui-mixins';
+@import 'buttons';
 
 @compose-width: 800px;
 @compose-min-height: 70px;
@@ -17,7 +17,8 @@ body.platform-win32 {
     .composer-action-bar-wrap {
       border-radius: 0;
     }
-    input, input:focus {
+    input,
+    input:focus {
       box-shadow: none;
     }
   }
@@ -25,19 +26,18 @@ body.platform-win32 {
 
 .action-bar-cover-gen() {
   .action-bar-cover {
-    background-image: -webkit-linear-gradient(left, fade(@action-bar-bg, 0) 0%,
-    @action-bar-bg 10%);
+    background-image: -webkit-linear-gradient(left, fade(@action-bar-bg, 0) 0%, @action-bar-bg 10%);
   }
 }
 
 // Used to allow the click targets to extend into the margins
 .composer-field-bottom-border() {
-  width: calc(~"100% - 44px");
+  width: calc(~'100% - 44px');
   height: 1px;
   position: absolute;
   bottom: 0;
   left: 23px;
-  content: " ";
+  content: ' ';
   background: @border-color-divider;
 }
 
@@ -49,13 +49,16 @@ body.platform-win32 {
 
   .composer-drop-cover {
     position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 1000;
-    background: rgba(255,255,255,0.7);
+    background: rgba(255, 255, 255, 0.7);
     border-radius: @border-radius-base;
     border: 4px dashed lighten(@gray, 30%);
     text-align: center;
-    line-height:2.3em;
+    line-height: 2.3em;
     pointer-events: none;
 
     .centered {
@@ -65,8 +68,13 @@ body.platform-win32 {
       transform: translate(-50%, -50%);
       color: lighten(@gray, 20%);
       font-weight: 500;
-      font-size:1.1em;
-      img { margin: auto; display:block; margin-bottom:20px; background-color: lighten(@gray, 20%); }
+      font-size: 1.1em;
+      img {
+        margin: auto;
+        display: block;
+        margin-bottom: 20px;
+        background-color: lighten(@gray, 20%);
+      }
     }
   }
 
@@ -86,7 +94,7 @@ body.platform-win32 {
     width: 100%;
     background: @action-bar-bg;
     border-top: 1px solid darken(@background-off-primary, 7%);
-    box-shadow: inset 0 2px 1px rgba(0,0,0,0.03);
+    box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.03);
     border-bottom: 0;
     border-radius: @border-radius-base;
 
@@ -122,9 +130,9 @@ body.platform-win32 {
     }
 
     .composer-action-bar-content {
-      display:flex;
+      display: flex;
       margin: 0 auto;
-      flex-direction:row;
+      flex-direction: row;
       max-width: @compose-width;
       padding: 9px 22.5px;
 
@@ -172,7 +180,7 @@ body.platform-win32 {
   }
 
   .composer-centered {
-    display:flex;
+    display: flex;
     position: relative;
     flex-direction: column;
     flex: 1;
@@ -202,7 +210,9 @@ body.platform-win32 {
 
     .action {
       color: @text-color-very-subtle;
-      img.content-mask { background-color: @text-color-very-subtle; }
+      img.content-mask {
+        background-color: @text-color-very-subtle;
+      }
       font-size: @font-size-small;
       padding: 10px 6px;
       &:first-child {
@@ -213,13 +223,16 @@ body.platform-win32 {
       }
       &:hover {
         color: @text-color-link;
-        img.content-mask { background-color: @text-color-link; }
+        img.content-mask {
+          background-color: @text-color-link;
+        }
         cursor: default;
       }
     }
   }
 
-  input, textarea {
+  input,
+  textarea {
     color: @text-color;
     position: relative;
     display: block;
@@ -243,7 +256,7 @@ body.platform-win32 {
     position: relative;
     margin: 0 23px;
     border-bottom: 1px solid @border-color-divider;
-    flex-shrink:0;
+    flex-shrink: 0;
     color: @text-color-very-subtle;
     padding: 10px 0 10px 0;
 
@@ -251,10 +264,10 @@ body.platform-win32 {
       padding-right: 0.25em;
       color: @text-color;
       &:after {
-        content: ","
+        content: ',';
       }
       &:last-child:after {
-        content: ""
+        content: '';
       }
     }
 
@@ -276,7 +289,11 @@ body.platform-win32 {
         height: 32px;
         right: 0;
         top: 0;
-        background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
+        background: linear-gradient(
+          to right,
+          fade(@background-primary, 0%) 0%,
+          fade(@background-primary, 100%) 40%
+        );
       }
     }
   }
@@ -284,7 +301,7 @@ body.platform-win32 {
   .composer-subject {
     position: relative;
     margin: 0;
-    flex-shrink:0;
+    flex-shrink: 0;
 
     &:after {
       .composer-field-bottom-border;
@@ -313,7 +330,7 @@ body.platform-win32 {
   }
 
   .compose-body-scroll {
-    position:initial;
+    position: initial;
     .scroll-region-content .scroll-region-content-inner {
       min-height: 100%;
       display: flex;
@@ -390,12 +407,11 @@ body.platform-win32 {
   }
 
   .composer-inner-wrap {
-
     .composer-action-bar-wrap {
       @action-bar-bg: darken(@background-primary, 1%);
       background: @action-bar-bg;
       border-top: 1px solid darken(@background-primary, 8%);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
       .action-bar-cover-gen;
     }
 
@@ -407,7 +423,6 @@ body.platform-win32 {
       margin-bottom: 0;
       position: relative;
     }
-
   }
 
   .compose-body {
@@ -427,7 +442,11 @@ body.platform-win32 {
         padding-right: 0;
       }
       .show-more-fade {
-        background: linear-gradient(to right, fade(@blurred-primary-color, 0%) 0%, fade(@blurred-primary-color, 100%) 40%);
+        background: linear-gradient(
+          to right,
+          fade(@blurred-primary-color, 0%) 0%,
+          fade(@blurred-primary-color, 100%) 40%
+        );
       }
       .composer-action-bar-wrap {
         @action-bar-bg: @blurred-off-primary-color;
@@ -436,10 +455,15 @@ body.platform-win32 {
       }
     }
     .message-item-white-wrap.composer-outer-wrap.focused {
-      box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08), 0 0 3px @accent-primary;
+      box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08),
+        0 0 3px @accent-primary;
       background-color: @background-primary;
       .show-more-fade {
-        background: linear-gradient(to right, fade(@background-primary, 0%) 0%, fade(@background-primary, 100%) 40%);
+        background: linear-gradient(
+          to right,
+          fade(@background-primary, 0%) 0%,
+          fade(@background-primary, 100%) 40%
+        );
       }
       .composer-action-bar-wrap {
         @action-bar-bg: @background-off-primary;
@@ -449,7 +473,6 @@ body.platform-win32 {
     }
   }
 }
-
 
 //////////////////////////////////
 // participants-text-field.cjsx //
@@ -466,7 +489,7 @@ body.platform-win32 {
   }
   .content-container {
     margin-left: 22px;
-    width: calc(~"100% - 44px");
+    width: calc(~'100% - 44px');
   }
   .button-dropdown {
     .content-container {
@@ -493,7 +516,8 @@ body.platform-win32 {
     padding-top: 11px;
     vertical-align: -webkit-baseline-middle;
 
-    .primary-item, .only-item {
+    .primary-item,
+    .only-item {
       line-height: 2em;
     }
     &:hover {
@@ -535,7 +559,6 @@ body.platform-win32 {
   }
 }
 
-
 //////////////////////////////////
 //      Overlaid Components     //
 //////////////////////////////////
@@ -549,7 +572,7 @@ body.platform-win32 {
   overflow: visible;
   z-index: 1;
 }
-img.n1-overlaid-component-anchor-container {
+img.overlaid-component-anchor-container {
   border: 0;
   vertical-align: baseline;
 }

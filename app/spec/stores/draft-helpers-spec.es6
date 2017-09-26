@@ -64,7 +64,7 @@ xdescribe('DraftHelpers', function describeBlock() {
     it('returns false if message is reply and has marker', () => {
       const draft = {
         replyToHeaderMessageId: 1,
-        body: `<div>hello!</div><div id="n1-quoted-text-marker"></div>Quoted Text`,
+        body: `<div>hello!</div><div id="mailspring-quoted-text-marker"></div>Quoted Text`,
       };
       expect(DraftHelpers.shouldAppendQuotedText(draft)).toBe(false);
     });

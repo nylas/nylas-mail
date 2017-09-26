@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTestUtils from 'react-dom/test-utils';
 
-import { renderIntoDocument } from '../../../spec/nylas-test-utils';
+import { renderIntoDocument } from '../../../spec/mailspring-test-utils';
 import Contenteditable from '../../../src/components/contenteditable/contenteditable';
 import EmojiComposerExtension from '../lib/emoji-composer-extension';
 

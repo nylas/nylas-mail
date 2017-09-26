@@ -109,7 +109,7 @@ export default class LinkManager extends ContenteditableExtension {
   static _linkAtCursor(toolbarState) {
     if (toolbarState.selectionSnapshot.isCollapsed) {
       const anchor = toolbarState.selectionSnapshot.anchorNode;
-      const node = DOMUtils.closest(anchor, 'a, n1-prompt-link');
+      const node = DOMUtils.closest(anchor, 'a, prompt-link');
       const lastTextNode = DOMUtils.findLastTextNode(anchor);
       if (
         lastTextNode &&
@@ -122,8 +122,8 @@ export default class LinkManager extends ContenteditableExtension {
 
     const anchor = toolbarState.selectionSnapshot.anchorNode;
     const focus = toolbarState.selectionSnapshot.anchorNode;
-    const aPrompt = DOMUtils.closest(anchor, 'n1-prompt-link');
-    const fPrompt = DOMUtils.closest(focus, 'n1-prompt-link');
+    const aPrompt = DOMUtils.closest(anchor, 'prompt-link');
+    const fPrompt = DOMUtils.closest(focus, 'prompt-link');
     if (aPrompt && fPrompt && aPrompt === fPrompt) {
       const aTag = DOMUtils.closest(aPrompt, 'a');
       return aTag || aPrompt;
@@ -153,16 +153,16 @@ export default class LinkManager extends ContenteditableExtension {
   static _onInsertLink({ editor }) {
     setTimeout(() => {
       if (editor.currentSelection().isCollapsed) {
-        const html = '<n1-prompt-link>link text</n1-prompt-link>';
+        const html = '<prompt-link>link text</prompt-link>';
         editor.insertHTML(html, { selectInsertion: true });
       } else {
-        editor.wrapSelection('n1-prompt-link');
+        editor.wrapSelection('prompt-link');
       }
     }, 0);
   }
 
   static _onDoneWithLink({ editor }) {
-    for (const node of Array.from(editor.rootNode.querySelectorAll('n1-prompt-link'))) {
+    for (const node of Array.from(editor.rootNode.querySelectorAll('prompt-link'))) {
       editor.unwrapNodeAndSelectAll(node);
     }
   }
@@ -200,7 +200,7 @@ export default class LinkManager extends ContenteditableExtension {
       }
     }
 
-    for (const node of Array.from(editor.rootNode.querySelectorAll('n1-prompt-link'))) {
+    for (const node of Array.from(editor.rootNode.querySelectorAll('prompt-link'))) {
       editor.unwrapNodeAndSelectAll(node);
     }
   }

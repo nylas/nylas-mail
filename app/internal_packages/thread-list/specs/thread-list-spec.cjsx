@@ -21,7 +21,7 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  Account,
  DatabaseStore,
  WorkspaceStore,
- NylasTestUtils,
+ MailspringTestUtils,
  AccountStore,
  ComponentRegistry} = require "mailspring-exports"
 {ListTabular} = require 'mailspring-component-kit'
@@ -208,7 +208,7 @@ describe "ThreadList", ->
   columns = [c1,c2,c3]
 
   beforeEach ->
-    NylasTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list")
+    MailspringTestUtils.loadKeymap("internal_packages/thread-list/keymaps/thread-list")
     spyOn(ThreadStore, "_onAccountChanged")
     spyOn(DatabaseStore, "findAll").andCallFake ->
       new Promise (resolve, reject) -> resolve(test_threads())
