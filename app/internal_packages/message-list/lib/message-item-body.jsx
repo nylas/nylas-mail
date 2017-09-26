@@ -6,7 +6,7 @@ import {
   MessageBodyProcessor,
   QuotedHTMLTransformer,
   AttachmentStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { InjectedComponentSet, RetinaImg } from 'nylas-component-kit';
 
 import EmailFrame from './email-frame';

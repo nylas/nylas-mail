@@ -1,4 +1,4 @@
-import { React, Actions, MessageStore, FocusedPerspectiveStore } from 'nylas-exports';
+import { React, Actions, MessageStore, FocusedPerspectiveStore } from 'mailspring-exports';
 
 export default class MessageListHiddenMessagesToggle extends React.Component {
   static displayName = 'MessageListHiddenMessagesToggle';

@@ -7,7 +7,7 @@ _ = require 'underscore'
  ChangeStarredTask,
  TaskFactory,
  ExtensionRegistry,
- AccountStore} = require 'nylas-exports'
+ AccountStore} = require 'mailspring-exports'
 
 class ThreadListIcon extends React.Component
   @displayName: 'ThreadListIcon'

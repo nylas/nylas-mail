@@ -1,4 +1,4 @@
-import { Actions, Utils } from 'nylas-exports';
+import { Actions, Utils } from 'mailspring-exports';
 
 function safeEncode(str) {
   return btoa(unescape(encodeURIComponent(str)));

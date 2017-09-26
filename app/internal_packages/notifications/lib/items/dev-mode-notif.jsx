@@ -1,4 +1,4 @@
-import { React } from 'nylas-exports';
+import { React } from 'mailspring-exports';
 import { Notification } from 'nylas-component-kit';
 
 export default class DevModeNotification extends React.Component {

@@ -1,4 +1,4 @@
-import { RegExpUtils } from 'nylas-exports';
+import { RegExpUtils } from 'mailspring-exports';
 
 export default {
   applySignature(body, signature) {

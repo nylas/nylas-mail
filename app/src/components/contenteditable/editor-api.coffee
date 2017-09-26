@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{DOMUtils} = require 'nylas-exports'
+{DOMUtils} = require 'mailspring-exports'
 React = require 'react'
 ExtendedSelection = require './extended-selection'
 OverlaidComponents = null

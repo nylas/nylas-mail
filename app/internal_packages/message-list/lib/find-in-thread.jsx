@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import { Actions, MessageStore, SearchableComponentStore } from 'nylas-exports';
+import { Actions, MessageStore, SearchableComponentStore } from 'mailspring-exports';
 import { RetinaImg, KeyCommandsRegion } from 'nylas-component-kit';
 
 export default class FindInThread extends React.Component {

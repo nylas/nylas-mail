@@ -1,4 +1,4 @@
-import { React, MessageViewExtension, Actions } from 'nylas-exports';
+import { React, MessageViewExtension, Actions } from 'mailspring-exports';
 import LinkTrackingMessagePopover from './link-tracking-message-popover';
 import { PLUGIN_ID } from './link-tracking-constants';
 

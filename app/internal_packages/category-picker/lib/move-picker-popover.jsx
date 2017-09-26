@@ -12,7 +12,7 @@ import {
   ChangeFolderTask,
   ChangeLabelsTask,
   FocusedPerspectiveStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { Categories } from 'nylas-observables';
 
 export default class MovePickerPopover extends Component {

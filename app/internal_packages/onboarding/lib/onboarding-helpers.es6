@@ -8,7 +8,7 @@ import {
   IdentityStore,
   RegExpUtils,
   MailsyncProcess,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 const { makeRequest, rootURLForServer } = NylasAPIRequest;
 

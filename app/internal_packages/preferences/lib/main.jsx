@@ -1,5 +1,5 @@
 /* eslint global-require: 0 */
-import { PreferencesUIStore, WorkspaceStore, ComponentRegistry } from 'nylas-exports';
+import { PreferencesUIStore, WorkspaceStore, ComponentRegistry } from 'mailspring-exports';
 
 import PreferencesRoot from './preferences-root';
 

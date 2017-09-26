@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, ReactDOM } from 'nylas-exports';
+import { Actions, ReactDOM } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 
 import ActivityList from './activity-list';

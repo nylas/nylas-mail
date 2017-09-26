@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { remote } from 'electron';
-import { Message, DraftStore } from 'nylas-exports';
+import { Message, DraftStore } from 'mailspring-exports';
 import TemplateStore from '../lib/template-store';
 
 const { shell } = remote;

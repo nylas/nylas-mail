@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import { Rx, FocusedContentStore } from 'nylas-exports';
+import { Rx, FocusedContentStore } from 'mailspring-exports';
 import ThreadListStore from './thread-list-store';
 import InjectsToolbarButtons, { ToolbarRole } from './injects-toolbar-buttons';
 

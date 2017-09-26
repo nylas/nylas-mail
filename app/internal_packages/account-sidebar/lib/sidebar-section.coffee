@@ -5,7 +5,7 @@ _ = require 'underscore'
  Label,
  Category,
  ExtensionRegistry,
- RegExpUtils} = require 'nylas-exports'
+ RegExpUtils} = require 'mailspring-exports'
 SidebarItem = require './sidebar-item'
 SidebarActions = require './sidebar-actions'
 

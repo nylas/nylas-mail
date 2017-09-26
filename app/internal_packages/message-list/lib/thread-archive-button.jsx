@@ -6,7 +6,7 @@ import {
   TaskFactory,
   DOMUtils,
   FocusedPerspectiveStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 export default class ThreadArchiveButton extends React.Component {
   static displayName = 'ThreadArchiveButton';

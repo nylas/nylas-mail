@@ -1,7 +1,7 @@
 import {
   React,
   FocusedContactsStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 export default class MyMessageSidebar extends React.Component {
   static displayName = 'MyMessageSidebar';

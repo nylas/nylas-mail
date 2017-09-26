@@ -9,7 +9,7 @@ import {
   ExtensionRegistry,
   InflatesDraftClientId,
   CustomContenteditableComponents,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { OverlaidComposerExtension } from 'nylas-component-kit';
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';

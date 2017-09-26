@@ -5,7 +5,7 @@ import {
   Message,
   SendActionsStore,
   Actions,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { HasTutorialTip } from 'nylas-component-kit';
 
 import SendLaterButton from './send-later-button';

@@ -1,4 +1,4 @@
-import { React, PropTypes, FocusedContentStore, Actions } from 'nylas-exports';
+import { React, PropTypes, FocusedContentStore, Actions } from 'mailspring-exports';
 import { FluxContainer } from 'nylas-component-kit';
 
 export default class FocusContainer extends React.Component {

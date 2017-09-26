@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import classnames from 'classnames';
-import { React, PropTypes, Actions } from 'nylas-exports';
+import { React, PropTypes, Actions } from 'mailspring-exports';
 import { remote } from 'electron';
 
 const { Menu, MenuItem } = remote;

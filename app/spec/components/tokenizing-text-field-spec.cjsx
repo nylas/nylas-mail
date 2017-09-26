@@ -8,7 +8,7 @@ ReactDOM = require 'react-dom'
  Account,
  AccountStore,
  Contact,
-} = require 'nylas-exports'
+} = require 'mailspring-exports'
 {TokenizingTextField, Menu} = require 'nylas-component-kit'
 
 CustomToken = React.createClass

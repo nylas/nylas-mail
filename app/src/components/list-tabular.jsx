@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
-import { Utils } from 'nylas-exports';
+import { Utils } from 'mailspring-exports';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 

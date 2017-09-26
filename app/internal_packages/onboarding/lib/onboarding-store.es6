@@ -1,4 +1,4 @@
-import { AccountStore, Account, Actions, IdentityStore } from 'nylas-exports';
+import { AccountStore, Account, Actions, IdentityStore } from 'mailspring-exports';
 import { ipcRenderer } from 'electron';
 import NylasStore from 'nylas-store';
 

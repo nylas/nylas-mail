@@ -1,4 +1,4 @@
-import { React, ReactDOM, PropTypes } from 'nylas-exports';
+import { React, ReactDOM, PropTypes } from 'mailspring-exports';
 import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';

@@ -1,4 +1,4 @@
-import { WorkspaceStore, ComponentRegistry, Actions } from 'nylas-exports';
+import { WorkspaceStore, ComponentRegistry, Actions } from 'mailspring-exports';
 import DraftList from './draft-list';
 import DraftListToolbar from './draft-list-toolbar';
 import DraftListSendStatus from './draft-list-send-status';

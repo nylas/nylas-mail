@@ -1,4 +1,4 @@
-{ComponentRegistry, WorkspaceStore} = require 'nylas-exports'
+{ComponentRegistry, WorkspaceStore} = require 'mailspring-exports'
 EventHeader = require "./event-header"
 
 module.exports =

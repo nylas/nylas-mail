@@ -3,7 +3,7 @@ ReactDOM = require 'react-dom'
 ComposerHeaderActions = require('../lib/composer-header-actions').default
 Fields = require('../lib/fields').default
 ReactTestUtils = require('react-dom/test-utils')
-{Actions} = require 'nylas-exports'
+{Actions} = require 'mailspring-exports'
 
 describe "ComposerHeaderActions", ->
   makeField = (props = {}) ->

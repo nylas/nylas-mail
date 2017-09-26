@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Rx, React, PropTypes, DatabaseStore, AccountStore, Calendar } from 'nylas-exports';
+import { Rx, React, PropTypes, DatabaseStore, AccountStore, Calendar } from 'mailspring-exports';
 import { ScrollRegion, ResizableRegion, MiniMonthView } from 'nylas-component-kit';
 import WeekView from './week-view';
 import MonthView from './month-view';

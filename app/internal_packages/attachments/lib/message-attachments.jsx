@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Actions, Utils, AttachmentStore } from 'nylas-exports';
+import { Actions, Utils, AttachmentStore } from 'mailspring-exports';
 import { AttachmentItem, ImageAttachmentItem } from 'nylas-component-kit';
 
 class MessageAttachments extends Component {

@@ -7,7 +7,7 @@ import {
   TaskFactory,
   DatabaseStore,
   FocusedPerspectiveStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 export default class ThreadListContextMenu {
   constructor({ threadIds = [], accountIds = [] }) {

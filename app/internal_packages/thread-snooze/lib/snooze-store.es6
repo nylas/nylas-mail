@@ -6,7 +6,7 @@ import {
   Actions,
   DatabaseStore,
   Thread,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import { moveThreads, snoozedUntilMessage } from './snooze-utils';
 import { PLUGIN_ID } from './snooze-constants';

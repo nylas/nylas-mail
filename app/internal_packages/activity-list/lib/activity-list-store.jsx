@@ -5,7 +5,7 @@ import {
   DatabaseStore,
   NativeNotifications,
   FocusedPerspectiveStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import ActivityListActions from './activity-list-actions';
 import ActivityDataSource from './activity-data-source';
 import { pluginFor } from './plugin-helpers';

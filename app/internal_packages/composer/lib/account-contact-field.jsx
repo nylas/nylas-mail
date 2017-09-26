@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { AccountStore } from 'nylas-exports';
+import { AccountStore } from 'mailspring-exports';
 import { Menu, ButtonDropdown, InjectedComponentSet } from 'nylas-component-kit';
 
 export default class AccountContactField extends React.Component {

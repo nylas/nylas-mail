@@ -30,11 +30,11 @@
   },
   "settings": {
     "import/core-modules": [
-      "nylas-exports",
-      "nylas-component-kit",
+      "mailspring-exports",
+      "mailspring-component-kit",
       "electron",
-      "nylas-store",
-      "nylas-observables"
+      "mailspring-store",
+      "mailspring-observables"
     ],
     "import/resolver": {
       "node": { "extensions": [".es6", ".jsx", ".coffee", ".json", ".cjsx", ".js"] }

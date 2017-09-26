@@ -5,7 +5,7 @@ import {
   findRenderedDOMComponentWithClass,
 } from 'react-dom/test-utils';
 
-import {DateUtils} from 'nylas-exports'
+import {DateUtils} from 'mailspring-exports'
 import DateInput from '../../src/components/date-input';
 import {renderIntoDocument} from '../nylas-test-utils'
 

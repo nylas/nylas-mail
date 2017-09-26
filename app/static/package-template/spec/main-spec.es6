@@ -1,4 +1,4 @@
-import {ComponentRegistry} from 'nylas-exports';
+import {ComponentRegistry} from 'mailspring-exports';
 import {activate, deactivate} from '../lib/main';
 
 import MyMessageSidebar from '../lib/my-message-sidebar';

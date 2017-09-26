@@ -1,7 +1,7 @@
 /* eslint quote-props: 0 */
 import ReactTestUtils from 'react-dom/test-utils';
 import React from 'react';
-import { SignatureStore, Actions } from 'nylas-exports';
+import { SignatureStore, Actions } from 'mailspring-exports';
 import PreferencesSignatures from '../lib/preferences-signatures';
 
 const SIGNATURES = {

@@ -1,6 +1,6 @@
 _ = require 'underscore'
 SwipeContainer = require('./swipe-container').default
-{React, PropTypes, Utils} = require 'nylas-exports'
+{React, PropTypes, Utils} = require 'mailspring-exports'
 
 class ListTabularItem extends React.Component
   @displayName = 'ListTabularItem'

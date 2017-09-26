@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import { WorkspaceStore } from 'nylas-exports';
+import { WorkspaceStore } from 'mailspring-exports';
 
 import Sheet from './sheet';
 import Toolbar from './sheet-toolbar';

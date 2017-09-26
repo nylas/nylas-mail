@@ -11,7 +11,7 @@ import {
   NylasAPIRequest,
   SoundRegistry,
   SyncbackMetadataTask,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 const DBt = DatabaseWriter.prototype;
 const withoutWhitespace = s => s.replace(/[\n\r\s]/g, '');

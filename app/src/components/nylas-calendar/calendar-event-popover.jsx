@@ -6,7 +6,7 @@ import {
   DatabaseStore,
   DateUtils,
   SyncbackEventTask,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import {
   DatePicker,
   RetinaImg,

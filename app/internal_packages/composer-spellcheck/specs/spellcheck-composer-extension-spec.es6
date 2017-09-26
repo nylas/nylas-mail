@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Spellchecker, Message } from 'nylas-exports';
+import { Spellchecker, Message } from 'mailspring-exports';
 
 import SpellcheckComposerExtension from '../lib/spellcheck-composer-extension';
 

@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-{Thread} = require 'nylas-exports'
+{Thread} = require 'mailspring-exports'
 {ListTabular} = require 'nylas-component-kit'
 
 ListDataSource = ListTabular.DataSource

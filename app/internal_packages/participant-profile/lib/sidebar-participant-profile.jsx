@@ -1,4 +1,4 @@
-import { React, PropTypes, DOMUtils, RegExpUtils, Utils } from 'nylas-exports';
+import { React, PropTypes, DOMUtils, RegExpUtils, Utils } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import ParticipantProfileStore from './participant-profile-store';
 

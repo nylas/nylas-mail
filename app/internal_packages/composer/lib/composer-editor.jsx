@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ExtensionRegistry, DOMUtils } from 'nylas-exports';
+import { ExtensionRegistry, DOMUtils } from 'mailspring-exports';
 import { DropZone, ScrollRegion, Contenteditable } from 'nylas-component-kit';
 
 /**

@@ -8,7 +8,7 @@ _ = require 'underscore'
  MutableQuerySubscription,
  ObservableListDataSource,
  FocusedPerspectiveStore,
- DatabaseStore} = require 'nylas-exports'
+ DatabaseStore} = require 'mailspring-exports'
 {ListTabular} = require 'nylas-component-kit'
 
 class DraftListStore extends NylasStore

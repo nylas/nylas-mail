@@ -8,7 +8,7 @@ import {
   MailRulesTemplates,
   TaskQueue,
   ReprocessMailRulesTask,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import {
   Flexbox,

@@ -2,7 +2,7 @@ React = require "react"
 ReactTestUtils = require('react-dom/test-utils')
 
 _ = require 'underscore'
-{AccountStore, Thread, Contact, Message} = require 'nylas-exports'
+{AccountStore, Thread, Contact, Message} = require 'mailspring-exports'
 ThreadListParticipants = require '../lib/thread-list-participants'
 
 describe "ThreadListParticipants", ->

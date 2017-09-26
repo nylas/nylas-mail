@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions} = require 'nylas-exports'
+{Actions} = require 'mailspring-exports'
 {FluxContainer,
  FocusContainer,
  EmptyListState,

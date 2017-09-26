@@ -1,4 +1,4 @@
-import { Actions, TaskQueue } from 'nylas-exports';
+import { Actions, TaskQueue } from 'mailspring-exports';
 import FeatureUsageStore from '../../src/flux/stores/feature-usage-store';
 import IdentityStore from '../../src/flux/stores/identity-store';
 

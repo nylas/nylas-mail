@@ -1,4 +1,4 @@
-import { Model, DatabaseStore, DestroyModelTask, DatabaseWriter } from 'nylas-exports';
+import { Model, DatabaseStore, DestroyModelTask, DatabaseWriter } from 'mailspring-exports';
 
 xdescribe('DestroyModelTask', function destroyModelTask() {
   beforeEach(() => {

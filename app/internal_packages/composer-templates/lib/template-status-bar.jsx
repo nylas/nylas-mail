@@ -1,4 +1,4 @@
-import { React, PropTypes } from 'nylas-exports';
+import { React, PropTypes } from 'mailspring-exports';
 
 class TemplateStatusBar extends React.Component {
   static displayName = 'TemplateStatusBar';

@@ -1,4 +1,4 @@
-{React, PropTypes, ReactDOM, RegExpUtils} = require 'nylas-exports'
+{React, PropTypes, ReactDOM, RegExpUtils} = require 'mailspring-exports'
 
 class LinkEditor extends React.Component
   @displayName = "LinkEditor"

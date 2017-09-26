@@ -1,4 +1,4 @@
-import { React, ReactDOM, PropTypes, Utils } from 'nylas-exports';
+import { React, ReactDOM, PropTypes, Utils } from 'mailspring-exports';
 
 export default class EventGridBackground extends React.Component {
   static displayName = 'EventGridBackground';

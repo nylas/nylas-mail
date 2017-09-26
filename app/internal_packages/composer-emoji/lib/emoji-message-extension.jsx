@@ -1,5 +1,5 @@
 /* eslint no-cond-assign:0 */
-import { MessageViewExtension, RegExpUtils } from 'nylas-exports';
+import { MessageViewExtension, RegExpUtils } from 'mailspring-exports';
 import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';

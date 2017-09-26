@@ -4,7 +4,7 @@
 # Markdown editor is a simple React component that allows you to type your
 # emails in markdown and see the live preview of your email in html
 #
-{ExtensionRegistry, ComponentRegistry} = require 'nylas-exports'
+{ExtensionRegistry, ComponentRegistry} = require 'mailspring-exports'
 MarkdownEditor = require './markdown-editor'
 MarkdownComposerExtension = require './markdown-composer-extension'
 

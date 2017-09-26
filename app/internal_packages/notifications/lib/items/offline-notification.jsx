@@ -1,4 +1,4 @@
-import { OnlineStatusStore, React, PropTypes, Actions } from 'nylas-exports';
+import { OnlineStatusStore, React, PropTypes, Actions } from 'mailspring-exports';
 import { Notification, ListensToFluxStore } from 'nylas-component-kit';
 
 function OfflineNotification({ isOnline, retryingInSeconds }) {

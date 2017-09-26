@@ -1,4 +1,4 @@
-import { React, PropTypes } from 'nylas-exports';
+import { React, PropTypes } from 'mailspring-exports';
 import GithubUserStore from './github-user-store';
 
 // Small React component that renders a single Github repository

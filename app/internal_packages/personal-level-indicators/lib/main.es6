@@ -1,4 +1,4 @@
-import { ComponentRegistry } from 'nylas-exports';
+import { ComponentRegistry } from 'mailspring-exports';
 import PersonalLevelIcon from './personal-level-icon';
 
 /*

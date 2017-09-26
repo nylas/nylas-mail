@@ -1,4 +1,4 @@
-import { React, PropTypes, FocusedContactsStore } from 'nylas-exports';
+import { React, PropTypes, FocusedContactsStore } from 'mailspring-exports';
 import { InjectedComponentSet } from 'nylas-component-kit';
 
 class FocusedContactStorePropsContainer extends React.Component {

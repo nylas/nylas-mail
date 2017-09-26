@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions } from 'nylas-exports';
+import { Actions } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 
 export default class ComposeButton extends React.Component {

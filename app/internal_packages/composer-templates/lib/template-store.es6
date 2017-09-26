@@ -1,6 +1,6 @@
 /* eslint global-require: 0*/
 
-import { DraftStore, Actions, QuotedHTMLTransformer } from 'nylas-exports';
+import { DraftStore, Actions, QuotedHTMLTransformer } from 'mailspring-exports';
 import NylasStore from 'nylas-store';
 import path from 'path';
 import fs from 'fs';

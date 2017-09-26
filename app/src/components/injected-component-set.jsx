@@ -1,4 +1,4 @@
-import { React, PropTypes, Utils, ComponentRegistry } from 'nylas-exports';
+import { React, PropTypes, Utils, ComponentRegistry } from 'mailspring-exports';
 
 import UnsafeComponent from './unsafe-component';
 import Flexbox from './flexbox';

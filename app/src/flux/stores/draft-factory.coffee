@@ -1,7 +1,7 @@
 _ = require 'underscore'
 path = require 'path'
 
-{AttachmentStore} = require 'nylas-exports'
+{AttachmentStore} = require 'mailspring-exports'
 
 Actions = require('../actions').default
 DatabaseStore = require('./database-store').default

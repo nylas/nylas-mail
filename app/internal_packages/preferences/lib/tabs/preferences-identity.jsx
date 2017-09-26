@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, IdentityStore } from 'nylas-exports';
+import { Actions, IdentityStore } from 'mailspring-exports';
 import { OpenIdentityPageButton, BillingModal, RetinaImg } from 'nylas-component-kit';
 import { shell } from 'electron';
 

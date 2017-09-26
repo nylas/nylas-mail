@@ -4,7 +4,7 @@ import fs from 'fs';
 import classNames from 'classnames';
 
 import { Flexbox, RetinaImg } from 'nylas-component-kit';
-import { Actions, PreferencesUIStore, Utils } from 'nylas-exports';
+import { Actions, PreferencesUIStore, Utils } from 'mailspring-exports';
 
 class PreferencesTabItem extends React.Component {
   static displayName = 'PreferencesTabItem';

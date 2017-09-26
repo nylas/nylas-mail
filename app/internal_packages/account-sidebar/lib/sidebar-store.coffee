@@ -6,7 +6,7 @@ NylasStore = require 'nylas-store'
  WorkspaceStore,
  OutboxStore,
  FocusedPerspectiveStore,
- CategoryStore} = require 'nylas-exports'
+ CategoryStore} = require 'mailspring-exports'
 
 SidebarSection = require './sidebar-section'
 SidebarActions = require './sidebar-actions'

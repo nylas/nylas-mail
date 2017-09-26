@@ -1,4 +1,4 @@
-import { Rx, Message, DatabaseStore } from 'nylas-exports';
+import { Rx, Message, DatabaseStore } from 'mailspring-exports';
 
 export default class ActivityDataSource {
   buildObservable({ openTrackingId, linkTrackingId, messageLimit }) {

@@ -1,7 +1,7 @@
 ReactCSSTransitionGroup = require 'react-addons-css-transition-group'
 _ = require 'underscore'
 
-{React, PropTypes, Utils, Actions} = require "nylas-exports"
+{React, PropTypes, Utils, Actions} = require "mailspring-exports"
 InjectedComponentSet = require('./injected-component-set').default
 Flexbox = require('./flexbox').default
 

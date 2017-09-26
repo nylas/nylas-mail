@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { React, PropTypes, Utils, DraftStore, ComponentRegistry } from 'nylas-exports';
+import { React, PropTypes, Utils, DraftStore, ComponentRegistry } from 'mailspring-exports';
 
 import MessageItem from './message-item';
 

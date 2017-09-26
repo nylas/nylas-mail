@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AccountStore } from 'nylas-exports';
+import { AccountStore } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 

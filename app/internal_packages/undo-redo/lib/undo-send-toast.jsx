@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Actions } from 'nylas-exports';
+import { Actions } from 'mailspring-exports';
 import { KeyCommandsRegion, UndoToast, ListensToFluxStore } from 'nylas-component-kit';
 import UndoSendStore from './undo-send-store';
 

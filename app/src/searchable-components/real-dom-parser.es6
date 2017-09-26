@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { DOMUtils } from 'nylas-exports';
+import { DOMUtils } from 'mailspring-exports';
 import UnifiedDOMParser from './unified-dom-parser';
 
 export default class RealDOMParser extends UnifiedDOMParser {

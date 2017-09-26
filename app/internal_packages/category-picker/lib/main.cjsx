@@ -2,7 +2,7 @@ MovePicker = require "./move-picker"
 LabelPicker = require "./label-picker"
 
 {ComponentRegistry,
- WorkspaceStore} = require 'nylas-exports'
+ WorkspaceStore} = require 'mailspring-exports'
 
 module.exports =
   activate: (@state={}) ->

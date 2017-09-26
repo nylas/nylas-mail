@@ -1,4 +1,4 @@
-import { React, PropTypes, Message } from 'nylas-exports';
+import { React, PropTypes, Message } from 'mailspring-exports';
 
 import AutoloadImagesStore from './autoload-images-store';
 import Actions from './autoload-images-actions';

@@ -17,7 +17,7 @@ MovePickerPopover = require('../lib/move-picker-popover').default
  FocusedPerspectiveStore,
  MailboxPerspective,
  NylasTestUtils,
- TaskQueue} = require 'nylas-exports'
+ TaskQueue} = require 'mailspring-exports'
 
 {Categories} = require 'nylas-observables'
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, FocusedContactsStore } from 'nylas-exports';
+import { Actions, FocusedContactsStore } from 'mailspring-exports';
 
 const SPLIT_KEY = '---splitvalue---';
 

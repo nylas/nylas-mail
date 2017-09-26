@@ -1,4 +1,4 @@
-import { Folder, Actions } from 'nylas-exports';
+import { Folder, Actions } from 'mailspring-exports';
 import SidebarItem from '../lib/sidebar-item';
 
 describe('sidebar-item', function sidebarItemSpec() {

@@ -9,7 +9,7 @@ ReactTestUtils = require 'react-dom/test-utils'
   ChangeUnreadTask,
   TaskFactory,
   MailboxPerspective
-} = require "nylas-exports"
+} = require "mailspring-exports"
 {ToggleStarredButton, ToggleUnreadButton, MarkAsSpamButton} = require '../lib/thread-toolbar-buttons'
 
 test_thread = (new Thread).fromJSON({

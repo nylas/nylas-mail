@@ -4,7 +4,7 @@ _ = require 'underscore'
  PropTypes,
  Utils,
  Actions,
- ComponentRegistry} = require "nylas-exports"
+ ComponentRegistry} = require "mailspring-exports"
 
 ResizableHandle =
   Top:

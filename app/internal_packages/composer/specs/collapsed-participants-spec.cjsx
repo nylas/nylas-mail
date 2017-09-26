@@ -6,7 +6,7 @@ ReactTestUtils = require 'react-dom/test-utils'
 Fields = require('../lib/fields').default
 CollapsedParticipants = require('../lib/collapsed-participants').default
 
-{Contact} = require 'nylas-exports'
+{Contact} = require 'mailspring-exports'
 
 describe "CollapsedParticipants", ->
   makeField = (props={}) ->

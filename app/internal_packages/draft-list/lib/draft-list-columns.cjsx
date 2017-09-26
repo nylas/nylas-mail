@@ -1,6 +1,6 @@
 _ = require 'underscore'
 React = require 'react'
-{Actions, Utils} = require 'nylas-exports'
+{Actions, Utils} = require 'mailspring-exports'
 {InjectedComponentSet, ListTabular} = require 'nylas-component-kit'
 
 

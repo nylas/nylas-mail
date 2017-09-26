@@ -6,7 +6,7 @@ _ = require 'underscore'
  EventRSVPTask,
  DatabaseStore,
  DatabaseWriter,
- AccountStore} = require 'nylas-exports'
+ AccountStore} = require 'mailspring-exports'
 
 xdescribe "EventRSVPTask", ->
   beforeEach ->

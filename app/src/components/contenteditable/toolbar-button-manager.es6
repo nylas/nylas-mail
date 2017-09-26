@@ -1,4 +1,4 @@
-import { DOMUtils, ContenteditableExtension } from 'nylas-exports';
+import { DOMUtils, ContenteditableExtension } from 'mailspring-exports';
 import ToolbarButtons from './toolbar-buttons';
 
 // This contains the logic to declaratively render the core

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Actions } from 'nylas-exports';
+import { Actions } from 'mailspring-exports';
 import QuickEventPopover from './quick-event-popover';
 
 export default class QuickEventButton extends React.Component {

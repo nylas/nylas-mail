@@ -1,6 +1,6 @@
 _ = require 'underscore'
 Rx = require 'rx-lite'
-{NylasTestUtils} = require 'nylas-exports'
+{NylasTestUtils} = require 'mailspring-exports'
 Contact = require('../../src/flux/models/contact').default
 ContactStore = require('../../src/flux/stores/contact-store').default
 DatabaseStore = require('../../src/flux/stores/database-store').default

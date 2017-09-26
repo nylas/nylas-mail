@@ -13,7 +13,7 @@ import {
   ExtensionRegistry,
   FocusedContentStore,
   DatabaseWriter,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import { remote } from 'electron';
 import DraftFactory from '../../src/flux/stores/draft-factory';

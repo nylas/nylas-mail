@@ -1,4 +1,4 @@
-import { React, PropTypes } from 'nylas-exports';
+import { React, PropTypes } from 'mailspring-exports';
 
 export default function CodeSnippet(props) {
   return (

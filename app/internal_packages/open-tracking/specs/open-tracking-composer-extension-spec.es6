@@ -1,4 +1,4 @@
-import { Message } from 'nylas-exports';
+import { Message } from 'mailspring-exports';
 import OpenTrackingComposerExtension from '../lib/open-tracking-composer-extension';
 import { PLUGIN_ID, PLUGIN_URL } from '../lib/open-tracking-constants';
 

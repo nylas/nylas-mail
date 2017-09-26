@@ -6,7 +6,7 @@ import {
   ComponentRegistry,
   MailboxPerspective,
   FocusedPerspectiveStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { clipboard } from 'electron';
 import pathwatcher from 'pathwatcher';
 

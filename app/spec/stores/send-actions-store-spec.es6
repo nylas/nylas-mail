@@ -1,4 +1,4 @@
-import { Message, SendActionsStore, ExtensionRegistry } from 'nylas-exports';
+import { Message, SendActionsStore, ExtensionRegistry } from 'mailspring-exports';
 
 const SendAction1 = {
   title: 'Send Action 1',

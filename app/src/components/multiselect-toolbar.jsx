@@ -1,4 +1,4 @@
-import { Utils } from 'nylas-exports';
+import { Utils } from 'mailspring-exports';
 import React, { Component } from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PropTypes from 'prop-types';

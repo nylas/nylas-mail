@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import path from 'path';
-import { Actions, AttachmentStore } from 'nylas-exports';
+import { Actions, AttachmentStore } from 'mailspring-exports';
 import { ImageAttachmentItem } from 'nylas-component-kit';
 
 export default class InlineImageUploadContainer extends Component {

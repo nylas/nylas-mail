@@ -3,7 +3,7 @@ _ = require 'underscore'
 {Actions,
  React, ReactDOM, PropTypes,
  AccountStore,
- WorkspaceStore} = require 'nylas-exports'
+ WorkspaceStore} = require 'mailspring-exports'
 
 {RetinaImg,
  KeyCommandsRegion} = require 'nylas-component-kit'

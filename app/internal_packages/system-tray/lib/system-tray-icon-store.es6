@@ -1,6 +1,6 @@
 import path from 'path';
 import { ipcRenderer } from 'electron';
-import { BadgeStore } from 'nylas-exports';
+import { BadgeStore } from 'mailspring-exports';
 
 // Must be absolute real system path
 // https://github.com/atom/electron/issues/1299

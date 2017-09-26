@@ -1,4 +1,4 @@
-import { React, ReactDOM, PropTypes, Event } from 'nylas-exports';
+import { React, ReactDOM, PropTypes, Event } from 'mailspring-exports';
 import { InjectedComponentSet } from 'nylas-component-kit';
 import { calcColor } from './calendar-helpers';
 

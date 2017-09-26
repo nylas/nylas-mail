@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { DateUtils, Actions, SyncbackMetadataTask, TaskQueue, SendDraftTask } from 'nylas-exports';
+import { DateUtils, Actions, SyncbackMetadataTask, TaskQueue, SendDraftTask } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import { PLUGIN_ID } from './send-later-constants';
 

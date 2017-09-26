@@ -3,14 +3,14 @@
 # This is a simple package to notify N1 users if an email is a potential
 # phishing scam.
 
-# You can access N1 dependencies by requiring 'nylas-exports'
+# You can access N1 dependencies by requiring 'mailspring-exports'
 {React,
  PropTypes,
  # The ComponentRegistry manages all React components in N1.
  ComponentRegistry,
  # A `Store` is a Flux component which contains all business logic and data
  # models to be consumed by React components to render markup.
- MessageStore} = require 'nylas-exports'
+ MessageStore} = require 'mailspring-exports'
 
 # Notice that this file is `main.cjsx` rather than `main.coffee`. We use the
 # `.cjsx` filetype because we use the CJSX DSL to describe markup for React to

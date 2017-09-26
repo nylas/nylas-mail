@@ -10,8 +10,8 @@ import {
   Thread,
   DatabaseStore,
   SyncbackMetadataTask,
-} from 'nylas-exports';
-import { RetinaImg } from 'nylas-component-kit';
+} from 'mailspring-exports';
+import { RetinaImg } from 'mailspring-component-kit';
 
 import CopyButton from './copy-button';
 import { PLUGIN_ID, PLUGIN_NAME, PLUGIN_URL } from './thread-sharing-constants';
@@ -60,7 +60,6 @@ export default class ThreadSharingPopover extends React.Component {
     this.setState({ saving: true });
 
     try {
-      await NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, accountId);
       if (!this._mounted) {
         return;
       }

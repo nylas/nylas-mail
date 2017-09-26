@@ -1,7 +1,7 @@
 Message = require('../../src/flux/models/message').default
 Thread = require('../../src/flux/models/thread').default
 Folder = require('../../src/flux/models/folder').default
-{Utils} = require 'nylas-exports'
+{Utils} = require 'mailspring-exports'
 _ = require 'underscore'
 
 describe 'Thread', ->

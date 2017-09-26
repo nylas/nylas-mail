@@ -1,6 +1,6 @@
 /* eslint no-unused-vars:0 */
 
-import { ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 import ActivitySidebar from './sidebar/activity-sidebar';
 import NotifWrapper from './notif-wrapper';
 

@@ -1,4 +1,4 @@
-import { React, PropTypes, Utils } from 'nylas-exports';
+import { React, PropTypes, Utils } from 'mailspring-exports';
 import CalendarEvent from './calendar-event';
 
 /*

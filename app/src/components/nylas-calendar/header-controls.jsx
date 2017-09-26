@@ -1,4 +1,4 @@
-import { React, PropTypes, Utils } from 'nylas-exports';
+import { React, PropTypes, Utils } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 
 export default class HeaderControls extends React.Component {

@@ -1,4 +1,4 @@
-import { Event } from 'nylas-exports';
+import { Event } from 'mailspring-exports';
 
 export default class SyncbackEventTask {
   constructor() {

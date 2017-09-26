@@ -9,7 +9,7 @@ import {
   MessageStore,
   SearchableComponentStore,
   SearchableComponentMaker,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import {
   Spinner,

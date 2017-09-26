@@ -1,4 +1,4 @@
-import { ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 import ThreadSearchBar from './thread-search-bar';
 
 export const configDefaults = {

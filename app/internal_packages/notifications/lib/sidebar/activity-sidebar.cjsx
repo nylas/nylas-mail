@@ -13,7 +13,7 @@ SyncbackActivity = require("./syncback-activity").default
  AccountStore,
  FolderSyncProgressStore,
  TaskQueue,
- SendDraftTask} = require 'nylas-exports'
+ SendDraftTask} = require 'mailspring-exports'
 
 SEND_TASK_CLASSES = [SendDraftTask]
 

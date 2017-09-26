@@ -1,6 +1,6 @@
 /* eslint global-require: 0 */
 import { remote } from 'electron';
-import { React, PropTypes, Actions } from 'nylas-exports';
+import { React, PropTypes, Actions } from 'mailspring-exports';
 import { RetinaImg, ButtonDropdown, Menu } from 'nylas-component-kit';
 
 export default class MessageControls extends React.Component {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ipcRenderer } from 'electron';
-import { AccountStore, Actions } from 'nylas-exports';
+import { AccountStore, Actions } from 'mailspring-exports';
 import PreferencesAccountList from './preferences-account-list';
 import PreferencesAccountDetails from './preferences-account-details';
 

@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{Actions, MenuHelpers} = require 'nylas-exports'
+{Actions, MenuHelpers} = require 'mailspring-exports'
 
 
 class AccountCommands

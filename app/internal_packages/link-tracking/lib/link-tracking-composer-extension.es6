@@ -1,4 +1,4 @@
-import { ComposerExtension, RegExpUtils } from 'nylas-exports';
+import { ComposerExtension, RegExpUtils } from 'mailspring-exports';
 import { PLUGIN_ID, PLUGIN_URL } from './link-tracking-constants';
 
 function forEachATagInBody(draftBodyRootNode, callback) {

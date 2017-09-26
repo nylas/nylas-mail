@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { React, ReactDOM } from 'nylas-exports';
+import { React, ReactDOM } from 'mailspring-exports';
 import { InjectedComponentSet } from 'nylas-component-kit';
 
 const ROLE = 'RootSidebar:Notifications';

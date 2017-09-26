@@ -1,4 +1,4 @@
-import { ComposerExtension, SignatureStore } from 'nylas-exports';
+import { ComposerExtension, SignatureStore } from 'mailspring-exports';
 import SignatureUtils from './signature-utils';
 
 export default class SignatureComposerExtension extends ComposerExtension {

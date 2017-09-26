@@ -10,7 +10,7 @@ moment = require 'moment'
  InjectedComponent,
  InjectedComponentSet} = require 'nylas-component-kit'
 
-{Thread, FocusedPerspectiveStore, Utils, DateUtils} = require 'nylas-exports'
+{Thread, FocusedPerspectiveStore, Utils, DateUtils} = require 'mailspring-exports'
 
 {ThreadArchiveQuickAction,
  ThreadTrashQuickAction} = require './thread-list-quick-actions'

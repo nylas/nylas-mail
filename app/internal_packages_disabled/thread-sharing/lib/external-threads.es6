@@ -1,7 +1,7 @@
 import url from 'url';
 import querystring from 'querystring';
 import { ipcRenderer } from 'electron';
-import { DatabaseStore, Thread, Matcher, Actions } from 'nylas-exports';
+import { DatabaseStore, Thread, Matcher, Actions } from 'mailspring-exports';
 
 const DATE_EPSILON = 60; // Seconds
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { ButtonDropdown, RetinaImg } from 'nylas-component-kit';
-import { Actions, Message, SendActionsStore } from 'nylas-exports';
+import { Actions, Message, SendActionsStore } from 'mailspring-exports';
 import SendActionButton from '../lib/send-action-button';
 
 const { UndecoratedSendActionButton } = SendActionButton;

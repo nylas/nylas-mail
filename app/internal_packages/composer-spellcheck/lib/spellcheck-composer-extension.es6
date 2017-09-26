@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { DOMUtils, ComposerExtension, Spellchecker } from 'nylas-exports';
+import { DOMUtils, ComposerExtension, Spellchecker } from 'mailspring-exports';
 
 const recycled = [];
 const MAX_MISPELLINGS = 10;

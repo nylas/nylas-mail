@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Utils, ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { Utils, ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 import InjectedComponentSet from './components/injected-component-set';
 import ResizableRegion from './components/resizable-region';
 import Flexbox from './components/flexbox';

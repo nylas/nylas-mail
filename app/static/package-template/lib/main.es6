@@ -1,4 +1,4 @@
-import {ComponentRegistry} from 'nylas-exports';
+import {ComponentRegistry} from 'mailspring-exports';
 
 import MyComposerButton from './my-composer-button';
 import MyMessageSidebar from './my-message-sidebar';

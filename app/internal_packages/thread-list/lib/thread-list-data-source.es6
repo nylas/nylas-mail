@@ -5,7 +5,7 @@ import {
   Message,
   QueryResultSet,
   QuerySubscription,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 const _observableForThreadMessages = (id, initialModels) => {
   const subscription = new QuerySubscription(DatabaseStore.findAll(Message, { threadId: id }), {

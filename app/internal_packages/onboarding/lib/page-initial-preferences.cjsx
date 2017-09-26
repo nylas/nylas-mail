@@ -4,7 +4,7 @@ path = require 'path'
 fs = require 'fs'
 _ = require 'underscore'
 {RetinaImg, Flexbox, ConfigPropContainer, NewsletterSignup} = require 'nylas-component-kit'
-{AccountStore} = require 'nylas-exports'
+{AccountStore} = require 'mailspring-exports'
 OnboardingActions = require('./onboarding-actions').default
 
 # NOTE: Temporarily copied from preferences module

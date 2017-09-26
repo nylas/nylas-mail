@@ -1,4 +1,4 @@
-import { React, Utils, PropTypes } from 'nylas-exports';
+import { React, Utils, PropTypes } from 'mailspring-exports';
 
 export default class SyncbackActivity extends React.Component {
   static propTypes = {

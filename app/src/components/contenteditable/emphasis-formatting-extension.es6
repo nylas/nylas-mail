@@ -1,4 +1,4 @@
-import { ContenteditableExtension } from 'nylas-exports';
+import { ContenteditableExtension } from 'mailspring-exports';
 
 // This provides the default baisc formatting options for the
 // Contenteditable using the declarative extension API.

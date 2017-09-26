@@ -11,6 +11,6 @@ AppEnv.initialize();
 const loadSettings = AppEnv.getLoadSettings();
 
 // This must be `required` instead of imported because
-// AppEnv.initialize() must complete before `nylas-exports` and other
+// AppEnv.initialize() must complete before `mailspring-exports` and other
 // globals are available for import via es6 modules.
 require('./n1-spec-runner').default.runSpecs(loadSettings);

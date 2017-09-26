@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
-import { VirtualDOMUtils } from 'nylas-exports';
+import { VirtualDOMUtils } from 'mailspring-exports';
 
 import SearchMatch from './search-match';
 import UnifiedDOMParser from './unified-dom-parser';

@@ -5,7 +5,7 @@ _ = require 'underscore'
  File,
  DatabaseStore,
  TaskQueue,
- Actions} = require 'nylas-exports'
+ Actions} = require 'mailspring-exports'
 
 MailRulesProcessor = require '../src/mail-rules-processor'
 

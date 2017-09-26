@@ -1,4 +1,4 @@
-import { Actions, Task, UndoRedoStore } from 'nylas-exports';
+import { Actions, Task, UndoRedoStore } from 'mailspring-exports';
 
 class Undoable extends Task {
   constructor() {

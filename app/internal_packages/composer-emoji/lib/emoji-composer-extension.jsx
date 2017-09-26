@@ -1,4 +1,4 @@
-import { DOMUtils, ComposerExtension, RegExpUtils } from 'nylas-exports';
+import { DOMUtils, ComposerExtension, RegExpUtils } from 'mailspring-exports';
 import emoji from 'node-emoji';
 
 import EmojiStore from './emoji-store';

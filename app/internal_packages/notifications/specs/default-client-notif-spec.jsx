@@ -1,11 +1,11 @@
 import { mount } from 'enzyme';
 import proxyquire from 'proxyquire';
-import { React } from 'nylas-exports';
+import { React } from 'mailspring-exports';
 
 let stubIsRegistered = null;
 let stubRegister = () => {};
 const patched = proxyquire('../lib/items/default-client-notif', {
-  'nylas-exports': {
+  'mailspring-exports': {
     DefaultClientHelper: class {
       constructor() {
         this.isRegisteredForURLScheme = (urlScheme, callback) => {

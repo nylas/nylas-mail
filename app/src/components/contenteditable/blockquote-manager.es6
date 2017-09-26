@@ -1,5 +1,5 @@
 /* eslint no-cond-assign: 0 */
-import { DOMUtils, ContenteditableExtension } from 'nylas-exports';
+import { DOMUtils, ContenteditableExtension } from 'mailspring-exports';
 
 export default class BlockquoteManager extends ContenteditableExtension {
   static keyCommandHandlers() {

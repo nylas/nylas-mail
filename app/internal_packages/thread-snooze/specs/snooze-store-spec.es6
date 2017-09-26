@@ -5,7 +5,7 @@ import {
   Thread,
   Actions,
   Folder,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import * as SnoozeUtils from '../lib/snooze-utils';
 import SnoozeStore from '../lib/snooze-store';
 

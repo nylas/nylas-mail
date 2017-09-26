@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { exec } from 'child_process';
-import { React, PropTypes, ReactDOM, Utils } from 'nylas-exports';
+import { React, PropTypes, ReactDOM, Utils } from 'mailspring-exports';
 
 // This is a stripped down version of
 // https://github.com/michaelvillar/dynamics.js/blob/master/src/dynamics.coffee#L1179,

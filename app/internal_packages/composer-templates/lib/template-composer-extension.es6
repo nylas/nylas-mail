@@ -1,4 +1,4 @@
-import { DOMUtils, ComposerExtension } from 'nylas-exports';
+import { DOMUtils, ComposerExtension } from 'mailspring-exports';
 
 export default class TemplatesComposerExtension extends ComposerExtension {
   static warningsForSending({ draft }) {

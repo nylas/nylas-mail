@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import { remote } from 'electron';
 import _str from 'underscore.string';
-import { Actions, ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { Actions, ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 
 import Flexbox from './components/flexbox';
 import RetinaImg from './components/retina-img';

@@ -1,7 +1,7 @@
 /* eslint react/no-danger: 0 */
 import _ from 'underscore';
 
-import { React, ReactDOM, PropTypes, Actions, WorkspaceStore, DOMUtils } from 'nylas-exports';
+import { React, ReactDOM, PropTypes, Actions, WorkspaceStore, DOMUtils } from 'mailspring-exports';
 import NylasStore from 'nylas-store';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');

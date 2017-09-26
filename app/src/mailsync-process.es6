@@ -169,7 +169,7 @@ export default class MailsyncProcess extends EventEmitter {
 
   sendMessage(json) {
     if (!Utils) {
-      Utils = require('nylas-exports').Utils;
+      Utils = require('mailspring-exports').Utils;
     }
     console.log(`Sending to mailsync ${this.account.id}`, json);
     const msg = `${JSON.stringify(json)}\n`;

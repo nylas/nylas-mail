@@ -1,4 +1,4 @@
-import { ComponentRegistry, ExtensionRegistry } from 'nylas-exports';
+import { ComponentRegistry, ExtensionRegistry } from 'mailspring-exports';
 import { HasTutorialTip } from 'nylas-component-kit';
 import SendRemindersThreadTimestamp from './send-reminders-thread-timestamp';
 import SendRemindersComposerButton from './send-reminders-composer-button';

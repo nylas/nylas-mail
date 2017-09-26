@@ -8,7 +8,7 @@ classNames = require 'classnames'
  ChangeLabelsTask,
  CategoryStore,
  FocusedPerspectiveStore,
- AccountStore} = require 'nylas-exports'
+ AccountStore} = require 'mailspring-exports'
 
 ShowImportantKey = 'core.workspace.showImportant'
 

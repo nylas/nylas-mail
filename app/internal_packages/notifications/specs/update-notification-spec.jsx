@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 import proxyquire from 'proxyquire';
-import { React } from 'nylas-exports';
+import { React } from 'mailspring-exports';
 
 let stubUpdaterState = null;
 let stubUpdaterReleaseVersion = null;

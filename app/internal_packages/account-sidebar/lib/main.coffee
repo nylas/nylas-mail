@@ -1,6 +1,6 @@
 React = require "react"
 AccountSidebar = require "./components/account-sidebar"
-{ComponentRegistry, WorkspaceStore} = require "nylas-exports"
+{ComponentRegistry, WorkspaceStore} = require "mailspring-exports"
 
 module.exports =
   item: null # The DOM item the main React component renders into

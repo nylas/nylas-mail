@@ -1,4 +1,4 @@
-import { MessageViewExtension } from 'nylas-exports';
+import { MessageViewExtension } from 'mailspring-exports';
 import AutoloadImagesStore from './autoload-images-store';
 
 export default class AutoloadImagesExtension extends MessageViewExtension {

@@ -5,7 +5,7 @@ import {
   // A `Store` is a Flux component which contains all business logic and data
   // models to be consumed by React components to render markup.
   MessageStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 const tld = require('tld');
 

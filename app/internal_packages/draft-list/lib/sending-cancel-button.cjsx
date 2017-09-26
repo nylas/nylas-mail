@@ -1,4 +1,4 @@
-{React, PropTypes, Actions} = require 'nylas-exports'
+{React, PropTypes, Actions} = require 'mailspring-exports'
 {RetinaImg} = require 'nylas-component-kit'
 
 class SendingCancelButton extends React.Component

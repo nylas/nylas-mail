@@ -7,7 +7,7 @@ ReactTestUtils = require('react-dom/test-utils')
  Message,
  File,
  AttachmentStore,
- MessageBodyProcessor} = require "nylas-exports"
+ MessageBodyProcessor} = require "mailspring-exports"
 
 EmailFrameStub = React.createClass({render: -> <div></div>})
 

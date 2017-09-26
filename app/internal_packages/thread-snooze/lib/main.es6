@@ -1,4 +1,4 @@
-import { ComponentRegistry } from 'nylas-exports';
+import { ComponentRegistry } from 'mailspring-exports';
 import { HasTutorialTip } from 'nylas-component-kit';
 
 import { ToolbarSnooze, QuickActionSnooze } from './snooze-buttons';

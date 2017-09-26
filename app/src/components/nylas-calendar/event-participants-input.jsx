@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { remote, clipboard } from 'electron';
-import { React, PropTypes, Utils, Contact, ContactStore, RegExpUtils } from 'nylas-exports';
+import { React, PropTypes, Utils, Contact, ContactStore, RegExpUtils } from 'mailspring-exports';
 import { TokenizingTextField, Menu, InjectedComponentSet } from 'nylas-component-kit';
 
 const TokenRenderer = props => {

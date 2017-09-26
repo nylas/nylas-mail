@@ -1,4 +1,4 @@
-import { Actions, React, ReactDOM, PropTypes } from 'nylas-exports';
+import { Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import ThreadSharingPopover from './thread-sharing-popover';
 

@@ -1,4 +1,4 @@
-import { RegExpUtils, DOMUtils } from 'nylas-exports';
+import { RegExpUtils, DOMUtils } from 'mailspring-exports';
 
 function _matchesAnyRegexp(text, regexps) {
   for (const excludeRegexp of regexps) {

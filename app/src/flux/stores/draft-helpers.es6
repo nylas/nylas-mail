@@ -1,4 +1,4 @@
-import { DatabaseStore } from 'nylas-exports';
+import { DatabaseStore } from 'mailspring-exports';
 import Message from '../models/message';
 import * as ExtensionRegistry from '../../registries/extension-registry';
 import DOMUtils from '../../dom-utils';

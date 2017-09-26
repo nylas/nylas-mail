@@ -1,4 +1,4 @@
-import { React, PropTypes, RegExpUtils } from 'nylas-exports';
+import { React, PropTypes, RegExpUtils } from 'mailspring-exports';
 
 import OnboardingActions from './onboarding-actions';
 import CreatePageForForm from './decorators/create-page-for-form';

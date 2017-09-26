@@ -1,4 +1,4 @@
-import { React, PropTypes, Actions, TaskFactory } from 'nylas-exports';
+import { React, PropTypes, Actions, TaskFactory } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 
 export default class StarButton extends React.Component {

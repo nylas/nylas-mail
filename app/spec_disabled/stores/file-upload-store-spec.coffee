@@ -2,7 +2,7 @@ fs = require 'fs'
 {Message,
  Actions,
  FileUploadStore,
- DraftStore} = require 'nylas-exports'
+ DraftStore} = require 'mailspring-exports'
 {Upload} = FileUploadStore
 
 msgId = "local-123"

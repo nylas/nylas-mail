@@ -1,5 +1,5 @@
 /* eslint global-require: 0 */
-import { InlineStyleTransformer, SanitizeTransformer, RegExpUtils, Utils } from 'nylas-exports';
+import { InlineStyleTransformer, SanitizeTransformer, RegExpUtils, Utils } from 'mailspring-exports';
 
 import ContenteditableService from './contenteditable-service';
 

@@ -7,7 +7,7 @@ import {
   Message,
   DatabaseStore,
   FocusedPerspectiveStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import ActivityList from '../lib/activity-list';
 import ActivityListStore from '../lib/activity-list-store';
 import TestDataSource from '../lib/test-data-source';

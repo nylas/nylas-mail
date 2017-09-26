@@ -1,4 +1,4 @@
-import { Actions, React, PropTypes } from 'nylas-exports';
+import { Actions, React, PropTypes } from 'mailspring-exports';
 
 function SyncingListState(props) {
   let message = 'Looking for more messages';

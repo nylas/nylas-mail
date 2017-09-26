@@ -1,4 +1,4 @@
-import { ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 import UndoRedoThreadListToast from './undo-redo-thread-list-toast';
 import UndoSendStore from './undo-send-store';
 import UndoSendToast from './undo-send-toast';

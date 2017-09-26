@@ -81,7 +81,7 @@ module.exports = grunt => {
           const content = fs.readFileSync(f, { encoding: 'utf8' });
 
           if (/module.exports\s?=\s?.+/gim.test(content)) {
-            if (!f.endsWith('nylas-exports.es6')) {
+            if (!f.endsWith('mailspring-exports.es6')) {
               errors.push(`${f}: Don't use module.exports in ES6`);
             }
           }

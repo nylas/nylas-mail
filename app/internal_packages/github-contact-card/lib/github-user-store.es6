@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import NylasStore from 'nylas-store';
-import { FocusedContactsStore } from 'nylas-exports';
+import { FocusedContactsStore } from 'mailspring-exports';
 
 // This package uses the Flux pattern - our Store is a small singleton that
 // observes other parts of the application and vends data to our React

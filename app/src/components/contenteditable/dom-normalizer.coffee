@@ -1,4 +1,4 @@
-{ContenteditableExtension, DOMUtils} = require 'nylas-exports'
+{ContenteditableExtension, DOMUtils} = require 'mailspring-exports'
 
 class DOMNormalizer extends ContenteditableExtension
 

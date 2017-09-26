@@ -1,4 +1,4 @@
-import { FolderSyncProgressStore } from 'nylas-exports';
+import { FolderSyncProgressStore } from 'mailspring-exports';
 
 const store = FolderSyncProgressStore;
 

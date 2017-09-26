@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
-import { Actions, NylasAPIHelpers, FeatureUsageStore } from 'nylas-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { Actions, NylasAPIHelpers, FeatureUsageStore } from 'mailspring-exports';
+import { RetinaImg } from 'mailspring-component-kit';
 
 import SendLaterPopover from './send-later-popover';
 import { PLUGIN_ID, PLUGIN_NAME } from './send-later-constants';
@@ -99,7 +99,6 @@ class SendLaterButton extends Component {
     this.setState({ saving: true });
 
     try {
-      await NylasAPIHelpers.authPlugin(PLUGIN_ID, PLUGIN_NAME, draft.accountId);
       if (!this.mounted) {
         return;
       }

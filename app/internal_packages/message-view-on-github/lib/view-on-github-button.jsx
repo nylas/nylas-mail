@@ -1,5 +1,5 @@
 import { shell } from 'electron';
-import { Actions, React, PropTypes } from 'nylas-exports';
+import { Actions, React, PropTypes } from 'mailspring-exports';
 import { RetinaImg, KeyCommandsRegion } from 'nylas-component-kit';
 
 import GithubStore from './github-store';

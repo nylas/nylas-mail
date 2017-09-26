@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { findRenderedDOMComponentWithClass } from 'react-addons-test-utils';
 
-import { Message, NylasTestUtils } from 'nylas-exports';
+import { Message, NylasTestUtils } from 'mailspring-exports';
 import OpenTrackingIcon from '../lib/open-tracking-icon';
 import { PLUGIN_ID } from '../lib/open-tracking-constants';
 

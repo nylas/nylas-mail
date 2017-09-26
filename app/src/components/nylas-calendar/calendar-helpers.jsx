@@ -1,4 +1,4 @@
-import { Utils } from 'nylas-exports';
+import { Utils } from 'mailspring-exports';
 
 export function calcColor(calendarId) {
   let bgColor = AppEnv.config.get(`calendar.colors.${calendarId}`);

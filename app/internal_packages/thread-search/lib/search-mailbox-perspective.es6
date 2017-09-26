@@ -6,7 +6,7 @@ import {
   CategoryStore,
   TaskFactory,
   MailboxPerspective,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import SearchQuerySubscription from './search-query-subscription';
 
 class SearchMailboxPerspective extends MailboxPerspective {

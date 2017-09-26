@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, WorkspaceStore } from 'nylas-exports';
+import { Actions, WorkspaceStore } from 'mailspring-exports';
 
 import ThemePicker from './theme-picker';
 

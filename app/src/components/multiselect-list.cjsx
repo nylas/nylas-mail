@@ -8,7 +8,7 @@ Spinner = require './spinner'
  Actions,
  Utils,
  WorkspaceStore,
- AccountStore} = require 'nylas-exports'
+ AccountStore} = require 'mailspring-exports'
 {KeyCommandsRegion} = require 'nylas-component-kit'
 EventEmitter = require('events').EventEmitter
 

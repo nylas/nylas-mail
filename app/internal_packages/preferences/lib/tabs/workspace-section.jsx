@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DefaultClientHelper, SystemStartService } from 'nylas-exports';
+import { DefaultClientHelper, SystemStartService } from 'mailspring-exports';
 import ConfigSchemaItem from './config-schema-item';
 
 class DefaultMailClientItem extends React.Component {

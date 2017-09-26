@@ -1,7 +1,7 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
 import classnames from 'classnames';
 import React, { Component } from 'react';
-import { DateUtils } from 'nylas-exports';
+import { DateUtils } from 'mailspring-exports';
 import PropTypes from 'prop-types';
 
 class DateInput extends Component {

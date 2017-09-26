@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ReactTestUtils from 'react-dom/test-utils';
-import { SignatureStore } from 'nylas-exports';
+import { SignatureStore } from 'mailspring-exports';
 import SignatureComposerDropdown from '../lib/signature-composer-dropdown';
 import { renderIntoDocument } from '../../../spec/nylas-test-utils';
 

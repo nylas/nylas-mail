@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { RetinaImg } from 'nylas-component-kit';
 import moment from 'moment';
 
-import { FocusedPerspectiveStore } from 'nylas-exports';
+import { FocusedPerspectiveStore } from 'mailspring-exports';
 import { updateReminderMetadata } from './send-reminders-utils';
 import { PLUGIN_ID } from './send-reminders-constants';
 

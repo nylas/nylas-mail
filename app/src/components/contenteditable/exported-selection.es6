@@ -1,4 +1,4 @@
-import { DOMUtils } from 'nylas-exports';
+import { DOMUtils } from 'mailspring-exports';
 
 // A saved out selection object
 //

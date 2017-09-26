@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import NylasStore from 'nylas-store';
-import { MessageStore } from 'nylas-exports';
+import { MessageStore } from 'mailspring-exports';
 
 class GithubStore extends NylasStore {
   // It's very common practive for {NylasStore}s to listen to other parts of N1.

@@ -1,4 +1,4 @@
-{React, PropTypes, Utils} = require 'nylas-exports'
+{React, PropTypes, Utils} = require 'mailspring-exports'
 
 class SendingProgressBar extends React.Component
   @propTypes:

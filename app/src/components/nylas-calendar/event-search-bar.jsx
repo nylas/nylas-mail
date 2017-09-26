@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Event, DatabaseStore } from 'nylas-exports';
+import { Event, DatabaseStore } from 'mailspring-exports';
 import SearchBar from '../search-bar';
 import PropTypes from 'prop-types';
 

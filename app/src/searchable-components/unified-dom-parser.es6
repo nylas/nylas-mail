@@ -1,4 +1,4 @@
-import { Utils } from 'nylas-exports';
+import { Utils } from 'mailspring-exports';
 import { MAX_MATCHES, CHAR_THRESHOLD } from './search-constants';
 
 export default class UnifiedDOMParser {

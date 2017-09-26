@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { ContactStore, Contact } from 'nylas-exports';
+import { ContactStore, Contact } from 'mailspring-exports';
 
 import { ParticipantsTextField } from 'nylas-component-kit';
 

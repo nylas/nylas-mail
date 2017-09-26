@@ -1,7 +1,7 @@
 import {
   SearchQueryAST,
   SearchQueryParser,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 const {
   SearchQueryToken,

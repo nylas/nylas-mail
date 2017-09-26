@@ -2,7 +2,7 @@ _ = require 'underscore'
 React = require "react"
 ReactDOM = require "react-dom"
 ReactTestUtils = require 'react-dom/test-utils'
-{Contact, Message, DOMUtils} = require "nylas-exports"
+{Contact, Message, DOMUtils} = require "mailspring-exports"
 MessageParticipants = require("../lib/message-participants").default
 
 user_1 =

@@ -6,7 +6,7 @@ import {
   Thread,
   ChangeFolderTask,
   ChangeLabelsTask,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 describe('TaskFactory', function taskFactory() {
   beforeEach(() => {

@@ -1,4 +1,4 @@
-import { React, ReactDOM, PropTypes, Utils, ComponentRegistry } from 'nylas-exports';
+import { React, ReactDOM, PropTypes, Utils, ComponentRegistry } from 'mailspring-exports';
 
 import UnsafeComponent from './unsafe-component';
 import InjectedComponentLabel from './injected-component-label';

@@ -1,4 +1,4 @@
-import { ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 import { HasTutorialTip } from 'nylas-component-kit';
 import ActivityListButton from './activity-list-button';
 import ActivityListStore from './activity-list-store';

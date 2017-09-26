@@ -1,5 +1,5 @@
 /* eslint global-require: 0 */
-import { PreferencesUIStore, ComponentRegistry, ExtensionRegistry } from 'nylas-exports';
+import { PreferencesUIStore, ComponentRegistry, ExtensionRegistry } from 'mailspring-exports';
 import TemplatePicker from './template-picker';
 import TemplateStatusBar from './template-status-bar';
 import TemplateComposerExtension from './template-composer-extension';

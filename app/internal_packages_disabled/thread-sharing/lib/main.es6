@@ -1,4 +1,4 @@
-import { ComponentRegistry } from 'nylas-exports';
+import { ComponentRegistry } from 'mailspring-exports';
 import ThreadSharingButton from './thread-sharing-button';
 import ExternalThreads from './external-threads';
 

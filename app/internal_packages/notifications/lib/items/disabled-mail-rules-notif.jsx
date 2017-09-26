@@ -1,4 +1,4 @@
-import { React, MailRulesStore, Actions } from 'nylas-exports';
+import { React, MailRulesStore, Actions } from 'mailspring-exports';
 import { Notification } from 'nylas-component-kit';
 
 export default class DisabledMailRulesNotification extends React.Component {

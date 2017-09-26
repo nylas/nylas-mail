@@ -1,4 +1,4 @@
-import { SoundRegistry } from 'nylas-exports';
+import { SoundRegistry } from 'mailspring-exports';
 
 export function activate() {
   // FIXME: Use the mailspring:// protocol handlers once we upgrade Electron past

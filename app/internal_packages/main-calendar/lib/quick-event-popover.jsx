@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions, Calendar, DatabaseStore, DateUtils, Event } from 'nylas-exports';
+import { Actions, Calendar, DatabaseStore, DateUtils, Event } from 'mailspring-exports';
 
 export default class QuickEventPopover extends React.Component {
   constructor(props) {

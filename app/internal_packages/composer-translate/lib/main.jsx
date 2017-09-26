@@ -13,7 +13,7 @@ import {
   ComponentRegistry,
   QuotedHTMLTransformer,
   Actions,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import { Menu, RetinaImg } from 'nylas-component-kit';
 

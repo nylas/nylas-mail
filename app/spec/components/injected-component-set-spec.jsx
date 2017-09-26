@@ -1,7 +1,7 @@
 /* eslint react/prefer-es6-class: "off" */
 /* eslint react/prefer-stateless-function: "off" */
 
-import {React, ComponentRegistry, NylasTestUtils} from 'nylas-exports';
+import {React, ComponentRegistry, NylasTestUtils} from 'mailspring-exports';
 import {InjectedComponentSet} from 'nylas-component-kit';
 
 const {renderIntoDocument} = NylasTestUtils;

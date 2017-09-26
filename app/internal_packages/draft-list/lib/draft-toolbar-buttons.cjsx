@@ -1,5 +1,5 @@
 {RetinaImg} = require 'nylas-component-kit'
-{React, PropTypes, Actions, FocusedContentStore} = require "nylas-exports"
+{React, PropTypes, Actions, FocusedContentStore} = require "mailspring-exports"
 
 class DraftDeleteButton extends React.Component
   @displayName: 'DraftDeleteButton'

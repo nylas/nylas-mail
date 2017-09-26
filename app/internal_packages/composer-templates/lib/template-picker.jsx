@@ -1,5 +1,5 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
-import { Actions, React, ReactDOM, PropTypes } from 'nylas-exports';
+import { Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
 import { Menu, RetinaImg } from 'nylas-component-kit';
 import TemplateStore from './template-store';
 

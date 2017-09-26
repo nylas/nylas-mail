@@ -1,4 +1,4 @@
-import { AccountStore, FolderSyncProgressStore, React } from 'nylas-exports';
+import { AccountStore, FolderSyncProgressStore, React } from 'mailspring-exports';
 
 export default class InitialSyncActivity extends React.Component {
   static displayName = 'InitialSyncActivity';

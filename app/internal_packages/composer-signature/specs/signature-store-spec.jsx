@@ -1,5 +1,5 @@
 /* eslint quote-props: 0 */
-import { SignatureStore } from 'nylas-exports';
+import { SignatureStore } from 'mailspring-exports';
 
 let SIGNATURES = {
   '1': {

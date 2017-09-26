@@ -11,7 +11,7 @@ _ = require 'underscore'
  Task,
  Utils,
  ChangeMailTask,
-} = require 'nylas-exports'
+} = require 'mailspring-exports'
 
 xdescribe "ChangeMailTask", ->
   beforeEach ->

@@ -1,4 +1,4 @@
-import { Utils } from 'nylas-exports';
+import { Utils } from 'mailspring-exports';
 import NylasStore from 'nylas-store';
 import ClearbitDataSource from './clearbit-data-source';
 

@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Actions } from 'nylas-exports';
+import { Actions } from 'mailspring-exports';
 import ConfigSchemaItem from './config-schema-item';
 import WorkspaceSection from './workspace-section';
 import SendingSection from './sending-section';

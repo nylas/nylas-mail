@@ -21,7 +21,7 @@ export default class DestroyModelTask extends Task {
   }
 
   getModelConstructor() {
-    return require('nylas-exports')[this.modelName];
+    return require('mailspring-exports')[this.modelName];
   }
 
   validate() {}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { UpdateChannelStore } from 'nylas-exports';
+import { UpdateChannelStore } from 'mailspring-exports';
 
 class UpdateChannelSection extends React.Component {
   static displayName = 'UpdateChannelSection';

@@ -1,4 +1,4 @@
-import { ComponentRegistry, ExtensionRegistry } from 'nylas-exports';
+import { ComponentRegistry, ExtensionRegistry } from 'mailspring-exports';
 import { HasTutorialTip } from 'nylas-component-kit';
 import OpenTrackingButton from './open-tracking-button';
 import OpenTrackingIcon from './open-tracking-icon';

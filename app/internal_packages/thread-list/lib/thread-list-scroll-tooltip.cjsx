@@ -1,4 +1,4 @@
-{React, PropTypes, Utils, DateUtils} = require 'nylas-exports'
+{React, PropTypes, Utils, DateUtils} = require 'mailspring-exports'
 ThreadListStore = require './thread-list-store'
 
 class ThreadListScrollTooltip extends React.Component

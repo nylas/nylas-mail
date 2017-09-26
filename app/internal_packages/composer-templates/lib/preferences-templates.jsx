@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { Contenteditable, RetinaImg } from 'nylas-component-kit';
-import { React } from 'nylas-exports';
+import { React } from 'mailspring-exports';
 
 import TemplateStore from './template-store';
 import TemplateEditor from './template-editor';

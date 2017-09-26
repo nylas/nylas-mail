@@ -6,7 +6,7 @@ import {
   SoundRegistry,
   NativeNotifications,
   DatabaseStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 export class Notifier {
   constructor() {

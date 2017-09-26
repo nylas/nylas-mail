@@ -28,7 +28,7 @@ it figures that out, it makes that data available for the
 `ViewOnGithubButton` to display.
 */
 
-import { ComponentRegistry } from 'nylas-exports';
+import { ComponentRegistry } from 'mailspring-exports';
 import ViewOnGithubButton from './view-on-github-button';
 
 /*

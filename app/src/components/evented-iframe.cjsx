@@ -6,7 +6,7 @@
  IdentityStore,
  NylasAPIRequest,
  SearchableComponentMaker,
- SearchableComponentStore} = require 'nylas-exports'
+ SearchableComponentStore} = require 'mailspring-exports'
 IFrameSearcher = require('../searchable-components/iframe-searcher').default
 url = require 'url'
 _ = require "underscore"

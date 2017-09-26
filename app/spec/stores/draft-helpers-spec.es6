@@ -1,4 +1,4 @@
-import { Actions, Message, DraftHelpers } from 'nylas-exports';
+import { Actions, Message, DraftHelpers } from 'mailspring-exports';
 
 import InlineStyleTransformer from '../../src/services/inline-style-transformer';
 import SanitizeTransformer from '../../src/services/sanitize-transformer';

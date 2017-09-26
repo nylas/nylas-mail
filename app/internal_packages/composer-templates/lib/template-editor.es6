@@ -1,4 +1,4 @@
-import { DOMUtils, ContenteditableExtension } from 'nylas-exports';
+import { DOMUtils, ContenteditableExtension } from 'mailspring-exports';
 
 export default class TemplateEditor extends ContenteditableExtension {
   static onContentChanged = ({ editor }) => {

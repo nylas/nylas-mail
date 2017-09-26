@@ -7,7 +7,7 @@ import {
   CategoryStore,
   ChangeLabelsTask,
   ChangeFolderTask,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 export function snoozedUntilMessage(snoozeDate, now = moment()) {
   let message = 'Snoozed';

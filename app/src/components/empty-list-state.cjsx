@@ -6,7 +6,7 @@ classNames = require 'classnames'
 RetinaImg = require('./retina-img').default
 EventedIFrame = require './evented-iframe'
 {FolderSyncProgressStore,
- FocusedPerspectiveStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'mailspring-exports'
 {SyncingListState} = require 'nylas-component-kit'
 
 

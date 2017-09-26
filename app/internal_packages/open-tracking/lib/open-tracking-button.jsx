@@ -1,4 +1,4 @@
-import { React, PropTypes, APIError, NylasAPIRequest } from 'nylas-exports';
+import { React, PropTypes, APIError, NylasAPIRequest } from 'mailspring-exports';
 import { MetadataComposerToggleButton } from 'nylas-component-kit';
 import { PLUGIN_ID, PLUGIN_NAME } from './open-tracking-constants';
 

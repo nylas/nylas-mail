@@ -16,7 +16,7 @@ ReactTestUtils = require 'react-dom/test-utils'
  MessageStore,
  AccountStore,
  NylasTestUtils,
- ComponentRegistry} = require "nylas-exports"
+ ComponentRegistry} = require "mailspring-exports"
 
 MessageParticipants = require("../lib/message-participants").default
 MessageItemContainer = require("../lib/message-item-container").default

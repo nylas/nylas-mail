@@ -1,4 +1,4 @@
-import { Message, SignatureStore } from 'nylas-exports';
+import { Message, SignatureStore } from 'mailspring-exports';
 import SignatureComposerExtension from '../lib/signature-composer-extension';
 
 const TEST_ID = 1;

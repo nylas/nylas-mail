@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import NylasStore from 'nylas-store';
-import { Rx } from 'nylas-exports';
+import { Rx } from 'mailspring-exports';
 import Task from '../tasks/task';
 import DatabaseStore from './database-store';
 

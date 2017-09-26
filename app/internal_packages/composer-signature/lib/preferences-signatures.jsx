@@ -7,7 +7,7 @@ import {
   ScrollRegion,
   MultiselectDropdown,
 } from 'nylas-component-kit';
-import { AccountStore, SignatureStore, Actions } from 'nylas-exports';
+import { AccountStore, SignatureStore, Actions } from 'mailspring-exports';
 
 export default class PreferencesSignatures extends React.Component {
   static displayName = 'PreferencesSignatures';

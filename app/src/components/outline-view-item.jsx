@@ -2,7 +2,7 @@
 /* eslint jsx-a11y/tabindex-no-positive:0 */
 
 import _ from 'underscore';
-import { Utils } from 'nylas-exports';
+import { Utils } from 'mailspring-exports';
 import classnames from 'classnames';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';

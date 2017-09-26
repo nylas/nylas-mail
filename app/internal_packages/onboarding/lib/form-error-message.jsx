@@ -1,4 +1,4 @@
-import { React, PropTypes, RegExpUtils } from 'nylas-exports';
+import { React, PropTypes, RegExpUtils } from 'mailspring-exports';
 
 const FormErrorMessage = props => {
   const { message, empty } = props;

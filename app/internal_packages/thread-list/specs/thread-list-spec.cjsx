@@ -23,7 +23,7 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  WorkspaceStore,
  NylasTestUtils,
  AccountStore,
- ComponentRegistry} = require "nylas-exports"
+ ComponentRegistry} = require "mailspring-exports"
 {ListTabular} = require 'nylas-component-kit'
 
 

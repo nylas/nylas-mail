@@ -5,7 +5,7 @@ import {
   DatabaseStore,
   Actions,
   Thread,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import MessageListHiddenMessagesToggle from './message-list-hidden-messages-toggle';
 import MessageList from './message-list';

@@ -7,7 +7,7 @@ import {
   ComponentRegistry,
   FocusedContentStore,
   MutableQuerySubscription,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import SearchActions from './search-actions';
 
 class SearchQuerySubscription extends MutableQuerySubscription {

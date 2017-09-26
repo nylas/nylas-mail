@@ -1,7 +1,7 @@
 import NylasStore from 'nylas-store';
 import fs from 'fs';
 import path from 'path';
-import { Utils, MessageBodyProcessor } from 'nylas-exports';
+import { Utils, MessageBodyProcessor } from 'mailspring-exports';
 import AutoloadImagesActions from './autoload-images-actions';
 
 const ImagesRegexp = /((?:src|background|placeholder|icon|background|poster|srcset)\s*=\s*['"]?(?=\w*:\/\/)|:\s*url\()+([^"')]*)/gi;

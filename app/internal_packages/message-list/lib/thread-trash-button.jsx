@@ -5,7 +5,7 @@ import {
   DOMUtils,
   TaskFactory,
   FocusedPerspectiveStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 
 export default class ThreadTrashButton extends React.Component {

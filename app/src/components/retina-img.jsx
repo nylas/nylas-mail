@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { React, PropTypes, Utils } from 'nylas-exports';
+import { React, PropTypes, Utils } from 'mailspring-exports';
 
 const StylesImpactedByZoom = [
   'top',

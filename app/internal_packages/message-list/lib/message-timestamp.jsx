@@ -1,4 +1,4 @@
-import { React, PropTypes, DateUtils } from 'nylas-exports';
+import { React, PropTypes, DateUtils } from 'mailspring-exports';
 
 class MessageTimestamp extends React.Component {
   static displayName = 'MessageTimestamp';

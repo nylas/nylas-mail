@@ -1,6 +1,6 @@
 marked = require 'marked'
 Utils = require './utils'
-{ComposerExtension} = require 'nylas-exports'
+{ComposerExtension} = require 'mailspring-exports'
 
 rawBodies = {}
 

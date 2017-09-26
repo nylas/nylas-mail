@@ -5,7 +5,7 @@ import {
   NylasAPIRequest,
   NylasAPIHelpers,
   APIError,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import classnames from 'classnames';
 import _ from 'underscore';

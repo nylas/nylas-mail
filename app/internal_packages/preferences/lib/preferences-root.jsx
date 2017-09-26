@@ -9,7 +9,7 @@ import {
   ListensToFluxStore,
   ConfigPropContainer,
 } from 'nylas-component-kit';
-import { PreferencesUIStore } from 'nylas-exports';
+import { PreferencesUIStore } from 'mailspring-exports';
 import PreferencesTabsBar from './preferences-tabs-bar';
 
 class PreferencesRoot extends React.Component {

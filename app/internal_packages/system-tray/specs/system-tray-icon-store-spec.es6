@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { BadgeStore } from 'nylas-exports';
+import { BadgeStore } from 'mailspring-exports';
 import SystemTrayIconStore from '../lib/system-tray-icon-store';
 
 const { INBOX_ZERO_ICON, INBOX_UNREAD_ICON, INBOX_UNREAD_ALT_ICON } = SystemTrayIconStore;

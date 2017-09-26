@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { PropTypes, Actions, React, Utils } from 'nylas-exports';
+import { PropTypes, Actions, React, Utils } from 'mailspring-exports';
 
 import InitialSyncActivity from './initial-sync-activity';
 import SyncbackActivity from './syncback-activity';

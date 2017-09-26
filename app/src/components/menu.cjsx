@@ -1,6 +1,6 @@
 classNames = require 'classnames'
 _ = require 'underscore'
-{React, ReactDOM, PropTypes, DOMUtils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, DOMUtils} = require 'mailspring-exports'
 {CompositeDisposable} = require 'event-kit'
 
 ###

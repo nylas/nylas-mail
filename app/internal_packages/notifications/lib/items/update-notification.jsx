@@ -1,4 +1,4 @@
-import { React } from 'nylas-exports';
+import { React } from 'mailspring-exports';
 import { ipcRenderer, remote, shell } from 'electron';
 import { Notification } from 'nylas-component-kit';
 

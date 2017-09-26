@@ -1,4 +1,4 @@
-import { React, Actions, PropTypes, SignatureStore } from 'nylas-exports';
+import { React, Actions, PropTypes, SignatureStore } from 'mailspring-exports';
 import { Menu, RetinaImg, ButtonDropdown } from 'nylas-component-kit';
 
 import SignatureUtils from './signature-utils';

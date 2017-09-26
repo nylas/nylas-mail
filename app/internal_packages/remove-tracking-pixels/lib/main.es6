@@ -5,7 +5,7 @@ import {
   MessageViewExtension,
   ComposerExtension,
   RegExpUtils,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 const TrackingBlacklist = [
   {

@@ -1,4 +1,4 @@
-import { DOMUtils } from 'nylas-exports';
+import { DOMUtils } from 'mailspring-exports';
 import BlockquoteManager from '../../src/components/contenteditable/blockquote-manager';
 
 describe('BlockquoteManager', function BlockquoteManagerSpecs() {

@@ -1,6 +1,6 @@
 import pathwatcher from 'pathwatcher';
 import ReactTestUtils from 'react-dom/test-utils';
-import { TaskQueue } from 'nylas-exports';
+import { TaskQueue } from 'mailspring-exports';
 
 class MasterAfterEach {
   setup(loadSettings, afterEach) {

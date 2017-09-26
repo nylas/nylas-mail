@@ -6,7 +6,7 @@ import {
   AccountStore,
   FocusedPerspectiveStore,
   NylasAPIRequest,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import AnalyticsSink from '../analytics-electron';
 

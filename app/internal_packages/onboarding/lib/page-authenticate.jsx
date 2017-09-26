@@ -1,4 +1,4 @@
-import { React, PropTypes, NylasAPIRequest } from 'nylas-exports';
+import { React, PropTypes, NylasAPIRequest } from 'mailspring-exports';
 import { Webview } from 'nylas-component-kit';
 import OnboardingActions from './onboarding-actions';
 

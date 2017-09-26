@@ -1,4 +1,4 @@
-{Folder, Label} = require 'nylas-exports'
+{Folder, Label} = require 'mailspring-exports'
 
 describe 'Category classes', ->
   describe '.categoriesSharedRole', ->

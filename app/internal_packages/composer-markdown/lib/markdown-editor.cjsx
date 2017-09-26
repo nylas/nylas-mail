@@ -1,6 +1,6 @@
 Utils = require './utils'
 SimpleMDE = require 'simplemde'
-{React, ReactDOM, PropTypes, QuotedHTMLTransformer} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, QuotedHTMLTransformer} = require 'mailspring-exports'
 
 # Keep a file-scope variable containing the contents of the markdown stylesheet.
 # This will be embedded in the markdown preview iFrame, as well as the email body.

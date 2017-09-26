@@ -1,4 +1,4 @@
-import { React, PropTypes, Utils } from 'nylas-exports';
+import { React, PropTypes, Utils } from 'mailspring-exports';
 
 class FluxContainer extends React.Component {
   static displayName = 'FluxContainer';

@@ -1,4 +1,4 @@
-import { SystemStartService, WorkspaceStore, ComponentRegistry } from 'nylas-exports';
+import { SystemStartService, WorkspaceStore, ComponentRegistry } from 'mailspring-exports';
 import OnboardingRoot from './onboarding-root';
 
 export function activate() {

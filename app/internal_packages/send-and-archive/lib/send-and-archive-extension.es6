@@ -1,4 +1,4 @@
-import { Actions, Thread, DatabaseStore, TaskFactory, SendDraftTask } from 'nylas-exports';
+import { Actions, Thread, DatabaseStore, TaskFactory, SendDraftTask } from 'mailspring-exports';
 
 export const name = 'SendAndArchiveExtension';
 

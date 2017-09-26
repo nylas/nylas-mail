@@ -1,5 +1,5 @@
 import { ipcRenderer, shell } from 'electron';
-import { React, PropTypes, Actions } from 'nylas-exports';
+import { React, PropTypes, Actions } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 
 const clipboard = require('electron').clipboard;

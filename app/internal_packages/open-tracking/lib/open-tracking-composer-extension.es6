@@ -1,4 +1,4 @@
-import { ComposerExtension } from 'nylas-exports';
+import { ComposerExtension } from 'mailspring-exports';
 import { PLUGIN_ID, PLUGIN_URL } from './open-tracking-constants';
 
 export default class OpenTrackingComposerExtension extends ComposerExtension {

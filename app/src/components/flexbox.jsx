@@ -1,4 +1,4 @@
-import { React, PropTypes, Utils } from 'nylas-exports';
+import { React, PropTypes, Utils } from 'mailspring-exports';
 
 /*
 Public: A simple wrapper that provides a Flexbox layout with the given direction and style.

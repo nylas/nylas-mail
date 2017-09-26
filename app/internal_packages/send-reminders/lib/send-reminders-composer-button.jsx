@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import { Actions } from 'nylas-exports';
+import { Actions } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import moment from 'moment';
 

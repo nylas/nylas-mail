@@ -1,4 +1,4 @@
-import { AccountStore, Actions } from 'nylas-exports';
+import { AccountStore, Actions } from 'mailspring-exports';
 import PrintWindow from './print-window';
 
 class Printer {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import { Actions, FocusedPerspectiveStore } from 'nylas-exports';
+import { Actions, FocusedPerspectiveStore } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import SnoozePopover from './snooze-popover';
 

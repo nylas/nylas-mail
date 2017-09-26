@@ -15,7 +15,7 @@ ReactTestUtils = require('react-dom/test-utils')
  AccountStore,
  ContactStore,
  FocusedContentStore,
- ComponentRegistry} = require "nylas-exports"
+ ComponentRegistry} = require "mailspring-exports"
 
 {InjectedComponent,
  AttachmentItem,

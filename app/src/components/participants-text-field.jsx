@@ -1,5 +1,5 @@
 import { remote, clipboard } from 'electron';
-import { React, PropTypes, Utils, Contact, ContactStore, RegExpUtils } from 'nylas-exports';
+import { React, PropTypes, Utils, Contact, ContactStore, RegExpUtils } from 'mailspring-exports';
 import {
   TokenizingTextField,
   Menu,

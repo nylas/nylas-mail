@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { DateUtils } from 'nylas-exports';
+import { DateUtils } from 'mailspring-exports';
 
 describe('DateUtils', function dateUtils() {
   describe('nextWeek', () => {

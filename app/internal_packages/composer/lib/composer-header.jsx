@@ -7,7 +7,7 @@ import {
   DraftHelpers,
   Actions,
   AccountStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import {
   InjectedComponent,
   KeyCommandsRegion,

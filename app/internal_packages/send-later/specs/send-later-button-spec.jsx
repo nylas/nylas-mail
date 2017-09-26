@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { findRenderedDOMComponentWithClass } from 'react-addons-test-utils';
 
-import { DateUtils, NylasAPIHelpers, Actions } from 'nylas-exports';
+import { DateUtils, NylasAPIHelpers, Actions } from 'mailspring-exports';
 import SendLaterButton from '../lib/send-later-button';
 import { PLUGIN_ID, PLUGIN_NAME } from '../lib/send-later-constants';
 
@@ -39,7 +39,6 @@ xdescribe('SendLaterButton', function sendLaterButton() {
     it('sets scheduled date to "saving" and adds plugin metadata to the session', () => {
       const button = makeButton(null, { sendLaterDate: 'date' });
       spyOn(button, 'setState');
-      spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
       spyOn(Actions, 'finalizeDraftAndSyncbackMetadata');
 
       const sendLaterDate = { utc: () => 'utc' };

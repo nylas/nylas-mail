@@ -1,6 +1,6 @@
 _ = require 'underscore'
 classNames = require 'classnames'
-{React, PropTypes, Utils, DOMUtils, ExtensionRegistry} = require 'nylas-exports'
+{React, PropTypes, Utils, DOMUtils, ExtensionRegistry} = require 'mailspring-exports'
 
 # Positions and renders a FloatingToolbar in the composer.
 #

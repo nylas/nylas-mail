@@ -1,4 +1,4 @@
-import { WorkspaceStore, Actions } from 'nylas-exports';
+import { WorkspaceStore, Actions } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 import React from 'react';
 

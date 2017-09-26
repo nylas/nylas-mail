@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{React, ReactDOM, PropTypes, Utils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, Utils} = require 'mailspring-exports'
 classNames = require 'classnames'
 ScrollbarTicks = require('./scrollbar-ticks').default
 

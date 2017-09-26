@@ -1,4 +1,4 @@
-import { PreferencesUIStore } from 'nylas-exports';
+import { PreferencesUIStore } from 'mailspring-exports';
 import PluginsView from './preferences-plugins';
 
 export function activate() {

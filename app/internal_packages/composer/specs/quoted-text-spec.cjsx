@@ -12,7 +12,7 @@ Fields = require('../lib/fields').default
 Composer = require("../lib/composer-view").default
 ComposerEditor = require('../lib/composer-editor').default
 
-{Message, DraftStore, ComponentRegistry} = require 'nylas-exports'
+{Message, DraftStore, ComponentRegistry} = require 'mailspring-exports'
 
 describe "Composer Quoted Text", ->
   beforeEach ->

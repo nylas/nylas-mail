@@ -1,4 +1,4 @@
-import { React, PropTypes, DateUtils } from 'nylas-exports';
+import { React, PropTypes, DateUtils } from 'mailspring-exports';
 import { Flexbox } from 'nylas-component-kit';
 import ActivityListStore from '../../activity-list/lib/activity-list-store';
 

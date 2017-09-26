@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DateUtils } from 'nylas-exports';
+import { DateUtils } from 'mailspring-exports';
 import { DatePickerPopover } from 'nylas-component-kit';
 
 const SendLaterOptions = {

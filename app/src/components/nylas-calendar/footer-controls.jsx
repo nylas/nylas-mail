@@ -1,4 +1,4 @@
-import { React, PropTypes, Utils } from 'nylas-exports';
+import { React, PropTypes, Utils } from 'mailspring-exports';
 
 export default class FooterControls extends React.Component {
   static displayName = 'FooterControls';

@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { EditableList, NewsletterSignup } from 'nylas-component-kit';
-import { RegExpUtils, Account } from 'nylas-exports';
+import { RegExpUtils, Account } from 'mailspring-exports';
 
 class PreferencesAccountDetails extends Component {
   static propTypes = {

@@ -1,4 +1,4 @@
-import { ComponentRegistry } from 'nylas-exports';
+import { ComponentRegistry } from 'mailspring-exports';
 import ParticipantProfileStore from './participant-profile-store';
 import SidebarParticipantProfile from './sidebar-participant-profile';
 import SidebarRelatedThreads from './sidebar-related-threads';

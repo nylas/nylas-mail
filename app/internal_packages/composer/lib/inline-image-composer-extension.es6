@@ -1,4 +1,4 @@
-import { Actions, ComposerExtension } from 'nylas-exports';
+import { Actions, ComposerExtension } from 'mailspring-exports';
 
 export default class InlineImageComposerExtension extends ComposerExtension {
   static editingActions() {

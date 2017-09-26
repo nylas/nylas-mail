@@ -1,7 +1,7 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
 PropTypes = require 'prop-types'
-{Utils} = require 'nylas-exports'
+{Utils} = require 'mailspring-exports'
 _ = require 'underscore'
 
 ###

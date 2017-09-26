@@ -1,6 +1,6 @@
 import { shell } from 'electron';
 import { RetinaImg } from 'nylas-component-kit';
-import { NylasAPIRequest, Actions, React, ReactDOM, PropTypes } from 'nylas-exports';
+import { NylasAPIRequest, Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
 
 import OnboardingActions from '../onboarding-actions';
 import { finalizeAndValidateAccount } from '../onboarding-helpers';

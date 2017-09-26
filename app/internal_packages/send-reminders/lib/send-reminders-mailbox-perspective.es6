@@ -1,4 +1,4 @@
-import { Thread, MailboxPerspective, MutableQuerySubscription, DatabaseStore } from 'nylas-exports';
+import { Thread, MailboxPerspective, MutableQuerySubscription, DatabaseStore } from 'mailspring-exports';
 
 import { PLUGIN_ID } from './send-reminders-constants';
 

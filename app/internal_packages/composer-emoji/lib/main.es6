@@ -1,4 +1,4 @@
-import { ExtensionRegistry, ComponentRegistry } from 'nylas-exports';
+import { ExtensionRegistry, ComponentRegistry } from 'mailspring-exports';
 import EmojiStore from './emoji-store';
 import EmojiComposerExtension from './emoji-composer-extension';
 import EmojiMessageExtension from './emoji-message-extension';

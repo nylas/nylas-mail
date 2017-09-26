@@ -1,7 +1,7 @@
 // import {exec} from 'child_process';
 // import fs from 'fs';
 // import path from 'path';
-// import {WorkspaceStore, ComponentRegistry} from 'nylas-exports';
+// import {WorkspaceStore, ComponentRegistry} from 'mailspring-exports';
 // import CalendarWrapper from './calendar-wrapper';
 // import QuickEventButton from './quick-event-button';
 

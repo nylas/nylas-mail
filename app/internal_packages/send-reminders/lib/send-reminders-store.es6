@@ -8,7 +8,7 @@ import {
   Thread,
   Contact,
   DraftFactory,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import NylasStore from 'nylas-store';
 
 import { PLUGIN_ID } from './send-reminders-constants';

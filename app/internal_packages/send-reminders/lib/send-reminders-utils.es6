@@ -5,7 +5,7 @@ import {
   DatabaseStore,
   FeatureUsageStore,
   SyncbackMetadataTask,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import { PLUGIN_ID } from './send-reminders-constants';
 

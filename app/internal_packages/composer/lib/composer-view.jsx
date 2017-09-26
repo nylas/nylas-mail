@@ -8,7 +8,7 @@ import {
   DraftStore,
   AttachmentStore,
   DraftHelpers,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import {
   DropZone,
   RetinaImg,

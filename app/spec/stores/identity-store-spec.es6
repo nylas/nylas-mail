@@ -1,4 +1,4 @@
-import { Utils, KeyManager } from 'nylas-exports';
+import { Utils, KeyManager } from 'mailspring-exports';
 import IdentityStore from '../../src/flux/stores/identity-store';
 import * as NylasAPIRequest from '../../src/flux/nylas-api-request';
 

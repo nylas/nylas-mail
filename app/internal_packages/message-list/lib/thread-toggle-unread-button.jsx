@@ -1,4 +1,4 @@
-import { Actions, React, TaskFactory, PropTypes } from 'nylas-exports';
+import { Actions, React, TaskFactory, PropTypes } from 'mailspring-exports';
 import { RetinaImg } from 'nylas-component-kit';
 
 export default class ThreadToggleUnreadButton extends React.Component {

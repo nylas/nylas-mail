@@ -1,4 +1,4 @@
-import {React, ReactDOM} from 'nylas-exports';
+import {React, ReactDOM} from 'mailspring-exports';
 const ReactTestUtils = require('react-dom/test-utils')
 
 import MyComposerButton from '../lib/my-composer-button';

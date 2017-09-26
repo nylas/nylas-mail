@@ -1,5 +1,5 @@
 import React from 'react';
-import { Actions } from 'nylas-exports';
+import { Actions } from 'mailspring-exports';
 import { RetinaImg, ScrollRegion } from 'nylas-component-kit';
 
 import EmojiStore from './emoji-store';

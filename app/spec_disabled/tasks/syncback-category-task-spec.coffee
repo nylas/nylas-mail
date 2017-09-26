@@ -2,6 +2,6 @@
  AccountStore,
  DatabaseStore,
  SyncbackCategoryTask,
- DatabaseWriter} = require "nylas-exports"
+ DatabaseWriter} = require "mailspring-exports"
 
 xdescribe "SyncbackCategoryTask", ->

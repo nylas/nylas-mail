@@ -8,7 +8,7 @@ _str = require 'underscore.string'
  CategoryStore,
  Actions,
  Utils,
- RegExpUtils} = require 'nylas-exports'
+ RegExpUtils} = require 'mailspring-exports'
 {OutlineViewItem} = require 'nylas-component-kit'
 
 SidebarActions = require './sidebar-actions'

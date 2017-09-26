@@ -9,7 +9,7 @@ NylasStore = require 'nylas-store'
  WorkspaceStore,
  FocusedContentStore,
  TaskQueue,
- FocusedPerspectiveStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'mailspring-exports'
 {ListTabular} = require 'nylas-component-kit'
 
 ThreadListDataSource = require('./thread-list-data-source').default

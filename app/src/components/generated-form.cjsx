@@ -2,7 +2,7 @@ _ = require 'underscore'
 classNames = require 'classnames'
 React = require 'react'
 ReactDOM = require 'react-dom'
-{React, ReactDOM, PropTypes, Utils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, Utils} = require 'mailspring-exports'
 DatePicker = require('./date-picker').default
 TabGroupRegion = require('./tab-group-region')
 

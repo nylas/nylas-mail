@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { RetinaImg } from 'nylas-component-kit';
-import { Actions, TaskFactory, FocusedContentStore, FocusedPerspectiveStore } from 'nylas-exports';
+import { Actions, TaskFactory, FocusedContentStore, FocusedPerspectiveStore } from 'mailspring-exports';
 
 import ThreadListStore from './thread-list-store';
 

@@ -1,4 +1,4 @@
-import { RegExpUtils, DOMUtils, ContenteditableExtension } from 'nylas-exports';
+import { RegExpUtils, DOMUtils, ContenteditableExtension } from 'mailspring-exports';
 import LinkEditor from './link-editor';
 
 export default class LinkManager extends ContenteditableExtension {

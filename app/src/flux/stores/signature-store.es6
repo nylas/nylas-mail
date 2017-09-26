@@ -1,4 +1,4 @@
-import { Utils, Actions } from 'nylas-exports';
+import { Utils, Actions } from 'mailspring-exports';
 import NylasStore from 'nylas-store';
 import _ from 'underscore';
 

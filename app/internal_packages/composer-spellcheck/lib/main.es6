@@ -1,4 +1,4 @@
-import { ExtensionRegistry } from 'nylas-exports';
+import { ExtensionRegistry } from 'mailspring-exports';
 import SpellcheckComposerExtension from './spellcheck-composer-extension';
 
 export function activate() {

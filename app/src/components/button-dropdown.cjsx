@@ -1,5 +1,5 @@
 RetinaImg = require('./retina-img').default
-{React, ReactDOM, PropTypes, Utils} = require 'nylas-exports'
+{React, ReactDOM, PropTypes, Utils} = require 'mailspring-exports'
 classnames = require 'classnames'
 
 class ButtonDropdown extends React.Component

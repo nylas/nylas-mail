@@ -1,6 +1,6 @@
 /* eslint global-require: 0 */
 import fs from 'fs';
-import { Spellchecker } from 'nylas-exports';
+import { Spellchecker } from 'mailspring-exports';
 
 describe('Spellchecker', function spellcheckerTests() {
   beforeEach(() => {

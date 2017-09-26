@@ -1,6 +1,6 @@
 import React from 'react';
 import {mount} from 'enzyme'
-import {DateUtils} from 'nylas-exports'
+import {DateUtils} from 'mailspring-exports'
 import {DatePickerPopover} from 'nylas-component-kit'
 
 

@@ -10,7 +10,7 @@ ReactTestUtils = require 'react-dom/test-utils'
  Utils,
  QuotedHTMLTransformer,
  AttachmentStore,
- MessageBodyProcessor} = require "nylas-exports"
+ MessageBodyProcessor} = require "mailspring-exports"
 
 MessageItemBody = React.createClass({render: -> <div></div>})
 

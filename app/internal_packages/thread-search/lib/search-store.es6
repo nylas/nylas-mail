@@ -8,7 +8,7 @@ import {
   ComponentRegistry,
   FocusedPerspectiveStore,
   SearchQueryParser,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import SearchActions from './search-actions';
 import SearchMailboxPerspective from './search-mailbox-perspective';

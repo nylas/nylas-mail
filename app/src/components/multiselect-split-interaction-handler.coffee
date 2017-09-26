@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {Actions,
- WorkspaceStore} = require 'nylas-exports'
+ WorkspaceStore} = require 'mailspring-exports'
 
 module.exports =
 class MultiselectSplitInteractionHandler

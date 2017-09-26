@@ -9,7 +9,7 @@ path = require 'path'
  ComponentRegistry,
  EventRSVPTask,
  DatabaseStore,
- AccountStore} = require 'nylas-exports'
+ AccountStore} = require 'mailspring-exports'
 moment = require 'moment-timezone'
 
 class EventHeader extends React.Component

@@ -1,5 +1,5 @@
 ClipboardService = require('../../src/components/contenteditable/clipboard-service').default
-{InlineStyleTransformer, SanitizeTransformer} = require 'nylas-exports'
+{InlineStyleTransformer, SanitizeTransformer} = require 'mailspring-exports'
 fs = require 'fs'
 
 describe "ClipboardService", ->

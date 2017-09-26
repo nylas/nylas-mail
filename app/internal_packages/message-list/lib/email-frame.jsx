@@ -7,7 +7,7 @@ import {
   Utils,
   QuotedHTMLTransformer,
   MessageStore,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 import { autolink } from './autolinker';
 import { autoscaleImages } from './autoscale-images';
 import { addInlineImageListeners } from './inline-image-listeners';

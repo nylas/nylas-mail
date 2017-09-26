@@ -14,7 +14,7 @@ const lazyLoadWithGetter = (prop, getter) => {
   const key = `${prop}`;
 
   if (exports[key]) {
-    throw new Error(`Fatal error: Duplicate entry in nylas-exports: ${key}`);
+    throw new Error(`Fatal error: Duplicate entry in mailspring-exports: ${key}`);
   }
   Object.defineProperty(exports, prop, {
     configurable: true,

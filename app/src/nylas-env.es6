@@ -209,13 +209,13 @@ export default class AppEnvConstructor {
     require('nylas-observables');
 
     // Nylas exports is designed to provide a lazy-loaded set of globally
-    // accessible objects to all packages. Upon require, nylas-exports will
+    // accessible objects to all packages. Upon require, mailspring-exports will
     // fill the StoreRegistry, and DatabaseObjectRegistries
     // with various constructors.
     //
     // We initialize all of the stores loaded into the StoreRegistry once
     // the window starts loading.
-    require('nylas-exports');
+    require('mailspring-exports');
 
     const ActionBridge = require('./flux/action-bridge').default;
     this.actionBridge = new ActionBridge(ipcRenderer);
@@ -974,7 +974,7 @@ export default class AppEnvConstructor {
       },
       buttonIndex => {
         if (buttonIndex === 1) {
-          const { Actions } = require('nylas-exports');
+          const { Actions } = require('mailspring-exports');
           const { CodeSnippet } = require('nylas-component-kit');
           Actions.openModal({
             component: CodeSnippet({ intro: message, code: detail, className: 'error-details' }),

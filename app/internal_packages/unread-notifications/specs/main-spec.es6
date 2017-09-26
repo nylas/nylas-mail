@@ -8,7 +8,7 @@ import {
   AccountStore,
   SoundRegistry,
   NativeNotifications,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import { Notifier } from '../lib/main';
 

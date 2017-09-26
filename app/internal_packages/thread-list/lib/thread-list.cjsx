@@ -24,7 +24,7 @@ classnames = require 'classnames'
  ExtensionRegistry,
  FocusedContentStore,
  FocusedPerspectiveStore
- FolderSyncProgressStore} = require 'nylas-exports'
+ FolderSyncProgressStore} = require 'mailspring-exports'
 
 ThreadListColumns = require './thread-list-columns'
 ThreadListScrollTooltip = require './thread-list-scroll-tooltip'

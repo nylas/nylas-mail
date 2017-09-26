@@ -3,7 +3,7 @@
  CategoryStore,
  TaskFactory,
  AccountStore,
- FocusedPerspectiveStore} = require 'nylas-exports'
+ FocusedPerspectiveStore} = require 'mailspring-exports'
 
 class ThreadArchiveQuickAction extends React.Component
   @displayName: 'ThreadArchiveQuickAction'

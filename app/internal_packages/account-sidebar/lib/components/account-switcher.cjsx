@@ -1,4 +1,4 @@
-{Actions, React, PropTypes} = require 'nylas-exports'
+{Actions, React, PropTypes} = require 'mailspring-exports'
 {RetinaImg} = require 'nylas-component-kit'
 AccountCommands = require '../account-commands'
 

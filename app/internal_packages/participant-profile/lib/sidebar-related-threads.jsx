@@ -1,4 +1,4 @@
-import { React, PropTypes, Actions, DateUtils } from 'nylas-exports';
+import { React, PropTypes, Actions, DateUtils } from 'mailspring-exports';
 
 export default class RelatedThreads extends React.Component {
   static displayName = 'RelatedThreads';

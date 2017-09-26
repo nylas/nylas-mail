@@ -1,5 +1,5 @@
 import { mount } from 'enzyme';
-import { AccountStore, Account, Actions, React } from 'nylas-exports';
+import { AccountStore, Account, Actions, React } from 'mailspring-exports';
 import { ipcRenderer } from 'electron';
 
 import AccountErrorNotification from '../lib/items/account-error-notif';

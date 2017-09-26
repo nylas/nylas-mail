@@ -1,5 +1,5 @@
 _ = require 'underscore'
-{DOMUtils} = require 'nylas-exports'
+{DOMUtils} = require 'mailspring-exports'
 ExportedSelection = require('./exported-selection').default
 
 # Convenience methods over the DOM's Selection object

@@ -12,7 +12,7 @@ import {
   AttachmentStore,
   SanitizeTransformer,
   InlineStyleTransformer,
-} from 'nylas-exports';
+} from 'mailspring-exports';
 
 import DraftFactory from '../../src/flux/stores/draft-factory';
 

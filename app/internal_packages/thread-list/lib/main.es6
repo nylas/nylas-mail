@@ -1,4 +1,4 @@
-import { ComponentRegistry, WorkspaceStore } from 'nylas-exports';
+import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 
 import ThreadList from './thread-list';
 import ThreadListToolbar from './thread-list-toolbar';

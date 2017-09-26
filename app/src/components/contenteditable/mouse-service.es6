@@ -1,4 +1,4 @@
-import { DOMUtils } from 'nylas-exports';
+import { DOMUtils } from 'mailspring-exports';
 import ContenteditableService from './contenteditable-service';
 
 class MouseService extends ContenteditableService {

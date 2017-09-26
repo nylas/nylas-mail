@@ -5,7 +5,7 @@ ReactTestUtils = require('react-dom/test-utils')
 {Thread,
  Message,
  ComponentRegistry,
- DraftStore} = require 'nylas-exports'
+ DraftStore} = require 'mailspring-exports'
 
 class StubMessageItem extends React.Component
   @displayName: "StubMessageItem"
