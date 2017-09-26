@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { MultiselectToolbar } from 'nylas-component-kit';
+import { MultiselectToolbar } from 'mailspring-component-kit';
 import InjectsToolbarButtons, { ToolbarRole } from './injects-toolbar-buttons';
 
 class ThreadListToolbar extends Component {

@@ -4,7 +4,7 @@ React = require 'react'
 {FluxContainer,
  FocusContainer,
  EmptyListState,
- MultiselectList} = require 'nylas-component-kit'
+ MultiselectList} = require 'mailspring-component-kit'
 DraftListStore = require './draft-list-store'
 DraftListColumns = require './draft-list-columns'
 

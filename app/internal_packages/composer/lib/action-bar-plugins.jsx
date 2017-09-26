@@ -1,6 +1,6 @@
 import classnames from 'classnames';
 import { React, PropTypes, ComponentRegistry } from 'mailspring-exports';
-import { InjectedComponentSet } from 'nylas-component-kit';
+import { InjectedComponentSet } from 'mailspring-component-kit';
 
 const ROLE = 'Composer:ActionButton';
 

@@ -6,7 +6,7 @@ _ = require 'underscore'
  WorkspaceStore} = require 'mailspring-exports'
 
 {RetinaImg,
- KeyCommandsRegion} = require 'nylas-component-kit'
+ KeyCommandsRegion} = require 'mailspring-component-kit'
 
 MovePickerPopover = require('./move-picker-popover').default
 

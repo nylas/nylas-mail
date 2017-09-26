@@ -7,7 +7,7 @@ import Sqlite3 from 'better-sqlite3';
 import { remote } from 'electron';
 import { ExponentialBackoffScheduler } from '../../backoff-schedulers';
 
-import NylasStore from '../../global/nylas-store';
+import MailspringStore from '../../global/mailspring-store';
 import Utils from '../models/utils';
 import Query from '../models/query';
 import DatabaseChangeRecord from './database-change-record';
@@ -123,7 +123,7 @@ are in your displayed set before refreshing.
 
 Section: Database
 */
-class DatabaseStore extends NylasStore {
+class DatabaseStore extends MailspringStore {
   static ChangeRecord = DatabaseChangeRecord;
 
   constructor() {

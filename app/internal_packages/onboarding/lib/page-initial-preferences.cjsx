@@ -3,7 +3,7 @@ PropTypes = require 'prop-types'
 path = require 'path'
 fs = require 'fs'
 _ = require 'underscore'
-{RetinaImg, Flexbox, ConfigPropContainer, NewsletterSignup} = require 'nylas-component-kit'
+{RetinaImg, Flexbox, ConfigPropContainer, NewsletterSignup} = require 'mailspring-component-kit'
 {AccountStore} = require 'mailspring-exports'
 OnboardingActions = require('./onboarding-actions').default
 

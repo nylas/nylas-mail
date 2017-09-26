@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { OAuthSignInPage } from 'nylas-component-kit';
+import { OAuthSignInPage } from 'mailspring-component-kit';
 
 import {
   makeGmailOAuthRequest,

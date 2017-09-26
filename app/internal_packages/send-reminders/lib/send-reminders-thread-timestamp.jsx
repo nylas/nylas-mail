@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import moment from 'moment';
 
 import { FocusedPerspectiveStore } from 'mailspring-exports';

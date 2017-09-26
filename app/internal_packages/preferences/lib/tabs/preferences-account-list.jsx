@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { RetinaImg, Flexbox, EditableList } from 'nylas-component-kit';
+import { RetinaImg, Flexbox, EditableList } from 'mailspring-component-kit';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 

@@ -20,7 +20,7 @@ import {
   OverlaidComponents,
   ImageAttachmentItem,
   InjectedComponentSet,
-} from 'nylas-component-kit';
+} from 'mailspring-component-kit';
 import ComposerEditor from './composer-editor';
 import ComposerHeader from './composer-header';
 import SendActionButton from './send-action-button';

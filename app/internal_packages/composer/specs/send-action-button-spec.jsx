@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { ButtonDropdown, RetinaImg } from 'nylas-component-kit';
+import { ButtonDropdown, RetinaImg } from 'mailspring-component-kit';
 import { Actions, Message, SendActionsStore } from 'mailspring-exports';
 import SendActionButton from '../lib/send-action-button';
 

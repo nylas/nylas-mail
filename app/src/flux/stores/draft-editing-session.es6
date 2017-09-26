@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import EventEmitter from 'events';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
 import TaskQueue from './task-queue';
 import Message from '../models/message';
@@ -119,7 +119,7 @@ that display Draft objects or allow for interactive editing of Drafts.
 
 Section: Drafts
 */
-export default class DraftEditingSession extends NylasStore {
+export default class DraftEditingSession extends MailspringStore {
   static DraftChangeSet = DraftChangeSet;
 
   constructor(headerMessageId, draft = null) {

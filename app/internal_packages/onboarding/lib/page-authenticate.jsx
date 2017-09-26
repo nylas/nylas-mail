@@ -1,5 +1,5 @@
-import { React, PropTypes, NylasAPIRequest } from 'mailspring-exports';
-import { Webview } from 'nylas-component-kit';
+import { React, PropTypes, MailspringAPIRequest } from 'mailspring-exports';
+import { Webview } from 'mailspring-component-kit';
 import OnboardingActions from './onboarding-actions';
 
 export default class AuthenticatePage extends React.Component {
@@ -11,7 +11,7 @@ export default class AuthenticatePage extends React.Component {
 
   _src() {
     const n1Version = AppEnv.getVersion();
-    return `${NylasAPIRequest.rootURLForServer(
+    return `${MailspringAPIRequest.rootURLForServer(
       'identity'
     )}/onboarding?utm_medium=N1&utm_source=OnboardingPage&N1_version=${n1Version}&client_edition=basic`;
   }

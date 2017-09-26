@@ -1,6 +1,6 @@
 import React from 'react';
 import { Actions, IdentityStore } from 'mailspring-exports';
-import { OpenIdentityPageButton, BillingModal, RetinaImg } from 'nylas-component-kit';
+import { OpenIdentityPageButton, BillingModal, RetinaImg } from 'mailspring-component-kit';
 import { shell } from 'electron';
 
 class RefreshButton extends React.Component {

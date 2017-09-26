@@ -1,4 +1,4 @@
-import { EventedIFrame } from 'nylas-component-kit';
+import { EventedIFrame } from 'mailspring-component-kit';
 import { React, ReactDOM, PropTypes, Utils } from 'mailspring-exports';
 
 export default class EmailFrame extends React.Component {

@@ -1,5 +1,5 @@
 import { Utils } from 'mailspring-exports';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import ClearbitDataSource from './clearbit-data-source';
 
 const contactCache = {};
@@ -8,7 +8,7 @@ const contactCacheKeyIndex = [];
 
 // TODO: Put cache into localstorage
 
-class ParticipantProfileStore extends NylasStore {
+class ParticipantProfileStore extends MailspringStore {
   constructor() {
     super();
     this.cacheExpiry = 1000 * 60 * 60 * 24; // 1 day

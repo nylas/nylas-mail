@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-import { Flexbox, ScrollRegion } from 'nylas-component-kit';
+import { Flexbox, ScrollRegion } from 'mailspring-component-kit';
 import ActivityListStore from './activity-list-store';
 import ActivityListActions from './activity-list-actions';
 import ActivityListItemContainer from './activity-list-item-container';

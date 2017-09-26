@@ -7,7 +7,7 @@ RetinaImg = require('./retina-img').default
 EventedIFrame = require './evented-iframe'
 {FolderSyncProgressStore,
  FocusedPerspectiveStore} = require 'mailspring-exports'
-{SyncingListState} = require 'nylas-component-kit'
+{SyncingListState} = require 'mailspring-component-kit'
 
 
 INBOX_ZERO_ANIMATIONS = [

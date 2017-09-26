@@ -445,7 +445,7 @@ Introducing Nylas Mail Pro
   + Don't double report refresh access token API errors
   + Replace `setImmediate` with `setTimeout` as Promise scheduler
   + Use new Bluebird preferred `longStackTraces` syntax
-  + NylasAPIRequest refactored and cleaned up
+  + MailspringAPIRequest refactored and cleaned up
   + Search refactors and improvements
   + Protect from operating on IMAP connection while opening a box
   + Enable logging in prod builds

@@ -1,5 +1,5 @@
 import React from 'react';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import OnboardingActions from './onboarding-actions';
 
 export default class WelcomePage extends React.Component {

@@ -1,6 +1,6 @@
 import { shell } from 'electron';
-import { RetinaImg } from 'nylas-component-kit';
-import { NylasAPIRequest, Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
+import { RetinaImg } from 'mailspring-component-kit';
+import { MailspringAPIRequest, Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
 
 import OnboardingActions from '../onboarding-actions';
 import { finalizeAndValidateAccount } from '../onboarding-helpers';
@@ -157,7 +157,7 @@ const CreatePageForForm = FormComponent => {
             errorFieldNames.push('email');
             errorFieldNames.push('username');
           }
-          if (NylasAPIRequest.TimeoutErrorCodes.includes(err.statusCode)) {
+          if (MailspringAPIRequest.TimeoutErrorCodes.includes(err.statusCode)) {
             // timeout
             errorMessage = 'We were unable to reach your mail provider. Please try again.';
           }

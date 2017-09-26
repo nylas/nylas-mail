@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Utils, Actions, AttachmentStore } from 'mailspring-exports';
-import { RetinaImg, InjectedComponentSet, InjectedComponent } from 'nylas-component-kit';
+import { RetinaImg, InjectedComponentSet, InjectedComponent } from 'mailspring-component-kit';
 
 import MessageParticipants from './message-participants';
 import MessageItemBody from './message-item-body';

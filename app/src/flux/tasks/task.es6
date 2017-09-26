@@ -3,7 +3,7 @@ import _ from 'underscore';
 import Model from '../models/model';
 import Attributes from '../attributes';
 import { generateTempId } from '../models/utils';
-import { PermanentErrorCodes } from '../nylas-api-request';
+import { PermanentErrorCodes } from '../mailspring-api-request';
 import { APIError } from '../errors';
 
 const Status = {

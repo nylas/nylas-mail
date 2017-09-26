@@ -19,7 +19,7 @@ import {
   MailImportantIcon,
   KeyCommandsRegion,
   InjectedComponentSet,
-} from 'nylas-component-kit';
+} from 'mailspring-component-kit';
 
 import FindInThread from './find-in-thread';
 import MessageItemContainer from './message-item-container';

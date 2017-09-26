@@ -1,6 +1,6 @@
 /* eslint global-require: "off" */
 
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import _ from 'underscore';
 import EmojiActions from './emoji-actions';
 
@@ -8,7 +8,7 @@ const EmojiJSONKey = 'emoji';
 
 let emojiData;
 
-class EmojiStore extends NylasStore {
+class EmojiStore extends MailspringStore {
   constructor(props) {
     super(props);
     this._emoji = [];

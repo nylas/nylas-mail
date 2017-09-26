@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import ChangeUnreadTask from '../tasks/change-unread-task';
 import ChangeLabelsTask from '../tasks/change-labels-task';
 import ChangeFolderTask from '../tasks/change-folder-task';
@@ -9,7 +9,7 @@ import Actions from '../actions';
 // is implemented by keeping track of messages being rea and manually
 // whitelisting them in the query.
 
-class RecentlyReadStore extends NylasStore {
+class RecentlyReadStore extends MailspringStore {
   constructor() {
     super();
     this.ids = [];

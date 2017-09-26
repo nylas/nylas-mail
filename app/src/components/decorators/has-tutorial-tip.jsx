@@ -2,7 +2,7 @@
 import _ from 'underscore';
 
 import { React, ReactDOM, PropTypes, Actions, WorkspaceStore, DOMUtils } from 'mailspring-exports';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
 const TipsBackgroundEl = document.createElement('tutorial-tip-background');
 
@@ -10,7 +10,7 @@ const TipsContainerEl = document.createElement('div');
 TipsContainerEl.classList.add('tooltips-container');
 document.body.insertBefore(TipsContainerEl, document.body.children[0]);
 
-class TipsStoreCls extends NylasStore {
+class TipsStoreCls extends MailspringStore {
   constructor() {
     super();
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import path from 'path';
 import fs from 'fs';
 import { remote } from 'electron';
-import { Flexbox } from 'nylas-component-kit';
+import { Flexbox } from 'mailspring-component-kit';
 
 import displayedKeybindings from './keymaps/displayed-keybindings';
 import CommandItem from './keymaps/command-item';

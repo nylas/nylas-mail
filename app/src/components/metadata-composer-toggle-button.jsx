@@ -2,7 +2,7 @@ import {
   React,
   PropTypes,
   Actions,
-  NylasAPIRequest,
+  MailspringAPIRequest,
   NylasAPIHelpers,
   APIError,
 } from 'mailspring-exports';
@@ -79,7 +79,7 @@ export default class MetadataComposerToggleButton extends React.Component {
         AppEnv.reportError(error);
       } else if (error.statusCode === 400) {
         AppEnv.reportError(error);
-      } else if (NylasAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
+      } else if (MailspringAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
         title = 'Offline';
       }
 

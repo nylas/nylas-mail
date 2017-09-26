@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Rx from 'rx-lite';
-import { Flexbox } from 'nylas-component-kit';
+import { Flexbox } from 'mailspring-component-kit';
 
 import { Template } from './scenario-editor-models';
 

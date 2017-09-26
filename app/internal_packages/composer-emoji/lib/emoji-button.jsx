@@ -1,5 +1,5 @@
 import { Actions, React, ReactDOM } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 
 import EmojiButtonPopover from './emoji-button-popover';
 

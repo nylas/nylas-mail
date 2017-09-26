@@ -1,5 +1,5 @@
 import { React, DefaultClientHelper } from 'mailspring-exports';
-import { Notification } from 'nylas-component-kit';
+import { Notification } from 'mailspring-component-kit';
 
 const SETTINGS_KEY = 'mailto.prompted-about-default';
 

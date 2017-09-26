@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { AccountStore } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import OnboardingActions from './onboarding-actions';
 
 const PageTopBar = props => {

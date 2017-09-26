@@ -1,9 +1,9 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import Actions from '../actions';
 
 const TASK_SOURCE_REDO = 'redo';
 
-class UndoRedoStore extends NylasStore {
+class UndoRedoStore extends MailspringStore {
   constructor() {
     super();
     this._undo = [];

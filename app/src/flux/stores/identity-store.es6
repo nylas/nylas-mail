@@ -1,16 +1,16 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import { remote } from 'electron';
 import url from 'url';
 
 import Utils from '../models/utils';
 import Actions from '../actions';
 import KeyManager from '../../key-manager';
-import { makeRequest, rootURLForServer } from '../nylas-api-request';
+import { makeRequest, rootURLForServer } from '../mailspring-api-request';
 
 // Note this key name is used when migrating to Nylas Pro accounts from old N1.
 const KEYCHAIN_NAME = 'Mailspring Account';
 
-class IdentityStore extends NylasStore {
+class IdentityStore extends MailspringStore {
   constructor() {
     super();
     this._identity = null;

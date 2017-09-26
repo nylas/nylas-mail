@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import WorkspaceStore from './workspace-store';
 import FocusedPerspectiveStore from './focused-perspective-store';
 import Actions from '../actions';
@@ -14,7 +14,7 @@ class TabItem {
   }
 }
 
-class PreferencesUIStore extends NylasStore {
+class PreferencesUIStore extends MailspringStore {
   constructor() {
     super();
 

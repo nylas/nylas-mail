@@ -3,7 +3,7 @@ import _ from 'underscore';
 import moment from 'moment-timezone';
 import classnames from 'classnames';
 import { React, ReactDOM, PropTypes, Utils } from 'mailspring-exports';
-import { ScrollRegion } from 'nylas-component-kit';
+import { ScrollRegion } from 'mailspring-component-kit';
 import TopBanner from './top-banner';
 import HeaderControls from './header-controls';
 import FooterControls from './footer-controls';

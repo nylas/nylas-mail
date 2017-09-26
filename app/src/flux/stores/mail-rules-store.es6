@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import _ from 'underscore';
 import TaskQueue from './task-queue';
 import ReprocessMailRulesTask from '../tasks/reprocess-mail-rules-task';
@@ -9,7 +9,7 @@ import { ConditionMode, ConditionTemplates, ActionTemplates } from '../../mail-r
 
 const RulesJSONKey = 'MailRules-V2';
 
-class MailRulesStore extends NylasStore {
+class MailRulesStore extends MailspringStore {
   constructor() {
     super();
 

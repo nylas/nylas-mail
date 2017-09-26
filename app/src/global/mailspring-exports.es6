@@ -51,7 +51,7 @@ const lazyLoadAndRegisterTask = (klassName, path) => {
 lazyLoad(`Actions`, 'flux/actions');
 
 // API Endpoints
-lazyLoad(`NylasAPIRequest`, 'flux/nylas-api-request');
+lazyLoad(`MailspringAPIRequest`, 'flux/mailspring-api-request');
 lazyLoad(`MailsyncProcess`, 'mailsync-process');
 // The Database
 lazyLoad(`Matcher`, 'flux/attributes/matcher');

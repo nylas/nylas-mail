@@ -1,5 +1,5 @@
 import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
-import { HasTutorialTip } from 'nylas-component-kit';
+import { HasTutorialTip } from 'mailspring-component-kit';
 
 import ModeToggle from './mode-toggle';
 

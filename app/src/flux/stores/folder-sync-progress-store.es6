@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import AccountStore from './account-store';
 import CategoryStore from './category-store';
 import Folder from '../models/folder';
@@ -23,7 +23,7 @@ import Folder from '../models/folder';
  *   }
  *
  */
-class FolderSyncProgressStore extends NylasStore {
+class FolderSyncProgressStore extends MailspringStore {
   constructor() {
     super();
     this._statesByAccount = {};

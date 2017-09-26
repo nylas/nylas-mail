@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import fs from 'fs';
 import path from 'path';
 import { Utils, MessageBodyProcessor } from 'mailspring-exports';
@@ -6,7 +6,7 @@ import AutoloadImagesActions from './autoload-images-actions';
 
 const ImagesRegexp = /((?:src|background|placeholder|icon|background|poster|srcset)\s*=\s*['"]?(?=\w*:\/\/)|:\s*url\()+([^"')]*)/gi;
 
-class AutoloadImagesStore extends NylasStore {
+class AutoloadImagesStore extends MailspringStore {
   constructor() {
     super();
 

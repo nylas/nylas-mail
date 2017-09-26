@@ -60,7 +60,7 @@ export default class MailsyncProcess extends EventEmitter {
       IDENTITY_SERVER: 'unknown',
     };
     if (process.type === 'renderer') {
-      const rootURLForServer = require('./flux/nylas-api-request').rootURLForServer;
+      const rootURLForServer = require('./flux/mailspring-api-request').rootURLForServer;
       env.IDENTITY_SERVER = rootURLForServer('identity');
     }
 

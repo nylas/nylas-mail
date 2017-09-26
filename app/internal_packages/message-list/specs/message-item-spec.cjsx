@@ -14,7 +14,7 @@ ReactTestUtils = require 'react-dom/test-utils'
 
 MessageItemBody = React.createClass({render: -> <div></div>})
 
-{InjectedComponent} = require 'nylas-component-kit'
+{InjectedComponent} = require 'mailspring-component-kit'
 
 file = new File
   id: 'file_1_id'

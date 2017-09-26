@@ -1,6 +1,6 @@
 _ = require 'underscore'
 {React, ReactDOM, PropTypes, Utils, DOMUtils} = require 'mailspring-exports'
-{KeyCommandsRegion} = require 'nylas-component-kit'
+{KeyCommandsRegion} = require 'mailspring-component-kit'
 FloatingToolbar = require './floating-toolbar'
 
 EditorAPI = require './editor-api'

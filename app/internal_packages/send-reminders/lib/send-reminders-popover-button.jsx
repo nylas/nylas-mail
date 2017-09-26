@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import { Actions, DatabaseStore, Message } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import SendRemindersPopover from './send-reminders-popover';
 import { updateReminderMetadata, reminderDateFor } from './send-reminders-utils';
 

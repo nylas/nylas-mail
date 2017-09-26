@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Menu, SearchBar, ListensToFluxStore } from 'nylas-component-kit';
+import { Menu, SearchBar, ListensToFluxStore } from 'mailspring-component-kit';
 import { FocusedPerspectiveStore } from 'mailspring-exports';
 import SearchStore from './search-store';
 import SearchActions from './search-actions';

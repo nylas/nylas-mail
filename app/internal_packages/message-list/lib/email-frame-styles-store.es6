@@ -1,6 +1,6 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
-class EmailFrameStylesStore extends NylasStore {
+class EmailFrameStylesStore extends MailspringStore {
   styles() {
     if (!this._styles) {
       this._findStyles();

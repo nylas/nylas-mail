@@ -7,7 +7,7 @@ import {
   QuotedHTMLTransformer,
   AttachmentStore,
 } from 'mailspring-exports';
-import { InjectedComponentSet, RetinaImg } from 'nylas-component-kit';
+import { InjectedComponentSet, RetinaImg } from 'mailspring-component-kit';
 
 import EmailFrame from './email-frame';
 import { encodedAttributeForFile } from './inline-image-listeners';

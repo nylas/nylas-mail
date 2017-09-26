@@ -1,7 +1,7 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
 import React from 'react';
 
-import { Flexbox, ScrollRegion } from 'nylas-component-kit';
+import { Flexbox, ScrollRegion } from 'mailspring-component-kit';
 import ThemeOption from './theme-option';
 
 class ThemePicker extends React.Component {

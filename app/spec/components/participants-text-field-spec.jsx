@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { ContactStore, Contact } from 'mailspring-exports';
 
-import { ParticipantsTextField } from 'nylas-component-kit';
+import { ParticipantsTextField } from 'mailspring-component-kit';
 
 const participant1 = new Contact({
   id: 'local-1',

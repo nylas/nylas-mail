@@ -1,5 +1,5 @@
 import { React, PropTypes, Utils } from 'mailspring-exports';
-import { DropZone, InjectedComponentSet } from 'nylas-component-kit';
+import { DropZone, InjectedComponentSet } from 'mailspring-component-kit';
 
 const NUM_TO_DISPLAY_MAX = 999;
 

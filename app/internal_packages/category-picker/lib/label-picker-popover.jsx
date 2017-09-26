@@ -1,7 +1,7 @@
 /* eslint jsx-a11y/tabindex-no-positive: 0 */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Menu, RetinaImg, LabelColorizer, BoldedSearchResult } from 'nylas-component-kit';
+import { Menu, RetinaImg, LabelColorizer, BoldedSearchResult } from 'mailspring-component-kit';
 import {
   Utils,
   Actions,
@@ -10,7 +10,7 @@ import {
   SyncbackCategoryTask,
   ChangeLabelsTask,
 } from 'mailspring-exports';
-import { Categories } from 'nylas-observables';
+import { Categories } from 'mailspring-observables';
 
 export default class LabelPickerPopover extends Component {
   static propTypes = {

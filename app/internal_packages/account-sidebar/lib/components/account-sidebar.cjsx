@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 {Utils, AccountStore} = require 'mailspring-exports'
-{OutlineView, ScrollRegion, Flexbox} = require 'nylas-component-kit'
+{OutlineView, ScrollRegion, Flexbox} = require 'mailspring-component-kit'
 AccountSwitcher = require './account-switcher'
 SidebarStore = require '../sidebar-store'
 

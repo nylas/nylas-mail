@@ -1,5 +1,5 @@
 import { React, PropTypes, FocusedContactsStore } from 'mailspring-exports';
-import { InjectedComponentSet } from 'nylas-component-kit';
+import { InjectedComponentSet } from 'mailspring-component-kit';
 
 class FocusedContactStorePropsContainer extends React.Component {
   static displayName = 'FocusedContactStorePropsContainer';

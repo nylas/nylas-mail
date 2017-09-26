@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import fs from 'fs';
 import path from 'path';
 import { Actions, AttachmentStore } from 'mailspring-exports';
-import { ImageAttachmentItem } from 'nylas-component-kit';
+import { ImageAttachmentItem } from 'mailspring-component-kit';
 
 export default class InlineImageUploadContainer extends Component {
   static displayName = 'InlineImageUploadContainer';

@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import Contact from '../models/contact';
 import RegExpUtils from '../../regexp-utils';
 import DatabaseStore from './database-store';
@@ -12,7 +12,7 @@ with additional actions.
 
 Section: Stores
 */
-class ContactStore extends NylasStore {
+class ContactStore extends MailspringStore {
   // Public: Search the user's contact list for the given search term.
   // This method compares the `search` string against each Contact's
   // `name` and `email`.

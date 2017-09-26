@@ -9,7 +9,7 @@ import {
   Contact,
   DraftFactory,
 } from 'mailspring-exports';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
 import { PLUGIN_ID } from './send-reminders-constants';
 import {
@@ -17,7 +17,7 @@ import {
   transferReminderMetadataFromDraftToThread,
 } from './send-reminders-utils';
 
-class SendRemindersStore extends NylasStore {
+class SendRemindersStore extends MailspringStore {
   constructor() {
     super();
     this._lastFocusedThread = null;

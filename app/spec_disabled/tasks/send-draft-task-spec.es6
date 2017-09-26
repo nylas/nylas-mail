@@ -8,7 +8,7 @@ import {
   Contact,
   Task,
   SendDraftTask,
-  NylasAPIRequest,
+  MailspringAPIRequest,
   SoundRegistry,
   SyncbackMetadataTask,
 } from 'mailspring-exports';
@@ -73,7 +73,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         ],
       };
 
-      spyOn(NylasAPIRequest.prototype, 'run').andCallFake(options => {
+      spyOn(MailspringAPIRequest.prototype, 'run').andCallFake(options => {
         if (options.success) {
           options.success(this.response);
         }
@@ -100,9 +100,9 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       it('makes a send request with the correct data', () => {
         waitsForPromise(() =>
           this.task.performRemote().then(() => {
-            expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
-            expect(NylasAPIRequest.prototype.run.callCount).toBe(1);
-            const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
+            expect(MailspringAPIRequest.prototype.run).toHaveBeenCalled();
+            expect(MailspringAPIRequest.prototype.run.callCount).toBe(1);
+            const options = MailspringAPIRequest.prototype.run.mostRecentCall.args[0];
             expect(options.path).toBe('/send');
             expect(options.method).toBe('POST');
             expect(options.accountId).toBe(TEST_ACCOUNT_ID);
@@ -114,8 +114,8 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       it('should always send the draft body in the request body (joined attribute check)', () => {
         waitsForPromise(() =>
           this.task.performRemote().then(() => {
-            expect(NylasAPIRequest.prototype.run.calls.length).toBe(1);
-            const options = NylasAPIRequest.prototype.run.mostRecentCall.args[0];
+            expect(MailspringAPIRequest.prototype.run.calls.length).toBe(1);
+            const options = MailspringAPIRequest.prototype.run.mostRecentCall.args[0];
             expect(options.body.body).toBe('hello world');
           })
         );
@@ -200,7 +200,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       describe('when there are errors', () => {
         beforeEach(() => {
           spyOn(Actions, 'draftDeliveryFailed');
-          jasmine.unspy(NylasAPIRequest.prototype, 'run');
+          jasmine.unspy(MailspringAPIRequest.prototype, 'run');
         });
 
         it('notifies of a permanent error of misc error types', () => {
@@ -223,7 +223,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         });
 
         it("retries the task if 'Invalid message public id'", () => {
-          spyOn(NylasAPIRequest.prototype, 'run').andCallFake(options => {
+          spyOn(MailspringAPIRequest.prototype, 'run').andCallFake(options => {
             if (options.body.reply_to_message_id) {
               const err = new APIError({ body: 'Invalid message public id' });
               return Promise.reject(err);
@@ -238,10 +238,10 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           this.draft.threadId = 'thread-123';
           waitsForPromise(() => {
             return this.task.performRemote(this.draft).then(() => {
-              expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
-              expect(NylasAPIRequest.prototype.run.callCount).toEqual(2);
-              const req1 = NylasAPIRequest.prototype.run.calls[0].args[0];
-              const req2 = NylasAPIRequest.prototype.run.calls[1].args[0];
+              expect(MailspringAPIRequest.prototype.run).toHaveBeenCalled();
+              expect(MailspringAPIRequest.prototype.run.callCount).toEqual(2);
+              const req1 = MailspringAPIRequest.prototype.run.calls[0].args[0];
+              const req2 = MailspringAPIRequest.prototype.run.calls[1].args[0];
               expect(req1.body.reply_to_message_id).toBe('reply-123');
               expect(req1.body.thread_id).toBe('thread-123');
 
@@ -252,7 +252,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         });
 
         it("retries the task if 'Invalid message public id'", () => {
-          spyOn(NylasAPIRequest.prototype, 'run').andCallFake(options => {
+          spyOn(MailspringAPIRequest.prototype, 'run').andCallFake(options => {
             if (options.body.reply_to_message_id) {
               return Promise.reject(new APIError({ body: 'Invalid thread' }));
             }
@@ -266,10 +266,10 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           this.draft.threadId = 'thread-123';
           waitsForPromise(() =>
             this.task.performRemote(this.draft).then(() => {
-              expect(NylasAPIRequest.prototype.run).toHaveBeenCalled();
-              expect(NylasAPIRequest.prototype.run.callCount).toEqual(2);
-              const req1 = NylasAPIRequest.prototype.run.calls[0].args[0];
-              const req2 = NylasAPIRequest.prototype.run.calls[1].args[0];
+              expect(MailspringAPIRequest.prototype.run).toHaveBeenCalled();
+              expect(MailspringAPIRequest.prototype.run.callCount).toEqual(2);
+              const req1 = MailspringAPIRequest.prototype.run.calls[0].args[0];
+              const req2 = MailspringAPIRequest.prototype.run.calls[1].args[0];
               expect(req1.body.reply_to_message_id).toBe('reply-123');
               expect(req1.body.thread_id).toBe('thread-123');
 
@@ -282,7 +282,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         it('notifies of a permanent error on 500 errors', () => {
           const thrownError = new APIError({ statusCode: 500, body: 'err' });
           spyOn(AppEnv, 'reportError');
-          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+          spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() =>
             this.task.performRemote().then(status => {
@@ -296,7 +296,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         it('notifies us and users of a permanent error on 400 errors', () => {
           const thrownError = new APIError({ statusCode: 400, body: 'err' });
           spyOn(AppEnv, 'reportError');
-          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+          spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() =>
             this.task.performRemote().then(status => {
@@ -328,7 +328,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           `;
 
           spyOn(AppEnv, 'reportError');
-          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+          spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() =>
             this.task.performRemote().then(status => {
@@ -356,7 +356,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
             'This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)';
 
           spyOn(AppEnv, 'reportError');
-          spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+          spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
           waitsForPromise(() =>
             this.task.performRemote().then(status => {
               expect(status[0]).toBe(Task.Status.Failed);
@@ -385,25 +385,25 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
           it('halts on 500s', () => {
             const thrownError = new APIError({ statusCode: 500, body: 'err' });
-            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+            spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() => this.expectBlockedChain()));
           });
 
           it('halts on 400s', () => {
             const thrownError = new APIError({ statusCode: 400, body: 'err' });
-            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+            spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() => this.expectBlockedChain()));
           });
 
           it('halts and retries on not permanent error codes', () => {
             const thrownError = new APIError({ statusCode: 409, body: 'err' });
-            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+            spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() => this.expectBlockedChain()));
           });
 
           it('halts on other errors', () => {
             const thrownError = new Error('oh no');
-            spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
+            spyOn(MailspringAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
             waitsForPromise(() => this.task.performRemote().then(() => this.expectBlockedChain()));
           });
 
@@ -411,7 +411,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
             // Don't spy reportError to make sure to fail the test on unexpected
             // errors
             jasmine.unspy(AppEnv, 'reportError');
-            spyOn(NylasAPIRequest.prototype, 'run').andCallFake(options => {
+            spyOn(MailspringAPIRequest.prototype, 'run').andCallFake(options => {
               if (options.success) {
                 options.success(this.response);
               }

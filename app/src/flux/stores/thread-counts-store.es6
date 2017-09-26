@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import DatabaseStore from './database-store';
 import Thread from '../models/thread';
 
-class ThreadCountsStore extends NylasStore {
+class ThreadCountsStore extends MailspringStore {
   constructor() {
     super();
     this._counts = {};

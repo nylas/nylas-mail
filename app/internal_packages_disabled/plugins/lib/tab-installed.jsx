@@ -1,6 +1,6 @@
 import React from 'react';
 import { ipcRenderer } from 'electron';
-import { Flexbox } from 'nylas-component-kit';
+import { Flexbox } from 'mailspring-component-kit';
 
 import PackageSet from './package-set';
 import PackagesStore from './packages-store';

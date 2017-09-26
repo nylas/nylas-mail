@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import { DateUtils } from 'mailspring-exports';
 
 import { updateReminderMetadata } from './send-reminders-utils';

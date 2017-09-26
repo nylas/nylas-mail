@@ -8,7 +8,7 @@ import {
   KeyCommandsRegion,
   ListensToFluxStore,
   ConfigPropContainer,
-} from 'nylas-component-kit';
+} from 'mailspring-component-kit';
 import { PreferencesUIStore } from 'mailspring-exports';
 import PreferencesTabsBar from './preferences-tabs-bar';
 

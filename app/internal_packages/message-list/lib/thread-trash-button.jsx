@@ -6,7 +6,7 @@ import {
   TaskFactory,
   FocusedPerspectiveStore,
 } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 
 export default class ThreadTrashButton extends React.Component {
   static displayName = 'ThreadTrashButton';

@@ -1,10 +1,10 @@
 import { AccountStore, Account, Actions, IdentityStore } from 'mailspring-exports';
 import { ipcRenderer } from 'electron';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
 import OnboardingActions from './onboarding-actions';
 
-class OnboardingStore extends NylasStore {
+class OnboardingStore extends MailspringStore {
   constructor() {
     super();
 

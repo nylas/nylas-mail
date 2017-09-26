@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
 /**
 Public: The ComponentRegistry maintains an index of React components registered
@@ -8,7 +8,7 @@ to dynamically render components registered with the ComponentRegistry.
 
 Section: Stores
 */
-class ComponentRegistry extends NylasStore {
+class ComponentRegistry extends MailspringStore {
   constructor() {
     super();
     this._registry = {};

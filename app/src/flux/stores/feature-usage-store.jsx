@@ -1,7 +1,7 @@
 import Rx from 'rx-lite';
 import React from 'react';
-import NylasStore from 'nylas-store';
-import { FeatureUsedUpModal } from 'nylas-component-kit';
+import MailspringStore from 'mailspring-store';
+import { FeatureUsedUpModal } from 'mailspring-component-kit';
 import Actions from '../actions';
 import IdentityStore from './identity-store';
 import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task';
@@ -45,7 +45,7 @@ class NoProAccessError extends Error {}
  * Valid periods are:
  * 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'unlimited'
  */
-class FeatureUsageStore extends NylasStore {
+class FeatureUsageStore extends MailspringStore {
   constructor() {
     super();
     this._waitForModalClose = [];

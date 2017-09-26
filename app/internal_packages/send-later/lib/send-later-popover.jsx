@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DateUtils } from 'mailspring-exports';
-import { DatePickerPopover } from 'nylas-component-kit';
+import { DatePickerPopover } from 'mailspring-component-kit';
 
 const SendLaterOptions = {
   'In 1 hour': DateUtils.in1Hour,

@@ -1,4 +1,4 @@
-import { Table } from 'nylas-component-kit';
+import { Table } from 'mailspring-component-kit';
 
 export const testData = {
   columns: ['col1', 'col2', 'col3'],

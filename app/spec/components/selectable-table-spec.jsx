@@ -1,6 +1,6 @@
 import React from 'react'
 import {mount, shallow} from 'enzyme'
-import {Table, SelectableTableCell, SelectableTableRow, SelectableTable} from 'nylas-component-kit'
+import {Table, SelectableTableCell, SelectableTableRow, SelectableTable} from 'mailspring-component-kit'
 import {selection, cellProps, rowProps, tableProps, testDataSource} from '../fixtures/table-data'
 
 

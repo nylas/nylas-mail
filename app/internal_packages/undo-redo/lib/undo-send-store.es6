@@ -1,7 +1,7 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import { Actions } from 'mailspring-exports';
 
-class UndoSendStore extends NylasStore {
+class UndoSendStore extends MailspringStore {
   constructor() {
     super();
     this._showUndoSend = false;

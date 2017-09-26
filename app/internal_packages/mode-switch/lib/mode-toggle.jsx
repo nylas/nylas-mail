@@ -1,5 +1,5 @@
 import { WorkspaceStore, Actions } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import React from 'react';
 
 export default class ModeToggle extends React.Component {

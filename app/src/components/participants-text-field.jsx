@@ -5,7 +5,7 @@ import {
   Menu,
   InjectedComponent,
   InjectedComponentSet,
-} from 'nylas-component-kit';
+} from 'mailspring-component-kit';
 
 const TokenRenderer = props => {
   const { email, name } = props.token;

@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 import classnames from 'classnames';
 import networkErrors from 'chromium-net-errors';
 
-import { rootURLForServer } from '../flux/nylas-api-request';
+import { rootURLForServer } from '../flux/mailspring-api-request';
 import RetinaImg from './retina-img';
 
 class InitialLoadingCover extends React.Component {

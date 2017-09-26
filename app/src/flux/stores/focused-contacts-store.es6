@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import Rx from 'rx-lite';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
 import Utils from '../models/utils';
 import Thread from '../models/thread';
@@ -12,7 +12,7 @@ import DatabaseStore from './database-store';
 import SearchQueryParser from '../../services/search/search-query-parser';
 
 // A store that handles the focuses collections of and individual contacts
-class FocusedContactsStore extends NylasStore {
+class FocusedContactsStore extends MailspringStore {
   constructor() {
     super();
     this.listenTo(MessageStore, this._onMessageStoreChanged);

@@ -7,7 +7,7 @@ classnames = require 'classnames'
  FocusContainer,
  EmptyListState,
  FluxContainer
- SyncingListState} = require 'nylas-component-kit'
+ SyncingListState} = require 'mailspring-component-kit'
 
 {Actions,
  Utils,

@@ -1,5 +1,5 @@
 import { Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import ThreadSharingPopover from './thread-sharing-popover';
 
 export default class ThreadSharingButton extends React.Component {

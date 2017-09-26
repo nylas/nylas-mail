@@ -1,5 +1,5 @@
 import { React, PropTypes } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 
 const StaticEmptyIndicator = <div className="personal-level-icon" />;
 

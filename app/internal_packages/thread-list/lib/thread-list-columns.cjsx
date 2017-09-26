@@ -8,7 +8,7 @@ moment = require 'moment'
  MailLabelSet,
  MailImportantIcon,
  InjectedComponent,
- InjectedComponentSet} = require 'nylas-component-kit'
+ InjectedComponentSet} = require 'mailspring-component-kit'
 
 {Thread, FocusedPerspectiveStore, Utils, DateUtils} = require 'mailspring-exports'
 

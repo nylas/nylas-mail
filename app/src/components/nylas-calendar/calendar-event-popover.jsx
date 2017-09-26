@@ -13,7 +13,7 @@ import {
   ScrollRegion,
   TabGroupRegion,
   TimePicker,
-} from 'nylas-component-kit';
+} from 'mailspring-component-kit';
 import EventParticipantsInput from './event-participants-input';
 
 export default class CalendarEventPopover extends React.Component {

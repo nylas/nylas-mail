@@ -2,7 +2,7 @@
 
 import _ from 'underscore';
 
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import KeyManager from '../../key-manager';
 import Actions from '../actions';
 import Account from '../models/account';
@@ -17,7 +17,7 @@ the database and exposes the currently active Account via {::current}
 
 Section: Stores
 */
-class AccountStore extends NylasStore {
+class AccountStore extends MailspringStore {
   constructor(props) {
     super(props);
     this._loadAccounts();

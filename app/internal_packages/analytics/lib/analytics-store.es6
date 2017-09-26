@@ -1,11 +1,11 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import {
   IdentityStore,
   Actions,
   AccountStore,
   FocusedPerspectiveStore,
-  NylasAPIRequest,
+  MailspringAPIRequest,
 } from 'mailspring-exports';
 
 import AnalyticsSink from '../analytics-electron';
@@ -16,13 +16,13 @@ import AnalyticsSink from '../analytics-electron';
  */
 const DEBOUNCE_TIME = 5 * 1000;
 
-class AnalyticsStore extends NylasStore {
+class AnalyticsStore extends MailspringStore {
   activate() {
     // Allow requests to be grouped together if they're fired back-to-back,
     // but generally report each event as it happens. This segment library
     // is intended for a server where the user doesn't quit...
     this.analytics = new AnalyticsSink('mailspring', {
-      host: `${NylasAPIRequest.rootURLForServer('identity')}/api/s`,
+      host: `${MailspringAPIRequest.rootURLForServer('identity')}/api/s`,
       flushInterval: 500,
       flushAt: 5,
     });

@@ -1,5 +1,5 @@
 import { React, PropTypes, AccountStore, SendActionsStore } from 'mailspring-exports';
-import { ListensToFluxStore } from 'nylas-component-kit';
+import { ListensToFluxStore } from 'mailspring-component-kit';
 import ConfigSchemaItem from './config-schema-item';
 
 function getExtendedSendingSchema(configSchema) {

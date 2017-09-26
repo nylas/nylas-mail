@@ -1,4 +1,4 @@
-import { ListTabular } from 'nylas-component-kit';
+import { ListTabular } from 'mailspring-component-kit';
 
 /**
 This class takes an observable which vends QueryResultSets and adapts it so that

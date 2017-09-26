@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Actions, Utils, AttachmentStore } from 'mailspring-exports';
-import { AttachmentItem, ImageAttachmentItem } from 'nylas-component-kit';
+import { AttachmentItem, ImageAttachmentItem } from 'mailspring-component-kit';
 
 class MessageAttachments extends Component {
   static displayName = 'MessageAttachments';

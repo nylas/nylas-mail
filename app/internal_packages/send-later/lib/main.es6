@@ -6,7 +6,7 @@ import {
   SendActionsStore,
   Actions,
 } from 'mailspring-exports';
-import { HasTutorialTip } from 'nylas-component-kit';
+import { HasTutorialTip } from 'mailspring-component-kit';
 
 import SendLaterButton from './send-later-button';
 import SendLaterStatus from './send-later-status';

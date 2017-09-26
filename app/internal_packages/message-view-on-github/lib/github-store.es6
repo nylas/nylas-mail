@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import { MessageStore } from 'mailspring-exports';
 
-class GithubStore extends NylasStore {
-  // It's very common practive for {NylasStore}s to listen to other parts of N1.
+class GithubStore extends MailspringStore {
+  // It's very common practive for {MailspringStore}s to listen to other parts of N1.
   // Since Stores are singletons and constructed once on `require`, there is no
   // teardown step to turn off listeners.
   constructor() {
@@ -12,7 +12,7 @@ class GithubStore extends NylasStore {
   }
 
   // This is the only public method on `GithubStore` and it's read only.
-  // All {NylasStore}s ONLY have reader methods. No setter methods. Use an
+  // All {MailspringStore}s ONLY have reader methods. No setter methods. Use an
   // `Action` instead!
   //
   // This is the computed & cached value that our `ViewOnGithubButton` will
@@ -71,7 +71,7 @@ class GithubStore extends NylasStore {
 /*
 IMPORTANT NOTE:
 
-All {NylasStore}s are constructed upon their first `require` by another
+All {MailspringStore}s are constructed upon their first `require` by another
 module.  Since `require` is cached, they are only constructed once and
 are therefore singletons.
 */

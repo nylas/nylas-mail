@@ -1,7 +1,7 @@
 import React from 'react';
 import {mount} from 'enzyme'
 import {DateUtils} from 'mailspring-exports'
-import {DatePickerPopover} from 'nylas-component-kit'
+import {DatePickerPopover} from 'mailspring-component-kit'
 
 
 const makePopover = (props = {}) => {

@@ -1,5 +1,5 @@
 _ = require 'underscore'
-NylasStore = require 'nylas-store'
+MailspringStore = require 'mailspring-store'
 {Actions,
  AccountStore,
  ThreadCountsStore,
@@ -17,7 +17,7 @@ Sections = {
   "User"
 }
 
-class SidebarStore extends NylasStore
+class SidebarStore extends MailspringStore
 
   constructor: ->
     AppEnv.savedState.sidebarKeysCollapsed ?= {}

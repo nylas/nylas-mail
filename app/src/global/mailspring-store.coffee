@@ -2,10 +2,10 @@
 CoffeeHelpers = require '../flux/coffee-helpers'
 
 # A simple Flux implementation
-class NylasStore
+class MailspringStore
   @include: CoffeeHelpers.includeModule
 
   @include Publisher
   @include Listener
 
-module.exports = NylasStore
+module.exports = MailspringStore

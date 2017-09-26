@@ -3,7 +3,7 @@ Actions = require('../actions').default
 AccountStore = require('./account-store').default
 CategoryStore = require('./category-store').default
 MailboxPerspective = require('../../mailbox-perspective').default
-NylasStore = require 'nylas-store'
+MailspringStore = require 'mailspring-store'
 
 Sheet = {}
 Location = {}
@@ -16,7 +16,7 @@ documentation.
 
 Section: Stores
 ###
-class WorkspaceStore extends NylasStore
+class WorkspaceStore extends MailspringStore
   constructor: ->
     @_resetInstanceVars()
     @_preferredLayoutMode = AppEnv.config.get('core.workspace.mode')

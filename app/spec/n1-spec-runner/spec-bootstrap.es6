@@ -4,7 +4,7 @@
 // do fancy things like handle exceptions inside promise blocks
 import '../../src/promise-extensions';
 
-import AppEnvConstructor from '../../src/nylas-env';
+import AppEnvConstructor from '../../src/app-env';
 window.AppEnv = AppEnvConstructor.loadOrCreate();
 
 AppEnv.initialize();

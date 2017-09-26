@@ -9,7 +9,7 @@ _str = require 'underscore.string'
  Actions,
  Utils,
  RegExpUtils} = require 'mailspring-exports'
-{OutlineViewItem} = require 'nylas-component-kit'
+{OutlineViewItem} = require 'mailspring-component-kit'
 
 SidebarActions = require './sidebar-actions'
 

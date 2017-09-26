@@ -1,11 +1,11 @@
 /* eslint global-require: 0*/
 
 import { DraftStore, Actions, QuotedHTMLTransformer } from 'mailspring-exports';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import path from 'path';
 import fs from 'fs';
 
-class TemplateStore extends NylasStore {
+class TemplateStore extends MailspringStore {
   // Support accented characters in template names
   // https://regex101.com/r/nD3eY8/1
   static INVALID_TEMPLATE_NAME_REGEX = /[^a-zA-Z\u00C0-\u017F0-9_\- ]+/g;

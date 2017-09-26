@@ -100,7 +100,7 @@ export default {
   makeRequest,
 };
 
-// export default class NylasAPIRequest {
+// export default class MailspringAPIRequest {
 
 //   constructor({api, options}) {
 //     const defaults = {

@@ -1,5 +1,5 @@
 import { Actions, DestroyModelTask, CalendarDataSource } from 'mailspring-exports';
-import { NylasCalendar, KeyCommandsRegion, CalendarEventPopover } from 'nylas-component-kit';
+import { NylasCalendar, KeyCommandsRegion, CalendarEventPopover } from 'mailspring-component-kit';
 import React from 'react';
 import { remote } from 'electron';
 

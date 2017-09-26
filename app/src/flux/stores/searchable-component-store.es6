@@ -1,11 +1,11 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import DOMUtils from '../../dom-utils';
 import Actions from '../actions';
 import { MAX_MATCHES, CHAR_THRESHOLD } from '../../searchable-components/search-constants';
 import FocusedContentStore from './focused-content-store';
 
-class SearchableComponentStore extends NylasStore {
+class SearchableComponentStore extends MailspringStore {
   constructor() {
     super();
     this.currentMatch = null;

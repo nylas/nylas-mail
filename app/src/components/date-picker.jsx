@@ -1,7 +1,7 @@
 import moment from 'moment';
 import classnames from 'classnames';
 import { React, PropTypes, DateUtils } from 'mailspring-exports';
-import { MiniMonthView } from 'nylas-component-kit';
+import { MiniMonthView } from 'mailspring-component-kit';
 
 export default class DatePicker extends React.Component {
   static displayName = 'DatePicker';

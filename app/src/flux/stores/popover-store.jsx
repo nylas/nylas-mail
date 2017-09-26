@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import Actions from '../actions';
 import FixedPopover from '../../components/fixed-popover';
 
@@ -12,7 +12,7 @@ function createContainer(id) {
   return element;
 }
 
-class PopoverStore extends NylasStore {
+class PopoverStore extends MailspringStore {
   constructor(containerId = CONTAINER_ID) {
     super();
     this.isOpen = false;

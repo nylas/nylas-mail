@@ -1,4 +1,4 @@
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import {
   Actions,
   React,

@@ -1,12 +1,12 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import AccountStore from './account-store';
 import WorkspaceStore from './workspace-store';
 import MailboxPerspective from '../../mailbox-perspective';
 import CategoryStore from './category-store';
 import Actions from '../actions';
 
-class FocusedPerspectiveStore extends NylasStore {
+class FocusedPerspectiveStore extends MailspringStore {
   constructor() {
     super();
     this._current = MailboxPerspective.forNothing();

@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import { ExponentialBackoffScheduler } from '../../backoff-schedulers';
 import Actions from '../actions';
 
@@ -6,7 +6,7 @@ let isOnlineModule = null;
 
 const CHECK_ONLINE_INTERVAL = 30 * 1000;
 
-class OnlineStatusStore extends NylasStore {
+class OnlineStatusStore extends MailspringStore {
   constructor() {
     super();
     this._online = true;

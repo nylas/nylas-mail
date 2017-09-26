@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import { Rx } from 'mailspring-exports';
 import Task from '../tasks/task';
 import DatabaseStore from './database-store';
@@ -39,7 +39,7 @@ Actions.dequeueMatchingTask({
   }
 })
 */
-class TaskQueue extends NylasStore {
+class TaskQueue extends MailspringStore {
   constructor() {
     super();
     this._queue = [];

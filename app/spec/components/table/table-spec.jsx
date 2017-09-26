@@ -1,6 +1,6 @@
 import React from 'react'
 import {shallow} from 'enzyme'
-import {Table, TableRow, TableCell, LazyRenderedList} from 'nylas-component-kit'
+import {Table, TableRow, TableCell, LazyRenderedList} from 'mailspring-component-kit'
 import {testDataSource} from '../../fixtures/table-data'
 
 

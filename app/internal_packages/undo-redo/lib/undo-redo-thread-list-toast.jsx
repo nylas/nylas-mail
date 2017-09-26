@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { UndoRedoStore } from 'mailspring-exports';
-import { UndoToast, ListensToFluxStore } from 'nylas-component-kit';
+import { UndoToast, ListensToFluxStore } from 'mailspring-component-kit';
 
 function onUndo() {
   AppEnv.commands.dispatch('core:undo');

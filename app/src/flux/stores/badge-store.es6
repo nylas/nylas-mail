@@ -1,10 +1,10 @@
 /* eslint global-require:0 */
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import FocusedPerspectiveStore from './focused-perspective-store';
 import ThreadCountsStore from './thread-counts-store';
 import CategoryStore from './category-store';
 
-class BadgeStore extends NylasStore {
+class BadgeStore extends MailspringStore {
   constructor() {
     super();
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { DisclosureTriangle, Flexbox, RetinaImg } from 'nylas-component-kit';
+import { DisclosureTriangle, Flexbox, RetinaImg } from 'mailspring-component-kit';
 import { DateUtils } from 'mailspring-exports';
 import ActivityListStore from './activity-list-store';
 import { pluginFor } from './plugin-helpers';

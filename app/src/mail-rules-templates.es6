@@ -1,4 +1,4 @@
-import NylasObservables from 'nylas-observables';
+import MailspringObservables from 'mailspring-observables';
 import Label from './flux/models/label';
 import CategoryStore from './flux/stores/category-store';
 import { Template } from './components/scenario-editor-models';
@@ -87,7 +87,7 @@ export function ActionTemplatesForAccount(account) {
 
   const templates = [].concat(ActionTemplates);
 
-  const CategoryNamesObservable = NylasObservables.Categories
+  const CategoryNamesObservable = MailspringObservables.Categories
     .forAccount(account)
     .sort()
     .map(cats => cats.filter(cat => !cat.isLockedCategory()))

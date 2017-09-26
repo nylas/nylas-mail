@@ -9,7 +9,7 @@ Spinner = require './spinner'
  Utils,
  WorkspaceStore,
  AccountStore} = require 'mailspring-exports'
-{KeyCommandsRegion} = require 'nylas-component-kit'
+{KeyCommandsRegion} = require 'mailspring-component-kit'
 EventEmitter = require('events').EventEmitter
 
 MultiselectListInteractionHandler = require './multiselect-list-interaction-handler'

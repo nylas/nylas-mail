@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { DateUtils, Actions, SyncbackMetadataTask, TaskQueue, SendDraftTask } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import { PLUGIN_ID } from './send-later-constants';
 
 const { DATE_FORMAT_SHORT } = DateUtils;

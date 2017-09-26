@@ -1,5 +1,5 @@
 import { React, PropTypes, Utils } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 
 export default class HeaderControls extends React.Component {
   static displayName = 'HeaderControls';

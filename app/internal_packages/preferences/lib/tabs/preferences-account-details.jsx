@@ -1,7 +1,7 @@
 /* eslint global-require: 0 */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { EditableList, NewsletterSignup } from 'nylas-component-kit';
+import { EditableList, NewsletterSignup } from 'mailspring-component-kit';
 import { RegExpUtils, Account } from 'mailspring-exports';
 
 class PreferencesAccountDetails extends Component {

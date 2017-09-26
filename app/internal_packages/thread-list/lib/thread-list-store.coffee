@@ -1,5 +1,5 @@
 _ = require 'underscore'
-NylasStore = require 'nylas-store'
+MailspringStore = require 'mailspring-store'
 
 {Rx,
  Thread,
@@ -10,11 +10,11 @@ NylasStore = require 'nylas-store'
  FocusedContentStore,
  TaskQueue,
  FocusedPerspectiveStore} = require 'mailspring-exports'
-{ListTabular} = require 'nylas-component-kit'
+{ListTabular} = require 'mailspring-component-kit'
 
 ThreadListDataSource = require('./thread-list-data-source').default
 
-class ThreadListStore extends NylasStore
+class ThreadListStore extends MailspringStore
   constructor: ->
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @createListDataSource()

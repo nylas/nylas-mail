@@ -1,5 +1,5 @@
-import { NylasAPIRequest } from 'mailspring-exports';
-const { makeRequest } = NylasAPIRequest;
+import { MailspringAPIRequest } from 'mailspring-exports';
+const { makeRequest } = MailspringAPIRequest;
 
 const MAX_RETRY = 10;
 

@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import DraftEditingSession from './draft-editing-session';
 import DraftHelpers from './draft-helpers';
 import DraftFactory from './draft-factory';
@@ -29,7 +29,7 @@ Remember that a "Draft" is actually just a "Message" with `draft: true`.
 
 Section: Drafts
 */
-class DraftStore extends NylasStore {
+class DraftStore extends MailspringStore {
   constructor() {
     super();
     this.listenTo(DatabaseStore, this._onDataChanged);

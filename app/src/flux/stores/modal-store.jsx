@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Modal } from 'nylas-component-kit';
-import NylasStore from 'nylas-store';
+import { Modal } from 'mailspring-component-kit';
+import MailspringStore from 'mailspring-store';
 
 import Actions from '../actions';
 
@@ -13,7 +13,7 @@ function createContainer(id) {
   return element;
 }
 
-class ModalStore extends NylasStore {
+class ModalStore extends MailspringStore {
   constructor(containerId = CONTAINER_ID) {
     super();
     this.isOpen = false;

@@ -1,5 +1,5 @@
 import { React, ReactDOM, PropTypes, Event } from 'mailspring-exports';
-import { InjectedComponentSet } from 'nylas-component-kit';
+import { InjectedComponentSet } from 'mailspring-component-kit';
 import { calcColor } from './calendar-helpers';
 
 export default class CalendarEvent extends React.Component {

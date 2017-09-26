@@ -1,5 +1,5 @@
 import { React, PropTypes, Actions, SendActionsStore } from 'mailspring-exports';
-import { Menu, RetinaImg, ButtonDropdown, ListensToFluxStore } from 'nylas-component-kit';
+import { Menu, RetinaImg, ButtonDropdown, ListensToFluxStore } from 'mailspring-component-kit';
 
 class SendActionButton extends React.Component {
   static displayName = 'SendActionButton';

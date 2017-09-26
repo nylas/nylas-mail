@@ -1,6 +1,6 @@
 _ = require 'underscore'
 path = require 'path'
-{RetinaImg} = require 'nylas-component-kit'
+{RetinaImg} = require 'mailspring-component-kit'
 {Actions,
  React, PropTypes,
  DateUtils,

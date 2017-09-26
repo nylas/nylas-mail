@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 
 import {
   FeatureUsageStore,
@@ -12,7 +12,7 @@ import { moveThreads, snoozedUntilMessage } from './snooze-utils';
 import { PLUGIN_ID } from './snooze-constants';
 import SnoozeActions from './snooze-actions';
 
-class SnoozeStore extends NylasStore {
+class SnoozeStore extends MailspringStore {
   activate() {
     this.unsubscribers = [
       SnoozeActions.snoozeThreads.listen(this._onSnoozeThreads),

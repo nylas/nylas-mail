@@ -1,6 +1,6 @@
 import React from 'react';
 import { Actions } from 'mailspring-exports';
-import { RetinaImg, ScrollRegion } from 'nylas-component-kit';
+import { RetinaImg, ScrollRegion } from 'mailspring-component-kit';
 
 import EmojiStore from './emoji-store';
 import EmojiActions from './emoji-actions';

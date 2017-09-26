@@ -1,6 +1,6 @@
 import { shell, ipcRenderer } from 'electron';
 import { React, Account, AccountStore, Actions } from 'mailspring-exports';
-import { Notification } from 'nylas-component-kit';
+import { Notification } from 'mailspring-component-kit';
 
 export default class AccountErrorNotification extends React.Component {
   static displayName = 'AccountErrorNotification';

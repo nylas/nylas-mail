@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FocusedPerspectiveStore } from 'mailspring-exports';
-import { RetinaImg, MailLabel } from 'nylas-component-kit';
+import { RetinaImg, MailLabel } from 'mailspring-component-kit';
 import { PLUGIN_ID } from './snooze-constants';
 import { snoozedUntilMessage } from './snooze-utils';
 

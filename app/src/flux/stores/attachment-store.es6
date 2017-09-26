@@ -4,7 +4,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { remote, shell } from 'electron';
 import mkdirp from 'mkdirp';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import DraftStore from './draft-store';
 import Actions from '../actions';
 import File from '../models/file';
@@ -31,7 +31,7 @@ const NonPreviewableExtensions = [
 
 const THUMBNAIL_WIDTH = 320;
 
-class AttachmentStore extends NylasStore {
+class AttachmentStore extends MailspringStore {
   constructor() {
     super();
 

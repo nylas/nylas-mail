@@ -1,5 +1,5 @@
 import { React, ReactDOM, PropTypes, Actions } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import OpenTrackingMessagePopover from './open-tracking-message-popover';
 import { PLUGIN_ID } from './open-tracking-constants';
 

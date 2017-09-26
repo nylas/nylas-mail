@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DateUtils } from 'mailspring-exports';
-import { Flexbox } from 'nylas-component-kit';
+import { Flexbox } from 'mailspring-component-kit';
 import SendingProgressBar from './sending-progress-bar';
 
 export default class DraftListSendStatus extends Component {

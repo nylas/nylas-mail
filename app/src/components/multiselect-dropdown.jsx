@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ButtonDropdown, Menu } from 'nylas-component-kit';
+import { ButtonDropdown, Menu } from 'mailspring-component-kit';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 

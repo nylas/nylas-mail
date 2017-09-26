@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { RetinaImg, Flexbox } from 'nylas-component-kit';
+import { RetinaImg, Flexbox } from 'mailspring-component-kit';
 
 class AppearanceModeSwitch extends React.Component {
   static displayName = 'AppearanceModeSwitch';

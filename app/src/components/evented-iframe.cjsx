@@ -4,14 +4,14 @@
  Utils,
  RegExpUtils,
  IdentityStore,
- NylasAPIRequest,
+ MailspringAPIRequest,
  SearchableComponentMaker,
  SearchableComponentStore} = require 'mailspring-exports'
 IFrameSearcher = require('../searchable-components/iframe-searcher').default
 url = require 'url'
 _ = require "underscore"
 
-{rootURLForServer} = NylasAPIRequest
+{rootURLForServer} = MailspringAPIRequest
 
 ###
 Public: EventedIFrame is a thin wrapper around the DOM's standard `<iframe>` element.

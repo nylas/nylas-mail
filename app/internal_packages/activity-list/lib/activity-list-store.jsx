@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import {
   Actions,
   Thread,
@@ -10,7 +10,7 @@ import ActivityListActions from './activity-list-actions';
 import ActivityDataSource from './activity-data-source';
 import { pluginFor } from './plugin-helpers';
 
-class ActivityListStore extends NylasStore {
+class ActivityListStore extends MailspringStore {
   activate() {
     this.listenTo(ActivityListActions.resetSeen, this._onResetSeen);
     this.listenTo(FocusedPerspectiveStore, this._updateActivity);

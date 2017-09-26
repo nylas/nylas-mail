@@ -10,7 +10,7 @@ import {
   InflatesDraftClientId,
   CustomContenteditableComponents,
 } from 'mailspring-exports';
-import { OverlaidComposerExtension } from 'nylas-component-kit';
+import { OverlaidComposerExtension } from 'mailspring-component-kit';
 import ComposeButton from './compose-button';
 import ComposerView from './composer-view';
 import InlineImageComposerExtension from './inline-image-composer-extension';

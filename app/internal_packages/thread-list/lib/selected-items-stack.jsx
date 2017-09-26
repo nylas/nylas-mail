@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ListensToObservable } from 'nylas-component-kit';
+import { ListensToObservable } from 'mailspring-component-kit';
 import ThreadListStore from './thread-list-store';
 
 function getObservable() {

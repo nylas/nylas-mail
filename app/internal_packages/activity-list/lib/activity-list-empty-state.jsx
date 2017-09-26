@@ -1,5 +1,5 @@
 import React from 'react';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 
 const ActivityListEmptyState = function ActivityListEmptyState() {
   return (

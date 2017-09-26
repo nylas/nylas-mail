@@ -4,13 +4,13 @@ import crypto from 'crypto';
 import { CommonProviderSettings } from 'imap-provider-settings';
 import {
   Account,
-  NylasAPIRequest,
+  MailspringAPIRequest,
   IdentityStore,
   RegExpUtils,
   MailsyncProcess,
 } from 'mailspring-exports';
 
-const { makeRequest, rootURLForServer } = NylasAPIRequest;
+const { makeRequest, rootURLForServer } = MailspringAPIRequest;
 
 function base64URL(inBuffer) {
   let buffer;

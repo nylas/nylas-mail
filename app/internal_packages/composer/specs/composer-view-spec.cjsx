@@ -20,7 +20,7 @@ ReactTestUtils = require('react-dom/test-utils')
 {InjectedComponent,
  AttachmentItem,
  ImageAttachmentItem,
- ParticipantsTextField} = require 'nylas-component-kit'
+ ParticipantsTextField} = require 'mailspring-component-kit'
 
 DraftEditingSession = require('../../../src/flux/stores/draft-editing-session').default
 ComposerEditor = require('../lib/composer-editor').default

@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { EventedIFrame } from 'nylas-component-kit';
+import { EventedIFrame } from 'mailspring-component-kit';
 import {
   React,
   ReactDOM,

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { AccountStore } from 'mailspring-exports';
-import { Menu, ButtonDropdown, InjectedComponentSet } from 'nylas-component-kit';
+import { Menu, ButtonDropdown, InjectedComponentSet } from 'mailspring-component-kit';
 
 export default class AccountContactField extends React.Component {
   static displayName = 'AccountContactField';

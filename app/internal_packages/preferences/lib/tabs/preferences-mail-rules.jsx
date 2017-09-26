@@ -16,7 +16,7 @@ import {
   RetinaImg,
   ScrollRegion,
   ScenarioEditor,
-} from 'nylas-component-kit';
+} from 'mailspring-component-kit';
 
 const { ActionTemplatesForAccount, ConditionTemplatesForAccount } = MailRulesTemplates;
 

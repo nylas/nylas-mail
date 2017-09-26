@@ -15,7 +15,7 @@ import {
   Actions,
 } from 'mailspring-exports';
 
-import { Menu, RetinaImg } from 'nylas-component-kit';
+import { Menu, RetinaImg } from 'mailspring-component-kit';
 
 const YandexTranslationURL = 'https://translate.yandex.net/api/v1.5/tr.json/translate';
 const YandexTranslationKey =
@@ -126,7 +126,7 @@ class TranslateButton extends React.Component {
   // `React.createElement('a', {href: 'http://facebook.github.io/react/'}, 'Hello!')`
 
   // We're rendering a `Menu` inside our Popover, and using a `RetinaImg` for the button.
-  // These components are part of N1's standard `nylas-component-kit` library,
+  // These components are part of N1's standard `mailspring-component-kit` library,
   // and make it easy to build interfaces that match the rest of N1's UI.
   //
   // For example, using the `RetinaImg` component makes it easy to display an

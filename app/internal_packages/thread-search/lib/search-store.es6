@@ -1,4 +1,4 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import {
   Thread,
   Actions,
@@ -18,7 +18,7 @@ import SearchMailboxPerspective from './search-mailbox-perspective';
 // for changes in selectedThread, "DatabaseStore" for changes to the underlying database,
 // and vends up the array used for that view.
 
-class SearchStore extends NylasStore {
+class SearchStore extends MailspringStore {
   constructor() {
     super();
 

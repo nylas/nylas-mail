@@ -1,6 +1,6 @@
 import React from 'react';
 import { Actions, ReactDOM } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 
 import ActivityList from './activity-list';
 import ActivityListStore from './activity-list-store';

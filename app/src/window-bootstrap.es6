@@ -3,7 +3,7 @@
 // Extend the standard promise class a bit
 import './promise-extensions';
 
-import AppEnvConstructor from './nylas-env';
+import AppEnvConstructor from './app-env';
 window.AppEnv = AppEnvConstructor.loadOrCreate();
 AppEnv.initialize();
 AppEnv.startRootWindow();

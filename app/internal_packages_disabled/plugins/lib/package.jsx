@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Flexbox, RetinaImg, Switch } from 'nylas-component-kit';
+import { Flexbox, RetinaImg, Switch } from 'mailspring-component-kit';
 import PluginsActions from './plugins-actions';
 
 class Package extends React.Component {

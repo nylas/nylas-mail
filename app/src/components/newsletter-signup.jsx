@@ -1,8 +1,8 @@
 import _ from 'underscore';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { RetinaImg, Flexbox } from 'nylas-component-kit';
-import { makeRequest } from '../flux/nylas-api-request';
+import { RetinaImg, Flexbox } from 'mailspring-component-kit';
+import { makeRequest } from '../flux/mailspring-api-request';
 
 export default class NewsletterSignup extends React.Component {
   static displayName = 'NewsletterSignup';

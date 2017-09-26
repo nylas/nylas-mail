@@ -1,5 +1,5 @@
 import { React, PropTypes, Actions, TaskFactory } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 
 export default class StarButton extends React.Component {
   static displayName = 'StarButton';

@@ -13,7 +13,7 @@ import {
   KeyCommandsRegion,
   ParticipantsTextField,
   ListensToFluxStore,
-} from 'nylas-component-kit';
+} from 'mailspring-component-kit';
 import AccountContactField from './account-contact-field';
 import CollapsedParticipants from './collapsed-participants';
 import ComposerHeaderActions from './composer-header-actions';

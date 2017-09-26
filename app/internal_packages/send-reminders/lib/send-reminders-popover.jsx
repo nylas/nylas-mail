@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { DateUtils } from 'mailspring-exports';
-import { DatePickerPopover } from 'nylas-component-kit';
+import { DatePickerPopover } from 'mailspring-component-kit';
 
 const SendRemindersOptions = {
   'In 1 hour': DateUtils.in1Hour,

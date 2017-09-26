@@ -24,7 +24,7 @@ ReactTestUtils = _.extend ReactTestUtils, require "jasmine-react-helpers"
  NylasTestUtils,
  AccountStore,
  ComponentRegistry} = require "mailspring-exports"
-{ListTabular} = require 'nylas-component-kit'
+{ListTabular} = require 'mailspring-component-kit'
 
 
 ThreadStore = require "../lib/thread-store"

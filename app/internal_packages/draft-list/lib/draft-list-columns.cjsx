@@ -1,7 +1,7 @@
 _ = require 'underscore'
 React = require 'react'
 {Actions, Utils} = require 'mailspring-exports'
-{InjectedComponentSet, ListTabular} = require 'nylas-component-kit'
+{InjectedComponentSet, ListTabular} = require 'mailspring-component-kit'
 
 
 snippet = (html) =>

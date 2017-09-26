@@ -1,5 +1,5 @@
 import { React, PropTypes, DOMUtils, RegExpUtils, Utils } from 'mailspring-exports';
-import { RetinaImg } from 'nylas-component-kit';
+import { RetinaImg } from 'mailspring-component-kit';
 import ParticipantProfileStore from './participant-profile-store';
 
 export default class SidebarParticipantProfile extends React.Component {

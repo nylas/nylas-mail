@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ListensToObservable, InjectedComponentSet } from 'nylas-component-kit';
+import { ListensToObservable, InjectedComponentSet } from 'mailspring-component-kit';
 import ThreadListStore from './thread-list-store';
 
 export const ToolbarRole = 'ThreadActionsToolbarButton';

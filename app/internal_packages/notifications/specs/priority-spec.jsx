@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 import { ComponentRegistry, React } from 'mailspring-exports';
-import { Notification } from 'nylas-component-kit';
+import { Notification } from 'mailspring-component-kit';
 
 import NotifWrapper from '../lib/notif-wrapper';
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import fs from 'fs';
 import classNames from 'classnames';
 
-import { Flexbox, RetinaImg } from 'nylas-component-kit';
+import { Flexbox, RetinaImg } from 'mailspring-component-kit';
 import { Actions, PreferencesUIStore, Utils } from 'mailspring-exports';
 
 class PreferencesTabItem extends React.Component {

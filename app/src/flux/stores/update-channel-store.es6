@@ -1,11 +1,11 @@
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import { remote } from 'electron';
-import { makeRequest } from '../nylas-api-request';
+import { makeRequest } from '../mailspring-api-request';
 
 const autoUpdater = remote.getGlobal('application').autoUpdateManager;
 const preferredChannel = autoUpdater.preferredChannel;
 
-class UpdateChannelStore extends NylasStore {
+class UpdateChannelStore extends MailspringStore {
   constructor() {
     super();
     this._current = { name: 'Loading...' };

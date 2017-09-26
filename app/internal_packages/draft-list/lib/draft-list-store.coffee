@@ -1,4 +1,4 @@
-NylasStore = require 'nylas-store'
+MailspringStore = require 'mailspring-store'
 _ = require 'underscore'
 {Rx,
  Message,
@@ -9,9 +9,9 @@ _ = require 'underscore'
  ObservableListDataSource,
  FocusedPerspectiveStore,
  DatabaseStore} = require 'mailspring-exports'
-{ListTabular} = require 'nylas-component-kit'
+{ListTabular} = require 'mailspring-component-kit'
 
-class DraftListStore extends NylasStore
+class DraftListStore extends MailspringStore
   constructor: ->
     @listenTo FocusedPerspectiveStore, @_onPerspectiveChanged
     @_createListDataSource()

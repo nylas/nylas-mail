@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import { Flexbox } from 'nylas-component-kit';
+import { Flexbox } from 'mailspring-component-kit';
 import fs from 'fs';
 
 import { keyAndModifiersForEvent } from './mousetrap-keybinding-helpers';

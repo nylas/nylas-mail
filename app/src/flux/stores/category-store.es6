@@ -1,6 +1,6 @@
 import _ from 'underscore';
-import { Categories } from 'nylas-observables';
-import NylasStore from 'nylas-store';
+import { Categories } from 'mailspring-observables';
+import MailspringStore from 'mailspring-store';
 import AccountStore from './account-store';
 import Account from '../models/account';
 import Category from '../models/category';
@@ -19,7 +19,7 @@ const asAccountId = a => {
   return a instanceof Account ? a.id : a;
 };
 
-class CategoryStore extends NylasStore {
+class CategoryStore extends MailspringStore {
   constructor() {
     super();
     this._categoryCache = {};

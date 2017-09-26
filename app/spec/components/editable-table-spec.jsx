@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {mount, shallow} from 'enzyme'
-import {SelectableTable, EditableTableCell, EditableTable} from 'nylas-component-kit'
+import {SelectableTable, EditableTableCell, EditableTable} from 'mailspring-component-kit'
 import {selection, cellProps, tableProps, testDataSource} from '../fixtures/table-data'
 
 

@@ -19,7 +19,7 @@ MovePickerPopover = require('../lib/move-picker-popover').default
  NylasTestUtils,
  TaskQueue} = require 'mailspring-exports'
 
-{Categories} = require 'nylas-observables'
+{Categories} = require 'mailspring-observables'
 
 describe 'MovePickerPopover', ->
   beforeEach ->

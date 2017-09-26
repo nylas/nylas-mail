@@ -1,11 +1,11 @@
 import { Utils, Actions } from 'mailspring-exports';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import _ from 'underscore';
 
 const DefaultSignatureText =
   'Sent from <a href="https://getmailspring.com?ref=client">Mailspring</a>, the best free email app for work';
 
-class SignatureStore extends NylasStore {
+class SignatureStore extends MailspringStore {
   constructor() {
     super();
     this.activate(); // for specs

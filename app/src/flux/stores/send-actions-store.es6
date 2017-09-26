@@ -1,5 +1,5 @@
 import _str from 'underscore.string';
-import NylasStore from 'nylas-store';
+import MailspringStore from 'mailspring-store';
 import Actions from '../actions';
 import SendDraftTask from '../tasks/send-draft-task';
 import * as ExtensionRegistry from '../../registries/extension-registry';
@@ -27,7 +27,7 @@ function verifySendAction(sendAction = {}, extension = {}) {
   return true;
 }
 
-class SendActionsStore extends NylasStore {
+class SendActionsStore extends MailspringStore {
   constructor() {
     super();
     this._sendActions = [];

@@ -1,5 +1,5 @@
 import { React, UpdateChannelStore } from 'mailspring-exports';
-import { Notification } from 'nylas-component-kit';
+import { Notification } from 'mailspring-component-kit';
 
 export default class UnstableChannelNotification extends React.Component {
   static displayName = 'UnstableChannelNotification';

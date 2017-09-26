@@ -205,8 +205,8 @@ export default class AppEnvConstructor {
     this.windowEventHandler = new WindowEventHandler();
 
     // We extend nylas observables with our own methods. This happens on
-    // require of nylas-observables
-    require('nylas-observables');
+    // require of mailspring-observables
+    require('mailspring-observables');
 
     // Nylas exports is designed to provide a lazy-loaded set of globally
     // accessible objects to all packages. Upon require, mailspring-exports will
@@ -975,7 +975,7 @@ export default class AppEnvConstructor {
       buttonIndex => {
         if (buttonIndex === 1) {
           const { Actions } = require('mailspring-exports');
-          const { CodeSnippet } = require('nylas-component-kit');
+          const { CodeSnippet } = require('mailspring-component-kit');
           Actions.openModal({
             component: CodeSnippet({ intro: message, code: detail, className: 'error-details' }),
             width: 500,
