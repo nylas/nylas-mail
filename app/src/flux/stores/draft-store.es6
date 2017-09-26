@@ -361,11 +361,14 @@ class DraftStore extends MailspringStore {
     const session = await this.sessionForClientId(headerMessageId);
     const draft = await DraftHelpers.draftPreparedForSyncback(session);
 
+    // Prevent any further changes to the session or draft
+    session.teardown();
+
     // Directly update the message body cache so the user immediately sees
     // the new message text (and never old draft text or blank text) sending.
     await MessageBodyProcessor.updateCacheForMessage(draft);
 
-    // At this point the message UI enters the sending state.
+    // At this point the message UI enters the sending state and the composer is unmounted.
     this.trigger({ headerMessageId });
 
     // Now do the actual sending!
