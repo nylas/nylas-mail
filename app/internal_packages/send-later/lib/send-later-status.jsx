@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import {DateUtils, Actions, SyncbackMetadataTask} from 'nylas-exports'
+import {DateUtils, Actions, SyncbackMetadataTask, TaskQueue, SendDraftTask} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 import {PLUGIN_ID} from './send-later-constants'
 
@@ -15,6 +15,27 @@ export default class SendLaterStatus extends Component {
     draft: PropTypes.object,
   };
 
+  constructor(props) {
+    super(props);
+    this.state = this.getStateFromStores(props);
+  }
+
+  componentDidMount() {
+    this._unlisten = TaskQueue.listen(() => {
+      this.setState(this.getStateFromStores(this.props));
+    })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState(this.getStateFromStores(nextProps));
+  }
+
+  componentWillUnmount() {
+    if (this._unlisten) {
+      this._unlisten();
+    }
+  }
+
   onCancelSendLater = () => {
     Actions.queueTask(new SyncbackMetadataTask({
       model: this.props.draft,
@@ -24,26 +45,42 @@ export default class SendLaterStatus extends Component {
     }))
   };
 
-  render() {
-    const {draft} = this.props
-    const metadata = draft.metadataForPluginId(PLUGIN_ID)
-    if (metadata && metadata.expiration) {
-      const {expiration} = metadata
-      const formatted = DateUtils.format(moment(expiration), DATE_FORMAT_SHORT)
-      return (
-        <div className="send-later-status">
-          <span className="time">
-            {`Scheduled for ${formatted}`}
-          </span>
-          <RetinaImg
-            name="image-cancel-button.png"
-            title="Cancel Send Later"
-            onClick={this.onCancelSendLater}
-            mode={RetinaImg.Mode.ContentPreserve}
-          />
-        </div>
-      )
+  getStateFromStores({draft}) {
+    return {
+      task: TaskQueue.findTasks(SendDraftTask, {headerMessageId: draft.headerMessageId}, {includeCompleted: true}).pop(),
     }
-    return <span />
+  }
+
+  render() {
+    const metadata = this.props.draft.metadataForPluginId(PLUGIN_ID);
+    if (!metadata || !metadata.expiration) {
+      return <span />
+    }
+
+    const {expiration} = metadata
+
+    let label = null;
+    if (expiration > new Date(Date.now() + 60 * 1000)) {
+      label = `Scheduled for ${DateUtils.format(moment(expiration), DATE_FORMAT_SHORT)}`;
+    } else {
+      label = `Sending in a few seconds...`;
+      if (this.state.task) {
+        label = `Sending now...`;
+      }
+    }
+
+    return (
+      <div className="send-later-status">
+        <span className="time">
+          {label}
+        </span>
+        <RetinaImg
+          name="image-cancel-button.png"
+          title="Cancel Send Later"
+          onClick={this.onCancelSendLater}
+          mode={RetinaImg.Mode.ContentPreserve}
+        />
+      </div>
+    )
   }
 }

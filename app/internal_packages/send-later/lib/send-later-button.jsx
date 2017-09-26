@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
-import {Actions, DateUtils, NylasAPIHelpers, FeatureUsageStore} from 'nylas-exports'
+import moment from 'moment'
+import {Actions, NylasAPIHelpers, FeatureUsageStore} from 'nylas-exports'
 import {RetinaImg} from 'nylas-component-kit'
 
 import SendLaterPopover from './send-later-popover'
@@ -150,9 +151,8 @@ class SendLaterButton extends Component {
 
     if (sendLaterDate) {
       className += ' btn-enabled';
-      const momentDate = DateUtils.futureDateFromString(sendLaterDate);
-      if (momentDate) {
-        sendLaterLabel = <span className="at">Sending in {momentDate.fromNow(true)}</span>;
+      if (sendLaterDate > new Date()) {
+        sendLaterLabel = <span className="at">Sending in {moment(sendLaterDate).fromNow(true)}</span>;
       } else {
         sendLaterLabel = <span className="at">Sending now</span>;
       }
