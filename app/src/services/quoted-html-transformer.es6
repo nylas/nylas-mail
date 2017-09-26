@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import DOMUtils from '../dom-utils';
 import quoteStringDetector from './quote-string-detector';
 import unwrappedSignatureDetector from './unwrapped-signature-detector';
@@ -6,20 +5,9 @@ import unwrappedSignatureDetector from './unwrapped-signature-detector';
 class QuotedHTMLTransformer {
   annotationClass = 'nylas-quoted-text-segment';
 
-  // Given an html string, it will add the `annotationClass` to the DOM
-  // element
-  hideQuotedHTML(html, { keepIfWholeBodyIsQuote } = {}) {
-    const doc = this._parseHTML(html);
-    const quoteElements = this._findQuoteLikeElements(doc);
-    if (!keepIfWholeBodyIsQuote || !this._wholeBodyIsQuote(doc, quoteElements)) {
-      this._annotateElements(quoteElements);
-    }
-    return this._outputHTMLFor(doc, { initialHTML: html });
-  }
-
   hasQuotedHTML(html) {
     const doc = this._parseHTML(html);
-    const quoteElements = this._findQuoteLikeElements(doc);
+    const quoteElements = this._findQuoteElements(doc);
     return quoteElements.length > 0;
   }
 
@@ -27,13 +15,10 @@ class QuotedHTMLTransformer {
   //
   // If we find a quoted text region that is "inline" with the root level
   // message, meaning it has non quoted text before and after it, then we
-  // leave it in the message. If you set the `includeInline` option to true,
-  // then all inline blocks will also be removed.
+  // leave it in the message.
   //
   // - `html` The string full of quoted text areas
   // - `options`
-  //   - `includeInline` Defaults false. If true, inline quotes are removed
-  //   too
   //   - `keepIfWholeBodyIsQuote` Defaults false. If true, then it will
   //   check to see if the whole html body is a giant quote. If so, it will
   //   preserve it.
@@ -42,43 +27,31 @@ class QuotedHTMLTransformer {
   //
   removeQuotedHTML(html, options = { keepIfWholeBodyIsQuote: true }) {
     const doc = this._parseHTML(html);
-    const quoteElements = this._findQuoteLikeElements(doc, options);
-    const asDOM = !!options.asDOM;
 
-    if (options.keepIfWholeBodyIsQuote && this._wholeBodyIsQuote(doc, quoteElements)) {
-      return this._outputHTMLFor(this._parseHTML(html), { initialHTML: html, asDOM });
-    }
-
-    for (const el of quoteElements) {
+    for (const el of this._findQuoteElements(doc, options)) {
       el.remove();
     }
 
     // It's possible that the entire body was quoted text anyway and we've
     // removed everything.
-    if (options.keepIfWholeBodyIsQuote && (!doc.body || !doc.children[0])) {
-      return this._outputHTMLFor(this._parseHTML(html), { initialHTML: html, asDOM });
+    if (options.keepIfWholeBodyIsQuote) {
+      if (!doc.body || !doc.children[0] || doc.body.textContent.trim().length === 0) {
+        return this._outputHTMLFor(this._parseHTML(html), { initialHTML: html });
+      }
     }
 
     if (!doc.body) {
-      return this._outputHTMLFor(this._parseHTML(''), { initialHTML: html, asDOM });
+      return this._outputHTMLFor(this._parseHTML(''), { initialHTML: html });
     }
 
-    const quoteStringElements = quoteStringDetector(doc);
-    for (const el of quoteStringElements) {
+    for (const el of quoteStringDetector(doc)) {
       el.remove();
     }
 
     this._removeImagesStrippedByAnotherClient(doc);
     this._removeUnnecessaryWhitespace(doc);
 
-    if (
-      options.keepIfWholeBodyIsQuote &&
-      (!doc.children[0] || this._wholeNylasPlaintextBodyIsQuote(doc))
-    ) {
-      return this._outputHTMLFor(this._parseHTML(html), { initialHTML: html, asDOM });
-    }
-
-    return this._outputHTMLFor(doc, { initialHTML: html, asDOM });
+    return this._outputHTMLFor(doc, { initialHTML: html });
   }
 
   _removeImagesStrippedByAnotherClient(doc) {
@@ -160,20 +133,13 @@ class QuotedHTMLTransformer {
 
   appendQuotedHTML(htmlWithoutQuotes, originalHTML) {
     let doc = this._parseHTML(originalHTML);
-    const quoteElements = this._findQuoteLikeElements(doc);
+    const quoteElements = this._findQuoteElements(doc);
     doc = this._parseHTML(htmlWithoutQuotes);
     for (let i = 0; i < quoteElements.length; i++) {
       const node = quoteElements[i];
       doc.body.appendChild(node);
     }
     return this._outputHTMLFor(doc, { initialHTML: originalHTML });
-  }
-
-  restoreAnnotatedHTML(html) {
-    const doc = this._parseHTML(html);
-    const quoteElements = this._findAnnotatedElements(doc);
-    this._removeAnnotation(quoteElements);
-    return this._outputHTMLFor(doc, { initialHTML: html });
   }
 
   _parseHTML(text) {
@@ -192,45 +158,16 @@ class QuotedHTMLTransformer {
     return doc;
   }
 
-  _outputHTMLFor(doc, { initialHTML, asDOM } = {}) {
-    if (asDOM) return doc;
+  _outputHTMLFor(doc, { initialHTML } = {}) {
     if (/<\s?head\s?>/i.test(initialHTML) || /<\s?body[\s>]/i.test(initialHTML)) {
       return doc.children[0].innerHTML;
     }
     return doc.body.innerHTML;
   }
 
-  _wholeNylasPlaintextBodyIsQuote(doc) {
-    const preElement = doc.body.children[0];
-    return preElement && preElement.tagName === 'PRE' && !preElement.children[0];
-  }
-
-  _wholeBodyIsQuote(doc, quoteElements) {
-    const nonBlankChildElements = [];
-    for (let i = 0; i < doc.body.childNodes.length; i++) {
-      const child = doc.body.childNodes[i];
-      if (child.textContent.trim() === '') {
-        continue;
-      } else {
-        nonBlankChildElements.push(child);
-      }
-    }
-
-    if (nonBlankChildElements.length === 1) {
-      return Array.from(quoteElements).includes(nonBlankChildElements[0]);
-    }
-    return false;
-  }
-
-  // We used to have a scheme where we cached the `doc` object, keyed by
-  // the md5 of the text. Unfortunately we can't do this because the
-  // `doc` is mutated in place. Returning clones of the DOM is just as
-  // bad as re-parsing from string, which is very fast anyway.
-
-  _findQuoteLikeElements(doc, { includeInline } = {}) {
+  _findQuoteElements(doc) {
     const parsers = [
       this._findGmailQuotes,
-      this._findOffice365Quotes,
       this._findBlockquoteQuotes,
       this._findQuotesAfterMessageHeaderBlock,
     ];
@@ -240,125 +177,63 @@ class QuotedHTMLTransformer {
       quoteElements = quoteElements.concat(parser(doc) || []);
     }
 
-    /**
-     * At this point we've pulled out of the DOM all elements that happen
-     * to look like quote blocks via CSS selectors and other patterns.
-     * They are not necessarily ordered nor should all be eliminated
-     * (because people can type inline around quoted text blocks).
-     *
-     * The `unwrappedSignatureDetector` looks for a case when signatures
-     * look almost exactly like someone replying inline at the end of the
-     * message. We detect this case (by looking for signature text
-     * repetition) and add it to the set of flagged quote candidates.
-     */
+    // Find top-level nodes that look like a signature - some clients append
+    // a signature block /beneath/ the quoted text and we need to count is as
+    // quoted text as well — otherwise it gets considered an inline reply block.
     const unwrappedSignatureNodes = unwrappedSignatureDetector(doc, quoteElements);
     quoteElements = quoteElements.concat(unwrappedSignatureNodes);
 
-    if (!includeInline && quoteElements.length > 0) {
-      const trailingQuotes = this._findTrailingQuotes(doc, Array.from(quoteElements));
+    // Keep quotes that are followed by non-quote blocks (eg: inline reply text)
+    quoteElements = quoteElements.filter(
+      el => !this._isElementFollowedByUnquotedElement(el, quoteElements)
+    );
 
-      // Only keep the trailing quotes so we can delete them.
-      /**
-       * The _findTrailingQuotes method will return an array of the quote
-       * elements we should remove. If there was no trailing text, it
-       * should include all of the existing VISIBLE quoteElements. If
-       * there was trailing text, it will only include the quote elements
-       * up to that trailling text. The intersection below will only
-       * mark the quote elements below trailing text ot be deleted.
-       */
-      quoteElements = _.intersection(quoteElements, trailingQuotes);
-
-      /**
-       * The _findTraillingQuotes method only preserves VISIBLE elements.
-       * It's possible that the unwrappedSignatureDetector discovered a
-       * collection of nodes with both visible and not visible (like br)
-       * content. If we're going to get rid of trailing signatures we
-       * need to also remove those trailling <br/>s, or we can get a bunch
-       * of blank space at the end of the text. First make sure that some
-       * of our unwrappedSignatureNodes were marked for deletion, and then
-       * make sure we include all of them.
-       */
-      if (_.intersection(quoteElements, unwrappedSignatureNodes).length > 0) {
-        quoteElements = _.uniq(quoteElements.concat(unwrappedSignatureNodes));
-      }
-    }
-
-    return _.compact(_.uniq(quoteElements));
+    return quoteElements;
   }
 
-  /**
-   * Now that we have a set of quoted text candidates, we need to figure
-   * out which ones to remove. The main thing preventing us from removing
-   * all of them is the fact users can type text after quoted text as an
-   * inline reply.
-   *
-   * To detect this, we recursively move through the dom backwards, from
-   * bottom to top, and keep going until we find visible text that's not a
-   * quote candidate. If we find some visible text, we assume that is
-   * unique text that a user wrote. We return at that point assuming that
-   * everything at the text and above should be visible, even if it's a
-   * quoted text candidate.
-   *
-   * See email_18 and email_23 and unwrapped-signature-detector
-   */
-  _findTrailingQuotes(scopeElement, quoteElements = []) {
-    let trailingQuotes = [];
+  _isElementFollowedByUnquotedElement(el, quoteElements) {
+    const seen = [];
+    let head = el;
 
-    // We need to find only the child nodes that have content in them. We
-    // determine if it's an inline quote based on if there's VISIBLE
-    // content after a piece of quoted text
-    const nodesWithContent = DOMUtils.nodesWithContent(scopeElement);
-
-    // There may be multiple quote blocks that are sibilings of each
-    // other at the end of the message. We want to include all of these
-    // trailing quote elements.
-    for (let i = nodesWithContent.length - 1; i >= 0; i--) {
-      const nodeWithContent = nodesWithContent[i];
-      if (quoteElements.includes(nodeWithContent)) {
-        // This is a valid quote. Let's keep it!
-        //
-        // This quote block may have many more quote blocks inside of it.
-        // Luckily we don't need to explicitly find all of those because
-        // one this block gets removed from the DOM, we'll delete all
-        // sub-quotes as well.
-        trailingQuotes.push(nodeWithContent);
-        continue;
-      } else {
-        const moreTrailing = this._findTrailingQuotes(nodeWithContent, quoteElements);
-        trailingQuotes = trailingQuotes.concat(moreTrailing);
+    while (head) {
+      // advance to the next sibling, or the parent's next sibling
+      while (head && !head.nextSibling) {
+        head = head.parentNode;
+      }
+      if (!head) {
         break;
       }
+      head = head.nextSibling;
+
+      // search this branch of the tree for any text nodes / images that
+      // are not contained within a matched quoted text block. We mark
+      // the subtree as "seen" because we traverse upwards, and would
+      // re-evaluate the subtree on each iteration otherwise.
+      const pile = [head];
+      let node = null;
+
+      // eslint-disable-next-line
+      while ((node = pile.pop())) {
+        if (seen.includes(node)) {
+          continue;
+        }
+        if (quoteElements.includes(node)) {
+          continue;
+        }
+        if (node.childNodes) {
+          pile.push(...node.childNodes);
+        }
+        if (node.nodeName === 'IMG') {
+          return true;
+        }
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
+          return true;
+        }
+      }
+      seen.push(head);
     }
 
-    return trailingQuotes;
-  }
-
-  _contains(node, quoteElement) {
-    return node === quoteElement || node.contains(quoteElement);
-  }
-
-  _findAnnotatedElements(doc) {
-    return Array.from(doc.getElementsByClassName(this.annotationClass));
-  }
-
-  _annotateElements(elements = []) {
-    let originalDisplay;
-    return elements.forEach(el => {
-      el.classList.add(this.annotationClass);
-      originalDisplay = el.style.display;
-      el.style.display = 'none';
-      el.setAttribute('data-nylas-quoted-text-original-display', originalDisplay);
-    });
-  }
-
-  _removeAnnotation(elements = []) {
-    let originalDisplay;
-    return elements.forEach(el => {
-      el.classList.remove(this.annotationClass);
-      originalDisplay = el.getAttribute('data-nylas-quoted-text-original-display');
-      el.style.display = originalDisplay;
-      el.removeAttribute('data-nylas-quoted-text-original-display');
-    });
+    return false;
   }
 
   _findGmailQuotes(doc) {
@@ -366,38 +241,6 @@ class QuotedHTMLTransformer {
     // version marks text but does not cause indentation, but both should be
     // considered quoted text.
     return Array.from(doc.querySelectorAll('.gmail_quote'));
-  }
-
-  _findOffice365Quotes(doc) {
-    let elements = doc.querySelectorAll('#divRplyFwdMsg, #OLK_SRC_BODY_SECTION');
-    elements = Array.from(elements);
-
-    const weirdEl = doc.getElementById('3D"divRplyFwdMsg"');
-    if (weirdEl) {
-      elements.push(weirdEl);
-    }
-
-    elements = elements.map(el => {
-      /**
-       * When Office 365 wraps quotes in a '#divRplyFwdMsg' id, it usually
-       * preceedes it with an <hr> tag and then wraps the entire section
-       * in an anonymous div one level up.
-       */
-      if (el.previousElementSibling && el.previousElementSibling.nodeName === 'HR') {
-        if (el.parentElement && el.parentElement.nodeName !== 'BODY') {
-          return el.parentElement;
-        }
-        const quoteNodes = [el.previousElementSibling, el];
-        let node = el.nextSibling;
-        while (node) {
-          quoteNodes.push(node);
-          node = node.nextSibling;
-        }
-        return quoteNodes;
-      }
-      return el;
-    });
-    return _.flatten(elements);
   }
 
   _findBlockquoteQuotes(doc) {
@@ -410,16 +253,19 @@ class QuotedHTMLTransformer {
     // <b>Subject:</b>. It then returns every node after that as quoted text.
 
     // Find a DOM node exactly matching <b>Sent:</b>
-    const dateMarker =
-      doc.evaluate("//b[. = 'Sent:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext() ||
-      doc.evaluate("//b[. = 'Date:']", doc.body, null, XPathResult.ANY_TYPE, null).iterateNext();
+    const { FIRST_ORDERED_NODE_TYPE } = XPathResult;
+    const dateXPath =
+      "//b[. = 'Sent:'] | //b[. = 'Date:'] | //span[. = 'Sent: '] | //span[. = 'Date: ']";
+    const dateMarker = doc.evaluate(dateXPath, doc.body, null, FIRST_ORDERED_NODE_TYPE, null)
+      .singleNodeValue;
 
     if (dateMarker) {
       // check to see if the parent container also contains the other two
       const headerContainer = dateMarker.parentElement;
       let matches = 0;
       for (const node of Array.from(headerContainer.children)) {
-        if (node.textContent === 'To:' || node.textContent === 'Subject:') {
+        const tc = node.textContent.trim();
+        if (tc === 'To:' || tc === 'Subject:') {
           matches++;
         }
       }
@@ -427,11 +273,17 @@ class QuotedHTMLTransformer {
         // got a hit! let's cut some text.
         const quotedTextNodes = [];
 
-        // Special case to add "From:" if it's present in the node before the rest of
-        // the header fields. It's often not in the same container as To, Cc, Subject:
-        const possibleFromNode = headerContainer.previousElementSibling;
-        if (possibleFromNode && possibleFromNode.innerText.trim() === 'From:') {
-          quotedTextNodes.push(possibleFromNode);
+        // Special case to add "From:" because it's often detatched from the rest of the
+        // header fields. We just add it where ever it's located.
+        const fromXPath = "//b[. = 'From:'] | //span[. = 'From: ']";
+        let from = doc.evaluate(fromXPath, doc.body, null, FIRST_ORDERED_NODE_TYPE, null)
+          .singleNodeValue;
+
+        if (from) {
+          if (from.nodeName === 'SPAN') {
+            from = from.parentElement;
+          }
+          quotedTextNodes.push(from);
         }
 
         // The headers container and everything past it in the document is quoted text.

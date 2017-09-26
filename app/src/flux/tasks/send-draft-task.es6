@@ -158,6 +158,7 @@ export default class SendDraftTask extends Task {
       const newSrc = addRecipientToUrl(src, recipient.email);
       return `<img class="mailspring-open" width="0" height="0" style="border:0; width:0; height:0;" src="${newSrc}">`;
     });
+
     // This adds a `recipient` param to the link tracking tracking href url.
     const trackedLinkRegexp = new RegExp(
       /(<a.*?href\s*?=\s*?['"])((?!mailto).+?)(['"].*?>)([\s\S]*?)(<\/a>)/gim

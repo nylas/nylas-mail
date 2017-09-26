@@ -9,9 +9,6 @@ describe "QuotedHTMLTransformer", ->
     emailPath = path.resolve(__dirname, '..', 'fixtures', 'emails', fname)
     return fs.readFileSync(emailPath, 'utf8')
 
-  hideQuotedHTML = (fname) ->
-    return QuotedHTMLTransformer.hideQuotedHTML(readFile(fname))
-
   removeQuotedHTML = (fname, opts={}) ->
     return QuotedHTMLTransformer.removeQuotedHTML(readFile(fname), opts)
 
@@ -19,10 +16,14 @@ describe "QuotedHTMLTransformer", ->
     re = new RegExp(QuotedHTMLTransformer.annotationClass, 'g')
     html.match(re)?.length ? 0
 
-  [1..24].forEach (n) ->
+  [1..27].forEach (n) ->
     it "properly parses email_#{n}", ->
       opts = keepIfWholeBodyIsQuote: true
-      expect(removeQuotedHTML("email_#{n}.html", opts).trim()).toEqual(readFile("email_#{n}_stripped.html").trim())
+      actual = removeQuotedHTML("email_#{n}.html", opts).trim()
+      expected = readFile("email_#{n}_stripped.html").trim()
+      if actual != expected
+        fs.writeFileSync(path.resolve(__dirname, '..', 'fixtures', 'emails', "email_#{n}_actual.html"), actual);
+      expect(actual).toEqual(expected)
 
   describe 'manual quote detection tests', ->
 
@@ -109,6 +110,7 @@ describe "QuotedHTMLTransformer", ->
       # Test 4: It works inside of a wrapped div
     tests.push
       before: """
+        Reply here
         <div>
           <br>
           <blockquote>Nothing but quotes</blockquote>
@@ -116,7 +118,7 @@ describe "QuotedHTMLTransformer", ->
           <br>
         </div>
         """
-      after: ""
+      after: "Reply here"
 
     # Test 5: Inline quotes and text
     tests.push
@@ -237,7 +239,7 @@ describe "QuotedHTMLTransformer", ->
     # I believe this is https://sentry.nylas.com/sentry/edgehill/group/8323/
     tests.push
       before: """
-        <body id="OLK_SRC_BODY_SECTION">
+        <body class="gmail_quote">
           This entire thing is quoted text!
         </body>
         """
@@ -325,32 +327,6 @@ describe "QuotedHTMLTransformer", ->
         <br>
         On Thu, Mar 3, 2016 I went to my writing club and wrote:
         <strong>A little song</strong></div>
-      """
-
-    # Test 15: Make sure inline quote in plaintext converted to HTML with <pre>
-    # is not completely stripped.
-    tests.push
-      before: """
-        <pre class="nylas-plaintext">On Wed, Dec 14, 2016 at 02:05:44PM +0100, Bálint Réczey wrote:
-        &gt; I have uploaded a dpkg NMU with bindnow enabled to DELAYED/10
-        &gt; according to current NMU rules. If the Release Team increases the
-        &gt; severity of #835146 it can reach unstable earlier.
-        Thanks!
-
-        --
-        WBR, wRAR
-        </pre>
-      """
-      after: """
-        <pre class="nylas-plaintext">On Wed, Dec 14, 2016 at 02:05:44PM +0100, Bálint Réczey wrote:
-        &gt; I have uploaded a dpkg NMU with bindnow enabled to DELAYED/10
-        &gt; according to current NMU rules. If the Release Team increases the
-        &gt; severity of #835146 it can reach unstable earlier.
-        Thanks!
-
-        --
-        WBR, wRAR
-        </pre>
       """
 
     it 'works with these manual test cases', ->
