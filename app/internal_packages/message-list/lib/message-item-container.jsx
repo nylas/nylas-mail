@@ -16,7 +16,7 @@ export default class MessageItemContainer extends React.Component {
     message: React.PropTypes.object.isRequired,
     messages: React.PropTypes.array.isRequired,
     collapsed: React.PropTypes.bool,
-    isLastItem: React.PropTypes.bool,
+    isMostRecent: React.PropTypes.bool,
     isBeforeReplyArea: React.PropTypes.bool,
     scrollTo: React.PropTypes.func,
   };
@@ -82,7 +82,7 @@ export default class MessageItemContainer extends React.Component {
         messages={this.props.messages}
         className={this._classNames()}
         collapsed={this.props.collapsed}
-        isLastItem={this.props.isLastItem}
+        isMostRecent={this.props.isMostRecent}
       />
     );
   }

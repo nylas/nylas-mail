@@ -12,7 +12,7 @@ function makeIcon(message, props = {}) {
 }
 
 function addOpenMetadata(obj, openCount) {
-  obj.applyPluginMetadata(PLUGIN_ID, {open_count: openCount});
+  obj.directlyAttachMetadata(PLUGIN_ID, {open_count: openCount});
 }
 
 describe('Open tracking message status', function openTrackingMessageStatus() {
@@ -28,7 +28,7 @@ describe('Open tracking message status', function openTrackingMessageStatus() {
 
 
   it("shows nothing if metadata is malformed", () => {
-    this.message.applyPluginMetadata(PLUGIN_ID, {gar: "bage"});
+    this.message.directlyAttachMetadata(PLUGIN_ID, {gar: "bage"});
     const icon = ReactDOM.findDOMNode(makeIcon(this.message));
     expect(icon.querySelector(".open-tracking-message-status")).toBeNull();
   });

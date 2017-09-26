@@ -69,7 +69,7 @@ let pluginValue = {
     timestamp: 1461361759.351055,
   }],
 };
-messages[0].applyPluginMetadata(OPEN_TRACKING_ID, pluginValue);
+messages[0].directlyAttachMetadata(OPEN_TRACKING_ID, pluginValue);
 pluginValue = {
   links: [{
     click_count: 1,
@@ -79,24 +79,24 @@ pluginValue = {
   }],
   tracked: true,
 };
-messages[0].applyPluginMetadata(LINK_TRACKING_ID, pluginValue);
+messages[0].directlyAttachMetadata(LINK_TRACKING_ID, pluginValue);
 pluginValue = {
   open_count: 1,
   open_data: [{
     timestamp: 1461361763.283720,
   }],
 };
-messages[1].applyPluginMetadata(OPEN_TRACKING_ID, pluginValue);
+messages[1].directlyAttachMetadata(OPEN_TRACKING_ID, pluginValue);
 pluginValue = {
   links: [],
   tracked: false,
 };
-messages[1].applyPluginMetadata(LINK_TRACKING_ID, pluginValue);
+messages[1].directlyAttachMetadata(LINK_TRACKING_ID, pluginValue);
 pluginValue = {
   open_count: 0,
   open_data: [],
 };
-messages[2].applyPluginMetadata(OPEN_TRACKING_ID, pluginValue);
+messages[2].directlyAttachMetadata(OPEN_TRACKING_ID, pluginValue);
 pluginValue = {
   links: [{
     click_count: 0,
@@ -104,7 +104,7 @@ pluginValue = {
   }],
   tracked: true,
 };
-messages[2].applyPluginMetadata(LINK_TRACKING_ID, pluginValue);
+messages[2].directlyAttachMetadata(LINK_TRACKING_ID, pluginValue);
 
 
 describe('ActivityList', function activityList() {

@@ -36,33 +36,34 @@ function forEachATagInBody(draftBodyRootNode, callback) {
 export default class LinkTrackingComposerExtension extends ComposerExtension {
   static applyTransformsForSending({draftBodyRootNode, draft}) {
     const metadata = draft.metadataForPluginId(PLUGIN_ID);
-    if (metadata) {
-      const messageUid = draft.clientId;
-      const links = [];
+    if (!metadata) {
+      return;
+    }
+    const messageUid = draft.clientId;
+    const links = [];
 
-      forEachATagInBody(draftBodyRootNode, (el) => {
-        const url = el.getAttribute('href');
-        if (!RegExpUtils.urlRegex().test(url)) {
-          return;
-        }
-        const encoded = encodeURIComponent(url);
-        const redirectUrl = `${PLUGIN_URL}/link/${draft.headerMessageId}/${links.length}?redirect=${encoded}`;
+    forEachATagInBody(draftBodyRootNode, (el) => {
+      const url = el.getAttribute('href');
+      if (!RegExpUtils.urlRegex().test(url)) {
+        return;
+      }
+      const encoded = encodeURIComponent(url);
+      const redirectUrl = `${PLUGIN_URL}/link/${draft.headerMessageId}/${links.length}?redirect=${encoded}`;
 
-        links.push({
-          url,
-          click_count: 0,
-          click_data: [],
-          redirect_url: redirectUrl,
-        });
-
-        el.setAttribute('href', redirectUrl);
+      links.push({
+        url,
+        click_count: 0,
+        click_data: [],
+        redirect_url: redirectUrl,
       });
 
-      // save the link info to draft metadata
-      metadata.uid = messageUid;
-      metadata.links = links;
-      draft.applyPluginMetadata(PLUGIN_ID, metadata);
-    }
+      el.setAttribute('href', redirectUrl);
+    });
+
+    // save the link info to draft metadata
+    metadata.uid = messageUid;
+    metadata.links = links;
+    draft.directlyAttachMetadata(PLUGIN_ID, metadata);
   }
 
   static unapplyTransformsForSending({draftBodyRootNode}) {

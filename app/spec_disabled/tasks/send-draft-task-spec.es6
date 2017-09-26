@@ -406,8 +406,8 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           files: [],
         });
 
-        this.draft.applyPluginMetadata('pluginIdA', {tracked: true});
-        this.draft.applyPluginMetadata('pluginIdB', {a: true, b: 2});
+        this.draft.directlyAttachMetadata('pluginIdA', {tracked: true});
+        this.draft.directlyAttachMetadata('pluginIdB', {a: true, b: 2});
         this.draft.metadataObjectForPluginId('pluginIdA').version = 2;
 
         this.task = new SendDraftTask('client-id');
@@ -446,8 +446,8 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           files: [],
         });
 
-        this.draft.applyPluginMetadata('pluginIdA', {tracked: true});
-        this.draft.applyPluginMetadata('pluginIdB', {a: true, b: 2});
+        this.draft.directlyAttachMetadata('pluginIdA', {tracked: true});
+        this.draft.directlyAttachMetadata('pluginIdB', {a: true, b: 2});
         this.draft.metadataObjectForPluginId('pluginIdA').version = 2;
 
         this.task = new SendDraftTask('client-id');
@@ -477,8 +477,8 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         })],
         files: [],
       });
-      this.task.draft.applyPluginMetadata('open-tracking', true);
-      this.task.draft.applyPluginMetadata('link-tracking', true);
+      this.task.draft.directlyAttachMetadata('open-tracking', true);
+      this.task.draft.directlyAttachMetadata('link-tracking', true);
 
       this.applySpies = (customValues = {}) => {
         let value = {provider: customValues["AccountStore.accountForId"] || "gmail"}
@@ -515,20 +515,20 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
     it("should return false if neither open-tracking nor link-tracking is on", () => {
       this.applySpies();
-      this.task.draft.applyPluginMetadata('open-tracking', false);
-      this.task.draft.applyPluginMetadata('link-tracking', false);
+      this.task.draft.directlyAttachMetadata('open-tracking', false);
+      this.task.draft.directlyAttachMetadata('link-tracking', false);
       expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
     it("should return true if only open-tracking is on", () => {
       this.applySpies();
-      this.task.draft.applyPluginMetadata('link-tracking', false);
+      this.task.draft.directlyAttachMetadata('link-tracking', false);
       expect(this.task.hasCustomBodyPerRecipient()).toBe(true);
     });
 
     it("should return true if only link-tracking is on", () => {
       this.applySpies();
-      this.task.draft.applyPluginMetadata('open-tracking', false);
+      this.task.draft.directlyAttachMetadata('open-tracking', false);
       expect(this.task.hasCustomBodyPerRecipient()).toBe(true);
     });
 

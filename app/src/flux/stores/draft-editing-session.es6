@@ -4,6 +4,7 @@ import NylasStore from 'nylas-store';
 
 import TaskQueue from './task-queue';
 import Message from '../models/message'
+import {PluginMetadata} from '../models/model-with-metadata';
 import Actions from '../actions'
 import AccountStore from './account-store'
 import ContactStore from './contact-store'
@@ -91,14 +92,15 @@ class DraftChangeSet extends EventEmitter {
   }
 
   applyToModel(model) {
-    if (model) {
-      const changesToApply = Object.entries(this._saving).concat(Object.entries(this._pending));
-      for (const [key, val] of changesToApply) {
-        if (key.startsWith(MetadataChangePrefix)) {
-          model.applyPluginMetadata(key.split(MetadataChangePrefix).pop(), val);
-        } else {
-          model[key] = val;
-        }
+    if (!model) {
+      return null;
+    }
+    const changesToApply = Object.entries(this._saving).concat(Object.entries(this._pending));
+    for (const [key, val] of changesToApply) {
+      if (key.startsWith(MetadataChangePrefix)) {
+        model.directlyAttachMetadata(key.split(MetadataChangePrefix).pop(), val);
+      } else {
+        model[key] = val;
       }
     }
     return model;

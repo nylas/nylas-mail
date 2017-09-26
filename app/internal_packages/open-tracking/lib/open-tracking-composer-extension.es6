@@ -45,7 +45,7 @@ export default class OpenTrackingComposerExtension extends ComposerExtension {
 
     // save the uid info to draft metadata
     metadata.uid = messageUid;
-    draft.applyPluginMetadata(PLUGIN_ID, metadata);
+    draft.directlyAttachMetadata(PLUGIN_ID, metadata);
   }
 
   static unapplyTransformsForSending({draftBodyRootNode}) {

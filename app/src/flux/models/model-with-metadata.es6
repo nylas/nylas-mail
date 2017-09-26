@@ -5,7 +5,7 @@ import Attributes from '../attributes'
  Cloud-persisted data that is associated with a single Nylas API object
  (like a `Thread`, `Message`, or `Account`).
  */
-class PluginMetadata extends Model {
+export class PluginMetadata extends Model {
   static attributes = {
     pluginId: Attributes.String({
       modelKey: 'pluginId',
@@ -71,11 +71,31 @@ export default class ModelWithMetadata extends Model {
     if (!metadata) {
       return null;
     }
-    const m = JSON.parse(JSON.stringify(metadata.value));
-    if (m.expiration) {
-      m.expiration = new Date(m.expiration * 1000);
+    const value = JSON.parse(JSON.stringify(metadata.value));
+    if (value.expiration) {
+      value.expiration = new Date(value.expiration * 1000);
     }
-    return m;
+    return value;
+  }
+
+  /**
+   * Normally metadata is modified by queueing a SyncbackMetadataTask. We want changes to
+   * metadata to be undoable just like other draft changes in the composer. To enable this,
+   * we change the draft's metadata directly with other attributes and then use SyncbackDraftTask
+   * to commit all the changes at once. It's a bit messy: this code must match the C++ codebase.
+   */
+  directlyAttachMetadata(pluginId, metadataValue) {
+    let metadata = this.metadataObjectForPluginId(pluginId);
+    if (!metadata) {
+      metadata = new PluginMetadata({pluginId, version: 0});
+      this.pluginMetadata.push(metadata);
+    }
+    metadata.value = Object.assign({}, metadataValue);
+    metadata.version += 1;
+    if (metadata.value.expiration) {
+      metadata.value.expiration = Math.round(new Date(metadata.value.expiration).getTime() / 1000);
+    }
+    return this;
   }
 
   // Private helpers
@@ -85,25 +105,5 @@ export default class ModelWithMetadata extends Model {
       throw new Error(`Invalid pluginId. Must be a valid string: '${pluginId}'`, pluginId)
     }
     return this.pluginMetadata.find(metadata => metadata.pluginId === pluginId);
-  }
-
-  applyPluginMetadata(pluginId, metadataValue) {
-    let metadata = this.metadataObjectForPluginId(pluginId);
-    if (!metadata) {
-      metadata = new PluginMetadata({pluginId});
-      this.pluginMetadata.push(metadata);
-    }
-    metadata.value = Object.assign({}, metadataValue);
-    if (metadata.value.expiration) {
-      metadata.value.expiration = Math.round(new Date(metadata.value.expiration).getTime() / 1000);
-    }
-    return this;
-  }
-
-  clonePluginMetadataFrom(otherModel) {
-    this.pluginMetadata = otherModel.pluginMetadata.map(({pluginId, value}) => {
-      return new PluginMetadata({pluginId, value});
-    })
-    return this;
   }
 }

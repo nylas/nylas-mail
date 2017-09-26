@@ -17,7 +17,7 @@ function find(component, className) {
 }
 
 function addOpenMetadata(obj, openCount) {
-  obj.applyPluginMetadata(PLUGIN_ID, {open_count: openCount});
+  obj.directlyAttachMetadata(PLUGIN_ID, {open_count: openCount});
 }
 
 describe('Open tracking icon', function openTrackingIcon() {
@@ -45,7 +45,7 @@ describe('Open tracking icon', function openTrackingIcon() {
     });
 
     it("shows no icon if metadata is malformed", () => {
-      this.messages[0].applyPluginMetadata(PLUGIN_ID, {gar: "bage"});
+      this.messages[0].directlyAttachMetadata(PLUGIN_ID, {gar: "bage"});
       const icon = ReactDOM.findDOMNode(makeIcon(this.thread));
       expect(icon.children.length).toEqual(0);
     });

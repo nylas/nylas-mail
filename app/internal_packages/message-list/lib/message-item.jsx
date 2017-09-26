@@ -27,7 +27,7 @@ export default class MessageItem extends React.Component {
     messages: PropTypes.array.isRequired,
     collapsed: PropTypes.bool,
     pending: PropTypes.bool,
-    isLastItem: PropTypes.bool,
+    isMostRecent: PropTypes.bool,
     className: PropTypes.string,
   };
 
@@ -107,7 +107,7 @@ export default class MessageItem extends React.Component {
   }
 
   _onToggleCollapsed = () => {
-    if (this.props.isLastItem) {
+    if (this.props.isMostRecent) {
       return;
     }
     Actions.toggleMessageIdExpanded(this.props.message.id);

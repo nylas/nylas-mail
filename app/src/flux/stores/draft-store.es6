@@ -324,7 +324,7 @@ class DraftStore extends NylasStore {
       this._doneWithSession(session);
     }
 
-    // Stop any pending tasks related ot the draft
+    // Stop any pending tasks related to the draft
     TaskQueue.queue().forEach((task) => {
       if (task instanceof SyncbackDraftTask && task.headerMessageId === headerMessageId) {
         Actions.cancelTask(task);

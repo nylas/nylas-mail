@@ -49,7 +49,7 @@ xdescribe('Link tracking composer extension', function linkTrackingComposerExten
     describe("With properly formatted metadata and correct params", () => {
       beforeEach(() => {
         this.metadata = {tracked: true};
-        this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
+        this.draft.directlyAttachMetadata(PLUGIN_ID, this.metadata);
       });
 
       it("replaces links in the unquoted portion of the body", () => {
@@ -84,7 +84,7 @@ xdescribe('Link tracking composer extension', function linkTrackingComposerExten
     beforeEach(() => {
       this.metadata = {tracked: true, uid: '123'};
       this.draft = new Message({accountId: "test"});
-      this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
+      this.draft.directlyAttachMetadata(PLUGIN_ID, this.metadata);
     });
 
     it("takes no action if there are no tracked links in the body", () => {

@@ -38,7 +38,7 @@ xdescribe('Open tracking composer extension', function openTrackingComposerExten
     describe("With properly formatted metadata and correct params", () => {
       beforeEach(() => {
         this.metadata = {open_count: 0};
-        this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
+        this.draft.directlyAttachMetadata(PLUGIN_ID, this.metadata);
 
         OpenTrackingComposerExtension.applyTransformsForSending({
           draftBodyRootNode: this.draftBodyRootNode,
@@ -72,7 +72,7 @@ xdescribe('Open tracking composer extension', function openTrackingComposerExten
 
     it("removes the image from the body and restore the body to it's exact original content", () => {
       this.metadata = {open_count: 0};
-      this.draft.applyPluginMetadata(PLUGIN_ID, this.metadata);
+      this.draft.directlyAttachMetadata(PLUGIN_ID, this.metadata);
 
       this.draftBodyRootNode = nodeForHTML(afterBody);
       this.draft = new Message({
