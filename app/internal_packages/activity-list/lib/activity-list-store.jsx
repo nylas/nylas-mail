@@ -16,7 +16,7 @@ class ActivityListStore extends NylasStore {
     this.listenTo(FocusedPerspectiveStore, this._updateActivity);
 
     const start = () => this._getActivity();
-    if (NylasEnv.inSpecMode()) {
+    if (AppEnv.inSpecMode()) {
       start();
     } else {
       setTimeout(start, 2000);
@@ -41,19 +41,19 @@ class ActivityListStore extends NylasStore {
   }
 
   hasBeenViewed(action) {
-    if (!NylasEnv.savedState.activityListViewed) return false;
-    return action.timestamp < NylasEnv.savedState.activityListViewed;
+    if (!AppEnv.savedState.activityListViewed) return false;
+    return action.timestamp < AppEnv.savedState.activityListViewed;
   }
 
   focusThread(threadId) {
-    NylasEnv.displayWindow();
+    AppEnv.displayWindow();
     Actions.closePopover();
     DatabaseStore.find(Thread, threadId).then(thread => {
       if (!thread) {
-        NylasEnv.reportError(
+        AppEnv.reportError(
           new Error(`ActivityListStore::focusThread: Can't find thread`, { threadId })
         );
-        NylasEnv.showErrorDialog(`Can't find the selected thread in your mailbox`);
+        AppEnv.showErrorDialog(`Can't find the selected thread in your mailbox`);
         return;
       }
       Actions.ensureCategoryIsFocused('sent', thread.accountId);
@@ -79,7 +79,7 @@ class ActivityListStore extends NylasStore {
   }
 
   _onResetSeen() {
-    NylasEnv.savedState.activityListViewed = Date.now() / 1000;
+    AppEnv.savedState.activityListViewed = Date.now() / 1000;
     this._unreadCount = 0;
     this.trigger();
   }
@@ -88,8 +88,8 @@ class ActivityListStore extends NylasStore {
     const dataSource = this._dataSource();
     this._subscription = dataSource
       .buildObservable({
-        openTrackingId: NylasEnv.packages.pluginIdFor('open-tracking'),
-        linkTrackingId: NylasEnv.packages.pluginIdFor('link-tracking'),
+        openTrackingId: AppEnv.packages.pluginIdFor('open-tracking'),
+        linkTrackingId: AppEnv.packages.pluginIdFor('link-tracking'),
         messageLimit: 500,
       })
       .subscribe(messages => {
@@ -110,8 +110,8 @@ class ActivityListStore extends NylasStore {
     const sidebarAccountIds = FocusedPerspectiveStore.sidebarAccountIds();
     for (const message of messages) {
       if (sidebarAccountIds.length > 1 || message.accountId === sidebarAccountIds[0]) {
-        const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking');
-        const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking');
+        const openTrackingId = AppEnv.packages.pluginIdFor('open-tracking');
+        const linkTrackingId = AppEnv.packages.pluginIdFor('link-tracking');
         if (
           message.metadataForPluginId(openTrackingId) ||
           message.metadataForPluginId(linkTrackingId)
@@ -142,7 +142,7 @@ class ActivityListStore extends NylasStore {
   }
 
   _openActionsForMessage(message) {
-    const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking');
+    const openTrackingId = AppEnv.packages.pluginIdFor('open-tracking');
     const openMetadata = message.metadataForPluginId(openTrackingId);
     const recipients = message.to.concat(message.cc, message.bcc);
     const actions = [];
@@ -183,7 +183,7 @@ class ActivityListStore extends NylasStore {
   }
 
   _linkActionsForMessage(message) {
-    const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking');
+    const linkTrackingId = AppEnv.packages.pluginIdFor('link-tracking');
     const linkMetadata = message.metadataForPluginId(linkTrackingId);
     const recipients = message.to.concat(message.cc, message.bcc);
     const actions = [];

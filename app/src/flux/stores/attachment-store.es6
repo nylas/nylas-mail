@@ -48,7 +48,7 @@ class AttachmentStore extends NylasStore {
     this.listenTo(Actions.removeAttachment, this._onRemoveAttachment);
 
     this._filePreviewPaths = {};
-    this._filesDirectory = path.join(NylasEnv.getConfigDirPath(), 'files');
+    this._filesDirectory = path.join(AppEnv.getConfigDirPath(), 'files');
     mkdirp(this._filesDirectory);
   }
 
@@ -110,7 +110,7 @@ class AttachmentStore extends NylasStore {
     if (process.platform !== 'darwin') {
       return Promise.resolve();
     }
-    if (!NylasEnv.config.get('core.attachments.displayFilePreview')) {
+    if (!AppEnv.config.get('core.attachments.displayFilePreview')) {
       return Promise.resolve();
     }
     if (NonPreviewableExtensions.includes(file.displayExtension())) {
@@ -142,7 +142,7 @@ class AttachmentStore extends NylasStore {
                     if (error) {
                       // Ignore errors, we don't really mind if we can't generate a preview
                       // for a file
-                      NylasEnv.reportError(error);
+                      AppEnv.reportError(error);
                       resolve();
                       return;
                     }
@@ -208,7 +208,7 @@ class AttachmentStore extends NylasStore {
     const defaultPath = this._defaultSavePath(file);
     const defaultExtension = path.extname(defaultPath);
 
-    NylasEnv.showSaveDialog({ defaultPath }, savePath => {
+    AppEnv.showSaveDialog({ defaultPath }, savePath => {
       if (!savePath) {
         return;
       }
@@ -224,9 +224,9 @@ class AttachmentStore extends NylasStore {
       this._ensureFile(file)
         .then(download => this._writeToExternalPath(download, actualSavePath))
         .then(() => {
-          if (NylasEnv.savedState.lastDownloadDirectory !== newDownloadDirectory) {
+          if (AppEnv.savedState.lastDownloadDirectory !== newDownloadDirectory) {
             shell.showItemInFolder(actualSavePath);
-            NylasEnv.savedState.lastDownloadDirectory = newDownloadDirectory;
+            AppEnv.savedState.lastDownloadDirectory = newDownloadDirectory;
           }
         })
         .catch(this._catchFSErrors)
@@ -246,7 +246,7 @@ class AttachmentStore extends NylasStore {
     };
 
     return new Promise(resolve => {
-      NylasEnv.showOpenDialog(options, selected => {
+      AppEnv.showOpenDialog(options, selected => {
         if (!selected) {
           return;
         }
@@ -254,7 +254,7 @@ class AttachmentStore extends NylasStore {
         if (!dirPath) {
           return;
         }
-        NylasEnv.savedState.lastDownloadDirectory = dirPath;
+        AppEnv.savedState.lastDownloadDirectory = dirPath;
 
         const lastSavePaths = [];
         const savePromises = files.map(file => {
@@ -298,9 +298,9 @@ class AttachmentStore extends NylasStore {
       downloadDir = os.tmpdir();
     }
 
-    if (NylasEnv.savedState.lastDownloadDirectory) {
-      if (fs.existsSync(NylasEnv.savedState.lastDownloadDirectory)) {
-        downloadDir = NylasEnv.savedState.lastDownloadDirectory;
+    if (AppEnv.savedState.lastDownloadDirectory) {
+      if (fs.existsSync(AppEnv.savedState.lastDownloadDirectory)) {
+        downloadDir = AppEnv.savedState.lastDownloadDirectory;
       }
     }
 
@@ -400,7 +400,7 @@ class AttachmentStore extends NylasStore {
     this._assertIdPresent(headerMessageId);
 
     // When the dialog closes, it triggers `Actions.addAttachment`
-    return NylasEnv.showOpenDialog({ properties: ['openFile', 'multiSelections'] }, paths => {
+    return AppEnv.showOpenDialog({ properties: ['openFile', 'multiSelections'] }, paths => {
       if (paths == null) {
         return;
       }
@@ -450,7 +450,7 @@ class AttachmentStore extends NylasStore {
       });
       onCreated(file);
     } catch (err) {
-      NylasEnv.showErrorDialog(err.message);
+      AppEnv.showErrorDialog(err.message);
     }
   };
 
@@ -466,7 +466,7 @@ class AttachmentStore extends NylasStore {
     try {
       await this._deleteFile(fileToRemove);
     } catch (err) {
-      NylasEnv.showErrorDialog(err.message);
+      AppEnv.showErrorDialog(err.message);
     }
   };
 }

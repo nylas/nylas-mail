@@ -162,11 +162,11 @@ Utils =
   imageNamed: (fullname, resourcePath) ->
     [name, ext] = fullname.split('.')
 
-    DefaultResourcePath ?= NylasEnv.getLoadSettings().resourcePath
+    DefaultResourcePath ?= AppEnv.getLoadSettings().resourcePath
     resourcePath ?= DefaultResourcePath
 
     if not imageData
-      imageData = NylasEnv.fileListCache().imageData ? "{}"
+      imageData = AppEnv.fileListCache().imageData ? "{}"
       Utils.images = JSON.parse(imageData) ? {}
 
     if not Utils?.images?[resourcePath]
@@ -181,7 +181,7 @@ Utils =
         file = file.replace(/\\/g, '/')
         basename = path.basename(file)
         Utils.images[resourcePath][path.basename(file)] = file
-      NylasEnv.fileListCache().imageData = JSON.stringify(Utils.images)
+      AppEnv.fileListCache().imageData = JSON.stringify(Utils.images)
 
     plat = process.platform ? ""
     ratio = window.devicePixelRatio ? 1

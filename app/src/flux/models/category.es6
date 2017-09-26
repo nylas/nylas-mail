@@ -129,7 +129,7 @@ export default class Category extends Model {
   isStandardCategory(forceShowImportant) {
     let showImportant = forceShowImportant;
     if (showImportant === undefined) {
-      showImportant = NylasEnv.config.get('core.workspace.showImportant');
+      showImportant = AppEnv.config.get('core.workspace.showImportant');
     }
     if (showImportant === true) {
       return !!StandardRoleMap[this.role];

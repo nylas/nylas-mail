@@ -14,18 +14,18 @@ function onDialogActionTaken(numAsks) {
   return buttonIndex => {
     if (numAsks >= 1) {
       if (buttonIndex === 1) {
-        NylasEnv.config.set('asksAboutAppMove', 5);
+        AppEnv.config.set('asksAboutAppMove', 5);
       } else {
-        NylasEnv.config.set('asksAboutAppMove', numAsks + 1);
+        AppEnv.config.set('asksAboutAppMove', numAsks + 1);
       }
     } else {
-      NylasEnv.config.set('asksAboutAppMove', numAsks + 1);
+      AppEnv.config.set('asksAboutAppMove', numAsks + 1);
     }
   };
 }
 
 export function activate() {
-  if (NylasEnv.inDevMode() || NylasEnv.inSpecMode()) {
+  if (AppEnv.inDevMode() || AppEnv.inSpecMode()) {
     return;
   }
 
@@ -46,13 +46,13 @@ export function activate() {
     return;
   }
 
-  const numAsks = NylasEnv.config.get('asksAboutAppMove') || 0;
+  const numAsks = AppEnv.config.get('asksAboutAppMove') || 0;
   if (numAsks <= 0) {
-    NylasEnv.config.set('asksAboutAppMove', 1);
+    AppEnv.config.set('asksAboutAppMove', 1);
     return;
   }
 
-  NylasEnv.config.set('asksAboutAppMove', numAsks + 1);
+  AppEnv.config.set('asksAboutAppMove', numAsks + 1);
   if (numAsks >= 5) return;
 
   let buttons;

@@ -85,12 +85,12 @@ export default class CommandKeybinding extends React.Component {
 
   _onEdit = () => {
     this.setState({ editing: true, editingBinding: null, keys: [], modifiers: [] });
-    NylasEnv.keymaps.suspendAllKeymaps();
+    AppEnv.keymaps.suspendAllKeymaps();
   };
 
   _onFinishedEditing = () => {
     if (this.state.editingBinding) {
-      const keymapPath = NylasEnv.keymaps.getUserKeymapPath();
+      const keymapPath = AppEnv.keymaps.getUserKeymapPath();
       let keymaps = {};
 
       try {
@@ -107,13 +107,13 @@ export default class CommandKeybinding extends React.Component {
       try {
         fs.writeFileSync(keymapPath, JSON.stringify(keymaps, null, 2));
       } catch (err) {
-        NylasEnv.showErrorDialog(
+        AppEnv.showErrorDialog(
           `Nylas was unable to modify your keymaps at ${keymapPath}. ${err.toString()}`
         );
       }
     }
     this.setState({ editing: false, editingBinding: null });
-    NylasEnv.keymaps.resumeAllKeymaps();
+    AppEnv.keymaps.resumeAllKeymaps();
   };
 
   _onKey = event => {

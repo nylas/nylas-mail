@@ -10,10 +10,10 @@ console.inspect = function consoleInspect(val) {
 }
 
 function setLoadTime (loadTime) {
-  if (global.NylasEnv) {
-    global.NylasEnv.loadTime = loadTime;
-    if (NylasEnv.inSpecMode()) return;
-    console.log('Window load time: ' + global.NylasEnv.getWindowLoadTime() + 'ms')
+  if (global.AppEnv) {
+    global.AppEnv.loadTime = loadTime;
+    if (AppEnv.inSpecMode()) return;
+    console.log('Window load time: ' + global.AppEnv.getWindowLoadTime() + 'ms')
   }
 }
 

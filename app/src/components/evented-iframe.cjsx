@@ -175,7 +175,7 @@ class EventedIFrame extends React.Component
       if rawHref.startsWith(rootURLForServer('identity'))
         path = rawHref.split(rootURLForServer('identity')).pop()
         IdentityStore.fetchSingleSignOnURL(path, {source: "SingleSignOnEmail"}).then (href) =>
-          NylasEnv.windowEventHandler.openLink(href: href, metaKey: e.metaKey)
+          AppEnv.windowEventHandler.openLink(href: href, metaKey: e.metaKey)
         return
 
       # It's important to send the raw `href` here instead of the target.
@@ -185,7 +185,7 @@ class EventedIFrame extends React.Component
       # like `e.target instanceof Element` will erroneously return false
       # since the `e.target.constructor` and the `Element` function are
       # created in different contexts.
-      NylasEnv.windowEventHandler.openLink(href: rawHref, metaKey: e.metaKey)
+      AppEnv.windowEventHandler.openLink(href: rawHref, metaKey: e.metaKey)
 
   _isBlacklistedHref: (href) ->
     return (new RegExp(/^file:/i)).test(href)
@@ -234,10 +234,10 @@ class EventedIFrame extends React.Component
     if linkTarget
       href = linkTarget.getAttribute('href')
       if href.startsWith('mailto')
-        menu.append(new MenuItem({ label: "Compose Message...", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
+        menu.append(new MenuItem({ label: "Compose Message...", click:( -> AppEnv.windowEventHandler.openLink({href}) )}))
         menu.append(new MenuItem({ label: "Copy Email Address", click:( -> clipboard.writeText(href.split('mailto:').pop()) )}))
       else
-        menu.append(new MenuItem({ label: "Open Link", click:( -> NylasEnv.windowEventHandler.openLink({href}) )}))
+        menu.append(new MenuItem({ label: "Open Link", click:( -> AppEnv.windowEventHandler.openLink({href}) )}))
         menu.append(new MenuItem({ label: "Copy Link Address", click:( -> clipboard.writeText(href) )}))
       menu.append(new MenuItem({ type: 'separator' }))
 
@@ -249,7 +249,7 @@ class EventedIFrame extends React.Component
       menu.append(new MenuItem({
         label: "Save Image...",
         click: ->
-          NylasEnv.showSaveDialog {defaultPath: srcFilename}, (path) ->
+          AppEnv.showSaveDialog {defaultPath: srcFilename}, (path) ->
             return unless path
             oReq = new XMLHttpRequest()
             oReq.open("GET", src, true)
@@ -295,7 +295,7 @@ class EventedIFrame extends React.Component
       menu.append(new MenuItem({ label: "Copy", click:( -> clipboard.writeText(text) )}))
       menu.append(new MenuItem({ label: "Search Google for '#{textPreview}'", click:( -> shell.openExternal("https://www.google.com/search?q=#{encodeURIComponent(text)}") )}))
       if process.platform is 'darwin'
-        menu.append(new MenuItem({ label: "Look Up '#{textPreview}'", click:( -> NylasEnv.getCurrentWindow().showDefinitionForSelection() )}))
+        menu.append(new MenuItem({ label: "Look Up '#{textPreview}'", click:( -> AppEnv.getCurrentWindow().showDefinitionForSelection() )}))
 
 
     if process.platform is 'darwin'

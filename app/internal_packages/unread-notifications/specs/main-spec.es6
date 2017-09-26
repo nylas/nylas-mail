@@ -338,7 +338,7 @@ describe('UnreadNotifications', function UnreadNotifications() {
   });
 
   it('should play a sound when it gets new mail', () => {
-    spyOn(NylasEnv.config, 'get').andCallFake(config => {
+    spyOn(AppEnv.config, 'get').andCallFake(config => {
       if (config === 'core.notifications.enabled') return true;
       if (config === 'core.notifications.sounds') return true;
       return undefined;
@@ -350,13 +350,13 @@ describe('UnreadNotifications', function UnreadNotifications() {
         objectClass: Message.name,
         objects: [this.msg1],
       });
-      expect(NylasEnv.config.get.calls[1].args[0]).toBe('core.notifications.sounds');
+      expect(AppEnv.config.get.calls[1].args[0]).toBe('core.notifications.sounds');
       expect(SoundRegistry.playSound).toHaveBeenCalledWith('new-mail');
     });
   });
 
   it('should not play a sound if the config is off', () => {
-    spyOn(NylasEnv.config, 'get').andCallFake(config => {
+    spyOn(AppEnv.config, 'get').andCallFake(config => {
       if (config === 'core.notifications.enabled') return true;
       if (config === 'core.notifications.sounds') return false;
       return undefined;
@@ -367,13 +367,13 @@ describe('UnreadNotifications', function UnreadNotifications() {
         objectClass: Message.name,
         objects: [this.msg1],
       });
-      expect(NylasEnv.config.get.calls[1].args[0]).toBe('core.notifications.sounds');
+      expect(AppEnv.config.get.calls[1].args[0]).toBe('core.notifications.sounds');
       expect(SoundRegistry.playSound).not.toHaveBeenCalled();
     });
   });
 
   it('should not play a sound if other notiications are still in flight', () => {
-    spyOn(NylasEnv.config, 'get').andCallFake(config => {
+    spyOn(AppEnv.config, 'get').andCallFake(config => {
       if (config === 'core.notifications.enabled') return true;
       if (config === 'core.notifications.sounds') return true;
       return undefined;

@@ -16,20 +16,20 @@ class AutoloadImagesStore extends NylasStore {
     this._whitelistMessageIds = {};
 
     const filename = 'autoload-images-whitelist.txt';
-    this._whitelistEmailsPath = path.join(NylasEnv.getConfigDirPath(), filename);
+    this._whitelistEmailsPath = path.join(AppEnv.getConfigDirPath(), filename);
 
     this._loadWhitelist();
 
     this.listenTo(AutoloadImagesActions.temporarilyEnableImages, this._onTemporarilyEnableImages);
     this.listenTo(AutoloadImagesActions.permanentlyEnableImages, this._onPermanentlyEnableImages);
 
-    NylasEnv.config.onDidChange('core.reading.autoloadImages', () => {
+    AppEnv.config.onDidChange('core.reading.autoloadImages', () => {
       MessageBodyProcessor.resetCache();
     });
   }
 
   shouldBlockImagesIn = message => {
-    if (NylasEnv.config.get('core.reading.autoloadImages') === true) {
+    if (AppEnv.config.get('core.reading.autoloadImages') === true) {
       return false;
     }
     if (this._whitelistEmails[Utils.toEquivalentEmailForm(message.fromContact().email)]) {

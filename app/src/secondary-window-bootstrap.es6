@@ -8,17 +8,17 @@
 // actually spawning a new window, we'll call
 // `NylasWindow::setLoadSettings` on the window instead. This will replace
 // the window options, adjust params as necessary, and then re-load the
-// plugins. Once `NylasWindow::setLoadSettings` fires, the main NylasEnv in
+// plugins. Once `NylasWindow::setLoadSettings` fires, the main AppEnv in
 // the window will be notified via the `load-settings-changed` config
 //
 // Extend the standard promise class a bit
 import './promise-extensions';
 
-import NylasEnvConstructor from './nylas-env';
-window.NylasEnv = window.atom = NylasEnvConstructor.loadOrCreate();
+import AppEnvConstructor from './nylas-env';
+window.AppEnv = window.atom = AppEnvConstructor.loadOrCreate();
 
-NylasEnv.initialize();
-NylasEnv.startSecondaryWindow();
+AppEnv.initialize();
+AppEnv.startSecondaryWindow();
 
 // Workaround for focus getting cleared upon window creation
 const windowFocused = () => {

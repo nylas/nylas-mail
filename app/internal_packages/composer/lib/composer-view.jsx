@@ -157,7 +157,7 @@ export default class ComposerView extends React.Component {
     this._els.scrollregion = el;
   };
   _renderContentScrollRegion() {
-    if (NylasEnv.isComposerWindow()) {
+    if (AppEnv.isComposerWindow()) {
       return (
         <ScrollRegion
           className="compose-body-scroll"

@@ -83,7 +83,7 @@ class PreferencesMailRules extends React.Component {
     };
 
     if (needsMessageBodies()) {
-      NylasEnv.showErrorDialog(
+      AppEnv.showErrorDialog(
         "One or more of your mail rules requires the bodies of messages being processed. These rules can't be run on your entire mailbox."
       );
     }

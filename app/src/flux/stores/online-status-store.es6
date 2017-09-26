@@ -16,7 +16,7 @@ class OnlineStatusStore extends NylasStore {
     this._timeout = null;
     this._backoffScheduler = new ExponentialBackoffScheduler({ jitter: false });
 
-    if (NylasEnv.isMainWindow()) {
+    if (AppEnv.isMainWindow()) {
       Actions.checkOnlineStatus.listen(this._checkOnlineStatus);
       setTimeout(this._checkOnlineStatus, 3 * 1000); // initial check
     }

@@ -41,9 +41,9 @@ export default class Package {
       module.activate();
 
       if (module.config && typeof module.config === 'object') {
-        NylasEnv.config.setSchema(this.name, { type: 'object', properties: module.config });
+        AppEnv.config.setSchema(this.name, { type: 'object', properties: module.config });
       } else if (module.configDefaults && typeof module.configDefaults === 'object') {
-        NylasEnv.config.setDefaults(this.name, module.configDefaults);
+        AppEnv.config.setDefaults(this.name, module.configDefaults);
       }
       if (module.activateConfig) {
         module.activateConfig();
@@ -96,7 +96,7 @@ export default class Package {
 
     for (const keymapPath of keymapPaths) {
       const content = JSON.parse(fs.readFileSync(keymapPath));
-      this.disposables.push(NylasEnv.keymaps.loadKeymap(keymapPath, content));
+      this.disposables.push(AppEnv.keymaps.loadKeymap(keymapPath, content));
     }
   }
 
@@ -117,9 +117,9 @@ export default class Package {
       // styles directory not found
     }
     for (const sourcePath of stylesheets) {
-      const source = NylasEnv.themes.loadStylesheet(sourcePath, true);
+      const source = AppEnv.themes.loadStylesheet(sourcePath, true);
       this.disposables.push(
-        NylasEnv.styles.addStyleSheet(source, { sourcePath, priority: 0, context: null })
+        AppEnv.styles.addStyleSheet(source, { sourcePath, priority: 0, context: null })
       );
     }
   }
@@ -140,7 +140,7 @@ export default class Package {
     for (const menuPath of menuPaths) {
       const content = JSON.parse(fs.readFileSync(menuPath));
       if (content.menu) {
-        this.disposables.push(NylasEnv.menu.add(content.menu));
+        this.disposables.push(AppEnv.menu.add(content.menu));
       }
     }
   }

@@ -46,7 +46,7 @@ export default class SheetContainer extends React.Component {
   };
 
   _toolbarContainerElement() {
-    const { toolbar } = NylasEnv.getLoadSettings();
+    const { toolbar } = AppEnv.getLoadSettings();
     if (!toolbar) {
       return [];
     }

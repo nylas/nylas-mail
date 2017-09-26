@@ -14,7 +14,7 @@ class NativeNotifications {
   constructor() {
     if (MacNotifierNotification) {
       this._macNotificationsByTag = {};
-      NylasEnv.onBeforeUnload(() => {
+      AppEnv.onBeforeUnload(() => {
         Object.keys(this._macNotificationsByTag).forEach(key => {
           this._macNotificationsByTag[key].close();
         });

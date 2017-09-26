@@ -25,7 +25,7 @@ class AccountStore extends NylasStore {
     this.listenTo(Actions.updateAccount, this._onUpdateAccount);
     this.listenTo(Actions.reorderAccount, this._onReorderAccount);
 
-    NylasEnv.config.onDidChange(configVersionKey, async change => {
+    AppEnv.config.onDidChange(configVersionKey, async change => {
       // If we already have this version of the accounts config, it means we
       // are the ones who saved the change, and we don't need to reload.
       if (this._version / 1 === change.newValue / 1) {
@@ -37,7 +37,7 @@ class AccountStore extends NylasStore {
       const accountIds = this._accounts.map(a => a.id);
       const newAccountIds = _.difference(accountIds, oldAccountIds);
 
-      if (NylasEnv.isMainWindow() && newAccountIds.length > 0) {
+      if (AppEnv.isMainWindow() && newAccountIds.length > 0) {
         const newId = newAccountIds[0];
         Actions.focusDefaultMailboxPerspectiveForAccounts([newId], {
           sidebarAccountIds: accountIds,
@@ -73,9 +73,9 @@ class AccountStore extends NylasStore {
   _loadAccounts = () => {
     try {
       this._caches = {};
-      this._version = NylasEnv.config.get(configVersionKey) || 0;
+      this._version = AppEnv.config.get(configVersionKey) || 0;
       this._accounts = [];
-      for (const json of NylasEnv.config.get(configAccountsKey) || []) {
+      for (const json of AppEnv.config.get(configAccountsKey) || []) {
         this._accounts.push(new Account().fromJSON(json));
       }
 
@@ -83,7 +83,7 @@ class AccountStore extends NylasStore {
       // messages and these can result in very strange exceptions downstream otherwise.
       this._enforceAccountsValidity();
     } catch (error) {
-      NylasEnv.reportError(error);
+      AppEnv.reportError(error);
     }
 
     this._trigger();
@@ -116,8 +116,8 @@ class AccountStore extends NylasStore {
       return true;
     });
 
-    if (message && NylasEnv.isMainWindow()) {
-      NylasEnv.showErrorDialog(`N1 was unable to load your account preferences.\n\n${message}`);
+    if (message && AppEnv.isMainWindow()) {
+      AppEnv.showErrorDialog(`N1 was unable to load your account preferences.\n\n${message}`);
     }
   };
 
@@ -125,7 +125,7 @@ class AccountStore extends NylasStore {
     for (const account of this._accounts) {
       if (!account || !account.id) {
         const err = new Error('An invalid account was added to `this._accounts`');
-        NylasEnv.reportError(err);
+        AppEnv.reportError(err);
         this._accounts = _.compact(this._accounts);
       }
     }
@@ -144,8 +144,8 @@ class AccountStore extends NylasStore {
       delete a.settings.smtp_password;
       delete a.settings.refresh_token;
     });
-    NylasEnv.config.set(configAccountsKey, configAccounts);
-    NylasEnv.config.set(configVersionKey, this._version);
+    AppEnv.config.set(configAccountsKey, configAccounts);
+    AppEnv.config.set(configVersionKey, this._version);
     this._trigger();
   };
 

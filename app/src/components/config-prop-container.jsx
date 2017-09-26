@@ -9,7 +9,7 @@ export default class ConfigPropContainer extends React.Component {
   }
 
   componentDidMount() {
-    this.subscription = NylasEnv.config.onDidChange(null, () => {
+    this.subscription = AppEnv.config.onDidChange(null, () => {
       this.setState(this.getStateFromStores());
     });
   }
@@ -27,29 +27,29 @@ export default class ConfigPropContainer extends React.Component {
   }
 
   getConfigWithMutators() {
-    return Object.assign(NylasEnv.config.get(), {
+    return Object.assign(AppEnv.config.get(), {
       get: key => {
-        return NylasEnv.config.get(key);
+        return AppEnv.config.get(key);
       },
       set: (key, value) => {
-        NylasEnv.config.set(key, value);
+        AppEnv.config.set(key, value);
       },
       toggle: key => {
-        NylasEnv.config.set(key, !NylasEnv.config.get(key));
+        AppEnv.config.set(key, !AppEnv.config.get(key));
       },
       contains: (key, val) => {
-        const vals = NylasEnv.config.get(key);
+        const vals = AppEnv.config.get(key);
         return vals && vals instanceof Array ? vals.includes(val) : false;
       },
       toggleContains: (key, val) => {
-        let vals = NylasEnv.config.get(key);
+        let vals = AppEnv.config.get(key);
         if (!vals || !(vals instanceof Array)) {
           vals = [];
         }
         if (vals.includes(val)) {
-          NylasEnv.config.set(key, vals.filter(v => v !== val));
+          AppEnv.config.set(key, vals.filter(v => v !== val));
         } else {
-          NylasEnv.config.set(key, vals.concat([val]));
+          AppEnv.config.set(key, vals.concat([val]));
         }
       },
     });
@@ -58,7 +58,7 @@ export default class ConfigPropContainer extends React.Component {
   render() {
     return React.cloneElement(this.props.children, {
       config: this.state.config,
-      configSchema: NylasEnv.config.getSchema('core'),
+      configSchema: AppEnv.config.getSchema('core'),
     });
   }
 }

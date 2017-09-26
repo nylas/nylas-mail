@@ -106,7 +106,7 @@ export default class LabelPickerPopover extends Component {
 
       TaskQueue.waitForPerformRemote(syncbackTask).then(finishedTask => {
         if (!finishedTask.created) {
-          NylasEnv.showErrorDialog({ title: 'Error', message: `Could not create label.` });
+          AppEnv.showErrorDialog({ title: 'Error', message: `Could not create label.` });
           return;
         }
         Actions.queueTask(

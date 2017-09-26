@@ -11,7 +11,7 @@ export default class UpdateNotification extends React.Component {
   }
 
   componentDidMount() {
-    this.disposable = NylasEnv.onUpdateAvailable(() => {
+    this.disposable = AppEnv.onUpdateAvailable(() => {
       this.setState(this.getStateFromStores());
     });
   }

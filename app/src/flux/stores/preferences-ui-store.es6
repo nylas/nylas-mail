@@ -34,14 +34,14 @@ class PreferencesUIStore extends NylasStore {
   }
 
   setupListeners() {
-    if (NylasEnv.isMainWindow()) {
+    if (AppEnv.isMainWindow()) {
       this.listenTo(Actions.openPreferences, this.openPreferences);
       ipcRenderer.on('open-preferences', this.openPreferences);
 
       this.listenTo(Actions.switchPreferencesTab, this.switchPreferencesTab);
     }
 
-    NylasEnv.commands.add(document.body, 'core:show-keybindings', () => {
+    AppEnv.commands.add(document.body, 'core:show-keybindings', () => {
       Actions.openPreferences();
       Actions.switchPreferencesTab('Shortcuts');
     });

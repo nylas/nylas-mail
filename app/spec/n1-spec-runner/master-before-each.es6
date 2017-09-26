@@ -27,7 +27,7 @@ class MasterBeforeEach {
         toHaveLength: jasmineExtensions.toHaveLength,
       });
 
-      self._resetNylasEnv();
+      self._resetAppEnv();
       self._resetDatabase();
       self._resetTaskQueue();
       self._resetTimeOverride();
@@ -41,14 +41,14 @@ class MasterBeforeEach {
     });
   }
 
-  _resetNylasEnv() {
-    NylasEnv.workspaceViewParentSelector = '#jasmine-content';
+  _resetAppEnv() {
+    AppEnv.workspaceViewParentSelector = '#jasmine-content';
 
     // Don't actually write to disk
-    spyOn(NylasEnv, 'saveSync');
+    spyOn(AppEnv, 'saveSync');
 
     // prevent specs from modifying N1's menus
-    spyOn(NylasEnv.menu, 'sendToBrowserProcess');
+    spyOn(AppEnv.menu, 'sendToBrowserProcess');
 
     FocusedPerspectiveStore._current = MailboxPerspective.forNothing();
 
@@ -70,7 +70,7 @@ class MasterBeforeEach {
     //
     // @_query("BEGIN IMMEDIATE TRANSACTION") never resolves because
     // DatabaseStore._query never runs because the @_open flag is always
-    // false because we never setup the DB when `NylasEnv.inSpecMode` is
+    // false because we never setup the DB when `AppEnv.inSpecMode` is
     // true.
     spyOn(DatabaseStore, '_query').andCallFake(() => Promise.resolve([]));
   }
@@ -132,8 +132,8 @@ class MasterBeforeEach {
       return this.load();
     });
 
-    NylasEnv.config = new Config();
-    NylasEnv.loadConfig();
+    AppEnv.config = new Config();
+    AppEnv.loadConfig();
   }
 
   _resetClipboard() {

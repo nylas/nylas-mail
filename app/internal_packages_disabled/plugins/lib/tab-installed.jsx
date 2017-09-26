@@ -61,7 +61,7 @@ class TabInstalled extends React.Component {
     let devPackages = [];
     let devEmpty = (
       <span
-      >{`Run with debug flags enabled to load ${NylasEnv.getConfigDirPath()}/dev/packages.`}</span>
+      >{`Run with debug flags enabled to load ${AppEnv.getConfigDirPath()}/dev/packages.`}</span>
     );
     let devCTA = (
       <div className="btn btn-small" onClick={this._onEnableDevMode}>
@@ -69,11 +69,11 @@ class TabInstalled extends React.Component {
       </div>
     );
 
-    if (NylasEnv.inDevMode()) {
+    if (AppEnv.inDevMode()) {
       devPackages = this.state.packages.dev || [];
       devEmpty = (
         <span>
-          {`You don't have any packages installed in ${NylasEnv.getConfigDirPath()}/dev/packages. `}
+          {`You don't have any packages installed in ${AppEnv.getConfigDirPath()}/dev/packages. `}
           These plugins are only loaded when you run the app with debug flags enabled (via the
           Developer menu).<br />
           <br />Learn more about building plugins with{' '}
@@ -109,7 +109,7 @@ class TabInstalled extends React.Component {
             emptyText={
               searchEmpty || (
                 <span
-                >{`You don't have any plugins installed in ${NylasEnv.getConfigDirPath()}/packages.`}</span>
+                >{`You don't have any plugins installed in ${AppEnv.getConfigDirPath()}/packages.`}</span>
               )
             }
           />

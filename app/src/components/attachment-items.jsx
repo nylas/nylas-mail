@@ -110,7 +110,7 @@ export class AttachmentItem extends Component {
 
   _previewAttachment() {
     const { filePath } = this.props;
-    const currentWin = NylasEnv.getCurrentWindow();
+    const currentWin = AppEnv.getCurrentWindow();
     currentWin.previewFile(filePath);
   }
 

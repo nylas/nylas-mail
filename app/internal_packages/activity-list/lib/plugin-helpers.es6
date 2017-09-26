@@ -1,6 +1,6 @@
 export function pluginFor(id) {
-  const openTrackingId = NylasEnv.packages.pluginIdFor('open-tracking');
-  const linkTrackingId = NylasEnv.packages.pluginIdFor('link-tracking');
+  const openTrackingId = AppEnv.packages.pluginIdFor('open-tracking');
+  const linkTrackingId = AppEnv.packages.pluginIdFor('link-tracking');
   if (id === openTrackingId) {
     return {
       name: 'open',

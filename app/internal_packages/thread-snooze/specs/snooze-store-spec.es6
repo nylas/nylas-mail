@@ -50,8 +50,8 @@ xdescribe('SnoozeStore', function snoozeStore() {
     spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
     spyOn(SnoozeUtils, 'moveThreads');
     spyOn(Actions, 'closePopover');
-    spyOn(NylasEnv, 'reportError');
-    spyOn(NylasEnv, 'showErrorDialog');
+    spyOn(AppEnv, 'reportError');
+    spyOn(AppEnv, 'showErrorDialog');
   });
 
   describe('groupUpdatedThreads', () => {
@@ -124,8 +124,8 @@ xdescribe('SnoozeStore', function snoozeStore() {
           //
         }
         expect(SnoozeUtils.moveThreads).toHaveBeenCalled();
-        expect(NylasEnv.reportError).toHaveBeenCalled();
-        expect(NylasEnv.showErrorDialog).toHaveBeenCalled();
+        expect(AppEnv.reportError).toHaveBeenCalled();
+        expect(AppEnv.showErrorDialog).toHaveBeenCalled();
       });
     });
   });

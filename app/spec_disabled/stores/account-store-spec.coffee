@@ -34,7 +34,7 @@ describe "AccountStore", ->
           "__cls":"Account",
         }]
 
-      spyOn(NylasEnv.config, 'get').andCallFake (key) =>
+      spyOn(AppEnv.config, 'get').andCallFake (key) =>
         return 'production' if key is 'env'
         return @configAccounts if key is 'accounts'
         return @configVersion if key is 'accountsVersion'
@@ -45,7 +45,7 @@ describe "AccountStore", ->
 
   describe "initialization", ->
     beforeEach ->
-      spyOn(NylasEnv.config, 'set')
+      spyOn(AppEnv.config, 'set')
       @spyOnConfig()
 
     it "should initialize the accounts and version from config", ->
@@ -93,7 +93,7 @@ describe "AccountStore", ->
         "provider":"gmail",
         "__cls":"Account",
       @instance = new @constructor
-      spyOn(NylasEnv.config, "set")
+      spyOn(AppEnv.config, "set")
       spyOn(@instance, "trigger")
       @instance.addAccountFromJSON(@json, "LOCAL_TOKEN", "CLOUD_TOKEN")
 
@@ -106,10 +106,10 @@ describe "AccountStore", ->
       account = (new Account).fromJSON(@json)
       expect(@instance._accounts.length).toBe 1
       expect(@instance._accounts[0]).toEqual account
-      expect(NylasEnv.config.set.calls.length).toBe 2
-      expect(NylasEnv.config.set.calls[0].args).toEqual(['accounts', [account.toJSON()]])
+      expect(AppEnv.config.set.calls.length).toBe 2
+      expect(AppEnv.config.set.calls[0].args).toEqual(['accounts', [account.toJSON()]])
       # Version must be updated last since it will trigger other windows to load accounts
-      expect(NylasEnv.config.set.calls[1].args).toEqual(['accountsVersion', 1])
+      expect(AppEnv.config.set.calls[1].args).toEqual(['accountsVersion', 1])
 
     it "triggers", ->
       expect(@instance.trigger).toHaveBeenCalled()
@@ -150,7 +150,7 @@ describe "AccountStore", ->
 
   describe "handleAuthenticationFailure", ->
     beforeEach ->
-      spyOn(NylasEnv.config, 'set')
+      spyOn(AppEnv.config, 'set')
       @spyOnConfig()
       @instance = new @constructor
       spyOn(@instance, "trigger")
@@ -177,7 +177,7 @@ describe "AccountStore", ->
 
   describe "isMyEmail", ->
     beforeEach ->
-      spyOn(NylasEnv.config, 'set')
+      spyOn(AppEnv.config, 'set')
       @spyOnConfig()
       @instance = new @constructor
 

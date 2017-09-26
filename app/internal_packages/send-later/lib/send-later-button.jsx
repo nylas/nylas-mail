@@ -106,12 +106,12 @@ class SendLaterButton extends Component {
 
       session.changes.addPluginMetadata(PLUGIN_ID, { expiration });
 
-      if (expiration && NylasEnv.isComposerWindow()) {
-        NylasEnv.close();
+      if (expiration && AppEnv.isComposerWindow()) {
+        AppEnv.close();
       }
     } catch (error) {
-      NylasEnv.reportError(error);
-      NylasEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
+      AppEnv.reportError(error);
+      AppEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
     }
 
     if (!this.mounted) {

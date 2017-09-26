@@ -136,7 +136,7 @@ export default class MovePickerPopover extends Component {
 
     TaskQueue.waitForPerformRemote(syncbackTask).then(finishedTask => {
       if (!finishedTask.created) {
-        NylasEnv.showErrorDialog({ title: 'Error', message: `Could not create folder.` });
+        AppEnv.showErrorDialog({ title: 'Error', message: `Could not create folder.` });
         return;
       }
       this._onMoveToCategory({ category: finishedTask.created });

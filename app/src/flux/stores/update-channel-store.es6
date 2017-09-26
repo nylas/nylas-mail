@@ -11,7 +11,7 @@ class UpdateChannelStore extends NylasStore {
     this._current = { name: 'Loading...' };
     this._available = [{ name: 'Loading...' }];
 
-    if (NylasEnv.isMainWindow()) {
+    if (AppEnv.isMainWindow()) {
       this.refreshChannel();
     }
   }
@@ -66,7 +66,7 @@ class UpdateChannelStore extends NylasStore {
       this._available = available || [];
       this.trigger();
     } catch (err) {
-      NylasEnv.showErrorDialog(err.toString());
+      AppEnv.showErrorDialog(err.toString());
       this.trigger();
     }
     return null;

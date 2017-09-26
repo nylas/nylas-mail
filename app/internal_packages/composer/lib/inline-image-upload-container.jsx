@@ -111,7 +111,7 @@ export default class InlineImageUploadContainer extends Component {
 
           fs.writeFile(nextFilePath, buffer, err => {
             if (err) {
-              NylasEnv.showErrorDialog(err.toString());
+              AppEnv.showErrorDialog(err.toString());
               return;
             }
             const img = el.querySelector('.file-preview img');

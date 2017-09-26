@@ -56,7 +56,7 @@ export default class MetadataComposerToggleButton extends React.Component {
   }
 
   _isEnabledByDefault() {
-    return NylasEnv.config.get(this._configKey()) !== false;
+    return AppEnv.config.get(this._configKey()) !== false;
   }
 
   async _setEnabled(enabled) {
@@ -72,19 +72,19 @@ export default class MetadataComposerToggleButton extends React.Component {
       const { stickyToggle, errorMessage } = this.props;
 
       if (stickyToggle) {
-        NylasEnv.config.set(this._configKey(), false);
+        AppEnv.config.set(this._configKey(), false);
       }
 
       let title = 'Error';
       if (!(error instanceof APIError)) {
-        NylasEnv.reportError(error);
+        AppEnv.reportError(error);
       } else if (error.statusCode === 400) {
-        NylasEnv.reportError(error);
+        AppEnv.reportError(error);
       } else if (NylasAPIRequest.TimeoutErrorCodes.includes(error.statusCode)) {
         title = 'Offline';
       }
 
-      NylasEnv.showErrorDialog({ title, message: errorMessage(error) });
+      AppEnv.showErrorDialog({ title, message: errorMessage(error) });
     }
 
     this.setState({ pending: false });
@@ -99,7 +99,7 @@ export default class MetadataComposerToggleButton extends React.Component {
     const dir = enabled ? 'Disabled' : 'Enabled';
     Actions.recordUserEvent(`${this.props.pluginName} ${dir}`);
     if (this.props.stickyToggle) {
-      NylasEnv.config.set(this._configKey(), !enabled);
+      AppEnv.config.set(this._configKey(), !enabled);
     }
     this._setEnabled(!enabled);
   };

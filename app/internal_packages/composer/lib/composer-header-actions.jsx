@@ -59,7 +59,7 @@ export default class ComposerHeaderActions extends React.Component {
       );
     }
 
-    if (!NylasEnv.isComposerWindow()) {
+    if (!AppEnv.isComposerWindow()) {
       items.push(
         <span
           className="action show-popout"

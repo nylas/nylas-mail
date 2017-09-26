@@ -18,12 +18,12 @@ class TipsStoreCls extends NylasStore {
   }
 
   isTipVisible(key) {
-    const seen = NylasEnv.config.get('core.tutorial.seen') || [];
+    const seen = AppEnv.config.get('core.tutorial.seen') || [];
     return this._tipKeys.find(t => !seen.includes(t)) === key;
   }
 
   hasSeenTip(key) {
-    return (NylasEnv.config.get('core.tutorial.seen') || []).includes(key);
+    return (AppEnv.config.get('core.tutorial.seen') || []).includes(key);
   }
 
   // Actions: Since this is a private store just inside this file, we call
@@ -38,7 +38,7 @@ class TipsStoreCls extends NylasStore {
 
   seenTip = key => {
     this._tipKeys = this._tipKeys.filter(t => t !== key);
-    NylasEnv.config.pushAtKeyPath('core.tutorial.seen', key);
+    AppEnv.config.pushAtKeyPath('core.tutorial.seen', key);
     this.trigger();
   };
 
@@ -131,7 +131,7 @@ export default function HasTutorialTip(ComposedComponent, TipConfig) {
         }),
       ];
       this._disposables = [
-        NylasEnv.themes.onDidChangeActiveThemes(() => {
+        AppEnv.themes.onDidChangeActiveThemes(() => {
           this._themesTimer = setTimeout(this._onRecomputeTooltipPosition, 0);
         }),
       ];

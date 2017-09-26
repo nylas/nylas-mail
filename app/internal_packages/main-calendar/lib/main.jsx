@@ -7,7 +7,7 @@
 
 //
 // function resolveHelperPath(callback) {
-//   const resourcesPath = NylasEnv.getLoadSettings().resourcePath;
+//   const resourcesPath = AppEnv.getLoadSettings().resourcePath;
 //   let pathToCalendarApp = path.join(resourcesPath, '..', 'Nylas Calendar.app');
 //
 //   fs.exists(pathToCalendarApp, (exists) => {
@@ -41,15 +41,15 @@ export function activate() {
   //       exec(`open "${helperPath}"`);
   //     });
   //
-  //     if (!NylasEnv.config.get('addedToDockCalendar')) {
+  //     if (!AppEnv.config.get('addedToDockCalendar')) {
   //       exec(`defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${helperPath}/</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"`, () => {
-  //         NylasEnv.config.set('addedToDockCalendar', true);
+  //         AppEnv.config.set('addedToDockCalendar', true);
   //         exec(`killall Dock`);
   //       });
   //     }
   //   });
   //
-  //   NylasEnv.onBeforeUnload(() => {
+  //   AppEnv.onBeforeUnload(() => {
   //     exec('killall "Nylas Calendar"');
   //     return true;
   //   });

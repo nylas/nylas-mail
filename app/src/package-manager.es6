@@ -52,14 +52,14 @@ export default class PackageManager {
           const wrapped = new Error(
             `Unable to read package.json for ${filename}: ${err.toString()}`
           );
-          NylasEnv.reportError(wrapped);
+          AppEnv.reportError(wrapped);
         }
       }
     }
   }
 
   activatePackages(windowType) {
-    const disabled = NylasEnv.config.get('core.disabledPackages');
+    const disabled = AppEnv.config.get('core.disabledPackages');
 
     for (const name of Object.keys(this.available)) {
       const pkg = this.available[name];
@@ -77,7 +77,7 @@ export default class PackageManager {
       }
 
       if (!pkg.json.engines.mailspring) {
-        // don't use NylasEnv.reportError, I don't want to know about these.
+        // don't use AppEnv.reportError, I don't want to know about these.
         console.error(
           `The package ${pkg.name} does not list "mailspring" in it's package.json's "engines" field. Ask the developer to test the plugin with Mailspring and add it.`
         );

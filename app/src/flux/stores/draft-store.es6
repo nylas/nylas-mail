@@ -43,7 +43,7 @@ class DraftStore extends NylasStore {
     this.listenTo(Actions.didCancelSendAction, this._onDidCancelSendAction);
     this.listenTo(Actions.sendQuickReply, this._onSendQuickReply);
 
-    if (NylasEnv.isMainWindow()) {
+    if (AppEnv.isMainWindow()) {
       ipcRenderer.on('new-message', () => {
         Actions.composeNewBlankDraft();
       });
@@ -55,7 +55,7 @@ class DraftStore extends NylasStore {
     this.listenTo(Actions.sendDraft, this._onSendDraft);
     this.listenTo(Actions.destroyDraft, this._onDestroyDraft);
 
-    NylasEnv.onBeforeUnload(this._onBeforeUnload);
+    AppEnv.onBeforeUnload(this._onBeforeUnload);
 
     this._draftSessions = {};
     this._draftsSending = {};
@@ -273,7 +273,7 @@ class DraftStore extends NylasStore {
         // Since we pass a windowKey, if the popout composer draft already
         // exists we'll simply show that one instead of spawning a whole new
         // window.
-        NylasEnv.newWindow({
+        AppEnv.newWindow({
           title,
           hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
           windowKey: `composer-${headerMessageId}`,
@@ -291,7 +291,7 @@ class DraftStore extends NylasStore {
         return this._finalizeAndPersistNewMessage(draft, { popout: true });
       })
       .catch(err => {
-        NylasEnv.showErrorDialog(err.toString());
+        AppEnv.showErrorDialog(err.toString());
       });
   };
 
@@ -341,8 +341,8 @@ class DraftStore extends NylasStore {
     // Queue the task to destroy the draft
     Actions.queueTask(new DestroyDraftTask({ accountId, messageIds: [id] }));
 
-    if (NylasEnv.isComposerWindow()) {
-      NylasEnv.close();
+    if (AppEnv.isComposerWindow()) {
+      AppEnv.close();
     }
   };
 
@@ -354,7 +354,7 @@ class DraftStore extends NylasStore {
       throw new Error(`Cant find send action ${sendActionKey} `);
     }
 
-    if (NylasEnv.config.get('core.sending.sounds')) {
+    if (AppEnv.config.get('core.sending.sounds')) {
       SoundRegistry.playSound('hit-send');
     }
 
@@ -372,8 +372,8 @@ class DraftStore extends NylasStore {
     await sendAction.performSendAction({ draft });
     this._doneWithSession(session);
 
-    if (NylasEnv.isComposerWindow()) {
-      NylasEnv.close();
+    if (AppEnv.isComposerWindow()) {
+      AppEnv.close();
     }
   };
 
@@ -391,7 +391,7 @@ class DraftStore extends NylasStore {
     this._draftsSending[headerMessageId] = false;
     this.trigger({ headerMessageId });
 
-    if (NylasEnv.isMainWindow()) {
+    if (AppEnv.isMainWindow()) {
       // We delay so the view has time to update the restored draft. If we
       // don't delay the modal may come up in a state where the draft looks
       // like it hasn't been restored or has been lost.
@@ -401,7 +401,7 @@ class DraftStore extends NylasStore {
       setTimeout(() => {
         const focusedThread = FocusedContentStore.focused('thread');
         if (threadId && focusedThread && focusedThread.id === threadId) {
-          NylasEnv.showErrorDialog(errorMessage, { detail: errorDetail });
+          AppEnv.showErrorDialog(errorMessage, { detail: errorDetail });
         } else {
           Actions.composePopoutDraft(headerMessageId, { errorMessage, errorDetail });
         }

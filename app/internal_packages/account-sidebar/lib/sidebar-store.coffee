@@ -20,7 +20,7 @@ Sections = {
 class SidebarStore extends NylasStore
 
   constructor: ->
-    NylasEnv.savedState.sidebarKeysCollapsed ?= {}
+    AppEnv.savedState.sidebarKeysCollapsed ?= {}
 
     @_sections = {}
     @_sections[Sections.Standard] = {}
@@ -52,7 +52,7 @@ class SidebarStore extends NylasStore
     @listenTo ThreadCountsStore, @_updateSections
     @listenTo CategoryStore, @_updateSections
 
-    @configSubscription = NylasEnv.config.onDidChange(
+    @configSubscription = AppEnv.config.onDidChange(
       'core.workspace.showUnreadForAllCategories',
       @_updateSections
     )
@@ -60,9 +60,9 @@ class SidebarStore extends NylasStore
     return
 
   _onSetCollapsedByKey: (itemKey, collapsed) =>
-    currentValue = NylasEnv.savedState.sidebarKeysCollapsed[itemKey]
+    currentValue = AppEnv.savedState.sidebarKeysCollapsed[itemKey]
     if currentValue isnt collapsed
-      NylasEnv.savedState.sidebarKeysCollapsed[itemKey] = collapsed
+      AppEnv.savedState.sidebarKeysCollapsed[itemKey] = collapsed
       @_updateSections()
 
   _onSetCollapsedByName: (itemName, collapsed) =>

@@ -24,7 +24,7 @@ export default class DefaultClientNotification extends React.Component {
         });
       }
     });
-    this.disposable = NylasEnv.config.onDidChange(SETTINGS_KEY, () =>
+    this.disposable = AppEnv.config.onDidChange(SETTINGS_KEY, () =>
       this.setState(this.getStateFromStores())
     );
   }
@@ -36,21 +36,21 @@ export default class DefaultClientNotification extends React.Component {
 
   getStateFromStores() {
     return {
-      alreadyPrompted: NylasEnv.config.get(SETTINGS_KEY),
+      alreadyPrompted: AppEnv.config.get(SETTINGS_KEY),
     };
   }
 
   _onAccept = () => {
     this.helper.registerForURLScheme('mailto', err => {
       if (err) {
-        NylasEnv.reportError(err);
+        AppEnv.reportError(err);
       }
     });
-    NylasEnv.config.set(SETTINGS_KEY, true);
+    AppEnv.config.set(SETTINGS_KEY, true);
   };
 
   _onDecline = () => {
-    NylasEnv.config.set(SETTINGS_KEY, true);
+    AppEnv.config.set(SETTINGS_KEY, true);
   };
 
   render() {

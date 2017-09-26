@@ -277,7 +277,7 @@ export default class QuerySubscription {
     }
 
     if (error) {
-      NylasEnv.reportError(error);
+      AppEnv.reportError(error);
       this._set = null;
       this.update();
       return;

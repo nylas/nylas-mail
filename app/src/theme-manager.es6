@@ -29,7 +29,7 @@ export default class ThemeManager {
     this.lessCache = null;
 
     this.setBodyClasses();
-    NylasEnv.config.onDidChange(CONFIG_THEME_KEY, () => {
+    AppEnv.config.onDidChange(CONFIG_THEME_KEY, () => {
       this.setBodyClasses();
       if (this.lessCache) {
         this.lessCache.setImportPaths(this.getImportPaths());
@@ -78,7 +78,7 @@ export default class ThemeManager {
 
   getActiveTheme() {
     return (
-      this.packageManager.getPackageNamed(NylasEnv.config.get(CONFIG_THEME_KEY)) ||
+      this.packageManager.getPackageNamed(AppEnv.config.get(CONFIG_THEME_KEY)) ||
       this.getBaseTheme()
     );
   }
@@ -91,7 +91,7 @@ export default class ThemeManager {
   //  * `packageName` {string} - the theme package to activate
   //
   setActiveTheme(packageName) {
-    NylasEnv.config.set(CONFIG_THEME_KEY, packageName);
+    AppEnv.config.set(CONFIG_THEME_KEY, packageName);
     // because we're observing the config, changes will be applied
   }
 
@@ -123,7 +123,7 @@ export default class ThemeManager {
       throw new Error(`Could not find a file at path '${stylesheetPath}'`);
     }
     const content = this.loadStylesheet(sourcePath);
-    this.styleSheetDisposablesBySourcePath[sourcePath] = NylasEnv.styles.addStyleSheet(content, {
+    this.styleSheetDisposablesBySourcePath[sourcePath] = AppEnv.styles.addStyleSheet(content, {
       sourcePath,
     });
   }

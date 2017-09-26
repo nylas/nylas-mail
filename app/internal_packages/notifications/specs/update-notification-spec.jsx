@@ -55,9 +55,9 @@ describe('UpdateNotification', function describeBlock() {
     });
 
     it('should listen for `window:update-available`', () => {
-      spyOn(NylasEnv, 'onUpdateAvailable').andCallThrough();
+      spyOn(AppEnv, 'onUpdateAvailable').andCallThrough();
       mount(<UpdateNotification />);
-      expect(NylasEnv.onUpdateAvailable).toHaveBeenCalled();
+      expect(AppEnv.onUpdateAvailable).toHaveBeenCalled();
     });
   });
 

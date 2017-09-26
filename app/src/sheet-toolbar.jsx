@@ -30,12 +30,12 @@ class WindowTitle extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = NylasEnv.getLoadSettings();
+    this.state = AppEnv.getLoadSettings();
   }
 
   componentDidMount() {
-    this.disposable = NylasEnv.onWindowPropsReceived(() =>
-      this.setState(NylasEnv.getLoadSettings())
+    this.disposable = AppEnv.onWindowPropsReceived(() =>
+      this.setState(AppEnv.getLoadSettings())
     );
   }
 
@@ -127,17 +127,17 @@ class ToolbarWindowControls extends React.Component {
 
   _onMaximize = event => {
     if (process.platform === 'darwin' && !event.altKey) {
-      NylasEnv.setFullScreen(!NylasEnv.isFullScreen());
+      AppEnv.setFullScreen(!AppEnv.isFullScreen());
     } else {
-      NylasEnv.maximize();
+      AppEnv.maximize();
     }
   };
 
   render() {
     return (
       <div name="ToolbarWindowControls" className={`toolbar-window-controls alt-${this.state.alt}`}>
-        <button tabIndex={-1} className="close" onClick={() => NylasEnv.close()} />
-        <button tabIndex={-1} className="minimize" onClick={() => NylasEnv.minimize()} />
+        <button tabIndex={-1} className="close" onClick={() => AppEnv.close()} />
+        <button tabIndex={-1} className="minimize" onClick={() => AppEnv.minimize()} />
         <button tabIndex={-1} className="maximize" onClick={this._onMaximize} />
       </div>
     );
@@ -149,7 +149,7 @@ class ToolbarMenuControl extends React.Component {
 
   _onOpenMenu = () => {
     const { applicationMenu } = remote.getGlobal('application');
-    applicationMenu.menu.popup(NylasEnv.getCurrentWindow());
+    applicationMenu.menu.popup(AppEnv.getCurrentWindow());
   };
 
   render() {

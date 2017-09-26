@@ -39,8 +39,8 @@ const _openExternalThread = (event, nylasUrl) => {
       Actions.popoutThread(thread);
     })
     .catch(error => {
-      NylasEnv.reportError(error);
-      NylasEnv.showErrorDialog(`The thread ${subject} does not exist in your mailbox!`);
+      AppEnv.reportError(error);
+      AppEnv.showErrorDialog(`The thread ${subject} does not exist in your mailbox!`);
     });
 };
 

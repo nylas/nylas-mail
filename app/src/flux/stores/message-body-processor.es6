@@ -151,7 +151,7 @@ class MessageBodyProcessor {
           extension.formatMessageBody({ message: virtual });
           body = virtual.body;
         } catch (err) {
-          NylasEnv.reportError(err);
+          AppEnv.reportError(err);
           body = previousBody;
         }
       }

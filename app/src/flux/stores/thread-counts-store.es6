@@ -8,7 +8,7 @@ class ThreadCountsStore extends NylasStore {
     super();
     this._counts = {};
 
-    if (NylasEnv.isMainWindow()) {
+    if (AppEnv.isMainWindow()) {
       // For now, unread counts are only retrieved in the main window.
       this._onCountsChangedDebounced = _.throttle(this._onCountsChanged, 1000);
       DatabaseStore.listen(change => {

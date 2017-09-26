@@ -14,8 +14,8 @@ class UndoRedoStore extends NylasStore {
     this.listenTo(Actions.queueTask, this._onQueue);
     this.listenTo(Actions.queueTasks, this._onQueue);
 
-    NylasEnv.commands.add(document.body, { 'core:undo': this.undo });
-    NylasEnv.commands.add(document.body, { 'core:redo': this.redo });
+    AppEnv.commands.add(document.body, { 'core:undo': this.undo });
+    AppEnv.commands.add(document.body, { 'core:redo': this.redo });
   }
 
   _onQueue = taskOrTasks => {

@@ -65,13 +65,13 @@ class AnalyticsStore extends NylasStore {
 
   // Properties applied to all events and all people during an identify.
   superTraits() {
-    const theme = NylasEnv.themes ? NylasEnv.themes.getActiveTheme() : null;
+    const theme = AppEnv.themes ? AppEnv.themes.getActiveTheme() : null;
 
     return {
-      version: NylasEnv.getVersion().split('-')[0],
+      version: AppEnv.getVersion().split('-')[0],
       platform: process.platform,
       activeTheme: theme ? theme.name : null,
-      workspaceMode: NylasEnv.config.get('core.workspace.mode'),
+      workspaceMode: AppEnv.config.get('core.workspace.mode'),
     };
   }
 
@@ -98,7 +98,7 @@ class AnalyticsStore extends NylasStore {
   }
 
   track(eventName, eventArgs = {}) {
-    // if (NylasEnv.inDevMode()) { return }
+    // if (AppEnv.inDevMode()) { return }
 
     const identity = IdentityStore.identity();
     if (!(identity && identity.id)) {
@@ -113,17 +113,17 @@ class AnalyticsStore extends NylasStore {
   }
 
   firstDaySeen() {
-    let firstDaySeen = NylasEnv.config.get('firstDaySeen');
+    let firstDaySeen = AppEnv.config.get('firstDaySeen');
     if (!firstDaySeen) {
       const [y, m, d] = new Date().toISOString().split(/[-|T]/);
       firstDaySeen = `${m}/${d}/${y}`;
-      NylasEnv.config.set('firstDaySeen', firstDaySeen);
+      AppEnv.config.set('firstDaySeen', firstDaySeen);
     }
     return firstDaySeen;
   }
 
   identify = () => {
-    if (!NylasEnv.isMainWindow()) {
+    if (!AppEnv.isMainWindow()) {
       return;
     }
 

@@ -26,7 +26,7 @@ xdescribe "Task", ->
 
       describe "when performLocal rejects", ->
         beforeEach ->
-          spyOn(NylasEnv, "reportError")
+          spyOn(AppEnv, "reportError")
           spyOn(@task, 'performLocal').andCallFake =>
             Promise.reject(new Error("Oh no!"))
 
@@ -145,7 +145,7 @@ xdescribe "Task", ->
 
       describe "when performRemote resolves with Task.Status.Failed", ->
         beforeEach ->
-          spyOn(NylasEnv, "reportError")
+          spyOn(AppEnv, "reportError")
           @error = new APIError("Oh no!")
           spyOn(@task, 'performRemote').andCallFake =>
             Promise.resolve(Task.Status.Failed)
@@ -158,11 +158,11 @@ xdescribe "Task", ->
               expect(@task.queueState.remoteError instanceof Error).toBe true
               expect(@task.queueState.remoteAttempts).toBe(1)
               expect(@task.queueState.status).toBe(Task.Status.Failed)
-              expect(NylasEnv.reportError).not.toHaveBeenCalled()
+              expect(AppEnv.reportError).not.toHaveBeenCalled()
 
       describe "when performRemote resolves with Task.Status.Failed and an error", ->
         beforeEach ->
-          spyOn(NylasEnv, "reportError")
+          spyOn(AppEnv, "reportError")
           @error = new APIError("Oh no!")
           spyOn(@task, 'performRemote').andCallFake =>
             Promise.resolve([Task.Status.Failed, @error])
@@ -175,11 +175,11 @@ xdescribe "Task", ->
               expect(@task.queueState.remoteError).toBe(@error)
               expect(@task.queueState.remoteAttempts).toBe(1)
               expect(@task.queueState.status).toBe(Task.Status.Failed)
-              expect(NylasEnv.reportError).not.toHaveBeenCalled()
+              expect(AppEnv.reportError).not.toHaveBeenCalled()
 
       describe "when performRemote rejects with Task.Status.Failed", ->
         beforeEach ->
-          spyOn(NylasEnv, "reportError")
+          spyOn(AppEnv, "reportError")
           @error = new APIError("Oh no!")
           spyOn(@task, 'performRemote').andCallFake =>
             Promise.reject([Task.Status.Failed, @error])
@@ -192,11 +192,11 @@ xdescribe "Task", ->
               expect(@task.queueState.remoteError).toBe(@error)
               expect(@task.queueState.remoteAttempts).toBe(1)
               expect(@task.queueState.status).toBe(Task.Status.Failed)
-              expect(NylasEnv.reportError).not.toHaveBeenCalled()
+              expect(AppEnv.reportError).not.toHaveBeenCalled()
 
       describe "when performRemote throws an unknown error", ->
         beforeEach ->
-          spyOn(NylasEnv, "reportError")
+          spyOn(AppEnv, "reportError")
           @error = new Error("Oh no!")
           spyOn(@task, 'performRemote').andCallFake =>
             throw @error
@@ -210,4 +210,4 @@ xdescribe "Task", ->
               expect(@task.queueState.remoteAttempts).toBe(1)
               expect(@task.queueState.status).toBe(Task.Status.Failed)
               expect(@task.queueState.debugStatus).toBe(Task.DebugStatus.UncaughtError)
-              expect(NylasEnv.reportError).toHaveBeenCalledWith(@error)
+              expect(AppEnv.reportError).toHaveBeenCalledWith(@error)

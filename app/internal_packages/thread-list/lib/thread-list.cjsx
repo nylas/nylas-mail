@@ -172,7 +172,7 @@ class ThreadList extends React.Component
       Actions.queueTasks(tasks)
       callback(true)
 
-    disabledPackages = NylasEnv.config.get('core.disabledPackages') ? []
+    disabledPackages = AppEnv.config.get('core.disabledPackages') ? []
     if 'thread-snooze' in disabledPackages
       return props
 
@@ -266,7 +266,7 @@ class ThreadList extends React.Component
     }))
 
   _onSnoozeItem: =>
-    disabledPackages = NylasEnv.config.get('core.disabledPackages') ? []
+    disabledPackages = AppEnv.config.get('core.disabledPackages') ? []
     if 'thread-snooze' in disabledPackages
       return
 
@@ -287,7 +287,7 @@ class ThreadList extends React.Component
   _onSetImportant: (important) =>
     threads = @_threadsForKeyboardAction()
     return unless threads
-    return unless NylasEnv.config.get('core.workspace.showImportant')
+    return unless AppEnv.config.get('core.workspace.showImportant')
 
     Actions.queueTasks(TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => 
       return new ChangeLabelsTask({

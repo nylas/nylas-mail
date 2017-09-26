@@ -52,7 +52,7 @@ describe "ComposerHeaderActions", ->
     expect(els.length).toBe 1
 
   it "doesn't render 'popout composer' if in a composer window", ->
-    spyOn(NylasEnv, 'isComposerWindow').andReturn(true)
+    spyOn(AppEnv, 'isComposerWindow').andReturn(true)
     makeField.call(@, {enabledFields: [Fields.To], participantsFocused: true})
     els = ReactTestUtils.scryRenderedDOMComponentsWithClass(@component, "show-popout")
     expect(els.length).toBe 0

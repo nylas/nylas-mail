@@ -46,7 +46,7 @@ class DatePickerPopover extends Component {
       this._menuComponent.clearSelection();
       this.selectDate(date, 'Custom');
     } else {
-      NylasEnv.showErrorDialog(`Sorry, we can't interpret ${inputValue} as a valid date.`);
+      AppEnv.showErrorDialog(`Sorry, we can't interpret ${inputValue} as a valid date.`);
     }
   };
 

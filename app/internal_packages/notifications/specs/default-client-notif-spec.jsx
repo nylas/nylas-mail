@@ -28,9 +28,9 @@ describe('DefaultClientNotif', function DefaultClientNotifTests() {
     });
     describe('when the user has already responded', () => {
       beforeEach(() => {
-        spyOn(NylasEnv.config, 'get').andReturn(true);
+        spyOn(AppEnv.config, 'get').andReturn(true);
         this.notif = mount(<DefaultClientNotification />);
-        expect(NylasEnv.config.get).toHaveBeenCalledWith(SETTINGS_KEY);
+        expect(AppEnv.config.get).toHaveBeenCalledWith(SETTINGS_KEY);
       });
       it('renders nothing', () => {
         expect(this.notif.find('.notification').exists()).toEqual(false);
@@ -39,9 +39,9 @@ describe('DefaultClientNotif', function DefaultClientNotifTests() {
 
     describe('when the user has yet to respond', () => {
       beforeEach(() => {
-        spyOn(NylasEnv.config, 'get').andReturn(false);
+        spyOn(AppEnv.config, 'get').andReturn(false);
         this.notif = mount(<DefaultClientNotification />);
-        expect(NylasEnv.config.get).toHaveBeenCalledWith(SETTINGS_KEY);
+        expect(AppEnv.config.get).toHaveBeenCalledWith(SETTINGS_KEY);
       });
       it('renders a notification', () => {
         expect(this.notif.find('.notification').exists()).toEqual(true);
@@ -57,9 +57,9 @@ describe('DefaultClientNotif', function DefaultClientNotifTests() {
       });
 
       it('allows the user to decline', () => {
-        spyOn(NylasEnv.config, 'set');
+        spyOn(AppEnv.config, 'set');
         this.notif.find('#action-1').simulate('click'); // Expects second action to decline
-        expect(NylasEnv.config.set).toHaveBeenCalledWith(SETTINGS_KEY, true);
+        expect(AppEnv.config.set).toHaveBeenCalledWith(SETTINGS_KEY, true);
       });
     });
   });

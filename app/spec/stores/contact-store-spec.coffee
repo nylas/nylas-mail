@@ -10,7 +10,7 @@ AccountStore = require('../../src/flux/stores/account-store').default
 
 xdescribe "ContactStore", ->
   beforeEach ->
-    spyOn(NylasEnv, "isMainWindow").andReturn true
+    spyOn(AppEnv, "isMainWindow").andReturn true
     ContactStore._contactCache = []
     ContactStore._fetchOffset = 0
     ContactStore._accountId = null

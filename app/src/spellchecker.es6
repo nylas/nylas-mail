@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 const MenuItem = remote.MenuItem;
-const customDictFilePath = path.join(NylasEnv.getConfigDirPath(), 'custom-dict.json');
+const customDictFilePath = path.join(AppEnv.getConfigDirPath(), 'custom-dict.json');
 
 class Spellchecker {
   constructor() {
@@ -27,7 +27,7 @@ class Spellchecker {
       this._loadCustomDict();
     };
 
-    if (NylasEnv.inSpecMode()) {
+    if (AppEnv.inSpecMode()) {
       initHandler();
     } else {
       setTimeout(initHandler, 5000);
@@ -42,7 +42,7 @@ class Spellchecker {
           // File doesn't exist, we haven't saved any words yet
           fileData = '{}';
         } else {
-          NylasEnv.reportError(err);
+          AppEnv.reportError(err);
           return;
         }
       }
@@ -69,7 +69,7 @@ class Spellchecker {
         this._savingCustomDict = true;
         fs.writeFile(customDictFilePath, JSON.stringify(this._customDict), err => {
           if (err) {
-            NylasEnv.reportError(err);
+            AppEnv.reportError(err);
           }
           this._savingCustomDict = false;
           if (this._saveAgain) {

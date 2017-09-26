@@ -49,7 +49,7 @@ class MessageAttachments extends Component {
     const displayName = file.displayName();
     const displaySize = file.displayFileSize();
     const contentType = file.contentType;
-    const displayFilePreview = NylasEnv.config.get('core.attachments.displayFilePreview');
+    const displayFilePreview = AppEnv.config.get('core.attachments.displayFilePreview');
     const filePreviewPath = displayFilePreview ? filePreviewPaths[file.id] : null;
 
     return (

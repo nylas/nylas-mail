@@ -123,10 +123,10 @@ Rx.Observable.fromListSelection = originStore => {
 
 Rx.Observable.fromConfig = configKey => {
   return Rx.Observable.create(observer => {
-    const disposable = NylasEnv.config.onDidChange(configKey, () =>
-      observer.onNext(NylasEnv.config.get(configKey))
+    const disposable = AppEnv.config.onDidChange(configKey, () =>
+      observer.onNext(AppEnv.config.get(configKey))
     );
-    observer.onNext(NylasEnv.config.get(configKey));
+    observer.onNext(AppEnv.config.get(configKey));
     return Rx.Disposable.create(disposable.dispose);
   });
 };

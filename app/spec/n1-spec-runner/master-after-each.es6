@@ -4,23 +4,23 @@ import { TaskQueue } from 'nylas-exports';
 
 class MasterAfterEach {
   setup(loadSettings, afterEach) {
-    const styleElementsToRestore = NylasEnv.styles.getSnapshot();
+    const styleElementsToRestore = AppEnv.styles.getSnapshot();
 
     const self = this;
     afterEach(async function masterAfterEach() {
       // await destroyTestDatabase() TODO BEN
-      NylasEnv.packages.deactivatePackages();
-      NylasEnv.menu.template = [];
+      AppEnv.packages.deactivatePackages();
+      AppEnv.menu.template = [];
 
       if (!window.debugContent) {
         document.getElementById('jasmine-content').innerHTML = '';
       }
       ReactTestUtils.unmountAll();
 
-      jasmine.unspy(NylasEnv, 'saveSync');
+      jasmine.unspy(AppEnv, 'saveSync');
       self.ensureNoPathSubscriptions();
 
-      NylasEnv.styles.restoreSnapshot(styleElementsToRestore);
+      AppEnv.styles.restoreSnapshot(styleElementsToRestore);
 
       this.removeAllSpies();
       if (TaskQueue._queue.length > 0) {

@@ -104,7 +104,7 @@ class Contenteditable extends React.Component
     try
       editingFunction(argsObj)
     catch error
-      NylasEnv.reportError(error)
+      AppEnv.reportError(error)
 
     @_setupNonMutationListeners()
 
@@ -243,7 +243,7 @@ class Contenteditable extends React.Component
           keymapHandlers[command] = (event) =>
             @atomicEdit(handler, {event})
       catch error
-        NylasEnv.reportError(error)
+        AppEnv.reportError(error)
     return keymapHandlers
 
   # NOTE: Keymaps are now broken apart into individual extensions. See the
@@ -277,7 +277,7 @@ class Contenteditable extends React.Component
             @atomicEdit(callback, {actionArg})
           ))
       catch error
-        NylasEnv.reportError(error)
+        AppEnv.reportError(error)
 
   _teardownEditingActionListeners: =>
     for editingActionUnsubscriber in @editingActionUnsubscribers

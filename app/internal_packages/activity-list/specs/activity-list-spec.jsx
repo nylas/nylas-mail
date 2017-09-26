@@ -129,7 +129,7 @@ messages[2].directlyAttachMetadata(LINK_TRACKING_ID, pluginValue);
 describe('ActivityList', function activityList() {
   beforeEach(() => {
     this.testSource = new TestDataSource();
-    spyOn(NylasEnv.packages, 'pluginIdFor').andCallFake(pluginName => {
+    spyOn(AppEnv.packages, 'pluginIdFor').andCallFake(pluginName => {
       if (pluginName === 'open-tracking') {
         return OPEN_TRACKING_ID;
       }
@@ -151,7 +151,7 @@ describe('ActivityList', function activityList() {
       return null;
     });
     spyOn(ActivityListStore, 'focusThread').andCallThrough();
-    spyOn(NylasEnv, 'displayWindow');
+    spyOn(AppEnv, 'displayWindow');
     spyOn(Actions, 'closePopover');
     spyOn(Actions, 'setFocus');
     spyOn(Actions, 'ensureCategoryIsFocused');
@@ -234,7 +234,7 @@ describe('ActivityList', function activityList() {
         return ActivityListStore.focusThread.calls.length > 0;
       });
       runs(() => {
-        expect(NylasEnv.displayWindow.calls.length).toBe(1);
+        expect(AppEnv.displayWindow.calls.length).toBe(1);
         expect(Actions.closePopover.calls.length).toBe(1);
         expect(Actions.setFocus.calls.length).toBe(1);
         expect(Actions.ensureCategoryIsFocused.calls.length).toBe(1);

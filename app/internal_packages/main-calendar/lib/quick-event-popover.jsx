@@ -32,7 +32,7 @@ export default class QuickEventPopover extends React.Component {
     }
     const cals = allCalendars.filter(c => !c.readOnly);
     if (cals.length === 0) {
-      NylasEnv.showErrorDialog(
+      AppEnv.showErrorDialog(
         "This account has no editable calendars. We can't " +
           'create an event for you. Please make sure you have an editable calendar ' +
           'with your account provider.'

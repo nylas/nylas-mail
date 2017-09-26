@@ -37,7 +37,7 @@ export class Notifier {
     }
 
     if (objectClass === Message.name) {
-      if (NylasEnv.config.get('core.notifications.enabled') === false) {
+      if (AppEnv.config.get('core.notifications.enabled') === false) {
         return;
       }
       const newUnread = objects.filter(msg => {
@@ -89,11 +89,11 @@ export class Notifier {
         if (activationType === 'replied' && response && typeof response === 'string') {
           Actions.sendQuickReply({ thread, message }, response);
         } else {
-          NylasEnv.displayWindow();
+          AppEnv.displayWindow();
         }
 
         if (!thread) {
-          NylasEnv.showErrorDialog(`Can't find that thread`);
+          AppEnv.showErrorDialog(`Can't find that thread`);
           return;
         }
         Actions.ensureCategoryIsFocused('inbox', thread.accountId);
@@ -157,7 +157,7 @@ export class Notifier {
         this.unnotifiedQueue.push({ message: msg, thread: threads[msg.threadId] });
       }
       if (!this.hasScheduledNotify) {
-        if (NylasEnv.config.get('core.notifications.sounds')) {
+        if (AppEnv.config.get('core.notifications.sounds')) {
           this._playNewMailSound =
             this._playNewMailSound ||
             _.debounce(() => SoundRegistry.playSound('new-mail'), 5000, true);

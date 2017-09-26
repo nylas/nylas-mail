@@ -7,8 +7,8 @@ import { DraftDeleteButton } from './draft-toolbar-buttons';
 export function activate() {
   WorkspaceStore.defineSheet('Drafts', { root: true }, { list: ['RootSidebar', 'DraftList'] });
   if (
-    NylasEnv.savedState.perspective &&
-    NylasEnv.savedState.perspective.type === 'DraftsMailboxPerspective'
+    AppEnv.savedState.perspective &&
+    AppEnv.savedState.perspective.type === 'DraftsMailboxPerspective'
   ) {
     Actions.selectRootSheet(WorkspaceStore.Sheet.Drafts);
   }

@@ -27,8 +27,8 @@ var RavenErrorReporter = require('./error-logger-extensions/raven-error-reporter
 // This is available as `global.errorLogger` in the backend browser
 // process.
 //
-// It is available at `NylasEnv.errorLogger` in each renderer process.
-// You should almost always use `NylasEnv.reportError` in the renderer
+// It is available at `AppEnv.errorLogger` in each renderer process.
+// You should almost always use `AppEnv.reportError` in the renderer
 // processes instead of manually accessing the `errorLogger`
 //
 // The errorLogger will report errors to a log file as well as to 3rd

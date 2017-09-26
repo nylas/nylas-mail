@@ -41,7 +41,7 @@ class UpdateChannelSection extends React.Component {
     // In the future we could implement this server-side via a "public" flag.
     const allowedNames = ['stable', 'nylas-mail', 'beta'];
 
-    if (NylasEnv.config.get('salesforce')) {
+    if (AppEnv.config.get('salesforce')) {
       allowedNames.push('salesforce');
     }
 

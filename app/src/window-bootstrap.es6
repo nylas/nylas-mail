@@ -3,10 +3,10 @@
 // Extend the standard promise class a bit
 import './promise-extensions';
 
-import NylasEnvConstructor from './nylas-env';
-window.NylasEnv = NylasEnvConstructor.loadOrCreate();
-NylasEnv.initialize();
-NylasEnv.startRootWindow();
+import AppEnvConstructor from './nylas-env';
+window.AppEnv = AppEnvConstructor.loadOrCreate();
+AppEnv.initialize();
+AppEnv.startRootWindow();
 
 // Workaround for focus getting cleared upon window creation
 const windowFocused = () => {

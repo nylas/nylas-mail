@@ -81,7 +81,7 @@ export default class MailboxPerspective {
       }
       return this.forInbox(json.accountIds);
     } catch (error) {
-      NylasEnv.reportError(new Error(`Could not restore mailbox perspective: ${error}`));
+      AppEnv.reportError(new Error(`Could not restore mailbox perspective: ${error}`));
       return null;
     }
   }

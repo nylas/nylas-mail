@@ -15,7 +15,7 @@ import DatabaseChangeRecord from './database-change-record';
 const debug = createDebug('app:RxDB');
 const debugVerbose = createDebug('app:RxDB:all');
 
-const DEBUG_QUERY_PLANS = NylasEnv.inDevMode();
+const DEBUG_QUERY_PLANS = AppEnv.inDevMode();
 
 const BASE_RETRY_LOCK_DELAY = 50;
 const MAX_RETRY_LOCK_DELAY = 500;
@@ -33,7 +33,7 @@ function trimTo(str, size) {
 function handleUnrecoverableDatabaseError(
   err = new Error(`Manually called handleUnrecoverableDatabaseError`)
 ) {
-  NylasEnv.errorLogger.reportError(err);
+  AppEnv.errorLogger.reportError(err);
   const app = remote.getGlobal('application');
   if (!app) {
     throw new Error('handleUnrecoverableDatabaseError: `app` is not ready!');
@@ -136,9 +136,9 @@ class DatabaseStore extends NylasStore {
     this.setupEmitter();
     this._emitter.setMaxListeners(100);
 
-    this._databasePath = databasePath(NylasEnv.getConfigDirPath(), NylasEnv.inSpecMode());
+    this._databasePath = databasePath(AppEnv.getConfigDirPath(), AppEnv.inSpecMode());
 
-    if (!NylasEnv.inSpecMode()) {
+    if (!AppEnv.inSpecMode()) {
       this.open();
     }
   }

@@ -4,7 +4,7 @@ describe "MenuManager", ->
   menu = null
 
   beforeEach ->
-    menu = new MenuManager(resourcePath: NylasEnv.getLoadSettings().resourcePath)
+    menu = new MenuManager(resourcePath: AppEnv.getLoadSettings().resourcePath)
     menu.template = []
 
   describe "::add(items)", ->

@@ -17,7 +17,7 @@ idForCategories = (categories) ->
   _.pluck(categories, 'id').join('-')
 
 countForItem = (perspective) ->
-  unreadCountEnabled = NylasEnv.config.get('core.workspace.showUnreadForAllCategories')
+  unreadCountEnabled = AppEnv.config.get('core.workspace.showUnreadForAllCategories')
   if perspective.isInbox() or unreadCountEnabled
     return perspective.unreadCount()
   return 0
@@ -27,8 +27,8 @@ isItemSelected = (perspective) ->
     FocusedPerspectiveStore.current().isEqual(perspective))
 
 isItemCollapsed = (id) ->
-  if NylasEnv.savedState.sidebarKeysCollapsed[id] isnt undefined
-    NylasEnv.savedState.sidebarKeysCollapsed[id]
+  if AppEnv.savedState.sidebarKeysCollapsed[id] isnt undefined
+    AppEnv.savedState.sidebarKeysCollapsed[id]
   else
     true
 

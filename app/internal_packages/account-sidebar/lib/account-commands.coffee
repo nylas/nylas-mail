@@ -6,7 +6,7 @@ class AccountCommands
 
   @_focusAccounts: (accounts) ->
     Actions.focusDefaultMailboxPerspectiveForAccounts(accounts)
-    NylasEnv.show() unless NylasEnv.isVisible()
+    AppEnv.show() unless AppEnv.isVisible()
 
   @_isSelected: (account, sidebarAccountIds) =>
     if sidebarAccountIds.length > 1
@@ -29,10 +29,10 @@ class AccountCommands
       key = "window:select-account-#{index}"
       commands[key] = @_focusAccounts.bind(@, [account])
 
-    @_commandsDisposable = NylasEnv.commands.add(document.body, commands)
+    @_commandsDisposable = AppEnv.commands.add(document.body, commands)
 
   @registerMenuItems: (accounts, sidebarAccountIds) ->
-    windowMenu = _.find NylasEnv.menu.template, ({label}) ->
+    windowMenu = _.find AppEnv.menu.template, ({label}) ->
       MenuHelpers.normalizeLabel(label) is 'Window'
     return unless windowMenu
 
@@ -45,7 +45,7 @@ class AccountCommands
     template = @menuTemplate(accounts, sidebarAccountIds)
     submenu.splice(idx + 1, 0, template...)
     windowMenu.submenu = submenu
-    NylasEnv.menu.update()
+    AppEnv.menu.update()
 
   @menuItem: (account, idx, {isSelected, clickHandlers} = {}) =>
     item = {

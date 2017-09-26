@@ -75,7 +75,7 @@ export default class OAuthSignInPage extends React.Component {
 
   _handleError(err) {
     this.setState({ authStage: 'error', errorMessage: err.message });
-    NylasEnv.reportError(err);
+    AppEnv.reportError(err);
     Actions.recordUserEvent('Email Account Auth Failed', {
       errorMessage: err.message,
       provider: 'gmail',

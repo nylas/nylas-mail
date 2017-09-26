@@ -19,11 +19,11 @@ xdescribe 'FileUploadStore', ->
         add: jasmine.createSpy('session.changes.add')
         commit: ->
       draft: => @draft
-    spyOn(NylasEnv, "isMainWindow").andReturn(true)
+    spyOn(AppEnv, "isMainWindow").andReturn(true)
     spyOn(DraftStore, "sessionForClientId").andReturn(Promise.resolve(@session))
     spyOn(FileUploadStore, "_onAttachFileError").andCallFake (msg) ->
       throw new Error(msg)
-    spyOn(NylasEnv, "showOpenDialog").andCallFake (props, callback) ->
+    spyOn(AppEnv, "showOpenDialog").andCallFake (props, callback) ->
       callback(fpath)
 
   describe 'selectAttachment', ->
@@ -37,7 +37,7 @@ xdescribe 'FileUploadStore', ->
       spyOn(Actions, "addAttachment")
 
       Actions.selectAttachment(headerMessageId: msgId)
-      expect(NylasEnv.showOpenDialog).toHaveBeenCalled()
+      expect(AppEnv.showOpenDialog).toHaveBeenCalled()
       expect(Actions.addAttachment).toHaveBeenCalled()
       args = Actions.addAttachment.calls[0].args[0]
       expect(args.headerMessageId).toBe(msgId)

@@ -30,7 +30,7 @@ export default class MessageControls extends React.Component {
     if (!this.props.message.canReplyAll()) {
       return [reply, forward];
     }
-    const defaultReplyType = NylasEnv.config.get('core.sending.defaultReplyType');
+    const defaultReplyType = AppEnv.config.get('core.sending.defaultReplyType');
     return defaultReplyType === 'reply-all'
       ? [replyAll, reply, forward]
       : [reply, replyAll, forward];

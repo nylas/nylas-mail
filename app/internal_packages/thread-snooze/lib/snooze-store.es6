@@ -80,8 +80,8 @@ class SnoozeStore extends NylasStore {
       }
       moveThreads(threads, { snooze: false, description: 'Unsnoozed' });
       Actions.closePopover();
-      NylasEnv.reportError(error);
-      NylasEnv.showErrorDialog(
+      AppEnv.reportError(error);
+      AppEnv.showErrorDialog(
         `Sorry, we were unable to save your snooze settings. ${error.message}`
       );
     }

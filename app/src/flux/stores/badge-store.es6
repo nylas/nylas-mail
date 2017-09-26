@@ -11,7 +11,7 @@ class BadgeStore extends NylasStore {
     this.listenTo(FocusedPerspectiveStore, this._updateCounts);
     this.listenTo(ThreadCountsStore, this._updateCounts);
 
-    NylasEnv.config.onDidChange('core.notifications.countBadge', ({ newValue }) => {
+    AppEnv.config.onDidChange('core.notifications.countBadge', ({ newValue }) => {
       if (newValue !== 'hide') {
         this._setBadgeForCount();
       } else {
@@ -51,11 +51,11 @@ class BadgeStore extends NylasStore {
   };
 
   _setBadgeForCount = () => {
-    const badgePref = NylasEnv.config.get('core.notifications.countBadge');
+    const badgePref = AppEnv.config.get('core.notifications.countBadge');
     if (!badgePref || badgePref === 'hide') {
       return;
     }
-    if (!NylasEnv.isMainWindow() && !NylasEnv.inSpecMode()) {
+    if (!AppEnv.isMainWindow() && !AppEnv.inSpecMode()) {
       return;
     }
 

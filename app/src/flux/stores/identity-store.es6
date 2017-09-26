@@ -15,18 +15,18 @@ class IdentityStore extends NylasStore {
     super();
     this._identity = null;
 
-    if (NylasEnv.isEmptyWindow()) {
+    if (AppEnv.isEmptyWindow()) {
       /*
       Hot windows don't receive any action-bridge-messages, which include DB updates.
       Since the hot window loads first, it may have a stale verison of the Identity.
       */
-      NylasEnv.onWindowPropsReceived(() => {
+      AppEnv.onWindowPropsReceived(() => {
         this._onIdentityChanged();
       });
       return;
     }
 
-    NylasEnv.config.onDidChange('identity', this._onIdentityChanged);
+    AppEnv.config.onDidChange('identity', this._onIdentityChanged);
     this._onIdentityChanged();
 
     this.listenTo(Actions.logoutNylasIdentity, this._onLogoutNylasIdentity);
@@ -51,7 +51,7 @@ class IdentityStore extends NylasStore {
   }
 
   _fetchAndPollRemoteIdentity() {
-    if (!NylasEnv.isMainWindow()) return;
+    if (!AppEnv.isMainWindow()) return;
     setTimeout(() => {
       this.fetchIdentity();
     }, 1000);
@@ -64,7 +64,7 @@ class IdentityStore extends NylasStore {
     if (!identity) {
       this._identity = null;
       KeyManager.deletePassword(KEYCHAIN_NAME);
-      NylasEnv.config.set('identity', null);
+      AppEnv.config.set('identity', null);
       return;
     }
 
@@ -79,9 +79,9 @@ class IdentityStore extends NylasStore {
 
     this._identity = identity;
     this._identity.token = nextToken;
-    NylasEnv.config.set('identity', rest);
+    AppEnv.config.set('identity', rest);
 
-    // Setting NylasEnv.config will trigger our onDidChange handler,
+    // Setting AppEnv.config will trigger our onDidChange handler,
     // no need to trigger here.
   }
 
@@ -90,7 +90,7 @@ class IdentityStore extends NylasStore {
    * cache and set the token from the keychain.
    */
   _onIdentityChanged = () => {
-    this._identity = NylasEnv.config.get('identity') || {};
+    this._identity = AppEnv.config.get('identity') || {};
     this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
     this.trigger();
   };
@@ -170,7 +170,7 @@ class IdentityStore extends NylasStore {
 
     if (!json || !json.id || json.id !== this._identity.id) {
       console.error(json);
-      NylasEnv.reportError(new Error('Remote Identity returned invalid json'), json || {});
+      AppEnv.reportError(new Error('Remote Identity returned invalid json'), json || {});
       return this._identity;
     }
     const nextIdentity = Object.assign({}, this._identity, json);

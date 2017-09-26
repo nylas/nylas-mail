@@ -66,7 +66,7 @@ export default class ToolbarButtonManager extends ContenteditableExtension {
         });
         buttonConfigs = buttonConfigs.concat(extensionConfigs);
       } catch (error) {
-        NylasEnv.reportError(error);
+        AppEnv.reportError(error);
       }
     }
 

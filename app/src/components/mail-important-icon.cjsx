@@ -46,7 +46,7 @@ class MailImportantIcon extends React.Component
   componentDidMount: =>
     @unsubscribe = FocusedPerspectiveStore.listen =>
       @setState(@getState())
-    @subscription = NylasEnv.config.onDidChange ShowImportantKey, =>
+    @subscription = AppEnv.config.onDidChange ShowImportantKey, =>
       @setState(@getState())
 
   componentWillReceiveProps: (nextProps) =>

@@ -27,7 +27,7 @@ class CategoryStore extends NylasStore {
     this._userCategories = {};
     this._hiddenCategories = {};
 
-    NylasEnv.config.onDidChange('core.workspace.showImportant', () => {
+    AppEnv.config.onDidChange('core.workspace.showImportant', () => {
       if (this._categoryResult) {
         this._onCategoriesChanged(this._categoryResult);
       }

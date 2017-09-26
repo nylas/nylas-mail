@@ -27,16 +27,16 @@ describe('IdentityStore', function identityStoreSpec() {
       spyOn(KeyManager, 'deletePassword');
       spyOn(KeyManager, 'replacePassword');
       spyOn(IdentityStore, 'trigger');
-      spyOn(NylasEnv.config, 'set');
-      spyOn(NylasEnv.config, 'unset');
+      spyOn(AppEnv.config, 'set');
+      spyOn(AppEnv.config, 'unset');
     });
 
     it('clears passwords if unsetting', async () => {
       IdentityStore.saveIdentity(null);
       expect(KeyManager.deletePassword).toHaveBeenCalled();
       expect(KeyManager.replacePassword).not.toHaveBeenCalled();
-      expect(NylasEnv.config.set).toHaveBeenCalled();
-      const ident = NylasEnv.config.set.calls[0].args[1];
+      expect(AppEnv.config.set).toHaveBeenCalled();
+      const ident = AppEnv.config.set.calls[0].args[1];
       expect(ident).toBe(null);
     });
 
@@ -76,7 +76,7 @@ describe('IdentityStore', function identityStoreSpec() {
     beforeEach(() => {
       IdentityStore._identity = this.identityJSON;
       spyOn(IdentityStore, 'saveIdentity');
-      spyOn(NylasEnv, 'reportError');
+      spyOn(AppEnv, 'reportError');
       spyOn(console, 'error');
     });
 
@@ -93,7 +93,7 @@ describe('IdentityStore', function identityStoreSpec() {
       expect(IdentityStore.saveIdentity).toHaveBeenCalled();
       const newIdent = IdentityStore.saveIdentity.calls[0].args[0];
       expect(newIdent.featureUsage.feat.quota).toBe(5);
-      expect(NylasEnv.reportError).not.toHaveBeenCalled();
+      expect(AppEnv.reportError).not.toHaveBeenCalled();
     });
 
     it('errors if the json is invalid', async () => {
@@ -101,7 +101,7 @@ describe('IdentityStore', function identityStoreSpec() {
         return Promise.resolve({});
       });
       await IdentityStore.fetchIdentity();
-      expect(NylasEnv.reportError).toHaveBeenCalled();
+      expect(AppEnv.reportError).toHaveBeenCalled();
       expect(IdentityStore.saveIdentity).not.toHaveBeenCalled();
     });
 
@@ -112,7 +112,7 @@ describe('IdentityStore', function identityStoreSpec() {
         return Promise.resolve(resp);
       });
       await IdentityStore.fetchIdentity();
-      expect(NylasEnv.reportError).toHaveBeenCalled();
+      expect(AppEnv.reportError).toHaveBeenCalled();
       expect(IdentityStore.saveIdentity).not.toHaveBeenCalled();
     });
   });

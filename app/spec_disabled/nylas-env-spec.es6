@@ -1,33 +1,33 @@
 import { remote } from 'electron';
 
-describe('the `NylasEnv` global', function nylasEnvSpec() {
+describe('the `AppEnv` global', function nylasEnvSpec() {
   describe('window sizing methods', () => {
     describe('::getPosition and ::setPosition', () =>
       it('sets the position of the window, and can retrieve the position just set', () => {
-        NylasEnv.setPosition(22, 45);
-        expect(NylasEnv.getPosition()).toEqual({ x: 22, y: 45 });
+        AppEnv.setPosition(22, 45);
+        expect(AppEnv.getPosition()).toEqual({ x: 22, y: 45 });
       }));
 
     describe('::getSize and ::setSize', () => {
       beforeEach(() => {
-        this.originalSize = NylasEnv.getSize();
+        this.originalSize = AppEnv.getSize();
       });
-      afterEach(() => NylasEnv.setSize(this.originalSize.width, this.originalSize.height));
+      afterEach(() => AppEnv.setSize(this.originalSize.width, this.originalSize.height));
 
       it('sets the size of the window, and can retrieve the size just set', () => {
-        NylasEnv.setSize(100, 400);
-        expect(NylasEnv.getSize()).toEqual({ width: 100, height: 400 });
+        AppEnv.setSize(100, 400);
+        expect(AppEnv.getSize()).toEqual({ width: 100, height: 400 });
       });
     });
 
     describe('::setMinimumWidth', () => {
-      const win = NylasEnv.getCurrentWindow();
+      const win = AppEnv.getCurrentWindow();
 
       it('sets the minimum width', () => {
         const inputMinWidth = 500;
         win.setMinimumSize(1000, 1000);
 
-        NylasEnv.setMinimumWidth(inputMinWidth);
+        AppEnv.setMinimumWidth(inputMinWidth);
 
         const [actualMinWidth] = win.getMinimumSize();
         expect(actualMinWidth).toBe(inputMinWidth);
@@ -37,7 +37,7 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
         const inputMinWidth = 1000;
         win.setSize(500, 500);
 
-        NylasEnv.setMinimumWidth(inputMinWidth);
+        AppEnv.setMinimumWidth(inputMinWidth);
 
         const [actualWidth] = win.getMinimumSize();
         expect(actualWidth).toBe(inputMinWidth);
@@ -50,7 +50,7 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
           workAreaSize: { width: 1440, height: 900 },
         });
 
-        const out = NylasEnv.getDefaultWindowDimensions();
+        const out = AppEnv.getDefaultWindowDimensions();
         expect(out).toEqual({ x: 0, y: 0, width: 1440, height: 900 });
       });
 
@@ -59,7 +59,7 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
           workAreaSize: { width: 1840, height: 900 },
         });
 
-        const out = NylasEnv.getDefaultWindowDimensions();
+        const out = AppEnv.getDefaultWindowDimensions();
         expect(out).toEqual({ x: 200, y: 0, width: 1440, height: 900 });
       });
 
@@ -68,7 +68,7 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
           workAreaSize: { width: 1440, height: 1100 },
         });
 
-        const out = NylasEnv.getDefaultWindowDimensions();
+        const out = AppEnv.getDefaultWindowDimensions();
         expect(out).toEqual({ x: 0, y: 100, width: 1440, height: 900 });
       });
 
@@ -77,7 +77,7 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
           workAreaSize: { width: 1000, height: 800 },
         });
 
-        const out = NylasEnv.getDefaultWindowDimensions();
+        const out = AppEnv.getDefaultWindowDimensions();
         expect(out).toEqual({ x: 0, y: 0, width: 1000, height: 800 });
       });
 
@@ -86,7 +86,7 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
           workAreaSize: { width: 1845, height: 955 },
         });
 
-        const out = NylasEnv.getDefaultWindowDimensions();
+        const out = AppEnv.getDefaultWindowDimensions();
         expect(out).toEqual({ x: 202, y: 27, width: 1440, height: 900 });
       });
     });
@@ -95,10 +95,10 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
   describe('.isReleasedVersion()', () =>
     it('returns false if the version is a SHA and true otherwise', () => {
       let version = '0.1.0';
-      spyOn(NylasEnv, 'getVersion').andCallFake(() => version);
-      expect(NylasEnv.isReleasedVersion()).toBe(true);
+      spyOn(AppEnv, 'getVersion').andCallFake(() => version);
+      expect(AppEnv.isReleasedVersion()).toBe(true);
       version = '36b5518';
-      expect(NylasEnv.isReleasedVersion()).toBe(false);
+      expect(AppEnv.isReleasedVersion()).toBe(false);
     }));
 
   describe('when an update becomes available', () => {
@@ -116,7 +116,7 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
       }
 
       const updateAvailableHandler = jasmine.createSpy('update-available-handler');
-      subscription = NylasEnv.onUpdateAvailable(updateAvailableHandler);
+      subscription = AppEnv.onUpdateAvailable(updateAvailableHandler);
 
       remote.autoUpdater.emit('update-downloaded', null, 'notes', 'version');
 
@@ -132,27 +132,27 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
 
   describe('error handling', () => {
     beforeEach(() => {
-      spyOn(NylasEnv, 'inSpecMode').andReturn(false);
-      spyOn(NylasEnv, 'inDevMode').andReturn(false);
-      spyOn(NylasEnv, 'openDevTools');
-      spyOn(NylasEnv, 'executeJavaScriptInDevTools');
-      spyOn(NylasEnv.errorLogger, 'reportError');
+      spyOn(AppEnv, 'inSpecMode').andReturn(false);
+      spyOn(AppEnv, 'inDevMode').andReturn(false);
+      spyOn(AppEnv, 'openDevTools');
+      spyOn(AppEnv, 'executeJavaScriptInDevTools');
+      spyOn(AppEnv.errorLogger, 'reportError');
     });
 
     it('Catches errors that make it to window.onerror', () => {
-      spyOn(NylasEnv, 'reportError');
+      spyOn(AppEnv, 'reportError');
       const e = new Error('Test Error');
       window.onerror.call(window, e.toString(), 'abc', 2, 3, e);
-      expect(NylasEnv.reportError).toHaveBeenCalled();
-      expect(NylasEnv.reportError.calls[0].args[0]).toBe(e);
-      const extra = NylasEnv.reportError.calls[0].args[1];
+      expect(AppEnv.reportError).toHaveBeenCalled();
+      expect(AppEnv.reportError.calls[0].args[0]).toBe(e);
+      const extra = AppEnv.reportError.calls[0].args[1];
       expect(extra.url).toBe('abc');
       expect(extra.line).toBe(2);
       expect(extra.column).toBe(3);
     });
 
     it('Catches unhandled rejections', async () => {
-      spyOn(NylasEnv, 'reportError');
+      spyOn(AppEnv, 'reportError');
       const err = new Error('TEST');
 
       const p = new Promise((resolve, reject) => {
@@ -182,8 +182,8 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
         window.originalSetTimeout(resolve, 0);
       });
 
-      expect(NylasEnv.reportError.callCount).toBe(1);
-      expect(NylasEnv.reportError.calls[0].args[0]).toBe(err);
+      expect(AppEnv.reportError.callCount).toBe(1);
+      expect(AppEnv.reportError.calls[0].args[0]).toBe(err);
     });
 
     describe('reportError', () => {
@@ -193,18 +193,18 @@ describe('the `NylasEnv` global', function nylasEnvSpec() {
       });
 
       it('opens dev tools in dev mode', () => {
-        jasmine.unspy(NylasEnv, 'inDevMode');
-        spyOn(NylasEnv, 'inDevMode').andReturn(true);
-        NylasEnv.reportError(this.testErr);
-        expect(NylasEnv.openDevTools).toHaveBeenCalled();
-        expect(NylasEnv.executeJavaScriptInDevTools).toHaveBeenCalled();
+        jasmine.unspy(AppEnv, 'inDevMode');
+        spyOn(AppEnv, 'inDevMode').andReturn(true);
+        AppEnv.reportError(this.testErr);
+        expect(AppEnv.openDevTools).toHaveBeenCalled();
+        expect(AppEnv.executeJavaScriptInDevTools).toHaveBeenCalled();
       });
 
       it('sends the error report to the error logger', () => {
-        NylasEnv.reportError(this.testErr);
-        expect(NylasEnv.errorLogger.reportError).toHaveBeenCalled();
-        expect(NylasEnv.errorLogger.reportError.callCount).toBe(1);
-        expect(NylasEnv.errorLogger.reportError.calls[0].args[0]).toBe(this.testErr);
+        AppEnv.reportError(this.testErr);
+        expect(AppEnv.errorLogger.reportError).toHaveBeenCalled();
+        expect(AppEnv.errorLogger.reportError.callCount).toBe(1);
+        expect(AppEnv.errorLogger.reportError.calls[0].args[0]).toBe(this.testErr);
       });
     });
   });

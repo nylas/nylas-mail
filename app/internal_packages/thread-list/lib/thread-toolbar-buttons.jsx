@@ -255,7 +255,7 @@ class ThreadArrowButton extends React.Component {
     if (this.state.disabled) {
       return;
     }
-    NylasEnv.commands.dispatch(this.props.command);
+    AppEnv.commands.dispatch(this.props.command);
     return;
   };
 

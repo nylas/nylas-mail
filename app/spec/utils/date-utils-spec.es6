@@ -44,7 +44,7 @@ describe('DateUtils', function dateUtils() {
 
   describe('getTimeFormat: 12-hour clock', () => {
     beforeEach(() => {
-      spyOn(NylasEnv.config, 'get').andReturn(false);
+      spyOn(AppEnv.config, 'get').andReturn(false);
     });
 
     it('displays the time format for a 12-hour clock', () => {
@@ -97,7 +97,7 @@ describe('DateUtils', function dateUtils() {
 
   describe('getTimeFormat: 24-hour clock', () => {
     beforeEach(() => {
-      spyOn(NylasEnv.config, 'get').andReturn(true);
+      spyOn(AppEnv.config, 'get').andReturn(true);
     });
 
     it('displays the time format for a 24-hour clock', () => {
@@ -126,7 +126,7 @@ describe('DateUtils', function dateUtils() {
 
   describe('mediumTimeString: 12-hour time', () => {
     beforeEach(() => {
-      spyOn(NylasEnv.config, 'get').andReturn(false);
+      spyOn(AppEnv.config, 'get').andReturn(false);
     });
 
     it('displays a date and time', () => {
@@ -137,7 +137,7 @@ describe('DateUtils', function dateUtils() {
 
   describe('mediumTimeString: 24-hour time', () => {
     beforeEach(() => {
-      spyOn(NylasEnv.config, 'get').andReturn(true);
+      spyOn(AppEnv.config, 'get').andReturn(true);
     });
 
     it('displays a date and time', () => {
@@ -148,7 +148,7 @@ describe('DateUtils', function dateUtils() {
 
   describe('fullTimeString: 12-hour time', () => {
     beforeEach(() => {
-      spyOn(NylasEnv.config, 'get').andReturn(false);
+      spyOn(AppEnv.config, 'get').andReturn(false);
     });
 
     it('displays a date and time', () => {
@@ -159,7 +159,7 @@ describe('DateUtils', function dateUtils() {
 
   describe('fullTimeString: 24-hour time', () => {
     beforeEach(() => {
-      spyOn(NylasEnv.config, 'get').andReturn(true);
+      spyOn(AppEnv.config, 'get').andReturn(true);
     });
 
     it('displays a date and time', () => {

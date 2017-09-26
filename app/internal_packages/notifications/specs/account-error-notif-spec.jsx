@@ -28,10 +28,10 @@ describe('AccountErrorNotif', function AccountErrorNotifTests() {
     });
 
     it('allows the user to refresh the account', () => {
-      spyOn(NylasEnv.mailsyncBridge, 'forceRelaunchClient').andReturn(Promise.resolve());
+      spyOn(AppEnv.mailsyncBridge, 'forceRelaunchClient').andReturn(Promise.resolve());
       const notif = mount(<AccountErrorNotification />);
       notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
-      expect(NylasEnv.mailsyncBridge.forceRelaunchClient).toHaveBeenCalled();
+      expect(AppEnv.mailsyncBridge.forceRelaunchClient).toHaveBeenCalled();
     });
 
     it('allows the user to reconnect the account', () => {
@@ -67,10 +67,10 @@ describe('AccountErrorNotif', function AccountErrorNotifTests() {
     });
 
     it('allows the user to refresh the accounts', () => {
-      spyOn(NylasEnv.mailsyncBridge, 'forceRelaunchClient').andReturn(Promise.resolve());
+      spyOn(AppEnv.mailsyncBridge, 'forceRelaunchClient').andReturn(Promise.resolve());
       const notif = mount(<AccountErrorNotification />);
       notif.find('#action-0').simulate('click'); // Expects first action to be the refresh action
-      expect(NylasEnv.mailsyncBridge.forceRelaunchClient).toHaveBeenCalled();
+      expect(AppEnv.mailsyncBridge.forceRelaunchClient).toHaveBeenCalled();
     });
 
     it('allows the user to open preferences', () => {

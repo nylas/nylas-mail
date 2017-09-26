@@ -7,7 +7,7 @@ SearchActions = require('../lib/search-actions').default
 
 describe 'ThreadSearchBar', ->
   beforeEach ->
-    spyOn(NylasEnv, "isMainWindow").andReturn true
+    spyOn(AppEnv, "isMainWindow").andReturn true
     @searchBar = ReactTestUtils.renderIntoDocument(<ThreadSearchBar />)
     @input = ReactDOM.findDOMNode(@searchBar).querySelector("input")
 

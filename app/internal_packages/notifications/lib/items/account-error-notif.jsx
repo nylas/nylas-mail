@@ -60,7 +60,7 @@ export default class AccountErrorNotification extends React.Component {
     this.setState({ checking: true });
     this._checkingTimeout = setTimeout(() => this.setState({ checking: false }), 10000);
 
-    accounts.forEach(acct => NylasEnv.mailsyncBridge.forceRelaunchClient(acct));
+    accounts.forEach(acct => AppEnv.mailsyncBridge.forceRelaunchClient(acct));
   }
 
   render() {

@@ -141,7 +141,7 @@ class NylasWindow
       query: {loadSettings: JSON.stringify(loadSettings)}
 
   handleEvents: ->
-    # Also see logic in `NylasEnv::onBeforeUnload` and
+    # Also see logic in `AppEnv::onBeforeUnload` and
     # `WindowEventHandler::AddUnloadCallback`. Classes like the DraftStore
     # and ActionBridge intercept the closing of windows and perform
     # action.

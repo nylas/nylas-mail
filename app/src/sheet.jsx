@@ -51,7 +51,7 @@ export default class Sheet extends React.Component {
   componentDidUpdate() {
     this.props.onColumnSizeChanged(this);
     const minWidth = this.state.columns.reduce((sum, col) => sum + col.minWidth, 0);
-    NylasEnv.setMinimumWidth(minWidth);
+    AppEnv.setMinimumWidth(minWidth);
   }
 
   componentWillUnmount() {
@@ -112,7 +112,7 @@ export default class Sheet extends React.Component {
   }
 
   _onColumnResize = (column, width) => {
-    NylasEnv.storeColumnWidth({ id: column.location.id, width: width });
+    AppEnv.storeColumnWidth({ id: column.location.id, width: width });
     this.props.onColumnSizeChanged(this);
   };
 
@@ -159,7 +159,7 @@ export default class Sheet extends React.Component {
           return m;
         }, 0);
 
-        const width = NylasEnv.getColumnWidth(location.id);
+        const width = AppEnv.getColumnWidth(location.id);
         const col = { maxWidth, minWidth, location, width };
         state.columns.push(col);
 

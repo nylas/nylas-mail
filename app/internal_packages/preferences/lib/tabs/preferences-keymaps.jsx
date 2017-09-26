@@ -25,7 +25,7 @@ export default class PreferencesKeymaps extends React.Component {
   }
 
   componentDidMount() {
-    this._disposable = NylasEnv.keymaps.onDidReloadKeymap(() => {
+    this._disposable = AppEnv.keymaps.onDidReloadKeymap(() => {
       this.setState({ bindings: this._getStateFromKeymaps() });
     });
   }
@@ -38,14 +38,14 @@ export default class PreferencesKeymaps extends React.Component {
     const bindings = {};
     for (const section of displayedKeybindings) {
       for (const [command] of section.items) {
-        bindings[command] = NylasEnv.keymaps.getBindingsForCommand(command) || [];
+        bindings[command] = AppEnv.keymaps.getBindingsForCommand(command) || [];
       }
     }
     return bindings;
   }
 
   _loadTemplates() {
-    const templatesDir = path.join(NylasEnv.getLoadSettings().resourcePath, 'keymaps', 'templates');
+    const templatesDir = path.join(AppEnv.getLoadSettings().resourcePath, 'keymaps', 'templates');
     fs.readdir(templatesDir, (err, files) => {
       if (!files || !(files instanceof Array)) return;
       let templates = files.filter(filename => {
@@ -59,7 +59,7 @@ export default class PreferencesKeymaps extends React.Component {
   }
 
   _onShowUserKeymaps() {
-    const keymapsFile = NylasEnv.keymaps.getUserKeymapPath();
+    const keymapsFile = AppEnv.keymaps.getUserKeymapPath();
     if (!fs.existsSync(keymapsFile)) {
       fs.writeFileSync(keymapsFile, '{}');
     }
@@ -67,7 +67,7 @@ export default class PreferencesKeymaps extends React.Component {
   }
 
   _onDeleteUserKeymap() {
-    const chosen = remote.dialog.showMessageBox(NylasEnv.getCurrentWindow(), {
+    const chosen = remote.dialog.showMessageBox(AppEnv.getCurrentWindow(), {
       type: 'info',
       message: 'Are you sure?',
       detail: 'Delete your custom key bindings and reset to the template defaults?',
@@ -75,7 +75,7 @@ export default class PreferencesKeymaps extends React.Component {
     });
 
     if (chosen === 1) {
-      const keymapsFile = NylasEnv.keymaps.getUserKeymapPath();
+      const keymapsFile = AppEnv.keymaps.getUserKeymapPath();
       fs.writeFileSync(keymapsFile, '{}');
     }
   }

@@ -30,7 +30,7 @@ module.exports = class RavenErrorReporter {
 
   getVersion() {
     return process.type === 'renderer'
-      ? NylasEnv.getVersion()
+      ? AppEnv.getVersion()
       : require('electron').app.getVersion();
   }
 

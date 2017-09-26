@@ -54,7 +54,7 @@ export default class CalendarEventContainer extends React.Component {
     try {
       propsFn({ event, time, x, y, width, height, mouseIsDown: this._mouseIsDown });
     } catch (error) {
-      NylasEnv.reportError(error);
+      AppEnv.reportError(error);
     }
   }
 

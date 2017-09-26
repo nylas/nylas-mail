@@ -130,7 +130,7 @@ class FloatingToolbar extends React.Component
           if params.hidePointer
             hidePointer = params.hidePointer
       catch error
-        NylasEnv.reportError(error)
+        AppEnv.reportError(error)
 
     if toolbarComponent and not toolbarLocationRef
       throw new Error("You must provide a locationRefNode for #{toolbarComponent.displayName}. It must be either a DOM Element or a Range.")

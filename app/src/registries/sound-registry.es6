@@ -6,7 +6,7 @@ class SoundRegistry {
   }
 
   playSound(name) {
-    if (NylasEnv.inSpecMode()) {
+    if (AppEnv.inSpecMode()) {
       return;
     }
     const src = this._sounds[name];
@@ -15,7 +15,7 @@ class SoundRegistry {
     }
 
     const a = new Audio();
-    const { resourcePath } = NylasEnv.getLoadSettings();
+    const { resourcePath } = AppEnv.getLoadSettings();
 
     if (typeof src === 'string') {
       if (src.indexOf('mailspring://') === 0) {

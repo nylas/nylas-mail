@@ -15,7 +15,7 @@ class QuerySubscriptionPool {
   }
 
   add(query, callback) {
-    if (NylasEnv.inDevMode()) {
+    if (AppEnv.inDevMode()) {
       callback._registrationPoint = this._formatRegistrationPoint(new Error().stack);
     }
 
@@ -43,7 +43,7 @@ class QuerySubscriptionPool {
   }
 
   printSubscriptions() {
-    if (!NylasEnv.inDevMode()) {
+    if (!AppEnv.inDevMode()) {
       console.log('printSubscriptions is only available in developer mode.');
       return;
     }

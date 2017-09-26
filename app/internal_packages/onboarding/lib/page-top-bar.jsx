@@ -17,9 +17,9 @@ const PageTopBar = props => {
       OnboardingActions.moveToPreviousPage();
     } else {
       if (AccountStore.accounts().length === 0) {
-        NylasEnv.quit();
+        AppEnv.quit();
       } else {
-        NylasEnv.close();
+        AppEnv.close();
       }
     }
   };

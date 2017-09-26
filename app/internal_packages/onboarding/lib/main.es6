@@ -8,7 +8,7 @@ export function activate() {
     location: WorkspaceStore.Location.Center,
   });
 
-  const accounts = NylasEnv.config.get('accounts') || [];
+  const accounts = AppEnv.config.get('accounts') || [];
 
   if (accounts.length === 0) {
     const startService = new SystemStartService();

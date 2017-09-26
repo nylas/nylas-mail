@@ -67,7 +67,7 @@ class UnsafeComponent extends React.Component
       element = <Component key={name} {...props} />
       @injected = ReactDOM.render(element, node, @props.onComponentDidRender)
     catch err
-      if NylasEnv.inDevMode()
+      if AppEnv.inDevMode()
         stack = err.stack
         stackEnd = stack.indexOf('react/lib/')
         if stackEnd > 0
@@ -88,7 +88,7 @@ class UnsafeComponent extends React.Component
         element = <div></div>
 
         @injected = ReactDOM.render(element, node)
-      NylasEnv.reportError(err)
+      AppEnv.reportError(err)
 
   unmountInjected: =>
     try

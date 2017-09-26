@@ -6,7 +6,7 @@ ReactTestUtils = require('react-dom/test-utils')
 NylasTestUtils =
 
   loadKeymap: (path) =>
-    NylasEnv.keymaps.loadKeymap(path)
+    AppEnv.keymaps.loadKeymap(path)
 
   simulateCommand: (target, command) =>
     target.dispatchEvent(new CustomEvent(command, {bubbles: true}))

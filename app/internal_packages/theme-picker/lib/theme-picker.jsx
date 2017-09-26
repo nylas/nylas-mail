@@ -9,7 +9,7 @@ class ThemePicker extends React.Component {
 
   constructor(props) {
     super(props);
-    this.themes = NylasEnv.themes;
+    this.themes = AppEnv.themes;
     this.state = this._getState();
   }
 

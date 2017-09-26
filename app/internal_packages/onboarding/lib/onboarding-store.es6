@@ -24,7 +24,7 @@ class OnboardingStore extends NylasStore {
       }
     });
 
-    const { existingAccount, addingAccount, accountProvider } = NylasEnv.getWindowProps();
+    const { existingAccount, addingAccount, accountProvider } = AppEnv.getWindowProps();
 
     const hasAccounts = AccountStore.accounts().length > 0;
     const identity = IdentityStore.identity();
@@ -140,7 +140,7 @@ class OnboardingStore extends NylasStore {
       const isFirstAccount = AccountStore.accounts().length === 0;
 
       AccountStore.addAccount(account);
-      NylasEnv.displayWindow();
+      AppEnv.displayWindow();
 
       Actions.recordUserEvent('Email Account Auth Succeeded', {
         provider: account.provider,
@@ -159,8 +159,8 @@ class OnboardingStore extends NylasStore {
         }, 2000);
       }
     } catch (e) {
-      NylasEnv.reportError(e);
-      NylasEnv.showErrorDialog(
+      AppEnv.reportError(e);
+      AppEnv.showErrorDialog(
         'Unable to Connect Account',
         "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@getmailspring.com."
       );

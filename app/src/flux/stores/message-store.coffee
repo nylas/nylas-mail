@@ -174,7 +174,7 @@ class MessageStore extends NylasStore
     @_lastLoadedThreadId = @_thread.id
 
     if @_thread.unread
-      markAsReadDelay = NylasEnv.config.get('core.reading.markAsReadDelay')
+      markAsReadDelay = AppEnv.config.get('core.reading.markAsReadDelay')
       markAsReadId = @_thread.id
       return if markAsReadDelay < 0
 
@@ -258,7 +258,7 @@ class MessageStore extends NylasStore
       Actions.fetchBodies(missing)
 
   _fetchExpandedAttachments: (items) ->
-    policy = NylasEnv.config.get('core.attachments.downloadPolicy')
+    policy = AppEnv.config.get('core.attachments.downloadPolicy')
     return if policy is 'manually'
 
     for item in items
@@ -301,7 +301,7 @@ class MessageStore extends NylasStore
     items
 
   _onPopoutThread: (thread) ->
-    NylasEnv.newWindow
+    AppEnv.newWindow
       title: false, # MessageList already displays the thread subject
       hidden: false,
       windowKey: "thread-#{thread.id}",
@@ -311,9 +311,9 @@ class MessageStore extends NylasStore
         perspectiveJSON: FocusedPerspectiveStore.current().toJSON()
 
   _onFocusThreadMainWindow: (thread) ->
-    if NylasEnv.isMainWindow()
+    if AppEnv.isMainWindow()
       Actions.setFocus({collection: 'thread', item: thread})
-      NylasEnv.focus()
+      AppEnv.focus()
 
 
 store = new MessageStore()

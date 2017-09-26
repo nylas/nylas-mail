@@ -89,7 +89,7 @@ export default class EmailFrame extends React.Component {
           iframe: iframeNode,
         });
       } catch (e) {
-        NylasEnv.reportError(e);
+        AppEnv.reportError(e);
       }
     }
 

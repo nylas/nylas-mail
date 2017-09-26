@@ -46,8 +46,8 @@ export default class SendDraftTask extends Task {
     super(...args);
 
     if (this.draft) {
-      const OPEN_TRACKING_ID = NylasEnv.packages.pluginIdFor('open-tracking');
-      const LINK_TRACKING_ID = NylasEnv.packages.pluginIdFor('link-tracking');
+      const OPEN_TRACKING_ID = AppEnv.packages.pluginIdFor('open-tracking');
+      const LINK_TRACKING_ID = AppEnv.packages.pluginIdFor('link-tracking');
 
       const pluginsAvailable = OPEN_TRACKING_ID && LINK_TRACKING_ID;
       const pluginsInUse =
@@ -94,7 +94,7 @@ export default class SendDraftTask extends Task {
     });
 
     // Play the sending sound
-    if (NylasEnv.config.get('core.sending.sounds') && !this.silent) {
+    if (AppEnv.config.get('core.sending.sounds') && !this.silent) {
       SoundRegistry.playSound('send');
     }
   }

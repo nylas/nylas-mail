@@ -4,7 +4,7 @@ import { UndoRedoStore } from 'nylas-exports';
 import { UndoToast, ListensToFluxStore } from 'nylas-component-kit';
 
 function onUndo() {
-  NylasEnv.commands.dispatch('core:undo');
+  AppEnv.commands.dispatch('core:undo');
 }
 
 function UndoRedoThreadListToast(props) {

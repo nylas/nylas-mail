@@ -138,7 +138,7 @@ class FeatureUsageStore extends NylasStore {
   _dataForFeature(feature) {
     const usage = IdentityStore.identity().featureUsage || {};
     if (!usage[feature]) {
-      NylasEnv.reportError(new Error(`Warning: No usage information available for ${feature}`));
+      AppEnv.reportError(new Error(`Warning: No usage information available for ${feature}`));
       return {};
     }
     return usage[feature];

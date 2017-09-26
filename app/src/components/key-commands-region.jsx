@@ -114,7 +114,7 @@ export default class KeyCommandsRegion extends React.Component {
   componentDidMount() {
     this._setupListeners(this.props);
     if (this.props.globalMenuItems) {
-      this._menuDisposable = NylasEnv.menu.add(this.props.globalMenuItems);
+      this._menuDisposable = AppEnv.menu.add(this.props.globalMenuItems);
     }
   }
 
@@ -127,7 +127,7 @@ export default class KeyCommandsRegion extends React.Component {
       if (this._menuDisposable) {
         this._menuDisposable.dispose();
       }
-      this._menuDisposable = NylasEnv.menu.add(newProps.globalMenuItems);
+      this._menuDisposable = AppEnv.menu.add(newProps.globalMenuItems);
     }
   }
 
@@ -155,10 +155,10 @@ export default class KeyCommandsRegion extends React.Component {
     $el.addEventListener('focusout', this._onFocusOut);
 
     if (props.globalHandlers) {
-      this._globalDisposable = NylasEnv.commands.add(document.body, props.globalHandlers);
+      this._globalDisposable = AppEnv.commands.add(document.body, props.globalHandlers);
     }
     if (props.localHandlers) {
-      this._localDisposable = NylasEnv.commands.add($el, props.localHandlers);
+      this._localDisposable = AppEnv.commands.add($el, props.localHandlers);
     }
 
     window.addEventListener('browser-window-blur', this._onWindowBlur);

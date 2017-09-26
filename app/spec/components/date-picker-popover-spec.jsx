@@ -45,10 +45,10 @@ describe('DatePickerPopover', function sendLaterPopover() {
     });
 
     it('throws error if date is invalid', () => {
-      spyOn(NylasEnv, 'showErrorDialog')
+      spyOn(AppEnv, 'showErrorDialog')
       const popover = makePopover()
       popover.instance().onCustomDateSelected(null, 'abc')
-      expect(NylasEnv.showErrorDialog).toHaveBeenCalled()
+      expect(AppEnv.showErrorDialog).toHaveBeenCalled()
     });
   });
 

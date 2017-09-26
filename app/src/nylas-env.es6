@@ -19,10 +19,10 @@ function ensureInteger(f, fallback) {
   return Math.round(int);
 }
 
-// Essential: NylasEnv global for dealing with packages, themes, menus, and the window.
+// Essential: AppEnv global for dealing with packages, themes, menus, and the window.
 //
-// The singleton of this class is always available as the `NylasEnv` global.
-export default class NylasEnvConstructor {
+// The singleton of this class is always available as the `AppEnv` global.
+export default class AppEnvConstructor {
   static initClass() {
     this.version = 1;
     this.prototype.workspaceViewParentSelector = 'body';
@@ -54,7 +54,7 @@ export default class NylasEnvConstructor {
   }
 
   // Load or create the application environment
-  // Returns an NylasEnv instance, fully initialized
+  // Returns an AppEnv instance, fully initialized
   static loadOrCreate() {
     let app;
 
@@ -144,7 +144,7 @@ export default class NylasEnvConstructor {
   // Sets up the basic services that should be available in all modes
   // (both spec and application).
   //
-  // Call after this instance has been assigned to the `NylasEnv` global.
+  // Call after this instance has been assigned to the `AppEnv` global.
   initialize() {
     this.enhanceEventObject();
 
@@ -310,7 +310,7 @@ export default class NylasEnvConstructor {
   // Public: report an error through the `ErrorLogger`
   //
   // The difference between this and `ErrorLogger.reportError` is that
-  // `NylasEnv.reportError` hooks into test failures and dev tool popups.
+  // `AppEnv.reportError` hooks into test failures and dev tool popups.
   //
   reportError(error, extra = {}, { noWindows } = {}) {
     try {
@@ -1053,4 +1053,4 @@ export default class NylasEnvConstructor {
   }
 }
 
-NylasEnvConstructor.initClass();
+AppEnvConstructor.initClass();

@@ -26,7 +26,7 @@ class ThemeOption extends React.Component {
   _getImportPaths() {
     return [
       this.props.theme.getStylesheetsPath(),
-      NylasEnv.themes.getBaseTheme().getStylesheetsPath(),
+      AppEnv.themes.getBaseTheme().getStylesheetsPath(),
     ];
   }
 
@@ -38,7 +38,7 @@ class ThemeOption extends React.Component {
   }
 
   _loadLessStylesheet(lessStylesheetPath) {
-    const { configDirPath, resourcePath } = NylasEnv.getLoadSettings();
+    const { configDirPath, resourcePath } = AppEnv.getLoadSettings();
     if (this.lessCache) {
       this.lessCache.setImportPaths(this._getImportPaths());
     } else {
@@ -64,7 +64,7 @@ class ThemeOption extends React.Component {
     const doc = ReactDOM.findDOMNode(this._iframeComponent).contentDocument;
     if (!doc) return;
 
-    const { resourcePath } = NylasEnv.getLoadSettings();
+    const { resourcePath } = AppEnv.getLoadSettings();
     const css = `<style>${this._loadStylesheet(
       `${resourcePath}/internal_packages/theme-picker/preview-styles/theme-option.less`
     )}</style>`;

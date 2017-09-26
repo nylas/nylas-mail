@@ -12,7 +12,7 @@ export default class WindowEventHandler {
 
     setTimeout(() => this.showDevModeMessages(), 1);
 
-    ipcRenderer.on('update-available', (event, detail) => NylasEnv.updateAvailable(detail));
+    ipcRenderer.on('update-available', (event, detail) => AppEnv.updateAvailable(detail));
 
     ipcRenderer.on('browser-window-focus', () => {
       document.body.classList.remove('is-blurred');
@@ -25,7 +25,7 @@ export default class WindowEventHandler {
     });
 
     ipcRenderer.on('command', (event, command, ...args) => {
-      NylasEnv.commands.dispatch(command, args[0]);
+      AppEnv.commands.dispatch(command, args[0]);
     });
 
     ipcRenderer.on('scroll-touch-begin', () => {
@@ -37,7 +37,7 @@ export default class WindowEventHandler {
     });
 
     window.onbeforeunload = () => {
-      if (NylasEnv.inSpecMode()) {
+      if (AppEnv.inSpecMode()) {
         return undefined;
       }
       // Don't hide the window here if we don't want the renderer process to be
@@ -46,63 +46,63 @@ export default class WindowEventHandler {
       // In Electron, returning any value other than undefined cancels the close.
       if (this.runUnloadCallbacks()) {
         // Good to go! Window will be closing...
-        NylasEnv.storeWindowDimensions();
-        NylasEnv.saveStateAndUnloadWindow();
+        AppEnv.storeWindowDimensions();
+        AppEnv.saveStateAndUnloadWindow();
         return undefined;
       }
       return false;
     };
 
-    NylasEnv.commands.add(document.body, 'window:toggle-full-screen', () => {
-      NylasEnv.toggleFullScreen();
+    AppEnv.commands.add(document.body, 'window:toggle-full-screen', () => {
+      AppEnv.toggleFullScreen();
     });
 
-    NylasEnv.commands.add(document.body, 'window:close', () => {
-      NylasEnv.close();
+    AppEnv.commands.add(document.body, 'window:close', () => {
+      AppEnv.close();
     });
 
-    NylasEnv.commands.add(document.body, 'window:reload', () => {
-      NylasEnv.reload();
+    AppEnv.commands.add(document.body, 'window:reload', () => {
+      AppEnv.reload();
     });
 
-    NylasEnv.commands.add(document.body, 'window:toggle-dev-tools', () => {
-      NylasEnv.toggleDevTools();
+    AppEnv.commands.add(document.body, 'window:toggle-dev-tools', () => {
+      AppEnv.toggleDevTools();
     });
 
-    NylasEnv.commands.add(document.body, 'window:open-js-logs', () => {
-      NylasEnv.errorLogger.openLogs();
+    AppEnv.commands.add(document.body, 'window:open-js-logs', () => {
+      AppEnv.errorLogger.openLogs();
     });
 
-    NylasEnv.commands.add(document.body, 'window:open-mailsync-logs', () => {
-      NylasEnv.mailsyncBridge.openLogs();
+    AppEnv.commands.add(document.body, 'window:open-mailsync-logs', () => {
+      AppEnv.mailsyncBridge.openLogs();
     });
 
-    NylasEnv.commands.add(document.body, 'window:sync-mail-now', () => {
-      NylasEnv.mailsyncBridge.sendSyncMailNow();
+    AppEnv.commands.add(document.body, 'window:sync-mail-now', () => {
+      AppEnv.mailsyncBridge.sendSyncMailNow();
     });
 
-    NylasEnv.commands.add(document.body, 'window:attach-to-xcode', () => {
-      const client = Object.values(NylasEnv.mailsyncBridge.clients()).pop();
+    AppEnv.commands.add(document.body, 'window:attach-to-xcode', () => {
+      const client = Object.values(AppEnv.mailsyncBridge.clients()).pop();
       if (client) {
         client.attachToXcode();
       }
     });
 
-    NylasEnv.commands.add(document.body, 'window:toggle-component-regions', () => {
+    AppEnv.commands.add(document.body, 'window:toggle-component-regions', () => {
       ComponentRegistry = ComponentRegistry || require('./registries/component-registry').default;
       ComponentRegistry.toggleComponentRegions();
     });
 
-    const webContents = NylasEnv.getCurrentWindow().webContents;
-    NylasEnv.commands.add(document.body, 'core:copy', () => webContents.copy());
-    NylasEnv.commands.add(document.body, 'core:cut', () => webContents.cut());
-    NylasEnv.commands.add(document.body, 'core:paste', () => webContents.paste());
-    NylasEnv.commands.add(document.body, 'core:paste-and-match-style', () =>
+    const webContents = AppEnv.getCurrentWindow().webContents;
+    AppEnv.commands.add(document.body, 'core:copy', () => webContents.copy());
+    AppEnv.commands.add(document.body, 'core:cut', () => webContents.cut());
+    AppEnv.commands.add(document.body, 'core:paste', () => webContents.paste());
+    AppEnv.commands.add(document.body, 'core:paste-and-match-style', () =>
       webContents.pasteAndMatchStyle()
     );
-    NylasEnv.commands.add(document.body, 'core:undo', () => webContents.undo());
-    NylasEnv.commands.add(document.body, 'core:redo', () => webContents.redo());
-    NylasEnv.commands.add(document.body, 'core:select-all', () => webContents.selectAll());
+    AppEnv.commands.add(document.body, 'core:undo', () => webContents.undo());
+    AppEnv.commands.add(document.body, 'core:redo', () => webContents.redo());
+    AppEnv.commands.add(document.body, 'core:select-all', () => webContents.selectAll());
 
     // "Pinch to zoom" on the Mac gets translated by the system into a
     // "scroll with ctrl key down". To prevent the page from zooming in,
@@ -178,11 +178,11 @@ export default class WindowEventHandler {
     setTimeout(() => {
       if (remote.getGlobal('application').isQuitting()) {
         remote.app.quit();
-      } else if (NylasEnv.isReloading) {
-        NylasEnv.isReloading = false;
-        NylasEnv.reload();
+      } else if (AppEnv.isReloading) {
+        AppEnv.isReloading = false;
+        AppEnv.reload();
       } else {
-        NylasEnv.close();
+        AppEnv.close();
       }
     }, 0);
   }
@@ -302,11 +302,11 @@ export default class WindowEventHandler {
   }
 
   showDevModeMessages() {
-    if (!NylasEnv.isMainWindow()) {
+    if (!AppEnv.isMainWindow()) {
       return;
     }
 
-    if (!NylasEnv.inDevMode()) {
+    if (!AppEnv.inDevMode()) {
       console.log(
         "%c Welcome to Mailspring! If you're exploring the source or building a " +
           "plugin, you should enable debug flags. It's slower, but " +

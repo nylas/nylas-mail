@@ -200,13 +200,13 @@ xdescribe 'AttachmentStoreSpecs', ->
     describe "_fetchAndSave", ->
       beforeEach ->
         @userSelectedPath = "/Users/imaginary/.nylas-mail/Downloads/b.png"
-        spyOn(NylasEnv, 'showSaveDialog').andCallFake (options, callback) => callback(@userSelectedPath)
+        spyOn(AppEnv, 'showSaveDialog').andCallFake (options, callback) => callback(@userSelectedPath)
 
       it "should open a save dialog and prompt the user to choose a download path", ->
         spyOn(AttachmentStore, '_ensureFile').andCallFake =>
           new Promise (resolve, reject) -> # never resolve
         AttachmentStore._fetchAndSave(@testfile)
-        expect(NylasEnv.showSaveDialog).toHaveBeenCalled()
+        expect(AppEnv.showSaveDialog).toHaveBeenCalled()
         expect(AttachmentStore._ensureFile).toHaveBeenCalledWith(@testfile)
 
       it "should open an error if the download fails", ->
@@ -242,7 +242,7 @@ xdescribe 'AttachmentStoreSpecs', ->
         it "should show file in folder if download path differs from previous download path", ->
           spyOn(AttachmentStore, '_saveDownload').andCallFake =>
             Promise.resolve(@testfile)
-          NylasEnv.savedState.lastDownloadDirectory = null
+          AppEnv.savedState.lastDownloadDirectory = null
           @userSelectedPath = "/Users/imaginary/.nylas-mail/Another Random Folder/file.jpg"
           AttachmentStore._fetchAndSave(@testfile)
           advanceClock(1)
@@ -252,19 +252,19 @@ xdescribe 'AttachmentStoreSpecs', ->
           spyOn(AttachmentStore, '_saveDownload').andCallFake =>
             Promise.resolve(@testfile)
           @userSelectedPath = "/Users/imaginary/.nylas-mail/Another Random Folder/123.png"
-          NylasEnv.savedState.lastDownloadDirectory = "/Users/imaginary/.nylas-mail/Another Random Folder"
+          AppEnv.savedState.lastDownloadDirectory = "/Users/imaginary/.nylas-mail/Another Random Folder"
           AttachmentStore._fetchAndSave(@testfile)
           advanceClock(1)
           expect(shell.showItemInFolder).not.toHaveBeenCalled()
 
-        it "should update the NylasEnv.savedState.lastDownloadDirectory if is has changed", ->
+        it "should update the AppEnv.savedState.lastDownloadDirectory if is has changed", ->
           spyOn(AttachmentStore, '_saveDownload').andCallFake =>
             Promise.resolve(@testfile)
-          NylasEnv.savedState.lastDownloadDirectory = null
+          AppEnv.savedState.lastDownloadDirectory = null
           @userSelectedPath = "/Users/imaginary/.nylas-mail/Another Random Folder/file.jpg"
           AttachmentStore._fetchAndSave(@testfile)
           advanceClock(1)
-          expect(NylasEnv.savedState.lastDownloadDirectory).toEqual('/Users/imaginary/.nylas-mail/Another Random Folder')
+          expect(AppEnv.savedState.lastDownloadDirectory).toEqual('/Users/imaginary/.nylas-mail/Another Random Folder')
 
         describe "file extensions", ->
           it "should allow the user to save the file with a different extension", ->

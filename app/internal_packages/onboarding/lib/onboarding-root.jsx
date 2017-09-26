@@ -38,8 +38,8 @@ export default class OnboardingRoot extends React.Component {
 
   componentDidMount() {
     this.unsubscribe = OnboardingStore.listen(this._onStateChanged, this);
-    NylasEnv.center();
-    NylasEnv.displayWindow();
+    AppEnv.center();
+    AppEnv.displayWindow();
   }
 
   componentWillUnmount() {

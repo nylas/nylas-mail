@@ -270,7 +270,7 @@ const DateUtils = {
    * Checks whether or not to use 24 hour time format.
    */
   getTimeFormat(opts) {
-    const use24HourClock = NylasEnv.config.get('core.workspace.use24HourClock');
+    const use24HourClock = AppEnv.config.get('core.workspace.use24HourClock');
     let timeFormat = use24HourClock ? 'HH:mm' : 'h:mm';
 
     if (opts && opts.seconds) {

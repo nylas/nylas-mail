@@ -30,7 +30,7 @@
     * [Config](/classes/Config.md)
     * [Contenteditable](/classes/Contenteditable.md)
     * [KeyCommandsRegion](/classes/KeyCommandsRegion.md)
-    * [NylasEnvConstructor](/classes/NylasEnvConstructor.md)
+    * [AppEnvConstructor](/classes/AppEnvConstructor.md)
     * [QueryResultSet](/classes/QueryResultSet.md)
     * [QuerySubscriptionPool](/classes/QuerySubscriptionPool.md)
     * [StyleManager](/classes/StyleManager.md)
@@ -94,7 +94,7 @@
     * [DraftEditingSession](/classes/DraftEditingSession.md)
     * [DraftStore](/classes/DraftStore.md)
 
-* NylasEnv
+* AppEnv
     * [PackageManager](/classes/PackageManager.md)
 
 * Atom

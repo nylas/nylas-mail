@@ -57,7 +57,7 @@ class SendActionsStore extends NylasStore {
           extAction.configKey = _str.dasherize(extAction.title.toLowerCase());
           all.push(extAction);
         } catch (err) {
-          NylasEnv.reportError(err);
+          AppEnv.reportError(err);
         }
       }
     }
@@ -75,7 +75,7 @@ class SendActionsStore extends NylasStore {
   orderedSendActionsForDraft(draft) {
     const configKeys = this._sendActions.map(({ configKey } = {}) => configKey);
 
-    let preferredKey = NylasEnv.config.get(ACTION_CONFIG_KEY);
+    let preferredKey = AppEnv.config.get(ACTION_CONFIG_KEY);
     if (!preferredKey || !configKeys.includes(preferredKey)) {
       preferredKey = DefaultSendActionKey;
     }

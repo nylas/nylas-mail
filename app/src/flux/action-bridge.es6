@@ -33,10 +33,10 @@ class ActionBridge {
     this.globalActions = [];
     this.ipc = ipc;
     this.ipcLastSendTime = null;
-    this.initiatorId = NylasEnv.getWindowType();
-    this.role = NylasEnv.isMainWindow() ? Role.MAIN : Role.SECONDARY;
+    this.initiatorId = AppEnv.getWindowType();
+    this.role = AppEnv.isMainWindow() ? Role.MAIN : Role.SECONDARY;
 
-    NylasEnv.onBeforeUnload(this.onBeforeUnload);
+    AppEnv.onBeforeUnload(this.onBeforeUnload);
 
     // Listen for action bridge messages from other windows
     this.ipc.on('action-bridge-message', this.onIPCMessage);
@@ -79,7 +79,7 @@ class ActionBridge {
   }
 
   onIPCMessage(event, initiatorId, name, json) {
-    if (NylasEnv.isEmptyWindow()) {
+    if (AppEnv.isEmptyWindow()) {
       throw new Error("Empty windows shouldn't receive IPC messages");
     }
     // There's something very strange about IPC event handlers. The ReactRemoteParent

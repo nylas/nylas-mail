@@ -10,7 +10,7 @@ export default class AuthenticatePage extends React.Component {
   };
 
   _src() {
-    const n1Version = NylasEnv.getVersion();
+    const n1Version = AppEnv.getVersion();
     return `${NylasAPIRequest.rootURLForServer(
       'identity'
     )}/onboarding?utm_medium=N1&utm_source=OnboardingPage&N1_version=${n1Version}&client_edition=basic`;

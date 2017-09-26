@@ -12,13 +12,13 @@ function renderCalendarToggles(calendars, disabledCalendars) {
   return calendars.map(calendar => {
     const calendarId = calendar.id;
     const onClick = () => {
-      const cals = NylasEnv.config.get(DISABLED_CALENDARS) || [];
+      const cals = AppEnv.config.get(DISABLED_CALENDARS) || [];
       if (cals.includes(calendarId)) {
         cals.splice(cals.indexOf(calendarId), 1);
       } else {
         cals.push(calendarId);
       }
-      NylasEnv.config.set(DISABLED_CALENDARS, cals);
+      AppEnv.config.set(DISABLED_CALENDARS, cals);
     };
 
     const checked = !disabledCalendars.includes(calendar.id);

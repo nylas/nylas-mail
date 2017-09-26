@@ -33,7 +33,7 @@ let IdentityStore = null;
 // server option
 
 export function rootURLForServer(server) {
-  const env = NylasEnv.config.get('env');
+  const env = AppEnv.config.get('env');
 
   if (!['development', 'staging', 'production'].includes(env)) {
     throw new Error(`rootURLForServer: ${env} is not a valid environment.`);
@@ -127,7 +127,7 @@ export default {
 
 //     // TODO BG: Promise.reject();
 
-//     // if (NylasEnv.getLoadSettings().isSpec) return Promise.resolve([]);
+//     // if (AppEnv.getLoadSettings().isSpec) return Promise.resolve([]);
 //     // try {
 //     //   this.options.auth = this.options.auth || this._defaultAuth();
 //     //   return await this._asyncRequest(this.options)
@@ -193,11 +193,11 @@ export default {
 
 //   async _notifyOfAPIError(apiError) {
 //     const {statusCode} = apiError
-//     // TODO move this check into NylasEnv.reportError()?
+//     // TODO move this check into AppEnv.reportError()?
 //     if (apiError.shouldReportError()) {
 //       const msg = apiError.message || `Unknown Error: ${apiError}`
 //       const fingerprint = ["{{ default }}", "api error", this.options.url, apiError.statusCode, msg];
-//       NylasEnv.reportError(apiError, {fingerprint,
+//       AppEnv.reportError(apiError, {fingerprint,
 //         rateLimit: {
 //           ratePerHour: 30,
 //           key: `APIError:${this.options.url}:${statusCode}:${msg}`,

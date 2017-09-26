@@ -178,20 +178,20 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       });
 
       it('should play a sound', () => {
-        spyOn(NylasEnv.config, 'get').andReturn(true);
+        spyOn(AppEnv.config, 'get').andReturn(true);
         waitsForPromise(() =>
           this.task.performRemote().then(() => {
-            expect(NylasEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
+            expect(AppEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
             expect(SoundRegistry.playSound).toHaveBeenCalledWith('send');
           })
         );
       });
 
       it("shouldn't play a sound if the config is disabled", () => {
-        spyOn(NylasEnv.config, 'get').andReturn(false);
+        spyOn(AppEnv.config, 'get').andReturn(false);
         waitsForPromise(() =>
           this.task.performRemote().then(() => {
-            expect(NylasEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
+            expect(AppEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
             expect(SoundRegistry.playSound).not.toHaveBeenCalled();
           })
         );
@@ -206,7 +206,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         it('notifies of a permanent error of misc error types', () => {
           // DB error
           let thrownError = null;
-          spyOn(NylasEnv, 'reportError');
+          spyOn(AppEnv, 'reportError');
           jasmine.unspy(DBt, 'persistModel');
           spyOn(DBt, 'persistModel').andCallFake(() => {
             thrownError = new Error('db error');
@@ -217,7 +217,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
               expect(status[0]).toBe(Task.Status.Failed);
               expect(status[1]).toBe(thrownError);
               expect(Actions.draftDeliveryFailed).toHaveBeenCalled();
-              expect(NylasEnv.reportError).toHaveBeenCalled();
+              expect(AppEnv.reportError).toHaveBeenCalled();
             })
           );
         });
@@ -281,7 +281,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
         it('notifies of a permanent error on 500 errors', () => {
           const thrownError = new APIError({ statusCode: 500, body: 'err' });
-          spyOn(NylasEnv, 'reportError');
+          spyOn(AppEnv, 'reportError');
           spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() =>
@@ -295,7 +295,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
         it('notifies us and users of a permanent error on 400 errors', () => {
           const thrownError = new APIError({ statusCode: 400, body: 'err' });
-          spyOn(NylasEnv, 'reportError');
+          spyOn(AppEnv, 'reportError');
           spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() =>
@@ -327,7 +327,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
             5.7.0 content and attachment content guidelines. fk9sm21147314pad.9 - gsmtp
           `;
 
-          spyOn(NylasEnv, 'reportError');
+          spyOn(AppEnv, 'reportError');
           spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
 
           waitsForPromise(() =>
@@ -355,7 +355,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           const expectedMessage =
             'This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)';
 
-          spyOn(NylasEnv, 'reportError');
+          spyOn(AppEnv, 'reportError');
           spyOn(NylasAPIRequest.prototype, 'run').andReturn(Promise.reject(thrownError));
           waitsForPromise(() =>
             this.task.performRemote().then(status => {
@@ -371,7 +371,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
 
         describe('checking the promise chain halts on errors', () => {
           beforeEach(() => {
-            spyOn(NylasEnv, 'reportError');
+            spyOn(AppEnv, 'reportError');
             spyOn(this.task, 'sendMessage').andCallThrough();
             spyOn(this.task, 'onSuccess').andCallThrough();
             spyOn(this.task, 'onError').andCallThrough();
@@ -410,7 +410,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
           it("doesn't halt on success", () => {
             // Don't spy reportError to make sure to fail the test on unexpected
             // errors
-            jasmine.unspy(NylasEnv, 'reportError');
+            jasmine.unspy(AppEnv, 'reportError');
             spyOn(NylasAPIRequest.prototype, 'run').andCallFake(options => {
               if (options.success) {
                 options.success(this.response);
@@ -528,8 +528,8 @@ xdescribe('SendDraftTask', function sendDraftTask() {
         let value = { provider: customValues['AccountStore.accountForId'] || 'gmail' };
         spyOn(AccountStore, 'accountForId').andReturn(value);
 
-        value = customValues['NylasEnv.packages.pluginIdFor'] || (name => name);
-        spyOn(NylasEnv.packages, 'pluginIdFor').andCallFake(value);
+        value = customValues['AppEnv.packages.pluginIdFor'] || (name => name);
+        spyOn(AppEnv.packages, 'pluginIdFor').andCallFake(value);
 
         value = { length: customValues['draft.participants'] || 5 };
         spyOn(this.task.draft, 'participants').andReturn(value);
@@ -545,7 +545,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       const fake = name => {
         return name === 'open-tracking' ? null : name;
       };
-      this.applySpies({ 'NylasEnv.packages.pluginIdFor': fake });
+      this.applySpies({ 'AppEnv.packages.pluginIdFor': fake });
       expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 
@@ -553,7 +553,7 @@ xdescribe('SendDraftTask', function sendDraftTask() {
       const fake = name => {
         return name === 'link-tracking' ? null : name;
       };
-      this.applySpies({ 'NylasEnv.packages.pluginIdFor': fake });
+      this.applySpies({ 'AppEnv.packages.pluginIdFor': fake });
       expect(this.task.hasCustomBodyPerRecipient()).toBe(false);
     });
 

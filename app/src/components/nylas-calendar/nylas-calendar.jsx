@@ -93,7 +93,7 @@ export default class NylasCalendar extends React.Component {
       focusedEvent: null,
       currentView: WEEK_VIEW,
       currentMoment: props.currentMoment || this._now(),
-      disabledCalendars: NylasEnv.config.get(DISABLED_CALENDARS) || [],
+      disabledCalendars: AppEnv.config.get(DISABLED_CALENDARS) || [],
     };
   }
 

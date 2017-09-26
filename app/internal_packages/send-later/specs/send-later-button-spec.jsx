@@ -60,26 +60,26 @@ xdescribe('SendLaterButton', function sendLaterButton() {
     it('displays dialog if an auth error occurs', () => {
       const button = makeButton(null, { sendLaterDate: 'date' });
       spyOn(button, 'setState');
-      spyOn(NylasEnv, 'reportError');
-      spyOn(NylasEnv, 'showErrorDialog');
+      spyOn(AppEnv, 'reportError');
+      spyOn(AppEnv, 'showErrorDialog');
       spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.reject(new Error('Oh no!')));
       spyOn(Actions, 'finalizeDraftAndSyncbackMetadata');
       button.onSendLater({ utc: () => 'utc' });
       advanceClock();
-      expect(NylasEnv.reportError).toHaveBeenCalled();
-      expect(NylasEnv.showErrorDialog).toHaveBeenCalled();
+      expect(AppEnv.reportError).toHaveBeenCalled();
+      expect(AppEnv.showErrorDialog).toHaveBeenCalled();
     });
 
     it('closes the composer window if a sendLaterDate has been set', () => {
       const button = makeButton(null, { sendLaterDate: 'date' });
       spyOn(button, 'setState');
-      spyOn(NylasEnv, 'close');
+      spyOn(AppEnv, 'close');
       spyOn(NylasAPIHelpers, 'authPlugin').andReturn(Promise.resolve());
-      spyOn(NylasEnv, 'isComposerWindow').andReturn(true);
+      spyOn(AppEnv, 'isComposerWindow').andReturn(true);
       spyOn(Actions, 'finalizeDraftAndSyncbackMetadata');
       button.onSendLater({ utc: () => 'utc' });
       advanceClock();
-      expect(NylasEnv.close).toHaveBeenCalled();
+      expect(AppEnv.close).toHaveBeenCalled();
     });
   });
 

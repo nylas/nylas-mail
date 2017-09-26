@@ -9,7 +9,7 @@ export default class DevModeNotification extends React.Component {
     // Don't need listeners to update this, since toggling dev mode reloads
     // the entire window anyway
     this.state = {
-      inDevMode: NylasEnv.inDevMode(),
+      inDevMode: AppEnv.inDevMode(),
     };
   }
 

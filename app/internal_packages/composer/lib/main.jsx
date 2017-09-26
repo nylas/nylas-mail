@@ -26,7 +26,7 @@ class ComposerWithWindowProps extends React.Component {
     super(props);
 
     // We'll now always have windowProps by the time we construct this.
-    const windowProps = NylasEnv.getWindowProps();
+    const windowProps = AppEnv.getWindowProps();
     const { draftJSON, headerMessageId } = windowProps;
     if (!draftJSON) {
       throw new Error('Initialize popout composer windows with valid draftJSON');
@@ -48,7 +48,7 @@ class ComposerWithWindowProps extends React.Component {
 
   _onDraftReady = () => {
     this._composerComponent.focus().then(() => {
-      NylasEnv.displayWindow();
+      AppEnv.displayWindow();
 
       if (this.state.errorMessage) {
         this._showInitialErrorDialog(this.state.errorMessage, this.state.errorDetail);
@@ -74,25 +74,25 @@ class ComposerWithWindowProps extends React.Component {
     // don't delay the modal may come up in a state where the draft looks
     // like it hasn't been restored or has been lost.
     _.delay(() => {
-      NylasEnv.showErrorDialog({ title: 'Error', message: msg }, { detail: detail });
+      AppEnv.showErrorDialog({ title: 'Error', message: msg }, { detail: detail });
     }, 100);
   }
 }
 
 export function activate() {
-  if (NylasEnv.isMainWindow()) {
+  if (AppEnv.isMainWindow()) {
     ComponentRegistry.register(ComposerViewForDraftClientId, {
       role: 'Composer',
     });
     ComponentRegistry.register(ComposeButton, {
       location: WorkspaceStore.Location.RootSidebar.Toolbar,
     });
-  } else if (NylasEnv.isThreadWindow()) {
+  } else if (AppEnv.isThreadWindow()) {
     ComponentRegistry.register(ComposerViewForDraftClientId, {
       role: 'Composer',
     });
   } else {
-    NylasEnv.getCurrentWindow().setMinimumSize(480, 250);
+    AppEnv.getCurrentWindow().setMinimumSize(480, 250);
     ComponentRegistry.register(ComposerWithWindowProps, {
       location: WorkspaceStore.Location.Center,
     });
@@ -107,7 +107,7 @@ export function activate() {
 }
 
 export function deactivate() {
-  if (NylasEnv.isMainWindow()) {
+  if (AppEnv.isMainWindow()) {
     ComponentRegistry.unregister(ComposerViewForDraftClientId);
     ComponentRegistry.unregister(ComposeButton);
   } else {

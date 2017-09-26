@@ -10,8 +10,8 @@ SidebarItem = require './sidebar-item'
 SidebarActions = require './sidebar-actions'
 
 isSectionCollapsed = (title) ->
-  if NylasEnv.savedState.sidebarKeysCollapsed[title] isnt undefined
-    NylasEnv.savedState.sidebarKeysCollapsed[title]
+  if AppEnv.savedState.sidebarKeysCollapsed[title] isnt undefined
+    AppEnv.savedState.sidebarKeysCollapsed[title]
   else
     false
 

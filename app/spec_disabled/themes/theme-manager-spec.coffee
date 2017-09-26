@@ -8,8 +8,8 @@ Package = require '../../src/package'
 
 describe "ThemeManager", ->
   themeManager = null
-  resourcePath = NylasEnv.getLoadSettings().resourcePath
-  configDirPath = NylasEnv.getConfigDirPath()
+  resourcePath = AppEnv.getLoadSettings().resourcePath
+  configDirPath = AppEnv.getConfigDirPath()
 
   beforeEach ->
     # spyOn(console, "log")
@@ -23,16 +23,16 @@ describe "ThemeManager", ->
       path.resolve(__dirname, '../../internal_packages/ui-light')
       path.resolve(__dirname, '../../internal_packages/ui-dark')
     ]
-    spyOn(NylasEnv.packages, "getAvailablePackagePaths").andReturn packagePaths
-    NylasEnv.packages.packageDirPaths.unshift(theme_dir)
-    themeManager = new ThemeManager({packageManager: NylasEnv.packages, resourcePath, configDirPath})
+    spyOn(AppEnv.packages, "getAvailablePackagePaths").andReturn packagePaths
+    AppEnv.packages.packageDirPaths.unshift(theme_dir)
+    themeManager = new ThemeManager({packageManager: AppEnv.packages, resourcePath, configDirPath})
 
   afterEach ->
     themeManager.deactivateThemes()
 
   describe "theme getters and setters", ->
     beforeEach ->
-      NylasEnv.packages.activatePackage()
+      AppEnv.packages.activatePackage()
 
     it 'getAvailableThemes get all the loaded themes', ->
       themes = themeManager.getAvailableThemes()
@@ -43,14 +43,14 @@ describe "ThemeManager", ->
         themeManager.activateThemes()
 
       runs ->
-        names = NylasEnv.config.get('core.themes')
+        names = AppEnv.config.get('core.themes')
         expect(names.length).toBeGreaterThan(0)
         themes = themeManager.getActiveThemes()
         expect(themes).toHaveLength(names.length)
 
   describe "when the core.themes config value contains invalid entry", ->
     it "ignores theme", ->
-      NylasEnv.config.set 'core.themes', [
+      AppEnv.config.set 'core.themes', [
         'ui-light'
         null
         undefined
@@ -66,7 +66,7 @@ describe "ThemeManager", ->
 
   describe "::getImportPaths()", ->
     it "returns the theme directories before the themes are loaded", ->
-      NylasEnv.config.set('core.themes', ['theme-with-index-less', 'ui-dark', 'ui-light'])
+      AppEnv.config.set('core.themes', ['theme-with-index-less', 'ui-dark', 'ui-light'])
 
       paths = themeManager.getImportPaths()
 
@@ -76,7 +76,7 @@ describe "ThemeManager", ->
       expect(paths[1]).toContain 'ui-dark'
 
     it "ignores themes that cannot be resolved to a directory", ->
-      NylasEnv.config.set('core.themes', ['definitely-not-a-theme'])
+      AppEnv.config.set('core.themes', ['definitely-not-a-theme'])
       expect(-> themeManager.getImportPaths()).not.toThrow()
 
   describe "when the core.themes config value changes", ->
@@ -88,7 +88,7 @@ describe "ThemeManager", ->
 
       runs ->
         didChangeActiveThemesHandler.reset()
-        NylasEnv.config.set('core.themes', [])
+        AppEnv.config.set('core.themes', [])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -96,7 +96,7 @@ describe "ThemeManager", ->
       runs ->
         didChangeActiveThemesHandler.reset()
         expect(document.querySelectorAll('style.theme')).toHaveLength 0
-        NylasEnv.config.set('core.themes', ['ui-dark'])
+        AppEnv.config.set('core.themes', ['ui-dark'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -106,7 +106,7 @@ describe "ThemeManager", ->
         sheets = Array.from(document.querySelectorAll('style[priority="1"]'))
         expect(sheets).toHaveLength 1
         expect(sheets[0].getAttribute('source-path')).toMatch /ui-dark/
-        NylasEnv.config.set('core.themes', ['ui-light', 'ui-dark'])
+        AppEnv.config.set('core.themes', ['ui-light', 'ui-dark'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -117,7 +117,7 @@ describe "ThemeManager", ->
         expect(sheets).toHaveLength 2
         expect(sheets[0].getAttribute('source-path')).toMatch /ui-dark/
         expect(sheets[1].getAttribute('source-path')).toMatch /ui-light/
-        NylasEnv.config.set('core.themes', [])
+        AppEnv.config.set('core.themes', [])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -127,7 +127,7 @@ describe "ThemeManager", ->
         sheets = Array.from(document.querySelectorAll('style[priority="1"]'))
         expect(sheets).toHaveLength(1)
         # ui-dark has an directory path, the syntax one doesn't
-        NylasEnv.config.set('core.themes', ['theme-with-index-less', 'ui-light'])
+        AppEnv.config.set('core.themes', ['theme-with-index-less', 'ui-light'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount == 1
@@ -148,7 +148,7 @@ describe "ThemeManager", ->
       runs ->
         expect(document.body.classList.contains('theme-ui-light')).toBe(true)
         themeManager.onDidChangeActiveThemes didChangeActiveThemesHandler = jasmine.createSpy()
-        NylasEnv.config.set('core.themes', ['theme-with-ui-variables'])
+        AppEnv.config.set('core.themes', ['theme-with-ui-variables'])
 
       waitsFor ->
         didChangeActiveThemesHandler.callCount > 0
@@ -160,7 +160,7 @@ describe "ThemeManager", ->
 
   describe "when a theme fails to load", ->
     it "logs a warning", ->
-      NylasEnv.packages.activatePackage('a-theme-that-will-not-be-found')
+      AppEnv.packages.activatePackage('a-theme-that-will-not-be-found')
       .then () ->
         expect("This should have thrown!!").toBe(true)
       .catch (err) ->
@@ -174,7 +174,7 @@ describe "ThemeManager", ->
       themeManager.removeStylesheet(path.join(__dirname, '..', 'fixtures', 'sample.less'))
 
     it "synchronously loads css at the given path and installs a style tag for it in the head", ->
-      NylasEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
+      AppEnv.styles.onDidAddStyleElement styleElementAddedHandler = jasmine.createSpy("styleElementAddedHandler")
 
       cssPath = path.join(__dirname, '..', 'fixtures', 'css.css')
       lengthBefore = document.querySelectorAll('head style').length
@@ -236,7 +236,7 @@ describe "ThemeManager", ->
       disposable = themeManager.requireStylesheet(cssPath)
       expect(window.getComputedStyle(document.body)['font-weight']).toBe("bold")
 
-      NylasEnv.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
+      AppEnv.styles.onDidRemoveStyleElement styleElementRemovedHandler = jasmine.createSpy("styleElementRemovedHandler")
       disposable.dispose()
 
       expect(window.getComputedStyle(document.body)['font-weight']).not.toBe("bold")
@@ -265,7 +265,7 @@ describe "ThemeManager", ->
             return false
 
     it "loads the correct values from the theme's ui-variables file", ->
-      NylasEnv.config.set('core.themes', ['theme-with-ui-variables'])
+      AppEnv.config.set('core.themes', ['theme-with-ui-variables'])
 
       @waitsForThemeRefresh()
       runs ->
@@ -281,7 +281,7 @@ describe "ThemeManager", ->
 
     describe "when there is a theme with incomplete variables", ->
       it "loads the correct values from the fallback ui-variables", ->
-        NylasEnv.config.set('core.themes', ['theme-with-incomplete-ui-variables'])
+        AppEnv.config.set('core.themes', ['theme-with-incomplete-ui-variables'])
 
         @waitsForThemeRefresh()
         runs ->
@@ -295,7 +295,7 @@ describe "ThemeManager", ->
 
   describe "when a non-existent theme is present in the config", ->
     beforeEach ->
-      NylasEnv.config.set('core.themes', ['non-existent-dark-ui'])
+      AppEnv.config.set('core.themes', ['non-existent-dark-ui'])
 
       waitsForPromise ->
         themeManager.activateThemes()
@@ -308,11 +308,11 @@ describe "ThemeManager", ->
 
   describe "when in safe mode", ->
     beforeEach ->
-      themeManager = new ThemeManager({packageManager: NylasEnv.packages, resourcePath, configDirPath, safeMode: true})
+      themeManager = new ThemeManager({packageManager: AppEnv.packages, resourcePath, configDirPath, safeMode: true})
 
     describe 'when the enabled UI theme is bundled with N1', ->
       beforeEach ->
-        NylasEnv.config.set('core.themes', ['ui-light'])
+        AppEnv.config.set('core.themes', ['ui-light'])
 
         waitsForPromise ->
           themeManager.activateThemes()
@@ -324,7 +324,7 @@ describe "ThemeManager", ->
 
     describe 'when the enabled UI theme is not bundled with N1', ->
       beforeEach ->
-        NylasEnv.config.set('core.themes', ['installed-dark-ui'])
+        AppEnv.config.set('core.themes', ['installed-dark-ui'])
 
         waitsForPromise ->
           themeManager.activateThemes()
@@ -336,7 +336,7 @@ describe "ThemeManager", ->
 
     describe 'when the enabled UI theme is not bundled with N1', ->
       beforeEach ->
-        NylasEnv.config.set('core.themes', ['installed-dark-ui'])
+        AppEnv.config.set('core.themes', ['installed-dark-ui'])
 
         waitsForPromise ->
           themeManager.activateThemes()

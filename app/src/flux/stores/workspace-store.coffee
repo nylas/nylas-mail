@@ -19,7 +19,7 @@ Section: Stores
 class WorkspaceStore extends NylasStore
   constructor: ->
     @_resetInstanceVars()
-    @_preferredLayoutMode = NylasEnv.config.get('core.workspace.mode')
+    @_preferredLayoutMode = AppEnv.config.get('core.workspace.mode')
 
     @listenTo Actions.selectRootSheet, @_onSelectRootSheet
     @listenTo Actions.setFocus, @_onSetFocus
@@ -28,15 +28,15 @@ class WorkspaceStore extends NylasStore
     @listenTo Actions.popToRootSheet, @popToRootSheet
     @listenTo Actions.pushSheet, @pushSheet
 
-    {windowType} = NylasEnv.getLoadSettings()
+    {windowType} = AppEnv.getLoadSettings()
     unless windowType is 'onboarding'
       require('electron').webFrame.setZoomLevelLimits(1, 1)
-      NylasEnv.config.observe 'core.workspace.interfaceZoom', (z) =>
+      AppEnv.config.observe 'core.workspace.interfaceZoom', (z) =>
         require('electron').webFrame.setZoomFactor(z) if z and _.isNumber(z)
 
-    if NylasEnv.isMainWindow()
+    if AppEnv.isMainWindow()
       @_rebuildMenu()
-      NylasEnv.commands.add(document.body, {
+      AppEnv.commands.add(document.body, {
         'core:pop-sheet': => @popSheet()
         'application:select-list-mode' : => @_onSelectLayoutMode("list")
         'application:select-split-mode' : => @_onSelectLayoutMode("split")
@@ -45,7 +45,7 @@ class WorkspaceStore extends NylasStore
 
   _rebuildMenu: =>
     @_menuDisposable?.dispose()
-    @_menuDisposable = NylasEnv.menu.add([
+    @_menuDisposable = AppEnv.menu.add([
       {
         "label": "View",
         "submenu": [
@@ -71,10 +71,10 @@ class WorkspaceStore extends NylasStore
     @Location = Location = {}
     @Sheet = Sheet = {}
 
-    @_hiddenLocations = NylasEnv.config.get('core.workspace.hiddenLocations') || {}
+    @_hiddenLocations = AppEnv.config.get('core.workspace.hiddenLocations') || {}
     @_sheetStack = []
 
-    if NylasEnv.isMainWindow()
+    if AppEnv.isMainWindow()
       @defineSheet 'Global'
       @defineSheet 'Threads', {root: true},
         list: ['RootSidebar', 'ThreadList']
@@ -111,7 +111,7 @@ class WorkspaceStore extends NylasStore
         Actions.recordUserEvent("Sidebar Closed")
       @_hiddenLocations[location.id] = location
 
-    NylasEnv.config.set('core.workspace.hiddenLocations', @_hiddenLocations)
+    AppEnv.config.set('core.workspace.hiddenLocations', @_hiddenLocations)
 
     @trigger(@)
 
@@ -133,7 +133,7 @@ class WorkspaceStore extends NylasStore
   _onSelectLayoutMode: (mode) =>
     return if mode is @_preferredLayoutMode
     @_preferredLayoutMode = mode
-    NylasEnv.config.set('core.workspace.mode', @_preferredLayoutMode)
+    AppEnv.config.set('core.workspace.mode', @_preferredLayoutMode)
     @_rebuildMenu()
     @popToRootSheet()
     @trigger()

@@ -5,7 +5,7 @@ describe('sidebar-item', function sidebarItemSpec() {
   it('preserves nested labels on rename', () => {
     spyOn(Actions, 'queueTask');
     const categories = [new Folder({ path: 'a.b/c', accountId: window.TEST_ACCOUNT_ID })];
-    NylasEnv.savedState.sidebarKeysCollapsed = {};
+    AppEnv.savedState.sidebarKeysCollapsed = {};
     const item = SidebarItem.forCategories(categories);
     item.onEdited(item, 'd');
 
@@ -17,7 +17,7 @@ describe('sidebar-item', function sidebarItemSpec() {
   it('preserves labels on rename', () => {
     spyOn(Actions, 'queueTask');
     const categories = [new Folder({ path: 'a', accountId: window.TEST_ACCOUNT_ID })];
-    NylasEnv.savedState.sidebarKeysCollapsed = {};
+    AppEnv.savedState.sidebarKeysCollapsed = {};
     const item = SidebarItem.forCategories(categories);
     item.onEdited(item, 'b');
 

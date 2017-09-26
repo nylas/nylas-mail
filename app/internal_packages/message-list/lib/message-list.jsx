@@ -188,7 +188,7 @@ class MessageList extends React.Component {
 
   // Returns either "reply" or "reply-all"
   _replyType() {
-    const defaultReplyType = NylasEnv.config.get('core.sending.defaultReplyType');
+    const defaultReplyType = AppEnv.config.get('core.sending.defaultReplyType');
     const lastMessage = this._lastMessage();
     if (!lastMessage) {
       return 'reply';
@@ -214,7 +214,7 @@ class MessageList extends React.Component {
       return;
     }
     Actions.focusThreadMainWindow(this.state.currentThread);
-    NylasEnv.close();
+    AppEnv.close();
   };
 
   _onPopoutThread = () => {
@@ -248,7 +248,7 @@ class MessageList extends React.Component {
     const hasReplyArea = mostRecentMessage && !mostRecentMessage.draft;
 
     // Invert the message list if the descending option is set
-    if (NylasEnv.config.get('core.reading.descendingOrderMessageList')) {
+    if (AppEnv.config.get('core.reading.descendingOrderMessageList')) {
       messages = messages.reverse();
     }
 
@@ -437,7 +437,7 @@ class MessageList extends React.Component {
   }
 
   _renderPopoutToggle() {
-    if (NylasEnv.isThreadWindow()) {
+    if (AppEnv.isThreadWindow()) {
       return (
         <div onClick={this._onPopThreadIn}>
           <RetinaImg

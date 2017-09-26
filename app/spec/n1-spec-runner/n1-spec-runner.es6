@@ -19,7 +19,7 @@ class N1SpecRunner {
     this.loadSettings = loadSettings;
     this._extendGlobalWindow();
     this._setupJasmine();
-    this._setupNylasEnv();
+    this._setupAppEnv();
     this._setupWindow();
     Object.assign(ReactTestUtils, reactTestUtilsExtensions);
     MasterBeforeEach.setup(this.loadSettings, window.beforeEach);
@@ -103,25 +103,25 @@ class N1SpecRunner {
     require('jasmine-json');
   }
 
-  _setupNylasEnv() {
+  _setupAppEnv() {
     // We need to mock the config even before `beforeEach` runs because it
     // gets accessed on module definitions
     const fakePersistedConfig = { env: 'production' };
-    NylasEnv.config = new Config();
-    NylasEnv.config.settings = fakePersistedConfig;
+    AppEnv.config = new Config();
+    AppEnv.config.settings = fakePersistedConfig;
 
-    NylasEnv.restoreWindowDimensions();
-    NylasEnv.themes.loadBaseStylesheets();
-    NylasEnv.themes.requireStylesheet('../../static/jasmine');
-    NylasEnv.themes.initialLoadComplete = true;
-    NylasEnv.keymaps.loadKeymaps();
+    AppEnv.restoreWindowDimensions();
+    AppEnv.themes.loadBaseStylesheets();
+    AppEnv.themes.requireStylesheet('../../static/jasmine');
+    AppEnv.themes.initialLoadComplete = true;
+    AppEnv.keymaps.loadKeymaps();
   }
 
   _setupWindow() {
     window.addEventListener('core:close', () => window.close());
     window.addEventListener('beforeunload', () => {
-      NylasEnv.storeWindowDimensions();
-      return NylasEnv.saveSync();
+      AppEnv.storeWindowDimensions();
+      return AppEnv.saveSync();
     });
   }
 
@@ -129,7 +129,7 @@ class N1SpecRunner {
     const timeReporter = new TimeReporter();
     const consoleReporter = new ConsoleReporter();
 
-    const loadSettings = NylasEnv.getLoadSettings();
+    const loadSettings = AppEnv.getLoadSettings();
 
     if (loadSettings.jUnitXmlPath) {
       // jasmine-reporters extends the jasmine global with methods, so needs to
@@ -145,7 +145,7 @@ class N1SpecRunner {
 
     if (loadSettings.showSpecsInWindow) {
       this.jasmineEnv.addReporter(N1GuiReporter);
-      NylasEnv.show();
+      AppEnv.show();
     } else {
       // this package's dep `jasmine-focused` also adds methods to the
       // `jasmine` global

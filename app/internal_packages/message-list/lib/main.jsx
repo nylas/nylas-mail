@@ -13,7 +13,7 @@ import SidebarPluginContainer from './sidebar-plugin-container';
 import SidebarParticipantPicker from './sidebar-participant-picker';
 
 export function activate() {
-  if (NylasEnv.isMainWindow()) {
+  if (AppEnv.isMainWindow()) {
     // Register Message List Actions we provide globally
     ComponentRegistry.register(MessageList, {
       location: WorkspaceStore.Location.MessageList,
@@ -29,7 +29,7 @@ export function activate() {
     });
   } else {
     // This is for the thread-popout window.
-    const { threadId, perspectiveJSON } = NylasEnv.getWindowProps();
+    const { threadId, perspectiveJSON } = AppEnv.getWindowProps();
     ComponentRegistry.register(MessageList, { location: WorkspaceStore.Location.Center });
 
     // We need to locate the thread and focus it so that the MessageList displays it

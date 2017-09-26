@@ -29,7 +29,7 @@ xdescribe('DraftStore', function draftStore() {
     this.fakeThread = new Thread({ id: 'fake-thread', headerMessageId: 'fake-thread' });
     this.fakeMessage = new Message({ id: 'fake-message', headerMessageId: 'fake-message' });
 
-    spyOn(NylasEnv, 'newWindow').andCallFake(() => {});
+    spyOn(AppEnv, 'newWindow').andCallFake(() => {});
     spyOn(DatabaseWriter.prototype, 'persistModel').andReturn(Promise.resolve());
     spyOn(DatabaseStore, 'run').andCallFake(query => {
       if (query._klass === Thread) {
@@ -139,7 +139,7 @@ xdescribe('DraftStore', function draftStore() {
           return DatabaseWriter.prototype.persistModel.callCount > 0;
         });
         runs(() => {
-          expect(NylasEnv.newWindow).toHaveBeenCalledWith({
+          expect(AppEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
             hidden: true,
             windowKey: `composer-A`,
@@ -161,7 +161,7 @@ xdescribe('DraftStore', function draftStore() {
           return DatabaseWriter.prototype.persistModel.callCount > 0;
         });
         runs(() => {
-          expect(NylasEnv.newWindow).toHaveBeenCalledWith({
+          expect(AppEnv.newWindow).toHaveBeenCalledWith({
             title: 'Message',
             hidden: true,
             windowKey: `composer-A`,
@@ -214,17 +214,17 @@ xdescribe('DraftStore', function draftStore() {
     });
 
     it("should close the window if it's a popout", () => {
-      spyOn(NylasEnv, 'close');
-      spyOn(NylasEnv, 'isComposerWindow').andReturn(true);
+      spyOn(AppEnv, 'close');
+      spyOn(AppEnv, 'isComposerWindow').andReturn(true);
       DraftStore._onDestroyDraft('abc');
-      expect(NylasEnv.close).toHaveBeenCalled();
+      expect(AppEnv.close).toHaveBeenCalled();
     });
 
     it("should NOT close the window if isn't a popout", () => {
-      spyOn(NylasEnv, 'close');
-      spyOn(NylasEnv, 'isComposerWindow').andReturn(false);
+      spyOn(AppEnv, 'close');
+      spyOn(AppEnv, 'isComposerWindow').andReturn(false);
       DraftStore._onDestroyDraft('abc');
-      expect(NylasEnv.close).not.toHaveBeenCalled();
+      expect(AppEnv.close).not.toHaveBeenCalled();
     });
   });
 
@@ -286,7 +286,7 @@ xdescribe('DraftStore', function draftStore() {
         };
       });
 
-      it('should still wait one tick before firing NylasEnv.close again', () => {
+      it('should still wait one tick before firing AppEnv.close again', () => {
         const callback = jasmine.createSpy('callback');
         expect(DraftStore._onBeforeUnload(callback)).toBe(false);
         expect(callback).not.toHaveBeenCalled();
@@ -341,23 +341,23 @@ xdescribe('DraftStore', function draftStore() {
     });
 
     it('plays a sound immediately when sending draft', () => {
-      spyOn(NylasEnv.config, 'get').andReturn(true);
+      spyOn(AppEnv.config, 'get').andReturn(true);
       DraftStore._onSendDraft(this.draft.headerMessageId);
       advanceClock();
-      expect(NylasEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
+      expect(AppEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
       expect(SoundRegistry.playSound).toHaveBeenCalledWith('hit-send');
     });
 
     it("doesn't plays a sound if the setting is off", () => {
-      spyOn(NylasEnv.config, 'get').andReturn(false);
+      spyOn(AppEnv.config, 'get').andReturn(false);
       DraftStore._onSendDraft(this.draft.headerMessageId);
       advanceClock();
-      expect(NylasEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
+      expect(AppEnv.config.get).toHaveBeenCalledWith('core.sending.sounds');
       expect(SoundRegistry.playSound).not.toHaveBeenCalled();
     });
 
     it('sets the sending state when sending', () => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
       DraftStore._onSendDraft(this.draft.headerMessageId);
       advanceClock();
       expect(DraftStore.isSendingDraft(this.draft.headerMessageId)).toBe(true);
@@ -367,7 +367,7 @@ xdescribe('DraftStore', function draftStore() {
     // no view of the draft renders the draft as if its sending, but with
     // the wrong text.
     it('does NOT trigger until the latest changes have been applied', () => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
       runs(() => {
         DraftStore._onSendDraft(this.draft.headerMessageId);
         expect(DraftStore.trigger).not.toHaveBeenCalled();
@@ -391,36 +391,36 @@ xdescribe('DraftStore', function draftStore() {
     });
 
     it("returns false if the draft hasn't been seen", () => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
       expect(DraftStore.isSendingDraft(this.draft.headerMessageId)).toBe(false);
     });
 
     it("closes the window if it's a popout", () => {
-      spyOn(NylasEnv, 'getWindowType').andReturn('composer');
-      spyOn(NylasEnv, 'isMainWindow').andReturn(false);
-      spyOn(NylasEnv, 'close');
+      spyOn(AppEnv, 'getWindowType').andReturn('composer');
+      spyOn(AppEnv, 'isMainWindow').andReturn(false);
+      spyOn(AppEnv, 'close');
       runs(() => {
         return DraftStore._onSendDraft(this.draft.headerMessageId);
       });
-      waitsFor('N1 to close', () => NylasEnv.close.calls.length > 0);
+      waitsFor('N1 to close', () => AppEnv.close.calls.length > 0);
     });
 
     it("doesn't close the window if it's inline", () => {
-      spyOn(NylasEnv, 'getWindowType').andReturn('other');
-      spyOn(NylasEnv, 'isMainWindow').andReturn(false);
-      spyOn(NylasEnv, 'close');
-      spyOn(NylasEnv, 'isComposerWindow').andCallThrough();
+      spyOn(AppEnv, 'getWindowType').andReturn('other');
+      spyOn(AppEnv, 'isMainWindow').andReturn(false);
+      spyOn(AppEnv, 'close');
+      spyOn(AppEnv, 'isComposerWindow').andCallThrough();
       runs(() => {
         DraftStore._onSendDraft(this.draft.headerMessageId);
       });
-      waitsFor(() => NylasEnv.isComposerWindow.calls.length > 0);
+      waitsFor(() => AppEnv.isComposerWindow.calls.length > 0);
       runs(() => {
-        expect(NylasEnv.close).not.toHaveBeenCalled();
+        expect(AppEnv.close).not.toHaveBeenCalled();
       });
     });
 
     it("resets the sending state if there's an error", () => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(false);
+      spyOn(AppEnv, 'isMainWindow').andReturn(false);
       DraftStore._draftsSending[this.draft.headerMessageId] = true;
       Actions.draftDeliveryFailed({
         errorMessage: 'boohoo',
@@ -431,7 +431,7 @@ xdescribe('DraftStore', function draftStore() {
     });
 
     it("displays a popup in the main window if there's an error", () => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
       spyOn(FocusedContentStore, 'focused').andReturn({ id: 't1' });
       spyOn(remote.dialog, 'showMessageBox');
       spyOn(Actions, 'composePopoutDraft');
@@ -451,7 +451,7 @@ xdescribe('DraftStore', function draftStore() {
     });
 
     it("re-opens the draft if you're not looking at the thread", () => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
       spyOn(FocusedContentStore, 'focused').andReturn({ id: 't1' });
       spyOn(Actions, 'composePopoutDraft');
       DraftStore._draftsSending[this.draft.headerMessageId] = true;
@@ -468,7 +468,7 @@ xdescribe('DraftStore', function draftStore() {
     });
 
     it('re-opens the draft if there is no thread id', () => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
       spyOn(Actions, 'composePopoutDraft');
       DraftStore._draftsSending[this.draft.headerMessageId] = true;
       spyOn(FocusedContentStore, 'focused').andReturn(null);
@@ -486,7 +486,7 @@ xdescribe('DraftStore', function draftStore() {
 
   describe('session teardown', () => {
     beforeEach(() => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
       this.draftTeardown = jasmine.createSpy('draft teardown');
       this.session = {
         headerMessageId: 'abc',
@@ -516,7 +516,7 @@ xdescribe('DraftStore', function draftStore() {
 
   describe('mailto handling', () => {
     beforeEach(() => {
-      spyOn(NylasEnv, 'isMainWindow').andReturn(true);
+      spyOn(AppEnv, 'isMainWindow').andReturn(true);
     });
 
     describe('extensions', () => {

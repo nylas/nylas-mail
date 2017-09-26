@@ -22,11 +22,11 @@ const PackagesStore = Reflux.createStore({
     // this._refreshFeatured();
     // this.listenTo(PluginsActions.refreshFeaturedPackages, this._refreshFeatured);
     // this.listenTo(PluginsActions.refreshInstalledPackages, this._refreshInstalled);
-    // NylasEnv.commands.add(document.body,
+    // AppEnv.commands.add(document.body,
     //   'application:create-package',
     //   () => this._onCreatePackage()
     // );
-    // NylasEnv.commands.add(document.body,
+    // AppEnv.commands.add(document.body,
     //   'application:install-package',
     //   () => this._onInstallPackage()
     // );
@@ -36,7 +36,7 @@ const PackagesStore = Reflux.createStore({
     // this.listenTo(PluginsActions.setGlobalSearchValue, this._onGlobalSearchChange);
     // this.listenTo(PluginsActions.setInstalledSearchValue, this._onInstalledSearchChange);
     // this.listenTo(PluginsActions.showPackage, (pkg) => {
-    //   const dir = NylasEnv.packages.resolvePackagePath(pkg.name);
+    //   const dir = AppEnv.packages.resolvePackagePath(pkg.name);
     //   if (dir) shell.showItemInFolder(dir);
     // });
     // this.listenTo(PluginsActions.installPackage, (pkg) => {
@@ -47,17 +47,17 @@ const PackagesStore = Reflux.createStore({
     //       delete this._installing[pkg.name];
     //       this._displayMessage("Sorry, an error occurred", err.toString());
     //     } else {
-    //       if (NylasEnv.packages.isPackageDisabled(pkg.name)) {
-    //         NylasEnv.packages.enablePackage(pkg.name);
+    //       if (AppEnv.packages.isPackageDisabled(pkg.name)) {
+    //         AppEnv.packages.enablePackage(pkg.name);
     //       }
     //     }
     //     this._onPackagesChanged();
     //   });
     // });
     // this.listenTo(PluginsActions.uninstallPackage, (pkg) => {
-    //   if (NylasEnv.packages.isPackageLoaded(pkg.name)) {
-    //     NylasEnv.packages.disablePackage(pkg.name);
-    //     NylasEnv.packages.unloadPackage(pkg.name);
+    //   if (AppEnv.packages.isPackageLoaded(pkg.name)) {
+    //     AppEnv.packages.disablePackage(pkg.name);
+    //     AppEnv.packages.unloadPackage(pkg.name);
     //   }
     //   this._apm.uninstall(pkg, (err) => {
     //     if (err) this._displayMessage("Sorry, an error occurred", err.toString())
@@ -65,14 +65,14 @@ const PackagesStore = Reflux.createStore({
     //   })
     // });
     // this.listenTo(PluginsActions.enablePackage, (pkg) => {
-    //   if (NylasEnv.packages.isPackageDisabled(pkg.name)) {
-    //     NylasEnv.packages.enablePackage(pkg.name);
+    //   if (AppEnv.packages.isPackageDisabled(pkg.name)) {
+    //     AppEnv.packages.enablePackage(pkg.name);
     //     this._onPackagesChanged();
     //   }
     // });
     // this.listenTo(PluginsActions.disablePackage, (pkg) => {
-    //   if (!NylasEnv.packages.isPackageDisabled(pkg.name)) {
-    //     NylasEnv.packages.disablePackage(pkg.name);
+    //   if (!AppEnv.packages.isPackageDisabled(pkg.name)) {
+    //     AppEnv.packages.disablePackage(pkg.name);
     //     this._onPackagesChanged();
     //   }
     // });
@@ -107,10 +107,10 @@ const PackagesStore = Reflux.createStore({
 
   _prepareIfFresh: function _prepareIfFresh() {
     if (this._hasPrepared) return;
-    NylasEnv.packages.onDidActivatePackage(() => this._onPackagesChangedDebounced());
-    NylasEnv.packages.onDidDeactivatePackage(() => this._onPackagesChangedDebounced());
-    NylasEnv.packages.onDidLoadPackage(() => this._onPackagesChangedDebounced());
-    NylasEnv.packages.onDidUnloadPackage(() => this._onPackagesChangedDebounced());
+    AppEnv.packages.onDidActivatePackage(() => this._onPackagesChangedDebounced());
+    AppEnv.packages.onDidDeactivatePackage(() => this._onPackagesChangedDebounced());
+    AppEnv.packages.onDidLoadPackage(() => this._onPackagesChangedDebounced());
+    AppEnv.packages.onDidUnloadPackage(() => this._onPackagesChangedDebounced());
     this._onPackagesChanged();
     this._hasPrepared = true;
   },
@@ -184,7 +184,7 @@ const PackagesStore = Reflux.createStore({
         });
       }
 
-      const available = NylasEnv.packages.getAvailablePackageMetadata();
+      const available = AppEnv.packages.getAvailablePackageMetadata();
       const examples = available.filter(
         ({ isOptional, isHiddenOnPluginsPage }) => isOptional && !isHiddenOnPluginsPage
       );
@@ -210,7 +210,7 @@ const PackagesStore = Reflux.createStore({
   },
 
   _onInstallPackage: function _onInstallPackage() {
-    NylasEnv.showOpenDialog(
+    AppEnv.showOpenDialog(
       {
         title: 'Choose a Plugin Directory',
         buttonLabel: 'Choose',
@@ -218,7 +218,7 @@ const PackagesStore = Reflux.createStore({
       },
       filenames => {
         if (!filenames || filenames.length === 0) return;
-        NylasEnv.packages.installPackageFromPath(filenames[0], (err, packageName) => {
+        AppEnv.packages.installPackageFromPath(filenames[0], (err, packageName) => {
           if (err) {
             this._displayMessage('Could not install plugin', err.message);
           } else {
@@ -232,7 +232,7 @@ const PackagesStore = Reflux.createStore({
   },
 
   _onCreatePackage: function _onCreatePackage() {
-    if (!NylasEnv.inDevMode()) {
+    if (!AppEnv.inDevMode()) {
       const btn = dialog.showMessageBox({
         type: 'warning',
         message: 'Run with debug flags?',
@@ -245,10 +245,10 @@ const PackagesStore = Reflux.createStore({
       return;
     }
 
-    const packagesDir = path.join(NylasEnv.getConfigDirPath(), 'dev', 'packages');
+    const packagesDir = path.join(AppEnv.getConfigDirPath(), 'dev', 'packages');
     fs.makeTreeSync(packagesDir);
 
-    NylasEnv.showSaveDialog(
+    AppEnv.showSaveDialog(
       {
         title: 'Save New Package',
         defaultPath: packagesDir,
@@ -266,7 +266,7 @@ const PackagesStore = Reflux.createStore({
           );
         }
 
-        if (NylasEnv.packages.resolvePackagePath(packageName)) {
+        if (AppEnv.packages.resolvePackagePath(packageName)) {
           this._displayMessage(
             'Invalid plugin name',
             'Sorry, you must give your plugin a unique name.'
@@ -282,7 +282,7 @@ const PackagesStore = Reflux.createStore({
             this._displayMessage('Could not create plugin', err.toString());
             return;
           }
-          const { resourcePath } = NylasEnv.getLoadSettings();
+          const { resourcePath } = AppEnv.getLoadSettings();
           const packageTemplatePath = path.join(resourcePath, 'static', 'package-template');
           const packageJSON = {
             name: packageName,
@@ -293,7 +293,7 @@ const PackagesStore = Reflux.createStore({
               url: '',
             },
             engines: {
-              mailspring: `>=${NylasEnv.getVersion().split('-')[0]}`,
+              mailspring: `>=${AppEnv.getVersion().split('-')[0]}`,
             },
             windowTypes: {
               default: true,
@@ -311,8 +311,8 @@ const PackagesStore = Reflux.createStore({
           );
           shell.showItemInFolder(packageDir);
           _.defer(() => {
-            NylasEnv.packages.enablePackage(packageDir);
-            NylasEnv.packages.activatePackage(packageName);
+            AppEnv.packages.enablePackage(packageDir);
+            AppEnv.packages.activatePackage(packageName);
           });
         });
       }
@@ -335,7 +335,7 @@ const PackagesStore = Reflux.createStore({
     const installedNames = _.flatten(Object.values(this._installed)).map(pkg => pkg.name);
 
     _.flatten(Object.values(pkgs)).forEach(pkg => {
-      pkg.enabled = !NylasEnv.packages.isPackageDisabled(pkg.name);
+      pkg.enabled = !AppEnv.packages.isPackageDisabled(pkg.name);
       pkg.installed = installedNames.indexOf(pkg.name) !== -1;
       pkg.installing = this._installing[pkg.name];
       pkg.newerVersionAvailable = this._newerVersions[pkg.name];

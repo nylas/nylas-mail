@@ -34,8 +34,8 @@
 * [{{this}}](/classes/{{this}}.md)
 {{/each}}
 
-## NylasEnv
-{{#each sidebar.[NylasEnv]}}
+## AppEnv
+{{#each sidebar.[AppEnv]}}
 * [{{this}}](/classes/{{this}}.md)
 {{/each}}
 

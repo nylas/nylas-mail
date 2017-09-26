@@ -91,12 +91,12 @@ export default class KeymapManager {
   }
 
   suspendAllKeymaps() {
-    NylasEnv.menu.sendToBrowserProcess(NylasEnv.menu.template, {});
+    AppEnv.menu.sendToBrowserProcess(AppEnv.menu.template, {});
     suspended = true;
   }
 
   resumeAllKeymaps() {
-    NylasEnv.menu.update();
+    AppEnv.menu.update();
     suspended = false;
   }
 
@@ -109,7 +109,7 @@ export default class KeymapManager {
     if (this._unobserveTemplate) {
       this._unobserveTemplate.dispose();
     }
-    this._unobserveTemplate = NylasEnv.config.observe(templateConfigKey, this.loadTemplateKeymap);
+    this._unobserveTemplate = AppEnv.config.observe(templateConfigKey, this.loadTemplateKeymap);
 
     const userKeymapPath = this.getUserKeymapPath();
     if (!fs.existsSync(userKeymapPath)) {
@@ -124,7 +124,7 @@ export default class KeymapManager {
     if (this._removeTemplate) {
       this._removeTemplate.dispose();
     }
-    let templateFile = NylasEnv.config.get(templateConfigKey);
+    let templateFile = AppEnv.config.get(templateConfigKey);
     if (templateFile) {
       templateFile = templateFile.replace('GoogleInbox', 'Inbox by Gmail');
       const templateKeymapPath = path.join(
@@ -159,7 +159,7 @@ export default class KeymapManager {
         if (command.startsWith('application:')) {
           ipcRenderer.send('command', command);
         } else {
-          NylasEnv.commands.dispatch(command);
+          AppEnv.commands.dispatch(command);
         }
       }
       return false;

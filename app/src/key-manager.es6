@@ -17,7 +17,7 @@ class KeyManager {
      * fully deprecated or updated as well.
      */
     this.SERVICE_NAME = 'Mailspring';
-    if (NylasEnv.inDevMode()) {
+    if (AppEnv.inDevMode()) {
       this.SERVICE_NAME = 'Mailspring Dev';
     }
     this.KEY_NAME = 'Mailspring Keys';
@@ -98,11 +98,11 @@ class KeyManager {
     try {
       if (!fn()) {
         remote.dialog.showErrorBox('Password Management Error', ERR_MSG);
-        NylasEnv.reportError(new Error(`Password Management Error: ${ERR_MSG}`));
+        AppEnv.reportError(new Error(`Password Management Error: ${ERR_MSG}`));
       }
     } catch (err) {
       remote.dialog.showErrorBox('Password Management Error', ERR_MSG);
-      NylasEnv.reportError(err);
+      AppEnv.reportError(err);
     }
   }
 }

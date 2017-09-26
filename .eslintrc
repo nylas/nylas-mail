@@ -10,8 +10,8 @@
   },
   "extends": ["react-app", "prettier", "prettier/react"],
   "globals": {
-    "NylasEnv": false,
-    "$n": false,
+    "AppEnv": false,
+    "$m": false,
     "waitsForPromise": false,
     "advanceClock": false,
     "TEST_ACCOUNT_ID": false,

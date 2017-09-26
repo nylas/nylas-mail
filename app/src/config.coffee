@@ -8,7 +8,7 @@ EmitterMixin = require('emissary').Emitter
 if process.type is 'renderer'
   app = remote.getGlobal('application')
   webContentsId = remote.getCurrentWebContents().getId()
-  errorLogger = NylasEnv.errorLogger
+  errorLogger = AppEnv.errorLogger
 else
   app = global.application
   webContentsId = null
@@ -16,23 +16,23 @@ else
 
 # Essential: Used to access all of N1's configuration details.
 #
-# An instance of this class is always available as the `NylasEnv.config` global.
+# An instance of this class is always available as the `AppEnv.config` global.
 #
 # ## Getting and setting config settings.
 #
 # ```coffee
 # # Note that with no value set, ::get returns the setting's default value.
-# NylasEnv.config.get('my-package.myKey') # -> 'defaultValue'
+# AppEnv.config.get('my-package.myKey') # -> 'defaultValue'
 #
-# NylasEnv.config.set('my-package.myKey', 'value')
-# NylasEnv.config.get('my-package.myKey') # -> 'value'
+# AppEnv.config.set('my-package.myKey', 'value')
+# AppEnv.config.get('my-package.myKey') # -> 'value'
 # ```
 #
 # You may want to watch for changes. Use {::observe} to catch changes to the setting.
 #
 # ```coffee
-# NylasEnv.config.set('my-package.myKey', 'value')
-# NylasEnv.config.observe 'my-package.myKey', (newValue) ->
+# AppEnv.config.set('my-package.myKey', 'value')
+# AppEnv.config.observe 'my-package.myKey', (newValue) ->
 #   # `observe` calls immediately and every time the value is changed
 #   console.log 'My configuration changed:', newValue
 # ```
@@ -40,7 +40,7 @@ else
 # If you want a notification only when the value changes, use {::onDidChange}.
 #
 # ```coffee
-# NylasEnv.config.onDidChange 'my-package.myKey', ({newValue, oldValue}) ->
+# AppEnv.config.onDidChange 'my-package.myKey', ({newValue, oldValue}) ->
 #   console.log 'My configuration changed:', newValue, oldValue
 # ```
 #
@@ -52,15 +52,15 @@ else
 #
 # ```coffee
 # # When no value has been set, `::get` returns the setting's default value
-# NylasEnv.config.get('my-package.anInt') # -> 12
+# AppEnv.config.get('my-package.anInt') # -> 12
 #
 # # The string will be coerced to the integer 123
-# NylasEnv.config.set('my-package.anInt', '123')
-# NylasEnv.config.get('my-package.anInt') # -> 123
+# AppEnv.config.set('my-package.anInt', '123')
+# AppEnv.config.get('my-package.anInt') # -> 123
 #
 # # The string will be coerced to an integer, but it must be greater than 0, so is set to 1
-# NylasEnv.config.set('my-package.anInt', '-20')
-# NylasEnv.config.get('my-package.anInt') # -> 1
+# AppEnv.config.set('my-package.anInt', '-20')
+# AppEnv.config.get('my-package.anInt') # -> 1
 # ```
 #
 # ## Defining settings for your package
@@ -102,16 +102,16 @@ else
 # set to a string `'10'`, it will be coerced into an integer.
 #
 # ```coffee
-# NylasEnv.config.set('my-package.thingVolume', '10')
-# NylasEnv.config.get('my-package.thingVolume') # -> 10
+# AppEnv.config.set('my-package.thingVolume', '10')
+# AppEnv.config.get('my-package.thingVolume') # -> 10
 #
 # # It respects the min / max
-# NylasEnv.config.set('my-package.thingVolume', '400')
-# NylasEnv.config.get('my-package.thingVolume') # -> 11
+# AppEnv.config.set('my-package.thingVolume', '400')
+# AppEnv.config.get('my-package.thingVolume') # -> 11
 #
 # # If it cannot be coerced, the value will not be set
-# NylasEnv.config.set('my-package.thingVolume', 'cats')
-# NylasEnv.config.get('my-package.thingVolume') # -> 11
+# AppEnv.config.set('my-package.thingVolume', 'cats')
+# AppEnv.config.get('my-package.thingVolume') # -> 11
 # ```
 #
 # ### Supported Types
@@ -126,11 +126,11 @@ else
 #     default: 5
 #
 # # Then
-# NylasEnv.config.set('my-package.someSetting', 'true')
-# NylasEnv.config.get('my-package.someSetting') # -> true
+# AppEnv.config.set('my-package.someSetting', 'true')
+# AppEnv.config.get('my-package.someSetting') # -> true
 #
-# NylasEnv.config.set('my-package.someSetting', '12')
-# NylasEnv.config.get('my-package.someSetting') # -> 12
+# AppEnv.config.set('my-package.someSetting', '12')
+# AppEnv.config.get('my-package.someSetting') # -> 12
 # ```
 #
 # #### string
@@ -235,16 +235,16 @@ else
 # Usage:
 #
 # ```coffee
-# NylasEnv.config.set('my-package.someSetting', '2')
-# NylasEnv.config.get('my-package.someSetting') # -> 2
+# AppEnv.config.set('my-package.someSetting', '2')
+# AppEnv.config.get('my-package.someSetting') # -> 2
 #
 # # will not set values outside of the enum values
-# NylasEnv.config.set('my-package.someSetting', '3')
-# NylasEnv.config.get('my-package.someSetting') # -> 2
+# AppEnv.config.set('my-package.someSetting', '3')
+# AppEnv.config.get('my-package.someSetting') # -> 2
 #
 # # If it cannot be coerced, the value will not be set
-# NylasEnv.config.set('my-package.someSetting', '4')
-# NylasEnv.config.get('my-package.someSetting') # -> 4
+# AppEnv.config.set('my-package.someSetting', '4')
+# AppEnv.config.get('my-package.someSetting') # -> 4
 # ```
 #
 # #### title and description
@@ -304,7 +304,7 @@ class Config
     throw error if error?
     value
 
-  # Created during initialization, available as `NylasEnv.config`
+  # Created during initialization, available as `AppEnv.config`
   constructor: ->
     @emitter = new Emitter
     @schema =
@@ -345,7 +345,7 @@ class Config
   # `core.themes` for changes
   #
   # ```coffee
-  # NylasEnv.config.observe 'core.themes', (value) ->
+  # AppEnv.config.observe 'core.themes', (value) ->
   #   # do stuff with value
   # ```
   #
@@ -389,7 +389,7 @@ class Config
   # You might want to know what themes are enabled, so check `core.themes`
   #
   # ```coffee
-  # NylasEnv.config.get('core.themes')
+  # AppEnv.config.get('core.themes')
   # ```
   #
   # * `keyPath` The {String} name of the key to retrieve.
@@ -408,7 +408,7 @@ class Config
   # You might want to change the themes programmatically:
   #
   # ```coffee
-  # NylasEnv.config.set('core.themes', ['ui-light', 'my-custom-theme'])
+  # AppEnv.config.set('core.themes', ['ui-light', 'my-custom-theme'])
   # ```
   #
   # * `keyPath` The {String} name of the key.

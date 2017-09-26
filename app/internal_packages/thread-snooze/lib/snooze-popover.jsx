@@ -66,7 +66,7 @@ class SnoozePopover extends Component {
     if (date) {
       this.onSnooze(date, 'Custom');
     } else {
-      NylasEnv.showErrorDialog(`Sorry, we can't parse ${inputValue} as a valid date.`);
+      AppEnv.showErrorDialog(`Sorry, we can't parse ${inputValue} as a valid date.`);
     }
   };
 

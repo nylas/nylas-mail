@@ -5,14 +5,14 @@ import ReactTestUtils from 'react-dom/test-utils';
 import Package from '../../../src/package';
 import ThemePicker from '../lib/theme-picker';
 
-const { resourcePath } = NylasEnv.getLoadSettings();
+const { resourcePath } = AppEnv.getLoadSettings();
 const light = new Package(`${resourcePath}/internal_packages/ui-light`);
 const dark = new Package(`${resourcePath}/internal_packages/ui-dark`);
 
 describe('ThemePicker', function themePicker() {
   beforeEach(() => {
-    spyOn(NylasEnv.themes, 'getAvailableThemes').andReturn([light, dark]);
-    spyOn(NylasEnv.themes, 'getActiveTheme').andReturn(light);
+    spyOn(AppEnv.themes, 'getAvailableThemes').andReturn([light, dark]);
+    spyOn(AppEnv.themes, 'getActiveTheme').andReturn(light);
     this.component = ReactTestUtils.renderIntoDocument(<ThemePicker />);
   });
 

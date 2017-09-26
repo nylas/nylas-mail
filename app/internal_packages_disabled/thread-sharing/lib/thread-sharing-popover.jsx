@@ -77,8 +77,8 @@ export default class ThreadSharingPopover extends React.Component {
         })
       );
     } catch (error) {
-      NylasEnv.reportError(error);
-      NylasEnv.showErrorDialog(
+      AppEnv.reportError(error);
+      AppEnv.showErrorDialog(
         `Sorry, we were unable to update your sharing settings.\n\n${error.message}`
       );
     }

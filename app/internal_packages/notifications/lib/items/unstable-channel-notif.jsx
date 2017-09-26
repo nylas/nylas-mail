@@ -26,7 +26,7 @@ export default class UnstableChannelNotification extends React.Component {
   }
 
   _onReportIssue = () => {
-    NylasEnv.windowEventHandler.openLink({ href: 'mailto:support@getmailspring.com' });
+    AppEnv.windowEventHandler.openLink({ href: 'mailto:support@getmailspring.com' });
   };
 
   render() {

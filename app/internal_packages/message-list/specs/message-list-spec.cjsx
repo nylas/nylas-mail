@@ -219,7 +219,7 @@ describe "MessageList", ->
       expect(cs.length).toBe 1
 
     it "prompts for a reply-all when there's more than one participant and the default is reply-all", ->
-      spyOn(NylasEnv.config, "get").andReturn "reply-all"
+      spyOn(AppEnv.config, "get").andReturn "reply-all"
       MessageStore._items = [m5, m3]
       MessageStore._thread = testThread
       MessageStore.trigger()
@@ -228,7 +228,7 @@ describe "MessageList", ->
       expect(cs.length).toBe 1
 
     it "prompts for a reply-all when there's more than one participant and the default is reply", ->
-      spyOn(NylasEnv.config, "get").andReturn "reply"
+      spyOn(AppEnv.config, "get").andReturn "reply"
       MessageStore._items = [m5, m3]
       MessageStore._thread = testThread
       MessageStore.trigger()

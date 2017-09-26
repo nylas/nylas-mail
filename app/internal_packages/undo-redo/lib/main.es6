@@ -8,7 +8,7 @@ export function activate() {
   ComponentRegistry.register(UndoSendToast, {
     location: WorkspaceStore.Sheet.Global.Footer,
   });
-  if (NylasEnv.isMainWindow()) {
+  if (AppEnv.isMainWindow()) {
     ComponentRegistry.register(UndoRedoThreadListToast, {
       location: WorkspaceStore.Location.ThreadList,
     });
@@ -18,7 +18,7 @@ export function activate() {
 export function deactivate() {
   UndoSendStore.deactivate();
   ComponentRegistry.unregister(UndoSendToast);
-  if (NylasEnv.isMainWindow()) {
+  if (AppEnv.isMainWindow()) {
     ComponentRegistry.unregister(UndoRedoThreadListToast);
   }
 }

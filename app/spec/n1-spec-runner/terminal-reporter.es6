@@ -10,9 +10,9 @@ export default class N1TerminalReporter extends TerminalReporter {
       },
       onComplete(runner) {
         if (runner.results().failedCount > 0) {
-          return NylasEnv.exit(1);
+          return AppEnv.exit(1);
         }
-        return NylasEnv.exit(0);
+        return AppEnv.exit(0);
       },
     });
     super(options);

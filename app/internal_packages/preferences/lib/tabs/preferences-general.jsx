@@ -23,7 +23,7 @@ class PreferencesGeneral extends React.Component {
 
   _resetAccountsAndSettings = () => {
     const rimraf = require('rimraf');
-    rimraf(NylasEnv.getConfigDirPath(), { disableGlob: true }, err => {
+    rimraf(AppEnv.getConfigDirPath(), { disableGlob: true }, err => {
       if (err) console.log(err);
       else this._reboot();
     });

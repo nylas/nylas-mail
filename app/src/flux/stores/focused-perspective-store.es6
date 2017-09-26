@@ -27,9 +27,9 @@ class FocusedPerspectiveStore extends NylasStore {
   }
 
   sidebarAccountIds() {
-    let ids = NylasEnv.savedState.sidebarAccountIds;
+    let ids = AppEnv.savedState.sidebarAccountIds;
     if (!ids || !ids.length || !ids.every(id => AccountStore.accountForId(id))) {
-      ids = NylasEnv.savedState.sidebarAccountIds = AccountStore.accountIds();
+      ids = AppEnv.savedState.sidebarAccountIds = AccountStore.accountIds();
     }
 
     // Always defer to the AccountStore for the desired order of accounts in
@@ -41,7 +41,7 @@ class FocusedPerspectiveStore extends NylasStore {
   }
 
   _listenToCommands() {
-    NylasEnv.commands.add(document.body, {
+    AppEnv.commands.add(document.body, {
       'navigation:go-to-inbox': () => this._setPerspectiveByName('inbox'),
       'navigation:go-to-sent': () => this._setPerspectiveByName('sent'),
       'navigation:go-to-starred': () =>
@@ -81,8 +81,8 @@ class FocusedPerspectiveStore extends NylasStore {
   }
 
   _initializeFromSavedState() {
-    const json = NylasEnv.savedState.perspective;
-    let { sidebarAccountIds } = NylasEnv.savedState;
+    const json = AppEnv.savedState.perspective;
+    let { sidebarAccountIds } = AppEnv.savedState;
     let perspective;
 
     if (json) {
@@ -163,17 +163,17 @@ class FocusedPerspectiveStore extends NylasStore {
     let shouldTrigger = false;
 
     if (!perspective.isEqual(this._current)) {
-      NylasEnv.savedState.perspective = perspective.toJSON();
+      AppEnv.savedState.perspective = perspective.toJSON();
       this._current = perspective;
       shouldTrigger = true;
     }
 
     const shouldSaveSidebarAccountIds =
       sidebarAccountIds &&
-      !_.isEqual(NylasEnv.savedState.sidebarAccountIds, sidebarAccountIds) &&
+      !_.isEqual(AppEnv.savedState.sidebarAccountIds, sidebarAccountIds) &&
       this._initialized === true;
     if (shouldSaveSidebarAccountIds) {
-      NylasEnv.savedState.sidebarAccountIds = sidebarAccountIds;
+      AppEnv.savedState.sidebarAccountIds = sidebarAccountIds;
       shouldTrigger = true;
     }
 

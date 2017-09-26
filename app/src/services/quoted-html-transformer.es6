@@ -184,7 +184,7 @@ class QuotedHTMLTransformer {
     } catch (error) {
       const errText = `HTML Parser Error: ${error.toString()}`;
       doc = domParser.parseFromString(errText, 'text/html');
-      NylasEnv.reportError(error);
+      AppEnv.reportError(error);
     }
 
     // As far as we can tell, when this succeeds, doc /always/ has at least

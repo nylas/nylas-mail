@@ -61,7 +61,7 @@ export default class BillingModal extends React.Component {
     webview.executeJavaScript(receiveUserInfo, false, async result => {
       if (!result) return;
       if (result !== IdentityStore.identityId()) {
-        NylasEnv.reportError(
+        AppEnv.reportError(
           new Error(
             'id.getmailspring.com/payment_success did not have a valid #payment-success-data field'
           )

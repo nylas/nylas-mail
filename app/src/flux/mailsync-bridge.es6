@@ -66,7 +66,7 @@ class CrashTracker {
 
     let log = '';
     try {
-      const logpath = path.join(NylasEnv.getConfigDirPath(), 'mailsync.log');
+      const logpath = path.join(AppEnv.getConfigDirPath(), 'mailsync.log');
       const { size } = fs.statSync(logpath);
       const tailSize = Math.min(1200, size);
       const buffer = new Buffer(tailSize);
@@ -78,7 +78,7 @@ class CrashTracker {
       console.warn(`Could not append mailsync.log to mailsync exception report: ${logErr}`);
     }
 
-    NylasEnv.errorLogger.reportError(err, {
+    AppEnv.errorLogger.reportError(err, {
       stack: stack,
       log: log,
       provider: fullAccountJSON.provider,
@@ -114,7 +114,7 @@ class CrashTracker {
 
 export default class MailsyncBridge {
   constructor() {
-    if (!NylasEnv.isMainWindow() || NylasEnv.inSpecMode()) {
+    if (!AppEnv.isMainWindow() || AppEnv.inSpecMode()) {
       ipcRenderer.on('mailsync-bridge-message', this._onIncomingRebroadcastMessage);
       return;
     }
@@ -129,7 +129,7 @@ export default class MailsyncBridge {
 
     AccountStore.listen(this.ensureClients, this);
     OnlineStatusStore.listen(this._onOnlineStatusChanged, this);
-    NylasEnv.onBeforeUnload(this._onBeforeUnload);
+    AppEnv.onBeforeUnload(this._onBeforeUnload);
 
     process.nextTick(() => {
       this.ensureClients();
@@ -139,7 +139,7 @@ export default class MailsyncBridge {
   // Public
 
   openLogs() {
-    const { configDirPath } = NylasEnv.getLoadSettings();
+    const { configDirPath } = AppEnv.getLoadSettings();
     const logPath = path.join(configDirPath, 'mailsync.log');
     require('electron').shell.openItem(logPath); // eslint-disable-line
   }
@@ -184,7 +184,7 @@ export default class MailsyncBridge {
     if (!this._clients[accountId]) {
       const err = new Error(`No mailsync worker is running.`);
       err.accountId = accountId;
-      NylasEnv.reportError(err);
+      AppEnv.reportError(err);
       return;
     }
     this._clients[accountId].sendMessage(json);
@@ -203,7 +203,7 @@ export default class MailsyncBridge {
       return;
     }
 
-    const client = new MailsyncProcess(NylasEnv.getLoadSettings(), identity, fullAccountJSON);
+    const client = new MailsyncProcess(AppEnv.getLoadSettings(), identity, fullAccountJSON);
     client.sync();
     client.on('deltas', this._onIncomingMessages);
     client.on('close', ({ code, error, signal }) => {

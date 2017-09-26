@@ -47,13 +47,13 @@ export default class Notification extends React.Component {
   }
 
   _numAsks() {
-    if (!NylasEnv.savedState.dismissedNotificationAsks) {
-      NylasEnv.savedState.dismissedNotificationAsks = {};
+    if (!AppEnv.savedState.dismissedNotificationAsks) {
+      AppEnv.savedState.dismissedNotificationAsks = {};
     }
-    if (!NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName]) {
-      NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName] = 0;
+    if (!AppEnv.savedState.dismissedNotificationAsks[this.props.displayName]) {
+      AppEnv.savedState.dismissedNotificationAsks[this.props.displayName] = 0;
     }
-    return NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName];
+    return AppEnv.savedState.dismissedNotificationAsks[this.props.displayName];
   }
 
   async _onClick(event, actionId, actionFn) {
@@ -87,7 +87,7 @@ export default class Notification extends React.Component {
   _subtitleAction = () => {
     if (this.props.isPermanentlyDismissable && this._numAsks() >= 1) {
       return () => {
-        NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName] = 5;
+        AppEnv.savedState.dismissedNotificationAsks[this.props.displayName] = 5;
         this.setState({ isDismissed: true });
       };
     }
@@ -103,7 +103,7 @@ export default class Notification extends React.Component {
       actions.push({
         label: 'Dismiss',
         fn: () => {
-          NylasEnv.savedState.dismissedNotificationAsks[this.props.displayName] =
+          AppEnv.savedState.dismissedNotificationAsks[this.props.displayName] =
             this._numAsks() + 1;
           this.setState({ isDismissed: true });
         },

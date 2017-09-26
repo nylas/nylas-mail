@@ -140,7 +140,7 @@ export default class Account extends ModelWithMetadata {
 
   preferredRemovalDestination() {
     CategoryStore = CategoryStore || require('../stores/category-store').default;
-    const preferDelete = NylasEnv.config.get('core.reading.backspaceDelete');
+    const preferDelete = AppEnv.config.get('core.reading.backspaceDelete');
     if (preferDelete || !CategoryStore.getArchiveCategory(this)) {
       return CategoryStore.getTrashCategory(this);
     }

@@ -93,7 +93,7 @@ describe('SendActionsStore', function describeBlock() {
   beforeEach(() => {
     this.id = 'client-23';
     this.draft = new Message({ id: this.id, draft: true });
-    spyOn(NylasEnv, 'reportError');
+    spyOn(AppEnv, 'reportError');
   });
 
   describe('sendActions', () => {
@@ -130,7 +130,7 @@ describe('SendActionsStore', function describeBlock() {
       spyOn(ExtensionRegistry.Composer, 'extensions').andReturn([GoodExtension, NoTitleExtension]);
       SendActionsStore._onComposerExtensionsChanged();
       expect(sendActionKeys()).toEqual([DefaultSendActionKey, 'send-action-1']);
-      expect(NylasEnv.reportError).toHaveBeenCalled();
+      expect(AppEnv.reportError).toHaveBeenCalled();
     });
 
     it('omits reports when action is missing performSendAction', () => {
@@ -140,7 +140,7 @@ describe('SendActionsStore', function describeBlock() {
       ]);
       SendActionsStore._onComposerExtensionsChanged();
       expect(sendActionKeys()).toEqual([DefaultSendActionKey, 'send-action-1']);
-      expect(NylasEnv.reportError).toHaveBeenCalled();
+      expect(AppEnv.reportError).toHaveBeenCalled();
     });
 
     it('includes not available actions', () => {
@@ -183,7 +183,7 @@ describe('SendActionsStore', function describeBlock() {
         OtherExtension,
         NotAvailableExtension,
       ]);
-      spyOn(NylasEnv.config, 'get').andReturn('send-action-1');
+      spyOn(AppEnv.config, 'get').andReturn('send-action-1');
       SendActionsStore._onComposerExtensionsChanged();
       const { preferred, rest } = SendActionsStore.orderedSendActionsForDraft();
       const restKeys = rest.map(({ configKey }) => configKey);
@@ -193,7 +193,7 @@ describe('SendActionsStore', function describeBlock() {
 
     it('falls back to a default if value in config not present', () => {
       spyOn(ExtensionRegistry.Composer, 'extensions').andReturn([GoodExtension, OtherExtension]);
-      spyOn(NylasEnv.config, 'get').andReturn(null);
+      spyOn(AppEnv.config, 'get').andReturn(null);
       SendActionsStore._onComposerExtensionsChanged();
       const { preferred } = SendActionsStore.orderedSendActionsForDraft();
       expect(preferred.configKey).toBe(DefaultSendActionKey);
@@ -201,7 +201,7 @@ describe('SendActionsStore', function describeBlock() {
 
     it("falls back to a default if the primary item can't be found", () => {
       spyOn(ExtensionRegistry.Composer, 'extensions').andReturn([GoodExtension, OtherExtension]);
-      spyOn(NylasEnv.config, 'get').andReturn('does-not-exist');
+      spyOn(AppEnv.config, 'get').andReturn('does-not-exist');
       SendActionsStore._onComposerExtensionsChanged();
       const { preferred } = SendActionsStore.orderedSendActionsForDraft();
       expect(preferred.configKey).toBe(DefaultSendActionKey);
@@ -212,7 +212,7 @@ describe('SendActionsStore', function describeBlock() {
         GoodExtension,
         NotAvailableExtension,
       ]);
-      spyOn(NylasEnv.config, 'get').andReturn('not-available');
+      spyOn(AppEnv.config, 'get').andReturn('not-available');
       SendActionsStore._onComposerExtensionsChanged();
       const { preferred } = SendActionsStore.orderedSendActionsForDraft();
       expect(preferred.configKey).toBe(DefaultSendActionKey);

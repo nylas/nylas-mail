@@ -63,7 +63,7 @@ export default class WindowLauncher {
       }
 
       // Reset the loaded state and update the load settings.
-      // This will fire `NylasEnv::populateHotWindow` and reload the
+      // This will fire `AppEnv::populateHotWindow` and reload the
       // packages.
       win.windowKey = opts.windowKey || `${opts.windowType}-${winNum}`;
       winNum += 1;

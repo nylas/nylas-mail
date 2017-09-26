@@ -14,8 +14,8 @@ export default class MenuManager {
     this.template = [];
     this.loadPlatformItems();
 
-    NylasEnv.keymaps.onDidReloadKeymap(() => this.update());
-    NylasEnv.commands.onRegistedCommandsChanged(() => this.update());
+    AppEnv.keymaps.onDidReloadKeymap(() => this.update());
+    AppEnv.commands.onRegistedCommandsChanged(() => this.update());
   }
 
   // Public: Adds the given items to the application menu.
@@ -23,7 +23,7 @@ export default class MenuManager {
   // ## Examples
   //
   // ```coffee
-  //   NylasEnv.menu.add [
+  //   AppEnv.menu.add [
   //     {
   //       label: 'Hello'
   //       submenu : [{label: 'World!', command: 'hello:world'}]
@@ -66,7 +66,7 @@ export default class MenuManager {
       this.pendingUpdateOperation = false;
       MenuHelpers.forEachMenuItem(this.template, item => {
         if (item.command && item.command.startsWith('application:') === false) {
-          item.enabled = NylasEnv.commands.listenerCountForCommand(item.command) > 0;
+          item.enabled = AppEnv.commands.listenerCountForCommand(item.command) > 0;
         }
         if (item.submenu != null) {
           item.enabled = !item.submenu.every(subitem => subitem.enabled === false);
@@ -75,7 +75,7 @@ export default class MenuManager {
           item.visible = item.enabled;
         }
       });
-      return this.sendToBrowserProcess(this.template, NylasEnv.keymaps.getBindingsForAllCommands());
+      return this.sendToBrowserProcess(this.template, AppEnv.keymaps.getBindingsForAllCommands());
     });
   };
 

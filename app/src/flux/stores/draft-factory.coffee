@@ -242,7 +242,7 @@ class DraftFactory
     return result
 
   _accountForNewDraft: =>
-    defAccountId = NylasEnv.config.get('core.sending.defaultAccountIdForSend')
+    defAccountId = AppEnv.config.get('core.sending.defaultAccountIdForSend')
     account = AccountStore.accountForId(defAccountId)
     if account
       account
