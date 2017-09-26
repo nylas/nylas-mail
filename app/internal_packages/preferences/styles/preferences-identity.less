@@ -1,6 +1,6 @@
 @import "ui-variables";
 
-@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(-360deg); transform:rotate(-360deg); } }
 
 .container-identity {
   max-width: 887px;
@@ -19,7 +19,7 @@
     img { background-color: @text-color-very-subtle; }
   }
   .refresh.spinning img {
-    animation:spin 1.4s linear infinite;
+    animation: spin 1.4s linear infinite;
   }
 
   .identity-content-box {

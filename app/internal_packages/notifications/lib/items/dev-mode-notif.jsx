@@ -20,7 +20,7 @@ export default class DevModeNotification extends React.Component {
     return (
       <Notification
         priority="0"
-        title="Mailspring is running in dev mode!"
+        title="Mailspring is running in dev mode and may be slower!"
       />
     )
   }

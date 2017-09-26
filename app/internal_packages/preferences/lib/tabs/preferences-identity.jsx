@@ -3,6 +3,40 @@ import {Actions, IdentityStore} from 'nylas-exports';
 import {OpenIdentityPageButton, BillingModal, RetinaImg} from 'nylas-component-kit';
 import {shell} from 'electron';
 
+class RefreshButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {refreshing: false};
+  }
+
+  componentDidMount() {
+    this._mounted = true;
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
+  }
+
+  _onClick = () => {
+    this.setState({refreshing: true});
+    IdentityStore.fetchIdentity().then(() => {
+      setTimeout(() => {
+        if (this._mounted) {
+          this.setState({refreshing: false});
+        }
+      }, 400);
+    });
+  }
+
+  render() {
+    return (
+      <div className={`refresh ${this.state.refreshing && 'spinning'}`} onClick={this._onClick}>
+        <RetinaImg name="ic-refresh.png" mode={RetinaImg.Mode.ContentIsMask} />
+      </div>
+    )
+  }
+}
+
 class PreferencesIdentity extends React.Component {
   static displayName = 'PreferencesIdentity';
 
@@ -42,11 +76,15 @@ class PreferencesIdentity extends React.Component {
     return (
       <div className="row padded">
         <div>
-        You are using <strong>Mailspring Basic</strong>. Upgrade to Mailspring Pro to unlock a more powerful email experience.
+        You are using <strong>Mailspring Basic</strong>. You can link up to four email accounts and try out pro features like snooze, send later, read receipts and reminders. Upgrade to Mailspring Pro to unlock a more powerful email experience.
         </div>
         <div className="subscription-actions">
-          <div className="btn btn-emphasis" onClick={this._onUpgrade} style={{verticalAlign: "top"}}>Upgrade to Mailspring Pro</div>
-          <div className="btn minor-width" onClick={learnMore}>Learn More</div>
+          <div className="btn btn-emphasis" onClick={this._onUpgrade} style={{verticalAlign: "top"}}>
+            <RetinaImg name="ic-upgrade.png" mode={RetinaImg.Mode.ContentIsMask} /> Upgrade to Mailspring Pro
+          </div>
+          <div className="btn minor-width" onClick={learnMore}>
+            Learn More
+          </div>
         </div>
       </div>
     )
@@ -81,6 +119,7 @@ class PreferencesIdentity extends React.Component {
 
           <div className="row padded">
             <div className="identity-info">
+              <RefreshButton />
               <div className="name">{firstName} {lastName}</div>
               <div className="email">{emailAddress}</div>
               <div className="identity-actions">
