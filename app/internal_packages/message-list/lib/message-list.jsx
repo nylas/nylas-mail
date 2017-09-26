@@ -239,31 +239,25 @@ class MessageList extends React.Component {
   _messageElements() {
     const {messagesExpandedState, currentThread} = this.state;
     const elements = [];
-    let lastMessageIdx;
 
-    const descendingOrderMessageList = NylasEnv.config.get('core.reading.descendingOrderMessageList');
     let messages = this._messagesWithMinification(this.state.messages);
+    const mostRecentMessage = messages[messages.length - 1];
+    const hasReplyArea = mostRecentMessage && !mostRecentMessage.draft;
 
-    // Check on whether to display items in descending order
-    if (descendingOrderMessageList) {
+    // Invert the message list if the descending option is set
+    if (NylasEnv.config.get('core.reading.descendingOrderMessageList')) {
       messages = messages.reverse();
-      lastMessageIdx = 0;
-    } else {
-      lastMessageIdx = messages.length - 1;
     }
 
-    const lastItem = this.state.messages[descendingOrderMessageList ? 0 : this.state.messages.length - 1];
-    const hasReplyArea = lastItem && !lastItem.draft;
-
-    messages.forEach((message, idx) => {
+    messages.forEach((message) => {
       if (message.type === "minifiedBundle") {
         elements.push(this._renderMinifiedBundle(message))
         return;
       }
 
       const collapsed = !messagesExpandedState[message.id];
-      const isLastItem = (lastMessageIdx === idx);
-      const isBeforeReplyArea = isLastItem && hasReplyArea;
+      const isMostRecent = message === mostRecentMessage;
+      const isBeforeReplyArea = isMostRecent && hasReplyArea;
 
       elements.push(
         <MessageItemContainer
@@ -273,15 +267,17 @@ class MessageList extends React.Component {
           message={message}
           messages={messages}
           collapsed={collapsed}
-          isLastItem={isLastItem}
+          isMostRecent={isMostRecent}
           isBeforeReplyArea={isBeforeReplyArea}
           scrollTo={this._scrollTo}
         />
       );
+
+      if (isBeforeReplyArea) {
+        elements.push(this._renderReplyArea());
+      }
     });
-    if (hasReplyArea && lastItem) {
-      elements.push(this._renderReplyArea());
-    }
+
     return elements;
   }
 
