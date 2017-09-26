@@ -11,11 +11,11 @@ ReactDOM = require 'react-dom'
 } = require 'mailspring-exports'
 {TokenizingTextField, Menu} = require 'mailspring-component-kit'
 
-CustomToken = React.createClass
+class CustomToken extends React.Component
   render: ->
     <span>{@props.token.email}</span>
 
-CustomSuggestion = React.createClass
+class CustomSuggestion extends React.Component
   render: ->
     <span>{@props.item.email}</span>
 

@@ -109,10 +109,10 @@ describe('FeatureUsageStore', function featureUsageStoreSpec() {
         const component = Actions.openModal.calls[0].args[0].component;
         expect(component.props).toEqual({
           modalClass: 'not-usable',
-          featureName: 'Test Name',
           headerText: 'all test used',
           iconUrl: 'icon url',
-          rechargeText: 'You’ll have 10 more next month',
+          rechargeText:
+            'You can add a test to 10 emails a month with Mailspring Basic. Upgrade to Pro today!',
         });
       });
 

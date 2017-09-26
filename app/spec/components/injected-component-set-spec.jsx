@@ -7,12 +7,13 @@ import { InjectedComponentSet } from 'mailspring-component-kit';
 const { renderIntoDocument } = MailspringTestUtils;
 
 const reactStub = displayName => {
-  return React.createClass({
-    displayName,
+  class StubWithName extends React.Component {
+    static displayName = displayName;
     render() {
       return <div className={displayName} />;
-    },
-  });
+    }
+  }
+  return StubWithName;
 };
 
 describe('InjectedComponentSet', function injectedComponentSet() {

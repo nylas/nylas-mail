@@ -191,8 +191,9 @@ cjsxSubjectResolver = (thread) ->
   </div>
 
 describe "ThreadList", ->
+  class Foo extends React.Component
+    render: -> <div>{@props.children}</div>
 
-  Foo = React.createClass({render: -> <div>{@props.children}</div>})
   c1 = new ListTabular.Column
     name: "Name"
     flex: 1

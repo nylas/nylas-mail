@@ -18,7 +18,7 @@ describe('SendLaterPopover', function sendLaterPopover() {
   describe('render', () => {
     it('renders cancel button if scheduled', () => {
       const onCancelSendLater = jasmine.createSpy('onCancelSendLater');
-      const popover = makePopover({ onCancelSendLater, sendLaterDate: 'date' });
+      const popover = makePopover({ onCancelSendLater, sendLaterDate: new Date() });
       const button = popover.find('.btn-cancel');
       button.simulate('click');
       expect(onCancelSendLater).toHaveBeenCalled();

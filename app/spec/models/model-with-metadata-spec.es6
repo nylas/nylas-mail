@@ -44,11 +44,12 @@ describe('ModelWithMetadata', function modelWithMetadata() {
       expect(model.pluginMetadata.length).toEqual(1);
       expect(obj.pluginId).toBe('plugin-id-a');
       expect(obj.id).toBe('plugin-id-a');
-      expect(obj.version).toBe(0);
+      expect(obj.version).toBe(1);
       expect(obj.value.a).toBe(true);
 
       // update existing metadata object
       model.directlyAttachMetadata('plugin-id-a', { a: false });
+      expect(obj.version).toBe(2);
       expect(obj.value.a).toBe(false);
     });
   });

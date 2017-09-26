@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { findRenderedDOMComponentWithClass } from 'react-addons-test-utils';
+import { findRenderedDOMComponentWithClass } from 'react-dom/test-utils';
 
 import { Message, MailspringTestUtils } from 'mailspring-exports';
 import OpenTrackingIcon from '../lib/open-tracking-icon';

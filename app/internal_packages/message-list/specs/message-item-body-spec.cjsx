@@ -9,7 +9,8 @@ ReactTestUtils = require('react-dom/test-utils')
  AttachmentStore,
  MessageBodyProcessor} = require "mailspring-exports"
 
-EmailFrameStub = React.createClass({render: -> <div></div>})
+class EmailFrameStub extends React.Component
+  render: -> <div></div>
 
 {InjectedComponent} = require 'mailspring-component-kit'
 

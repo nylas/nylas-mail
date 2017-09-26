@@ -1,11 +1,11 @@
 /* eslint react/no-render-return-value: 0 */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { findRenderedDOMComponentWithClass } from 'react-addons-test-utils';
+import { findRenderedDOMComponentWithClass } from 'react-dom/test-utils';
 
-import { DateUtils, NylasAPIHelpers, Actions } from 'mailspring-exports';
+import { DateUtils, Actions } from 'mailspring-exports';
 import SendLaterButton from '../lib/send-later-button';
-import { PLUGIN_ID, PLUGIN_NAME } from '../lib/send-later-constants';
+import { PLUGIN_ID } from '../lib/send-later-constants';
 
 const node = document.createElement('div');
 

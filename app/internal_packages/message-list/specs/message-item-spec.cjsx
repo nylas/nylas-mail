@@ -12,7 +12,8 @@ ReactTestUtils = require 'react-dom/test-utils'
  AttachmentStore,
  MessageBodyProcessor} = require "mailspring-exports"
 
-MessageItemBody = React.createClass({render: -> <div></div>})
+class MessageItemBody extends React.Component
+  render: -> <div></div>
 
 {InjectedComponent} = require 'mailspring-component-kit'
 
