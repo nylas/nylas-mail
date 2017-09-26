@@ -66,6 +66,7 @@ class SidebarSection
     standardNames = [
       'inbox',
       'important'
+      'snoozed',
       'sent',
       ['archive', 'all'],
       'spam'
