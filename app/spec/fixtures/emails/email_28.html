@@ -1,0 +1,191 @@
+<div style="padding-bottom: 20px;"></div><div><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body style=
+"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; color: rgb(0, 0, 0); font-size: 14px; font-family: Calibri, sans-serif;">
+
+<div>
+<div>Dear Ben,</div>
+<div><br /></div>
+<div>I just realized we never replied to this email.</div>
+<div>This is a great start. Thanks for taking the time.</div>
+<div>Will soon contact you, as soon as we have a final on our
+funds.</div>
+<div><br /></div>
+<div>Thanks,</div>
+<div><br /></div>
+<div>ADR</div>
+<div>
+<div><span class="Apple-style-span" style=
+"font-size: 15px;"><span style=
+"font-family: Arial, sans-serif;"><br /></span></span></div>
+<div><span class="Apple-style-span" style=
+"font-size: 15px;"><span style=
+"font-family: Arial, sans-serif;"><br /></span></span></div>
+<div><span class="Apple-style-span" style=
+"font-size: 15px;"><b><span style=
+"font-family: Arial, sans-serif;"><br /></span></b></span></div>
+<div><b><span style=
+"font-family: Arial, sans-serif; font-size: 12px;">XXXX@XXXX</span></b></div>
+<div>
+</div>
+</div>
+</div>
+<div><br /></div>
+<span id="OLK_SRC_BODY_SECTION"></span>
+<div style=
+"font-family:Calibri; font-size:11pt; text-align:left; color:black; BORDER-BOTTOM: medium none; BORDER-LEFT: medium none; PADDING-BOTTOM: 0in; PADDING-LEFT: 0in; PADDING-RIGHT: 0in; BORDER-TOP: #b5c4df 1pt solid; BORDER-RIGHT: medium none; PADDING-TOP: 3pt">
+<span id="OLK_SRC_BODY_SECTION"><span style=
+"font-weight:bold">From:</span> Ben Gotow &lt;<a href=
+"mailto:ben@foundry376.com">ben@foundry376.com</a>&gt;<br />
+<span style="font-weight:bold">Date:</span> Monday, April 10, 2017
+at 8:43 PM<br />
+<span style="font-weight:bold">To:</span> XXXX@XXXX
+&lt;<a href=
+"mailto:XXXX@XXXX.edu">XXXX@XXXX.edu</a>&gt;, "XXXXX" &lt;<a href=
+"mailto:XXXX@XXXX.edu">XXXX@XXXX.edu</a>&gt;<br />
+<span style="font-weight:bold">Subject:</span>App Ballpark
+Estimate<br /></span></div>
+<div><br /></div>
+<div>
+<div style=
+"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;"
+class="">
+<div dir="auto" style=
+"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;"
+class="">Hi folks—hope everything is going well. I spent a couple
+minutes going over the outline for the app and put together
+a rough spec and estimate below. Let me know if you have any
+questions! A good chunk of the potential cost stems from
+accelerometer / fitbit integration and how you’d want to access the
+data on the doctor’s side of things. (I assumed below we’d make a
+small web dashboard for enrolling participants, viewing their
+progress, etc.) If the budget becomes an issue we could look at
+different ways to trim things down. Definitely a lot we’d want to
+work out in more detail if funding comes through.
+<div class=""><br class="" />
+<div class="">Cheers,</div>
+<div class=""><br class="" /></div>
+<div class="">Ben</div>
+<div class=""><br class="" /></div>
+<div class=""><br class="" /></div>
+<div class="">
+<div class=""><b class="">iOS App:</b> [60-75 hours]</div>
+<div class=""><br class="" /></div>
+<div class="">+ Mockups and designs for review with
+team</div>
+<div class=""><br class="" /></div>
+<div class="">+ User can sign in with their username /
+password</div>
+<div class="">
+<div class=""><br class=""… for their category of
+exercise. (This would make a new calendar appear in the iOS
+Calendar app showing weekly reminders, workouts, etc. Using the
+standard iOS calendar app means we don’t need to develop events,
+event reminders, etc. internally, and users can remove the calendar
+to opt-out.)</div>
+<div class=""><br class="" /></div>
+</div>
+<div class="">+ User can browse 5-8 instructional videos in their
+category of exercise and play them.</div>
+<div class="">+&nbsp;Video list and videos are downloaded from a
+server on-the-fly so that content can be updated at any time.</div>
+<div class="">+ App will keep a record of each time a video is
+viewed by the user</div>
+<div class=""><br class="" /></div>
+<div class="">+ While a video is open, the user can tap “Start” to
+begin recording their health data</div>
+<div class="">+ App will either collect and send accelerometer data
+from the device, or wait until the end of the workout and query for
+data from a connected FitBit / Apple HealthKit device (Apple Watch,
+maybe others? difficulty of setting up Apple Health / FitBit
+accounts could be a concern.) to verify the user’s effort.</div>
+<div class="">+ User will be presented with a “congratulations,
+your activity has been recorded” screen that shows them moving up
+in the leaderboard / receiving points / other gamification
+reward.</div>
+<div class=""><br class="" /></div>
+<div class="">+ User can see the number of days they’ve logged
+activity, and see a leaderboard showing how they compare to others
+in their category of exercise.</div>
+<div class=""><br class="" /></div>
+<div class="">+ User can view recent messages from the team,
+and subscribe to push notifications for updates (?)</div>
+<div class=""><br class="" /></div>
+<div class="">+ User can log out / reset their password</div>
+<div class=""><br class="" /></div>
+<div class=""><br class="" /></div>
+<div class=""><b class="">API &amp; Administration Website</b>
+[30-40 hours]</div>
+<div class=""><br class="" /></div>
+<div class="">+ API for the iOS app</div>
+<div class="">+ Fetch user information</div>
+<div class="">+ Fetch video list / videos</div>
+<div class="">+ Fetch workout history</div>
+<div class="">+ Submit new workout (start / stop time &amp;
+accelerometer data)</div>
+<div class=""><br class="" /></div>
+<div class="">+ Doctor can sign in on the web</div>
+<div class=""><br class="" /></div>
+<div class="">+ Doctor can see the users of the app in a list
+showing:</div>
+<div class="">+ Name</div>
+<div class="">+ Category of exercise</div>
+<div class="">+ Total workouts performed</div>
+<div class="">+ Time last workout performed</div>
+<div class="">+ Other quantitative metrics TBD</div>
+<div class=""><br class="" /></div>
+<div class="">+&nbsp;Doctor&nbsp;can invite a new participant to
+join</div>
+<div class="">+ Creates an account for the participant and sends
+them an email with instructions to install the app</div>
+<div class="">+ Collects health information, chooses a category of
+exercise for the participant</div>
+<div class=""><br class="" /></div>
+<div class="">+ Doctor can view and edit calendar events /
+reminders shared with participants. (For this, we’d most likely
+just embed a Google Calendar editor inside the admin
+dashboard.)</div>
+<div class=""><br class="" /></div>
+<div class="">+ Doctor can export a chronological list of all
+participant workouts in CSV format</div>
+<div class=""><br class="" /></div>
+<div class="">+ Doctor can export participant’s raw fitness /
+accelerometer data in CSV format</div>
+<div class=""><br class="" /></div>
+<div class=""><br class="" /></div>
+<div class=""><b class="">QA, Testing, App Store
+Release&nbsp;</b>[10]</div>
+<div class=""><br class="" /></div>
+<div class=""><b class="">Deployment</b> [10]</div>
+<div class=""><br class="" /></div>
+<div class="">Because the app associates health data with users it
+might be necessary to deploy it in a HIPPA-compliant environment.
+When I’ve worked with healthcare startups in the past, this has
+boiled down to “transport data securely and encrypt it at rest”,
+which is fairly standard and just takes a bit of extra time to set
+up. Since the app has such a small number of users, the cost of
+running the API / Admin website should be very small (&lt; $40 /
+month).</div>
+</div>
+<div class=""><br class="" /></div>
+</div>
+<div class=""><b class="">Rough Estimate:</b></div>
+<div class="">$16,500 - $20,250 &nbsp; (110-135 hours x $150 /
+hr)</div>
+<div class=""><br class="" /></div>
+<div class=""><br class="" /></div>
+<div class=""><br class="" /></div>
+</div>
+</div>
+</div>
+<hr />
+Confidentiality Notice: This e-mail message, including any
+attachments, is for the sole use of the intended recipient(s) and
+may contain confidential and privileged information. Any
+unauthorized review, use, disclosure or distribution is prohibited.
+If you are not the intended recipient, please contact the sender by
+reply e-mail and destroy all copies of the original message.<br />
+</body>
+</html>
+</div>

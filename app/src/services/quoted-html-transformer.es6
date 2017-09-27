@@ -1,6 +1,6 @@
-import DOMUtils from '../dom-utils';
 import quoteStringDetector from './quote-string-detector';
 import unwrappedSignatureDetector from './unwrapped-signature-detector';
+const { FIRST_ORDERED_NODE_TYPE } = XPathResult;
 
 class QuotedHTMLTransformer {
   annotationClass = 'nylas-quoted-text-segment';
@@ -170,6 +170,7 @@ class QuotedHTMLTransformer {
       this._findGmailQuotes,
       this._findBlockquoteQuotes,
       this._findQuotesAfterMessageHeaderBlock,
+      this._findConfidentialityNotice,
     ];
 
     let quoteElements = [];
@@ -247,15 +248,39 @@ class QuotedHTMLTransformer {
     return Array.from(doc.querySelectorAll('blockquote'));
   }
 
+  _findConfidentialityNotice(doc) {
+    // Traverse from the body down the tree of "last" nodes looking for a
+    // Confidentiality Notice TEXT_NODE. We need to count this node as quoted
+    // text or it'll be handled as an inline reply and totally disable quoted
+    // text removal.
+    let head = doc.body;
+    while (head) {
+      const tc = head.textContent.trim();
+      if (head.nodeType === Node.TEXT_NODE && tc.startsWith('Confidentiality Notice')) {
+        return [head];
+      }
+      if (head.childNodes.length === 0 && tc === '') {
+        head = head.previousSibling;
+      } else {
+        head = head.lastChild;
+      }
+    }
+    return [];
+  }
+
   _findQuotesAfterMessageHeaderBlock(doc) {
     // This detector looks for a element in the DOM tree containing
     // three children: <b>Sent:</b> or <b>Date:</b> and <b>To:</b> and
     // <b>Subject:</b>. It then returns every node after that as quoted text.
 
     // Find a DOM node exactly matching <b>Sent:</b>
-    const { FIRST_ORDERED_NODE_TYPE } = XPathResult;
-    const dateXPath =
-      "//b[. = 'Sent:'] | //b[. = 'Date:'] | //span[. = 'Sent: '] | //span[. = 'Date: ']";
+    const dateXPath = `
+      //b[. = 'Sent:'] |
+      //b[. = 'Date:'] |
+      //span[. = 'Sent: '] |
+      //span[. = 'Date: '] |
+      //span[. = 'Sent:'] |
+      //span[. = 'Date:']`;
     const dateMarker = doc.evaluate(dateXPath, doc.body, null, FIRST_ORDERED_NODE_TYPE, null)
       .singleNodeValue;
 
@@ -275,7 +300,7 @@ class QuotedHTMLTransformer {
 
         // Special case to add "From:" because it's often detatched from the rest of the
         // header fields. We just add it where ever it's located.
-        const fromXPath = "//b[. = 'From:'] | //span[. = 'From: ']";
+        const fromXPath = "//b[. = 'From:'] | //span[. = 'From:']| //span[. = 'From: ']";
         let from = doc.evaluate(fromXPath, doc.body, null, FIRST_ORDERED_NODE_TYPE, null)
           .singleNodeValue;
 
