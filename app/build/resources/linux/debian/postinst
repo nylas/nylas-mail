@@ -23,7 +23,7 @@ case "$1" in
     	gtk-update-icon-cache /usr/share/icons/hicolor > /dev/null 2>&1
 
         DISTRO=`lsb_release -s -i`
-        DISTRO_UPSTREAM=`lsb_release -s -i -u`
+        DISTRO_UPSTREAM=`lsb_release -s -i -u || true`
 
         if [ "$DISTRO" = "Ubuntu" ] || [ "$DISTRO_UPSTREAM" = "Ubuntu" ]; then
           DISTS=$UBUNTU_CODENAMES
