@@ -17,7 +17,7 @@ describe "QuotedHTMLTransformer", ->
     html.match(re)?.length ? 0
 
   [1..28].forEach (n) ->
-    fit "properly parses email_#{n}", ->
+    it "properly parses email_#{n}", ->
       opts = keepIfWholeBodyIsQuote: true
       actual = removeQuotedHTML("email_#{n}.html", opts).trim()
       expected = readFile("email_#{n}_stripped.html").trim()

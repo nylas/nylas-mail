@@ -78,6 +78,8 @@ before_install:
 
 script:
 - npm run ci-setup-mac-keychain
+- npm run lint
+- npm test
 - mailsync/build.sh
 - mv ./mailsync ./mailsync-src
 - DEBUG=electron-packager,electron-osx-sign npm run build

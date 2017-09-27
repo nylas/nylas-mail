@@ -381,9 +381,9 @@ class PreferencesTemplates extends React.Component {
           </p>
           <p>
             Reply templates are saved as HTML files in the{' '}
-            <strong>{`${AppEnv.getConfigDirPath()}/templates`}</strong> directory on your
-            computer. In raw HTML, variables are defined as HTML &lt;code&gt; tags with class
-            &quot;var empty&quot;.
+            <strong>{`${AppEnv.getConfigDirPath()}/templates`}</strong> directory on your computer.
+            In raw HTML, variables are defined as HTML &lt;code&gt; tags with class &quot;var
+            empty&quot;.
           </p>
         </section>
       </div>

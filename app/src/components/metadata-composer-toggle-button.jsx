@@ -1,11 +1,4 @@
-import {
-  React,
-  PropTypes,
-  Actions,
-  MailspringAPIRequest,
-  NylasAPIHelpers,
-  APIError,
-} from 'mailspring-exports';
+import { React, PropTypes, Actions, MailspringAPIRequest, APIError } from 'mailspring-exports';
 import { RetinaImg } from 'mailspring-component-kit';
 import classnames from 'classnames';
 import _ from 'underscore';
@@ -60,7 +53,7 @@ export default class MetadataComposerToggleButton extends React.Component {
   }
 
   async _setEnabled(enabled) {
-    const { pluginId, pluginName, draft, session, metadataEnabledValue } = this.props;
+    const { pluginId, session, metadataEnabledValue } = this.props;
 
     const metadataValue = enabled ? metadataEnabledValue : null;
     this.setState({ pending: true });

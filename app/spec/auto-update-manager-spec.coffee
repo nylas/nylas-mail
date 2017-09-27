@@ -37,7 +37,7 @@ describe "AutoUpdateManager", ->
     it "should update the feed URL", ->
       m = new AutoUpdateManager("3.222.1", @config, @specMode)
       spyOn(m, "setupAutoUpdater")
-      expect(m.feedURL.includes('anonymous')).toEqual(true);
+      expect(m.feedURL.includes('anonymous')).toEqual(true)
       @nylasIdentityId = 'test-nylas-id'
       m.updateFeedURL()
-      expect(m.feedURL.includes(@nylasIdentityId)).toEqual(true);
+      expect(m.feedURL.includes(@nylasIdentityId)).toEqual(true)

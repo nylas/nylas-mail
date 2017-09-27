@@ -34,9 +34,7 @@ class WindowTitle extends React.Component {
   }
 
   componentDidMount() {
-    this.disposable = AppEnv.onWindowPropsReceived(() =>
-      this.setState(AppEnv.getLoadSettings())
-    );
+    this.disposable = AppEnv.onWindowPropsReceived(() => this.setState(AppEnv.getLoadSettings()));
   }
 
   componentWillUnmount() {

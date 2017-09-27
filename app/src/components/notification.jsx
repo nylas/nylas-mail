@@ -103,8 +103,7 @@ export default class Notification extends React.Component {
       actions.push({
         label: 'Dismiss',
         fn: () => {
-          AppEnv.savedState.dismissedNotificationAsks[this.props.displayName] =
-            this._numAsks() + 1;
+          AppEnv.savedState.dismissedNotificationAsks[this.props.displayName] = this._numAsks() + 1;
           this.setState({ isDismissed: true });
         },
       });

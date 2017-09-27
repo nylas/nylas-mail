@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { ListensToObservable, MultiselectToolbar, InjectedComponentSet } from 'mailspring-component-kit';
+import {
+  ListensToObservable,
+  MultiselectToolbar,
+  InjectedComponentSet,
+} from 'mailspring-component-kit';
 import PropTypes from 'prop-types';
 
 import DraftListStore from './draft-list-store';

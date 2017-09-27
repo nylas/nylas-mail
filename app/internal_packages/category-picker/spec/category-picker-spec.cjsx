@@ -25,7 +25,7 @@ describe 'MovePickerPopover', ->
   beforeEach ->
     CategoryStore._categoryCache = {}
 
-  setupFor = () ->
+  setupFor = ->
     @account = {
       id: TEST_ACCOUNT_ID
     }
@@ -47,7 +47,7 @@ describe 'MovePickerPopover', ->
     spyOn(FocusedPerspectiveStore, 'current').andCallFake =>
       MailboxPerspective.forCategory(@inboxCategory)
 
-  setupForCreateNew = () ->
+  setupForCreateNew = ->
     setupFor.call(@)
 
     @testThread = new Thread(id: 't1', subject: "fake", accountId: TEST_ACCOUNT_ID, categories: [])

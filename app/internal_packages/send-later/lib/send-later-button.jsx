@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
-import { Actions, NylasAPIHelpers, FeatureUsageStore } from 'mailspring-exports';
+import { Actions, FeatureUsageStore } from 'mailspring-exports';
 import { RetinaImg } from 'mailspring-component-kit';
 
 import SendLaterPopover from './send-later-popover';
-import { PLUGIN_ID, PLUGIN_NAME } from './send-later-constants';
+import { PLUGIN_ID } from './send-later-constants';
 
 function sendLaterDateForDraft(draft) {
   return ((draft && draft.metadataForPluginId(PLUGIN_ID)) || {}).expiration;
@@ -82,41 +82,16 @@ class SendLaterButton extends Component {
         label: dateLabel,
       });
     }
-    this.onSetMetadata({ expiration: sendLaterDate });
+    this.props.session.changes.addPluginMetadata(PLUGIN_ID, {
+      expiration: sendLaterDate,
+    });
   };
 
   onCancelSendLater = () => {
     Actions.closePopover();
-    this.onSetMetadata({ expiration: null });
-  };
-
-  onSetMetadata = async ({ expiration }) => {
-    const { draft, session } = this.props;
-
-    if (!this.mounted) {
-      return;
-    }
-    this.setState({ saving: true });
-
-    try {
-      if (!this.mounted) {
-        return;
-      }
-
-      session.changes.addPluginMetadata(PLUGIN_ID, { expiration });
-
-      if (expiration && AppEnv.isComposerWindow()) {
-        AppEnv.close();
-      }
-    } catch (error) {
-      AppEnv.reportError(error);
-      AppEnv.showErrorDialog(`Sorry, we were unable to schedule this message. ${error.message}`);
-    }
-
-    if (!this.mounted) {
-      return;
-    }
-    this.setState({ saving: false });
+    this.props.session.changes.addPluginMetadata(PLUGIN_ID, {
+      expiration: null,
+    });
   };
 
   onClick = () => {

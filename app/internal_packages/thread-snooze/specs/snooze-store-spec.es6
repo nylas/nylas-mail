@@ -1,11 +1,4 @@
-import {
-  AccountStore,
-  CategoryStore,
-  NylasAPIHelpers,
-  Thread,
-  Actions,
-  Folder,
-} from 'mailspring-exports';
+import { AccountStore, CategoryStore, Thread, Actions, Folder } from 'mailspring-exports';
 import * as SnoozeUtils from '../lib/snooze-utils';
 import SnoozeStore from '../lib/snooze-store';
 

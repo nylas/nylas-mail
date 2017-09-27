@@ -289,7 +289,7 @@ class ThreadList extends React.Component
     return unless threads
     return unless AppEnv.config.get('core.workspace.showImportant')
 
-    Actions.queueTasks(TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => 
+    Actions.queueTasks(TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) =>
       return new ChangeLabelsTask({
         threads: accountThreads,
         source: "Keyboard Shortcut"

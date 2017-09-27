@@ -38,7 +38,7 @@ describe 'Utils', ->
       expect(revived).toEqual([@testThread])
 
     it "should re-inflate Models in places they're not explicitly declared types", ->
-      b = {id: "ThreadsToProcess", json: [@testThread]};
+      b = {id: "ThreadsToProcess", json: [@testThread]}
       jsonString = JSON.stringify(b)
       expectedString = '{"id":"ThreadsToProcess","json":[{"id":"local-1","aid":"1","metadata":[],"subject":"Test 1234","categories":[],"participants":[{"id":"local-a","aid":"1","name":"Juan","email":"juan@nylas.com","thirdPartyData":{},"__cls":"Contact"},{"id":"local-b","aid":"1","name":"Ben","email":"ben@nylas.com","thirdPartyData":{},"__cls":"Contact"}],"__cls":"Thread"}]}'
 

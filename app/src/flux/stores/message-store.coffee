@@ -252,7 +252,7 @@ class MessageStore extends MailspringStore
       @trigger(@)
 
   _fetchMissingBodies: (items) ->
-    missing = items.filter((i) -> i.body == null);
+    missing = items.filter((i) -> i.body == null)
     if missing.length > 0
       Actions.fetchBodies(missing)
 

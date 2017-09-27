@@ -64,14 +64,6 @@ module.exports = grunt => {
           }
         }
 
-        // NOTE: Comment me in if you want to fix these files.
-        // _str = require('underscore.string')
-        // replacer = (match, describeName) ->
-        //   fnName = _str.camelize(describeName, true)
-        //   return "\ndescribe('#{describeName}', function #{fnName}() "
-        // newContent = content.replace(describeRe, replacer)
-        // fs.writeFileSync(f, newContent, encoding:'utf8')
-
         // Build the list of ES6 files that export things and categorize
         for (const f of fileset.src) {
           if (!esExtensions[path.extname(f)]) {
@@ -79,12 +71,6 @@ module.exports = grunt => {
           }
           const lookupPath = `${path.dirname(f)}/${path.basename(f, path.extname(f))}`;
           const content = fs.readFileSync(f, { encoding: 'utf8' });
-
-          if (/module.exports\s?=\s?.+/gim.test(content)) {
-            if (!f.endsWith('mailspring-exports.es6')) {
-              errors.push(`${f}: Don't use module.exports in ES6`);
-            }
-          }
 
           if (/^export/gim.test(content)) {
             if (/^export default/gim.test(content)) {
@@ -94,26 +80,6 @@ module.exports = grunt => {
             }
           } else {
             esNoExport[lookupPath] = true;
-          }
-        }
-
-        // Now look again through all ES6 files, this time to check imports
-        // instead of exports.
-        for (const f of fileset.src) {
-          let result = null;
-          if (!esExtensions[path.extname(f)]) {
-            continue;
-          }
-          const content = fs.readFileSync(f, { encoding: 'utf8' });
-          const importRe = /import \{.*\} from ['"](.*?)['"]/gim;
-
-          while ((result = importRe.exec(content))) {
-            for (const requirePath of result.slice(1)) {
-              const lookupPath = normalizeRequirePath(requirePath, f);
-              if (esExportDefault[lookupPath] || esNoExport[lookupPath]) {
-                errors.push(`${f}: Don't destructure default export ${requirePath}`);
-              }
-            }
           }
         }
 

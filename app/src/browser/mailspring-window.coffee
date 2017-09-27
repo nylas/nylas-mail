@@ -80,7 +80,7 @@ class MailspringWindow
 
     loadSettings = Object.assign({}, settings)
     loadSettings.windowState ?= '{}'
-    loadSettings.appVersion = global.application.version;
+    loadSettings.appVersion = global.application.version
     loadSettings.resourcePath = @resourcePath
     loadSettings.devMode ?= false
     loadSettings.safeMode ?= false
