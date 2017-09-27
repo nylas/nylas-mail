@@ -82,9 +82,14 @@ class SendLaterButton extends Component {
         label: dateLabel,
       });
     }
+
     this.props.session.changes.addPluginMetadata(PLUGIN_ID, {
       expiration: sendLaterDate,
     });
+
+    if (AppEnv.isComposerWindow()) {
+      AppEnv.close();
+    }
   };
 
   onCancelSendLater = () => {
