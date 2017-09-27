@@ -76,6 +76,9 @@ before_install:
   DISPLAY=nothing:0
   git submodule update --init mailsync
 
+before_script:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start +extension RANDR; fi
+
 script:
 - npm run ci-setup-mac-keychain
 - npm run lint
