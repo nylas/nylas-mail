@@ -110,8 +110,8 @@ class DraftStore extends MailspringStore {
       if (draft && draft.pristine) {
         Actions.queueTask(
           new DestroyDraftTask({
+            messageIds: [draft.id],
             accountId: draft.accountId,
-            messageIds: [draft.headerMessageId],
           })
         );
       } else {

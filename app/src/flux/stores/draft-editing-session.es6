@@ -390,7 +390,9 @@ export default class DraftEditingSession extends MailspringStore {
     // by creating a new draft
     const baseDraft = draft || inMemoryDraft;
     const updatedDraft = this.changes.applyToModel(baseDraft);
-    Actions.queueTask(new SyncbackDraftTask({ draft: updatedDraft }));
+    const task = new SyncbackDraftTask({ draft: updatedDraft });
+    Actions.queueTask(task);
+    await TaskQueue.waitForPerformLocal(task);
   }
 
   // Undo / Redo
