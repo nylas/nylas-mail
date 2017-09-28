@@ -26,7 +26,7 @@ export default class AutoupdateImplWin32 extends AutoupdateImplBase {
       this.emit('update-available');
       this.lastRetrievedUpdateURL = json.url;
 
-      WindowsUpdater.spawn(['--download', json.url], (error, stdout) => {
+      WindowsUpdater.spawn(['--update', json.url], (error, stdout) => {
         if (error) {
           this.emitError(error);
           return;
@@ -37,15 +37,6 @@ export default class AutoupdateImplWin32 extends AutoupdateImplBase {
   }
 
   quitAndInstall() {
-    if (!this.lastRetrievedUpdateURL) {
-      return;
-    }
-    WindowsUpdater.spawn(['--update', this.lastRetrievedUpdateURL], error => {
-      if (error) {
-        this.emitError(error);
-        return;
-      }
-      WindowsUpdater.restartMailspring(require('electron').app);
-    });
+    WindowsUpdater.restartMailspring(require('electron').app);
   }
 }
