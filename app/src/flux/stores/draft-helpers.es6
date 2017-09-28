@@ -127,18 +127,6 @@ class DraftHelpers {
     draft.body = draftBodyRootNode.innerHTML;
     return draft;
   }
-
-  async draftPreparedForSyncback(session) {
-    await session.ensureCorrectAccount({ noSyncback: true });
-    let draft = session.draft();
-
-    draft = await this.applyExtensionTransforms(draft);
-    draft = await this.pruneRemovedInlineFiles(draft);
-    if (draft.replyToHeaderMessageId && this.shouldAppendQuotedText(draft)) {
-      draft = await this.appendQuotedTextToDraft(draft);
-    }
-    return draft;
-  }
 }
 
 export default new DraftHelpers();

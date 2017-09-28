@@ -4,39 +4,6 @@ import InlineStyleTransformer from '../../src/services/inline-style-transformer'
 import SanitizeTransformer from '../../src/services/sanitize-transformer';
 
 xdescribe('DraftHelpers', function describeBlock() {
-  describe('draftPreparedForSyncback', () => {
-    beforeEach(() => {
-      spyOn(Actions, 'queueTask');
-    });
-
-    it('calls the proper functions', () => {
-      const draft = new Message({
-        id: 'local-123',
-        threadId: 'thread-123',
-        uploads: [{ inline: true, id: 1 }],
-        body: '',
-      });
-      const session = {
-        ensureCorrectAccount() {
-          return Promise.resolve();
-        },
-        draft() {
-          return draft;
-        },
-      };
-      spyOn(session, 'ensureCorrectAccount');
-      spyOn(DraftHelpers, 'applyExtensionTransforms').andCallFake(async d => d);
-      spyOn(DraftHelpers, 'removeStaleUploads');
-
-      waitsForPromise(async () => {
-        await DraftHelpers.draftPreparedForSyncback(session);
-        expect(session.ensureCorrectAccount).toHaveBeenCalled();
-        expect(DraftHelpers.applyExtensionTransforms).toHaveBeenCalled();
-        expect(DraftHelpers.removeStaleUploads).toHaveBeenCalled();
-      });
-    });
-  });
-
   describe('prepareBodyForQuoting', () => {
     it('should transform inline styles and sanitize unsafe html', () => {
       const input = 'test 123';

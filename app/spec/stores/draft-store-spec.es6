@@ -334,7 +334,6 @@ xdescribe('DraftStore', function draftStore() {
 
       DraftStore._draftSessions[this.draft.headerMessageId] = session;
       spyOn(DraftStore, '_doneWithSession').andCallThrough();
-      spyOn(DraftHelpers, 'draftPreparedForSyncback').andReturn(Promise.resolve());
       spyOn(DraftStore, 'trigger');
       spyOn(SoundRegistry, 'playSound');
       spyOn(Actions, 'queueTask');

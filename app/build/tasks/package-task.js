@@ -162,7 +162,7 @@ module.exports = grunt => {
       }[platform],
       name: {
         darwin: 'Mailspring',
-        win32: 'mailspring',
+        win32: 'Mailspring',
         linux: 'mailspring',
       }[platform],
       appCopyright: `Copyright (C) 2014-${new Date().getFullYear()} Foundry 376, LLC. All rights reserved.`,

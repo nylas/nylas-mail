@@ -258,6 +258,11 @@ export default class MailsyncBridge {
 
     task.validate();
     task.status = 'local';
+    task.origin = new Error().stack
+      .split('\n')
+      .slice(2)
+      .join('\n');
+
     this.sendMessageToAccount(task.accountId, { type: 'queue-task', task: task });
   }
 

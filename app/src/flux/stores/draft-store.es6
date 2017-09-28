@@ -173,7 +173,7 @@ class DraftStore extends MailspringStore {
       });
   };
 
-  _onComposeForward = ({ thread, threadId, message, messageId, popout }) => {
+  _onComposeForward = async ({ thread, threadId, message, messageId, popout }) => {
     Actions.recordUserEvent('Draft Created', { type: 'forward' });
     return Promise.props(this._modelifyContext({ thread, threadId, message, messageId }))
       .then(({ thread: t, message: m }) => {
@@ -247,77 +247,69 @@ class DraftStore extends MailspringStore {
     return this._draftSessions[headerMessageId];
   }
 
-  _onPopoutNewDraftToRecipient = contact => {
-    return DraftFactory.createDraft({ to: [contact] }).then(draft => {
-      return this._finalizeAndPersistNewMessage(draft, { popout: true });
-    });
+  _onPopoutNewDraftToRecipient = async contact => {
+    const draft = await DraftFactory.createDraft({ to: [contact] });
+    await this._finalizeAndPersistNewMessage(draft, { popout: true });
   };
 
-  _onPopoutBlankDraft = () => {
+  _onPopoutBlankDraft = async () => {
     Actions.recordUserEvent('Draft Created', { type: 'new' });
-    return DraftFactory.createDraft().then(draft => {
-      return this._finalizeAndPersistNewMessage(draft).then(({ headerMessageId }) => {
-        return this._onPopoutDraft(headerMessageId, { newDraft: true });
-      });
-    });
+    const draft = await DraftFactory.createDraft();
+    const { headerMessageId } = await this._finalizeAndPersistNewMessage(draft);
+    await this._onPopoutDraft(headerMessageId, { newDraft: true });
   };
 
-  _onPopoutDraft = (headerMessageId, options = {}) => {
+  _onPopoutDraft = async (headerMessageId, options = {}) => {
     if (headerMessageId == null) {
       throw new Error('DraftStore::onPopoutDraftId - You must provide a headerMessageId');
     }
-    const title = options.newDraft ? 'New Message' : 'Message';
-    return this.sessionForClientId(headerMessageId).then(session => {
-      return session.changes.commit().then(() => {
-        const draftJSON = session.draft().toJSON();
-        // Since we pass a windowKey, if the popout composer draft already
-        // exists we'll simply show that one instead of spawning a whole new
-        // window.
-        AppEnv.newWindow({
-          title,
-          hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
-          windowKey: `composer-${headerMessageId}`,
-          windowType: 'composer',
-          windowProps: Object.assign(options, { headerMessageId, draftJSON }),
-        });
-      });
+
+    const session = await this.sessionForClientId(headerMessageId);
+    await session.changes.commit();
+    const draftJSON = session.draft().toJSON();
+
+    // Since we pass a windowKey, if the popout composer draft already
+    // exists we'll simply show that one instead of spawning a whole new
+    // window.
+    AppEnv.newWindow({
+      hidden: true, // We manually show in ComposerWithWindowProps::onDraftReady
+      windowType: 'composer',
+      windowKey: `composer-${headerMessageId}`,
+      windowProps: Object.assign(options, { headerMessageId, draftJSON }),
+      title: options.newDraft ? 'New Message' : 'Message',
     });
   };
 
-  _onHandleMailtoLink = (event, urlString) => {
-    // return is just used for specs
-    return DraftFactory.createDraftForMailto(urlString)
-      .then(draft => {
-        return this._finalizeAndPersistNewMessage(draft, { popout: true });
-      })
-      .catch(err => {
-        AppEnv.showErrorDialog(err.toString());
-      });
+  _onHandleMailtoLink = async (event, urlString) => {
+    // returned promise is just used for specs
+    const draft = await DraftFactory.createDraftForMailto(urlString);
+    try {
+      await this._finalizeAndPersistNewMessage(draft, { popout: true });
+    } catch (err) {
+      AppEnv.showErrorDialog(err.toString());
+    }
   };
 
-  _onHandleMailFiles = (event, paths) => {
-    // return is just used for specs
-    return DraftFactory.createDraft()
-      .then(draft => {
-        return this._finalizeAndPersistNewMessage(draft);
-      })
-      .then(({ headerMessageId }) => {
-        let remaining = paths.length;
-        const callback = () => {
-          remaining -= 1;
-          if (remaining === 0) {
-            this._onPopoutDraft(headerMessageId);
-          }
-        };
+  _onHandleMailFiles = async (event, paths) => {
+    // returned promise is just used for specs
+    const draft = await DraftFactory.createDraft();
+    const { headerMessageId } = await this._finalizeAndPersistNewMessage(draft);
 
-        paths.forEach(path => {
-          Actions.addAttachment({
-            filePath: path,
-            headerMessageId: headerMessageId,
-            onCreated: callback,
-          });
-        });
+    let remaining = paths.length;
+    const callback = () => {
+      remaining -= 1;
+      if (remaining === 0) {
+        this._onPopoutDraft(headerMessageId);
+      }
+    };
+
+    paths.forEach(path => {
+      Actions.addAttachment({
+        filePath: path,
+        headerMessageId: headerMessageId,
+        onCreated: callback,
       });
+    });
   };
 
   _onDestroyDraft = ({ accountId, headerMessageId, id }) => {
@@ -358,11 +350,20 @@ class DraftStore extends MailspringStore {
       SoundRegistry.playSound('hit-send');
     }
 
+    // get the draft session, apply any last-minute edits and get the final draft.
+    // We need to call `changes.commit` here to ensure the body of the draft is
+    // completely saved and the user won't see old content briefly.
     const session = await this.sessionForClientId(headerMessageId);
-    const draft = await DraftHelpers.draftPreparedForSyncback(session);
+    await session.ensureCorrectAccount();
+    await session.changes.commit();
+    let draft = session.draft();
+    await session.teardown();
 
-    // Prevent any further changes to the session or draft
-    session.teardown();
+    draft = await DraftHelpers.applyExtensionTransforms(draft);
+    draft = await DraftHelpers.pruneRemovedInlineFiles(draft);
+    if (draft.replyToHeaderMessageId && DraftHelpers.shouldAppendQuotedText(draft)) {
+      draft = await DraftHelpers.appendQuotedTextToDraft(draft);
+    }
 
     // Directly update the message body cache so the user immediately sees
     // the new message text (and never old draft text or blank text) sending.
