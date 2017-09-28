@@ -2,6 +2,8 @@ import { Emitter } from 'event-kit';
 import path from 'path';
 import fs from 'fs-plus';
 
+import LessCompileCache from './less-compile-cache';
+
 const CONFIG_THEME_KEY = 'core.theme';
 
 /**
@@ -19,6 +21,7 @@ const CONFIG_THEME_KEY = 'core.theme';
  */
 export default class ThemeManager {
   constructor({ packageManager, resourcePath, configDirPath, safeMode }) {
+    this.activeThemePackage = null;
     this.packageManager = packageManager;
     this.resourcePath = resourcePath;
     this.configDirPath = configDirPath;
@@ -26,18 +29,22 @@ export default class ThemeManager {
 
     this.emitter = new Emitter();
     this.styleSheetDisposablesBySourcePath = {};
-    this.lessCache = null;
+    this.lessCache = new LessCompileCache({
+      configDirPath: this.configDirPath,
+      resourcePath: this.resourcePath,
+      importPaths: this.getImportPaths(),
+    });
 
-    this.setBodyClasses();
     AppEnv.config.onDidChange(CONFIG_THEME_KEY, () => {
-      this.setBodyClasses();
+      this.activateThemePackage();
+
       if (this.lessCache) {
         this.lessCache.setImportPaths(this.getImportPaths());
       }
       // reload all stylesheets attached to the dom
       for (const styleEl of Array.from(document.head.querySelectorAll('[source-path]'))) {
         if (styleEl.sourcePath.endsWith('.less')) {
-          styleEl.textContent = this.loadStylesheet(styleEl.sourcePath, true);
+          styleEl.textContent = this.cssContentsOfStylesheet(styleEl.sourcePath, true);
         }
       }
       this.emitter.emit('did-change-active-themes');
@@ -55,7 +62,7 @@ export default class ThemeManager {
         }
         PathWatcher.watch(stylePath, () => {
           const styleEl = document.head.querySelector(`[source-path="${stylePath}"]`);
-          styleEl.textContent = this.loadStylesheet(styleEl.sourcePath, true);
+          styleEl.textContent = this.cssContentsOfStylesheet(styleEl.sourcePath, true);
         });
       });
     };
@@ -95,7 +102,21 @@ export default class ThemeManager {
     // because we're observing the config, changes will be applied
   }
 
-  setBodyClasses() {
+  activateThemePackage() {
+    const next = this.getActiveTheme();
+    if (this.activeThemePackage === next) {
+      return;
+    }
+
+    // Turn off the old active theme and enable the new theme. This
+    // allows the theme to have code and random stylesheets of it's own.
+    if (this.activeThemePackage) {
+      this.activeThemePackage.deactivate();
+    }
+    next.activate();
+
+    // Update the body classList to include the theme name so plugin
+    // developers can alter their plugin's styles based on the theme.
     for (const cls of Array.from(document.body.classList)) {
       if (cls.startsWith('theme-')) {
         document.body.classList.remove(cls);
@@ -103,6 +124,8 @@ export default class ThemeManager {
     }
     document.body.classList.add(`theme-${this.getBaseTheme().name}`);
     document.body.classList.add(`theme-${this.getActiveTheme().name}`);
+
+    this.activeThemePackage = next;
   }
 
   getImportPaths() {
@@ -118,45 +141,42 @@ export default class ThemeManager {
   // ------
 
   requireStylesheet(stylesheetPath) {
-    const sourcePath = this.resolveStylesheet(stylesheetPath);
+    const sourcePath = this.resolveStylesheetPath(stylesheetPath);
     if (!sourcePath) {
       throw new Error(`Could not find a file at path '${stylesheetPath}'`);
     }
-    const content = this.loadStylesheet(sourcePath);
+    const content = this.cssContentsOfStylesheet(sourcePath);
     this.styleSheetDisposablesBySourcePath[sourcePath] = AppEnv.styles.addStyleSheet(content, {
+      priority: -1,
       sourcePath,
     });
   }
 
-  loadBaseStylesheets() {
+  loadStaticStylesheets() {
     this.requireStylesheet('../static/index');
     this.requireStylesheet('../static/email-frame');
   }
 
-  resolveStylesheet(stylesheetPath) {
+  resolveStylesheetPath(stylesheetPath) {
     if (path.extname(stylesheetPath).length > 0) {
       return fs.resolveOnLoadPath(stylesheetPath);
     }
     return fs.resolveOnLoadPath(stylesheetPath, ['css', 'less']);
   }
 
-  loadStylesheet(stylesheetPath, importFallbackVariables) {
-    if (path.extname(stylesheetPath) === '.less') {
-      return this.loadLessStylesheet(stylesheetPath, importFallbackVariables);
+  cssContentsOfStylesheet(stylesheetPath, importFallbackVariables) {
+    const ext = path.extname(stylesheetPath);
+
+    if (ext === '.less') {
+      return this.cssContentsOfLessStylesheet(stylesheetPath, importFallbackVariables);
+    } else if (ext === '.css') {
+      return fs.readFileSync(stylesheetPath, 'utf8');
+    } else {
+      throw new Error(`Mailspring does not support stylesheets with the extension: ${ext}`);
     }
-    return fs.readFileSync(stylesheetPath, 'utf8');
   }
 
-  loadLessStylesheet(lessStylesheetPath, importFallbackVariables = false) {
-    if (!this.lessCache) {
-      const LessCompileCache = require('./less-compile-cache').default; //eslint-disable-line
-      this.lessCache = new LessCompileCache({
-        configDirPath: this.configDirPath,
-        resourcePath: this.resourcePath,
-        importPaths: this.getImportPaths(),
-      });
-    }
-
+  cssContentsOfLessStylesheet(lessStylesheetPath, importFallbackVariables = false) {
     try {
       let less = fs.readFileSync(lessStylesheetPath, 'utf8').toString();
       if (importFallbackVariables) {

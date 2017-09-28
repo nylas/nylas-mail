@@ -111,7 +111,7 @@ class SpecRunner {
     AppEnv.config.settings = fakePersistedConfig;
 
     AppEnv.restoreWindowDimensions();
-    AppEnv.themes.loadBaseStylesheets();
+    AppEnv.themes.loadStaticStylesheets();
     AppEnv.themes.requireStylesheet('../../static/jasmine');
     AppEnv.themes.initialLoadComplete = true;
     AppEnv.keymaps.loadKeymaps();

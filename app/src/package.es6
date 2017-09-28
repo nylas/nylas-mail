@@ -117,9 +117,13 @@ export default class Package {
       // styles directory not found
     }
     for (const sourcePath of stylesheets) {
-      const source = AppEnv.themes.loadStylesheet(sourcePath, true);
+      const content = AppEnv.themes.cssContentsOfStylesheet(sourcePath, true);
       this.disposables.push(
-        AppEnv.styles.addStyleSheet(source, { sourcePath, priority: 0, context: null })
+        AppEnv.styles.addStyleSheet(content, {
+          sourcePath,
+          priority: this.isTheme() ? 1 : 0,
+          context: null,
+        })
       );
     }
   }

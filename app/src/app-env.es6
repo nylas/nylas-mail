@@ -196,6 +196,8 @@ export default class AppEnvConstructor {
       resourcePath,
       safeMode,
     });
+    this.themes.activateThemePackage();
+
     this.spellchecker = require('./spellchecker').default;
     this.menu = new MenuManager({ resourcePath });
     if (process.platform === 'win32') {
@@ -763,7 +765,7 @@ export default class AppEnvConstructor {
   async startWindow() {
     const { windowType } = this.getLoadSettings();
 
-    this.themes.loadBaseStylesheets();
+    this.themes.loadStaticStylesheets();
     this.initializeBasicSheet();
     this.initializeReactRoot();
     this.packages.activatePackages(windowType);

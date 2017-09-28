@@ -42,7 +42,7 @@ export default class StyleManager {
     if (!beforeEl) {
       this.el.appendChild(styleElement);
     } else {
-      this.el.insertChild(styleElement, beforeEl);
+      this.el.insertBefore(styleElement, beforeEl);
     }
   }
 
