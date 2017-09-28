@@ -457,9 +457,19 @@ export default class Application extends EventEmitter {
       this.systemTrayManager.destroyTray();
     });
 
+    let pathsToOpen = [];
+    let pathsTimeout = null;
     app.on('open-file', (event, pathToOpen) => {
-      this.openComposerWithFiles([pathToOpen]);
       event.preventDefault();
+
+      // if the user drags many files onto the app, this method is called
+      // back-to-back several times. collect all the files and then fire.
+      pathsToOpen.push(pathToOpen);
+      clearTimeout(pathsTimeout);
+      pathsTimeout = setTimeout(() => {
+        this.openComposerWithFiles(pathsToOpen);
+        pathsToOpen = [];
+      }, 250);
     });
 
     app.on('open-url', (event, urlToOpen) => {
