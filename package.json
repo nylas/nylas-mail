@@ -23,7 +23,7 @@
     "commander": "^2.9.0",
     "devtron": "^1.4.0",
     "donna": "^1.0.16",
-    "electron": "1.7.3",
+    "electron": "1.7.8",
     "electron-installer-dmg": "0.2.x",
     "electron-packager": "8.7.x",
     "electron-winstaller": "2.x.x",
