@@ -48,7 +48,9 @@ export default class UpdateNotification extends React.Component {
     return (
       <Notification
         priority="4"
-        title={`An update to Mailspring is available ${version ? `(${version})` : ''}`}
+        title={`An update to Mailspring is available ${version
+          ? `(${version.replace('Mailspring', '').trim()})`
+          : ''}`}
         subtitle="View changelog"
         subtitleAction={this._onViewChangelog}
         icon="volstead-upgrade.png"

@@ -1,6 +1,7 @@
 /* eslint global-require: "off" */
 
 import { BrowserWindow, Menu, app, ipcMain, dialog, powerMonitor } from 'electron';
+import { moveToApplications } from 'electron-lets-move';
 
 import fs from 'fs-plus';
 import url from 'url';
@@ -72,6 +73,9 @@ export default class Application extends EventEmitter {
       initializeInBackground = false;
     }
 
+    await this.oneTimeMoveToApplications();
+    await this.oneTimeAddToDock();
+
     this.autoUpdateManager = new AutoUpdateManager(version, config, specMode);
     this.applicationMenu = new ApplicationMenu(version);
     this.windowManager = new WindowManager({
@@ -94,19 +98,6 @@ export default class Application extends EventEmitter {
       helper.registerForURLScheme('mailspring');
     } else {
       app.setAsDefaultProtocolClient('mailspring');
-    }
-
-    if (process.platform === 'darwin') {
-      const addedToDock = config.get('addedToDock');
-      const appPath = process.argv[0];
-      if (!addedToDock && appPath.includes('/Applications/') && appPath.includes('.app/')) {
-        proc.exec(
-          `defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${appPath.split(
-            '.app/'
-          )[0]}.app/</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"`
-        );
-        config.set('addedToDock', true);
-      }
     }
   }
 
@@ -157,6 +148,41 @@ export default class Application extends EventEmitter {
       for (const urlToOpen of urlsToOpen) {
         this.openUrl(urlToOpen);
       }
+    }
+  }
+
+  async oneTimeMoveToApplications() {
+    if (this.devMode || this.specMode) {
+      return;
+    }
+    if (this.config.get('askedAboutAppMove')) {
+      return;
+    }
+    try {
+      await moveToApplications();
+      this.config.set('askedAboutAppMove', true);
+    } catch (err) {
+      dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Okay'],
+        message: `We encountered a problem moving to the Applications folder. Try quitting the application and moving it manually.`,
+        detail: err.toString(),
+      });
+    }
+  }
+
+  async oneTimeAddToDock() {
+    if (process.platform !== 'darwin') {
+      return;
+    }
+    const addedToDock = this.config.get('addedToDock');
+    const appPath = process.argv[0];
+    if (!addedToDock && appPath.includes('/Applications/') && appPath.includes('.app/')) {
+      const appBundlePath = appPath.split('.app/')[0];
+      proc.exec(
+        `defaults write com.apple.dock persistent-apps -array-add "<dict><key>tile-data</key><dict><key>file-data</key><dict><key>_CFURLString</key><string>${appBundlePath}.app/</string><key>_CFURLStringType</key><integer>0</integer></dict></dict></dict>"`
+      );
+      this.config.set('addedToDock', true);
     }
   }
 
