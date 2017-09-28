@@ -1,4 +1,4 @@
-AutoUpdateManager = require('../src/browser/auto-update-manager').default
+AutoUpdateManager = require('../src/browser/autoupdate-manager').default
 url = require 'url'
 
 describe "AutoUpdateManager", ->

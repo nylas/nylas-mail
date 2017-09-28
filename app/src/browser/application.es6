@@ -13,7 +13,7 @@ import WindowManager from './window-manager';
 import FileListCache from './file-list-cache';
 import ConfigMigrator from './config-migrator';
 import ApplicationMenu from './application-menu';
-import AutoUpdateManager from './auto-update-manager';
+import AutoUpdateManager from './autoupdate-manager';
 import SystemTrayManager from './system-tray-manager';
 import DefaultClientHelper from '../default-client-helper';
 import MailspringProtocolHandler from './mailspring-protocol-handler';

@@ -53,9 +53,11 @@ export default class AutoUpdateManager extends EventEmitter {
 
   setupAutoUpdater() {
     if (process.platform === 'win32') {
-      autoUpdater = require('./windows-updater-squirrel-adapter');
+      const Impl = require('./autoupdate-impl-win32').default;
+      autoUpdater = new Impl();
     } else if (process.platform === 'linux') {
-      autoUpdater = require('./linux-updater-adapter').default;
+      const Impl = require('./autoupdate-impl-base').default;
+      autoUpdater = new Impl();
     } else {
       autoUpdater = require('electron').autoUpdater;
     }
@@ -138,25 +140,11 @@ export default class AutoUpdateManager extends EventEmitter {
       autoUpdater.once('update-not-available', this.onUpdateNotAvailable);
       autoUpdater.once('error', this.onUpdateError);
     }
-    if (process.platform === 'win32') {
-      // There's no separate "checking" stage on Windows. It also
-      // "installs" as soon as it downloads. You just need to restart to
-      // launch the updated app.
-      autoUpdater.downloadAndInstallUpdate();
-    } else {
-      autoUpdater.checkForUpdates();
-    }
+    autoUpdater.checkForUpdates();
   }
 
   install() {
-    if (process.platform === 'win32') {
-      // On windows the update has already been "installed" and shortcuts
-      // already updated. You just need to restart the app to load the new
-      // version.
-      autoUpdater.restartMailspring();
-    } else {
-      autoUpdater.quitAndInstall();
-    }
+    autoUpdater.quitAndInstall();
   }
 
   iconURL() {
