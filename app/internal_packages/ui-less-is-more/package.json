@@ -1,13 +1,12 @@
 {
   "name": "less-is-more",
   "displayName": "Less Is More",
-  "theme": "ui-less-is-more",
+  "theme": "ui",
   "version": "1.0.7",
   "description": "A minimal approach to email in Mailspring",
   "license": "MIT",
   "engines": {
     "mailspring": "*"
   },
-  "styleSheets": ["less-is-more"],
   "private": true
 }

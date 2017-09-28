@@ -5,7 +5,6 @@
   "version": "0.1.0",
   "description": "The Dark N1 Client Theme",
   "license": "GPL-3.0",
-  "styleSheets": ["email-frame"],
   "engines": {
     "mailspring": "*"
   },
