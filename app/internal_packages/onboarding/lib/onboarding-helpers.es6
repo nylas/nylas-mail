@@ -141,6 +141,9 @@ export async function finalizeAndValidateAccount(account) {
   if (account.settings.smtp_port) {
     account.settings.smtp_port /= 1;
   }
+  if (account.label && account.label.includes('@')) {
+    account.label = account.emailAddress;
+  }
 
   // Test connections to IMAP and SMTP
   const proc = new MailsyncProcess(AppEnv.getLoadSettings(), IdentityStore.identity(), account);
