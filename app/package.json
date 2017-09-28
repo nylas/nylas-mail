@@ -10,8 +10,7 @@
     "@segment/loosely-validate-event": "^1.1.2",
     "async": "^0.9",
     "babel-core": "6.22.0",
-    "babel-preset-electron":
-      "bengotow/babel-preset-electron#00783dfc438f122997993ae597a41ec315ba121b",
+    "babel-preset-electron": "bengotow/babel-preset-electron#00783dfc438f122997993ae597a41ec315ba121b",
     "babel-preset-react": "6.22.0",
     "babel-regenerator-runtime": "6.5.0",
     "better-sqlite3": "bengotow/better-sqlite3#dcd5b6e73c9a5329fd72c85be3316131fcfb83ab",
@@ -23,6 +22,7 @@
     "coffeestack": "^1.1",
     "color": "^0.7.3",
     "debug": "github:emorikawa/debug#nylas",
+    "electron-lets-move": "0.0.5",
     "electron-spellchecker": "1.0.1",
     "emissary": "^1.3.1",
     "emoji-data": "^0.2.0",

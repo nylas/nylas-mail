@@ -2,7 +2,7 @@
   "name": "verify-install-location",
   "main": "./lib/main",
   "version": "0.0.1",
-  "description": "Verifies the install location for N1",
+  "description": "Verifies the install location and moves the app to Applications",
   "license": "GPL-3.0",
   "engines": {
     "mailspring": "*"
