@@ -58,7 +58,7 @@ export async function makeRequest(options) {
   options.headers.set('Accept', 'application/json');
   options.credentials = 'include';
 
-  if (!options.auth) {
+  if (!options.auth && options.auth !== false) {
     if (options.server === 'identity') {
       IdentityStore = IdentityStore || require('./stores/identity-store').default;
       const username = IdentityStore.identity().token;
