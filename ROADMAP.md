@@ -24,9 +24,9 @@ Target Ship Date: Late September
 - [x] Store IMAP/SMTP credentials and the cloud API token in the keychain securely.
 - [x] Find a cross-platform solution for reliable C++ stack traces
 - [x] Ensure C++ worker crashes are reported through Sentry or Backtrace
-- [ ] Restart C++ workers if they crash and alert the user to repeated errors.
+- [x] Restart C++ workers if they crash and alert the user to repeated errors.
 - [x] Add support for Gmail authentication flow and XOAUTH2
-- [ ] Add more robust retry / failure handling logic to C++ code.
+- [x] Add more robust retry / failure handling logic to C++ code.
 - [x] Decide what license to use for the C++ codebase / whether to open-source it or provide binaries. (Update: I've deciced to keep this closed source for now. [Here's why.](#why-is-mailsync-closed-source))
 - [x] Link the C++ codebase into Mailspring as a submodule, make Travis and AppVeyor CI build the C++ codebase.
 
@@ -34,8 +34,9 @@ Target Ship Date: Late September
 - [x] Test with a Gmail account
 - [x] Test with a FastMail account
 - [ ] Test with a Yahoo account
-- [ ] Test with an iCloud account
 - [ ] Test with a AOL account
+- [x] Test with an iCloud account
+- [x] Test with an Outlook365 account
 - [ ] Test with an insecure IMAP/SMTP account
 - [x] Test that "multisend" works for open/link tracking
 - [x] Test that sending errors are shown in JavaScript
@@ -60,12 +61,12 @@ Target Ship Date: Late September
 - [x] Setup Sentry for client error reporting
 - [x] Setup Sentry for server error reporting
 - [x] Obtain Mac Developer Certificate for Mailspring
-- [ ] Obtain Windows Verisign Certificate for Mailspring
+- [x] Obtain Windows Verisign Certificate for Mailspring
 - [x] Setup Amazon VPC with public/private subnets, strong security group rules 
 - [x] Setup fast, reproducible deployments w/ Docker containers
 - [x] Deploy new identity API to id.getmailspring.com
-- [ ] Deploy new accounts API to accounts.getmailspring.com
-- [ ] Deploy cloud workers to a secured AWS VPC
+- [~] Deploy new accounts API to accounts.getmailspring.com
+- [~] Deploy cloud workers to a secured AWS VPC
   *Blocked: Waiting for Nylas to open-source the rest of the code.*
 
 #### General

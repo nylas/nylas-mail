@@ -8,6 +8,7 @@ import AccountErrorNotification from './items/account-error-notif';
 import DefaultClientNotification from './items/default-client-notif';
 import UnstableChannelNotification from './items/unstable-channel-notif';
 import DevModeNotification from './items/dev-mode-notif';
+import PleaseSubscribeNotification from './items/please-subscribe-notif';
 import DisabledMailRulesNotification from './items/disabled-mail-rules-notif';
 import OfflineNotification from './items/offline-notification';
 import UpdateNotification from './items/update-notification';
@@ -17,6 +18,7 @@ const notifications = [
   DefaultClientNotification,
   UnstableChannelNotification,
   DevModeNotification,
+  PleaseSubscribeNotification,
   DisabledMailRulesNotification,
   OfflineNotification,
   UpdateNotification,

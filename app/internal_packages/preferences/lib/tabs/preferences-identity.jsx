@@ -84,8 +84,8 @@ class PreferencesIdentity extends React.Component {
             onClick={this._onUpgrade}
             style={{ verticalAlign: 'top' }}
           >
-            <RetinaImg name="ic-upgrade.png" mode={RetinaImg.Mode.ContentIsMask} /> Upgrade to
-            Mailspring Pro
+            <RetinaImg name="ic-upgrade.png" mode={RetinaImg.Mode.ContentIsMask} /> Get Mailspring
+            Pro
           </div>
           <div className="btn minor-width" onClick={learnMore}>
             Learn More
