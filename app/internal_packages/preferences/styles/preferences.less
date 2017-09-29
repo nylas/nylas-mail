@@ -1,12 +1,22 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 // Preferences Specific
 
 .preferences-wrap {
-  input[type=checkbox] { margin: 0 7px 0 0; position: relative; top: -1px; }
-  input[type=radio] { margin: 0 7px 0 0; position: relative; top: -1px; }
-  select { margin: 4px 0 0 8px; }
+  input[type='checkbox'] {
+    margin: 0 7px 0 0;
+    position: relative;
+    top: -1px;
+  }
+  input[type='radio'] {
+    margin: 0 7px 0 0;
+    position: relative;
+    top: -1px;
+  }
+  select {
+    margin: 4px 0 0 8px;
+  }
 
   height: 100%;
   background-color: @background-primary;
@@ -63,6 +73,7 @@
         min-width: 54px;
         max-width: 120px;
         text-align: center;
+        padding-top: 8px;
 
         &:active {
           img {
@@ -77,14 +88,13 @@
         }
 
         .tab-icon {
-          padding-top: 8px;
-          padding-bottom: 8px;
           display: block;
           margin: auto;
         }
 
         .name {
-          padding: @padding-base-vertical @padding-base-horizontal * 0.3 @padding-large-vertical @padding-base-horizontal * 0.3;
+          padding: @padding-base-vertical * 1.5 @padding-base-horizontal * 0.3
+            @padding-large-vertical @padding-base-horizontal * 0.3;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -98,7 +108,7 @@
   .preferences-content {
     flex: 8;
     background-color: lighten(@background-secondary, 1%);
-    &>.scroll-region-content {
+    & > .scroll-region-content {
       padding: @padding-large-vertical * 3 @padding-large-horizontal * 3;
     }
     .container-dropdown {
@@ -107,7 +117,6 @@
         padding-left: 10px;
       }
     }
-
   }
 
   .container-general {
@@ -135,7 +144,7 @@
       margin: 10px 0;
 
       .appearance-mode {
-        background-color: @background-off-primary;;
+        background-color: @background-off-primary;
         border-radius: 10px;
         border: 1px solid @background-tertiary;
         text-align: center;
@@ -160,7 +169,9 @@
       .appearance-mode.active {
         border: 1px solid @component-active-color;
         color: @component-active-color;
-        img { background-color: @component-active-color; }
+        img {
+          background-color: @component-active-color;
+        }
       }
     }
   }
@@ -179,7 +190,7 @@
       text-align: left;
       flex: 1;
       select {
-          width: 75%;
+        width: 75%;
       }
     }
 
@@ -202,14 +213,14 @@
 
         .shortcut-value {
           .then {
-            font-size:0.9em;
+            font-size: 0.9em;
             color: @text-color-very-subtle;
           }
           &:after {
-            content: ", "
+            content: ', ';
           }
           &:last-child:after {
-            content: "";
+            content: '';
           }
         }
       }
@@ -223,7 +234,6 @@
           outline: 1px solid @input-border-color;
         }
       }
-
     }
   }
 
@@ -236,7 +246,7 @@
     &:before {
       color: @color-info;
       font-weight: 600;
-      content: "NOTE: ";
+      content: 'NOTE: ';
     }
   }
   .platform-linux-only {
@@ -265,17 +275,9 @@ body.platform-linux {
   }
 }
 
-@media (-webkit-min-device-pixel-ratio: 2) {
-  .preferences-tabs {
-    .tab-icon {
-      padding-top: 15px !important;
-    }
-  }
-}
-
 @media (max-width: 600px) {
   .preferences-tabs .item .name {
-    display:none;
+    display: none;
   }
   .preferences-wrap .preferences-content > .scroll-region-content {
     padding-left: @padding-large-horizontal * 1;

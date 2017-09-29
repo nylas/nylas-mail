@@ -39,7 +39,12 @@ class PreferencesTabItem extends React.Component {
       path = 'icon-preferences-general.png';
     }
     const icon = (
-      <RetinaImg className="tab-icon" name={path} mode={RetinaImg.Mode.ContentPreserve} />
+      <RetinaImg
+        style={{ width: 40, height: 40 }}
+        className="tab-icon"
+        name={path}
+        mode={RetinaImg.Mode.ContentPreserve}
+      />
     );
 
     return (
