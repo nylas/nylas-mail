@@ -1,8 +1,9 @@
 /* eslint global-require: 0*/
 import React from 'react';
 import PropTypes from 'prop-types';
+import rimraf from 'rimraf';
+import path from 'path';
 
-import { Actions } from 'mailspring-exports';
 import ConfigSchemaItem from './config-schema-item';
 import WorkspaceSection from './workspace-section';
 import SendingSection from './sending-section';
@@ -15,22 +16,32 @@ class PreferencesGeneral extends React.Component {
     configSchema: PropTypes.object,
   };
 
-  _reboot = () => {
+  _onReboot = () => {
     const app = require('electron').remote.app;
     app.relaunch();
     app.quit();
   };
 
-  _resetAccountsAndSettings = () => {
-    const rimraf = require('rimraf');
+  _onResetAccountsAndSettings = () => {
     rimraf(AppEnv.getConfigDirPath(), { disableGlob: true }, err => {
-      if (err) console.log(err);
-      else this._reboot();
+      if (err) {
+        return AppEnv.showErrorDialog(
+          `Could not reset accounts and settings. Please delete the folder ${AppEnv.getConfigDirPath()} manually.\n\n${err.toString()}`
+        );
+      }
+      this._onReboot();
     });
   };
 
-  _resetEmailCache = () => {
-    Actions.resetEmailCache();
+  _onResetEmailCache = () => {
+    rimraf(path.join(AppEnv.getConfigDirPath(), 'edgehill.*'), err => {
+      if (err) {
+        return AppEnv.showErrorDialog(
+          `Could not delete the mail database. Please delete the "edgehill.db" file in ${AppEnv.getConfigDirPath()} manually.\n\n${err.toString()}`
+        );
+      }
+      this._onReboot();
+    });
   };
 
   render() {
@@ -75,10 +86,10 @@ class PreferencesGeneral extends React.Component {
 
         <div className="local-data">
           <h6>Local Data</h6>
-          <div className="btn" onClick={this._resetEmailCache}>
+          <div className="btn" onClick={this._onResetEmailCache}>
             Reset Email Cache
           </div>
-          <div className="btn" onClick={this._resetAccountsAndSettings}>
+          <div className="btn" onClick={this._onResetAccountsAndSettings}>
             Reset Accounts and Settings
           </div>
         </div>

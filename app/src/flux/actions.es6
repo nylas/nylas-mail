@@ -498,8 +498,6 @@ class Actions {
   static notifyPluginsChanged = ActionScopeGlobal;
 
   static expandInitialSyncState = ActionScopeWindow;
-
-  static resetEmailCache = ActionScopeGlobal;
 }
 
 // Read the actions we declared on the dummy Actions object above
