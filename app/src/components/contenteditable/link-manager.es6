@@ -156,7 +156,14 @@ export default class LinkManager extends ContenteditableExtension {
         const html = '<prompt-link>link text</prompt-link>';
         editor.insertHTML(html, { selectInsertion: true });
       } else {
-        editor.wrapSelection('prompt-link');
+        const sel = document.getSelection();
+        const range = sel.getRangeAt(0);
+        const newNode = document.createElement('prompt-link');
+        range.surroundContents(newNode);
+        const newRange = document.createRange();
+        newRange.selectNodeContents(newNode);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
       }
     }, 0);
   }
