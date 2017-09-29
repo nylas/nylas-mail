@@ -50,7 +50,9 @@ environment:
   - NODE_VERSION: 7.10
   global:
     SIGN_BUILD: true
-    CERTIFICATE_FILE: .\app\build\resources\certs\appveyor\win-nylas-n1.p12
+    WINDOWS_CODESIGN_CERT: .\app\build\resources\certs\win\win-codesigning.p12
+    WINDOWS_CODESIGN_CERT_PASSWORD:
+      secure: 3ddxqTBFv+xflIzypB0fNg==
     encrypted_faf2708e46e2_key:
       secure: mdegN/AldrADhtEop6mDwq6d4jUskzijK2X7Twf2lj9t3jdaW4OtMuJ5Ywyt+GN/N7qMFr7LOvxQ5gz4aoIW+Dg9d03AX3BH1o4BI6g+wdk=
     encrypted_faf2708e46e2_iv:
