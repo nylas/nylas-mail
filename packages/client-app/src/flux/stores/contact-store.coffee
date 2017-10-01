@@ -112,7 +112,7 @@ class ContactStore extends NylasStore
 
       if hasLeadingParen and hasTrailingParen
         nameStart = lastMatchEnd
-        for char in [',', '\n', '\r']
+        for char in [',', ';', '\n', '\r']
           i = contactString.lastIndexOf(char, match.index)
           nameStart = i+1 if i+1 > nameStart
         name = contactString.substr(nameStart, match.index - 1 - nameStart).trim()
