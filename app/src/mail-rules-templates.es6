@@ -107,7 +107,7 @@ export function ActionTemplatesForAccount(account) {
       })
     );
     templates.unshift(
-      new Template('applyLabelArchive', Template.Type.None, {
+      new Template('archive', Template.Type.None, {
         name: 'Archive',
       })
     );

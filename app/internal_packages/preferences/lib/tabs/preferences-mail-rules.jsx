@@ -1,14 +1,7 @@
 import React from 'react';
 import _ from 'underscore';
 
-import {
-  Actions,
-  AccountStore,
-  MailRulesStore,
-  MailRulesTemplates,
-  TaskQueue,
-  ReprocessMailRulesTask,
-} from 'mailspring-exports';
+import { Actions, AccountStore, MailRulesStore, MailRulesTemplates } from 'mailspring-exports';
 
 import {
   Flexbox,
@@ -31,7 +24,6 @@ class PreferencesMailRules extends React.Component {
   componentDidMount() {
     this._unsubscribers = [];
     this._unsubscribers.push(MailRulesStore.listen(this._onRulesChanged));
-    this._unsubscribers.push(TaskQueue.listen(this._onTasksChanged));
   }
 
   componentWillUnmount() {
@@ -56,7 +48,7 @@ class PreferencesMailRules extends React.Component {
       currentAccount: currentAccount,
       rules: rules,
       selectedRule: selectedRule,
-      tasks: TaskQueue.findTasks(ReprocessMailRulesTask, {}),
+      reprocessing: MailRulesStore.reprocessState(),
       actionTemplates: ActionTemplatesForAccount(currentAccount),
       conditionTemplates: ConditionTemplatesForAccount(currentAccount),
     };
@@ -88,8 +80,12 @@ class PreferencesMailRules extends React.Component {
       );
     }
 
-    const task = new ReprocessMailRulesTask(this.state.currentAccount.id);
-    Actions.queueTask(task);
+    if (this.state.rules.length === 0) {
+      AppEnv.showErrorDialog(
+        "You haven't created any mail rules. To get started, define a new rule above and tell Mailspring how to process your inbox."
+      );
+    }
+    Actions.startReprocessingMailRules(this.state.currentAccount.id);
   };
 
   _onAddRule = () => {
@@ -131,10 +127,6 @@ class PreferencesMailRules extends React.Component {
     }
 
     this.setState(next);
-  };
-
-  _onTasksChanged = () => {
-    this.setState({ tasks: TaskQueue.findTasks(ReprocessMailRulesTask, {}) });
   };
 
   _renderAccountPicker() {
@@ -250,12 +242,12 @@ class PreferencesMailRules extends React.Component {
   }
 
   _renderTasks() {
-    if (this.state.tasks.length === 0) return false;
     return (
       <div style={{ flex: 1, paddingLeft: 20 }}>
-        {this.state.tasks.map(task => {
+        {Object.keys(this.state.reprocessing).map(accountId => {
+          const { count } = this.state.reprocessing[accountId];
           return (
-            <Flexbox style={{ alignItems: 'baseline' }}>
+            <Flexbox key={accountId} style={{ alignItems: 'baseline' }}>
               <div style={{ paddingRight: '12px' }}>
                 <RetinaImg
                   name="sending-spinner.gif"
@@ -264,12 +256,15 @@ class PreferencesMailRules extends React.Component {
                 />
               </div>
               <div>
-                <strong>{AccountStore.accountForId(task.accountId).emailAddress}</strong>
-                {` — ${Number(task.numberOfImpactedItems()).toLocaleString()} processed...`}
+                <strong>{AccountStore.accountForId(accountId).emailAddress}</strong>
+                {` — ${Number(count).toLocaleString()} processed...`}
               </div>
               <div style={{ flex: 1 }} />
-              <button className="btn btn-sm" onClick={() => Actions.cancelTask(task)}>
-                Cancel
+              <button
+                className="btn btn-sm"
+                onClick={() => Actions.stopReprocessingMailRules(accountId)}
+              >
+                Stop
               </button>
             </Flexbox>
           );
@@ -279,10 +274,6 @@ class PreferencesMailRules extends React.Component {
   }
 
   render() {
-    const processDisabled = this.state.tasks.some(
-      task => task.accountId === this.state.currentAccount.id
-    );
-
     return (
       <div className="container-mail-rules">
         <section>
@@ -297,7 +288,7 @@ class PreferencesMailRules extends React.Component {
           <Flexbox style={{ marginTop: 40, maxWidth: 600 }}>
             <div>
               <button
-                disabled={processDisabled}
+                disabled={this.state.reprocessing[this.state.currentAccount.id]}
                 className="btn"
                 style={{ float: 'right' }}
                 onClick={this._onReprocessRules}

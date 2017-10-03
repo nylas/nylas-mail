@@ -475,6 +475,8 @@ class Actions {
   static updateMailRule = ActionScopeWindow;
   static deleteMailRule = ActionScopeWindow;
   static disableMailRule = ActionScopeWindow;
+  static startReprocessingMailRules = ActionScopeWindow;
+  static stopReprocessingMailRules = ActionScopeWindow;
 
   static openPopover = ActionScopeWindow;
   static closePopover = ActionScopeWindow;

@@ -1,9 +1,12 @@
 import MailspringStore from 'mailspring-store';
 import _ from 'underscore';
-import TaskQueue from './task-queue';
-import ReprocessMailRulesTask from '../tasks/reprocess-mail-rules-task';
 import Utils from '../models/utils';
 import Actions from '../actions';
+import Thread from '../models/thread';
+import Message from '../models/message';
+import DatabaseStore from '../stores/database-store';
+import CategoryStore from '../stores/category-store';
+import MailRulesProcessor from '../../mail-rules-processor';
 
 import { ConditionMode, ConditionTemplates, ActionTemplates } from '../../mail-rules-templates';
 
@@ -13,6 +16,7 @@ class MailRulesStore extends MailspringStore {
   constructor() {
     super();
 
+    this._reprocessing = {};
     this._rules = [];
     try {
       const txt = window.localStorage.getItem(RulesJSONKey);
@@ -28,6 +32,8 @@ class MailRulesStore extends MailspringStore {
     this.listenTo(Actions.reorderMailRule, this._onReorderMailRule);
     this.listenTo(Actions.updateMailRule, this._onUpdateMailRule);
     this.listenTo(Actions.disableMailRule, this._onDisableMailRule);
+    this.listenTo(Actions.startReprocessingMailRules, this._onStartReprocessing);
+    this.listenTo(Actions.stopReprocessingMailRules, this._onStopReprocessing);
   }
 
   rules() {
@@ -42,6 +48,10 @@ class MailRulesStore extends MailspringStore {
     return this._rules.filter(f => f.accountId === accountId && f.disabled);
   }
 
+  reprocessState() {
+    return this._reprocessing;
+  }
+
   _onDeleteMailRule = id => {
     this._rules = this._rules.filter(f => f.id !== id);
     this._saveMailRules();
@@ -49,7 +59,7 @@ class MailRulesStore extends MailspringStore {
   };
 
   _onReorderMailRule = (id, newIdx) => {
-    const currentIdx = _.findIndex(this._rules, _.matcher({ id }));
+    const currentIdx = this._rules.findIndex(r => r.id === id);
     if (currentIdx === -1) {
       return;
     }
@@ -98,9 +108,7 @@ class MailRulesStore extends MailspringStore {
     this._saveMailRules();
 
     // Cancel all bulk processing jobs
-    for (const task of TaskQueue.findTasks(ReprocessMailRulesTask, {})) {
-      Actions.cancelTask(task);
-    }
+    this._reprocessing = {};
 
     this.trigger();
   };
@@ -113,6 +121,83 @@ class MailRulesStore extends MailspringStore {
       }, 1000);
     this._saveMailRulesDebounced();
   }
+
+  // Reprocessing Existing Mail
+
+  _onStartReprocessing = aid => {
+    const inboxCategory = CategoryStore.getCategoryByRole(aid, 'inbox');
+    if (!inboxCategory) {
+      AppEnv.showErrorDialog(
+        `Sorry, this account does not appear to have an inbox folder so this feature is disabled.`
+      );
+      return;
+    }
+
+    this._reprocessing[aid] = {
+      count: 1,
+      lastTimestamp: null,
+      inboxCategoryId: inboxCategory.id,
+    };
+    this._reprocessSome(aid);
+    this.trigger();
+  };
+
+  _onStopReprocessing = aid => {
+    delete this._reprocessing[aid];
+    this.trigger();
+  };
+
+  _reprocessSome = (accountId, callback) => {
+    if (!this._reprocessing[accountId]) {
+      return;
+    }
+    const { lastTimestamp, inboxCategoryId } = this._reprocessing[accountId];
+
+    // Fetching threads first, and then getting their messages allows us to use
+    // The same indexes as the thread list / message list in the app
+
+    // Note that we look for "50 after X" rather than "offset 150", because
+    // running mail rules can move things out of the inbox!
+    const query = DatabaseStore.findAll(Thread, { accountId })
+      .where(Thread.attributes.categories.contains(inboxCategoryId))
+      .order(Thread.attributes.lastMessageReceivedTimestamp.descending())
+      .limit(50);
+
+    if (lastTimestamp !== null) {
+      query.where(Thread.attributes.lastMessageReceivedTimestamp.lessThan(lastTimestamp));
+    }
+
+    query.then(threads => {
+      if (!this._reprocessing[accountId]) {
+        return;
+      }
+      if (threads.length === 0) {
+        this._onStopReprocessing(accountId);
+        return;
+      }
+
+      DatabaseStore.findAll(Message, {
+        threadId: threads.map(t => t.id),
+      }).then(messages => {
+        if (!this._reprocessing[accountId]) {
+          return;
+        }
+        const advance = () => {
+          if (this._reprocessing[accountId]) {
+            this._reprocessing[accountId] = Object.assign({}, this._reprocessing[accountId], {
+              count: this._reprocessing[accountId].count + messages.length,
+              lastTimestamp: threads.pop().lastMessageReceivedTimestamp,
+            });
+            this.trigger();
+            setTimeout(() => {
+              this._reprocessSome(accountId);
+            }, 500);
+          }
+        };
+        MailRulesProcessor.processMessages(messages).then(advance, advance);
+      });
+    });
+  };
 }
 
 export default new MailRulesStore();

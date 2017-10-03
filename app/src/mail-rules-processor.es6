@@ -2,8 +2,8 @@ import _ from 'underscore';
 
 import Task from './flux/tasks/task';
 import Actions from './flux/actions';
-import Category from './flux/models/category';
 import Thread from './flux/models/thread';
+import Folder from './flux/models/folder';
 import Label from './flux/models/label';
 import CategoryStore from './flux/stores/category-store';
 import DatabaseStore from './flux/stores/database-store';
@@ -24,8 +24,8 @@ information about the current view. Maybe after the unified inbox refactor...
 */
 const MailRulesActions = {
   markAsImportant: async (message, thread) => {
-    const important = await DatabaseStore.findBy(Category, {
-      name: 'important',
+    const important = await DatabaseStore.findBy(Label, {
+      role: 'important',
       accountId: thread.accountId,
     });
     if (!important) {
@@ -34,25 +34,19 @@ const MailRulesActions = {
     return new ChangeLabelsTask({
       labelsToAdd: [important],
       labelsToRemove: [],
-      threads: [thread.id],
+      threads: [thread],
       source: 'Mail Rules',
     });
   },
 
   moveToTrash: async (message, thread) => {
-    if (CategoryStore.getInboxCategory(thread.accountId) instanceof Label) {
-      return MailRulesActions.moveToLabel(message, thread, 'trash');
-    }
-    const folder = await DatabaseStore.findBy(Category, {
-      name: 'trash',
-      accountId: thread.accountId,
-    });
+    const folder = CategoryStore.getTrashCategory(thread.accountId);
     if (!folder) {
-      throw new Error('The folder could not be found.');
+      throw new Error('Could not find `trash` folder');
     }
     return new ChangeFolderTask({
       folder: folder,
-      threads: [thread.id],
+      threads: [thread],
       source: 'Mail Rules',
     });
   },
@@ -60,7 +54,7 @@ const MailRulesActions = {
   markAsRead: (message, thread) => {
     return new ChangeUnreadTask({
       unread: false,
-      threads: [thread.id],
+      threads: [thread],
       source: 'Mail Rules',
     });
   },
@@ -68,7 +62,7 @@ const MailRulesActions = {
   star: (message, thread) => {
     return new ChangeStarredTask({
       starred: true,
-      threads: [thread.id],
+      threads: [thread],
       source: 'Mail Rules',
     });
   },
@@ -77,13 +71,13 @@ const MailRulesActions = {
     if (!value) {
       throw new Error('A folder is required.');
     }
-    const folder = await DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId });
+    const folder = await DatabaseStore.findBy(Folder, { id: value, accountId: thread.accountId });
     if (!folder) {
       throw new Error('The folder could not be found.');
     }
     return new ChangeFolderTask({
       folder: folder,
-      threads: [thread.id],
+      threads: [thread],
       source: 'Mail Rules',
     });
   },
@@ -92,33 +86,37 @@ const MailRulesActions = {
     if (!value) {
       throw new Error('A label is required.');
     }
-    const label = await DatabaseStore.findBy(Category, { id: value, accountId: thread.accountId });
+    const label = await DatabaseStore.findBy(Label, { id: value, accountId: thread.accountId });
     if (!label) {
       throw new Error('The label could not be found.');
     }
     return new ChangeLabelsTask({
       labelsToAdd: [label],
       labelsToRemove: [],
-      threads: [thread.id],
+      threads: [thread],
       source: 'Mail Rules',
     });
   },
 
-  // Should really be moveToArchive but stuck with legacy name
-  applyLabelArchive: (message, thread) => {
-    return MailRulesActions.moveToLabel(message, thread, 'all');
+  archive: (message, thread) => {
+    return new ChangeLabelsTask({
+      labelsToAdd: [],
+      labelsToRemove: [CategoryStore.getInboxCategory(thread.accountId)],
+      threads: [thread],
+      source: 'Mail Rules',
+    });
   },
 
-  moveToLabel: async (message, thread, nameOrId) => {
-    if (!nameOrId) {
+  moveToLabel: async (message, thread, roleOrId) => {
+    if (!roleOrId) {
       throw new Error('A label is required.');
     }
 
-    const { withId, withName } = await Promise.props({
-      withId: DatabaseStore.findBy(Category, { id: nameOrId, accountId: thread.accountId }),
-      withName: DatabaseStore.findBy(Category, { name: nameOrId, accountId: thread.accountId }),
+    const { withId, withRole } = await Promise.props({
+      withId: DatabaseStore.findBy(Label, { id: roleOrId, accountId: thread.accountId }),
+      withRole: DatabaseStore.findBy(Label, { role: roleOrId, accountId: thread.accountId }),
     });
-    const label = withId || withName;
+    const label = withId || withRole;
     if (!label) {
       throw new Error('The label could not be found.');
     }
@@ -128,7 +126,7 @@ const MailRulesActions = {
         .concat(thread.labels)
         .filter(l => !l.isLockedCategory() && l.id !== label.id),
       labelsToAdd: [label],
-      threads: [thread.id],
+      threads: [thread],
     });
   },
 };
