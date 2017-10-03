@@ -29,9 +29,7 @@ module.exports = class RavenErrorReporter {
   }
 
   getVersion() {
-    return process.type === 'renderer'
-      ? AppEnv.getVersion()
-      : require('electron').app.getVersion();
+    return process.type === 'renderer' ? AppEnv.getVersion() : require('electron').app.getVersion();
   }
 
   reportError(err, extra) {

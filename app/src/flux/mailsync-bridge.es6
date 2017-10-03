@@ -51,11 +51,16 @@ class CrashTracker {
       const lines = message
         .split('\n')
         .map(l => l.replace(/\*\*\*/g, '').trim())
-        .filter(l => !l.startsWith('[') && !l.startsWith('Error: null['));
+        .filter(l => !/^[\d|[ ]+/.test(l) && !l.startsWith('Error: null'));
       message = `${overview}:\n${lines.join('\n')}`;
     }
     if (stack) {
-      const lines = stack.split('\n').map(l => l.replace(/\*\*\*/g, '').trim());
+      const lines = stack.split('\n').map(l =>
+        l
+          .replace(/\*\*\*/g, '')
+          .replace('in mailsync ', '')
+          .trim()
+      );
       lines.shift();
       message = `${message}${lines[0]}`;
       stack = lines.join('\n');
