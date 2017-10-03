@@ -5,68 +5,76 @@ const path = require('path');
 const https = require('https');
 const fs = require('fs');
 const rimraf = require('rimraf');
-const {safeExec} = require('./utils/child-process-wrapper.js');
+const { safeExec } = require('./utils/child-process-wrapper.js');
 
 const npmElectronTarget = require('../package.json').devDependencies.electron;
 const npmEnvs = {
   system: process.env,
   electron: Object.assign({}, process.env, {
-    'npm_config_target': npmElectronTarget,
-    'npm_config_arch': process.arch,
-    'npm_config_target_arch': process.arch,
-    'npm_config_disturl': 'https://atom.io/download/atom-shell',
-    'npm_config_runtime': 'electron',
-    'npm_config_build_from_source': true,
+    npm_config_target: npmElectronTarget,
+    npm_config_arch: process.arch,
+    npm_config_target_arch: process.arch,
+    npm_config_disturl: 'https://atom.io/download/atom-shell',
+    npm_config_runtime: 'electron',
+    npm_config_build_from_source: true,
   }),
 };
 
 function npm(cmd, options) {
-  const {cwd, env} = Object.assign({cwd: '.', env: 'system'}, options);
+  const { cwd, env } = Object.assign({ cwd: '.', env: 'system' }, options);
 
   return new Promise((resolve, reject) => {
-    console.log(`\n-- Running npm ${cmd} in ${cwd} with ${env} config --`)
+    console.log(`\n-- Running npm ${cmd} in ${cwd} with ${env} config --`);
 
-    safeExec(`npm ${cmd}`, {
-      cwd: path.resolve(__dirname, '..', cwd),
-      env: npmEnvs[env],
-    }, (err) => {
-      return err ? reject(err) : resolve(null);
-    });
+    safeExec(
+      `npm ${cmd}`,
+      {
+        cwd: path.resolve(__dirname, '..', cwd),
+        env: npmEnvs[env],
+      },
+      err => {
+        return err ? reject(err) : resolve(null);
+      }
+    );
   });
 }
 
 function downloadMailsync() {
   safeExec('git rev-parse HEAD', (err, output) => {
     const head = output.substr(0, 8);
-    const filename = process.platform === 'win32' ? 'mailsync.exe' : 'mailsync';
+    const filename = process.platform === 'win32' ? 'mailsync.exe' : 'mailsync.tar';
     const distKey = `${process.platform}-${process.arch}`;
     const distDir = {
-      "darwin-x64": 'osx',
-      "darwin-ia32": null,
-      "win32-x64": 'win-ia32', // serve 32-bit since backwards compatibility is great
-      "win32-ia32": 'win-ia32',
-      "linux-x64": 'linux',
-      "linux-ia32": null,
+      'darwin-x64': 'osx',
+      'darwin-ia32': null,
+      'win32-x64': 'win-ia32', // serve 32-bit since backwards compatibility is great
+      'win32-ia32': 'win-ia32',
+      'linux-x64': 'linux',
+      'linux-ia32': null,
     }[distKey];
     if (!distDir) {
-      console.error(`\nSorry, a Mailspring Mailsync build for your machine (${distKey}) is not yet available.`)
+      console.error(
+        `\nSorry, a Mailspring Mailsync build for your machine (${distKey}) is not yet available.`
+      );
       return;
     }
 
     const distS3URL = `https://mailspring-builds.s3.amazonaws.com/client/${head}/${distDir}/${filename}`;
-    https.get(distS3URL, (response) => {
+    https.get(distS3URL, response => {
       if (response.statusCode === 200) {
         response.pipe(fs.createWriteStream(`app/${filename}`));
         response.on('end', () => {
-          console.log(`\nDownloaded Mailspring Mailsync build ${distDir}-${head} to ./app\n`);
-        })
+          console.log(`\nDownloaded Mailsync build ${distDir}-${head} to ./app/${filename}.`);
+        });
       } else {
-        console.error(`Sorry, an error occurred while fetching the Mailspring Mailsync build for your machine\n(${distS3URL})\n`);
+        console.error(
+          `Sorry, an error occurred while fetching the Mailspring Mailsync build for your machine\n(${distS3URL})\n`
+        );
         response.pipe(process.stderr);
         response.on('end', () => console.error('\n'));
       }
     });
-  })
+  });
 }
 
 // For speed, we cache app/node_modules. However, we need to
@@ -74,24 +82,25 @@ function downloadMailsync() {
 // Electron version changes. To do this we check a marker file.
 const appModulesPath = path.resolve(__dirname, '..', 'app', 'node_modules');
 const cacheVersionPath = path.join(appModulesPath, '.postinstall-target-version');
-const cacheElectronTarget = fs.existsSync(cacheVersionPath) && fs.readFileSync(cacheVersionPath).toString();
+const cacheElectronTarget =
+  fs.existsSync(cacheVersionPath) && fs.readFileSync(cacheVersionPath).toString();
 
 if (cacheElectronTarget !== npmElectronTarget) {
-  console.log(`\n-- Clearing app/node_modules --`)
+  console.log(`\n-- Clearing app/node_modules --`);
   rimraf.sync(appModulesPath);
 }
 
 // run `npm install` in ./app with Electron NPM config
-npm('install', {cwd: './app', env: 'electron'}).then(() => {
+npm('install', { cwd: './app', env: 'electron' }).then(() => {
   // run `npm dedupe` in ./app with Electron NPM config
-  npm('dedupe', {cwd: './app', env: 'electron'}).then(() => {
+  npm('dedupe', { cwd: './app', env: 'electron' }).then(() => {
     // write the marker with the electron version
     fs.writeFileSync(cacheVersionPath, npmElectronTarget);
 
     // if the user hasn't cloned the private mailsync module, download
     // the binary for their operating system that was shipped to S3.
     if (!fs.existsSync('./mailsync/build.sh')) {
-      console.log(`\n-- Downloading a compiled version of Mailspring mailsync --`)
+      console.log(`\n-- Downloading a compiled version of Mailspring mailsync --`);
       downloadMailsync();
     }
   });
