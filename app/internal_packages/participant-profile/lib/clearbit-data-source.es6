@@ -8,11 +8,16 @@ export default class ClearbitDataSource {
     if (tryCount >= MAX_RETRY) {
       return null;
     }
-    const body = await makeRequest({
-      server: 'identity',
-      method: 'GET',
-      path: `/api/info-for-email/${email}`,
-    });
+    let body = null;
+    try {
+      body = await makeRequest({
+        server: 'identity',
+        method: 'GET',
+        path: `/api/info-for-email/${email}`,
+      });
+    } catch (err) {
+      // we don't care about errors returned by this clearbit proxy
+    }
     return await this.parseResponse(body, email, tryCount);
   }
 
