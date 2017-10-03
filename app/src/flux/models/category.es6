@@ -1,4 +1,5 @@
 /* eslint global-require: 0 */
+import utf7 from 'utf7';
 import Model from './model';
 import Attributes from '../attributes';
 
@@ -57,15 +58,17 @@ Section: Models
 */
 export default class Category extends Model {
   get displayName() {
+    const decoded = utf7.imap.decode(this.path);
+
     for (const prefix of ['INBOX', '[Gmail]', '[Mailspring]']) {
-      if (this.path.startsWith(prefix) && this.path.length > prefix.length + 1) {
-        return this.path.substr(prefix.length + 1); // + delimiter
+      if (decoded.startsWith(prefix) && decoded.length > prefix.length + 1) {
+        return decoded.substr(prefix.length + 1); // + delimiter
       }
     }
-    if (this.path === 'INBOX') {
+    if (decoded === 'INBOX') {
       return 'Inbox';
     }
-    return this.path;
+    return decoded;
   }
 
   /* Available for historical reasons, do not use. */

@@ -74,6 +74,7 @@
     "tld": "^0.0.2",
     "underscore": "1.8.x",
     "underscore.string": "^3.0",
+    "utf7": "^1.0.2",
     "windows-shortcuts": "emorikawa/windows-shortcuts#b0a0fc7"
   },
   "optionalDependencies": {

@@ -25,6 +25,10 @@ describe 'Category classes', ->
       foo = new Folder({path: 'INBOX'})
       expect(foo.displayName).toEqual('Inbox')
 
+    it "should convert the UTF7-formatted path back to UTF8", ->
+      foo = new Label({path: 'T&AOk-st F&APg-reign L&AOU-bel'})
+      expect(foo.displayName).toEqual('Tést Føreign Låbel')
+
   describe 'category types', ->
     it 'assigns type correctly when it is a user category', ->
       cat = new Label
