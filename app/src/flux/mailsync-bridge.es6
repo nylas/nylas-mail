@@ -65,8 +65,9 @@ class CrashTracker {
     err.stack = stack;
 
     let log = '';
+    const logfile = `mailsync-${fullAccountJSON.id}.log`;
     try {
-      const logpath = path.join(AppEnv.getConfigDirPath(), 'mailsync.log');
+      const logpath = path.join(AppEnv.getConfigDirPath(), logfile);
       const { size } = fs.statSync(logpath);
       const tailSize = Math.min(1200, size);
       const buffer = new Buffer(tailSize);
@@ -75,7 +76,7 @@ class CrashTracker {
       log = buffer.toString('UTF8');
       log = log.substr(log.indexOf('\n') + 1);
     } catch (logErr) {
-      console.warn(`Could not append mailsync.log to mailsync exception report: ${logErr}`);
+      console.warn(`Could not append ${logfile} to mailsync exception report: ${logErr}`);
     }
 
     AppEnv.errorLogger.reportError(err, {
@@ -140,8 +141,8 @@ export default class MailsyncBridge {
 
   openLogs() {
     const { configDirPath } = AppEnv.getLoadSettings();
-    const logPath = path.join(configDirPath, 'mailsync.log');
-    require('electron').shell.openItem(logPath); // eslint-disable-line
+    const configDirItem = path.join(configDirPath, 'config.json');
+    require('electron').shell.showItemInFolder(configDirItem); // eslint-disable-line
   }
 
   clients() {
