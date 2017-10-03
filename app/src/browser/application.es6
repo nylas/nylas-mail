@@ -365,8 +365,7 @@ export default class Application extends EventEmitter {
     });
 
     this.on('application:view-help', () => {
-      const helpUrl =
-        'https://support.getmailspring.com/hc/en-us/categories/200419318-Help-for-N1-users';
+      const helpUrl = 'http://support.getmailspring.com/hc/en-us';
       require('electron').shell.openExternal(helpUrl);
     });
 

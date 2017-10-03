@@ -43,7 +43,9 @@ class Windows {
         detail: "You'll find Mailspring, along with other options, listed in Default Apps > Mail.",
       },
       () => {
-        shell.openExternal('https://support.getmailspring.com/hc/en-us/articles/229277648');
+        shell.openExternal(
+          'http://support.getmailspring.com/hc/en-us/articles/115001881412-Choose-Mailspring-as-the-default-mail-client-on-Windows'
+        );
       }
     );
   }
@@ -76,7 +78,9 @@ class Windows {
               detail: "Click 'Learn More' to view instructions in our knowledge base.",
             },
             () => {
-              shell.openExternal('https://support.getmailspring.com/hc/en-us/articles/229277648');
+              shell.openExternal(
+                'http://support.getmailspring.com/hc/en-us/articles/115001881412-Choose-Mailspring-as-the-default-mail-client-on-Windows'
+              );
             }
           );
         }

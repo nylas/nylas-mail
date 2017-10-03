@@ -94,7 +94,7 @@ class KeyManager {
 
   _try(fn) {
     const ERR_MSG =
-      "We couldn't store your password securely! For more information, visit https://support.getmailspring.com/hc/en-us/articles/223790028";
+      "We couldn't store your password securely! For more information, visit http://support.getmailspring.com/hc/en-us/articles/115001875571";
     try {
       if (!fn()) {
         remote.dialog.showErrorBox('Password Management Error', ERR_MSG);
