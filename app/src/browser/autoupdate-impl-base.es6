@@ -21,7 +21,7 @@ export default class AutoupdateImplBase extends EventEmitter {
     // Hit the feed URL ourselves and see if an update is available.
     // On linux we can't autoupdate, but we can still show the "update available" bar.
     https.get({ host: feedHost, path: feedPath }, res => {
-      console.log(`Manual update check returned ${res.statusCode}`);
+      console.log(`Manual update check (${feedHost}${feedPath}) returned ${res.statusCode}`);
 
       if (res.statusCode === 204) {
         successCallback(false);
