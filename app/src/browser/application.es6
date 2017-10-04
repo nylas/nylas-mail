@@ -47,15 +47,23 @@ export default class Application extends EventEmitter {
       const mailsync = new MailsyncProcess(options, null);
       await mailsync.migrate();
     } catch (err) {
-      dialog.showMessageBox({
-        type: 'warning',
-        buttons: ['Okay'],
-        message: `We encountered a problem with your local email database. ${err.toString()}\n\nWe will now attempt to rebuild it.`,
-      });
-      this._deleteDatabase(() => {
-        app.relaunch();
-        app.quit();
-      });
+      dialog.showMessageBox(
+        {
+          type: 'warning',
+          buttons: ['Quit', 'Rebuild'],
+          message: `We encountered a problem with your local email database. ${err.toString()}\n\nWould you like to rebuild it and start Mailspring?`,
+        },
+        buttonIndex => {
+          if (buttonIndex === 0) {
+            app.quit();
+          } else {
+            this._deleteDatabase(() => {
+              app.relaunch();
+              app.quit();
+            });
+          }
+        }
+      );
       return;
     }
 
