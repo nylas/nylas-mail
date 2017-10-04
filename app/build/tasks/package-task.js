@@ -173,6 +173,9 @@ module.exports = grunt => {
           [
             'mailsync',
             'mailsync.exe',
+            'mailsync.bin',
+            '*.so',
+            '*.so.*',
             '*.dll',
             '*.node',
             '**/vendor/**',

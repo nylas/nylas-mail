@@ -42,7 +42,7 @@ function npm(cmd, options) {
 function downloadMailsync() {
   safeExec('git rev-parse HEAD', (err, output) => {
     const head = output.substr(0, 8);
-    const filename = process.platform === 'win32' ? 'mailsync.exe' : 'mailsync.tar';
+    const filename = process.platform === 'win32' ? 'mailsync.exe' : 'mailsync.tar.gz';
     const distKey = `${process.platform}-${process.arch}`;
     const distDir = {
       'darwin-x64': 'osx',
