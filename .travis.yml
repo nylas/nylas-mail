@@ -35,6 +35,7 @@ addons:
     - autoconf
     - automake
     - libtool
+    - libc-ares-dev
     - libctemplate-dev
     - libcurl4-openssl-dev
     - libicu-dev
