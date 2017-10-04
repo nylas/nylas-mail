@@ -208,10 +208,8 @@ export default class WindowManager {
       neverClose: true,
       bootstrapScript: require.resolve('../window-bootstrap'),
       mainWindow: true,
-      width: 640, // Gets reset once app boots up
-      height: 396, // Gets reset once app boots up
-      center: true, // Gets reset once app boots up
-      resizable: false, // Gets reset once app boots up
+      width: 900, // Gets changed based on previous settings
+      height: 600, // Gets changed based on previous settings
       initializeInBackground: this.initializeInBackground,
     };
 

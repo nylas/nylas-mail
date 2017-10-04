@@ -100,8 +100,6 @@ class MailspringWindow
 
     @browserWindow.once 'window:loaded', =>
       @loaded = true
-      if @mainWindow
-        @browserWindow.setResizable(true)
       if @browserWindow.loadSettingsChangedSinceGetURL
         @browserWindow.webContents.send('load-settings-changed', @browserWindow.loadSettings)
       @emit 'window:loaded'
