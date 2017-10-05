@@ -101,7 +101,7 @@ class Linux {
     }
     exec(
       `xdg-mime query default x-scheme-handler/${scheme}`,
-      (err, stdout) => (err ? callback(err) : callback(stdout.trim() === 'nylas.desktop'))
+      (err, stdout) => (err ? callback(err) : callback(stdout.trim() === 'mailspring.desktop'))
     );
   }
 
@@ -113,7 +113,7 @@ class Linux {
   }
   registerForURLScheme(scheme, callback = () => {}) {
     exec(
-      `xdg-mime default nylas.desktop x-scheme-handler/${scheme}`,
+      `xdg-mime default mailspring.desktop x-scheme-handler/${scheme}`,
       err => (err ? callback(err) : callback(null, null))
     );
   }
