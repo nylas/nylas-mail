@@ -1,0 +1,57 @@
+name: mailspring
+version: 1.0.1
+summary: The best email app for people and teams at work
+description: |
+ An extensible desktop mail app built on the modern web.
+
+confinement: strict
+
+parts:
+  mailspring:
+    plugin: dump
+    source: https://mailspring-builds.s3.amazonaws.com/client/ba1d6734/linux/mailspring-1.0.1-amd64.deb
+    source-type: deb
+    # Correct path to icon.
+    prepare: |
+      sed -i 's|Icon=mailspring|Icon=/usr/share/pixmaps/mailspring\.png|' usr/share/applications/mailspring.desktop
+    after:
+      - desktop-gtk2
+    stage-packages:
+      - gir1.2-gnomekeyring-1.0
+      - libasound2
+      - libcurl3
+      - libgconf2-4
+      - libgcrypt20
+      - libgnome-keyring0
+      - libnotify4
+      - libnspr4
+      - libnss3
+      - libpulse0
+      - libxkbfile1
+      - libxss1
+      - libxtst6
+      - python
+
+apps:
+  mailspring:
+    command: desktop-launch $SNAP/usr/share/mailspring/mailspring
+    desktop: usr/share/applications/mailspring.desktop
+    # Correct the TMPDIR path for Chromium Framework/Electron to
+    # ensure libappindicator has readable resources.
+    environment:
+      TMPDIR: $XDG_RUNTIME_DIR
+    plugs:
+     - avahi-observe
+     - browser-support
+     - cups-control
+     - gsettings
+     - home
+     - mount-observe
+     - network
+     - network-control
+     - password-manager-service
+     - pulseaudio
+     - removable-media
+     - screen-inhibit-control
+     - unity7
+     - x11
