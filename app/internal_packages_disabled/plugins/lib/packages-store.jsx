@@ -22,14 +22,6 @@ const PackagesStore = Reflux.createStore({
     // this._refreshFeatured();
     // this.listenTo(PluginsActions.refreshFeaturedPackages, this._refreshFeatured);
     // this.listenTo(PluginsActions.refreshInstalledPackages, this._refreshInstalled);
-    // AppEnv.commands.add(document.body,
-    //   'application:create-package',
-    //   () => this._onCreatePackage()
-    // );
-    // AppEnv.commands.add(document.body,
-    //   'application:install-package',
-    //   () => this._onInstallPackage()
-    // );
     // this.listenTo(PluginsActions.installNewPackage, this._onInstallPackage);
     // this.listenTo(PluginsActions.createPackage, this._onCreatePackage);
     // this.listenTo(PluginsActions.updatePackage, this._onUpdatePackage);
@@ -207,116 +199,6 @@ const PackagesStore = Reflux.createStore({
 
   _onUpdatePackage: function _onUpdatePackage(pkg) {
     this._apm.update(pkg, pkg.newerVersion);
-  },
-
-  _onInstallPackage: function _onInstallPackage() {
-    AppEnv.showOpenDialog(
-      {
-        title: 'Choose a Plugin Directory',
-        buttonLabel: 'Choose',
-        properties: ['openDirectory'],
-      },
-      filenames => {
-        if (!filenames || filenames.length === 0) return;
-        AppEnv.packages.installPackageFromPath(filenames[0], (err, packageName) => {
-          if (err) {
-            this._displayMessage('Could not install plugin', err.message);
-          } else {
-            this._onPackagesChanged();
-            const msg = `${packageName} has been installed and enabled. No need to restart! If you don't see the plugin loaded, check the console for errors.`;
-            this._displayMessage('Plugin installed! 🎉', msg);
-          }
-        });
-      }
-    );
-  },
-
-  _onCreatePackage: function _onCreatePackage() {
-    if (!AppEnv.inDevMode()) {
-      const btn = dialog.showMessageBox({
-        type: 'warning',
-        message: 'Run with debug flags?',
-        detail: `To develop plugins, you should run N1 with debug flags. This gives you better error messages, the debug version of React, and more. You can disable it at any time from the Developer menu.`,
-        buttons: ['OK', 'Cancel'],
-      });
-      if (btn === 0) {
-        ipcRenderer.send('command', 'application:toggle-dev');
-      }
-      return;
-    }
-
-    const packagesDir = path.join(AppEnv.getConfigDirPath(), 'dev', 'packages');
-    fs.makeTreeSync(packagesDir);
-
-    AppEnv.showSaveDialog(
-      {
-        title: 'Save New Package',
-        defaultPath: packagesDir,
-        properties: ['createDirectory'],
-      },
-      packageDir => {
-        if (!packageDir) return;
-
-        const packageName = path.basename(packageDir);
-
-        if (!packageDir.startsWith(packagesDir)) {
-          this._displayMessage(
-            'Invalid plugin location',
-            'Sorry, you must create plugins in the packages folder.'
-          );
-        }
-
-        if (AppEnv.packages.resolvePackagePath(packageName)) {
-          this._displayMessage(
-            'Invalid plugin name',
-            'Sorry, you must give your plugin a unique name.'
-          );
-        }
-
-        if (packageName.indexOf(' ') !== -1) {
-          this._displayMessage('Invalid plugin name', 'Sorry, plugin names cannot contain spaces.');
-        }
-
-        fs.mkdir(packageDir, err => {
-          if (err) {
-            this._displayMessage('Could not create plugin', err.toString());
-            return;
-          }
-          const { resourcePath } = AppEnv.getLoadSettings();
-          const packageTemplatePath = path.join(resourcePath, 'static', 'package-template');
-          const packageJSON = {
-            name: packageName,
-            main: './lib/main',
-            version: '0.1.0',
-            repository: {
-              type: 'git',
-              url: '',
-            },
-            engines: {
-              mailspring: `>=${AppEnv.getVersion().split('-')[0]}`,
-            },
-            windowTypes: {
-              default: true,
-              composer: true,
-            },
-            description: 'Enter a description of your package!',
-            dependencies: {},
-            license: 'MIT',
-          };
-
-          fs.copySync(packageTemplatePath, packageDir);
-          fs.writeFileSync(
-            path.join(packageDir, 'package.json'),
-            JSON.stringify(packageJSON, null, 2)
-          );
-          shell.showItemInFolder(packageDir);
-          _.defer(() => {
-            AppEnv.packages.enablePackage(packageDir);
-            AppEnv.packages.activatePackage(packageName);
-          });
-        });
-      }
-    );
   },
 
   _onGlobalSearchChange: function _onGlobalSearchChange(val) {

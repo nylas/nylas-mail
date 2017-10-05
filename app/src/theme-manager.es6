@@ -91,7 +91,7 @@ export default class ThemeManager {
   }
 
   getAvailableThemes() {
-    return this.packageManager.getAvailablePacakges().filter(p => p.isTheme());
+    return this.packageManager.getAvailablePackages().filter(p => p.isTheme());
   }
 
   // Set the active theme.

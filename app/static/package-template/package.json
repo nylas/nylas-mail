@@ -1,0 +1,19 @@
+{
+  "name": "replaced-at-runtime",
+  "main": "./lib/main",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "mailspring": ">=1.0.1"
+  },
+  "windowTypes": {
+    "default": true,
+    "composer": true
+  },
+  "description": "Enter a description of your package!",
+  "dependencies": {},
+  "license": "MIT"
+}

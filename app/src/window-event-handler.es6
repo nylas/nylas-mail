@@ -93,6 +93,13 @@ export default class WindowEventHandler {
       ComponentRegistry.toggleComponentRegions();
     });
 
+    AppEnv.commands.add(document.body, 'window:create-package', () => {
+      AppEnv.packages.createPackageManually();
+    });
+    AppEnv.commands.add(document.body, 'window:install-package', () => {
+      AppEnv.packages.installPackageManually();
+    });
+
     const webContents = AppEnv.getCurrentWindow().webContents;
     AppEnv.commands.add(document.body, 'core:copy', () => webContents.copy());
     AppEnv.commands.add(document.body, 'core:cut', () => webContents.cut());
