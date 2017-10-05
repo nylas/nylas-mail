@@ -94,7 +94,7 @@ cache:
 
 after_success:
 # Grab the version number from the .deb product and update the snapcraft.yml file
-- sed "s/MAILSPRING_VERSION/$(grep -E -o '([0-9]+.[0-9]+.[0-9]+)' <<< "$(find app/dist -type f -name mailspring-*.deb)")/g" snap/snapcraft.template.yaml > snap/snapcraft.yml
+- sed "s/MAILSPRING_VERSION/$(grep -E -o '([0-9]+.[0-9]+.[0-9]+)' <<< "$(find app/dist -type f -name mailspring-*.deb)")/g" snap/snapcraft.template.yaml > snap/snapcraft.yaml
 # Decrypt the snapcraft login information
 - openssl aes-256-cbc -K $encrypted_f8421d18d2b7_key -iv $encrypted_f8421d18d2b7_iv
   -in .snapcraft/travis_snapcraft.cfg -out .snapcraft/snapcraft.cfg -d
