@@ -67,3 +67,4 @@ client_secret.json
 /logfile.txt
 /app/dist-docs
 /app/mailsync.dSYM.zip
+/snap/snapcraft.yml

@@ -1,5 +1,5 @@
 name: mailspring
-version: $MAILSPRING_VERSION
+version: MAILSPRING_VERSION
 summary: The best email app for people and teams at work
 description: |
  An extensible desktop mail app built on the modern web.
@@ -9,7 +9,7 @@ confinement: strict
 parts:
   mailspring:
     plugin: dump
-    source: ./app/dist/mailspring-$MAILSPRING_VERSION-amd64.deb
+    source: ./app/dist/mailspring-MAILSPRING_VERSION-amd64.deb
     source-type: deb
     # Correct path to icon.
     prepare: |
