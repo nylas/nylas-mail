@@ -89,8 +89,15 @@ export default class AutoUpdateManager extends EventEmitter {
       this.emitUpdateAvailableEvent();
     });
 
+    if (autoUpdater.supportsUpdates && !autoUpdater.supportsUpdates()) {
+      this.setState(UnsupportedState);
+      return;
+    }
+
+    //check immediately at startup
     this.check({ hidePopups: true });
 
+    //check every 30 minutes
     setInterval(() => {
       if ([UpdateAvailableState, UnsupportedState].includes(this.state)) {
         console.log('Skipping update check... update ready to install, or updater unavailable.');
@@ -98,10 +105,6 @@ export default class AutoUpdateManager extends EventEmitter {
       }
       this.check({ hidePopups: true });
     }, 1000 * 60 * 30);
-
-    if (autoUpdater.supportsUpdates && !autoUpdater.supportsUpdates()) {
-      this.setState(UnsupportedState);
-    }
   }
 
   emitUpdateAvailableEvent() {
