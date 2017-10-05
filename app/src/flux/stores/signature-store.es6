@@ -12,8 +12,8 @@ class SignatureStore extends MailspringStore {
   }
 
   activate() {
-    this.signatures = AppEnv.config.get(`nylas.signatures`) || {};
-    this.defaultSignatures = AppEnv.config.get(`nylas.defaultSignatures`) || {};
+    this.signatures = AppEnv.config.get(`signatures`) || {};
+    this.defaultSignatures = AppEnv.config.get(`defaultSignatures`) || {};
     this._autoselectSignatureId();
 
     if (!this.unsubscribers) {
@@ -25,12 +25,12 @@ class SignatureStore extends MailspringStore {
         Actions.toggleAccount.listen(this._onToggleAccount),
       ];
 
-      AppEnv.config.onDidChange(`nylas.signatures`, () => {
-        this.signatures = AppEnv.config.get(`nylas.signatures`);
+      AppEnv.config.onDidChange(`signatures`, () => {
+        this.signatures = AppEnv.config.get(`signatures`);
         this.trigger();
       });
-      AppEnv.config.onDidChange(`nylas.defaultSignatures`, () => {
-        this.defaultSignatures = AppEnv.config.get(`nylas.defaultSignatures`);
+      AppEnv.config.onDidChange(`defaultSignatures`, () => {
+        this.defaultSignatures = AppEnv.config.get(`defaultSignatures`);
         this.trigger();
       });
     }
@@ -63,11 +63,11 @@ class SignatureStore extends MailspringStore {
   };
 
   _saveSignatures() {
-    _.debounce(AppEnv.config.set(`nylas.signatures`, this.signatures), 500);
+    _.debounce(AppEnv.config.set(`signatures`, this.signatures), 500);
   }
 
   _saveDefaultSignatures() {
-    _.debounce(AppEnv.config.set(`nylas.defaultSignatures`, this.defaultSignatures), 500);
+    _.debounce(AppEnv.config.set(`defaultSignatures`, this.defaultSignatures), 500);
   }
 
   _onSelectSignature = id => {

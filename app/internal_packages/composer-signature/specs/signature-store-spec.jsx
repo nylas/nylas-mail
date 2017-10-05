@@ -22,12 +22,10 @@ const DEFAULTS = {
 
 describe('SignatureStore', function signatureStore() {
   beforeEach(() => {
-    spyOn(AppEnv.config, 'get').andCallFake(
-      key => (key === 'nylas.signatures' ? SIGNATURES : null)
-    );
+    spyOn(AppEnv.config, 'get').andCallFake(key => (key === 'signatures' ? SIGNATURES : null));
 
     spyOn(SignatureStore, '_saveSignatures').andCallFake(() => {
-      AppEnv.config.set(`nylas.signatures`, SignatureStore.signatures);
+      AppEnv.config.set(`signatures`, SignatureStore.signatures);
     });
     spyOn(SignatureStore, 'signatureForEmail').andCallFake(email => SIGNATURES[DEFAULTS[email]]);
     spyOn(SignatureStore, 'selectedSignature').andCallFake(() => SIGNATURES['1']);
@@ -46,7 +44,7 @@ describe('SignatureStore', function signatureStore() {
   describe('removeSignature', () => {
     beforeEach(() => {
       spyOn(AppEnv.config, 'set').andCallFake((key, newObject) => {
-        if (key === 'nylas.signatures') {
+        if (key === 'signatures') {
           SIGNATURES = newObject;
         }
       });

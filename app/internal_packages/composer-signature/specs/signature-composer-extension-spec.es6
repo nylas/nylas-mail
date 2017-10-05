@@ -16,7 +16,7 @@ describe('SignatureComposerExtension', function signatureComposerExtension() {
     describe('when a signature is defined', () => {
       beforeEach(() => {
         spyOn(AppEnv.config, 'get').andCallFake(
-          key => (key === 'nylas.signatures' ? TEST_SIGNATURES : null)
+          key => (key === 'signatures' ? TEST_SIGNATURES : null)
         );
         spyOn(SignatureStore, 'signatureForEmail').andReturn(TEST_SIGNATURE);
         SignatureStore.activate();
