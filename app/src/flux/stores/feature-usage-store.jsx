@@ -8,6 +8,8 @@ import SendFeatureUsageEventTask from '../tasks/send-feature-usage-event-task';
 
 class NoProAccessError extends Error {}
 
+const UsageRecordedServerSide = ['contact-profiles'];
+
 /**
  * FeatureUsageStore is backed by the IdentityStore
  *
@@ -158,7 +160,9 @@ class FeatureUsageStore extends MailspringStore {
       next.featureUsage[feature].usedInPeriod += 1;
       IdentityStore.saveIdentity(next);
     }
-    Actions.queueTask(new SendFeatureUsageEventTask({ feature }));
+    if (!UsageRecordedServerSide.includes(feature)) {
+      Actions.queueTask(new SendFeatureUsageEventTask({ feature }));
+    }
   }
 }
 

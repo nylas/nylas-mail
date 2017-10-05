@@ -50,6 +50,10 @@ class IdentityStore extends MailspringStore {
     return this._identity.id;
   }
 
+  hasProFeatures() {
+    return this._identity && this._identity.stripePlanEffective !== 'Basic';
+  }
+
   _fetchAndPollRemoteIdentity() {
     if (!AppEnv.isMainWindow()) return;
     setTimeout(() => {

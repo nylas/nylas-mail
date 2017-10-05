@@ -1,6 +1,29 @@
-import { React, PropTypes, DOMUtils, RegExpUtils, Utils } from 'mailspring-exports';
+import {
+  IdentityStore,
+  FeatureUsageStore,
+  React,
+  PropTypes,
+  DOMUtils,
+  RegExpUtils,
+  Utils,
+} from 'mailspring-exports';
 import { RetinaImg } from 'mailspring-component-kit';
-import ParticipantProfileStore from './participant-profile-store';
+
+import ParticipantProfileDataSource from './participant-profile-data-source';
+
+/* We expect ParticipantProfileDataSource.find to return the
+  * following schema:
+  * {
+  *    profilePhotoUrl: string
+  *    bio: string
+  *    location: string
+  *    currentTitle: string
+  *    currentEmployer: string
+  *    socialProfiles: hash keyed by type: ('twitter', 'facebook' etc)
+  *      url: string
+  *      handle: string
+  * }
+  */
 
 export default class SidebarParticipantProfile extends React.Component {
   static displayName = 'SidebarParticipantProfile';
@@ -17,30 +40,50 @@ export default class SidebarParticipantProfile extends React.Component {
   constructor(props) {
     super(props);
 
-    /* We expect ParticipantProfileStore.dataForContact to return the
-     * following schema:
-     * {
-     *    profilePhotoUrl: string
-     *    bio: string
-     *    location: string
-     *    currentTitle: string
-     *    currentEmployer: string
-     *    socialProfiles: hash keyed by type: ('twitter', 'facebook' etc)
-     *      url: string
-     *      handle: string
-     * }
-     */
-    this.state = ParticipantProfileStore.dataForContact(props.contact);
+    this.state = {
+      loaded: false,
+      loading: false,
+      trialing: !IdentityStore.hasProFeatures(),
+    };
+    const contactState = ParticipantProfileDataSource.getCache(props.contact.email);
+    if (contactState) {
+      this.state = Object.assign(this.state, { loaded: true }, contactState);
+    }
   }
 
   componentDidMount() {
-    this.usub = ParticipantProfileStore.listen(() => {
-      this.setState(ParticipantProfileStore.dataForContact(this.props.contact));
-    });
+    this._mounted = true;
+    if (!this.state.loaded && !this.state.trialing) {
+      this._findContact();
+    }
   }
 
   componentWillUnmount() {
-    this.usub();
+    this._mounted = false;
+  }
+
+  _onClickedToTry = async () => {
+    try {
+      await FeatureUsageStore.asyncUseFeature('contact-profiles', {
+        usedUpHeader: 'All Contact Previews Used',
+        usagePhrase: 'view contact profiles for',
+        iconUrl: 'mailspring://participant-profile/assets/ic-contact-profile-modal@2x.png',
+      });
+    } catch (err) {
+      // user does not have access to this feature
+      return;
+    }
+    this._findContact();
+  };
+
+  async _findContact() {
+    this.setState({ loading: true });
+    ParticipantProfileDataSource.find(this.props.contact.email).then(result => {
+      if (!this._mounted) {
+        return;
+      }
+      this.setState(Object.assign({ loading: false, loaded: true }, result));
+    });
   }
 
   _renderProfilePhoto() {
@@ -199,12 +242,35 @@ export default class SidebarParticipantProfile extends React.Component {
     }
   }
 
+  _renderFindCTA() {
+    if (!this.state.trialing || this.state.loaded) {
+      return;
+    }
+    if (!this.props.contact.email || Utils.likelyNonHumanEmail(this.props.contact.email)) {
+      return;
+    }
+
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <p>
+          The contact sidebar in Mailspring Pro shows information about the people and companies
+          you're emailing with.
+        </p>
+        <div className="btn" onClick={!this.state.loading ? this._onClickedToTry : null}>
+          {!this.state.loading ? `Try it Now` : `Loading...`}
+        </div>
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="participant-profile">
         {this._renderProfilePhoto()}
         {this._renderCorePersonalInfo()}
         {this._renderAdditionalInfo()}
+
+        {this._renderFindCTA()}
       </div>
     );
   }

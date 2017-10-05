@@ -1,10 +1,10 @@
 @import 'ui-variables';
 
 .related-threads {
-  width: calc(~"100% + 30px");
+  width: calc(~'100% + 30px');
   position: relative;
   left: -15px;
-  border-top: 1px solid rgba(0,0,0,0.15);
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
   transition: height 150ms ease-in-out;
   top: 15px;
   margin-top: -15px;
@@ -17,7 +17,7 @@
     color: @text-color-very-subtle;
     width: 100%;
     padding: 0.5em 15px;
-    border-top: 1px solid rgba(0,0,0,0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 
     &:hover {
       background: @list-hover-bg;
@@ -40,7 +40,7 @@
     font-size: 12px;
     text-align: center;
     padding: 0.5em 15px;
-    border-top: 1px solid rgba(0,0,0,0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
     color: @text-color-link;
   }
 }
@@ -53,9 +53,9 @@
     height: 50px;
     border-radius: @border-radius-base;
     padding: 3px;
-    box-shadow: 0 0 1px rgba(0,0,0,0.5);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
     position: absolute;
-    left: calc(~"50% - 25px");
+    left: calc(~'50% - 25px');
     top: -31px;
     background: @background-primary;
 
@@ -66,7 +66,8 @@
       width: 44px;
       height: 44px;
 
-      img, .default-profile-image {
+      img,
+      .default-profile-image {
         width: 44px;
         height: 44px;
       }
@@ -76,8 +77,12 @@
         font-size: 18px;
         font-weight: 500;
         color: white;
-        box-shadow: inset 0 0 1px rgba(0,0,0,0.18);
-        background-image: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+        box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.18);
+        background-image: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.15) 0%,
+          rgba(255, 255, 255, 0) 100%
+        );
       }
     }
   }
@@ -87,7 +92,8 @@
     text-align: center;
     margin-bottom: @spacing-standard;
 
-    .full-name, .email {
+    .full-name,
+    .email {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -127,5 +133,24 @@ body.platform-win32 {
   }
   .related-threads {
     border-radius: 0;
+  }
+}
+
+.feature-usage-modal.contact-profiles {
+  @send-later-color: #777ff0;
+  .feature-header {
+    @from: @send-later-color;
+    @to: lighten(@send-later-color, 10%);
+    background: linear-gradient(to top, @from, @to);
+  }
+  .feature-name {
+    color: @send-later-color;
+  }
+  .pro-description {
+    li {
+      &:before {
+        color: @send-later-color;
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import {ComponentRegistry} from 'mailspring-exports';
+import { ComponentRegistry } from 'mailspring-exports';
 
 import MyComposerButton from './my-composer-button';
 import MyMessageSidebar from './my-message-sidebar';
@@ -19,8 +19,7 @@ export function activate() {
 // You can return a state object that will be passed back to your package
 // when it is re-activated.
 //
-export function serialize() {
-}
+export function serialize() {}
 
 // This **optional** method is called when the window is shutting down,
 // or when your package is being updated or disabled. If your package is

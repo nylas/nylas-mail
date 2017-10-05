@@ -525,6 +525,7 @@ Utils =
       "notification[s]?#{at}"
       "support#{at}"
       "alert[s]?#{at}"
+      "notify",
       "news#{at}"
       "info#{at}"
       "automated#{at}"
