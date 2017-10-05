@@ -177,6 +177,7 @@ module.exports = grunt => {
             '*.so',
             '*.so.*',
             '*.dll',
+            '*.pdb',
             '*.node',
             '**/vendor/**',
             'examples/**',
