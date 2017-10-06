@@ -1,6 +1,6 @@
 import { shell } from 'electron';
 import { RetinaImg } from 'mailspring-component-kit';
-import { MailspringAPIRequest, Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
+import { Actions, React, ReactDOM, PropTypes } from 'mailspring-exports';
 
 import OnboardingActions from '../onboarding-actions';
 import { finalizeAndValidateAccount } from '../onboarding-helpers';
@@ -125,44 +125,25 @@ const CreatePageForForm = FormComponent => {
             provider: account.provider,
           });
 
-          const errorFieldNames = err.body
-            ? err.body.missing_fields || err.body.missing_settings || []
-            : [];
-          let errorMessage = err.message;
-          const errorStatusCode = err.statusCode;
+          const errorFieldNames = [];
 
-          if (err.errorType === 'setting_update_error') {
-            errorMessage =
-              'The IMAP/SMTP servers for this account do not match our records. Please verify that any server names you entered are correct. If your IMAP/SMTP server has changed, first remove this account from Mailspring, then try logging in again.';
-          }
-          if (
-            err.errorType &&
-            err.errorType.includes('autodiscover') &&
-            account.provider === 'exchange'
-          ) {
-            errorFieldNames.push('eas_server_host');
-            errorFieldNames.push('username');
-          }
-          if (err.statusCode === 401) {
+          if (err.message.includes('Authentication Error')) {
             if (/smtp/i.test(err.message)) {
-              errorFieldNames.push('smtp_username');
-              errorFieldNames.push('smtp_password');
+              errorFieldNames.push('settings.smtp_username');
+              errorFieldNames.push('settings.smtp_password');
+            } else {
+              errorFieldNames.push('settings.imap_username');
+              errorFieldNames.push('settings.imap_password');
             }
-            if (/imap/i.test(err.message)) {
-              errorFieldNames.push('imap_username');
-              errorFieldNames.push('imap_password');
-            }
-            // not sure what these are for -- backcompat?
-            errorFieldNames.push('password');
-            errorFieldNames.push('email');
-            errorFieldNames.push('username');
-          }
-          if (MailspringAPIRequest.TimeoutErrorCodes.includes(err.statusCode)) {
-            // timeout
-            errorMessage = 'We were unable to reach your mail provider. Please try again.';
           }
 
-          this.setState({ errorMessage, errorStatusCode, errorFieldNames, submitting: false });
+          this.setState({
+            errorMessage: err.message,
+            errorStatusCode: err.statusCode,
+            errorLog: err.rawLog,
+            errorFieldNames,
+            submitting: false,
+          });
         });
     };
 
@@ -238,7 +219,7 @@ const CreatePageForForm = FormComponent => {
     }
 
     render() {
-      const { account, errorMessage, errorFieldNames, submitting } = this.state;
+      const { account, errorMessage, errorFieldNames, errorLog, submitting } = this.state;
       const providerConfig = AccountProviders.find(({ provider }) => provider === account.provider);
 
       if (!providerConfig) {
@@ -263,6 +244,7 @@ const CreatePageForForm = FormComponent => {
             <h2>{FormComponent.titleLabel(providerConfig)}</h2>
           )}
           <FormErrorMessage
+            log={errorLog}
             message={errorMessage}
             empty={FormComponent.subtitleLabel(providerConfig)}
           />

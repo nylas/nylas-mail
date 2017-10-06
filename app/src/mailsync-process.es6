@@ -101,7 +101,13 @@ export default class MailsyncProcess extends EventEmitter {
             if (response.error_service) {
               msg = `${msg} (${response.error_service.toUpperCase()})`;
             }
-            reject(new Error(msg));
+            const error = new Error(msg);
+            const { refresh_token, imap_password, smtp_password } = this.account.settings;
+            error.rawLog = response.log
+              .replace(new RegExp(refresh_token || 'not-present', 'g'), '*********')
+              .replace(new RegExp(imap_password || 'not-present', 'g'), '*********')
+              .replace(new RegExp(smtp_password || 'not-present', 'g'), '*********');
+            reject(error);
           }
         } catch (err) {
           reject(new Error(buffer.toString()));

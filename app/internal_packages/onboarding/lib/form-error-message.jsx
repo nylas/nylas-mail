@@ -1,24 +1,47 @@
+import fs from 'fs';
+import temp from 'temp';
+import { app, shell } from 'electron';
 import { React, PropTypes, RegExpUtils } from 'mailspring-exports';
 
 const FormErrorMessage = props => {
-  const { message, empty } = props;
+  const { message, log, empty } = props;
   if (!message) {
     return <div className="message empty">{empty}</div>;
   }
 
-  const result = RegExpUtils.urlRegex({ matchEntireString: false }).exec(message);
-  if (result) {
-    const link = result[0];
+  let rawLogLink = false;
+  if (log && log.length > 0) {
+    const onViewLog = () => {
+      const logPath = temp.path({ suffix: '.log' });
+      fs.writeFileSync(logPath, log);
+      shell.openItem(logPath);
+    };
+    rawLogLink = (
+      <a href="" onClick={onViewLog} style={{ paddingLeft: 5 }}>
+        View Log
+      </a>
+    );
+  }
+
+  const linkMatch = RegExpUtils.urlRegex({ matchEntireString: false }).exec(message);
+  if (linkMatch) {
+    const link = linkMatch[0];
     return (
       <div className="message error">
-        {message.substr(0, result.index)}
+        {message.substr(0, linkMatch.index)}
         <a href={link}>{link}</a>
-        {message.substr(result.index + link.length)}
+        {message.substr(linkMatch.index + link.length)}
+        {rawLogLink}
       </div>
     );
   }
 
-  return <div className="message error">{message}</div>;
+  return (
+    <div className="message error">
+      {message}
+      {rawLogLink}
+    </div>
+  );
 };
 
 FormErrorMessage.propTypes = {
