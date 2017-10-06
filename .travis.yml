@@ -105,6 +105,7 @@ services:
 deploy:
   'on':
     branch: master
+    condition: $TRAVIS_OS_NAME = linux
   provider: script
   script: docker run -v $(pwd):$(pwd) -t snapcore/snapcraft sh -c "apt update -qq && cd $(pwd) && snapcraft && snapcraft push *.snap --release edge"
   skip_cleanup: true
