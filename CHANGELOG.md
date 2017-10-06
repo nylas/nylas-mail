@@ -1,5 +1,35 @@
 # Mailspring Changelog
 
+### 1.0.2 (10/6/2017)
+
+Fixes:
+
+- During authentication, you can now view a "Raw Log" of the IMAP and SMTP communication with your servers for easy debugging of connection issues.
+
+- During authentication, Mailspring will warn you if you connect Gmail via IMAP.
+
+- The "Install Theme...", "Install a Plugin Manually..." and "Create a Plugin..." menu items now work. Note that Nylas Mail / N1 themes require some modifications to work with Mailspring!
+
+- On Windows and Linux, Mailspring can now make itself the default mail client.
+
+- The contact sidebar in the app now works reliably and is rate-limited for free users (The Clearbit API is very expensive!)
+
+- On Windows, Mailspring now displays emails with encoded subject lines (often containing emoji or foreign characters) correctly.
+
+- On Windows, you can now resize and maximize the Mailspring window.
+
+- Mailspring now skips folders it can't sync rather than stopping the entire account.
+
+### 1.0.1 (10/4/2017)
+
+Fixes:
+
+- On Linux, Mailspring now syncs mail reliably thanks to fixed builds of curl and mailcore2.
+
+- On Windows, the app's icon now includes all the required resolutions.
+
+- Many other minor fixes and sync improvements.
+
 ### 1.0.0 (10/3/2017)
 
 Features:
