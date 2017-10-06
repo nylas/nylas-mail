@@ -5,7 +5,7 @@
 [![AppVeyor Status](https://ci.appveyor.com/api/projects/status/iuuuy6d65u3x6bj6?svg=true)](https://ci.appveyor.com/project/Foundry376/Mailspring)
 
 
-**Leaving Nylas Mail? Mailspring is a new version by one of the original authors. It's faster, leaner, and shipping today!** Mailspring is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/).** It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://Foundry376.github.io/Mailspring/).
+**Leaving Nylas Mail? Mailspring is a new version by one of the original authors. It's faster, leaner, and shipping today!** Mailspring is an open-source mail client built on the modern web with [Electron](https://github.com/atom/electron), [React](https://facebook.github.io/react/), and [Flux](https://facebook.github.io/flux/). It is designed to be extensible, so it's easy to create new experiences and workflows around email. Want to learn more? Check out the [full documentation](https://Foundry376.github.io/Mailspring/).
 
 ![Mailspring Screenshot](https://github.com/Foundry376/Mailspring/raw/master/screenshots/hero_graphic_mac%402x.png)
 
@@ -17,17 +17,6 @@ Mailspring comes packed with powerful features like Unified Inbox, Snooze, Send 
 ## Download Mailspring
 
 You can download compiled versions of Mailspring for Windows, Mac OS X, and Linux (Snap coming soon) from [https://getmailspring.com/download](https://getmailspring.com/download).
-
-## Differences from Nylas Mail
-
-- Mailspring replaces the Nylas Mail JavaScript mail sync (client-sync package) and the Electron "worker window" with a new, high performance codebase written in C++ and based on Mailcore2. Make the Electron application just the UI layer.
-  + One C++ process per email account.
-  + C++ and JS communicate via the child process stdin/stdout streams.
-  + JS application queues tasks *but has read-only access to the database.*
-  + JS application should not install timers or wake /at all/ when idle. 0% battery impact when idle.
-- Improve performance of the thread list and composer contenteditable.
-- Make windows open faster by just having less code.
-- Bring back mail rules.
 
 ## Contributing
 
