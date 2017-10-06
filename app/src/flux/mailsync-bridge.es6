@@ -188,10 +188,11 @@ export default class MailsyncBridge {
 
   sendMessageToAccount(accountId, json) {
     if (!this._clients[accountId]) {
-      const err = new Error(`No mailsync worker is running.`);
-      err.accountId = accountId;
-      AppEnv.reportError(err);
-      return;
+      const { emailAddress } = AccountStore.accountForId(accountId) || {};
+      return AppEnv.showErrorDialog({
+        title: `Mailspring is unable to sync ${emailAddress}`,
+        message: `In order to perform actions on this mailbox, you need to resolve the sync issue. Visit Preferences > Accounts for more information.`,
+      });
     }
     this._clients[accountId].sendMessage(json);
   }
