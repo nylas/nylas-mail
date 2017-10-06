@@ -14,7 +14,7 @@ const config = {
   outputDirectory: path.join(appDir, 'dist'),
   appDirectory: path.join(appDir, 'dist', 'mailspring-win32-ia32'),
   loadingGif: path.join(appDir, 'build', 'resources', 'win', 'loading.gif'),
-  iconUrl: 'http://edgehill.s3.amazonaws.com/static/mailspring.ico',
+  iconUrl: 'http://mailspring-builds.s3.amazonaws.com/assets/mailspring.ico',
   certificateFile: process.env.WINDOWS_CODESIGN_CERT,
   certificatePassword: process.env.WINDOWS_CODESIGN_CERT_PASSWORD,
   description: 'Mailspring',
