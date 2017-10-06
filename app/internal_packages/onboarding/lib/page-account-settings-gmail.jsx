@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { OAuthSignInPage } from 'mailspring-component-kit';
 
 import {
   makeGmailOAuthRequest,
@@ -9,6 +8,7 @@ import {
   buildGmailAuthURL,
 } from './onboarding-helpers';
 
+import OAuthSignInPage from './oauth-signin-page';
 import OnboardingActions from './onboarding-actions';
 import AccountProviders from './account-providers';
 

@@ -99,10 +99,6 @@ export function makeGmailOAuthRequest(sessionKey) {
 }
 
 export async function buildGmailAccountFromToken(serverTokenResponse) {
-  // At this point, the Mailspring server has retrieved the Gmail token,
-  // created an account object in the database and tested it. All we
-  // need to do is save it locally, since we're confident Gmail will be
-  // accessible from the local sync worker.
   const { name, emailAddress, refreshToken } = serverTokenResponse;
 
   const account = expandAccountWithCommonSettings(
@@ -117,6 +113,10 @@ export async function buildGmailAccountFromToken(serverTokenResponse) {
   );
 
   account.id = idForAccount(emailAddress, account.settings);
+
+  // test the account locally to ensure the All Mail folder is enabled
+  // and the refresh token can be exchanged for an account token.
+  await finalizeAndValidateAccount(account);
 
   return account;
 }

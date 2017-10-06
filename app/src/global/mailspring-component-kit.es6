@@ -95,7 +95,6 @@ lazyLoad('UndoToast', 'undo-toast');
 lazyLoad('LazyRenderedList', 'lazy-rendered-list');
 lazyLoad('OverlaidComponents', 'overlaid-components/overlaid-components');
 lazyLoad('OverlaidComposerExtension', 'overlaid-components/overlaid-composer-extension');
-lazyLoad('OAuthSignInPage', 'oauth-signin-page');
 lazyLoadFrom('AttachmentItem', 'attachment-items');
 lazyLoadFrom('ImageAttachmentItem', 'attachment-items');
 lazyLoad('CodeSnippet', 'code-snippet');
