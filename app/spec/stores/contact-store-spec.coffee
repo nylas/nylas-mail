@@ -101,6 +101,10 @@ xdescribe "ContactStore", ->
         new Contact(name: "Evan Morikawa", email: "evan@nylas.com")
         new Contact(name: "Ben", email: "ben@nylas.com")
       ]
+      "Evan Morikawa <evan@nylas.com>; Ben <ben@nylas.com>": [
+        new Contact(name: "Evan Morikawa", email: "evan@nylas.com")
+        new Contact(name: "Ben", email: "ben@nylas.com")
+      ]
       "mark@nylas.com\nGleb (gleb@nylas.com)\rEvan Morikawa <evan@nylas.com>, spang (Christine Spang) <noreply+phabricator@nilas.com>": [
         new Contact(name: "", email: "mark@nylas.com")
         new Contact(name: "Gleb", email: "gleb@nylas.com")
