@@ -86,7 +86,7 @@ class ContactStore extends MailspringStore {
 
       if (hasLeadingParen && hasTrailingParen) {
         let nameStart = lastMatchEnd;
-        for (const char of [',', '\n', '\r']) {
+        for (const char of [',', ';', '\n', '\r']) {
           const i = contactString.lastIndexOf(char, match.index);
           if (i + 1 > nameStart) {
             nameStart = i + 1;
