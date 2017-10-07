@@ -744,9 +744,11 @@ describe('DraftFactory', function draftFactory() {
         'mailto:?subject=%52z2a', // passes uriDecode
         'mailto:?subject=Martha Stewart',
         'mailto:?subject=Martha Stewart&cc=cc@nylas.com',
+        'mailto:?subject=Martha Stewart&cc=cc@nylas.com;bengotow@gmail.com',
         'mailto:bengotow@gmail.com&subject=Martha Stewart&cc=cc@nylas.com',
         'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=bcc@nylas.com',
         'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=Ben <bcc@nylas.com>',
+        'mailto:bengotow@gmail.com?subject=Martha%20Stewart&cc=cc@nylas.com&bcc=Ben <bcc@nylas.com>;Shawn <shawn@nylas.com>',
         'mailto:Ben Gotow <bengotow@gmail.com>,Shawn <shawn@nylas.com>?subject=Yes this is really valid',
         'mailto:Ben%20Gotow%20<bengotow@gmail.com>,Shawn%20<shawn@nylas.com>?subject=Yes%20this%20is%20really%20valid',
         'mailto:Reply <d+AORGpRdj0KXKUPBE1LoI0a30F10Ahj3wu3olS-aDk5_7K5Wu6WqqqG8t1HxxhlZ4KEEw3WmrSdtobgUq57SkwsYAH6tG57IrNqcQR0K6XaqLM2nGNZ22D2k@docs.google.com>?subject=Nilas%20Message%20to%20Customers',
@@ -771,6 +773,13 @@ describe('DraftFactory', function draftFactory() {
           subject: 'Martha Stewart',
         }),
         new Message({
+          cc: [
+            new Contact({ name: 'cc@nylas.com', email: 'cc@nylas.com' }),
+            new Contact({ name: 'bengotow@gmail.com', email: 'bengotow@gmail.com' }),
+          ],
+          subject: 'Martha Stewart',
+        }),
+        new Message({
           to: [new Contact({ name: 'bengotow@gmail.com', email: 'bengotow@gmail.com' })],
           cc: [new Contact({ name: 'cc@nylas.com', email: 'cc@nylas.com' })],
           subject: 'Martha Stewart',
@@ -786,6 +795,14 @@ describe('DraftFactory', function draftFactory() {
           cc: [new Contact({ name: 'cc@nylas.com', email: 'cc@nylas.com' })],
           bcc: [new Contact({ name: 'Ben', email: 'bcc@nylas.com' })],
           subject: 'Martha Stewart',
+        }),
+        new Message({
+          to: [new Contact({ name: 'bengotow@gmail.com', email: 'bengotow@gmail.com' })],
+          cc: [new Contact({ name: 'cc@nylas.com', email: 'cc@nylas.com' })],
+          bcc: [
+            new Contact({ name: 'Ben', email: 'bcc@nylas.com' }),
+            new Contact({ name: 'Shawn', email: 'shawn@nylas.com' }),
+          ]
         }),
         new Message({
           to: [
