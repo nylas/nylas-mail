@@ -18,6 +18,7 @@ import Actions from './actions';
 import Utils from './models/utils';
 
 const MAX_CRASH_HISTORY = 10;
+const REPORTED_CRASH_STACKS = {};
 
 /*
 This class keeps track of how often Mailsync workers crash. If a mailsync
@@ -41,36 +42,9 @@ class CrashTracker {
     delete this._tooManyFailures[key];
   }
 
-  recordClientCrash(fullAccountJSON, { code, error, signal }) {
-    this._appendCrashToHistory(fullAccountJSON);
-
-    const overview = `SyncWorker crashed with ${signal} (code ${code})`;
-    let [message, stack] = `${error}`.split('*** Stack trace');
-
-    if (message) {
-      const lines = message
-        .split('\n')
-        .map(l => l.replace(/\*\*\*/g, '').trim())
-        .filter(l => !/^[\d|[ ]+/.test(l) && !l.startsWith('Error: null'));
-      message = `${overview}:\n${lines.join('\n')}`;
-    }
-    if (stack) {
-      const lines = stack.split('\n').map(l =>
-        l
-          .replace(/\*\*\*/g, '')
-          .replace('in mailsync ', '')
-          .trim()
-      );
-      lines.shift();
-      message = `${message}${lines[0]}`;
-      stack = lines.join('\n');
-    }
-
-    const err = new Error(message);
-    err.stack = stack;
-
+  tailClientLog(accountId) {
     let log = '';
-    const logfile = `mailsync-${fullAccountJSON.id}.log`;
+    const logfile = `mailsync-${accountId}.log`;
     try {
       const logpath = path.join(AppEnv.getConfigDirPath(), logfile);
       const { size } = fs.statSync(logpath);
@@ -83,12 +57,50 @@ class CrashTracker {
     } catch (logErr) {
       console.warn(`Could not append ${logfile} to mailsync exception report: ${logErr}`);
     }
+    return log;
+  }
 
-    AppEnv.errorLogger.reportError(err, {
-      stack: stack,
-      log: log,
-      provider: fullAccountJSON.provider,
-    });
+  recordClientCrash(fullAccountJSON, { code, error, signal }) {
+    this._appendCrashToHistory(fullAccountJSON);
+
+    let [rawMessage, rawStack] = `${error}`.split('*** Stack trace');
+
+    // On Windows, sometimes addr2line.exe fails and the resulting error
+    // is not worth reporting...
+    if (rawMessage.includes('CREATE PROCESS FAIL')) {
+      return;
+    }
+
+    let stack = '';
+    if (rawStack) {
+      for (const rawLine of rawStack.split('\n').slice(1)) {
+        const line = rawLine
+          .replace(/\*\*\*/g, '')
+          .replace('in mailsync ', '')
+          .trim();
+        if (!line.startsWith('(unknown)')) {
+          stack += line;
+          stack += '\n';
+        }
+      }
+    }
+
+    // because we intentionally retry after exceptions, errors can be reported
+    // to Sentry a zillion times. Only report unique crashes once each time the
+    // app is run.
+    if (!REPORTED_CRASH_STACKS[stack]) {
+      REPORTED_CRASH_STACKS[stack] = true;
+
+      const err = new Error(`SyncWorker crashed with ${signal} (code ${code})`);
+      err.stack = stack;
+
+      AppEnv.errorLogger.reportError(err, {
+        stack: stack,
+        rawMessage: rawMessage,
+        provider: fullAccountJSON.provider,
+        log: this.tailClientLog(fullAccountJSON.id),
+      });
+    }
   }
 
   _keyFor({ id, settings }) {

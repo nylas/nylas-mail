@@ -36,9 +36,10 @@ class PreferencesGeneral extends React.Component {
   _onResetEmailCache = () => {
     rimraf(path.join(AppEnv.getConfigDirPath(), 'edgehill.*'), err => {
       if (err) {
-        return AppEnv.showErrorDialog(
-          `Could not delete the mail database. Please delete the "edgehill.db" file in ${AppEnv.getConfigDirPath()} manually.\n\n${err.toString()}`
-        );
+        return AppEnv.showErrorDialog({
+          title: `Could not delete the mail database.`,
+          message: `Please quit Mailspring and delete the "edgehill.db" file in ${AppEnv.getConfigDirPath()} manually.\n\n${err.toString()}`,
+        });
       }
       this._onReboot();
     });
