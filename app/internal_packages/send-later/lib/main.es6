@@ -15,7 +15,7 @@ import { PLUGIN_ID } from './send-later-constants';
 const SendLaterButtonWithTip = HasTutorialTip(SendLaterButton, {
   title: 'Send on your own schedule',
   instructions:
-    'Schedule this message to send at the ideal time. N1 makes it easy to control the fabric of spacetime!',
+    'Schedule this message to send at the ideal time. Mailspring makes it easy to control the fabric of spacetime!',
 });
 
 let unlisten = null;

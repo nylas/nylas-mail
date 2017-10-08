@@ -328,10 +328,10 @@ class AttachmentStore extends MailspringStore {
     let message = null;
     if (['EPERM', 'EMFILE', 'EACCES'].includes(error.code)) {
       message =
-        'N1 could not save an attachment. Check that permissions are set correctly and try restarting N1 if the issue persists.';
+        'Mailspring could not save an attachment. Check that permissions are set correctly and try restarting Mailspring if the issue persists.';
     }
     if (['ENOSPC'].includes(error.code)) {
-      message = 'N1 could not save an attachment because you have run out of disk space.';
+      message = 'Mailspring could not save an attachment because you have run out of disk space.';
     }
 
     if (message) {

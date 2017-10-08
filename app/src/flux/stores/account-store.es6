@@ -117,7 +117,9 @@ class AccountStore extends MailspringStore {
     });
 
     if (message && AppEnv.isMainWindow()) {
-      AppEnv.showErrorDialog(`N1 was unable to load your account preferences.\n\n${message}`);
+      AppEnv.showErrorDialog(
+        `Mailspring was unable to load your account preferences.\n\n${message}`
+      );
     }
   };
 

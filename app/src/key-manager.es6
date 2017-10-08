@@ -11,11 +11,6 @@ import keytar from 'keytar';
  */
 class KeyManager {
   constructor() {
-    /**
-     * NOTE: Old N1 includes a migration system that manually looks for
-     * the names of these keys. If you change them be sure that old N1 is
-     * fully deprecated or updated as well.
-     */
     this.SERVICE_NAME = 'Mailspring';
     if (AppEnv.inDevMode()) {
       this.SERVICE_NAME = 'Mailspring Dev';

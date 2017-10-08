@@ -4,7 +4,7 @@ import _ from 'underscore';
 import _str from 'underscore.string';
 
 /*
-This component renders input controls for a subtree of the N1 config-schema
+This component renders input controls for a subtree of the Mailspring config-schema
 and reads/writes current values using the `config` prop, which is expected to
 be an instance of the config provided by `ConfigPropContainer`.
 

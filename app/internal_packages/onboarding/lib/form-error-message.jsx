@@ -1,6 +1,6 @@
 import fs from 'fs';
 import temp from 'temp';
-import { app, shell } from 'electron';
+import { shell } from 'electron';
 import { React, PropTypes, RegExpUtils } from 'mailspring-exports';
 
 const FormErrorMessage = props => {

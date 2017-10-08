@@ -16,7 +16,7 @@ You can listen to an Action, or invoke it as a function to fire it.
 
 ## Action Scopes
 
-N1 is a multi-window application. The `scope` of an Action dictates
+Mailspring is a multi-window application. The `scope` of an Action dictates
 how it propogates between windows.
 
 - **Global**: These actions can be listened to from any window and fired from any

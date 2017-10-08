@@ -12,7 +12,7 @@ When creating this React component the first consideration was when &
 where we'd be rendered. The next consideration was what data we need to
 display.
 
-Unlike a traditional React application, N1 components have very few
+Unlike a traditional React application, Mailspring components have very few
 guarantees on who will render them and where they will be rendered. In our
 `lib/main.cjsx` file we registered this component with our
 {ComponentRegistry} for the `"ThreadActionsToolbarButton"` role. That means that
@@ -30,8 +30,8 @@ message body then implement some kind of regex to find and parse out that
 link.
 
 We could have put all of that logic in this React Component, but that's
-not what React components should be doing. In N1 a component's only job is
-to display known data and be the first responders to user interaction.
+not what React components should be doing. In Mailspring a component's only
+job is to display known data and be the first responders to user interaction.
 
 We instead create a {GithubStore} to handle the fetching and preparation
 of the data. See that file's documentation for more on how that works.
@@ -67,7 +67,7 @@ export default class ViewOnGithubButton extends React.Component {
 
   /*
    * When components mount, it's very common to have them listen to a
-   * `Store`. Since most of our React Components in N1 are registered into
+   * `Store`. Since most of our React Components are registered into
    * {ComponentRegistry} regions instead of manually rendered top-down much
    * of our data is side-loaded from stores instead of passed in as props.
   */
@@ -92,12 +92,12 @@ export default class ViewOnGithubButton extends React.Component {
     };
   }
 
-  /** ** Super common N1 Component private methods ****
+  /** ** Super common Mailspring Component private methods ****
   /*
-  * An extremely common pattern for all N1 components are the methods
+  * An extremely common pattern for all Mailspring components are the methods
   * `onStoreChanged` and `getStateFromStores`.
   *
-  * Most N1 components listen to some source of data, which is usally a
+  * Most components listen to some source of data, which is usally a
   * Store. When the store notifies that something has changed, we need to
   * fetch the fresh data and updated our state.
   *

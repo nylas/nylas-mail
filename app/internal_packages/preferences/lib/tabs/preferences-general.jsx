@@ -58,8 +58,8 @@ class PreferencesGeneral extends React.Component {
         />
 
         <div className="platform-note platform-linux-only">
-          N1 desktop notifications on Linux require Zenity. You may need to install it with your
-          package manager (i.e., <code>sudo apt-get install zenity</code>).
+          Mailspring desktop notifications on Linux require Zenity. You may need to install it with
+          your package manager (i.e., <code>sudo apt-get install zenity</code>).
         </div>
 
         <ConfigSchemaItem

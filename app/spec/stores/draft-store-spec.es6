@@ -401,7 +401,7 @@ xdescribe('DraftStore', function draftStore() {
       runs(() => {
         return DraftStore._onSendDraft(this.draft.headerMessageId);
       });
-      waitsFor('N1 to close', () => AppEnv.close.calls.length > 0);
+      waitsFor('Mailspring to close', () => AppEnv.close.calls.length > 0);
     });
 
     it("doesn't close the window if it's inline", () => {

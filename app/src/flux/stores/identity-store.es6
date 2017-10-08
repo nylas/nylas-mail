@@ -109,7 +109,7 @@ class IdentityStore extends MailspringStore {
 
   /**
    * This passes utm_source, utm_campaign, and utm_content params to the
-   * N1 billing site. Please reference:
+   * Mailspring billing site. Please reference:
    * https://paper.dropbox.com/doc/Analytics-ID-Unification-oVDTkakFsiBBbk9aeuiA3
    * for the full list of utm_ labels.
    */

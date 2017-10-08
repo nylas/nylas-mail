@@ -17,7 +17,7 @@ A keyboard shortcut has two parts to it:
 
 The **keyboard -> command** mapping is defined in a separate `.cson` file.
 A majority of the commands your component would want to listen to you have
-already been defined by core N1 defaults, as well as custom user
+already been defined by core Mailspring defaults, as well as custom user
 overrides. See 'keymaps/base.cson' for more information.
 
 You can define additional, custom keyboard -> command mappings in your own
