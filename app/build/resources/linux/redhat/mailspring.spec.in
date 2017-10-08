@@ -6,7 +6,11 @@ License:        GPLv3
 URL:            https://github.com/Foundry376/Mailspring
 AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 
-requires:       libgnome-keyring
+%ifarch i386 i486 i586 i686
+Requires: lsb-core-noarch, libXss.so.1 libsecret-1.so.0
+%else
+Requires: lsb-core-noarch, libXss.so.1()(64bit) libsecret-1.so.0()(64bit)
+%endif
 
 %description
 <%= description %>
