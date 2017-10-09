@@ -22,7 +22,7 @@ parts:
       - libcurl3
       - libgconf2-4
       - libgcrypt20
-      - libgnome-keyring0
+      - libsecret-1-0
       - libnotify4
       - libnspr4
       - libnss3

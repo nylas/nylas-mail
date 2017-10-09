@@ -30,6 +30,7 @@ addons:
     - g++-5
     - git
     - libgnome-keyring-dev
+    - libsecret-1-dev
     - xvfb
     - rpm
     - autoconf
