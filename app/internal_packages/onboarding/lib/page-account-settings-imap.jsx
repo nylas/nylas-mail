@@ -4,6 +4,9 @@ import { isValidHost } from './onboarding-helpers';
 import CreatePageForForm from './decorators/create-page-for-form';
 import FormField from './form-field';
 
+const StandardIMAPPorts = [143, 993];
+const StandardSMTPPorts = [25, 465, 587];
+
 class AccountIMAPSettingsForm extends React.Component {
   static displayName = 'AccountIMAPSettingsForm';
 
@@ -32,12 +35,15 @@ class AccountIMAPSettingsForm extends React.Component {
     let errorMessage = null;
     const errorFieldNames = [];
 
+    if (!account.settings[`imap_username`] || !account.settings[`imap_password`]) {
+      return { errorMessage, errorFieldNames, populated: false };
+    }
+
+    // Note: we explicitly don't check that an SMTP username / password
+    // is provided because occasionally those gateways don't require them!
+
     for (const type of ['imap', 'smtp']) {
-      if (
-        !account.settings[`${type}_host`] ||
-        !account.settings[`${type}_username`] ||
-        !account.settings[`${type}_password`]
-      ) {
+      if (!account.settings[`${type}_host`]) {
         return { errorMessage, errorFieldNames, populated: false };
       }
       if (!isValidHost(account.settings[`${type}_host`])) {
@@ -73,54 +79,48 @@ class AccountIMAPSettingsForm extends React.Component {
     }
     const { account: { settings }, submitting, onFieldKeyPress, onFieldChange } = this.props;
 
-    if (protocol === 'imap') {
-      return (
-        <span>
-          <label htmlFor="settings.imap_port">Port:</label>
-          <select
-            id="settings.imap_port"
+    const field = `${protocol}_port`;
+    const values = protocol === 'imap' ? StandardIMAPPorts : StandardSMTPPorts;
+    const isStandard = values.includes(settings[field] / 1);
+    const customValue = isStandard ? '0' : settings[field];
+
+    return (
+      <span>
+        <label htmlFor={`settings.${field}`}>Port:</label>
+        <select
+          id={`settings.${field}`}
+          tabIndex={0}
+          value={settings[field]}
+          disabled={submitting}
+          onKeyPress={onFieldKeyPress}
+          onChange={onFieldChange}
+        >
+          {values.map(v => (
+            <option value={v} key={v}>
+              {v}
+            </option>
+          ))}
+          <option value={customValue} key="custom">
+            Custom
+          </option>
+        </select>
+        {!isStandard && (
+          <input
+            style={{
+              width: 80,
+              marginLeft: 6,
+              height: 23,
+            }}
+            id={`settings.${field}`}
             tabIndex={0}
-            value={settings.imap_port}
+            value={settings[field]}
             disabled={submitting}
             onKeyPress={onFieldKeyPress}
             onChange={onFieldChange}
-          >
-            <option value="143" key="143">
-              143
-            </option>
-            <option value="993" key="993">
-              993
-            </option>
-          </select>
-        </span>
-      );
-    }
-    if (protocol === 'smtp') {
-      return (
-        <span>
-          <label htmlFor="settings.smtp_port">Port:</label>
-          <select
-            id="settings.smtp_port"
-            tabIndex={0}
-            value={settings.smtp_port}
-            disabled={submitting}
-            onKeyPress={onFieldKeyPress}
-            onChange={onFieldChange}
-          >
-            <option value="25" key="25">
-              25
-            </option>
-            <option value="465" key="465">
-              465
-            </option>
-            <option value="587" key="587">
-              587
-            </option>
-          </select>
-        </span>
-      );
-    }
-    return '';
+          />
+        )}
+      </span>
+    );
   }
 
   renderSecurityDropdown(protocol) {
