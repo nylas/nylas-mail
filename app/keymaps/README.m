@@ -12,6 +12,6 @@
 # 9. <config-dir>/keymap.json - Custom user-specific overrides
 #
 # NOTE: We have a special N1 extension called `mod` that automatically
-# uses `cmd` on mac and `ctrl` on windows and linux. This covers most
+# uses `command` on mac and `ctrl` on windows and linux. This covers most
 # cross-platform cases. For truely platform-specific features, use the
 # platform keymap extensions.
