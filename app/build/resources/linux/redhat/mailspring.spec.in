@@ -3,7 +3,7 @@ Version:        <%= version %>
 Release:        0.1%{?dist}
 Summary:        <%= description %>
 License:        GPLv3
-URL:            https://github.com/Foundry376/Mailspring
+URL:            https://getmailspring.com/
 AutoReqProv:    no # Avoid libchromiumcontent.so missing dependency
 
 %ifarch i386 i486 i586 i686
