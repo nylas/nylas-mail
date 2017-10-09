@@ -47,24 +47,29 @@ export default class Application extends EventEmitter {
       const mailsync = new MailsyncProcess(options, null);
       await mailsync.migrate();
     } catch (err) {
-      dialog.showMessageBox(
-        {
-          type: 'warning',
-          buttons: ['Quit', 'Rebuild'],
-          message: `We encountered a problem with your local email database. ${err.toString()}\n\nWould you like to rebuild it and start Mailspring?`,
-        },
-        buttonIndex => {
-          if (buttonIndex === 0) {
+      const callback = buttonIndex => {
+        if (buttonIndex === 0) {
+          app.quit();
+        } else {
+          this._deleteDatabase(() => {
+            app.relaunch();
             app.quit();
-          } else {
-            this._deleteDatabase(() => {
-              app.relaunch();
-              app.quit();
-            });
-          }
+          });
         }
-      );
-      return;
+      };
+
+      let message = null;
+      let buttons = ['Quit'];
+      if (err.toString().includes('ENOENT')) {
+        message = `Mailspring could find the mailsync process. If you're building Mailspring from source, make sure mailsync.tar.gz has been downloaded and unpacked in your working copy.`;
+      } else if (err.toString().includes('spawn')) {
+        message = `Mailspring could not spawn the mailsync process. ${err.toString()}`;
+      } else {
+        message = `We encountered a problem with your local email database. ${err.toString()}\n\nCheck that no other copies of Mailspring are running and click Rebuild to reset your local cache.`;
+        buttons = ['Quit', 'Rebuild'];
+      }
+
+      dialog.showMessageBox({ type: 'warning', buttons, message }, callback);
     }
 
     const Config = require('../config');
