@@ -210,14 +210,14 @@ class AccountStore extends MailspringStore {
     this._save();
   };
 
-  addAccount = account => {
+  addAccount = async account => {
     if (!account.emailAddress || !account.provider || !(account instanceof Account)) {
       throw new Error(`Returned account data is invalid: ${JSON.stringify(account)}`);
     }
 
     // send the account JSON and cloud token to the KeyManager,
     // which gives us back a version with no secrets.
-    const cleanAccount = KeyManager.extractAccountSecrets(account);
+    const cleanAccount = await KeyManager.extractAccountSecrets(account);
 
     this._loadAccounts();
 

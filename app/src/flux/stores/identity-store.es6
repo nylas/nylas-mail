@@ -93,9 +93,9 @@ class IdentityStore extends MailspringStore {
    * When the identity changes in the database, update our local store
    * cache and set the token from the keychain.
    */
-  _onIdentityChanged = () => {
+  _onIdentityChanged = async () => {
     this._identity = AppEnv.config.get('identity') || {};
-    this._identity.token = KeyManager.getPassword(KEYCHAIN_NAME);
+    this._identity.token = await KeyManager.getPassword(KEYCHAIN_NAME);
     this.trigger();
   };
 

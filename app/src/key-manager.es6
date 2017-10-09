@@ -11,70 +11,79 @@ import keytar from 'keytar';
  */
 class KeyManager {
   constructor() {
-    this.SERVICE_NAME = 'Mailspring';
-    if (AppEnv.inDevMode()) {
-      this.SERVICE_NAME = 'Mailspring Dev';
-    }
+    this.SERVICE_NAME = AppEnv.inDevMode() ? 'Mailspring Dev' : 'Mailspring';
     this.KEY_NAME = 'Mailspring Keys';
   }
 
-  deleteAccountSecrets(account) {
-    this._try(() => {
-      const keys = this._getKeyHash();
+  async deleteAccountSecrets(account) {
+    try {
+      const keys = await this._getKeyHash();
       delete keys[`${account.emailAddress}-imap`];
       delete keys[`${account.emailAddress}-smtp`];
       delete keys[`${account.emailAddress}-refresh-token`];
-      return this._writeKeyHash(keys);
-    });
+      await this._writeKeyHash(keys);
+    } catch (err) {
+      this._handleError(err);
+    }
   }
 
-  extractAccountSecrets(account) {
+  async extractAccountSecrets(account) {
+    try {
+      const keys = await this._getKeyHash();
+      keys[`${account.emailAddress}-imap`] = account.settings.imap_password;
+      keys[`${account.emailAddress}-smtp`] = account.settings.smtp_password;
+      keys[`${account.emailAddress}-refresh-token`] = account.settings.refresh_token;
+      await this._writeKeyHash(keys);
+    } catch (err) {
+      this._handleError(err);
+    }
     const next = account.clone();
-    this._try(() => {
-      const keys = this._getKeyHash();
-      keys[`${account.emailAddress}-imap`] = next.settings.imap_password;
-      delete next.settings.imap_password;
-      keys[`${account.emailAddress}-smtp`] = next.settings.smtp_password;
-      delete next.settings.smtp_password;
-      keys[`${account.emailAddress}-refresh-token`] = next.settings.refresh_token;
-      delete next.settings.refresh_token;
-      return this._writeKeyHash(keys);
-    });
+    delete next.settings.imap_password;
+    delete next.settings.smtp_password;
+    delete next.settings.refresh_token;
     return next;
   }
 
-  insertAccountSecrets(account) {
+  async insertAccountSecrets(account) {
     const next = account.clone();
-    const keys = this._getKeyHash();
+    const keys = await this._getKeyHash();
     next.settings.imap_password = keys[`${account.emailAddress}-imap`];
     next.settings.smtp_password = keys[`${account.emailAddress}-smtp`];
     next.settings.refresh_token = keys[`${account.emailAddress}-refresh-token`];
     return next;
   }
 
-  replacePassword(keyName, newVal) {
-    this._try(() => {
-      const keys = this._getKeyHash();
+  async replacePassword(keyName, newVal) {
+    try {
+      const keys = await this._getKeyHash();
       keys[keyName] = newVal;
-      return this._writeKeyHash(keys);
-    });
+      await this._writeKeyHash(keys);
+    } catch (err) {
+      this._handleError(err);
+    }
   }
 
-  deletePassword(keyName) {
-    this._try(() => {
-      const keys = this._getKeyHash();
+  async deletePassword(keyName) {
+    try {
+      const keys = await this._getKeyHash();
       delete keys[keyName];
-      return this._writeKeyHash(keys);
-    });
+      await this._writeKeyHash(keys);
+    } catch (err) {
+      this._handleError(err);
+    }
   }
 
-  getPassword(keyName) {
-    const keys = this._getKeyHash();
-    return keys[keyName];
+  async getPassword(keyName) {
+    try {
+      const keys = await this._getKeyHash();
+      return keys[keyName];
+    } catch (err) {
+      this._handleError(err);
+    }
   }
 
-  _getKeyHash() {
-    const raw = keytar.getPassword(this.SERVICE_NAME, this.KEY_NAME) || '{}';
+  async _getKeyHash() {
+    const raw = (await keytar.getPassword(this.SERVICE_NAME, this.KEY_NAME)) || '{}';
     try {
       return JSON.parse(raw);
     } catch (err) {
@@ -82,23 +91,17 @@ class KeyManager {
     }
   }
 
-  _writeKeyHash(keys) {
-    // returns true if successful
-    return keytar.replacePassword(this.SERVICE_NAME, this.KEY_NAME, JSON.stringify(keys));
+  async _writeKeyHash(keys) {
+    await keytar.setPassword(this.SERVICE_NAME, this.KEY_NAME, JSON.stringify(keys));
   }
 
-  _try(fn) {
-    const ERR_MSG =
-      "We couldn't store your password securely! For more information, visit http://support.getmailspring.com/hc/en-us/articles/115001875571";
-    try {
-      if (!fn()) {
-        remote.dialog.showErrorBox('Password Management Error', ERR_MSG);
-        AppEnv.reportError(new Error(`Password Management Error: ${ERR_MSG}`));
-      }
-    } catch (err) {
-      remote.dialog.showErrorBox('Password Management Error', ERR_MSG);
-      AppEnv.reportError(err);
-    }
+  _handleError(err) {
+    remote.dialog.showErrorBox(
+      'Password Management Error',
+      "We couldn't store your password securely! For more information, visit http://support.getmailspring.com/hc/en-us/articles/115001875571"
+    );
+    AppEnv.reportError(err);
   }
 }
+
 export default new KeyManager();
