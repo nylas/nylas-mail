@@ -42,3 +42,9 @@ done
 /usr/share/icons/hicolor/128x128/apps/mailspring.png
 /usr/share/icons/hicolor/256x256/apps/mailspring.png
 /usr/share/icons/hicolor/512x512/apps/mailspring.png
+
+%post
+update-desktop-database &> /dev/null
+
+%postun
+update-desktop-database &> /dev/null
