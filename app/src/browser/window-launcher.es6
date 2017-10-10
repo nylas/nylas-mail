@@ -27,8 +27,8 @@ export default class WindowLauncher {
   }) {
     this.defaultWindowOpts = {
       frame: process.platform !== 'darwin',
+      toolbar: process.platform !== 'linux',
       hidden: false,
-      toolbar: true,
       devMode,
       safeMode,
       resizable: true,

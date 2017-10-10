@@ -16,10 +16,13 @@ Fixes:
 
 - On Linux, Mailspring now links against libsecret, resolving intermittent "Identity missing required fields" errors that were caused by the Node bindings to libgnome-keyring's API.
 
+- On Linux, composer and thread windows no longer have a "double window bar".
+
+- On Linux, window menu bars no longer hide until you press the Alt key.
+
 - The .rpm package now requires `libXss`, resolving installation issues for some users.
 
 - Spellchecking on linux now works reliably.
-
 
 ### 1.0.2 (10/6/2017)
 

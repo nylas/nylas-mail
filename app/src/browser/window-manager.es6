@@ -205,6 +205,7 @@ export default class WindowManager {
       windowKey: WindowManager.MAIN_WINDOW,
       windowType: WindowManager.MAIN_WINDOW,
       title: 'Message Viewer',
+      toolbar: true,
       neverClose: true,
       bootstrapScript: require.resolve('../window-bootstrap'),
       mainWindow: true,
