@@ -78,8 +78,8 @@ In `my-package/keymaps/my-package.cson`:
 
 ```js
 ".my-component":
-  "cmd-t": "selectItem"
-  "cmd-enter": "sendMessage"
+  "command+t": "selectItem"
+  "command+enter": "sendMessage"
 ```
 */
 export default class KeyCommandsRegion extends React.Component {

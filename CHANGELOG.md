@@ -24,6 +24,12 @@ Fixes:
 
 - Spellchecking on linux now works reliably.
 
+- On Mac OS X, some menu shortcuts (like Command-H) now appear in the menu bar properly.
+
+- Mailspring now correctly parses `mailto:` links with multiple semicolon-separated CC and BCC addresses.
+
+- The "Raw HTML" signature editor is now the proper size.
+
 ### 1.0.2 (10/6/2017)
 
 Fixes:
