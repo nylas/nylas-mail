@@ -42,6 +42,8 @@ addons:
     - libicu-dev
     - libxext-dev
     - libsasl2-dev
+    - libsasl2-modules
+    - libsasl2-modules-gssapi-mit
     - libssl-dev
     - libtidy-dev
     - libxtst-dev
