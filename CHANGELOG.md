@@ -1,5 +1,26 @@
 # Mailspring Changelog
 
+### 1.0.3 (10/10/2017)
+
+Features:
+
+- You can now choose custom IMAP and SMTP ports when linking a custom email account.
+
+- You can now leave the SMTP username and password blank to connect to an SMTP gateway that does not require authentication.
+
+Fixes:
+
+- On Linux, Mailspring looks for your trusted SSL certificate roots in more locations, fixing the "Certificate Errors" many Fedora and ArchLinux users were seeing when linking accounts.
+
+- On Linux, Mailspring bundles SASL2 and SASL2 plugins, resolving "Authentication Error" messages that users of non-Debian Linux distros saw when the local installation of SASL2 was an incompatible version.
+
+- On Linux, Mailspring now links against libsecret, resolving intermittent "Identity missing required fields" errors that were caused by the Node bindings to libgnome-keyring's API.
+
+- The .rpm package now requires `libXss`, resolving installation issues for some users.
+
+- Spellchecking on linux now works reliably.
+
+
 ### 1.0.2 (10/6/2017)
 
 Fixes:
