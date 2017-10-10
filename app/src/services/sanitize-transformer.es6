@@ -246,7 +246,6 @@ const Preset = {
       'meta',
       'meter',
       'nav',
-      'object',
       'ol',
       'optgroup',
       'option',

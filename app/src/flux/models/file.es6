@@ -77,6 +77,10 @@ export default class File extends Model {
   }
 
   displayFileSize(bytes = this.size) {
+    if (bytes === 0) {
+      return 'Empty';
+    }
+
     const units = ['B', 'KB', 'MB', 'GB'];
     let threshold = 1000000000;
     let idx = units.length - 1;
