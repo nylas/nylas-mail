@@ -53,7 +53,7 @@ class MailspringWindow
       resizable: resizable
       webPreferences:
         directWrite: true
-      autoHideMenuBar: true
+      autoHideMenuBar: false
 
     if @neverClose
       # Prevents DOM timers from being suspended when the main window is hidden.
