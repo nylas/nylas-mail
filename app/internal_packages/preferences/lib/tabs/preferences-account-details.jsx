@@ -152,33 +152,26 @@ class PreferencesAccountDetails extends Component {
 
   _renderSyncErrorDetails() {
     const { account } = this.state;
-    if (account.hasSyncStateError()) {
-      switch (account.syncState) {
-        case Account.N1_Cloud_AUTH_FAILED:
-          return this._renderErrorDetail(
-            `Mailspring can no longer authenticate with Mailspring cloud services for
-            ${account.emailAddress}. The password or authentication may
-            have changed.`,
-            'Reconnect',
-            this._onReconnect
-          );
-        case Account.SYNC_STATE_AUTH_FAILED:
-          return this._renderErrorDetail(
-            `Mailspring can no longer authenticate with ${account.emailAddress}. The password
+
+    switch (account.syncState) {
+      case Account.SYNC_STATE_AUTH_FAILED:
+        return this._renderErrorDetail(
+          `Mailspring can no longer authenticate with ${account.emailAddress}. The password
             or authentication may have changed.`,
-            'Reconnect',
-            this._onReconnect
-          );
-        default:
-          return this._renderErrorDetail(
-            `Mailspring encountered an error while syncing mail for ${account.emailAddress}.
-            Try re-adding the account and contact Mailspring support if the problem persists.`,
-            'Contact support',
-            this._onContactSupport
-          );
-      }
+          'Reconnect',
+          this._onReconnect
+        );
+      case Account.SYNC_STATE_ERROR:
+        return this._renderErrorDetail(
+          `Mailspring encountered errors syncing this account. Crash reports
+          have been sent to the Mailspring team and we'll work to fix these
+          errors in the next release.`,
+          'Try Reconnecting',
+          this._onReconnect
+        );
+      default:
+        return null;
     }
-    return null;
   }
 
   render() {

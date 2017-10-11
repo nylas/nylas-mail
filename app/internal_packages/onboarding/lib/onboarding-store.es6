@@ -136,35 +136,37 @@ class OnboardingStore extends MailspringStore {
   };
 
   _onFinishAndAddAccount = async account => {
+    const isFirstAccount = AccountStore.accounts().length === 0;
+
     try {
-      const isFirstAccount = AccountStore.accounts().length === 0;
-
       AccountStore.addAccount(account);
-      AppEnv.displayWindow();
-
-      Actions.recordUserEvent('Email Account Auth Succeeded', {
-        provider: account.provider,
-      });
-
-      if (isFirstAccount) {
-        this._onMoveToPage('initial-preferences');
-        Actions.recordUserEvent('First Account Linked', {
-          provider: account.provider,
-        });
-      } else {
-        // let them see the "success" screen for a moment
-        // before the window is closed.
-        setTimeout(() => {
-          this._onOnboardingComplete();
-        }, 2000);
-      }
     } catch (e) {
       AppEnv.reportError(e);
       AppEnv.showErrorDialog({
-        title: 'Unable to Connect Account',
+        title: 'Unable to Add Account',
         message:
-          "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@getmailspring.com.",
+          'Sorry, something went wrong when this account was added to Mailspring. ' +
+          `If you do not see the account, try linking it again. ${e.toString()}`,
       });
+    }
+
+    AppEnv.displayWindow();
+
+    Actions.recordUserEvent('Email Account Auth Succeeded', {
+      provider: account.provider,
+    });
+
+    if (isFirstAccount) {
+      this._onMoveToPage('initial-preferences');
+      Actions.recordUserEvent('First Account Linked', {
+        provider: account.provider,
+      });
+    } else {
+      // let them see the "success" screen for a moment
+      // before the window is closed.
+      setTimeout(() => {
+        this._onOnboardingComplete();
+      }, 2000);
     }
   };
 
