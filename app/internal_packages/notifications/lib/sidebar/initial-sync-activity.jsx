@@ -1,4 +1,5 @@
 import { AccountStore, FolderSyncProgressStore, React } from 'mailspring-exports';
+import utf7 from 'utf7';
 
 export default class InitialSyncActivity extends React.Component {
   static displayName = 'InitialSyncActivity';
@@ -38,9 +39,11 @@ export default class InitialSyncActivity extends React.Component {
       }
     }
 
+    const folderDisplayPath = utf7.imap.decode(folderPath);
+
     return (
       <div className={`model-progress ${status}`} key={folderPath}>
-        {folderPath} <span className="progress-label">{progressLabel}</span>
+        {folderDisplayPath} <span className="progress-label">{progressLabel}</span>
       </div>
     );
   }
