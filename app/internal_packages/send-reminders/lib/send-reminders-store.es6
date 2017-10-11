@@ -48,7 +48,7 @@ class SendRemindersStore extends MailspringStore {
       replyToHeaderMessageId: sentHeaderMessageId,
       body: `
         <strong>Mailspring Reminder:</strong> This thread has been moved to the top of
-        your inbox by Mailspring because no one has replied to your message</p>.
+        your inbox by Mailspring because no one has replied to your message.</p>
         <p>--The Mailspring Team</p>`,
     });
 
