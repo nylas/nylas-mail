@@ -152,5 +152,8 @@ export async function finalizeAndValidateAccount(account) {
 }
 
 export function isValidHost(value) {
+  if (value === 'localhost') {
+    return true;
+  }
   return RegExpUtils.domainRegex().test(value) || RegExpUtils.ipAddressRegex().test(value);
 }
