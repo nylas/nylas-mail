@@ -84,6 +84,25 @@ class AccountIMAPSettingsForm extends React.Component {
     const isStandard = values.includes(settings[field] / 1);
     const customValue = isStandard ? '0' : settings[field];
 
+    // When you change the port, automatically switch the security setting to
+    // the standard for that port. Lots of people don't update that field and
+    // are getting confused.
+    const onPortChange = event => {
+      onFieldChange(event);
+      if (event.target.value / 1 === 143 && settings.imap_security !== 'none') {
+        onFieldChange({ target: { value: 'none', id: 'settings.imap_security' } });
+      }
+      if (event.target.value / 1 === 993 && settings.imap_security !== 'SSL / TLS') {
+        onFieldChange({ target: { value: 'SSL / TLS', id: 'settings.imap_security' } });
+      }
+      if (event.target.value / 1 === 25 && settings.smtp_security !== 'none') {
+        onFieldChange({ target: { value: 'none', id: 'settings.smtp_security' } });
+      }
+      if (event.target.value / 1 === 587 && settings.smtp_security !== 'STARTTLS') {
+        onFieldChange({ target: { value: 'STARTTLS', id: 'settings.smtp_security' } });
+      }
+    };
+
     return (
       <span>
         <label htmlFor={`settings.${field}`}>Port:</label>
@@ -92,8 +111,7 @@ class AccountIMAPSettingsForm extends React.Component {
           tabIndex={0}
           value={settings[field]}
           disabled={submitting}
-          onKeyPress={onFieldKeyPress}
-          onChange={onFieldChange}
+          onChange={onPortChange}
         >
           {values.map(v => (
             <option value={v} key={v}>
@@ -138,7 +156,7 @@ class AccountIMAPSettingsForm extends React.Component {
             onKeyPress={onFieldKeyPress}
             onChange={onFieldChange}
           >
-            <option value="SSL / TLS" key="SSL">
+            <option value="SSL / TLS" key="SSL / TLS">
               SSL / TLS
             </option>
             <option value="STARTTLS" key="STARTTLS">

@@ -1,4 +1,4 @@
-import { React, PropTypes, RegExpUtils } from 'mailspring-exports';
+import { Account, React, PropTypes, RegExpUtils } from 'mailspring-exports';
 
 import OnboardingActions from './onboarding-actions';
 import CreatePageForForm from './decorators/create-page-for-form';
@@ -54,8 +54,12 @@ class AccountBasicSettingsForm extends React.Component {
   };
 
   submit() {
-    const account = expandAccountWithCommonSettings(this.props.account);
+    // create a new account with expanded settings and just the three fields
+    const { name, emailAddress, provider, settings: { imap_password } } = this.props.account;
+    let account = new Account({ name, emailAddress, provider, settings: { imap_password } });
+    account = expandAccountWithCommonSettings(account);
     OnboardingActions.setAccount(account);
+
     if (this.props.account.provider === 'imap') {
       OnboardingActions.moveToPage('account-settings-imap');
     } else {
