@@ -43,6 +43,9 @@ export const LocalizedErrorStrings = {
   ErrorYahooSendMessageDailyLimitExceeded:
     'The message has been blocked by Yahoo - you have exceeded your daily sending limit.',
   ErrorNoSender: 'The message has been blocked because no sender is configured.',
+
+  ErrorIdentityMissingFields:
+    'Your Mailspring ID is missing required fields - you may need to reset Mailspring. http://support.getmailspring.com/hc/en-us/articles/115002012491',
 };
 
 export default class MailsyncProcess extends EventEmitter {
@@ -98,13 +101,14 @@ export default class MailsyncProcess extends EventEmitter {
           if (code === 0) {
             resolve(response);
           } else {
+            const { refresh_token, imap_password, smtp_password } = this.account.settings;
+
             let msg = LocalizedErrorStrings[response.error] || response.error;
             if (response.error_service) {
               msg = `${msg} (${response.error_service.toUpperCase()})`;
             }
             const error = new Error(msg);
-            const { refresh_token, imap_password, smtp_password } = this.account.settings;
-            error.rawLog = response.log
+            error.rawLog = (response.log || '')
               .replace(new RegExp(refresh_token || 'not-present', 'g'), '*********')
               .replace(new RegExp(imap_password || 'not-present', 'g'), '*********')
               .replace(new RegExp(smtp_password || 'not-present', 'g'), '*********');
