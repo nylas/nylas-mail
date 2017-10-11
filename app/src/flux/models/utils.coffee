@@ -516,27 +516,45 @@ Utils =
   # strings used for bcc-based automated teasks.
   likelyNonHumanEmail: (email) ->
     at = "[-@+=]"
-    prefixes = [
-      "noreply"
-      "no-reply"
-      "donotreply"
-      "do-not-reply"
+    terms = [
+      "no[-_]?reply"
+      "do[-_]?not[-_]?reply"
       "bounce[s]?#{at}"
+      "postmaster",
       "notification[s]?#{at}"
+      "jobs#{at}"
+      "developer#{at}"
+      "receipts#{at}"
       "support#{at}"
+      "billing#{at}"
+      "ebill#{at}"
+      "hello#{at}"
+      "customercare#{at}"
+      "contact#{at}"
+      "team#{at}"
+      "status#{at}"
       "alert[s]?#{at}"
       "notify",
+      "auto[-_]confirm",
+      "invitations",
+      "newsletter"
+      "[-_]tracking#{at}"
+      "reply[-_]"
+      "room[-_]"
+      "[-_]reply#{at}"
+      "email#{at}"
+      "welcome#{at}"
       "news#{at}"
       "info#{at}"
       "automated#{at}"
       "list[s]?#{at}"
       "distribute[s]?#{at}"
       "catchall#{at}"
-      "catch-all#{at}"
+      "catch[-_]all#{at}"
     ]
-    reStr = "(#{prefixes.join("|")})"
+    reStr = "(#{terms.join("|")})"
     re = new RegExp(reStr, "gi")
-    return re.test(email) or email.length > 64
+    return re.test(email) or email.length > 48
 
   # Does the several tests you need to determine if a test range is within
   # a bounds. Expects both objects to have `start` and `end` keys.

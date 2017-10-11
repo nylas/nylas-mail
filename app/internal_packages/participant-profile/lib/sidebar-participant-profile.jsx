@@ -54,7 +54,10 @@ export default class SidebarParticipantProfile extends React.Component {
   componentDidMount() {
     this._mounted = true;
     if (!this.state.loaded && !this.state.trialing) {
-      this._findContact();
+      // Wait until we know they've "settled" on this email to reduce the number of
+      // requests to the contact search endpoint.
+      this.setState({ loading: true });
+      setTimeout(this._onFindContact, 2000);
     }
   }
 
@@ -73,43 +76,54 @@ export default class SidebarParticipantProfile extends React.Component {
       // user does not have access to this feature
       return;
     }
-    this._findContact();
+    this._onFindContact();
   };
 
-  async _findContact() {
-    this.setState({ loading: true });
+  _onFindContact = async () => {
+    if (!this._mounted) {
+      return;
+    }
+    if (!this.state.loading) {
+      this.setState({ loading: true });
+    }
     ParticipantProfileDataSource.find(this.props.contact.email).then(result => {
       if (!this._mounted) {
         return;
       }
       this.setState(Object.assign({ loading: false, loaded: true }, result));
     });
-  }
+  };
 
   _renderProfilePhoto() {
-    if (this.state.profilePhotoUrl) {
-      return (
-        <div className="profile-photo-wrap">
-          <div className="profile-photo">
-            <img alt="Profile" src={this.state.profilePhotoUrl} />
-          </div>
+    const hue = Utils.hueForString(this.props.contact.email);
+    const bgColor = `hsl(${hue}, 50%, 45%)`;
+
+    let content = (
+      <div className="default-profile-image" style={{ backgroundColor: bgColor }}>
+        {this.props.contact.nameAbbreviation()}
+      </div>
+    );
+
+    if (this.state.loading) {
+      content = (
+        <div className="default-profile-image">
+          <RetinaImg
+            className="spinner"
+            style={{ width: 20, height: 20 }}
+            name="inline-loading-spinner.gif"
+            mode={RetinaImg.Mode.ContentDark}
+          />
         </div>
       );
     }
-    return this._renderDefaultProfileImage();
-  }
 
-  _renderDefaultProfileImage() {
-    const hue = Utils.hueForString(this.props.contact.email);
-    const bgColor = `hsl(${hue}, 50%, 45%)`;
-    const abv = this.props.contact.nameAbbreviation();
+    if (this.state.profilePhotoUrl) {
+      content = <img alt="Profile" src={this.state.profilePhotoUrl} />;
+    }
+
     return (
       <div className="profile-photo-wrap">
-        <div className="profile-photo">
-          <div className="default-profile-image" style={{ backgroundColor: bgColor }}>
-            {abv}
-          </div>
-        </div>
+        <div className="profile-photo">{content}</div>
       </div>
     );
   }

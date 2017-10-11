@@ -160,10 +160,11 @@ class OnboardingStore extends MailspringStore {
       }
     } catch (e) {
       AppEnv.reportError(e);
-      AppEnv.showErrorDialog(
-        'Unable to Connect Account',
-        "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@getmailspring.com."
-      );
+      AppEnv.showErrorDialog({
+        title: 'Unable to Connect Account',
+        message:
+          "Sorry, something went wrong on the Nylas server. Please try again. If you're still having issues, contact us at support@getmailspring.com.",
+      });
     }
   };
 

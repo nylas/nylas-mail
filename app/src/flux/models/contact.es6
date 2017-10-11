@@ -453,6 +453,9 @@ export default class Contact extends Model {
   nameAbbreviation() {
     const c1 = (this.firstName()[0] || '').toUpperCase();
     const c2 = (this.lastName()[0] || '').toUpperCase();
+    if (c2 === '(' || c2 === '[') {
+      return c1; // eg: "Susana (Airbnb)"
+    }
     return c1 + c2;
   }
 
