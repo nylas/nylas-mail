@@ -1,0 +1,81 @@
+@import "ui-variables";
+
+.category-mapper-container {
+  width: 40%;
+  min-width: 460px;
+  margin: 0 auto;
+}
+
+.account-section-title {
+  border-bottom: 1px solid @border-color-divider;
+  margin: @padding-large-vertical * 1.5 0;
+}
+
+input.search {
+  border: 1px solid darken(@background-secondary, 10%);
+  border-radius: 3px;
+  background-color: @background-primary;
+  box-shadow: inset 0 1px 0 rgba(0,0,0,0.05), 0 1px 0 rgba(0,0,0,0.05);
+  color: @text-color;
+  padding-left: 0;
+  background-repeat: no-repeat;
+  background-image: url("../static/images/search/searchloupe@2x.png");
+  background-size: 15px 15px;
+  background-position: 7px 4px;
+  text-indent: 31px;
+}
+
+.role-section {
+  display: flex;
+
+  .col-left {
+    color: @text-color-very-subtle;
+    text-align: right;
+    flex: 1;
+    margin-right: 20px;
+  }
+  .col-right {
+    text-align: left;
+    flex: 1;
+  }
+}
+
+.category-selection {
+  .menu {
+    background: @background-secondary;
+    width: 250px;
+    max-height: 400px;
+    box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15), 0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 4px 7px rgba(0,0,0,0.15);
+
+    .header-container {
+      border-bottom: 0;
+    }
+
+    .item.divider {
+      background-color: #e0e0e0;
+      margin: 4px 0;
+      height: 2px;
+      padding: 0;
+    }
+
+  }
+
+  .category-item {
+    font-size: 14px;
+    display: flex;
+
+    img.content-mask {
+      position: relative;
+      top:3px;
+      background-color: @text-color-subtle;
+    }
+  }
+
+  .category-display-name {
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 5px;
+    word-break: break-word;
+    flex: 1;
+  }
+}

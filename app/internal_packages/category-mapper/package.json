@@ -1,0 +1,11 @@
+{
+  "name": "category-mapper",
+  "version": "0.1.0",
+  "main": "./lib/main",
+  "description": "Allow users to manually map roles to categories",
+  "license": "GPL-3.0",
+  "private": true,
+  "engines": {
+    "mailspring": "*"
+  }
+}

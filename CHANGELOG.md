@@ -1,5 +1,29 @@
 # Mailspring Changelog
 
+### 1.0.4 (Coming Soon)
+
+Features:
+
+- Company profiles are now available in the right sidebar! See tons of great information about the people you're emailing, including their local time zone, the company's core business area, and more.
+
+- You can now choose folder associations explicitly if Mailspring is unable to correctly identify your Sent folder, for example.
+
+- The IMAP/SMTP authentication panel automatically defaults to security settings that match the ports you provide.
+
+Fixes:
+
+- Sending mail is considerably faster for accounts that do not place the message in the Sent folder automatically.
+
+- Sent mail no longer appears to be from `Dec 31st 1969` when sent through some older SMTP gateways.
+
+- New folders / labels appear faster after you create them, and adding folders now works properly on IMAP servers that use a namespace prefix like `INBOX.`.
+
+- Improves display of "Identity is missing required fields" error and directs people to a knowledge base article.
+
+- Localhost is an allowed IMAP/SMTP server address.
+
+- `<object>` tags are now completely blocked in message bodies.
+
 ### 1.0.3 (10/10/2017)
 
 Features:

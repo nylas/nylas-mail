@@ -77,6 +77,7 @@ lazyLoad('MetadataComposerToggleButton', 'metadata-composer-toggle-button');
 lazyLoad('ConfigPropContainer', 'config-prop-container');
 lazyLoad('DisclosureTriangle', 'disclosure-triangle');
 lazyLoad('EditableList', 'editable-list');
+lazyLoad('DropdownMenu', 'dropdown-menu');
 lazyLoad('OutlineViewItem', 'outline-view-item');
 lazyLoad('OutlineView', 'outline-view');
 lazyLoad('DateInput', 'date-input');

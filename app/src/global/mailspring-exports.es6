@@ -102,6 +102,7 @@ lazyLoadAndRegisterTask(`SyncbackEventTask`, 'syncback-event-task');
 lazyLoadAndRegisterTask(`DestroyCategoryTask`, 'destroy-category-task');
 lazyLoadAndRegisterTask(`SyncbackCategoryTask`, 'syncback-category-task');
 lazyLoadAndRegisterTask(`SyncbackMetadataTask`, 'syncback-metadata-task');
+lazyLoadAndRegisterTask(`ChangeRoleMappingTask`, 'change-role-mapping-task');
 lazyLoadAndRegisterTask(`SendFeatureUsageEventTask`, 'send-feature-usage-event-task');
 
 // Stores
