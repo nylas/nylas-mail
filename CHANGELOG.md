@@ -1,6 +1,6 @@
 # Mailspring Changelog
 
-### 1.0.4 (Coming Soon)
+### 1.0.4 (10/12/2017)
 
 Features:
 
