@@ -168,7 +168,7 @@ module.exports = ErrorLogger = (function() {
     if (process.type === 'renderer') {
       logpid = remote.process.pid + '.' + process.pid;
     }
-    return path.join(tmpPath, 'Nylas-Mail-' + logpid + '.log');
+    return path.join(tmpPath, 'Mailspring-' + logpid + '.log');
   };
 
   // If we're the browser process, remove log files that are more than
@@ -183,7 +183,7 @@ module.exports = ErrorLogger = (function() {
           return;
         }
 
-        var logFilter = new RegExp('Nylas-Mail-[.0-9]*.log$');
+        var logFilter = new RegExp('Mailspring-[.0-9]*.log$');
         files.forEach(function(file) {
           if (logFilter.test(file) === true) {
             var filepath = path.join(tmpPath, file);
