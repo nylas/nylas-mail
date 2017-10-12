@@ -1,19 +1,18 @@
+# Where do I start?
+
+Thanks for checking out Mailspring! We'd love for you to contribute. Whether you're a first-time open source contributor or an experienced developer, there are ways you can help make Mailspring great:
+
+1. Grab an issue tagged with [Help Wanted](https://github.com/Foundry376/Mailspring/labels/help%20wanted) and dig in! We try to add context to these issues when adding the tag so you know where to get started in the codebase.
+
+2. Triage issues that haven't been addressed. With a large community of users on many platforms, we have trouble keeping up GitHub issues and moving the project forward at the same time. If you're good at addressing issues, we're happy to give you rights to label and close issues!
+
 # Filing an Issue
 
-Thanks for checking out Mailspring! If you have a feature request, be sure to check out the [open source roadmap](http://trello.com/b/hxsqB6vx/mailspring-open-source-roadmap). If someone has already requested
-the feature you have in mind, you can upvote the card on Trello—to keep things organized, we
-often close feature requests on GitHub after creating Trello cards.
-
-If you've found a bug, try searching for similars issue before filing a new one. Please include
-the version of Mailspring you're using, the platform you're using (Mac / Windows / Linux), and the
-type of email account. (Gmail, Outlook 365, etc.)
+If you have a feature request or bug to report, *please* search for existing issues **including closed ones!**: https://github.com/Foundry376/Mailspring/issues?utf8=%E2%9C%93&q=is%3Aissue. If someone has already requested the feature you have in mind, upvote it using the "Add Reaction" feature - our team often sorts issues to find the most upvoted ones. For bugs, please verify that you're running the latest version of Mailspring. If you file an issue without providing detail, we may close it without comment.
 
 # Pull requests
 
-We require all authors sign our [Contributor License
-Agreement](https://www.getmailspring.com/cla.html) before pull requests (even
-minor ones) can be accepted. (It's similar to other projects, like NodeJS
-Meteor, or React). I'm really sorry, but Legal made us do it.
+The first time you submit a pull request, a bot will ask you to sign a standard, bare-bones Contributor License Agreement. The CLA states that you waive any patent or copyright claims you might have to the code you're contributing. (e.g.: you can't submit a PR and then sue Mailspring for using your code.)
 
 ### Commit Format
 
