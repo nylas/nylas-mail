@@ -45,8 +45,24 @@
   }
 }
 
-.participant-profile {
+.company-profile {
+  padding-top: 20px;
+  border-top: 1px solid @border-color-divider;
+  .company-logo {
+    margin-left: 12px;
+    float: right;
+    max-width: 60px;
+    max-height: 44px;
+  }
+}
+
+.participant-profile,
+.company-profile {
   margin-bottom: 22px;
+
+  .larger {
+    font-size: 16px;
+  }
 
   .profile-photo-wrap {
     width: 50px;
@@ -87,7 +103,20 @@
     }
   }
 
-  .core-personal-info {
+  .social-profiles-wrap {
+    margin-bottom: @spacing-standard;
+  }
+  .social-profile-item {
+    margin: 0 10px;
+    &:first-child {
+      margin-left: 0;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .personal-info {
     padding-top: 30px;
     text-align: center;
     margin-bottom: @spacing-standard;
@@ -99,24 +128,24 @@
       white-space: nowrap;
     }
 
-    .full-name {
-      font-size: 16px;
-    }
     .email {
       color: @text-color-very-subtle;
       margin-bottom: @spacing-standard;
     }
-    .social-profiles-wrap {
-      margin-bottom: @spacing-standard;
-    }
-    .social-profile-item {
-      margin: 0 10px;
-    }
   }
+
   .additional-info {
+    margin-top: 10px;
     font-size: 12px;
+    clear: both;
     p {
-      margin-bottom: 15px;
+      margin-bottom: 16px;
+    }
+    .icon-row {
+      margin-bottom: 8px;
+      a.plain {
+        color: @text-color;
+      }
     }
     .bio {
       color: @text-color-very-subtle;
@@ -125,7 +154,8 @@
 }
 
 body.platform-win32 {
-  .participant-profile {
+  .participant-profile,
+  .company-profile {
     border-radius: 0;
     .profile-photo {
       border-radius: 0;

@@ -8,22 +8,171 @@ import {
   Utils,
 } from 'mailspring-exports';
 import { RetinaImg } from 'mailspring-component-kit';
+import moment from 'moment-timezone';
 
 import ParticipantProfileDataSource from './participant-profile-data-source';
 
-/* We expect ParticipantProfileDataSource.find to return the
-  * following schema:
-  * {
-  *    profilePhotoUrl: string
-  *    bio: string
-  *    location: string
-  *    currentTitle: string
-  *    currentEmployer: string
-  *    socialProfiles: hash keyed by type: ('twitter', 'facebook' etc)
-  *      url: string
-  *      handle: string
-  * }
-  */
+class ProfilePictureOrColorBox extends React.Component {
+  static propTypes = {
+    loading: PropTypes.bool,
+    contact: PropTypes.object,
+    profilePicture: PropTypes.string,
+  };
+  render() {
+    const { contact, loading, avatar } = this.props;
+
+    const hue = Utils.hueForString(contact.email);
+    const bgColor = `hsl(${hue}, 50%, 45%)`;
+
+    let content = (
+      <div className="default-profile-image" style={{ backgroundColor: bgColor }}>
+        {contact.nameAbbreviation()}
+      </div>
+    );
+
+    if (loading) {
+      content = (
+        <div className="default-profile-image">
+          <RetinaImg
+            className="spinner"
+            style={{ width: 20, height: 20 }}
+            name="inline-loading-spinner.gif"
+            mode={RetinaImg.Mode.ContentDark}
+          />
+        </div>
+      );
+    }
+
+    if (avatar) {
+      content = <img alt="Profile" src={avatar} />;
+    }
+
+    return (
+      <div className="profile-photo-wrap">
+        <div className="profile-photo">{content}</div>
+      </div>
+    );
+  }
+}
+class SocialProfileLink extends React.Component {
+  static propTypes = {
+    service: PropTypes.string,
+    handle: PropTypes.string,
+  };
+
+  render() {
+    const { handle, service } = this.props;
+
+    if (!handle) {
+      return false;
+    }
+    return (
+      <a
+        className="social-profile-item"
+        title={`https://${service}.com/${handle}`}
+        href={`https://${service}.com/${handle}`}
+      >
+        <RetinaImg
+          url={`mailspring://participant-profile/assets/${service}-sidebar-icon@2x.png`}
+          mode={RetinaImg.Mode.ContentPreserve}
+        />
+      </a>
+    );
+  }
+}
+
+class TextBlockWithAutolinkedElements extends React.Component {
+  static propTypes = {
+    className: PropTypes.string,
+    string: PropTypes.string,
+  };
+
+  render() {
+    if (!this.props.string) {
+      return false;
+    }
+
+    const nodes = [];
+    const hashtagOrMentionRegex = RegExpUtils.hashtagOrMentionRegex();
+
+    let remainder = this.props.string;
+    let match = null;
+    let count = 0;
+
+    /* I thought we were friends. */
+    /* eslint no-cond-assign: 0 */
+    while ((match = hashtagOrMentionRegex.exec(remainder))) {
+      // the first char of the match is whitespace, match[1] is # or @, match[2] is the tag itself.
+      nodes.push(remainder.substr(0, match.index + 1));
+      if (match[1] === '#') {
+        nodes.push(
+          <a key={count} href={`https://twitter.com/hashtag/${match[2]}`}>{`#${match[2]}`}</a>
+        );
+      }
+      if (match[1] === '@') {
+        nodes.push(<a key={count} href={`https://twitter.com/${match[2]}`}>{`@${match[2]}`}</a>);
+      }
+      remainder = remainder.substr(match.index + match[0].length);
+      count += 1;
+    }
+    nodes.push(remainder);
+
+    return <p className={`selectable ${this.props.className}`}>{nodes}</p>;
+  }
+}
+
+class IconRow extends React.Component {
+  static propTypes = {
+    string: PropTypes.string,
+    icon: PropTypes.string,
+  };
+
+  render() {
+    const { string, icon } = this.props;
+
+    if (!string) {
+      return false;
+    }
+    return (
+      <div className={`icon-row ${icon}`}>
+        <RetinaImg
+          url={`mailspring://participant-profile/assets/${icon}-icon@2x.png`}
+          mode={RetinaImg.Mode.ContentPreserve}
+          style={{ float: 'left' }}
+        />
+        <span className="selectable" style={{ display: 'block', marginLeft: 25 }}>
+          {string}
+        </span>
+      </div>
+    );
+  }
+}
+
+class LocationRow extends React.Component {
+  static propTypes = {
+    string: PropTypes.string,
+  };
+
+  render() {
+    return (
+      <IconRow
+        icon="location"
+        string={
+          this.props.string && (
+            <span>
+              {this.props.string}
+              {' ['}
+              <a className="plain" href={`https://maps.google.com/?q=${this.props.string}`}>
+                View
+              </a>
+              {']'}
+            </span>
+          )
+        }
+      />
+    );
+  }
+}
 
 export default class SidebarParticipantProfile extends React.Component {
   static displayName = 'SidebarParticipantProfile';
@@ -94,156 +243,7 @@ export default class SidebarParticipantProfile extends React.Component {
     });
   };
 
-  _renderProfilePhoto() {
-    const hue = Utils.hueForString(this.props.contact.email);
-    const bgColor = `hsl(${hue}, 50%, 45%)`;
-
-    let content = (
-      <div className="default-profile-image" style={{ backgroundColor: bgColor }}>
-        {this.props.contact.nameAbbreviation()}
-      </div>
-    );
-
-    if (this.state.loading) {
-      content = (
-        <div className="default-profile-image">
-          <RetinaImg
-            className="spinner"
-            style={{ width: 20, height: 20 }}
-            name="inline-loading-spinner.gif"
-            mode={RetinaImg.Mode.ContentDark}
-          />
-        </div>
-      );
-    }
-
-    if (this.state.profilePhotoUrl) {
-      content = <img alt="Profile" src={this.state.profilePhotoUrl} />;
-    }
-
-    return (
-      <div className="profile-photo-wrap">
-        <div className="profile-photo">{content}</div>
-      </div>
-    );
-  }
-
-  _renderCorePersonalInfo() {
-    const fullName = this.props.contact.fullName();
-    let renderName = false;
-    if (fullName !== this.props.contact.email) {
-      renderName = (
-        <div className="selectable full-name" onClick={this._select}>
-          {this.props.contact.fullName()}
-        </div>
-      );
-    }
-    return (
-      <div className="core-personal-info">
-        {renderName}
-        <div className="selectable email" onClick={this._select}>
-          {this.props.contact.email}
-        </div>
-        {this._renderSocialProfiles()}
-      </div>
-    );
-  }
-
-  _renderSocialProfiles() {
-    if (!this.state.socialProfiles) {
-      return false;
-    }
-    const profiles = Object.entries(this.state.socialProfiles).map(([type, profile]) => {
-      return (
-        <a className="social-profile-item" key={type} title={profile.url} href={profile.url}>
-          <RetinaImg
-            url={`mailspring://participant-profile/assets/${type}-sidebar-icon@2x.png`}
-            mode={RetinaImg.Mode.ContentPreserve}
-          />
-        </a>
-      );
-    });
-    return <div className="social-profiles-wrap">{profiles}</div>;
-  }
-
-  _renderAdditionalInfo() {
-    return (
-      <div className="additional-info">
-        {this._renderCurrentJob()}
-        {this._renderBio()}
-        {this._renderLocation()}
-      </div>
-    );
-  }
-
-  _renderCurrentJob() {
-    if (!this.state.employer) {
-      return false;
-    }
-    let title = false;
-    if (this.state.title) {
-      title = <span>{this.state.title},&nbsp;</span>;
-    }
-    return (
-      <p className="selectable current-job">
-        {title}
-        {this.state.employer}
-      </p>
-    );
-  }
-
-  _renderBio() {
-    if (!this.state.bio) {
-      return false;
-    }
-
-    const bioNodes = [];
-    const hashtagOrMentionRegex = RegExpUtils.hashtagOrMentionRegex();
-
-    let bioRemainder = this.state.bio;
-    let match = null;
-    let count = 0;
-
-    /* I thought we were friends. */
-    /* eslint no-cond-assign: 0 */
-    while ((match = hashtagOrMentionRegex.exec(bioRemainder))) {
-      // the first char of the match is whitespace, match[1] is # or @, match[2] is the tag itself.
-      bioNodes.push(bioRemainder.substr(0, match.index + 1));
-      if (match[1] === '#') {
-        bioNodes.push(
-          <a key={count} href={`https://twitter.com/hashtag/${match[2]}`}>{`#${match[2]}`}</a>
-        );
-      }
-      if (match[1] === '@') {
-        bioNodes.push(<a key={count} href={`https://twitter.com/${match[2]}`}>{`@${match[2]}`}</a>);
-      }
-      bioRemainder = bioRemainder.substr(match.index + match[0].length);
-      count += 1;
-    }
-    bioNodes.push(bioRemainder);
-
-    return <p className="selectable bio">{bioNodes}</p>;
-  }
-
-  _renderLocation() {
-    if (!this.state.location) {
-      return false;
-    }
-    return (
-      <p className="location">
-        <RetinaImg
-          url={`mailspring://participant-profile/assets/location-icon@2x.png`}
-          mode={RetinaImg.Mode.ContentPreserve}
-          style={{ float: 'left' }}
-        />
-        <span className="selectable" style={{ display: 'block', marginLeft: 20 }}>
-          {this.state.location}
-        </span>
-      </p>
-    );
-  }
-
-  _select(event) {
+  _onSelect = event => {
     const el = event.target;
     const sel = document.getSelection();
     if (el.contains(sel.anchorNode) && !sel.isCollapsed) {
@@ -254,7 +254,7 @@ export default class SidebarParticipantProfile extends React.Component {
     if (anchor && focus && focus.data) {
       sel.setBaseAndExtent(anchor, 0, focus, focus.data.length);
     }
-  }
+  };
 
   _renderFindCTA() {
     if (!this.state.trialing || this.state.loaded) {
@@ -277,12 +277,150 @@ export default class SidebarParticipantProfile extends React.Component {
     );
   }
 
-  render() {
+  _renderCompanyInfo() {
+    const {
+      name,
+      domain,
+      category,
+      description,
+      location,
+      timeZone,
+      logo,
+      facebook,
+      twitter,
+      linkedin,
+      crunchbase,
+      type,
+      ticker,
+      phone,
+      metrics,
+    } =
+      this.state.company || {};
+
+    if (!name) {
+      return;
+    }
+
+    let employees = null;
+    let funding = null;
+
+    if (metrics) {
+      if (metrics.raised) {
+        funding = `Raised $${(metrics.raised / 1 || 0).toLocaleString()}`;
+      } else if (metrics.marketCap) {
+        funding = `Market cap $${(metrics.marketCap / 1 || 0).toLocaleString()}`;
+      }
+
+      if (metrics.employees) {
+        employees = `${(metrics.employees / 1 || 0).toLocaleString()} employees`;
+      } else if (metrics.employeesRange) {
+        employees = `${metrics.employeesRange} employees`;
+      }
+    }
+
+    return (
+      <div className="company-profile">
+        {logo && (
+          <RetinaImg url={logo} className="company-logo" mode={RetinaImg.Mode.ContentPreserve} />
+        )}
+
+        <div className="selectable larger" onClick={this._onSelect}>
+          {name}
+        </div>
+
+        {domain && (
+          <a className="domain" href={domain.startsWith('http') ? domain : `http://${domain}`}>
+            {domain}
+          </a>
+        )}
+
+        <div className="additional-info">
+          <TextBlockWithAutolinkedElements string={description} className="description" />
+          <LocationRow string={location} />
+          <IconRow
+            icon="timezone"
+            string={
+              timeZone && (
+                <span>
+                  {`${timeZone.replace('_', ' ')} - `}
+                  <strong>
+                    {`Currently ${moment()
+                      .tz(timeZone)
+                      .format('h:MMa')}`}
+                  </strong>
+                </span>
+              )
+            }
+          />
+          <IconRow icon="industry" string={category && (category.industry || category.sector)} />
+          <IconRow
+            icon="holding"
+            string={{ private: 'Privately Held', public: `Stock Symbol ${ticker}` }[type]}
+          />
+          <IconRow icon="phone" string={phone} />
+          <IconRow icon="employees" string={employees} />
+          <IconRow icon="funding" string={funding} />
+
+          <div className="social-profiles-wrap">
+            <SocialProfileLink service="facebook" handle={facebook && facebook.handle} />
+            <SocialProfileLink service="crunchbase" handle={crunchbase && crunchbase.handle} />
+            <SocialProfileLink service="linkedin" handle={linkedin && linkedin.handle} />
+            <SocialProfileLink service="twitter" handle={twitter && twitter.handle} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  _renderPersonInfo() {
+    const { facebook, linkedin, twitter, employment, location, bio } = this.state.person || {};
+
     return (
       <div className="participant-profile">
-        {this._renderProfilePhoto()}
-        {this._renderCorePersonalInfo()}
-        {this._renderAdditionalInfo()}
+        <ProfilePictureOrColorBox
+          loading={this.state.loading}
+          avatar={this.state.avatar}
+          contact={this.props.contact}
+        />
+        <div className="personal-info">
+          {this.props.contact.fullName() !== this.props.contact.email && (
+            <div className="selectable larger" onClick={this._onSelect}>
+              {this.props.contact.fullName()}
+            </div>
+          )}
+
+          {employment && (
+            <div className="selectable current-job">
+              {employment.title && <span>{employment.title},&nbsp;</span>}
+              {employment.name}
+            </div>
+          )}
+
+          <div className="selectable email" onClick={this._onSelect}>
+            {this.props.contact.email}
+          </div>
+
+          <div className="social-profiles-wrap">
+            <SocialProfileLink service="facebook" handle={facebook && facebook.handle} />
+            <SocialProfileLink service="linkedin" handle={linkedin && linkedin.handle} />
+            <SocialProfileLink service="twitter" handle={twitter && twitter.handle} />
+          </div>
+        </div>
+
+        <div className="additional-info">
+          <TextBlockWithAutolinkedElements string={bio} className="bio" />
+          <LocationRow string={location} />
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div>
+        {this._renderPersonInfo()}
+
+        {this._renderCompanyInfo()}
 
         {this._renderFindCTA()}
       </div>

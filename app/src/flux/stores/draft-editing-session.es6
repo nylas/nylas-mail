@@ -81,7 +81,9 @@ class DraftChangeSet extends EventEmitter {
 
       this._saving = this._pending;
       this._pending = {};
+      console.log('_saving = ' + JSON.stringify(this._saving));
       return this.callbacks.onCommit().then(() => {
+        console.log('_saving cleared');
         this._saving = {};
       });
     };
@@ -347,6 +349,8 @@ export default class DraftEditingSession extends MailspringStore {
       return;
     }
 
+    console.log('_onDraftChanged');
+
     // If our draft has been changed, only accept values which are present.
     // If `body` is undefined, assume it's not loaded. Do not overwrite old body.
     const nextDraft = change.objects
@@ -364,6 +368,7 @@ export default class DraftEditingSession extends MailspringStore {
         }
         nextValues[key] = nextDraft[key];
       }
+      console.log('_setDraft nextValues: ' + JSON.stringify(nextValues));
       this._setDraft(Object.assign(new Message(), this._draft, nextValues));
       this.trigger();
     }
@@ -391,8 +396,12 @@ export default class DraftEditingSession extends MailspringStore {
     const baseDraft = draft || inMemoryDraft;
     const updatedDraft = this.changes.applyToModel(baseDraft);
     const task = new SyncbackDraftTask({ draft: updatedDraft });
+    console.log('changeSetCommit queueing task');
     Actions.queueTask(task);
     await TaskQueue.waitForPerformLocal(task);
+    console.log(
+      'changeSetCommit finished waiting for performLocal. At this point, onDraftChanged should have been called.'
+    );
   }
 
   // Undo / Redo

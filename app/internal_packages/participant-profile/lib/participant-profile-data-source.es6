@@ -2,8 +2,8 @@ import { MailspringAPIRequest, Utils } from 'mailspring-exports';
 const { makeRequest } = MailspringAPIRequest;
 
 const CACHE_SIZE = 200;
-const CACHE_INDEX_KEY = 'pp-cache-keys';
-const CACHE_KEY_PREFIX = 'pp-cache-';
+const CACHE_INDEX_KEY = 'pp-cache-v3-keys';
+const CACHE_KEY_PREFIX = 'pp-cache-v3-';
 
 class ParticipantProfileDataSource {
   constructor() {
@@ -37,56 +37,15 @@ class ParticipantProfileDataSource {
       return {};
     }
 
-    let person = (body || {}).person;
-
-    // This means there was no data about the person available. Return a
-    // valid, but empty object for us to cache. This can happen when we
-    // have company data, but no personal data.
-    if (!person) {
-      person = { email };
+    if (!body.person) {
+      body.person = { email };
+    }
+    if (!body.company) {
+      body.company = {};
     }
 
-    const result = {
-      cacheDate: Date.now(),
-      email: email, // Used as checksum
-      bio:
-        person.bio ||
-        (person.twitter && person.twitter.bio) ||
-        (person.aboutme && person.aboutme.bio),
-      location: person.location || (person.geo && person.geo.city) || null,
-      currentTitle: person.employment && person.employment.title,
-      currentEmployer: person.employment && person.employment.name,
-      profilePhotoUrl: person.avatar,
-      rawClearbitData: body,
-      socialProfiles: this._socialProfiles(person),
-    };
-
-    this.setCache(email, result);
-    return result;
-  }
-
-  _socialProfiles(person = {}) {
-    const profiles = {};
-
-    if (((person.twitter && person.twitter.handle) || '').length > 0) {
-      profiles.twitter = {
-        handle: person.twitter.handle,
-        url: `https://twitter.com/${person.twitter.handle}`,
-      };
-    }
-    if (((person.facebook && person.facebook.handle) || '').length > 0) {
-      profiles.facebook = {
-        handle: person.facebook.handle,
-        url: `https://facebook.com/${person.facebook.handle}`,
-      };
-    }
-    if (((person.linkedin && person.linkedin.handle) || '').length > 0) {
-      profiles.linkedin = {
-        handle: person.linkedin.handle,
-        url: `https://linkedin.com/${person.linkedin.handle}`,
-      };
-    }
-    return profiles;
+    this.setCache(email, body);
+    return body;
   }
 
   // LocalStorage Retrieval / Saving

@@ -355,8 +355,12 @@ class DraftStore extends MailspringStore {
     // completely saved and the user won't see old content briefly.
     const session = await this.sessionForClientId(headerMessageId);
     await session.ensureCorrectAccount();
-    await session.changes.commit();
     let draft = session.draft();
+    console.log('1:');
+    console.log(JSON.stringify(draft));
+    await session.changes.commit();
+    console.log('2:');
+    console.log(JSON.stringify(session.draft()));
     await session.teardown();
 
     draft = await DraftHelpers.applyExtensionTransforms(draft);
@@ -368,6 +372,9 @@ class DraftStore extends MailspringStore {
     // Directly update the message body cache so the user immediately sees
     // the new message text (and never old draft text or blank text) sending.
     await MessageBodyProcessor.updateCacheForMessage(draft);
+
+    console.log('3:');
+    console.log(JSON.stringify(draft));
 
     // At this point the message UI enters the sending state and the composer is unmounted.
     this.trigger({ headerMessageId });
