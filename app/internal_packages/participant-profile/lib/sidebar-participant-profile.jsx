@@ -84,18 +84,18 @@ class SocialProfileLink extends React.Component {
 class TextBlockWithAutolinkedElements extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    string: PropTypes.string,
+    text: PropTypes.string,
   };
 
   render() {
-    if (!this.props.string) {
+    if (!this.props.text) {
       return false;
     }
 
     const nodes = [];
     const hashtagOrMentionRegex = RegExpUtils.hashtagOrMentionRegex();
 
-    let remainder = this.props.string;
+    let remainder = this.props.text;
     let match = null;
     let count = 0;
 
@@ -123,14 +123,14 @@ class TextBlockWithAutolinkedElements extends React.Component {
 
 class IconRow extends React.Component {
   static propTypes = {
-    string: PropTypes.string,
+    node: PropTypes.node,
     icon: PropTypes.string,
   };
 
   render() {
-    const { string, icon } = this.props;
+    const { node, icon } = this.props;
 
-    if (!string) {
+    if (!node) {
       return false;
     }
     return (
@@ -141,7 +141,7 @@ class IconRow extends React.Component {
           style={{ float: 'left' }}
         />
         <span className="selectable" style={{ display: 'block', marginLeft: 25 }}>
-          {string}
+          {node}
         </span>
       </div>
     );
@@ -150,21 +150,21 @@ class IconRow extends React.Component {
 
 class LocationRow extends React.Component {
   static propTypes = {
-    string: PropTypes.string,
+    location: PropTypes.string,
   };
 
   render() {
     return (
       <IconRow
         icon="location"
-        string={
-          this.props.string && (
+        node={
+          this.props.location && (
             <span>
-              {this.props.string}
+              {this.props.location}
               {' ['}
-              <a className="plain" href={`https://maps.google.com/?q=${this.props.string}`}>
+              <a className="plain" href={`https://maps.google.com/?q=${this.props.v}`}>
                 View
-              </a>
+              </a>f
               {']'}
             </span>
           )
@@ -335,11 +335,11 @@ export default class SidebarParticipantProfile extends React.Component {
         )}
 
         <div className="additional-info">
-          <TextBlockWithAutolinkedElements string={description} className="description" />
-          <LocationRow string={location} />
+          <TextBlockWithAutolinkedElements text={description} className="description" />
+          <LocationRow location={location} />
           <IconRow
             icon="timezone"
-            string={
+            node={
               timeZone && (
                 <span>
                   {`${timeZone.replace('_', ' ')} - `}
@@ -352,14 +352,14 @@ export default class SidebarParticipantProfile extends React.Component {
               )
             }
           />
-          <IconRow icon="industry" string={category && (category.industry || category.sector)} />
+          <IconRow icon="industry" node={category && (category.industry || category.sector)} />
           <IconRow
             icon="holding"
-            string={{ private: 'Privately Held', public: `Stock Symbol ${ticker}` }[type]}
+            node={{ private: 'Privately Held', public: `Stock Symbol ${ticker}` }[type]}
           />
-          <IconRow icon="phone" string={phone} />
-          <IconRow icon="employees" string={employees} />
-          <IconRow icon="funding" string={funding} />
+          <IconRow icon="phone" node={phone} />
+          <IconRow icon="employees" node={employees} />
+          <IconRow icon="funding" node={funding} />
 
           <div className="social-profiles-wrap">
             <SocialProfileLink service="facebook" handle={facebook && facebook.handle} />
@@ -408,8 +408,8 @@ export default class SidebarParticipantProfile extends React.Component {
         </div>
 
         <div className="additional-info">
-          <TextBlockWithAutolinkedElements string={bio} className="bio" />
-          <LocationRow string={location} />
+          <TextBlockWithAutolinkedElements text={bio} className="bio" />
+          <LocationRow location={location} />
         </div>
       </div>
     );

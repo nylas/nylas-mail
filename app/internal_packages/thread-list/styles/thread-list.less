@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 @scrollbar-margin: 8px;
 
@@ -21,7 +21,9 @@
     font-weight: @font-weight-normal;
   }
 
-  .thread-icon, .draft-icon, .mail-important-icon {
+  .thread-icon,
+  .draft-icon,
+  .mail-important-icon {
     -webkit-filter: brightness(600%) grayscale(100%);
   }
 
@@ -32,19 +34,21 @@
     box-shadow: none !important;
     -webkit-filter: brightness(600%) grayscale(100%);
   }
-
 }
 
 // STYLES
 
-*:focus, input:focus {
-  outline:none;
+*:focus,
+input:focus {
+  outline: none;
 }
 
-.thread-list, .draft-list {
-  .list-container, .scroll-region {
-    width:100%;
-    height:100%;
+.thread-list,
+.draft-list {
+  .list-container,
+  .scroll-region {
+    width: 100%;
+    height: 100%;
     -webkit-font-smoothing: subpixel-antialiased;
   }
 
@@ -73,7 +77,7 @@
       background-color: mix(#ed304b, @background-primary, 75%);
       &::after {
         transition: left linear 150ms, transform linear 150ms;
-        content: "Trash";
+        content: 'Trash';
         left: 0;
         background-image: url(../static/images/swipe/icon-swipe-trash@2x.png);
       }
@@ -86,12 +90,13 @@
         }
       }
     }
-    &.swipe-archive,&.swipe-all {
+    &.swipe-archive,
+    &.swipe-all {
       transition: background-color linear 150ms;
       background-color: mix(#6cd420, @background-primary, 75%);
       &::after {
         transition: left linear 150ms, transform linear 150ms;
-        content: "Archive";
+        content: 'Archive';
         left: 0;
         background-image: url(../static/images/swipe/icon-swipe-archive@2x.png);
       }
@@ -109,7 +114,7 @@
       background-color: mix(#8d6be3, @background-primary, 75%);
       &::after {
         transition: right linear 150ms, transform linear 150ms;
-        content: "Snooze";
+        content: 'Snooze';
         right: 0;
         background-image: url(../static/images/swipe/icon-swipe-snooze@2x.png);
       }
@@ -131,7 +136,7 @@
   }
 
   .mail-important-icon {
-    margin-left:6px;
+    margin-left: 6px;
     padding: 12px;
     vertical-align: initial;
     &:not(.active) {
@@ -147,13 +152,13 @@
   }
 
   .draft-icon {
-    margin-left:10px;
+    margin-left: 10px;
     flex-shrink: 0;
     object-fit: contain;
   }
 
   .participants {
-    font-size:   @font-size-small;
+    font-size: @font-size-small;
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
@@ -164,22 +169,22 @@
   }
 
   .details {
-    display:flex;
+    display: flex;
     align-items: center;
     overflow: hidden;
 
     .subject {
-      font-size:   @font-size-small;
+      font-size: @font-size-small;
       font-weight: @font-weight-normal;
       padding-right: @padding-base-horizontal;
       text-overflow: ellipsis;
       overflow: hidden;
 
       // Shrink, but only after snippet has shrunk
-      flex-shrink:0.1;
+      flex-shrink: 0.1;
     }
     .snippet {
-      font-size:   @font-size-small;
+      font-size: @font-size-small;
       font-weight: @font-weight-normal;
       text-overflow: ellipsis;
       overflow: hidden;
@@ -187,8 +192,8 @@
       flex: 1;
     }
     .thread-icon {
-      margin-right:@padding-base-horizontal;
-      margin-left:@padding-base-horizontal;
+      margin-right: @padding-base-horizontal;
+      margin-left: @padding-base-horizontal;
     }
   }
 
@@ -203,7 +208,7 @@
   .timestamp {
     font-size: @font-size-small;
     font-weight: @font-weight-normal;
-    min-width:70px;
+    min-width: 70px;
     margin-right: @scrollbar-margin;
     opacity: 0.62;
   }
@@ -250,31 +255,31 @@
     margin-right: 6px;
   }
   .thread-icon {
-    width:25px;
-    height:24px;
-    flex-shrink:0;
+    width: 25px;
+    height: 24px;
+    flex-shrink: 0;
     background-size: 15px;
-    display:inline-block;
+    display: inline-block;
     background-repeat: no-repeat;
-    background-position:center;
+    background-position: center;
 
     &.thread-icon-attachment {
-      background-image:url(../static/images/thread-list/icon-attachment-@2x.png);
-      margin-right:0;
-      margin-left:0;
+      background-image: url(../static/images/thread-list/icon-attachment-@2x.png);
+      margin-right: 0;
+      margin-left: 0;
     }
     &.thread-icon-unread {
-      background-image:url(../static/images/thread-list/icon-unread-@2x.png);
+      background-image: url(../static/images/thread-list/icon-unread-@2x.png);
     }
     &.thread-icon-replied {
-      background-image:url(../static/images/thread-list/icon-replied-@2x.png);
+      background-image: url(../static/images/thread-list/icon-replied-@2x.png);
     }
     &.thread-icon-forwarded {
-      background-image:url(../static/images/thread-list/icon-forwarded-@2x.png);
+      background-image: url(../static/images/thread-list/icon-forwarded-@2x.png);
     }
     &.thread-icon-star {
       background-size: 16px;
-      background-image:url(../static/images/thread-list/icon-star-@2x.png);
+      background-image: url(../static/images/thread-list/icon-star-@2x.png);
     }
   }
   .star-button {
@@ -283,11 +288,11 @@
       color: rgb(239, 209, 0);
       &:hover {
         cursor: pointer;
-        color: rgb(220,220,220);
+        color: rgb(220, 220, 220);
       }
     }
     .fa-star-o {
-      color: rgb(220,220,220);
+      color: rgb(220, 220, 220);
       &:hover {
         cursor: pointer;
         color: rgb(239, 209, 0);
@@ -296,14 +301,33 @@
   }
 }
 
+.thread-list-empty-folder-bar {
+  color: mix(@color-warning, @text-color, 30%);
+  background-color: mix(@color-warning, @background-primary, 20%);
+  border-bottom: 1px solid mix(@color-warning, @border-color-divider, 30%);
+  padding: @padding-base-vertical @padding-base-vertical @padding-base-vertical
+    @padding-base-horizontal * 1.5;
+  align-items: center;
+  display: flex;
+  font-size: 0.9em;
+  flex-shrink: 0;
+
+  .notice {
+    flex: 1;
+    padding-right: @padding-base-horizontal;
+  }
+  .btn {
+    flex-shrink: 0;
+  }
+}
 
 // quick actions
-@archive-img: "../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png";
-@trash-img: "../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png";
-@snooze-img: "../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png";
+@archive-img: '../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png';
+@trash-img: '../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png';
+@snooze-img: '../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png';
 
 .thread-list .list-item .list-column-HoverActions {
-  display:none;
+  display: none;
   .action {
     display: inline-block;
     background-size: 100%;
@@ -333,14 +357,14 @@ body.platform-win32 {
 .thread-list .list-item:hover .list-column-HoverActions {
   width: 0;
   padding: 0;
-  display:block;
+  display: block;
   overflow: visible;
-  height:100%;
+  height: 100%;
 
   .inner {
-    position:relative;
-    width:300px;
-    height:100%;
+    position: relative;
+    width: 300px;
+    height: 100%;
     left: -300px;
     .thread-injected-quick-actions {
       margin-right: 10px;
@@ -349,15 +373,30 @@ body.platform-win32 {
 }
 
 .thread-list .list-item:hover .list-column-HoverActions .inner {
-  background-image: -webkit-linear-gradient(left, fade(darken(@list-bg, 5%), 0%) 0%, darken(@list-bg, 5%) 50%, darken(@list-bg, 5%) 100%);
+  background-image: -webkit-linear-gradient(
+    left,
+    fade(darken(@list-bg, 5%), 0%) 0%,
+    darken(@list-bg, 5%) 50%,
+    darken(@list-bg, 5%) 100%
+  );
 }
 
 .thread-list .list-item.selected:hover .list-column-HoverActions .inner {
-  background-image: -webkit-linear-gradient(left, fade(@list-selected-bg, 0%) 0%, @list-selected-bg 50%, @list-selected-bg 100%);
+  background-image: -webkit-linear-gradient(
+    left,
+    fade(@list-selected-bg, 0%) 0%,
+    @list-selected-bg 50%,
+    @list-selected-bg 100%
+  );
 }
 
 .thread-list .list-item.focused:hover .list-column-HoverActions .inner {
-  background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
+  background-image: -webkit-linear-gradient(
+    left,
+    fade(@list-focused-bg, 0%) 0%,
+    @list-focused-bg 50%,
+    @list-focused-bg 100%
+  );
   .action {
     -webkit-filter: invert(100%) brightness(300%);
   }
@@ -372,28 +411,26 @@ body.platform-win32 {
   }
 }
 
-
 // stars
 
-.thread-list .thread-icon-star:hover
-{
-  background-image:url(../static/images/thread-list/icon-star-@2x.png);
+.thread-list .thread-icon-star:hover {
+  background-image: url(../static/images/thread-list/icon-star-@2x.png);
   background-size: 16px;
   -webkit-filter: brightness(90%);
 }
 .thread-list .list-item:hover .thread-icon-none:hover {
-  background-image:url(../static/images/thread-list/icon-star-action-hover-@2x.png);
+  background-image: url(../static/images/thread-list/icon-star-action-hover-@2x.png);
   background-size: 16px;
 }
 .thread-list .list-item:hover .thread-icon-none {
-  background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
+  background-image: url(../static/images/thread-list/icon-star-hover-@2x.png);
   background-size: 16px;
 }
 .thread-list .list-item:hover .mail-important-icon.enabled {
   visibility: inherit;
 }
 .thread-list .thread-icon-star-on-hover:hover {
-  background-image:url(../static/images/thread-list/icon-star-hover-@2x.png);
+  background-image: url(../static/images/thread-list/icon-star-hover-@2x.png);
   background-size: 16px;
 }
 
@@ -421,7 +458,7 @@ body.platform-win32 {
     }
   }
   .list-column {
-    display:block;
+    display: block;
   }
   .list-tabular-item {
     line-height: 21px;
@@ -435,8 +472,8 @@ body.platform-win32 {
   }
 
   .mail-important-icon {
-    margin-left:1px;
-    float:left;
+    margin-left: 1px;
+    float: left;
     padding: 12px;
     vertical-align: initial;
   }
@@ -466,7 +503,7 @@ body.platform-win32 {
       opacity: 0.7;
       text-align: left;
       min-height: 21px;
-      margin-right:4px;
+      margin-right: 4px;
     }
   }
 }
@@ -482,7 +519,12 @@ body.platform-win32 {
     }
   }
   .list-item.selected:hover .list-column-HoverActions .inner {
-    background-image: -webkit-linear-gradient(left, fade(@list-focused-bg, 0%) 0%, @list-focused-bg 50%, @list-focused-bg 100%);
+    background-image: -webkit-linear-gradient(
+      left,
+      fade(@list-focused-bg, 0%) 0%,
+      @list-focused-bg 50%,
+      @list-focused-bg 100%
+    );
     .action {
       -webkit-filter: invert(100%) brightness(300%);
     }

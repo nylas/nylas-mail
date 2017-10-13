@@ -2,6 +2,7 @@ import { ComponentRegistry, WorkspaceStore } from 'mailspring-exports';
 
 import ThreadList from './thread-list';
 import ThreadListToolbar from './thread-list-toolbar';
+import ThreadListEmptyFolderBar from './thread-list-empty-folder-bar';
 import MessageListToolbar from './message-list-toolbar';
 import SelectedItemsStack from './selected-items-stack';
 
@@ -16,6 +17,10 @@ import {
 } from './thread-toolbar-buttons';
 
 export function activate() {
+  ComponentRegistry.register(ThreadListEmptyFolderBar, {
+    location: WorkspaceStore.Location.ThreadList,
+  });
+
   ComponentRegistry.register(ThreadList, {
     location: WorkspaceStore.Location.ThreadList,
   });
