@@ -20,7 +20,7 @@ export default class AutoupdateImplBase extends EventEmitter {
   }
 
   emitError = err => {
-    this.emit('error', err.toString());
+    this.emit('error', err.message);
   };
 
   manuallyQueryUpdateServer(successCallback) {
@@ -54,7 +54,7 @@ export default class AutoupdateImplBase extends EventEmitter {
           this.emitError(err);
         }
       });
-    });
+    }).on('error', this.emitError);
   }
 
   /* Public: Check for updates and emit events if an update is available. */
