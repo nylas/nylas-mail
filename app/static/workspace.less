@@ -450,5 +450,15 @@ body.platform-linux {
   .item-compose {
     order: -101;
   }
+}
 
+// WINDOWS
+// The custom font looks blurry, system-ui looks better
+
+body.platform-win32 {
+  font-family: system-ui;
+
+  nylas-workspace {
+    font-family: system-ui;
+  }
 }
