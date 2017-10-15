@@ -1,4 +1,4 @@
-@import "variables";
+@import 'variables';
 
 .list-tabular .list-column.list-column-Item {
   margin-left: -20px;
@@ -10,7 +10,11 @@
     .list-item {
       &.focused:hover .list-column-HoverActions .inner {
         color: @taiga-dark !important;
-        background-image: linear-gradient(90deg, fadeout(@taiga-lighter, 100%) 0%, darken(@taiga-lighter, 10%) 100%);
+        background-image: linear-gradient(
+          90deg,
+          fadeout(@taiga-lighter, 100%) 0%,
+          darken(@taiga-lighter, 10%) 100%
+        );
         .action {
           -webkit-filter: none;
         }
@@ -22,7 +26,9 @@
       }
       &.focused {
         border-bottom: 0;
-        .thread-icon, .mail-important-icon, .draft-icon {
+        .thread-icon,
+        .mail-important-icon,
+        .draft-icon {
           -webkit-filter: none;
         }
       }

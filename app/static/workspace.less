@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 html,
 body {
@@ -36,7 +36,7 @@ nylas-workspace {
 }
 
 .sheet-container {
-  height:100%;
+  height: 100%;
 }
 
 .sheet {
@@ -44,34 +44,34 @@ nylas-workspace {
 }
 
 .sheet-stack-enter {
-  left:30px;
+  left: 30px;
   opacity: 0;
-  transition: all .125s ease-out;
+  transition: all 0.125s ease-out;
 }
 
 .sheet-stack-enter.sheet-stack-enter-active {
-  left:0;
+  left: 0;
   opacity: 1;
 }
 
 .sheet-stack-leave {
-  left:0;
+  left: 0;
   opacity: 1;
-  transition: all .125s ease-in;
+  transition: all 0.125s ease-in;
 }
 
 .sheet-stack-leave.sheet-stack-leave-active {
-  left:30px;
+  left: 30px;
   opacity: 0;
 }
 
 .toolbar-menu-control {
-  display:none;
+  display: none;
 }
 
 .toolbar-window-controls {
-  margin-top:9px;
-  margin-left:@spacing-half;
+  margin-top: 9px;
+  margin-left: @spacing-half;
   order: -1000;
   min-width: 72px;
   width: 72px;
@@ -86,12 +86,12 @@ nylas-workspace {
 
   button {
     -webkit-app-region: no-drag;
-    display:inline-block;
-    padding:0;
-    width:12px;
-    height:12px;
-    margin:4px;
-    float:left;
+    display: inline-block;
+    padding: 0;
+    width: 12px;
+    height: 12px;
+    margin: 4px;
+    float: left;
     background-color: transparent;
     background-repeat: no-repeat;
     background-position: 0 0;
@@ -102,17 +102,17 @@ nylas-workspace {
     }
   }
   .close {
-    background-image: url("images/application-frame/close@1x.png");
+    background-image: url('images/application-frame/close@1x.png');
   }
   .minimize {
-    background-image: url("images/application-frame/minimize@1x.png");
+    background-image: url('images/application-frame/minimize@1x.png');
   }
   .maximize {
-    background-image: url("images/application-frame/fullscreen@1x.png");
+    background-image: url('images/application-frame/fullscreen@1x.png');
   }
   &.alt-true {
     .maximize {
-      background-image: url("images/application-frame/maximize@1x.png");
+      background-image: url('images/application-frame/maximize@1x.png');
     }
   }
 }
@@ -120,17 +120,17 @@ nylas-workspace {
 @media (-webkit-min-device-pixel-ratio: 2) {
   .toolbar-window-controls {
     .close {
-      background-image: url("images/application-frame/close@2x.png");
+      background-image: url('images/application-frame/close@2x.png');
     }
     .minimize {
-      background-image: url("images/application-frame/minimize@2x.png");
+      background-image: url('images/application-frame/minimize@2x.png');
     }
     .maximize {
-      background-image: url("images/application-frame/fullscreen@2x.png");
+      background-image: url('images/application-frame/fullscreen@2x.png');
     }
     &.alt-true {
       .maximize {
-        background-image: url("images/application-frame/maximize@2x.png");
+        background-image: url('images/application-frame/maximize@2x.png');
       }
     }
   }
@@ -143,12 +143,19 @@ body.is-blurred {
     }
   }
   .sheet-toolbar-container {
-    background-image: -webkit-linear-gradient(top, lighten(@toolbar-background-color, 14%), lighten(@toolbar-background-color, 14%));
+    background-image: -webkit-linear-gradient(
+      top,
+      lighten(@toolbar-background-color, 14%),
+      lighten(@toolbar-background-color, 14%)
+    );
 
     .btn.btn-toolbar {
       background: none;
-      box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15);
-      img { opacity:0.5; }
+      box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15),
+        0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15);
+      img {
+        opacity: 0.5;
+      }
     }
     .item-container {
       .window-title {
@@ -159,8 +166,13 @@ body.is-blurred {
 }
 
 .sheet-toolbar-container {
-  background-image: -webkit-linear-gradient(lighten(@toolbar-background-color, 10%) 0%, lighten(@toolbar-background-color, 10%) 1.9%, lighten(@toolbar-background-color, 9%) 2%, @toolbar-background-color 100%);
-  color:@text-color-heading;
+  background-image: -webkit-linear-gradient(
+    lighten(@toolbar-background-color, 10%) 0%,
+    lighten(@toolbar-background-color, 10%) 1.9%,
+    lighten(@toolbar-background-color, 9%) 2%,
+    @toolbar-background-color 100%
+  );
+  color: @text-color-heading;
 }
 
 .layout-mode-popout {
@@ -183,7 +195,7 @@ body.is-blurred {
   position: relative;
   -webkit-app-region: drag;
   border-bottom: 1px solid darken(@toolbar-background-color, 9%);
-  width:  100%;
+  width: 100%;
   height: 38px;
 
   // prevent flexbox from ever, ever resizing toolbars, no matter
@@ -221,23 +233,29 @@ body.is-blurred {
   }
 
   .item-back {
-    order:-999;
-    img.content-mask { background-color: @text-color-heading; }
+    order: -999;
+    img.content-mask {
+      background-color: @text-color-heading;
+    }
     flex-grow: 0;
     flex-shrink: 0;
 
     .item-back-title {
       cursor: default;
-      color:@text-color-heading;
-      margin:0;
+      color: @text-color-heading;
+      margin: 0;
       font-size: @font-size-h4;
       font-weight: @font-weight-normal;
       vertical-align: middle;
-      display:inline-block;
+      display: inline-block;
     }
     &:active {
-      .item-back-title { color: mix(@text-color-heading, @black, 30%); }
-      img.content-mask { background-color: mix(@text-color-heading, @black, 30%); }
+      .item-back-title {
+        color: mix(@text-color-heading, @black, 30%);
+      }
+      img.content-mask {
+        background-color: mix(@text-color-heading, @black, 30%);
+      }
     }
   }
 
@@ -248,11 +266,15 @@ body.is-blurred {
     flex-shrink: 0;
     line-height: 1.75em;
     height: 1.75em;
-    box-shadow: 0 0.5px 0.05px rgba(0,0,0,0.4), 0 -0.5px 0 rgba(0,0,0,0.12);
-    img.content-mask { background-color: fade(@text-color-heading, 80%); }
+    box-shadow: 0 0.5px 0.05px rgba(0, 0, 0, 0.4), 0 -0.5px 0 rgba(0, 0, 0, 0.12);
+    img.content-mask {
+      background-color: fade(@text-color-heading, 80%);
+    }
   }
   .btn-toolbar:active {
-    img.content-mask { background-color: fade(@text-color-heading, 90%); }
+    img.content-mask {
+      background-color: fade(@text-color-heading, 90%);
+    }
   }
   .btn-toolbar:only-of-type {
     margin-right: @spacing-three-quarters;
@@ -260,21 +282,21 @@ body.is-blurred {
 }
 
 .opacity-125ms-enter {
-  opacity:0;
-  transition: opacity .125s ease-out;
+  opacity: 0;
+  transition: opacity 0.125s ease-out;
 }
 
 .opacity-125ms-enter.opacity-125ms-enter-active {
-  opacity:1;
+  opacity: 1;
 }
 
 .opacity-125ms-leave {
-  opacity:1;
-  transition: opacity .125s ease-in;
+  opacity: 1;
+  transition: opacity 0.125s ease-in;
 }
 
 .opacity-125ms-leave.opacity-125ms-leave-active {
-  opacity:0;
+  opacity: 0;
 }
 
 .flexbox-handle-horizontal {
@@ -285,60 +307,60 @@ body.is-blurred {
   position: absolute;
   cursor: col-resize;
   div {
-    height:100%;
+    height: 100%;
     box-shadow: 0.5px 0 0 @border-color-divider;
   }
 
   &.flexbox-handle-right {
-    right:-4px;
-    padding-right:4px;
+    right: -4px;
+    padding-right: 4px;
   }
   &.flexbox-handle-left {
-    left:-4px;
-    padding-right:4px;
+    left: -4px;
+    padding-right: 4px;
   }
 }
 
 .flexbox-handle-vertical {
-  width:100%;
-  height:6px;
-  left:0;
-  right:0;
-  z-index:2;
-  position:absolute;
+  width: 100%;
+  height: 6px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  position: absolute;
   cursor: row-resize;
   div {
-    width:100%;
+    width: 100%;
   }
   &.flexbox-handle-top {
-    top:-3px;
-    padding-right:3px;
+    top: -3px;
+    padding-right: 3px;
   }
   &.flexbox-handle-bottom {
     bottom: 0;
-    padding-right:2px;
+    padding-right: 2px;
   }
 }
 
 .registered-region-visible {
-  border: 1px dashed rgba(255,0,0,0.5);
+  border: 1px dashed rgba(255, 0, 0, 0.5);
   margin: 2px;
-  position:relative;
-  min-height:1.5em;
+  position: relative;
+  min-height: 1.5em;
   > .name {
-    background-color: rgba(255,180,180,0.9);
+    background-color: rgba(255, 180, 180, 0.9);
     position: absolute;
     color: black;
     font-size: 13px;
-    top:50%;
-    left:50%;
+    top: 50%;
+    left: 50%;
     white-space: nowrap;
-    z-index:100;
+    z-index: 100;
     -webkit-transform: translate(-50%, -50%);
-    -webkit-user-select:text;
+    -webkit-user-select: text;
   }
   &:hover {
-    border: 1px dashed rgba(255,0,0,1);
+    border: 1px dashed rgba(255, 0, 0, 1);
   }
 }
 
@@ -347,8 +369,8 @@ body.is-blurred {
 body.platform-win32 {
   &.window-type-default {
     .toolbar-menu-control {
-      display:inherit;
-      order:10000;
+      display: inherit;
+      order: 10000;
       .btn-toolbar {
         margin-left: 0;
         padding: 0 17px;
@@ -359,7 +381,6 @@ body.platform-win32 {
         }
       }
     }
-
   }
 
   .item-compose {
@@ -371,14 +392,14 @@ body.platform-win32 {
   }
 
   .flexbox-handle-vertical {
-    cursor:ns-resize;
+    cursor: ns-resize;
   }
   .flexbox-handle-horizontal {
-    cursor:ew-resize;
+    cursor: ew-resize;
   }
 
   .toolbar-window-controls {
-    display:none;
+    display: none;
   }
 
   .sheet-toolbar-container {
@@ -400,8 +421,12 @@ body.platform-win32 {
   }
   .btn-feedback {
     background: @blue;
-    &:hover { background: lighten(@blue, 5%); }
-    &:active { background: lighten(@blue, 20%); }
+    &:hover {
+      background: lighten(@blue, 5%);
+    }
+    &:active {
+      background: lighten(@blue, 20%);
+    }
   }
 }
 
@@ -416,10 +441,11 @@ body.platform-win32.is-blurred {
 }
 
 // LINUX
+// Move the compose button, hide close / minimize / maximize
 
 body.platform-linux {
   .toolbar-window-controls {
-    display:none;
+    display: none;
   }
   .item-compose {
     order: -101;

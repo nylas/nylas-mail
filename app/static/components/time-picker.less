@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 .time-picker-wrap {
   display: inline-block;
@@ -21,7 +21,7 @@
     background: @background-primary;
     border-top: 0;
     border-radius: 0 0 @border-radius-base @border-radius-base;
-    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
 
     &.relative-to {
       width: 120px;
@@ -40,8 +40,9 @@
           background: transparent;
         }
       }
-      &.focused, &:hover {
-        background: rgba(0,0,0,0.05);
+      &.focused,
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
       }
       .rel-text {
         font-size: 0.8em;

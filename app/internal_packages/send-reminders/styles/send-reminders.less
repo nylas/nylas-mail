@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 @reminders-background-color: #f2efff;
 @reminders-color: #5a31e1;
 
@@ -84,18 +84,19 @@
     }
   }
 
-  &.focused,&.selected {
+  &.focused,
+  &.selected {
     background: @list-focused-bg;
   }
   .thread-icon-reminder-triggered {
     margin-top: 1px;
-    background-image:url(../static/images/thread-list/icon-reminder@2x.png);
+    background-image: url(../static/images/thread-list/icon-reminder@2x.png);
   }
 }
 
 .thread-list .list-item {
   .thread-icon-reminder-pending {
     margin-top: 1px;
-    background-image:url(../static/images/thread-list/icon-reminder-outline@2x.png);
+    background-image: url(../static/images/thread-list/icon-reminder-outline@2x.png);
   }
 }

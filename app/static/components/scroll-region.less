@@ -1,25 +1,27 @@
-@import "ui-variables";
+@import 'ui-variables';
 
-@tooltipBorderColor: rgba(54, 56, 57, 0.9);
-@tooltipBackground: -webkit-gradient(linear, left top, left bottom, from(rgba(99, 102, 103, 0.9)), to(rgba(82, 85, 86, 0.9)));
+@tooltip-border-color: rgba(54, 56, 57, 0.9);
+@tooltip-background: -webkit-gradient(linear, left top, left bottom, from(rgba(99, 102, 103, 0.9)), to(rgba(82, 85, 86, 0.9)));
 
 .scroll-tooltip {
-  background: @tooltipBackground;
+  background: @tooltip-background;
   color: white;
   box-shadow: 0 2px 7px rgba(0, 0, 0, 0.25);
-  padding: @padding-base-vertical @padding-base-horizontal @padding-base-vertical @padding-base-horizontal;
-  border: 1px solid @tooltipBorderColor;
+  padding: @padding-base-vertical @padding-base-horizontal @padding-base-vertical
+    @padding-base-horizontal;
+  border: 1px solid @tooltip-border-color;
   border-radius: @border-radius-base;
   transform: translate(-15px, 0);
   position: relative;
-  white-space:nowrap;
+  white-space: nowrap;
   pointer-events: none;
 }
-.scroll-tooltip:after, .scroll-tooltip:before {
+.scroll-tooltip:after,
+.scroll-tooltip:before {
   left: 100%;
   top: 50%;
   border: solid transparent;
-  content: " ";
+  content: ' ';
   height: 0;
   width: 0;
   position: absolute;
@@ -33,18 +35,17 @@
 }
 .scroll-tooltip:before {
   border-color: transparent;
-  border-left-color: darken(@tooltipBorderColor, 20%);
+  border-left-color: darken(@tooltip-border-color, 20%);
   border-width: 9px;
   margin-top: -9px;
 }
-
 
 .scroll-region {
   ::-webkit-scrollbar {
     display: none;
   }
 
-  position:relative;
+  position: relative;
 
   .scroll-region-content {
     position: absolute;
@@ -56,7 +57,7 @@
   }
 
   .scroll-region-content-inner {
-    transform:translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -71,8 +72,8 @@
   opacity: 0;
   transition: opacity 0.3s;
   transition-delay: 0.5s;
-  padding:3px;
-  width:17px;
+  padding: 3px;
+  width: 17px;
   background: @list-bg;
   border-left: 1px solid @border-color-divider;
 
@@ -96,26 +97,26 @@
     .scrollbar-handle {
       cursor: default;
       background-color: lighten(@gray, 30%);
-      border:1px solid lighten(@gray, 20%);
+      border: 1px solid lighten(@gray, 20%);
       .tooltip {
         opacity: 1;
-        display:block;
+        display: block;
       }
     }
   }
 
   /* Used to read the track height with padding applied. */
   .scrollbar-track-inner {
-    height:100%;
+    height: 100%;
   }
 
   .scrollbar-handle {
     background-color: lighten(@gray, 40%);
-    border:1px solid lighten(@gray, 30%);
-    border-radius:8px;
+    border: 1px solid lighten(@gray, 30%);
+    border-radius: 8px;
     .tooltip {
       opacity: 0;
-      display:none;
+      display: none;
       transition: opacity 0.3s;
       top: 50%;
       transform: translate(-100%, -50%);
@@ -141,7 +142,7 @@
       left: 5%;
       height: 2px;
       background: @text-color-search-match;
-      box-shadow: 0 0.5px 0.5px rgba(0,0,0,0.25);
+      box-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.25);
     }
   }
 }

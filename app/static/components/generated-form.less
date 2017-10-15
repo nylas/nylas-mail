@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 @spacing-form: 22px;
 @form-margin: 15px;
@@ -20,7 +20,8 @@ body.platform-win32 {
   }
 }
 
-body.is-blurred, body.platform-win32.is-blurred {
+body.is-blurred,
+body.platform-win32.is-blurred {
   .generated-form {
     .tokenizing-field {
       &.focused {
@@ -48,8 +49,8 @@ body.is-blurred, body.platform-win32.is-blurred {
     margin: 0;
     padding: 22px @spacing-form 22px @spacing-form;
     border: 0;
-    border-top: 1px solid rgba(0,0,0,0.08);
-    border-bottom: 1px solid rgba(0,0,0,0.03);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
     &:first-child {
       border-top: 0;
     }
@@ -81,7 +82,9 @@ body.is-blurred, body.platform-win32.is-blurred {
   .form-item {
     display: flex;
     margin-top: @form-margin;
-    &:first-child { margin-top: 0; }
+    &:first-child {
+      margin-top: 0;
+    }
     flex-direction: column;
 
     &.invalid {
@@ -120,7 +123,9 @@ body.is-blurred, body.platform-win32.is-blurred {
       margin-top: 0.3em;
     }
 
-    input, select[multiple], textarea {
+    input,
+    select[multiple],
+    textarea {
       padding: 5px 8px;
     }
     .tokenizing-field-input {

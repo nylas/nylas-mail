@@ -1,13 +1,13 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 @code-bg-color: #fcf4db;
 
 .template-picker {
   .content-container {
-    height:150px;
+    height: 150px;
     width: 210px;
-    overflow-y:scroll;
+    overflow-y: scroll;
   }
   .footer-container {
     border-top: 1px solid @border-color-secondary;
@@ -19,25 +19,26 @@
   color: darken(@code-bg-color, 70%);
   border: 1.5px solid darken(@code-bg-color, 10%);
   border-radius: @border-radius-small;
-  padding-top: @padding-small-vertical @padding-small-horizontal @padding-small-vertical @padding-small-horizontal;
+  padding-top: @padding-small-vertical @padding-small-horizontal @padding-small-vertical
+    @padding-small-horizontal;
   font-size: @font-size-small;
   margin-bottom: 10px;
 }
 
-.compose-body,.container-templates .contenteditable {
+.compose-body,
+.container-templates .contenteditable {
   code.var {
     font: inherit;
-    padding:0;
-    padding-left:2px;
-    padding-right:2px;
+    padding: 0;
+    padding-left: 2px;
+    padding-right: 2px;
     border-bottom: 1.5px solid darken(@code-bg-color, 10%);
     background-color: @code-bg-color;
     &.empty {
-      color:darken(@code-bg-color, 50%);
+      color: darken(@code-bg-color, 50%);
     }
   }
 }
-
 
 .container-templates {
   max-width: 640px;
@@ -90,48 +91,49 @@
     }
   }
 
-
   .section-body {
     padding: 10px 0 0 0;
 
     .menu {
-      border: solid thin #CCC;
+      border: solid thin #ccc;
       margin-right: 5px;
       min-height: 200px;
       .menu-items {
-        margin:0;
-        padding:0;
+        margin: 0;
+        padding: 0;
         list-style: none;
 
-        li { padding: 6px; }
+        li {
+          padding: 6px;
+        }
       }
     }
     .menu-horizontal {
       height: 100%;
       .menu-items {
-        height:100%;
+        height: 100%;
         margin: 0;
         padding: 0;
         list-style: none;
         li {
-          text-align:center;
-          width:40px;
-          display:inline-block;
-          padding:8px 16px 8px 16px;
-          border-right: solid thin #CCC;
+          text-align: center;
+          width: 40px;
+          display: inline-block;
+          padding: 8px 16px 8px 16px;
+          border-right: solid thin #ccc;
         }
       }
     }
     .template-area {
-      border: solid thin #CCC;
+      border: solid thin #ccc;
       min-height: 200px;
     }
     .menu-footer {
-      border: solid thin #CCC;
+      border: solid thin #ccc;
       overflow: auto;
     }
     .template-footer {
-      border: solid thin #CCC;
+      border: solid thin #ccc;
       overflow: auto;
 
       .edit-html-button {
@@ -150,7 +152,7 @@
     width: 100px;
   }
   .editor-note {
-    color: #AAA;
+    color: #aaa;
     font-size: small;
     margin-top: 5px;
   }

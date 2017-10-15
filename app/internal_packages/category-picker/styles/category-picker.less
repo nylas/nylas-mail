@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 @popover-width: 250px;
 
@@ -28,7 +28,6 @@ body.platform-win32 {
       height: 2px;
       padding: 0;
     }
-
   }
 
   .btn.btn-toolbar {
@@ -49,11 +48,12 @@ body.platform-win32 {
   .item {
     img.content-mask {
       position: relative;
-      top:3px;
+      top: 3px;
       background-color: @text-color-subtle;
     }
   }
-  .item.selected, .item.active {
+  .item.selected,
+  .item.active {
     img.content-mask {
       background-color: @text-color-inverse;
     }

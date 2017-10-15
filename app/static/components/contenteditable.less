@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 .contenteditable-container {
   flex: 1;
@@ -9,7 +9,8 @@
   font-size: @font-size;
   padding-bottom: 15px;
 
-  div[contenteditable], .contenteditable {
+  div[contenteditable],
+  .contenteditable {
     flex: 1;
 
     // Subtle: overflow is required to make the composer wrap
@@ -35,11 +36,11 @@
     position: absolute;
 
     background: #fff;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.19), inset 0 0 1px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), inset 0 0 1px rgba(0, 0, 0, 0.5);
     border-radius: @border-radius-large;
     color: @text-color;
 
-    transition-duration: .15s;
+    transition-duration: 0.15s;
     transition-property: opacity, margin;
     margin-top: 0;
 
@@ -108,7 +109,8 @@
       &:last-child {
         padding-right: 1.5*@padding;
       }
-      &:hover, &:active {
+      &:hover,
+      &:active {
         color: lighten(@text-color-link, 10%);
         background: transparent;
       }
@@ -130,24 +132,42 @@
       box-shadow: none;
       border: 0;
       border-right: 1px solid @border-color-divider;
-      &:last-child { border-right: 0 }
+      &:last-child {
+        border-right: 0;
+      }
 
       background: no-repeat;
       background-size: 12.5px 12.5px;
       background-position: @padding-left @padding-top;
-      &.btn-bold { background-image: url("images/composer/tooltip-bold-black@2x.png") }
-      &.btn-italic { background-image: url("images/composer/tooltip-italic-black@2x.png") }
-      &.btn-underline { background-image: url("images/composer/tooltip-underline-black@2x.png") }
-      &.btn-link { background-image: url("images/composer/tooltip-link-black@2x.png") }
+      &.btn-bold {
+        background-image: url('images/composer/tooltip-bold-black@2x.png');
+      }
+      &.btn-italic {
+        background-image: url('images/composer/tooltip-italic-black@2x.png');
+      }
+      &.btn-underline {
+        background-image: url('images/composer/tooltip-underline-black@2x.png');
+      }
+      &.btn-link {
+        background-image: url('images/composer/tooltip-link-black@2x.png');
+      }
       &:hover {
         cursor: pointer;
         background: no-repeat;
         background-size: 12.5px 12.5px;
         background-position: @padding-left @padding-top;
-        &.btn-bold { background-image: url("images/composer/tooltip-bold-blue@2x.png") }
-        &.btn-italic { background-image: url("images/composer/tooltip-italic-blue@2x.png") }
-        &.btn-underline { background-image: url("images/composer/tooltip-underline-blue@2x.png") }
-        &.btn-link { background-image: url("images/composer/tooltip-link-blue@2x.png") }
+        &.btn-bold {
+          background-image: url('images/composer/tooltip-bold-blue@2x.png');
+        }
+        &.btn-italic {
+          background-image: url('images/composer/tooltip-italic-blue@2x.png');
+        }
+        &.btn-underline {
+          background-image: url('images/composer/tooltip-underline-blue@2x.png');
+        }
+        &.btn-link {
+          background-image: url('images/composer/tooltip-link-blue@2x.png');
+        }
       }
     }
   }
@@ -157,7 +177,8 @@ body.platform-win32 {
   .contenteditable-container {
     .floating-toolbar {
       border-radius: 0;
-      input, input:focus {
+      input,
+      input:focus {
         box-shadow: none;
       }
     }

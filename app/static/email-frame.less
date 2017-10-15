@@ -45,11 +45,12 @@
     font-style: normal;
     font-weight: 600;
     src: url('mailspring://custom-fonts/fonts/Custom-Normal.otf'), Helvetica, sans-serif;
-    unicode-range: U+1F300-1F5FF, U+1F600-1F64F, U+1F680-1F6FF, U+2600-26FF;
+    unicode-range: U+1f300-1f5ff, U+1f600-1f64f, U+1f680-1f6ff, U+2600-26ff;
   }
 
-  html, body {
-    font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif;
+  html,
+  body {
+    font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif;
     font-size: 14.5px;
     line-height: 1.5;
     color: @text-color;
@@ -60,10 +61,14 @@
     overflow-x: auto;
 
     -webkit-text-size-adjust: auto;
-    word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;
+    word-wrap: break-word;
+    -webkit-nbsp-mode: space;
+    -webkit-line-break: after-white-space;
   }
 
-  strong, b, .bold {
+  strong,
+  b,
+  .bold {
     font-weight: 600;
   }
 
@@ -95,7 +100,8 @@
     overflow-y: hidden;
   }
 
-  div,pre {
+  div,
+  pre {
     max-width: 100%;
   }
 
@@ -103,7 +109,7 @@
     // The default font for <pre> tags is the system monospace font. We want
     // themes to be able to override with monospace, but not have that be the
     // default for normal people.
-    font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif;
+    font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif;
     white-space: pre-wrap;
     word-wrap: break-word;
   }
@@ -112,10 +118,11 @@
     border: 0;
   }
 
-  search-match, .search-match {
+  search-match,
+  .search-match {
     background: @text-color-search-match;
     border-radius: @border-radius-base;
-    box-shadow: 0 0.5px 0.5px rgba(0,0,0,0.25);
+    box-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.25);
     &.current-match {
       background: @text-color-search-current-match;
     }

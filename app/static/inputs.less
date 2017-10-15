@@ -1,24 +1,24 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
-input[type="text"],
-input[type="email"],
-input[type="date"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="month"],
-input[type="number"],
-input[type="password"],
-input[type="range"],
-input[type="search"],
-input[type="tel"],
-input[type="time"],
-input[type="url"] {
+input[type='text'],
+input[type='email'],
+input[type='date'],
+input[type='datetime'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='number'],
+input[type='password'],
+input[type='range'],
+input[type='search'],
+input[type='tel'],
+input[type='time'],
+input[type='url'] {
   width: 100%;
   padding-left: @padding-xs-horizontal;
   padding-right: @padding-xs-horizontal;
   line-height: @line-height-computed;
-  font-weight:400;
+  font-weight: 400;
   background: @input-bg;
   color: @text-color;
 
@@ -26,26 +26,26 @@ input[type="url"] {
   border: 1px solid @input-border-color;
 
   &:disabled {
-    background: rgba(0,0,0,0.02);
+    background: rgba(0, 0, 0, 0.02);
     opacity: 0.7;
   }
 }
 
 .search-bar .menu .header-container input,
 textarea,
-input[type="text"],
-input[type="email"],
-input[type="date"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="month"],
-input[type="number"],
-input[type="password"],
-input[type="range"],
-input[type="search"],
-input[type="tel"],
-input[type="time"],
-input[type="url"] {
+input[type='text'],
+input[type='email'],
+input[type='date'],
+input[type='datetime'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='number'],
+input[type='password'],
+input[type='range'],
+input[type='search'],
+input[type='tel'],
+input[type='time'],
+input[type='url'] {
   &:focus {
     border: 1px solid @accent-primary;
     box-shadow: 0 0 1.5px @accent-primary;
@@ -53,19 +53,19 @@ input[type="url"] {
 }
 
 body.platform-win32 {
-  input[type="text"],
-  input[type="email"],
-  input[type="date"],
-  input[type="datetime"],
-  input[type="datetime-local"],
-  input[type="month"],
-  input[type="number"],
-  input[type="password"],
-  input[type="range"],
-  input[type="search"],
-  input[type="tel"],
-  input[type="time"],
-  input[type="url"] {
+  input[type='text'],
+  input[type='email'],
+  input[type='date'],
+  input[type='datetime'],
+  input[type='datetime-local'],
+  input[type='month'],
+  input[type='number'],
+  input[type='password'],
+  input[type='range'],
+  input[type='search'],
+  input[type='tel'],
+  input[type='time'],
+  input[type='url'] {
     border: 0;
     border-radius: 0;
     box-shadow: 0 0 0 2px @input-border-color;

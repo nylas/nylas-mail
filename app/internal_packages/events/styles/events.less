@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 .event-wrapper {
   cursor: default;
@@ -62,14 +62,17 @@
 
       .btn-rsvp {
         float: left;
-        padding: @spacing-three-quarters @spacing-standard * 1.75 @spacing-three-quarters @spacing-standard * 1.75;
+        padding: @spacing-three-quarters @spacing-standard * 1.75 @spacing-three-quarters
+          @spacing-standard * 1.75;
         line-height: 10px;
         color: @text-color;
         border-radius: 3px;
         background: @background-primary;
         box-shadow: @standard-shadow;
         margin: 0 7.5px 0 7.5px;
-        &:active {background: transparent;}
+        &:active {
+          background: transparent;
+        }
 
         &.no {
           background: @color-error;

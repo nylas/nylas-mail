@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 .toolbar-activity {
   order: 100;
@@ -44,16 +44,16 @@
   }
 
   .empty {
-      text-align: center;
-      padding: @padding-base-horizontal * 2;
-      padding-top: @padding-base-vertical * 8;
-      img.logo {
-        background-color: @text-color-very-subtle;
-      }
-      .text {
-        margin-top: @padding-base-vertical * 6;
-        color: @text-color-very-subtle;
-      }
+    text-align: center;
+    padding: @padding-base-horizontal * 2;
+    padding-top: @padding-base-vertical * 8;
+    img.logo {
+      background-color: @text-color-very-subtle;
+    }
+    .text {
+      margin-top: @padding-base-vertical * 6;
+      color: @text-color-very-subtle;
+    }
   }
 
   .activity-list-item {
@@ -86,7 +86,8 @@
     .activity-icon {
       vertical-align: text-bottom;
     }
-    .action-message, .title {
+    .action-message,
+    .title {
       text-overflow: ellipsis;
       overflow: hidden;
     }
@@ -105,7 +106,7 @@
     cursor: default;
     overflow-y: hidden;
     transition-property: all;
-    transition-duration: .5s;
+    transition-duration: 0.5s;
     transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
     &:last-child {
       border-bottom: 1px solid @border-color-primary;

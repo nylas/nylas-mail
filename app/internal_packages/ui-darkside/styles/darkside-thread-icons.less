@@ -1,4 +1,4 @@
-@import "darkside-variables";
+@import 'darkside-variables';
 
 // Remove inverted color effects
 .thread-list .focused .thread-icon,
@@ -31,7 +31,9 @@
 .thread-list .list-item:hover .thread-icon.thread-icon-unread {
   background-color: tint(@sidebar);
   -webkit-mask-image: url(../static/images/thread-list/icon-star-@2x.png);
-  &:hover { background-color: tint(@sidebar, 20%); }
+  &:hover {
+    background-color: tint(@sidebar, 20%);
+  }
 }
 
 // Replace outlined star icon with solid one
@@ -65,7 +67,12 @@
 .thread-list .list-item.focused:hover .list-column-HoverActions .inner,
 .thread-list .list-item.selected:hover .list-column-HoverActions .inner,
 .thread-list.handler-split .list-item.selected:hover .list-column-HoverActions .inner {
-  background-image: -webkit-linear-gradient(left, fade(@messagelist-bg, 0%) 0%, @messagelist-bg 40%, @messagelist-bg 100%);
+  background-image: -webkit-linear-gradient(
+    left,
+    fade(@messagelist-bg, 0%) 0%,
+    @messagelist-bg 40%,
+    @messagelist-bg 100%
+  );
 }
 
 .thread-list .list-item.focused:hover .list-column-HoverActions .inner .action,
@@ -74,5 +81,7 @@
 }
 
 .thread-list .list-item.focused:hover .list-column-HoverActions .inner .action.action-trash {
-  background: url("../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png") center no-repeat, linear-gradient(to top, rgba(241, 241, 241, 0.75) 0%, rgba(253, 253, 253, 0.75) 100%);
+  background: url('../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png') center
+      no-repeat,
+    linear-gradient(to top, rgba(241, 241, 241, 0.75) 0%, rgba(253, 253, 253, 0.75) 100%);
 }

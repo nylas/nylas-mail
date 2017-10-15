@@ -1,7 +1,6 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 .nylas-editable-list {
-
   .items-wrapper .selected.editing,
   &:focus .items-wrapper .selected {
     color: @component-active-bg;
@@ -22,14 +21,14 @@
     }
 
     .insertion-point {
-      display:block;
-      width:100%;
+      display: block;
+      width: 100%;
       height: 0;
       position: relative;
       pointer-events: none;
 
       div {
-        height:2px;
+        height: 2px;
         width: 100%;
         position: absolute;
         top: -1px;
@@ -61,7 +60,7 @@
         }
       }
 
-      &>input {
+      & > input {
         border: none;
         padding: 0;
         color: @component-active-bg;
@@ -79,7 +78,7 @@
     }
 
     .create-item-input {
-      &>input {
+      & > input {
         padding: (@padding-small-vertical - 1) @padding-small-horizontal;
         border: none;
         border-bottom: 1px solid @border-color-divider;

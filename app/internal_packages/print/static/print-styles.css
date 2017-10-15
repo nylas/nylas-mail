@@ -5,7 +5,7 @@ body {
   background: transparent;
 }
 #print-button {
-  float:right;
+  float: right;
   margin-left: 10px;
 
   /* From main button styles: */
@@ -33,11 +33,11 @@ body {
 #print-header .logo-wrapper {
   display: flex;
   align-items: center;
-  font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif !important;
+  font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
 }
 #print-header h1 {
   font-size: 1.5em !important;
-  font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif !important;
+  font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
 }
 #print-header .account {
   margin-left: auto;
@@ -45,32 +45,42 @@ body {
 }
 #print-header .participant {
   font-size: 0.7em;
-  font-family: "Nylas-Pro", "Helvetica", "Lucidia Grande", sans-serif !important;
+  font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif !important;
 }
 
 /* Elements to hide */
 .message-subject-wrap {
   display: none !important;
 }
-.minified-bundle,.headers,.scrollbar-track,.message-icons-wrap,.header-toggle-control {
+.minified-bundle,
+.headers,
+.scrollbar-track,
+.message-icons-wrap,
+.header-toggle-control {
   display: none !important;
 }
 .message-actions-wrap {
   display: none;
 }
-.collapsed.message-item-wrap,.draft.message-item-wrap {
+.collapsed.message-item-wrap,
+.draft.message-item-wrap {
   display: none !important;
 }
-.message-item-area>div {
+.message-item-area > div {
   display: none !important;
 }
-.quoted-text-control, .footer-reply-area-wrap {
+.quoted-text-control,
+.footer-reply-area-wrap {
   display: none;
 }
 
 @media only print {
-  body,#message-list,.message-item-wrap,.message-item-white-wrap,
-  .message-item-area,.inbox-html-wrapper {
+  body,
+  #message-list,
+  .message-item-wrap,
+  .message-item-white-wrap,
+  .message-item-area,
+  .inbox-html-wrapper {
     display: block !important;
     width: auto !important;
     height: auto !important;
@@ -88,10 +98,10 @@ body {
   .message-item-wrap {
     display: block;
   }
-  .message-item-area>span {
+  .message-item-area > span {
     page-break-before: avoid;
   }
-  .message-item-area>header {
+  .message-item-area > header {
     page-break-after: avoid;
   }
 }

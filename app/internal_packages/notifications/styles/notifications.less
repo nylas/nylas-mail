@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 .sidebar-activity-transition-wrapper {
   order: 2;
@@ -14,18 +14,24 @@
   background: @background-off-primary;
   font-size: @font-size-small;
   color: @text-color-subtle;
-  line-height:@line-height-computed * 0.95;
-  box-shadow:inset 0 1px 0 @border-color-divider;
-  &:hover { cursor: default }
-
+  line-height: @line-height-computed * 0.95;
+  box-shadow: inset 0 1px 0 @border-color-divider;
+  &:hover {
+    cursor: default;
+  }
 
   .item {
-    &:hover { cursor: default }
-    .clickable { cursor: pointer; }
+    &:hover {
+      cursor: default;
+    }
+    .clickable {
+      cursor: pointer;
+    }
 
     .inner {
-      padding: @padding-large-vertical @padding-base-horizontal @padding-large-vertical @padding-base-horizontal;
-      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding: @padding-large-vertical @padding-base-horizontal @padding-large-vertical
+        @padding-base-horizontal;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
       .ellipsis1 {
         animation: show-ellipsis 3s 0s infinite;
@@ -39,18 +45,18 @@
     }
     .count {
       color: @text-color-very-subtle;
-      float:right;
+      float: right;
     }
     .btn {
-      display:block;
-      text-align:center;
-      margin-top:4px;
-      margin-bottom:4px;
+      display: block;
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
       font-size: @font-size-small;
     }
     // TODO: Necessary for Chromium 42 to render `activity-opacity-leave` animation
     // properly. Removing position relative causes the div to remain visible
-    position:relative;
+    position: relative;
     opacity: 1;
 
     .account-detail-area {
@@ -60,8 +66,9 @@
     }
     &.expanded-sync {
       .account {
-        padding: @padding-base-vertical @padding-base-horizontal @padding-large-vertical*1.5 @padding-base-horizontal;
-        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding: @padding-base-vertical @padding-base-horizontal @padding-large-vertical*1.5
+          @padding-base-horizontal;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
         .model-progress::before {
           height: 10px;
@@ -132,27 +139,27 @@
 }
 
 .activity-opacity-enter {
-  opacity:0;
-  transition: opacity .125s ease-out;
+  opacity: 0;
+  transition: opacity 0.125s ease-out;
 }
 
 .activity-opacity-enter.activity-opacity-enter-active {
-  opacity:1;
+  opacity: 1;
 }
 
 .activity-opacity-leave {
-  opacity:1;
-  transition: opacity .125s ease-in;
+  opacity: 1;
+  transition: opacity 0.125s ease-in;
   transition-delay: 0.5s;
 }
 
 .activity-opacity-leave.activity-opacity-leave-active {
   transition-delay: 0.5s;
-  opacity:0;
+  opacity: 0;
 }
 
 .notifications-sticky {
-  width:100%;
+  width: 100%;
 
   .notification-info {
     background-color: @background-color-info;
@@ -161,51 +168,57 @@
     background-color: #615396;
   }
   .notification-upgrade {
-    background-image: -webkit-linear-gradient(bottom, #429E91, #40b1ac);
-    img { background-color: @text-color-inverse; }
+    background-image: -webkit-linear-gradient(bottom, #429e91, #40b1ac);
+    img {
+      background-color: @text-color-inverse;
+    }
   }
   .notification-error {
-    background: linear-gradient(to top, darken(@background-color-error, 4%) 0%, @background-color-error 100%);
+    background: linear-gradient(
+      to top,
+      darken(@background-color-error, 4%) 0%,
+      @background-color-error 100%
+    );
     border-color: @background-color-error;
     color: @color-error;
   }
   .notification-offline {
-    background: linear-gradient(to top, darken(#CC9900, 4%) 0%, #CC9900 100%);
-    border-color: darken(#CC9900, 5%);
+    background: linear-gradient(to top, darken(#cc9900, 4%) 0%, #cc9900 100%);
+    border-color: darken(#cc9900, 5%);
   }
 
   .notifications-sticky-item {
-    display:flex;
+    display: flex;
     font-size: @font-size-base;
     color: @text-color-inverse;
-    border-bottom:1px solid rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
     padding-left: @padding-base-horizontal;
     line-height: @line-height-base * 1.5;
     align-items: baseline;
     a {
       flex-shrink: 0;
-      color:@text-color-inverse;
+      color: @text-color-inverse;
       padding: 0 @padding-base-horizontal;
     }
     a:hover {
-      background-color: rgba(255,255,255,0.15);
-      text-decoration:none;
-      color:@text-color-inverse;
+      background-color: rgba(255, 255, 255, 0.15);
+      text-decoration: none;
+      color: @text-color-inverse;
     }
     a.default {
-      background-color: rgba(0,0,0,0.15);
+      background-color: rgba(0, 0, 0, 0.15);
     }
     a.default:hover {
-      background-color: rgba(255,255,255,0.15);
+      background-color: rgba(255, 255, 255, 0.15);
     }
     i {
-      margin-right:@padding-base-horizontal;
+      margin-right: @padding-base-horizontal;
     }
     .icon {
       display: inline-block;
       align-self: center;
       line-height: 16px;
-      margin-right:@padding-base-horizontal;
+      margin-right: @padding-base-horizontal;
 
       img {
         vertical-align: initial;
@@ -222,7 +235,7 @@
 
     &.has-default-action:hover {
       -webkit-filter: brightness(110%);
-      cursor:default;
+      cursor: default;
     }
   }
 }
@@ -232,17 +245,18 @@
 }
 
 @-webkit-keyframes blink {
-  0%, 100%{
+  0%,
+  100% {
     box-shadow: none;
   }
   50% {
-    box-shadow: 5px 5px 1px rgba(37, 143, 225, 1) inset,
-               -5px -5px 1px rgba(37, 143, 225, 1) inset;
+    box-shadow: 5px 5px 1px rgba(37, 143, 225, 1) inset, -5px -5px 1px rgba(37, 143, 225, 1) inset;
   }
 }
 
 @-webkit-keyframes border-pulse {
-  0%, 100%{
+  0%,
+  100% {
     border-color: #00dd00;
   }
   50% {
@@ -251,8 +265,13 @@
 }
 
 @-webkit-keyframes show-ellipsis {
-  0%, 100% {opacity: 0;}
-  50%, {opacity: 1.0;}
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 // Windows Changes

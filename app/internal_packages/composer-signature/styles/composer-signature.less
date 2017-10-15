@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 @blurred-primary-color: mix(@background-primary, #ffbb00, 96%);
 // Styles for Preferences Signatures
@@ -25,9 +25,7 @@
     .btn {
       margin-top: 10px;
     }
-
   }
-
 
   .signature-list {
     position: relative;
@@ -35,7 +33,7 @@
     width: inherit;
 
     .items-wrapper {
-      min-width:200px;
+      min-width: 200px;
       height: 262px;
     }
     .item-rule-disabled {
@@ -111,7 +109,7 @@
           .secondary-items {
             .menu {
               .item {
-                  padding: 5px 10px 5px 25px;
+                padding: 5px 10px 5px 25px;
               }
               .item.checked {
                 background-image: url(images/menu/osx-checkmark@2x.svg);
@@ -127,16 +125,12 @@
         }
       }
     }
-
   }
-
 }
 
-
 // Styles for account-contact-field signature selector
-.message-item-white-wrap.composer-outer-wrap{
+.message-item-white-wrap.composer-outer-wrap {
   .composer-participant-field {
-
     .dropdown-component {
       display: inline-block;
       float: right;
@@ -151,11 +145,10 @@
         img.content-mask {
           display: none;
         }
-        img.signature-button{
+        img.signature-button {
           display: inline-block;
           background-color: @btn-icon-color;
         }
-
 
         .button-dropdown {
           &.open {
@@ -164,11 +157,11 @@
             }
           }
           .secondary-items {
-            right:0;
-            left:auto;
+            right: 0;
+            left: auto;
             .menu {
               .header-container {
-                display:inline-block;
+                display: inline-block;
                 padding: 0;
               }
               .footer-container {
@@ -185,11 +178,9 @@
                 background-size: 10px;
                 background-repeat: no-repeat;
               }
-
             }
           }
         }
-
       }
     }
   }
@@ -204,8 +195,11 @@
   }
 }
 .composer-full-window {
-  .message-item-white-wrap.composer-outer-wrap .composer-participant-field
-  .dropdown-component .signature-button-dropdown .only-item {
+  .message-item-white-wrap.composer-outer-wrap
+    .composer-participant-field
+    .dropdown-component
+    .signature-button-dropdown
+    .only-item {
     background: @background-primary;
   }
 }

@@ -1,7 +1,7 @@
-@import "ui-variables";
+@import 'ui-variables';
 
-@token-top:lighten(@background-secondary,0.6%);
-@token-bottom:darken(@background-secondary, 2.5%);
+@token-top: lighten(@background-secondary,0.6%);
+@token-bottom: darken(@background-secondary, 2.5%);
 
 @token-hover-top: mix(@token-top, @component-active-color, 92%);
 @token-hover-bottom: mix(@token-bottom, @component-active-color, 90%);
@@ -12,7 +12,11 @@
 @token-invalid-selected-top: mix(@token-top, red, 60%);
 @token-invalid-selected-bottom: mix(@token-bottom, red, 55%);
 
-@base-box-shadow: 0 0.5px 0 rgba(0,0,0,0.17), 0 -0.5px 0 rgba(0,0,0,0.17), 0.5px 0 0 rgba(0,0,0,0.17), -0.5px 0 0 rgba(0,0,0,0.17), 0 1px 1px rgba(0, 0, 0, 0.1);
+@base-box-shadow: 0 0.5px 0 rgba(0,0,0,0.17),
+  0 -0.5px 0 rgba(0,0,0,0.17),
+  0.5px 0 0 rgba(0,0,0,0.17),
+  -0.5px 0 0 rgba(0,0,0,0.17),
+  0 1px 1px rgba(0, 0, 0, 0.1);
 
 .tokenizing-field {
   display: block;
@@ -21,7 +25,7 @@
   position: relative;
 
   &.disabled {
-    background: rgba(0,0,0,0.02);
+    background: rgba(0, 0, 0, 0.02);
     opacity: 0.7;
     .token {
       background: @token-top;
@@ -44,7 +48,7 @@
 
   .content-container {
     border: 1px solid @border-color-secondary;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border-radius: @border-radius-small;
     background-color: @background-primary;
     position: absolute;
@@ -56,18 +60,19 @@
     box-shadow: none;
   }
 
-  .header-container, .footer-container {
+  .header-container,
+  .footer-container {
     background-color: transparent;
-    padding:0;
-    margin:0;
-    border:0;
+    padding: 0;
+    margin: 0;
+    border: 0;
   }
 
   .token-editing-input {
     max-width: 100%;
     font-size: 15px;
     line-height: 17px;
-    padding: 2em;//0.5em @spacing-three-quarters 0.5em @spacing-three-quarters;
+    padding: 2em; //0.5em @spacing-three-quarters 0.5em @spacing-three-quarters;
     padding-right: 1.5em;
     margin: 3px 6px 6px 1px;
   }
@@ -88,32 +93,42 @@
     vertical-align: middle;
 
     .action {
-      position:absolute;
+      position: absolute;
       padding: 0;
       border: 0;
       margin: 0;
       right: 7px;
       background-color: transparent;
       color: @text-color-very-subtle;
-      img { background-color: @text-color-very-subtle; }
+      img {
+        background-color: @text-color-very-subtle;
+      }
       font-size: 10px;
     }
     &:hover {
       background: linear-gradient(to bottom, @token-hover-top 0%, @token-hover-bottom 100%);
-      box-shadow: 0 0.5px 0 darken(@token-hover-bottom, 35%), 0 -0.5px 0 darken(@token-hover-top, 25%), 0.5px 0 0 darken(@token-hover-bottom, 25%), -0.5px 0 0 darken(@token-hover-bottom, 25%), 0 1px 1px rgba(0, 0, 0, 0.07);
+      box-shadow: 0 0.5px 0 darken(@token-hover-bottom, 35%),
+        0 -0.5px 0 darken(@token-hover-top, 25%), 0.5px 0 0 darken(@token-hover-bottom, 25%),
+        -0.5px 0 0 darken(@token-hover-bottom, 25%), 0 1px 1px rgba(0, 0, 0, 0.07);
       cursor: default;
     }
     &.invalid {
-      border-bottom:1px dashed red;
+      border-bottom: 1px dashed red;
       margin-bottom: -1px;
       background: transparent;
       &:hover {
-        box-shadow: 0 -0.5px 0 @token-invalid-selected-top, 0.5px 0 0 @token-invalid-selected-bottom, -0.5px 0 0 @token-invalid-selected-bottom, 0 1px 1px rgba(0, 0, 0, 0.07);
+        box-shadow: 0 -0.5px 0 @token-invalid-selected-top, 0.5px 0 0 @token-invalid-selected-bottom,
+          -0.5px 0 0 @token-invalid-selected-bottom, 0 1px 1px rgba(0, 0, 0, 0.07);
       }
     }
-    &.invalid.selected, &.invalid.dragging {
-      background: linear-gradient(to bottom, @token-invalid-selected-top 0%, @token-invalid-selected-bottom 100%);
-      box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.3), 0 1px 1px rgba(0, 0, 0, 0.1);
+    &.invalid.selected,
+    &.invalid.dragging {
+      background: linear-gradient(
+        to bottom,
+        @token-invalid-selected-top 0%,
+        @token-invalid-selected-bottom 100%
+      );
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.1);
       border: 1px solid darken(@token-invalid-selected-bottom, 8%);
       border-top: 1px solid darken(@token-invalid-selected-top, 10%);
     }
@@ -121,7 +136,7 @@
     &.selected,
     &.dragging {
       background: linear-gradient(to bottom, @token-selected-top 0%, @token-selected-bottom 100%);
-      box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.3), 0 1px 1px rgba(0, 0, 0, 0.1);
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0, 0, 0, 0.1);
       border: 1px solid darken(@token-selected-bottom, 8%);
       border-top: 1px solid darken(@token-selected-top, 10%);
       border-radius: @border-radius-base;
@@ -134,7 +149,9 @@
       color: @text-color-inverse;
       .action {
         color: @text-color-inverse-subtle;
-        img { background-color: @text-color-inverse-subtle; }
+        img {
+          background-color: @text-color-inverse-subtle;
+        }
       }
       .secondary,
       .participant-secondary {
@@ -169,7 +186,9 @@
     &.at-max-tokens {
       cursor: default;
       input {
-        &:hover { cursor: default; }
+        &:hover {
+          cursor: default;
+        }
         opacity: 0;
       }
     }
@@ -177,10 +196,10 @@
     input {
       display: inline-block;
       width: initial;
-      vertical-align:top;
+      vertical-align: top;
       border: none;
       min-width: 0.5em;
-      background-color:transparent;
+      background-color: transparent;
 
       // NOTE: padding-top and padding-bottom need to match that of
       // `.token`. to ensure they have the same baseline.
@@ -219,7 +238,9 @@
 body.is-blurred .tokenizing-field .token:not(.invalid) {
   background: @background-secondary;
   color: @text-color;
-  &.selected .action img { background-color: @text-color-very-subtle; }
+  &.selected .action img {
+    background-color: @text-color-very-subtle;
+  }
 }
 
 body.platform-win32 {
@@ -228,7 +249,8 @@ body.platform-win32 {
       border-radius: 0;
     }
     .tokenizing-field-input {
-      input, input:focus {
+      input,
+      input:focus {
         border: 0;
         box-shadow: 0 0 0;
       }
@@ -245,7 +267,8 @@ body.platform-win32 {
     &:hover {
       background: @token-hover-bottom;
     }
-    &.invalid.selected, &.invalid.dragging {
+    &.invalid.selected,
+    &.invalid.dragging {
       background: @token-invalid-selected-top;
     }
   }

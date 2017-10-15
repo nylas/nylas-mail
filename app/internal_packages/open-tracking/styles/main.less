@@ -1,7 +1,7 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
-@open-tracking-color: #7C19CC;
+@open-tracking-color: #7c19cc;
 
 .open-tracking-icon img {
   vertical-align: initial;
@@ -16,7 +16,8 @@
   cursor: pointer;
 }
 
-.list-item.focused, .list-item.selected {
+.list-item.focused,
+.list-item.selected {
   .open-tracking-icon img.content-mask.unopened {
     background-color: fadeout(@text-color-inverse, 70%);
   }

@@ -1,4 +1,4 @@
-@import "darkside-variables";
+@import 'darkside-variables';
 
 // ============================
 //  Sidebar Base
@@ -11,18 +11,16 @@
   height: 100%;
   background-color: @sidebar;
   // If NOT Retina display, subpixel-antialias fonts instead
-  @media
-    not screen and (-webkit-min-device-pixel-ratio: 1.3),
+  @media not screen and (-webkit-min-device-pixel-ratio: 1.3),
     not screen and (-o-min-device-pixel-ratio: 13/10),
     not screen and (min-resolution: 120dpi) {
-      -webkit-font-smoothing: subpixel-antialiased !important;
+    -webkit-font-smoothing: subpixel-antialiased !important;
   }
 }
 
 .notifications {
   box-shadow: none;
 }
-
 
 // Refactored this to make sure all items
 // in sidebar always align left with each other
@@ -110,7 +108,7 @@
 //====================================================
 
 .account-sidebar .item img.content-mask,
-.account-sidebar .add-item-button img, {
+.account-sidebar .add-item-button img {
   background-color: @sidebar-text;
 }
 
@@ -173,8 +171,14 @@
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(-50px); }
-  to   { opacity: 1; transform: translateX(-15px); }
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-15px);
+  }
 }
 
 .scrollbar-track .scrollbar-handle .tooltip .scroll-tooltip {

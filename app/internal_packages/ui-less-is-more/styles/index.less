@@ -18,24 +18,22 @@
 //  Drafts
 //  Composer
 
-
 //====================================================
 //  Theme Variables
 //====================================================
 
-@less-background:       #FFFFFF; //white
-@less-text:             #566C75; //gray
-@less-highlight:        #FAFAFA; //lightest-gray
-@less-divider:          #DDDDDD; //lighter-gray
-@minimize:              #FBD852; //yellow
-@maximize:              #8DD07D; //green
-@close:                 #FF5F56; //red
-@swipe-archive:         @maximize; //green
-@swipe-snooze:          @minimize; //yellow
-@swipe-trash:           @close; //red
-@invalid:               @close; //red
-@sidebar-text:          lighten(@less-text, 20%); //light-gray
-
+@less-background: #FFFFFF; //white
+@less-text: #566c75; //gray
+@less-highlight: #FAFAFA; //lightest-gray
+@less-divider: #DDDDDD; //lighter-gray
+@minimize: #FBD852; //yellow
+@maximize: #8dd07d; //green
+@close: #FF5F56; //red
+@swipe-archive: @maximize; //green
+@swipe-snooze: @minimize; //yellow
+@swipe-trash: @close; //red
+@invalid: @close; //red
+@sidebar-text: lighten(@less-text, 20%); //light-gray
 
 //====================================================
 //  Window Controls
@@ -55,7 +53,6 @@
 .column-MessageList {
   padding: 3em 2em;
 }
-
 
 // Window Control Button transforms
 .toolbar-window-controls button {
@@ -100,7 +97,6 @@
   box-shadow: none;
 }
 
-
 //====================================================
 //  Sheet Toolbars
 //====================================================
@@ -136,7 +132,6 @@
     border-right: none;
   }
 }
-
 
 //====================================================
 //  Sidebar & Account Switcher
@@ -210,7 +205,6 @@
   background: @sidebar-text;
 }
 
-
 //====================================================
 //  Sidebar Count Badges
 //====================================================
@@ -220,7 +214,6 @@
   background: @less-text;
   color: @less-background;
 }
-
 
 //====================================================
 //  Scrollbars & Resize Handles
@@ -241,7 +234,6 @@
 #message-list .scrollbar-track {
   margin-right: -2em;
 }
-
 
 //====================================================
 //  Thread List
@@ -282,7 +274,12 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
 // Remove gradient on thread list during quick action hover
 .thread-list .list-item.selected:hover .list-column-HoverActions .inner,
 .thread-list .list-item:hover .list-column-HoverActions .inner {
-  background-image: -webkit-linear-gradient(left, fade(@less-highlight, 0%) 0%, @less-highlight 40%, @less-highlight 100%);
+  background-image: -webkit-linear-gradient(
+    left,
+    fade(@less-highlight, 0%) 0%,
+    @less-highlight 40%,
+    @less-highlight 100%
+  );
 }
 
 // Remove box-shadow on thread list quick action buttons
@@ -292,27 +289,30 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
 
 // Remove gradients quick action buttons
 .thread-list .list-item .list-column-HoverActions .action.action-trash {
-  background: url("../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png")
-  center no-repeat, @less-highlight;
+  background: url('../static/images/thread-list-quick-actions/ic-quick-button-trash@2x.png') center
+      no-repeat,
+    @less-highlight;
 }
 
 // Remove gradients quick action buttons
 .thread-list .list-item .list-column-HoverActions .action.action-archive {
-  background: url("../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png")
-  center no-repeat, @less-highlight;
+  background: url('../static/images/thread-list-quick-actions/ic-quick-button-archive@2x.png')
+      center no-repeat,
+    @less-highlight;
 }
 
 // Remove gradients quick action buttons
 .thread-list .list-item .list-column-HoverActions .action.action-snooze {
-  background: url("../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png")
-  center no-repeat, @less-highlight;
+  background: url('../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png') center
+      no-repeat,
+    @less-highlight;
 }
 
 // Change default color of star to gray
-.thread-list .thread-icon.thread-icon-star, .draft-list .thread-icon.thread-icon-star {
+.thread-list .thread-icon.thread-icon-star,
+.draft-list .thread-icon.thread-icon-star {
   -webkit-filter: grayscale(100%);
 }
-
 
 //====================================================
 //  Message List
@@ -339,7 +339,10 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
 
 // Draft message background color
 #message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap,
-#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap .composer-action-bar-wrap {
+#message-list
+  .message-item-wrap
+  .message-item-white-wrap.composer-outer-wrap
+  .composer-action-bar-wrap {
   background-color: @less-highlight;
   border-top: none;
   box-shadow: none;
@@ -355,10 +358,12 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
 }
 
 // Draft message background action bar theme on focus
-#message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap.focused .composer-action-bar-wrap {
+#message-list
+  .message-item-wrap
+  .message-item-white-wrap.composer-outer-wrap.focused
+  .composer-action-bar-wrap {
   background-color: @less-background;
 }
-
 
 //====================================================
 //  Message List Sidebar
@@ -411,7 +416,6 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
   color: @less-text;
 }
 
-
 //====================================================
 //  Swiping
 //====================================================
@@ -445,7 +449,6 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
   }
 }
 
-
 //====================================================
 //  Preferences
 //====================================================
@@ -461,33 +464,32 @@ body.is-blurred .thread-list.handler-split .list-item.selected {
   padding-bottom: 100px;
 }
 
-
 //====================================================
 //  Form Inputs & Search Bar
 //====================================================
 
 // Input style overrides
-input[type="text"],
-input[type="email"],
-input[type="date"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="month"],
-input[type="number"],
-input[type="password"],
-input[type="range"],
-input[type="search"],
-input[type="tel"],
-input[type="time"],
-input[type="url"] {
-    border-radius: 0;
-    border: none !important;
+input[type='text'],
+input[type='email'],
+input[type='date'],
+input[type='datetime'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='number'],
+input[type='password'],
+input[type='range'],
+input[type='search'],
+input[type='tel'],
+input[type='time'],
+input[type='url'] {
+  border-radius: 0;
+  border: none !important;
 }
 
 // Input style overrides on hover
 textarea:focus,
-input[type="text"]:focus,
-input[type="email"]:focus,
+input[type='text']:focus,
+input[type='email']:focus,
 .search-bar .menu .header-container input:focus {
   border: none !important;
   border-radius: 0;
@@ -509,7 +511,6 @@ body.is-blurred .sheet-toolbar-container .btn.btn-toolbar,
   box-shadow: none;
 }
 
-
 //====================================================
 //  Notifications
 //====================================================
@@ -530,7 +531,6 @@ body.is-blurred .sheet-toolbar-container .btn.btn-toolbar,
   border: none;
 }
 
-
 //====================================================
 //  Composer
 //====================================================
@@ -548,7 +548,7 @@ body.is-blurred .sheet-toolbar-container {
   background: @less-background;
   border-top: none;
   box-shadow: none;
-  padding-bottom: .8em;
+  padding-bottom: 0.8em;
 }
 
 // Border at bottom of composer subject field
@@ -557,7 +557,7 @@ body.is-blurred .sheet-toolbar-container {
 }
 
 .tokenizing-field .token.invalid {
-  border: 1px solid lighten(@close,25%);
+  border: 1px solid lighten(@close, 25%);
 }
 
 .tokenizing-field .token.selected,
@@ -569,17 +569,17 @@ body.is-blurred .sheet-toolbar-container {
 
 .tokenizing-field .token.invalid.selected,
 .tokenizing-field .token.invalid.dragging {
-  background: lighten(@close,25%);
+  background: lighten(@close, 25%);
 }
 
-.tokenizing-field .tokenizing-field-input input[type="text"],
-.tokenizing-field .tokenizing-field-input input[type="text"]:focus {
+.tokenizing-field .tokenizing-field-input input[type='text'],
+.tokenizing-field .tokenizing-field-input input[type='text']:focus {
   border-bottom: none !important;
 }
 
 textarea:focus,
-input[type="text"]:focus,
-input[type="email"]:focus {
+input[type='text']:focus,
+input[type='email']:focus {
   border: 1px solid @less-text;
   box-shadow: none;
   padding-left: 0;
@@ -587,14 +587,14 @@ input[type="email"]:focus {
   min-width: 30px;
 }
 
-.button-dropdown .primary-item, .button-dropdown .only-item {
+.button-dropdown .primary-item,
+.button-dropdown .only-item {
   box-shadow: none;
 }
 
 .button-dropdown.btn-emphasis .primary-item,
 .button-dropdown.btn-emphasis .secondary-picker,
-.button-dropdown.btn-emphasis .only-item
-.button-dropdown.btn-emphasis .primary-item:active,
+.button-dropdown.btn-emphasis .only-item .button-dropdown.btn-emphasis .primary-item:active,
 .button-dropdown.btn-emphasis .secondary-picker:active,
 .button-dropdown.btn-emphasis .only-item:active,
 .button-dropdown.bordered .primary-item,

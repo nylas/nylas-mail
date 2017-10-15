@@ -2,7 +2,6 @@
 // Scaffolding
 // --------------------------------------------------
 
-
 // Reset the box-sizing
 //
 // Heads up! This reset may cause conflicts with some third-party widgets.
@@ -16,7 +15,6 @@
   box-sizing: border-box;
 }
 
-
 // Reset fonts for relevant elements
 input,
 button,
@@ -27,7 +25,6 @@ textarea {
   line-height: inherit;
 }
 
-
 // Figures
 //
 // We reset this here because previously Normalize had no `figure` margins. This
@@ -36,7 +33,6 @@ textarea {
 figure {
   margin: 0;
 }
-
 
 // Images
 
@@ -56,7 +52,9 @@ html {
 }
 
 //  Remove default margin.
-body { margin: 0 }
+body {
+  margin: 0;
+}
 
 // HTML5 display definitions ==========================================================================
 //  * Correct `block` display not defined for any HTML5 element in IE 8/9.
@@ -94,7 +92,6 @@ audio:not([controls]) {
   height: 0;
 }
 
-
 // Links ==========================================================================
 //  * Remove the gray background color from active links in IE 10.
 a {
@@ -109,7 +106,9 @@ a {
 // Text-level semantics ==========================================================================
 
 //  * Address styling not present in IE 8/9/10/11, Safari, and Chrome.
-abbr[title] { border-bottom: 1px dotted; }
+abbr[title] {
+  border-bottom: 1px dotted;
+}
 
 //  * Address style set to `bolder` in Firefox 4+, Safari, and Chrome.
 b,
@@ -118,7 +117,9 @@ strong {
 }
 
 //  * Address styling not present in Safari and Chrome.
-dfn { font-style: italic; }
+dfn {
+  font-style: italic;
+}
 
 //  * Address variable `h1` font-size and margin within `section` and `article` contexts in Firefox 4+, Safari, and Chrome.
 h1 {
@@ -133,7 +134,9 @@ mark {
 }
 
 //  * Address inconsistent and variable font size in all browsers.
-small { font-size: 80%; }
+small {
+  font-size: 80%;
+}
 
 //  * Prevent `sub` and `sup` affecting `line-height` in all browsers.
 sub,
@@ -144,11 +147,17 @@ sup {
   vertical-align: baseline;
 }
 
-sup { top: -0.5em; }
-sub { bottom: -0.25em; }
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}
 
 //  * Correct overflow not hidden in IE 9/10/11.
-svg:not(:root) { overflow: hidden; }
+svg:not(:root) {
+  overflow: hidden;
+}
 
 //  * Address differences between Firefox and other browsers.
 hr {
@@ -158,7 +167,9 @@ hr {
 }
 
 //  * Contain overflow in all browsers.
-pre { overflow: auto; }
+pre {
+  overflow: auto;
+}
 
 //  * Address odd `em`-unit font size rendering in all browsers.
 code,
@@ -188,7 +199,9 @@ textarea {
 }
 
 //  * Address `overflow` set to `hidden` in IE 8/9/10/11.
-button { overflow: visible;}
+button {
+  overflow: visible;
+}
 
 //  * Address inconsistent `text-transform` inheritance for `button` and `select`.
 //  * All other form control elements do not inherit `text-transform` values.
@@ -203,7 +216,7 @@ select {
 //  * 2. Correct inability to style clickable `input` types in iOS.
 //  * 3. Improve usability and consistency of cursor style between image-type `input` and others.
 button,
-html input[type="button"] {
+html input[type='button'] {
   -webkit-appearance: button;
   cursor: pointer;
 }
@@ -215,8 +228,7 @@ html input[disabled] {
 }
 
 //  * Remove inner padding and border in Firefox 4+.
-button
-input {
+button input {
   &::-moz-focus-inner {
     border: 0;
     padding: 0;
@@ -226,8 +238,8 @@ input {
 //  * Address Firefox 4+ setting `line-height` on `input` using `!important` in the UA stylesheet.
 input {
   line-height: normal;
-  &[type="reset"],
-  &[type="submit"] {
+  &[type='reset'],
+  &[type='submit'] {
     -webkit-appearance: button;
     cursor: pointer;
   }
@@ -236,8 +248,8 @@ input {
   // * Firefox's implementation doesn't respect box-sizing, padding, or width.
   // * 1. Address box sizing set to `content-box` in IE 8/9/10.
   // * 2. Remove excess padding in IE 8/9/10.
-  &[type="checkbox"],
-  &[type="radio"] {
+  &[type='checkbox'],
+  &[type='radio'] {
     box-sizing: border-box;
     padding: 0;
   }
@@ -245,7 +257,7 @@ input {
   //  * Fix the cursor style for Chrome's increment/decrement buttons. For certain
   //  * `font-size` values of the `input`, it causes the cursor style of the
   //  * decrement button to change from `default` to `text`.
-  &[type="number"] {
+  &[type='number'] {
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {
       height: auto;
@@ -254,21 +266,20 @@ input {
 
   // * 1. Address `appearance` set to `searchfield` in Safari and Chrome.
   // * 2. Address `box-sizing` set to `border-box` in Safari and Chrome (include `-moz` to future-proof).
-  &[type="search"] {
+  &[type='search'] {
     -webkit-appearance: textfield;
     -moz-box-sizing: content-box;
     -webkit-box-sizing: content-box;
     box-sizing: content-box;
 
-  //  * Remove inner padding and search cancel button in Safari and Chrome on OS X.
-  //  * Safari (but not Chrome) clips the cancel button when the search input has
-  //  * padding (and `textfield` appearance).
+    //  * Remove inner padding and search cancel button in Safari and Chrome on OS X.
+    //  * Safari (but not Chrome) clips the cancel button when the search input has
+    //  * padding (and `textfield` appearance).
     &::-webkit-search-cancel-button,
     &::-webkit-search-decoration {
       -webkit-appearance: none;
     }
   }
-
 }
 
 //  * Define consistent border, margin, and padding.
@@ -286,11 +297,15 @@ legend {
 }
 
 // * Remove default vertical scrollbar in IE 8/9/10/11.
-textarea { overflow: auto; }
+textarea {
+  overflow: auto;
+}
 
 //  * Don't inherit the `font-weight` (applied by a rule above).
 //  * NOTE: the default cannot safely be changed in Chrome and Safari on OS X.
-optgroup { font-weight: bold; }
+optgroup {
+  font-weight: bold;
+}
 
 // Tables ==========================================================================
 //  * Remove most spacing between table cells.

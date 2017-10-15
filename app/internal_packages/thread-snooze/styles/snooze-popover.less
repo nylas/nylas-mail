@@ -1,6 +1,6 @@
-@import "ui-variables";
+@import 'ui-variables';
 
-@snooze-quickaction-img: "../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png";
+@snooze-quickaction-img: '../static/images/thread-list-quick-actions/ic-quickaction-snooze@2x.png';
 
 .thread-list .list-item .list-column-HoverActions .action.action-snooze {
   background: url(@snooze-quickaction-img) center no-repeat, @background-gradient;
@@ -29,22 +29,28 @@
       line-height: initial;
       text-align: initial;
 
-      img { background-color: fadeout(@btn-default-text-color, 20%); }
+      img {
+        background-color: fadeout(@btn-default-text-color, 20%);
+      }
       &:hover {
         background-color: darken(@btn-default-bg-color, 5%);
         color: fadeout(@btn-default-text-color, 10%);
-        img { background-color: fadeout(@btn-default-text-color, 10%); }
+        img {
+          background-color: fadeout(@btn-default-text-color, 10%);
+        }
       }
       &:active {
         background-color: darken(@btn-default-bg-color, 8%);
         color: fadeout(@btn-default-text-color, 0%);
-        img { background-color: fadeout(@btn-default-text-color, 0%); }
+        img {
+          background-color: fadeout(@btn-default-text-color, 0%);
+        }
       }
-      &+.snooze-item {
+      & + .snooze-item {
         border-left: 1px solid @border-color-divider;
       }
     }
-    &+.snooze-row {
+    & + .snooze-row {
       border-top: 1px solid @border-color-divider;
     }
   }

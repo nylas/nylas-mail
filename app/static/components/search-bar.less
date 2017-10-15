@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 .nylas-search-bar {
   height: initial;
@@ -27,7 +27,7 @@
   }
 
   .menu .footer-container {
-    border:none;
+    border: none;
   }
   .menu .content-container {
     position: absolute;
@@ -48,19 +48,22 @@
     position: relative;
 
     &.showing-suggestions {
-      .suggestions { display: inherit; }
+      .suggestions {
+        display: inherit;
+      }
       .clear {
         color: @text-color-subtle;
         display: inherit;
       }
     }
     &.showing-query {
-      .clear { display: inherit; }
+      .clear {
+        display: inherit;
+      }
     }
   }
 
   .search-accessory {
-
     &.search {
       position: absolute;
       top: 8px;

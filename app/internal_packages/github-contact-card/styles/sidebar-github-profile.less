@@ -1,9 +1,11 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 .sidebar-github-profile {
   margin-bottom: 20px;
 
-  a{ text-decoration: none; }
+  a {
+    text-decoration: none;
+  }
 
   .pending {
     font-size: 12px;
@@ -12,15 +14,15 @@
 
   .logo {
     float: left;
-    width:15px;
-    height:15px;
-    opacity:0.4;
+    width: 15px;
+    height: 15px;
+    opacity: 0.4;
     margin-right: @spacing-half;
   }
 
   .repo {
     padding-left: @spacing-standard;
-    border-left:1px solid @border-color-divider;
+    border-left: 1px solid @border-color-divider;
     margin-left: @spacing-standard/2;
     font-size: @font-size-smaller;
     display: flex;
@@ -33,7 +35,7 @@
     }
     .stars {
       order: 2;
-      margin-left:@spacing-standard;
+      margin-left: @spacing-standard;
     }
   }
 }

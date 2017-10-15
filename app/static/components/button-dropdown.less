@@ -1,4 +1,4 @@
-@import "../buttons";
+@import '../buttons';
 
 .button-dropdown {
   position: relative;
@@ -13,9 +13,11 @@
   &.open.open-up {
     .secondary-items {
       border-radius: @border-radius-base @border-radius-base 0 @border-radius-base;
-      box-shadow: 0 0.5px 0 @standard-shadow-color, 0 -0.5px 0 @standard-shadow-color, 0.5px 0 0 @standard-shadow-color, -0.5px 0 0 @standard-shadow-color, 0 -3px 12px @standard-shadow-color;
+      box-shadow: 0 0.5px 0 @standard-shadow-color, 0 -0.5px 0 @standard-shadow-color,
+        0.5px 0 0 @standard-shadow-color, -0.5px 0 0 @standard-shadow-color,
+        0 -3px 12px @standard-shadow-color;
       top: -100%;
-      transform:translate(0, -6px);
+      transform: translate(0, -6px);
     }
     .secondary-picker {
       border-top-right-radius: 0;
@@ -24,14 +26,15 @@
   &.open.open-down {
     .secondary-items {
       border-radius: @border-radius-base 0 @border-radius-base @border-radius-base;
-      box-shadow: 0 0.5px 0 @standard-shadow-color, 0 -0.5px 0 @standard-shadow-color, 0.5px 0 0 @standard-shadow-color, -0.5px 0 0 @standard-shadow-color, 0 5px 12px @standard-shadow-color;
-      transform:translate(0, 1.5px);
+      box-shadow: 0 0.5px 0 @standard-shadow-color, 0 -0.5px 0 @standard-shadow-color,
+        0.5px 0 0 @standard-shadow-color, -0.5px 0 0 @standard-shadow-color,
+        0 5px 12px @standard-shadow-color;
+      transform: translate(0, 1.5px);
     }
     .secondary-picker {
       border-bottom-right-radius: 0;
     }
   }
-
 
   &.btn-emphasis {
     .primary-item,
@@ -40,7 +43,7 @@
       .btn.btn-emphasis();
     }
     .primary-item {
-      border-right:0;
+      border-right: 0;
     }
   }
 
@@ -56,7 +59,8 @@
 
   .secondary-picker {
     .btn();
-    box-shadow: @standard-shadow-color 0 0.5px 0, @standard-shadow-color 0 -0.5px 0, @standard-shadow-color 0.5px 0 0, @standard-shadow-color 0 0.5px 1px;
+    box-shadow: @standard-shadow-color 0 0.5px 0, @standard-shadow-color 0 -0.5px 0,
+      @standard-shadow-color 0.5px 0 0, @standard-shadow-color 0 0.5px 1px;
     border-radius: 0 @border-radius-base @border-radius-base 0;
     border-left: 0;
     padding: 0 6px;
@@ -66,26 +70,26 @@
       cursor: default;
     }
     &.left {
-      width:auto;
-      left:-1px;
-      right:auto;
-      white-space:nowrap;
+      width: auto;
+      left: -1px;
+      right: auto;
+      white-space: nowrap;
     }
     z-index: 2;
     background-color: @background-secondary;
     position: absolute;
     right: 0;
-    white-space:nowrap;
-    visibility:hidden;
+    white-space: nowrap;
+    visibility: hidden;
 
     .menu {
       .footer-container,
       .header-container {
-        display:none;
+        display: none;
       }
       .content-container {
         background: transparent;
-        margin-top:0;
+        margin-top: 0;
       }
       .item {
         font-size: 13px;
@@ -97,12 +101,12 @@
           padding-bottom: 6px;
         }
         img {
-          margin-right:4px;
+          margin-right: 4px;
           vertical-align: text-bottom;
         }
         &.selected {
           background-color: inherit;
-          color:@text-color;
+          color: @text-color;
         }
       }
       .item:first-child {
@@ -114,7 +118,7 @@
       }
       .item:hover {
         background-color: darken(@background-secondary, 3%);
-        color:inherit;
+        color: inherit;
       }
     }
   }
@@ -158,15 +162,21 @@ body.platform-win32 {
       }
       .primary-item {
         box-shadow: -1px 0 0 2px @btn-emphasis-bg-color;
-        &:hover { box-shadow: -1px 0 0 2px darken(@btn-emphasis-bg-color, 10%); }
+        &:hover {
+          box-shadow: -1px 0 0 2px darken(@btn-emphasis-bg-color, 10%);
+        }
       }
       .secondary-picker {
         box-shadow: 1px 0 0 2px @btn-emphasis-bg-color;
-        &:hover { box-shadow: 1px 0 0 2px darken(@btn-emphasis-bg-color, 10%); }
+        &:hover {
+          box-shadow: 1px 0 0 2px darken(@btn-emphasis-bg-color, 10%);
+        }
       }
       .only-item {
         box-shadow: 0 0 0 2px @btn-emphasis-bg-color;
-        &:hover { box-shadow: 0 0 0 2px darken(@btn-emphasis-bg-color, 10%); }
+        &:hover {
+          box-shadow: 0 0 0 2px darken(@btn-emphasis-bg-color, 10%);
+        }
       }
     }
   }

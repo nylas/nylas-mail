@@ -1,41 +1,41 @@
-@gray-base:    #ffffff;
-@gray-darker:  darken(@gray-base, 13.5%);
-@gray-dark:    darken(@gray-base, 20%);
-@gray:         darken(@gray-base, 33.5%);
-@gray-light:   darken(@gray-base, 46.7%);
+@gray-base: #ffffff;
+@gray-darker: darken(@gray-base, 13.5%);
+@gray-dark: darken(@gray-base, 20%);
+@gray: darken(@gray-base, 33.5%);
+@gray-light: darken(@gray-base, 46.7%);
 @gray-lighter: darken(@gray-base, 92.5%);
-@white:        #0a0b0c;
+@white: #0a0b0c;
 
-@accent-primary:            #5e6a77;
-@accent-primary-dark:       #5e6a77;
+@accent-primary: #5e6a77;
+@accent-primary-dark: #5e6a77;
 
-@background-primary:     #333539;
+@background-primary: #333539;
 @background-off-primary: #282828;
-@background-secondary:   #333539;
-@background-tertiary:    #333539;
+@background-secondary: #333539;
+@background-tertiary: #333539;
 
-@border-color-primary:   darken(@background-primary, 1%);
+@border-color-primary: darken(@background-primary, 1%);
 @border-color-secondary: darken(@background-secondary, 1%);
-@border-color-tertiary:  darken(@background-tertiary, 1%);
-@border-color-divider:   @border-color-secondary;
+@border-color-tertiary: darken(@background-tertiary, 1%);
+@border-color-divider: @border-color-secondary;
 
-@text-color:                      #c0c6cb;
-@text-color-subtle:               fadeout(@text-color, 20%);
-@text-color-very-subtle:          fadeout(@text-color, 40%);
-@text-color-inverse:              white;
-@text-color-inverse-subtle:       fadeout(@text-color-inverse, 20%);
-@text-color-inverse-very-subtle:  fadeout(@text-color-inverse, 50%);
-@text-color-heading:              #FFF;
+@text-color: #c0c6cb;
+@text-color-subtle: fadeout(@text-color, 20%);
+@text-color-very-subtle: fadeout(@text-color, 40%);
+@text-color-inverse: white;
+@text-color-inverse-subtle: fadeout(@text-color-inverse, 20%);
+@text-color-inverse-very-subtle: fadeout(@text-color-inverse, 50%);
+@text-color-heading: #FFF;
 
-@btn-default-bg-color:    lighten(@background-primary, 5%);
+@btn-default-bg-color: lighten(@background-primary, 5%);
 @dropdown-default-bg-color: #404040;
 
-@input-bg:              #242424;
-@input-border:          @border-color-divider;
+@input-bg: #242424;
+@input-border: @border-color-divider;
 
-@list-bg:               #333;
-@list-border:           #383838;
-@list-selected-color:   @text-color-inverse;
+@list-bg: #333;
+@list-border: #383838;
+@list-selected-color: @text-color-inverse;
 @list-focused-color: @text-color;
 
 @toolbar-background-color: @background-secondary;
@@ -43,7 +43,8 @@
 
 .sheet-toolbar {
   border-bottom: none;
-  box-shadow: 0 0 0.5px @border-color-primary, 0 1px 1.5px @border-color-primary, 0 0 3px @border-color-primary;
+  box-shadow: 0 0 0.5px @border-color-primary, 0 1px 1.5px @border-color-primary,
+    0 0 3px @border-color-primary;
 }
 
 .thread-icon:not(.thread-icon-unread):not(.thread-icon-star) {

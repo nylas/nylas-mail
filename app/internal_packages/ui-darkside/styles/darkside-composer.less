@@ -1,4 +1,4 @@
-@import "darkside-variables";
+@import 'darkside-variables';
 
 .tokenizing-field .token.invalid,
 .tokenizing-field .token.invalid:hover,
@@ -28,14 +28,22 @@
   }
 }
 
-.message-item-white-wrap.composer-outer-wrap .composer-participant-field .dropdown-component .signature-button-dropdown .only-item {
+.message-item-white-wrap.composer-outer-wrap
+  .composer-participant-field
+  .dropdown-component
+  .signature-button-dropdown
+  .only-item {
   background: white;
 }
 
 // make action bar at bottom of composer a bit darker than background
 #message-list .message-item-wrap .message-item-white-wrap.composer-outer-wrap {
-  & .composer-action-bar-wrap { background: transparent; }
-  &.focused .composer-action-bar-wrap { background: darken(@messagelist-bg, 1%); }
+  & .composer-action-bar-wrap {
+    background: transparent;
+  }
+  &.focused .composer-action-bar-wrap {
+    background: darken(@messagelist-bg, 1%);
+  }
 }
 
 .composer-inner-wrap .composer-action-bar-wrap .composer-action-bar-content {

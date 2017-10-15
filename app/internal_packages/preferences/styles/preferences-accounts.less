@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 // Preferences Specific
 .preferences-wrap {
@@ -75,35 +75,39 @@
 
           .action {
             flex-shrink: 0;
-            background-color: rgba(0,0,0,0.15);
+            background-color: rgba(0, 0, 0, 0.15);
             text-align: center;
             padding: 3px @padding-base-horizontal;
-            color: @text-color-inverse
+            color: @text-color-inverse;
           }
           .action:hover {
-            background-color: rgba(255,255,255,0.15);
-            text-decoration:none;
+            background-color: rgba(255, 255, 255, 0.15);
+            text-decoration: none;
           }
           .message {
             flex-grow: 1;
             padding: 3px @padding-base-horizontal;
-            color: @text-color-inverse
+            color: @text-color-inverse;
           }
         }
 
         .newsletter {
           padding-top: @padding-base-vertical * 2;
-          input[type=checkbox] { margin: 0; position: relative; top: 0; }
+          input[type='checkbox'] {
+            margin: 0;
+            position: relative;
+            top: 0;
+          }
         }
 
-        &>h3 {
+        & > h3 {
           font-size: 1.2em;
           &:first-child {
             margin-top: 0;
           }
         }
 
-        &>input {
+        & > input {
           font-size: 0.9em;
           width: 100%;
         }
@@ -112,9 +116,9 @@
           padding-top: @padding-base-vertical * 3;
           padding-bottom: @padding-base-vertical;
 
-          &>select {
+          & > select {
             font-size: 0.9em;
-            margin-left:0;
+            margin-left: 0;
             width: 100%;
           }
         }

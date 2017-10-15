@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
 .disclosure-triangle {
   flex-shrink: 0;
@@ -9,7 +9,7 @@
   visibility: hidden;
 
   div {
-    transform:rotate(90deg);
+    transform: rotate(90deg);
     transition: transform 90ms linear;
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;
@@ -21,7 +21,7 @@
   }
   &.collapsed {
     div {
-      transform:rotate(0deg);
+      transform: rotate(0deg);
     }
   }
 }

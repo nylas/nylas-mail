@@ -1,9 +1,11 @@
-@import "ui-variables";
-@import "ui-mixins";
+@import 'ui-variables';
+@import 'ui-mixins';
 
-button, html input[type="button"] {
+button,
+html input[type='button'] {
   cursor: default;
-  &:hover, &:active {
+  &:hover,
+  &:active {
     cursor: default;
   }
 }
@@ -35,7 +37,8 @@ body.platform-win32 {
       box-shadow: 0 0 0;
     }
 
-    &.btn-danger, .btn-destructive {
+    &.btn-danger,
+    .btn-destructive {
       background: @btn-danger-bg-color;
       border: 0;
       &:hover {
@@ -51,16 +54,19 @@ body.platform-win32 {
   border-radius: @border-radius-base;
   border: 0;
   cursor: default;
-  display:inline-block;
+  display: inline-block;
   color: @btn-default-text-color;
   background: @background-primary;
 
-  img.content-mask { background-color: @btn-default-text-color; }
+  img.content-mask {
+    background-color: @btn-default-text-color;
+  }
 
   // Use 4 box shadows to create a 0.5px hairline around the button, and another
   // for the actual shadow. Pending https://code.google.com/p/chromium/issues/detail?id=236371
   // Yes, 1px border looks really bad on retina.
-  box-shadow: 0 0.5px 0 rgba(0,0,0,0.15), 0 -0.5px 0 rgba(0,0,0,0.15), 0.5px 0 0 rgba(0,0,0,0.15), -0.5px 0 0 rgba(0,0,0,0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.15), 0 -0.5px 0 rgba(0, 0, 0, 0.15),
+    0.5px 0 0 rgba(0, 0, 0, 0.15), -0.5px 0 0 rgba(0, 0, 0, 0.15), 0 0.5px 1px rgba(0, 0, 0, 0.15);
 
   height: 1.9em;
   line-height: 1.9em;
@@ -74,7 +80,7 @@ body.platform-win32 {
     background: darken(@btn-default-bg-color, 9%);
   }
   &:focus {
-    outline: none
+    outline: none;
   }
 
   font-size: @font-size-small;
@@ -94,13 +100,15 @@ body.platform-win32 {
   }
 
   &.btn-action {
-    color:      @btn-action-text-color;
+    color: @btn-action-text-color;
     background: @btn-action-bg-color;
-    img.content-mask { background-color:@btn-action-text-color; }
+    img.content-mask {
+      background-color: @btn-action-text-color;
+    }
   }
 
   &.btn-disabled {
-    color:      fadeout(@btn-default-text-color, 40%);
+    color: fadeout(@btn-default-text-color, 40%);
     background: fadeout(@btn-default-bg-color, 15%);
     &:active {
       background: fadeout(@btn-default-bg-color, 15%);
@@ -112,7 +120,9 @@ body.platform-win32 {
     color: @btn-emphasis-text-color;
     font-weight: @font-weight-medium;
 
-    img.content-mask { background-color:@btn-emphasis-text-color; }
+    img.content-mask {
+      background-color: @btn-emphasis-text-color;
+    }
 
     background: linear-gradient(to bottom, #6bb1f9 0%, #0a80ff 100%);
     box-shadow: none;
@@ -124,8 +134,8 @@ body.platform-win32 {
 
     &:before {
       content: ' ';
-      width: calc(~"100% + 2px");
-      height: calc(~"100% + 2px");
+      width: calc(~'100% + 2px');
+      height: calc(~'100% + 2px');
       border-radius: @border-radius-base + 1;
       top: -1px;
       left: -1px;
@@ -134,14 +144,23 @@ body.platform-win32 {
       background: linear-gradient(to bottom, #4ca2f9 0%, #015cff 100%);
     }
     &:active {
-      background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-emphasis-bg-color,10%)), to(darken(@btn-emphasis-bg-color, 4%)));
+      background: -webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        from(darken(@btn-emphasis-bg-color, 10%)),
+        to(darken(@btn-emphasis-bg-color, 4%))
+      );
     }
   }
 
-  &.btn-danger, .btn-destructive {
-    color:      @btn-danger-text-color;
+  &.btn-danger,
+  .btn-destructive {
+    color: @btn-danger-text-color;
     background: @btn-danger-bg-color;
-    img.content-mask { background-color:@btn-danger-text-color; }
+    img.content-mask {
+      background-color: @btn-danger-text-color;
+    }
   }
 }
 
@@ -152,14 +171,25 @@ body.platform-win32 {
   &.narrow {
     padding: 0 9px;
   }
-
 }
 
 .btn-gradient {
-  background: -webkit-gradient(linear, left top, left bottom, from(@btn-default-bg-color), to(darken(@btn-default-bg-color, 4.8%)));
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(@btn-default-bg-color),
+    to(darken(@btn-default-bg-color, 4.8%))
+  );
 }
 .btn-gradient:active {
-  background: -webkit-gradient(linear, left top, left bottom, from(darken(@btn-default-bg-color, 9%)), to(darken(@btn-default-bg-color, 13.5%)));
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(darken(@btn-default-bg-color, 9%)),
+    to(darken(@btn-default-bg-color, 13.5%))
+  );
 }
 
 .btn-icon {
@@ -167,7 +197,9 @@ body.platform-win32 {
   border: 0;
   box-shadow: none;
   color: @text-color-subtle;
-  img.content-mask { background-color:@text-color-subtle; }
+  img.content-mask {
+    background-color: @text-color-subtle;
+  }
   margin-right: 10px;
   outline: none !important;
   font-size: 20px;
@@ -178,7 +210,9 @@ body.platform-win32 {
 
   &.inverse {
     color: @text-color-inverse;
-    img.content-mask { background-color:@text-color-inverse; }
+    img.content-mask {
+      background-color: @text-color-inverse;
+    }
 
     &:hover {
       color: white;
@@ -186,19 +220,25 @@ body.platform-win32 {
 
     &:active {
       color: @text-color-inverse;
-      img.content-mask { background-color:@text-color-inverse; }
+      img.content-mask {
+        background-color: @text-color-inverse;
+      }
     }
   }
 
   &:hover {
     cursor: default;
     color: @text-color-link;
-    img.content-mask { background-color:@text-color-link; }
+    img.content-mask {
+      background-color: @text-color-link;
+    }
     box-shadow: none;
   }
   &:active {
     color: @text-color-link-active;
-    img.content-mask { background-color:@text-color-link-active; }
+    img.content-mask {
+      background-color: @text-color-link-active;
+    }
     box-shadow: none;
   }
 }

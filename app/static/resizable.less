@@ -1,4 +1,4 @@
-@resizableBorder: 1px solid #bbb;
+@resizableborder: 1px solid #bbb;
 
 .resizable {
   position: relative;
@@ -9,35 +9,37 @@
   display: block;
   position: absolute;
 
-  &.top, &.bottom {
+  &.top,
+  &.bottom {
     height: 5px;
     width: 100%;
     cursor: ns-resize;
   }
 
-  &.left, &.right {
+  &.left,
+  &.right {
     width: 5px;
     height: 100%;
     cursor: ew-resize;
   }
 
   &.top {
-    border-top: @resizableBorder;
+    border-top: @resizableborder;
     top: 0;
   }
 
   &.bottom {
-    border-bottom: @resizableBorder;
+    border-bottom: @resizableborder;
     bottom: 0;
   }
 
   &.left {
-    border-left: @resizableBorder;
+    border-left: @resizableborder;
     left: 0;
   }
 
   &.right {
-    border-right: @resizableBorder;
+    border-right: @resizableborder;
     right: 0;
   }
 }
