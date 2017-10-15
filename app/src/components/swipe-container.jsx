@@ -125,11 +125,12 @@ export default class SwipeContainer extends React.Component {
     }
   };
 
-  _onDragWithVelocity = velocity => {
+  _onDragWithVelocity = velocityX => {
     if (this.tracking === false || !this._isEnabled()) {
       return;
     }
-    const velocityConfirmsGesture = Math.abs(velocity) > 3;
+
+    const velocityConfirmsGesture = Math.abs(velocityX) > 3;
 
     if (this.phase === Phase.None) {
       this.phase = Phase.GestureStarting;
@@ -147,8 +148,8 @@ export default class SwipeContainer extends React.Component {
     }
 
     const clipToMax = v => Math.max(-fullDistance, Math.min(fullDistance, v));
-    const currentX = clipToMax(this.state.currentX + velocity);
-    const estimatedSettleX = clipToMax(currentX + velocity * 8);
+    const currentX = clipToMax(this.state.currentX + velocityX);
+    const estimatedSettleX = clipToMax(currentX + velocityX * 8);
     const lastDragX = currentX;
     let targetX = 0;
 
@@ -195,7 +196,8 @@ export default class SwipeContainer extends React.Component {
     if (this.trackingTouchIdentifier === null && e.targetTouches.length > 0) {
       const touch = e.targetTouches.item(0);
       this.trackingTouchIdentifier = touch.identifier;
-      this.trackingTouchX = touch.clientX;
+      this.trackingTouchX = this.trackingStartX = touch.clientX;
+      this.trackingTouchY = this.trackingStartY = touch.clientY;
       this._onScrollTouchBegin();
     }
   };
@@ -207,6 +209,9 @@ export default class SwipeContainer extends React.Component {
     if (e.cancelable === false) {
       // Chrome has already started interpreting these touch events as a scroll.
       // We can no longer call preventDefault to make them ours.
+      if ([Phase.GestureStarting, Phase.GestureConfirmed].includes(this.phase)) {
+        this._onReset();
+      }
       return;
     }
     let trackingTouch = null;
@@ -218,9 +223,18 @@ export default class SwipeContainer extends React.Component {
       }
     }
     if (trackingTouch !== null) {
-      const velocity = trackingTouch.clientX - this.trackingTouchX;
+      // If we're still trying to confirm the gesture, ignore any move events
+      // if the direction of the swipe is more than ~15º off the horizontal axis.
+      const dx = Math.abs(trackingTouch.clientX - this.trackingStartX);
+      const dy = Math.abs(trackingTouch.clientY - this.trackingStartY);
+      if (this.phase !== Phase.GestureConfirmed && dy / (dx || 1) > 0.3) {
+        return;
+      }
+
+      const velocityX = trackingTouch.clientX - this.trackingTouchX;
       this.trackingTouchX = trackingTouch.clientX;
-      this._onDragWithVelocity(velocity);
+      this.trackingTouchY = trackingTouch.clientY;
+      this._onDragWithVelocity(velocityX);
 
       if (this.phase === Phase.GestureConfirmed) {
         e.preventDefault();
