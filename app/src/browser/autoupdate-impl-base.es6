@@ -19,8 +19,8 @@ export default class AutoupdateImplBase extends EventEmitter {
     this.lastRetrievedUpdateURL = null;
   }
 
-  emitError = err => {
-    this.emit('error', err.message);
+  emitError = error => {
+    this.emit('error', error);
   };
 
   manuallyQueryUpdateServer(successCallback) {
@@ -29,32 +29,34 @@ export default class AutoupdateImplBase extends EventEmitter {
 
     // Hit the feed URL ourselves and see if an update is available.
     // On linux we can't autoupdate, but we can still show the "update available" bar.
-    https.get({ host: feedHost, path: feedPath }, res => {
-      console.log(`Manual update check (${feedHost}${feedPath}) returned ${res.statusCode}`);
+    https
+      .get({ host: feedHost, path: feedPath }, res => {
+        console.log(`Manual update check (${feedHost}${feedPath}) returned ${res.statusCode}`);
 
-      if (res.statusCode === 204) {
-        successCallback(false);
-        return;
-      }
-
-      let data = '';
-      res.on('error', this.emitError);
-      res.on('data', chunk => {
-        data += chunk;
-      });
-      res.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          if (!json.url) {
-            this.emitError(new Error(`Autoupdater response did not include URL: ${data}`));
-            return;
-          }
-          successCallback(json);
-        } catch (err) {
-          this.emitError(err);
+        if (res.statusCode === 204) {
+          successCallback(false);
+          return;
         }
-      });
-    }).on('error', this.emitError);
+
+        let data = '';
+        res.on('error', this.emitError);
+        res.on('data', chunk => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            if (!json.url) {
+              this.emitError(new Error(`Autoupdater response did not include URL: ${data}`));
+              return;
+            }
+            successCallback(json);
+          } catch (err) {
+            this.emitError(err);
+          }
+        });
+      })
+      .on('error', this.emitError);
   }
 
   /* Public: Check for updates and emit events if an update is available. */

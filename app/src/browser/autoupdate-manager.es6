@@ -62,9 +62,9 @@ export default class AutoUpdateManager extends EventEmitter {
       autoUpdater = require('electron').autoUpdater;
     }
 
-    autoUpdater.on('error', (message) => {
+    autoUpdater.on('error', error => {
       if (this.specMode) return;
-      console.error(`Error Downloading Update: ${message}`);
+      console.error(`Error Downloading Update: ${error.message}`);
       this.setState(ErrorState);
     });
 
