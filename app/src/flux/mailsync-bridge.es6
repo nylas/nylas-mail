@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { ipcRenderer } from 'electron';
+import _ from 'underscore';
 
 import Task from './tasks/task';
 import TaskQueue from './stores/task-queue';
@@ -166,7 +167,7 @@ export default class MailsyncBridge {
     return this._clients;
   }
 
-  ensureClients() {
+  ensureClients = _.throttle(() => {
     const clientsWithoutAccounts = Object.assign({}, this._clients);
 
     for (const acct of AccountStore.accounts()) {
@@ -185,7 +186,7 @@ export default class MailsyncBridge {
     for (const client of Object.values(clientsWithoutAccounts)) {
       client.kill();
     }
-  }
+  }, 100);
 
   forceRelaunchClient(account) {
     this._launchClient(account, { force: true });
@@ -227,22 +228,23 @@ export default class MailsyncBridge {
     client.on('deltas', this._onIncomingMessages);
     client.on('close', ({ code, error, signal }) => {
       delete this._clients[id];
-      if (signal !== 'SIGTERM') {
-        this._crashTracker.recordClientCrash(fullAccountJSON, { code, error, signal });
+      if (signal === 'SIGTERM') {
+        return;
+      }
+      this._crashTracker.recordClientCrash(fullAccountJSON, { code, error, signal });
 
-        const isAuthFailure =
-          `${error}`.includes('Response Code: 401') || // mailspring services
-          `${error}`.includes('Response Code: 403') || // mailspring services
-          `${error}`.includes('ErrorAuthentication'); // mailcore
+      const isAuthFailure =
+        `${error}`.includes('Response Code: 401') || // mailspring services
+        `${error}`.includes('Response Code: 403') || // mailspring services
+        `${error}`.includes('ErrorAuthentication'); // mailcore
 
-        if (this._crashTracker.tooManyFailures(fullAccountJSON)) {
-          Actions.updateAccount(id, {
-            syncState: isAuthFailure ? Account.SYNC_STATE_AUTH_FAILED : Account.SYNC_STATE_ERROR,
-            syncError: { code, error, signal },
-          });
-        } else {
-          this.ensureClients();
-        }
+      if (this._crashTracker.tooManyFailures(fullAccountJSON)) {
+        Actions.updateAccount(id, {
+          syncState: isAuthFailure ? Account.SYNC_STATE_AUTH_FAILED : Account.SYNC_STATE_ERROR,
+          syncError: { code, error, signal },
+        });
+      } else {
+        this.ensureClients();
       }
     });
     this._clients[id] = client;
