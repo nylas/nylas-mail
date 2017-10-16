@@ -30,7 +30,7 @@ build_script:
 - cmd: node app/build/create-signed-windows-installer.js
 
 before_deploy:
-  - cmd: 7z -ttar a dummy %APPVEYOR_BUILD_FOLDER%\app\dist\*.dll %APPVEYOR_BUILD_FOLDER%\app\dist\*.exe -so | 7z -si -tgzip a .\app\dist\mailsync.tar.gz
+  - cmd: 7z -ttar a dummy %APPVEYOR_BUILD_FOLDER%\app\dist\*.dll %APPVEYOR_BUILD_FOLDER%\app\dist\mailsync.exe -so | 7z -si -tgzip a .\app\dist\mailsync.tar.gz
   - ps: Get-ChildItem .\app\dist\*.tar.gz | % { Push-AppveyorArtifact $_.FullName -FileName "win-ia32/$($_.Name)" -DeploymentName s3-deployment }
   - ps: Get-ChildItem .\app\dist\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName "win-ia32/$($_.Name)" -DeploymentName s3-deployment }
   - ps: Get-ChildItem .\app\dist\RELEASES | % { Push-AppveyorArtifact $_.FullName -FileName "win-ia32/$($_.Name)" -DeploymentName s3-deployment }
