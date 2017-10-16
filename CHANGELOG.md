@@ -6,6 +6,22 @@ Features:
 
 - A new bar appears when you view the Trash and Spam folders allowing you to permanently delete messages.
 
+Fixes:
+
+- On Windows, Mailspring now uses the system font, which looks more crisp on Windows 10.
+
+- On Windows, swipe to archive now works on touch-screen laptops.
+
+- On Windows, we now ship the VS C++ Redistributable runtime, fixing issues many users had running the app after a fresh install.
+
+- The default Chomium "double-tap-to-zoom" behavior has been disabled on all platforms.
+
+- Preferences > Folders now shows UTF8 folder titles correctly.
+
+- On OpenSUSE, Mailspring now looks for certificates at the correct path, fixing authentication issues with servers that use SSL.
+
+- The undo/redo toast no longer appears when switching to Drafts and back.
+
 
 ### 1.0.4 (10/12/2017)
 
