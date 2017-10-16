@@ -69,7 +69,10 @@ export default class MailsyncProcess extends EventEmitter {
     }
 
     this._proc = spawn(this.binaryPath, [`--mode`, mode], { env });
-    if (this.account) {
+
+    // stdout may not be present if an error occurred. Error handler hasn't been
+    // attached yet, but will be by the caller of spawnProcess.
+    if (this.account && this._proc.stdout) {
       this._proc.stdout.once('data', () => {
         this._proc.stdin.write(
           `${JSON.stringify(this.account)}\n${JSON.stringify(this.identity)}\n`
@@ -82,15 +85,22 @@ export default class MailsyncProcess extends EventEmitter {
     return new Promise((resolve, reject) => {
       this._spawnProcess(mode);
       let buffer = Buffer.from([]);
-      this._proc.stdout.on('data', data => {
-        buffer += data;
-      });
-      this._proc.stderr.on('data', data => {
-        buffer += data;
-      });
+
+      if (this._proc.stdout) {
+        this._proc.stdout.on('data', data => {
+          buffer += data;
+        });
+      }
+      if (this._proc.stderr) {
+        this._proc.stderr.on('data', data => {
+          buffer += data;
+        });
+      }
+
       this._proc.on('error', err => {
         reject(err);
       });
+
       this._proc.on('close', code => {
         try {
           const lastLine = buffer
@@ -135,27 +145,37 @@ export default class MailsyncProcess extends EventEmitter {
     because some tasks (creating replies to drafts, etc.) can be gigantic amounts
     of HTML, many tasks can be created at once, etc, and we don't want to kill
     the channel. */
-    this._proc.stdin.highWaterMark = 1024 * 1024;
+    if (this._proc.stdin) {
+      this._proc.stdin.highWaterMark = 1024 * 1024;
+    }
+    if (this._proc.stdout) {
+      this._proc.stdout.on('data', data => {
+        const added = data.toString();
+        buffer += added;
 
-    this._proc.stdout.on('data', data => {
-      const added = data.toString();
-      buffer += added;
-
-      if (added.indexOf('\n') !== -1) {
-        const msgs = buffer.split('\n');
-        buffer = msgs.pop();
-        this.emit('deltas', msgs);
-      }
-    });
-    this._proc.stderr.on('data', data => {
-      errBuffer += data.toString();
-    });
+        if (added.indexOf('\n') !== -1) {
+          const msgs = buffer.split('\n');
+          buffer = msgs.pop();
+          this.emit('deltas', msgs);
+        }
+      });
+    }
+    if (this._proc.stderr) {
+      this._proc.stderr.on('data', data => {
+        errBuffer += data.toString();
+      });
+    }
     this._proc.on('error', err => {
       console.log(`Sync worker exited with ${err}`);
       this.emit('error', err);
     });
-    this._proc.on('close', code => {
+
+    let cleanedUp = false;
+    const onStreamCloseOrExit = (code, signal) => {
       let error = null;
+      if (cleanedUp) {
+        return;
+      }
 
       if (buffer.length) {
         let lastJSON = null;
@@ -174,8 +194,19 @@ export default class MailsyncProcess extends EventEmitter {
         error = new Error(errBuffer);
       }
 
-      this.emit('close', { code, error, signal: this._proc.signalCode });
+      cleanedUp = true;
+      this.emit('close', { code, error, signal });
+    };
+
+    this._proc.on('error', error => {
+      if (cleanedUp) {
+        return;
+      }
+      cleanedUp = true;
+      this.emit('close', { code: -1, error, signal: null });
     });
+    this._proc.on('close', onStreamCloseOrExit);
+    this._proc.on('exit', onStreamCloseOrExit);
   }
 
   sendMessage(json) {
