@@ -31,6 +31,7 @@ module.exports = [
       ['composer:focus-to', 'Focus the To field'],
       ['composer:show-and-focus-cc', 'Focus the Cc field'],
       ['composer:show-and-focus-bcc', 'Focus the Bcc field'],
+      ['composer:select-attachment', 'Select file attachment'],
     ],
   },
   {

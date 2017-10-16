@@ -57,5 +57,7 @@
   "contenteditable:outdent": "mod+[",
   "contenteditable:indent": "mod+]",
   "contenteditable:next-selection": "mod+\"",
-  "contenteditable:open-spelling-suggestions": "mod+m"
+  "contenteditable:open-spelling-suggestions": "mod+m",
+
+  "composer:select-attachment": "mod+shift+a"
 }

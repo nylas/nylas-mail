@@ -102,6 +102,7 @@ export default class ComposerView extends React.Component {
       'composer:show-and-focus-cc': () => this._els.header.showAndFocusField(Fields.Cc),
       'composer:focus-to': () => this._els.header.showAndFocusField(Fields.To),
       'composer:show-and-focus-from': () => {},
+      'composer:select-attachment': () => Actions.selectAttachment({ headerMessageId: this.props.draft.headerMessageId });,
       'core:undo': event => {
         event.preventDefault();
         event.stopPropagation();
