@@ -50,7 +50,6 @@
 
   html,
   body {
-    font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif;
     font-size: 14.5px;
     line-height: 1.5;
     color: @text-color;
@@ -64,6 +63,14 @@
     word-wrap: break-word;
     -webkit-nbsp-mode: space;
     -webkit-line-break: after-white-space;
+  }
+
+  #inbox-html-wrapper {
+    font-family: 'Nylas-Pro', 'Helvetica', 'Lucidia Grande', sans-serif;
+  }
+
+  #inbox-html-wrapper.platform-win32 {
+    font-family: system-ui;
   }
 
   strong,

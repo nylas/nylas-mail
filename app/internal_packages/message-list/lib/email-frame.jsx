@@ -71,7 +71,9 @@ export default class EmailFrame extends React.Component {
     if (styles) {
       doc.write(`<style>${styles}</style>`);
     }
-    doc.write(`<div id='inbox-html-wrapper'>${this._emailContent()}</div>`);
+    doc.write(
+      `<div id='inbox-html-wrapper' class="${process.platform}">${this._emailContent()}</div>`
+    );
     doc.close();
 
     autolink(doc, { async: true });

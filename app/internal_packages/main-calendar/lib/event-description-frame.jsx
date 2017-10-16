@@ -41,7 +41,9 @@ export default class EmailFrame extends React.Component {
     // the `border-collapse: collapse` css property while setting a
     // `padding`.
     doc.write('<!DOCTYPE html>');
-    doc.write(`<div id='inbox-html-wrapper'>${this.props.content}</div>`);
+    doc.write(
+      `<div id='inbox-html-wrapper' class="${process.platform}">${this.props.content}</div>`
+    );
     doc.close();
 
     // autolink(doc, {async: true});
