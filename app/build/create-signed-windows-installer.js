@@ -16,7 +16,6 @@ const config = {
   loadingGif: path.join(appDir, 'build', 'resources', 'win', 'loading.gif'),
   iconUrl: 'http://mailspring-builds.s3.amazonaws.com/assets/mailspring.ico',
   certificateFile: process.env.WINDOWS_CODESIGN_CERT,
-  certificatePassword: process.env.WINDOWS_CODESIGN_CERT_PASSWORD,
   description: 'Mailspring',
   version: version,
   title: 'Mailspring',
@@ -29,6 +28,9 @@ const config = {
 
 console.log(config);
 console.log('---> Starting');
+
+// avoid logging the certificate password
+config.certificatePassword = process.env.WINDOWS_CODESIGN_CERT_PASSWORD;
 
 createWindowsInstaller(config)
   .then(() => {
