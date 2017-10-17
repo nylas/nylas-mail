@@ -1,10 +1,12 @@
 <!--
-Thanks for taking the time to file an issue! If you have general question or a problem with your email account, take a quick look at the Mailspring Knowledge Base to see if you question is addressed there:
+Thanks for taking the time to file an issue! The Mailspring community uses GitHub issues to coordinate develpoment.
 
-   http://support.getmailspring.com/hc/en-us/
+If you have question about Mailspring or a problem with your email account, search the Knowledge Base to see if it's addressed there. If it's not, join our Slack organization and ask the community:
 
-Our team tries to respond to all GitHub issues. To make sure your issue is
-actionable, try to include the following information:
+  - http://support.getmailspring.com/hc/en-us/
+  - https://join-mailspring-slack.herokuapp.com/
+
+Our team tries to respond to all GitHub issues. To make sure your issue is actionable, try to include the following information:
 -->
 
 ##### Are there any related issues?
