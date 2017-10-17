@@ -43,7 +43,7 @@ export default class SidebarParticipantPicker extends React.Component {
   _onSelectContact = event => {
     const { sortedContacts } = this.state;
     const [email, name] = event.target.value.split(SPLIT_KEY);
-    const contact = sortedContacts.find(c => c.name === name && c.email === email);
+    const contact = sortedContacts.find(c => (c.name === name || typeof c.name == "undefined" ) && c.email === email);
     return Actions.focusContact(contact);
   };
 
