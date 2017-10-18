@@ -2,6 +2,7 @@
 /* eslint import/no-dynamic-require: 0 */
 import _ from 'underscore';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { ipcRenderer, remote } from 'electron';
 import { Emitter } from 'event-kit';
@@ -585,7 +586,16 @@ export default class AppEnvConstructor {
 
   // Extended: Move current window to the center of the screen.
   center() {
-    return ipcRenderer.send('call-window-method', 'center');
+    if (os.platform() === 'linux') {
+      let dimensions = this.getWindowDimensions();
+      let bounds = remote.screen.getPrimaryDisplay().bounds;
+      let x = bounds.x + ((bounds.width - dimensions.width) / 2);
+      let y = bounds.y + ((bounds.height - dimensions.height) / 2);
+
+      return this.setPosition(x, y);
+    } else {
+      return ipcRenderer.send('call-window-method', 'center');
+    }
   }
 
   // Extended: Focus the current window. Note: this will not open the window
