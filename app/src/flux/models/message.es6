@@ -159,6 +159,11 @@ export default class Message extends ModelWithMetadata {
       modelKey: 'replyToHeaderMessageId',
     }),
 
+    forwardedHeaderMessageId: Attributes.String({
+      jsonKey: 'fwdMsgId',
+      modelKey: 'forwardedHeaderMessageId',
+    }),
+
     folder: Attributes.Object({
       queryable: false,
       modelKey: 'folder',

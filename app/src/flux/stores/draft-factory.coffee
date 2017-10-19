@@ -145,6 +145,7 @@ class DraftFactory
         files: message.files,
         threadId: thread.id,
         accountId: message.accountId,
+        forwardedHeaderMessageId: message.headerMessageId,
         body: """
           <br><br>
           <div class="gmail_quote">
