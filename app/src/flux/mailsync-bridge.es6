@@ -341,6 +341,7 @@ export default class MailsyncBridge {
     DatabaseStore.trigger(record);
 
     // Run task success / error handlers if the task is now complete
+    // Note: cannot use `record.objectClass` because of subclass names
     if (record.type === 'persist' && record.objects[0] instanceof Task) {
       for (const task of record.objects) {
         if (task.status !== 'complete') {

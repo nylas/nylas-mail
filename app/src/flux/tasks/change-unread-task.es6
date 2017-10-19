@@ -13,16 +13,6 @@ export default class ChangeUnreadTask extends ChangeMailTask {
     }),
   });
 
-  constructor(data = {}) {
-    if (data.threads) {
-      data.threads = data.threads.filter(t => t.unread !== data.unread);
-    }
-    if (data.messages) {
-      data.messages = data.messages.filter(m => m.unread !== data.unread);
-    }
-    super(data);
-  }
-
   label() {
     return this.unread ? 'Marking as unread' : 'Marking as read';
   }

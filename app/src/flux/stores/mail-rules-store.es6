@@ -11,13 +11,25 @@ import MailRulesProcessor from '../../mail-rules-processor';
 import { ConditionMode, ConditionTemplates, ActionTemplates } from '../../mail-rules-templates';
 
 const RulesJSONKey = 'MailRules-V2';
+const AutoSinceJSONKey = 'MailRules-Auto-Since';
 
 class MailRulesStore extends MailspringStore {
   constructor() {
     super();
 
+    /* This is a bit strange - if the user has mail rules enabled, they only
+    expect rules to be applied to "new" mail. Not "new" mail as in just created,
+    since that includes old mail we're syncing for the first time. Just "new"
+    mail that has arrived since they last ran Mailspring. So, we keep a date. */
+    this._autoSince = (window.localStorage.getItem(AutoSinceJSONKey) || 0) / 1;
+    if (this._autoSince === 0) {
+      window.localStorage.setItem(AutoSinceJSONKey, Date.now());
+      this._autoSince = Date.now();
+    }
+
     this._reprocessing = {};
     this._rules = [];
+
     try {
       const txt = window.localStorage.getItem(RulesJSONKey);
       if (txt) {
@@ -34,6 +46,8 @@ class MailRulesStore extends MailspringStore {
     this.listenTo(Actions.disableMailRule, this._onDisableMailRule);
     this.listenTo(Actions.startReprocessingMailRules, this._onStartReprocessing);
     this.listenTo(Actions.stopReprocessingMailRules, this._onStopReprocessing);
+
+    this.listenTo(DatabaseStore, this._onDatabaseChanged);
   }
 
   rules() {
@@ -51,6 +65,22 @@ class MailRulesStore extends MailspringStore {
   reprocessState() {
     return this._reprocessing;
   }
+
+  _onDatabaseChanged = record => {
+    // If the record contains new emails, process mail rules immediately.
+    // This is necessary to avoid emails from bouncing through the inbox.
+    if (record.type === 'persist' && record.objectClass === Message.name) {
+      const newMessages = record.objects.filter(msg => {
+        if (msg.version !== 1) return false;
+        if (msg.draft) return false;
+        if (!msg.date || msg.date.valueOf() < this._autoSince) return false;
+        return true;
+      });
+      if (newMessages.length > 0) {
+        MailRulesProcessor.processMessages(newMessages);
+      }
+    }
+  };
 
   _onDeleteMailRule = id => {
     this._rules = this._rules.filter(f => f.id !== id);

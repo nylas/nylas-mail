@@ -13,16 +13,6 @@ export default class ChangeStarredTask extends ChangeMailTask {
     }),
   });
 
-  constructor(data = {}) {
-    if (data.threads) {
-      data.threads = data.threads.filter(t => t.starred !== data.starred);
-    }
-    if (data.messages) {
-      data.messages = data.messages.filter(m => m.starred !== data.starred);
-    }
-    super(data);
-  }
-
   label() {
     return this.starred ? 'Starring' : 'Unstarring';
   }

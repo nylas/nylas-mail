@@ -24,10 +24,7 @@ information about the current view. Maybe after the unified inbox refactor...
 */
 const MailRulesActions = {
   markAsImportant: async (message, thread) => {
-    const important = await DatabaseStore.findBy(Label, {
-      role: 'important',
-      accountId: thread.accountId,
-    });
+    const important = CategoryStore.getCategoryByRole(thread.accountId, 'important');
     if (!important) {
       throw new Error('Could not find `important` label');
     }
@@ -52,6 +49,9 @@ const MailRulesActions = {
   },
 
   markAsRead: (message, thread) => {
+    if (thread.unread === false) {
+      return null;
+    }
     return new ChangeUnreadTask({
       unread: false,
       threads: [thread],
@@ -60,6 +60,9 @@ const MailRulesActions = {
   },
 
   star: (message, thread) => {
+    if (thread.starred === true) {
+      return null;
+    }
     return new ChangeStarredTask({
       starred: true,
       threads: [thread],
@@ -71,8 +74,8 @@ const MailRulesActions = {
     if (!value) {
       throw new Error('A folder is required.');
     }
-    const folder = await DatabaseStore.findBy(Folder, { id: value, accountId: thread.accountId });
-    if (!folder) {
+    const folder = CategoryStore.byId(thread.accountId, value);
+    if (!folder || !(folder instanceof Folder)) {
       throw new Error('The folder could not be found.');
     }
     return new ChangeFolderTask({
@@ -86,8 +89,8 @@ const MailRulesActions = {
     if (!value) {
       throw new Error('A label is required.');
     }
-    const label = await DatabaseStore.findBy(Label, { id: value, accountId: thread.accountId });
-    if (!label) {
+    const label = CategoryStore.byId(thread.accountId, value);
+    if (!label || !(label instanceof Label)) {
       throw new Error('The label could not be found.');
     }
     return new ChangeLabelsTask({
@@ -112,12 +115,11 @@ const MailRulesActions = {
       throw new Error('A label is required.');
     }
 
-    const { withId, withRole } = await Promise.props({
-      withId: DatabaseStore.findBy(Label, { id: roleOrId, accountId: thread.accountId }),
-      withRole: DatabaseStore.findBy(Label, { role: roleOrId, accountId: thread.accountId }),
-    });
-    const label = withId || withRole;
-    if (!label) {
+    const label = CategoryStore.categories(thread.accountId).find(
+      c => c.id === roleOrId || c.role === roleOrId
+    );
+
+    if (!label || !(label instanceof Label)) {
       throw new Error('The label could not be found.');
     }
     return new ChangeLabelsTask({
@@ -189,6 +191,12 @@ class MailRulesProcessor {
 
       const actionResults = await Promise.all(actionPromises);
       const actionTasks = actionResults.filter(r => r instanceof Task);
+
+      // mark that none of these tasks are undoable
+      actionTasks.forEach(t => {
+        t.canBeUndone = false;
+      });
+
       const performLocalPromises = actionTasks.map(t => TaskQueue.waitForPerformLocal(t));
       Actions.queueTasks(actionTasks);
       await performLocalPromises;
