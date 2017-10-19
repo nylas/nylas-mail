@@ -49,33 +49,35 @@ class TaskQueue extends MailspringStore {
     this._waitingForLocal = [];
     this._waitingForRemote = [];
 
-    Rx.Observable.fromQuery(DatabaseStore.findAll(Task)).subscribe(tasks => {
-      const finished = [Task.Status.Complete, Task.Status.Cancelled];
-      this._queue = tasks.filter(t => !finished.includes(t.status));
-      this._completed = tasks.filter(t => finished.includes(t.status));
-      const all = [].concat(this._queue, this._completed);
-
-      this._waitingForLocal.filter(({ task, resolve }) => {
-        const match = all.find(t => task.id === t.id);
-        if (match) {
-          resolve(match);
-          return false;
-        }
-        return true;
-      });
-
-      this._waitingForRemote.filter(({ task, resolve }) => {
-        const match = this._completed.find(t => task.id === t.id);
-        if (match) {
-          resolve(match);
-          return false;
-        }
-        return true;
-      });
-
-      this.trigger();
-    });
+    Rx.Observable.fromQuery(DatabaseStore.findAll(Task)).subscribe(this._onQueueChangedDebounced);
   }
+
+  _onQueueChangedDebounced = _.throttle(tasks => {
+    const finished = [Task.Status.Complete, Task.Status.Cancelled];
+    this._queue = tasks.filter(t => !finished.includes(t.status));
+    this._completed = tasks.filter(t => finished.includes(t.status));
+    const all = [].concat(this._queue, this._completed);
+
+    this._waitingForLocal.filter(({ task, resolve }) => {
+      const match = all.find(t => task.id === t.id);
+      if (match) {
+        resolve(match);
+        return false;
+      }
+      return true;
+    });
+
+    this._waitingForRemote.filter(({ task, resolve }) => {
+      const match = this._completed.find(t => task.id === t.id);
+      if (match) {
+        resolve(match);
+        return false;
+      }
+      return true;
+    });
+
+    this.trigger();
+  }, 150);
 
   queue() {
     return this._queue;
