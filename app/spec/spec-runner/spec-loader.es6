@@ -74,7 +74,11 @@ class N1SpecLoader {
 
     for (const specFilePath of fs.listTreeSync(specDirectory)) {
       if (regex.test(specFilePath)) {
-        require(specFilePath);
+        try {
+          require(specFilePath);
+        } catch (err) {
+          throw new Error(`Error requiring spec file: ${specFilePath}: ${err.toString()}`);
+        }
       }
     }
 

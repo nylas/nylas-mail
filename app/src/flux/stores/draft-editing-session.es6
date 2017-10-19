@@ -11,6 +11,7 @@ import DatabaseStore from './database-store';
 import UndoStack from '../../undo-stack';
 import DraftHelpers from '../stores/draft-helpers';
 import { Composer as ComposerExtensionRegistry } from '../../registries/extension-registry';
+import QuotedHTMLTransformer from '../../services/quoted-html-transformer';
 import SyncbackDraftTask from '../tasks/syncback-draft-task';
 import DestroyDraftTask from '../tasks/destroy-draft-task';
 
@@ -201,11 +202,23 @@ export default class DraftEditingSession extends MailspringStore {
     const forwarded = DraftHelpers.isForwardedMessage(this._draft);
     const hasAttachment = this._draft.files && this._draft.files.length > 0;
 
+    const allNames = [];
+    let unnamedRecipientPresent = false;
+
     for (const contact of allRecipients) {
       if (!ContactStore.isValidContact(contact)) {
         errors.push(
           `${contact.email} is not a valid email address - please remove or edit it before sending.`
         );
+      }
+      const name = contact.fullName();
+      if (name && name.length && name !== contact.email) {
+        allNames.push(name.toLowerCase()); // ben gotow
+        allNames.push(...name.toLowerCase().split(' ')); // ben, gotow
+        allNames.push(contact.nameAbbreviation().toLowerCase()); // bg
+        allNames.push(name.toLowerCase()[0]); // b
+      } else {
+        unnamedRecipientPresent = true;
       }
     }
 
@@ -221,8 +234,26 @@ export default class DraftEditingSession extends MailspringStore {
       warnings.push('without a subject line');
     }
 
-    if (DraftHelpers.messageMentionsAttachment(this._draft) && !hasAttachment) {
+    let cleaned = QuotedHTMLTransformer.removeQuotedHTML(this._draft.body.trim());
+    const signatureIndex = cleaned.indexOf('<signature>');
+    if (signatureIndex !== -1) {
+      cleaned = cleaned.substr(0, signatureIndex - 1);
+    }
+
+    if (cleaned.toLowerCase().includes('attach') && !hasAttachment) {
       warnings.push('without an attachment');
+    }
+
+    if (!unnamedRecipientPresent) {
+      // https://www.regexpal.com/?fam=99334
+      const englishSalutations = /(?:[y|Y]o|[h|H]ey|[h|H]i|[M|m]orning|[A|a]fternoon|[E|e]vening|[D|d]ear){1} ([A-Z][A-Za-zÀ-ÿ]+)[!_—,.\n\r< -]/;
+      const match = englishSalutations.exec(cleaned);
+      if (match) {
+        const salutationName = match[1];
+        if (salutationName.length && !allNames.includes(salutationName.toLowerCase())) {
+          warnings.push(`addressed to "${salutationName}"`);
+        }
+      }
     }
 
     if (bodyIsEmpty && !forwarded && !hasAttachment) {

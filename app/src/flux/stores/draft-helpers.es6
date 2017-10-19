@@ -58,18 +58,6 @@ class DraftHelpers {
     );
   }
 
-  messageMentionsAttachment({ body } = {}) {
-    if (body == null) {
-      throw new Error('DraftHelpers::messageMentionsAttachment - Message has no body loaded');
-    }
-    let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
-    const signatureIndex = cleaned.indexOf('<signature>');
-    if (signatureIndex !== -1) {
-      cleaned = cleaned.substr(0, signatureIndex - 1);
-    }
-    return cleaned.indexOf('attach') >= 0;
-  }
-
   async pruneRemovedInlineFiles(draft) {
     draft.files = draft.files.filter(f => {
       return !(f.contentId && !draft.body.includes(`cid:${f.id}`));

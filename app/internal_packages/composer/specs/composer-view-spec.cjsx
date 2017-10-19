@@ -216,6 +216,54 @@ describe "ComposerView", ->
         expect(dialogArgs.buttons).toEqual ['Edit Message', 'Cancel']
       )
 
+    describe "not addressed to recipient warning", ->
+      warn = (contactname, body) ->
+        sessionSetupComplete = false
+        useDraft.call(@, subject: "Subject", to: [new Contact(name: contactname, email:"mark@foundry376.com")], body: body).then( =>
+          sessionSetupComplete = true
+        )
+        waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+        runs( =>
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe false
+          expect(@dialog.showMessageBox).toHaveBeenCalled()
+          dialogArgs = @dialog.showMessageBox.mostRecentCall.args[1]
+          expect(dialogArgs.buttons).toEqual ['Send Anyway', 'Cancel']
+        )
+
+      noWarn = (contactname, body) ->
+        sessionSetupComplete = false
+        useDraft.call(@, subject: "Subject", to: [new Contact(name: contactname, email:"mark@foundry376.com")], body: body).then( =>
+          sessionSetupComplete = true
+        )
+        waitsFor(( => sessionSetupComplete), "The session's draft needs to be set", 500)
+        runs( =>
+          makeComposer.call(@)
+          status = @composer._isValidDraft()
+          expect(status).toBe true
+          expect(@dialog.showMessageBox).not.toHaveBeenCalled()
+        )
+
+      it "warns", -> warn.call(@, "Mark Teller", "Hey Ben, how's it going?")
+      it "warns", -> warn.call(@, "Mark Teller", "Morning Ben—I've got a great opportunity for you.")
+      it "warns", -> warn.call(@, "Mark Teller", "Yo Ben—This is great.")
+      it "warns", -> warn.call(@, "Mark Teller", "Yo MG-This is great.")
+      it "warns", -> warn.call(@, "Mark Teller", "Good afternoon Ben\nThis is great.")
+
+      it "doesn't warn", -> noWarn.call(@, "", "Hey Mark, check this out.")
+      it "doesn't warn", -> noWarn.call(@, null, "Hey Mark, check this out.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Morning dude check this out.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Hey man check this out.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Mark! This is great.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Yo Teller. This is great.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Yo MT! This is great.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Good afternoon Teller\nDude this is great.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Hey Mark, just wanted to see how it's going.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Hola. Just wanted to see how it's going.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Sénor—have a great opportunity for you.")
+      it "doesn't warn", -> noWarn.call(@, "Mark Teller", "Hey—just wanted to see how it's going.")
+
     describe "empty body warning", ->
       it "warns if the body of the email is still the pristine body", ->
         pristineBody = "<br><br>"
