@@ -262,7 +262,9 @@ class AccountStore extends MailspringStore {
 
   accountForItems = items => {
     const accounts = this.accountsForItems(items);
-    if (accounts.length > 1) return null;
+    if (accounts.length > 1) {
+      return null;
+    }
     return accounts[0];
   };
 

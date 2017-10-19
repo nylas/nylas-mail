@@ -49,6 +49,7 @@ class LabelPicker extends React.Component
 
   render: =>
     return <span /> unless @_account
+    return <span /> unless @_account.usesLabels()
     btnClasses = "btn btn-toolbar btn-category-picker"
 
     return (

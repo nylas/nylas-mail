@@ -64,7 +64,7 @@ export default class PreferencesCategoryMapper extends React.Component {
             all={this.state.all[account.id]}
             current={this.state.assignments[account.id][role]}
             onSelect={category => this._onCategorySelection(account, role, category)}
-            accountUsesLabels={!!this.state.all[account.id].find(c => c instanceof Label)}
+            accountUsesLabels={account.usesLabels()}
           />
         </div>
       </div>

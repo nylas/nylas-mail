@@ -115,6 +115,10 @@ export default class Account extends ModelWithMetadata {
     return this.me();
   }
 
+  usesLabels() {
+    return this.provider === 'gmail';
+  }
+
   // Public: Returns the localized, properly capitalized provider name,
   // like Gmail, Exchange, or Outlook 365
   displayProvider() {

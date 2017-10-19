@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import FocusedPerspectiveStore from '../flux/stores/focused-perspective-store';
 import CategoryStore from '../flux/stores/category-store';
 import MessageStore from '../flux/stores/message-store';
-import Label from '../flux/models/label';
+import AccountStore from '../flux/stores/account-store';
 import { MailLabel } from './mail-label';
 import Actions from '../flux/actions';
 import ChangeLabelsTask from '../flux/tasks/change-labels-task';
@@ -33,11 +33,10 @@ export default class MailLabelSet extends React.Component {
 
   render() {
     const { thread, messages, includeCurrentCategories } = this.props;
+    const account = AccountStore.accountForId(thread.accountId);
     const labels = [];
 
-    const accountUsesLabels = CategoryStore.getInboxCategory(thread.accountId) instanceof Label;
-
-    if (accountUsesLabels) {
+    if (account && account.usesLabels()) {
       const hidden = CategoryStore.hiddenCategories(thread.accountId);
       let current = FocusedPerspectiveStore.current().categories();
 

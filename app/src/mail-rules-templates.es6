@@ -100,7 +100,7 @@ export function ActionTemplatesForAccount(account) {
       })
     );
 
-  if (CategoryStore.getInboxCategory(account.id) instanceof Label) {
+  if (account.usesLabels()) {
     templates.unshift(
       new Template('markAsImportant', Template.Type.None, {
         name: 'Mark as Important',
