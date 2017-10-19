@@ -546,7 +546,6 @@ export default class ComposerView extends React.Component {
   };
 
   _onBodyChanged = event => {
-    console.log(`adding body changes: ${event.target.value}`);
     this.props.session.changes.add({ body: event.target.value });
     return;
   };
