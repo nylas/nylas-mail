@@ -183,8 +183,8 @@ class SidebarSection
       onCollapseToggled: onCollapseToggled
       onItemCreated: (displayName) ->
         return unless displayName
-        Actions.queueTask(new SyncbackCategoryTask({
-          path: displayName,
+        Actions.queueTask(SyncbackCategoryTask.forCreating({
+          name: displayName,
           accountId: account.id,
         }))
     }

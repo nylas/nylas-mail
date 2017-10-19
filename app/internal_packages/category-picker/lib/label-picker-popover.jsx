@@ -99,8 +99,8 @@ export default class LabelPickerPopover extends Component {
     if (threads.length === 0) return;
 
     if (item.newCategoryItem) {
-      const syncbackTask = new SyncbackCategoryTask({
-        path: this.state.searchValue,
+      const syncbackTask = SyncbackCategoryTask.forCreating({
+        name: this.state.searchValue,
         accountId: account.id,
       });
 

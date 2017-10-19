@@ -129,8 +129,8 @@ export default class MovePickerPopover extends Component {
   };
 
   _onCreateCategory = () => {
-    const syncbackTask = new SyncbackCategoryTask({
-      path: this.state.searchValue,
+    const syncbackTask = SyncbackCategoryTask.forCreating({
+      name: this.state.searchValue,
       accountId: this.props.account.id,
     });
 

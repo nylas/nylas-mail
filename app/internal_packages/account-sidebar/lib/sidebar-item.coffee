@@ -65,10 +65,10 @@ onEditItem = (item, value) ->
   if newDisplayName is category.displayName
     return
 
-  Actions.queueTask(new SyncbackCategoryTask({
+  Actions.queueTask(SyncbackCategoryTask.forRenaming({
     accountId: category.accountId,
-    existingPath: category.path,
-    path: newDisplayName,
+    path: category.path,
+    newName: newDisplayName,
   }))
 
 
