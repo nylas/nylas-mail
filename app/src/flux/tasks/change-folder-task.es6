@@ -16,7 +16,7 @@ import Folder from '../models/folder';
 export default class ChangeFolderTask extends ChangeMailTask {
   static attributes = Object.assign({}, ChangeMailTask.attributes, {
     previousFolder: Attributes.Object({
-      modelKey: 'folder',
+      modelKey: 'previousFolder',
       itemClass: Folder,
     }),
     folder: Attributes.Object({
@@ -26,20 +26,37 @@ export default class ChangeFolderTask extends ChangeMailTask {
   });
 
   constructor(data = {}) {
-    if (data.folder && !(data.folder instanceof Folder)) {
-      throw new Error('ChangeFolderTask: You must provide a single folder.');
-    }
-    if (!data.previousFolders) {
-      data.previousFolders = {};
+    if (!data.previousFolder) {
+      const folders = [];
       for (const t of data.threads || []) {
-        data.previousFolders[t.id] = t.folders.find(f => f.id !== data.folder.id) || t.folders[0];
+        const f = t.folders.find(f => f.id !== data.folder.id) || t.folders[0];
+        if (!folders.find(other => other.id === f.id)) {
+          folders.push(f);
+        }
       }
       for (const m of data.messages || []) {
-        data.previousFolders[m.id] = m.folder;
+        if (!folders.find(other => other.id === m.folder.id)) {
+          folders.push(m.folder);
+        }
+      }
+      /* TODO: Right now, each task must have a single undo task. With folder moves,
+       * it's possible to start with mail from many folders and move it to one folder,
+       * and a single task can't represent the reverse. Right now, such moves are
+       * just undoable. Need to revisit this and make createUndoTask() return an array.
+       */
+      if (folders.length === 1) {
+        data.previousFolder = folders[0];
+        data.canBeUndone = true;
+      } else {
+        data.canBeUndone = false;
       }
     }
 
     super(data);
+
+    if (this.folder && !(this.folder instanceof Folder)) {
+      throw new Error('ChangeFolderTask: You must provide a single folder.');
+    }
   }
 
   label() {
