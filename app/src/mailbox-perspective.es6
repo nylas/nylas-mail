@@ -18,6 +18,7 @@ import Label from './flux/models/label';
 import Folder from './flux/models/folder';
 import Actions from './flux/actions';
 
+let WorkspaceStore = null;
 let ChangeStarredTask = null;
 let ChangeLabelsTask = null;
 let ChangeFolderTask = null;
@@ -139,6 +140,13 @@ export default class MailboxPerspective {
     return [];
   }
 
+  sheet() {
+    if (!WorkspaceStore || !WorkspaceStore.Sheet) {
+      WorkspaceStore = require('./flux/stores/workspace-store');
+    }
+    return WorkspaceStore.Sheet && WorkspaceStore.Sheet.Threads;
+  }
+
   // overwritten in CategoryMailboxPerspective
   hasSyncingCategories() {
     return false;
@@ -252,6 +260,13 @@ class DraftsMailboxPerspective extends MailboxPerspective {
 
   canReceiveThreadsFromAccountIds() {
     return false;
+  }
+
+  sheet() {
+    if (!WorkspaceStore || !WorkspaceStore.Sheet) {
+      WorkspaceStore = require('./flux/stores/workspace-store');
+    }
+    return WorkspaceStore.Sheet && WorkspaceStore.Sheet.Drafts;
   }
 }
 

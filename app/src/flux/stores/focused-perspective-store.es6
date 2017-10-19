@@ -181,12 +181,7 @@ class FocusedPerspectiveStore extends MailspringStore {
       this.trigger();
     }
 
-    let desired;
-    if (perspective.drafts) {
-      desired = WorkspaceStore.Sheet.Drafts;
-    } else {
-      desired = WorkspaceStore.Sheet.Threads;
-    }
+    let desired = perspective.sheet();
 
     // Always switch to the correct sheet and pop to root when perspective set
     if (desired && WorkspaceStore.rootSheet() !== desired) {

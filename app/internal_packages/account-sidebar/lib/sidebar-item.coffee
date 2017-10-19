@@ -23,8 +23,7 @@ countForItem = (perspective) ->
   return 0
 
 isItemSelected = (perspective) ->
-  (WorkspaceStore.rootSheet() in [WorkspaceStore.Sheet.Threads, WorkspaceStore.Sheet.Drafts] and
-    FocusedPerspectiveStore.current().isEqual(perspective))
+  FocusedPerspectiveStore.current().isEqual(perspective)
 
 isItemCollapsed = (id) ->
   if AppEnv.savedState.sidebarKeysCollapsed[id] isnt undefined

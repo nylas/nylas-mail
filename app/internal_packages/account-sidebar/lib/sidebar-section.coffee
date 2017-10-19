@@ -50,7 +50,7 @@ class SidebarSection
       )
 
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, extensionItems...)
+    items.splice(1, 0, extensionItems..., unreadItem, starredItem)
     items.push(draftsItem)
 
     return {
@@ -120,7 +120,7 @@ class SidebarSection
     )
 
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, unreadItem, starredItem, extensionItems...)
+    items.splice(1, 0, extensionItems..., unreadItem, starredItem)
     items.push(draftsItem)
 
     return {
