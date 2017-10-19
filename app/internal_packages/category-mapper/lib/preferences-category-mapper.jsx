@@ -2,14 +2,13 @@ import {
   AccountStore,
   CategoryStore,
   React,
-  Label,
   Actions,
   ChangeRoleMappingTask,
 } from 'mailspring-exports';
 
 import CategorySelection from './category-selection';
 
-const SELECTABLE_ROLES = ['inbox', 'sent', 'drafts', 'spam', 'trash'];
+const SELECTABLE_ROLES = ['inbox', 'sent', 'drafts', 'spam', 'archive', 'trash'];
 
 export default class PreferencesCategoryMapper extends React.Component {
   constructor() {
@@ -56,6 +55,9 @@ export default class PreferencesCategoryMapper extends React.Component {
   };
 
   _renderRoleSection = (account, role) => {
+    if (account.provider === 'gmail' && role === 'archive') {
+      return false;
+    }
     return (
       <div className="role-section" key={`${account.id}-${role}`}>
         <div className="col-left">{`${role[0].toUpperCase()}${role.substr(1)}`}:</div>
