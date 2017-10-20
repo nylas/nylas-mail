@@ -92,7 +92,7 @@ class Windows {
 
 class Linux {
   available() {
-    return true;
+    return !process.env.SNAP;
   }
 
   isRegisteredForURLScheme(scheme, callback) {

@@ -1,17 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DefaultClientHelper, SystemStartService } from 'mailspring-exports';
+import { shell } from 'electron';
+
 import ConfigSchemaItem from './config-schema-item';
 
 class DefaultMailClientItem extends React.Component {
   constructor() {
     super();
-    this.state = { defaultClient: false };
     this._helper = new DefaultClientHelper();
     if (this._helper.available()) {
+      this.state = { defaultClient: false };
       this._helper.isRegisteredForURLScheme('mailto', registered => {
         if (this._mounted) this.setState({ defaultClient: registered });
       });
+    } else {
+      this.state = { defaultClient: 'unknown' };
     }
   }
 
@@ -35,6 +39,21 @@ class DefaultMailClientItem extends React.Component {
   };
 
   render() {
+    if (this.state.defaultClient === 'unknown') {
+      return (
+        <div className="item">
+          <div
+            style={{ marginBottom: 12 }}
+            className="btn btn-small"
+            onClick={() =>
+              shell.openExternal('https://foundry376.zendesk.com/hc/en-us/articles/115002281851')}
+          >
+            Use Mailspring as default mail client
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="item">
         <input
