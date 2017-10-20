@@ -251,7 +251,7 @@ export default class Message extends ModelWithMetadata {
 
   // Public: Returns a hash with `to` && `cc` keys for authoring a new draft in
   // "reply all" to this message. This method takes into account whether the
-  // message === from the current user, && also looks at the replyTo field.
+  // message is from the current user, && also looks at the replyTo field.
   participantsForReplyAll() {
     const excludedFroms = this.from.map(c => Utils.toEquivalentEmailForm(c.email));
 
@@ -264,13 +264,19 @@ export default class Message extends ModelWithMetadata {
     let to = null;
     let cc = null;
 
-    if (this.replyTo.length) {
+    if (this.replyTo.length && !this.replyTo[0].isMe()) {
+      // If a replyTo is specified and that replyTo would not result in you
+      // sending the message to yourself, use it.
       to = this.replyTo;
       cc = excludeMeAndFroms([].concat(this.to, this.cc));
     } else if (this.isFromMe()) {
+      // If the message is from you to others, reply-all should send to the
+      // same people.
       to = this.to;
       cc = excludeMeAndFroms(this.cc);
     } else {
+      // ... otherwise, address the reply to the sender of the email and cc
+      // everyone else.
       to = this.from;
       cc = excludeMeAndFroms([].concat(this.to, this.cc));
     }
@@ -282,16 +288,20 @@ export default class Message extends ModelWithMetadata {
 
   // Public: Returns a hash with `to` && `cc` keys for authoring a new draft in
   // "reply" to this message. This method takes into account whether the
-  // message === from the current user, && also looks at the replyTo field.
+  // message is from the current user, && also looks at the replyTo field.
   participantsForReply() {
     let to = [];
     const cc = [];
 
-    if (this.replyTo.length) {
+    if (this.replyTo.length && !this.replyTo[0].isMe()) {
+      // If a replyTo is specified and that replyTo would not result in you
+      // sending the message to yourself, use it.
       to = this.replyTo;
     } else if (this.isFromMe()) {
+      // If you sent the previous email, a "reply" should go to the same recipient.
       to = this.to;
     } else {
+      // ... otherwise, address the reply to the sender.
       to = this.from;
     }
 

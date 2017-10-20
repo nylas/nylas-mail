@@ -369,10 +369,36 @@ describe "Message", ->
           to: [evan]
           cc: [ben]
       }
+
+      # Case when a replyTo is specified
+      {
+        msg: new Message
+          from: [evan]
+          to: [ben, me]
+          replyTo: [team],
+          cc: []
+          bcc: []
+        expected:
+          to: [team]
+          cc: [ben]
+      }
+
+      # Case when a replyTo is specified and it's me. (replyTo will not be honored)
+      {
+        msg: new Message
+          from: [evan]
+          to: [ben, team]
+          replyTo: [me],
+          cc: []
+          bcc: []
+        expected:
+          to: [evan]
+          cc: [ben, team]
+      }
     ]
 
     itString = (prefix, msg) ->
-      return "#{prefix} from: #{msg.from.map( (c) -> c.email).join(', ')} | to: #{msg.to.map( (c) -> c.email).join(', ')} | cc: #{msg.cc.map( (c) -> c.email).join(', ')} | bcc: #{msg.bcc.map( (c) -> c.email).join(', ')}"
+      return "#{prefix} from: #{msg.from.map( (c) -> c.email).join(', ')} | to: #{msg.to.map( (c) -> c.email).join(', ')} | cc: #{msg.cc.map( (c) -> c.email).join(', ')} | bcc: #{msg.bcc.map( (c) -> c.email).join(', ')} | replyTo: #{msg.replyTo.map( (c) -> c.email).join(', ')}"
 
     it "thinks me and almost_me are equivalent", ->
       expect(Utils.emailIsEquivalent(me.email, almost_me.email)).toBe true
@@ -386,5 +412,3 @@ describe "Message", ->
         {to, cc} = msg.participantsForReply()
         expect(to).toEqual expected.to
         expect(cc).toEqual []
-
-  describe "participantsForReplyAll", ->
