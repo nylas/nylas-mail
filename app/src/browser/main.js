@@ -230,6 +230,9 @@ const start = () => {
   }
 
   const options = parseCommandLine(process.argv);
+  global.errorLogger = setupErrorLogger(options);
+  const configDirPath = setupConfigDir(options);
+  options.configDirPath = configDirPath;
 
   if (!options.devMode) {
     const otherInstanceRunning = app.makeSingleInstance(commandLine => {
@@ -243,9 +246,6 @@ const start = () => {
     }
   }
 
-  global.errorLogger = setupErrorLogger(options);
-  const configDirPath = setupConfigDir(options);
-  options.configDirPath = configDirPath;
   setupCompileCache(configDirPath);
 
   const onOpenFileBeforeReady = (event, file) => {
