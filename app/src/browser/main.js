@@ -242,7 +242,8 @@ const start = () => {
 
     if (otherInstanceRunning) {
       console.log('Exiting because another instance of the app is already running.');
-      app.quit();
+      app.exit(1);
+      return;
     }
   }
 
