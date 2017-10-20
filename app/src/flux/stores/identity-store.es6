@@ -64,7 +64,7 @@ class IdentityStore extends MailspringStore {
     }, 1000 * 60 * 10); // 10 minutes
   }
 
-  saveIdentity(identity) {
+  async saveIdentity(identity) {
     if (!identity) {
       this._identity = null;
       KeyManager.deletePassword(KEYCHAIN_NAME);
@@ -78,7 +78,9 @@ class IdentityStore extends MailspringStore {
     // and only save it if it's been changed (expensive call.)
     const nextToken = token || this._identity.token;
     if (nextToken && nextToken !== this._identity.token) {
-      KeyManager.replacePassword(KEYCHAIN_NAME, nextToken);
+      // Note: We /must/ await this because calling config.set below
+      // will try to retrieve the password via getPassword.
+      await KeyManager.replacePassword(KEYCHAIN_NAME, nextToken);
     }
 
     this._identity = identity;
@@ -99,8 +101,8 @@ class IdentityStore extends MailspringStore {
     this.trigger();
   };
 
-  _onLogoutNylasIdentity = () => {
-    this.saveIdentity(null);
+  _onLogoutNylasIdentity = async () => {
+    await this.saveIdentity(null);
     // We need to relaunch the app to clear the webview session
     // and prevent the webview from re signing in with the same NylasID
     remote.app.relaunch();
@@ -178,7 +180,7 @@ class IdentityStore extends MailspringStore {
       return this._identity;
     }
     const nextIdentity = Object.assign({}, this._identity, json);
-    this.saveIdentity(nextIdentity);
+    await this.saveIdentity(nextIdentity);
     return this._identity;
   }
 }
