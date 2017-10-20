@@ -802,7 +802,8 @@ describe('DraftFactory', function draftFactory() {
           bcc: [
             new Contact({ name: 'Ben', email: 'bcc@nylas.com' }),
             new Contact({ name: 'Shawn', email: 'shawn@nylas.com' }),
-          ]
+          ],
+          subject: 'Martha Stewart',
         }),
         new Message({
           to: [

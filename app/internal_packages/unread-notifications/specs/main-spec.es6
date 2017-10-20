@@ -253,12 +253,11 @@ describe('UnreadNotifications', function UnreadNotifications() {
       });
       advanceClock(2000);
       expect(NativeNotifications.displayNotification).toHaveBeenCalled();
-      expect(NativeNotifications.displayNotification.mostRecentCall.args).toEqual([
-        {
-          title: '5 Unread Messages',
-          tag: 'unread-update',
-        },
-      ]);
+      const [{ title, tag }] = NativeNotifications.displayNotification.mostRecentCall.args;
+      expect({ title, tag }).toEqual({
+        title: '5 Unread Messages',
+        tag: 'unread-update',
+      });
     });
   });
 
