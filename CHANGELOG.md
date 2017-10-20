@@ -1,6 +1,29 @@
 # Mailspring Changelog
 
-### 1.0.5 (Coming Soon)
+### 1.0.6 (10/19/2017)
+
+Features:
+
+- Mailspring now identifies an "Archive" folder if one is present in your Office 365 / IMAP accounts and enables the "Archive" button and "Swipe to Archive" behavior. If it is not picked up automatically, you can set it from Preferences > Folders.
+
+- Mailspring now warns you if you the salutation in your email ("Hey Ben!") doesn't match the name of a recipient or appears misspelled.
+
+Fixes:
+
+- Mail rules now run correctly as new mail is received.
+
+- The label picker is now correctly hidden if your selection includes threads from non-Gmail accounts.
+
+- When you forward a message, it is now correctly associated with the existing thread.
+
+- When renaming folders / labels, the app no longer shows the old and new items side-by-side in the left panel for a few minutes.
+
+- When creating folders / labels, you can now use any characters supported by your provider, including emoji.
+
+- When you move an item to a folder in a generic IMAP account, undoing the action now works properly.
+
+
+### 1.0.5 (10/15/2017)
 
 Features:
 
