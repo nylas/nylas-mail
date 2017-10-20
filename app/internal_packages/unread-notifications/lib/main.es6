@@ -106,6 +106,9 @@ export class Notifier {
     NativeNotifications.displayNotification({
       title: `${this.unnotifiedQueue.length} Unread Messages`,
       tag: 'unread-update',
+      onActivate: () => {
+        AppEnv.displayWindow();
+      },
     });
     this.unnotifiedQueue = [];
   }
