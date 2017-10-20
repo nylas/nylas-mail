@@ -40,7 +40,6 @@ apps:
     # ensure libappindicator has readable resources.
     environment:
       HOME: $SNAP_USER_COMMON
-      XDG_CONFIG_HOME: "$SNAP_USER_COMMON/.config"
       TMPDIR: $XDG_RUNTIME_DIR
     plugs:
      - avahi-observe

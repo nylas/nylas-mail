@@ -16,15 +16,24 @@ if (typeof process.setFdLimit === 'function') {
 }
 
 const setupConfigDir = args => {
-  let defaultDirName = 'Mailspring';
+  let dirname = 'Mailspring';
   if (args.devMode) {
-    defaultDirName = 'Mailspring-dev';
+    dirname = 'Mailspring-dev';
   }
   if (args.specMode) {
-    defaultDirName = 'Mailspring-spec';
+    dirname = 'Mailspring-spec';
   }
-  const configDirPath = path.join(app.getPath('appData'), defaultDirName);
+  let configDirPath = path.join(app.getPath('appData'), dirname);
+  if (process.platform === 'linux' && process.env.SNAP) {
+    // for linux snap, use the sandbox directory that is persisted between snap revisions
+    configDirPath = process.env.SNAP_USER_COMMON;
+  }
+
+  // crete the directory
   mkdirp.sync(configDirPath);
+
+  // tell Electron to use this folder for local storage, etc. as well
+  app.setPath('userData', configDirPath);
 
   return configDirPath;
 };
