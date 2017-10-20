@@ -25,96 +25,130 @@ describe('UnreadNotifications', function UnreadNotifications() {
 
     this.threadA = new Thread({
       id: 'A',
+      accountId: 'a',
       folders: [inbox],
     });
     this.threadB = new Thread({
       id: 'B',
+      accountId: 'a',
       folders: [archive],
     });
 
     this.msg1 = new Message({
+      id: '1',
       unread: true,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Ben', email: 'benthis.example.com' })],
       subject: 'Hello World',
       threadId: 'A',
       version: 1,
     });
     this.msgNoSender = new Message({
+      id: 'no',
       unread: true,
       date: new Date(),
       from: [],
+      accountId: 'a',
       subject: 'Hello World',
       threadId: 'A',
       version: 1,
     });
     this.msg2 = new Message({
+      id: '2',
       unread: true,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Mark', email: 'markthis.example.com' })],
       subject: 'Hello World 2',
       threadId: 'A',
       version: 1,
     });
     this.msg3 = new Message({
+      id: '3',
       unread: true,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Ben', email: 'benthis.example.com' })],
       subject: 'Hello World 3',
       threadId: 'A',
       version: 1,
     });
     this.msg4 = new Message({
+      id: '4',
       unread: true,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Ben', email: 'benthis.example.com' })],
       subject: 'Hello World 4',
       threadId: 'A',
       version: 1,
     });
     this.msg5 = new Message({
+      id: '5',
       unread: true,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Ben', email: 'benthis.example.com' })],
       subject: 'Hello World 5',
       threadId: 'A',
       version: 1,
     });
     this.msgUnreadButArchived = new Message({
+      id: 'uba',
       unread: true,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Mark', email: 'markthis.example.com' })],
       subject: 'Hello World 2',
       threadId: 'B',
       version: 1,
     });
     this.msgRead = new Message({
+      id: 'read',
       unread: false,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Mark', email: 'markthis.example.com' })],
       subject: 'Hello World Read Already',
       threadId: 'A',
       version: 1,
     });
     this.msgOld = new Message({
+      id: 'old',
       unread: true,
       date: new Date(2000, 1, 1),
+      accountId: 'a',
       from: [new Contact({ name: 'Mark', email: 'markthis.example.com' })],
       subject: 'Hello World Old',
       threadId: 'A',
       version: 1,
     });
-    this.msgFromMe = new Message({
+    this.msgFromMeSameAccount = new Message({
+      id: 'from-me',
       unread: true,
       date: new Date(),
+      accountId: account.id,
+      from: [account.me()],
+      subject: 'A Sent Mail!',
+      threadId: 'A',
+      version: 1,
+    });
+    this.msgFromMeDiffAccount = new Message({
+      id: 'from-me-diff',
+      unread: true,
+      date: new Date(),
+      accountId: 'other',
       from: [account.me()],
       subject: 'A Sent Mail!',
       threadId: 'A',
       version: 1,
     });
     this.msgHigherVersion = new Message({
+      id: 'hv',
       unread: true,
       date: new Date(),
+      accountId: 'a',
       from: [new Contact({ name: 'Ben', email: 'benthis.example.com' })],
       subject: 'Hello World',
       threadId: 'A',
@@ -308,13 +342,23 @@ describe('UnreadNotifications', function UnreadNotifications() {
     });
   });
 
-  it('should not create a Notification if the new message is one I sent', () => {
+  it('should not create a Notification if the new message is one I sent from the same account', () => {
     waitsForPromise(async () => {
       await this.notifier._onDatabaseChanged({
         objectClass: Message.name,
-        objects: [this.msgFromMe],
+        objects: [this.msgFromMeSameAccount],
       });
       expect(NativeNotifications.displayNotification).not.toHaveBeenCalled();
+    });
+  });
+
+  it('should xcreate a Notification if the new message is one I sent from a different linked account', () => {
+    waitsForPromise(async () => {
+      await this.notifier._onDatabaseChanged({
+        objectClass: Message.name,
+        objects: [this.msgFromMeDiffAccount],
+      });
+      expect(NativeNotifications.displayNotification).toHaveBeenCalled();
     });
   });
 

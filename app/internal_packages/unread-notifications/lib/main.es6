@@ -2,11 +2,14 @@ import _ from 'underscore';
 import {
   Thread,
   Actions,
+  AccountStore,
   Message,
   SoundRegistry,
   NativeNotifications,
   DatabaseStore,
 } from 'mailspring-exports';
+
+const WAIT_FOR_CHANGES_DELAY = 400;
 
 export class Notifier {
   constructor() {
@@ -26,36 +29,77 @@ export class Notifier {
 
   // async for testing
   async _onDatabaseChanged({ objectClass, objects }) {
+    if (AppEnv.config.get('core.notifications.enabled') === false) {
+      return;
+    }
+
     if (objectClass === Thread.name) {
-      // Ensure notifications are dismissed when the user reads a thread
-      objects.forEach(({ id, unread }) => {
-        if (!unread && this.activeNotifications[id]) {
-          this.activeNotifications[id].forEach(n => n.close());
-          delete this.activeNotifications[id];
-        }
-      });
+      return this._onThreadsChanged(objects);
     }
 
     if (objectClass === Message.name) {
-      if (AppEnv.config.get('core.notifications.enabled') === false) {
-        return;
-      }
-      const newUnread = objects.filter(msg => {
-        // ensure the message is unread
-        if (msg.unread !== true) return false;
-        // ensure the message was just saved (eg: this is not a modification)
-        if (msg.version !== 1) return false;
-        // ensure the message was received after the app launched (eg: not syncing an old email)
-        if (!msg.date || msg.date.valueOf() < this.activationTime) return false;
-        // ensure the message is from someone else
-        if (msg.isFromMe()) return false;
-        return true;
-      });
-
-      if (newUnread.length > 0) {
-        await this._onNewMessagesReceived(newUnread);
-      }
+      return this._onMessagesChanged(objects);
     }
+  }
+
+  // async for testing
+  async _onMessagesChanged(msgs) {
+    const notifworthy = {};
+
+    for (const msg of msgs) {
+      // ensure the message is unread
+      if (msg.unread !== true) continue;
+      // ensure the message was just created (eg: this is not a modification)
+      if (msg.version !== 1) continue;
+      // ensure the message was received after the app launched (eg: not syncing an old email)
+      if (!msg.date || msg.date.valueOf() < this.activationTime) continue;
+      // ensure the message is not a loopback
+      const account = msg.from[0] && AccountStore.accountForEmail(msg.from[0].email);
+      if (msg.accountId === (account || {}).id) continue;
+
+      notifworthy[msg.id] = msg;
+    }
+
+    if (Object.keys(notifworthy).length === 0) {
+      return;
+    }
+
+    if (!AppEnv.inSpecMode()) {
+      await new Promise(resolve => {
+        // wait a couple hundred milliseconds and collect any updates to these
+        // new messages. This gets us message bodies, messages impacted by mail rules, etc.
+        // while ensuring notifications are never too delayed.
+        const unlisten = DatabaseStore.listen(({ objectClass, objects }) => {
+          if (objectClass !== Message.name) {
+            return;
+          }
+          for (const msg of objects) {
+            if (notifworthy[msg.id]) {
+              notifworthy[msg.id] = msg;
+              if (msg.unread === false) {
+                delete notifworthy[msg.id];
+              }
+            }
+          }
+        });
+        setTimeout(() => {
+          unlisten();
+          resolve();
+        }, WAIT_FOR_CHANGES_DELAY);
+      });
+    }
+
+    await this._onNewMessagesReceived(Object.values(notifworthy));
+  }
+
+  _onThreadsChanged(threads) {
+    // Ensure notifications are dismissed when the user reads a thread
+    threads.forEach(({ id, unread }) => {
+      if (!unread && this.activeNotifications[id]) {
+        this.activeNotifications[id].forEach(n => n.close());
+        delete this.activeNotifications[id];
+      }
+    });
   }
 
   _notifyAll() {
@@ -123,6 +167,10 @@ export class Notifier {
   }
 
   _onNewMessagesReceived(newMessages) {
+    if (newMessages.length === 0) {
+      return Promise.resolve();
+    }
+
     // For each message, find it's corresponding thread. First, look to see
     // if it's already in the `incoming` payload (sent via delta sync
     // at the same time as the message.) If it's not, try loading it from
