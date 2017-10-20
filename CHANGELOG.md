@@ -8,7 +8,15 @@ Features:
 
 - Mailspring now warns you if you the salutation in your email ("Hey Ben!") doesn't match the name of a recipient or appears misspelled.
 
+- A new keyboard shortcut allows you to attach a file in the composer. (Ctrl-Shift-A by default!)
+
 Fixes:
+
+- The contact sidebar now loads correctly if you switch to a contact with no name.
+
+- On Windows, Mailspring no longer needs to be restarted once before you can link a Gmail account.
+
+- When replying to a message you sent in a thread, Mailspring no longer incorrectly addresses the new message to yourself.
 
 - Mail rules now run correctly as new mail is received.
 

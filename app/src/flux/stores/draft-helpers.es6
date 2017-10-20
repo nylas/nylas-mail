@@ -3,7 +3,6 @@ import Message from '../models/message';
 import * as ExtensionRegistry from '../../registries/extension-registry';
 import DOMUtils from '../../dom-utils';
 
-import QuotedHTMLTransformer from '../../services/quoted-html-transformer';
 import InlineStyleTransformer from '../../services/inline-style-transformer';
 import SanitizeTransformer from '../../services/sanitize-transformer';
 import MessageUtils from '../models/message-utils';

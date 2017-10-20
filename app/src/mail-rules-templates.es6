@@ -1,6 +1,4 @@
 import MailspringObservables from 'mailspring-observables';
-import Label from './flux/models/label';
-import CategoryStore from './flux/stores/category-store';
 import { Template } from './components/scenario-editor-models';
 
 export const ConditionTemplates = [
