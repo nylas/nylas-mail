@@ -1,0 +1,56 @@
+.activity-dashboard {
+  .metric-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+    .footer {
+      border-top: 1px solid @text-color-very-subtle;
+      color: @text-color-very-subtle;
+    }
+  }
+  .metric-graph {
+    position: relative;
+    height: 120px;
+    .gridline {
+      width: 1;
+      height: 100%;
+      position: absolute;
+      border-left: 1px solid @text-color-very-subtle;
+    }
+    .layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .layer.text-overlay {
+      background: linear-gradient(
+        to right,
+        fadeout(@background-primary, 0%) 15%,
+        fadeout(@background-primary, 100%) 100%
+      );
+      font-size: 60px;
+      display: flex;
+      align-items: flex-end;
+      .text {
+        line-height: 1em;
+      }
+    }
+    path {
+      stroke-dasharray: 1000 10000;
+      stroke-dashoffset: -100;
+      stroke: @accent-primary;
+      stroke-width: 0.3pt;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+      fill: none;
+      fill-rule: evenodd;
+      transition: stroke-dashoffset ease-out 1500ms;
+    }
+    &.visible path {
+      stroke-dashoffset: 0;
+    }
+  }
+}
