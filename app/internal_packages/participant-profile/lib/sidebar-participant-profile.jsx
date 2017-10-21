@@ -164,7 +164,7 @@ class LocationRow extends React.Component {
               {' ['}
               <a className="plain" href={`https://maps.google.com/?q=${this.props.v}`}>
                 View
-              </a>f
+              </a>
               {']'}
             </span>
           )
