@@ -63,6 +63,7 @@
     "prettier": "^1.7.0",
     "request": "2.x.x",
     "rimraf": "^2.6.1",
+    "targz": "^1.0.1",
     "temp": "0.8.x",
     "underscore": "1.8.x"
   },

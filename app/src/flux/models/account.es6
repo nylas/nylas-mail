@@ -126,6 +126,8 @@ export default class Account extends ModelWithMetadata {
       return 'Exchange';
     } else if (this.provider === 'gmail') {
       return 'Gmail';
+    } else if (this.provider === 'yahoo') {
+      return 'Yahoo';
     } else if (this.provider === 'imap') {
       return 'IMAP';
     } else if (this.provider === 'office365') {

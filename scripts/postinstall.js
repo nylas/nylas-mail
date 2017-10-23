@@ -5,6 +5,7 @@ const path = require('path');
 const https = require('https');
 const fs = require('fs');
 const rimraf = require('rimraf');
+const targz = require('targz');
 const { safeExec } = require('./utils/child-process-wrapper.js');
 
 const npmElectronTarget = require('../package.json').devDependencies.electron;
@@ -42,7 +43,6 @@ function npm(cmd, options) {
 function downloadMailsync() {
   safeExec('git rev-parse HEAD', (err, output) => {
     const head = output.substr(0, 8);
-    const filename = process.platform === 'win32' ? 'mailsync.exe' : 'mailsync.tar.gz';
     const distKey = `${process.platform}-${process.arch}`;
     const distDir = {
       'darwin-x64': 'osx',
@@ -59,12 +59,25 @@ function downloadMailsync() {
       return;
     }
 
-    const distS3URL = `https://mailspring-builds.s3.amazonaws.com/client/${head}/${distDir}/${filename}`;
+    const distS3URL = `https://mailspring-builds.s3.amazonaws.com/client/${head}/${distDir}/mailsync.tar.gz`;
     https.get(distS3URL, response => {
       if (response.statusCode === 200) {
-        response.pipe(fs.createWriteStream(`app/${filename}`));
+        response.pipe(fs.createWriteStream(`app/mailsync.tar.gz`));
         response.on('end', () => {
-          console.log(`\nDownloaded Mailsync build ${distDir}-${head} to ./app/${filename}.`);
+          console.log(`\nDownloaded Mailsync build ${distDir}-${head} to ./app/mailsync.tar.gz.`);
+          targz.decompress(
+            {
+              src: `app/mailsync.tar.gz`,
+              dest: 'app/',
+            },
+            err => {
+              if (!err) {
+                console.log(`\nUnpackaged Mailsync build.`);
+              } else {
+                console.error(`\nEncountered an error unpacking: ${err}`);
+              }
+            }
+          );
         });
       } else {
         console.error(
