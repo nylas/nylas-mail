@@ -103,7 +103,8 @@ export default class MailsyncProcess extends EventEmitter {
 
       this._proc.on('close', code => {
         const stripSecrets = text => {
-          const { refresh_token, imap_password, smtp_password } = this.account.settings;
+          const settings = (this.account && this.account.settings) || {};
+          const { refresh_token, imap_password, smtp_password } = settings;
           return (text || '')
             .replace(new RegExp(refresh_token || 'not-present', 'g'), '*********')
             .replace(new RegExp(imap_password || 'not-present', 'g'), '*********')
@@ -128,7 +129,7 @@ export default class MailsyncProcess extends EventEmitter {
             reject(error);
           }
         } catch (err) {
-          const error = new Error('An unexpected error occurred - view the raw log for details.');
+          const error = new Error(`An unexpected mailsync error occurred (${code})`);
           error.rawLog = stripSecrets(buffer.toString());
           reject(error);
         }

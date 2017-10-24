@@ -47,17 +47,6 @@ export default class Application extends EventEmitter {
       const mailsync = new MailsyncProcess(options, null);
       await mailsync.migrate();
     } catch (err) {
-      const callback = buttonIndex => {
-        if (buttonIndex === 0) {
-          app.quit();
-        } else {
-          this._deleteDatabase(() => {
-            app.relaunch();
-            app.quit();
-          });
-        }
-      };
-
       let message = null;
       let buttons = ['Quit'];
       if (err.toString().includes('ENOENT')) {
@@ -69,7 +58,17 @@ export default class Application extends EventEmitter {
         buttons = ['Quit', 'Rebuild'];
       }
 
-      dialog.showMessageBox({ type: 'warning', buttons, message }, callback);
+      const buttonIndex = dialog.showMessageBox({ type: 'warning', buttons, message });
+
+      if (buttonIndex === 0) {
+        app.quit();
+      } else {
+        this._deleteDatabase(() => {
+          app.relaunch();
+          app.quit();
+        });
+      }
+      return;
     }
 
     const Config = require('../config');
