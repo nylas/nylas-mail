@@ -264,7 +264,6 @@ Section: Models
 export default class Contact extends Model {
   static attributes = Object.assign({}, Model.attributes, {
     name: Attributes.String({
-      queryable: true,
       modelKey: 'name',
     }),
 
