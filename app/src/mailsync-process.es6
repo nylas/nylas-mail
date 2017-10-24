@@ -102,6 +102,14 @@ export default class MailsyncProcess extends EventEmitter {
       });
 
       this._proc.on('close', code => {
+        const stripSecrets = text => {
+          const { refresh_token, imap_password, smtp_password } = this.account.settings;
+          return (text || '')
+            .replace(new RegExp(refresh_token || 'not-present', 'g'), '*********')
+            .replace(new RegExp(imap_password || 'not-present', 'g'), '*********')
+            .replace(new RegExp(smtp_password || 'not-present', 'g'), '*********');
+        };
+
         try {
           const lastLine = buffer
             .toString('UTF-8')
@@ -111,21 +119,18 @@ export default class MailsyncProcess extends EventEmitter {
           if (code === 0) {
             resolve(response);
           } else {
-            const { refresh_token, imap_password, smtp_password } = this.account.settings;
-
             let msg = LocalizedErrorStrings[response.error] || response.error;
             if (response.error_service) {
               msg = `${msg} (${response.error_service.toUpperCase()})`;
             }
             const error = new Error(msg);
-            error.rawLog = (response.log || '')
-              .replace(new RegExp(refresh_token || 'not-present', 'g'), '*********')
-              .replace(new RegExp(imap_password || 'not-present', 'g'), '*********')
-              .replace(new RegExp(smtp_password || 'not-present', 'g'), '*********');
+            error.rawLog = stripSecrets(response.log);
             reject(error);
           }
         } catch (err) {
-          reject(new Error(buffer.toString()));
+          const error = new Error('An unexpected error occurred - view the raw log for details.');
+          error.rawLog = stripSecrets(buffer.toString());
+          reject(error);
         }
       });
     });
