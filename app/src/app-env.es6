@@ -2,7 +2,6 @@
 /* eslint import/no-dynamic-require: 0 */
 import _ from 'underscore';
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import { ipcRenderer, remote } from 'electron';
 import { Emitter } from 'event-kit';
@@ -586,7 +585,7 @@ export default class AppEnvConstructor {
 
   // Extended: Move current window to the center of the screen.
   center() {
-    if (os.platform() === 'linux') {
+    if (process.platform === 'linux') {
       let dimensions = this.getWindowDimensions();
       let bounds = remote.screen.getDisplayMatching(dimensions).bounds;
       let x = bounds.x + ((bounds.width - dimensions.width) / 2);
