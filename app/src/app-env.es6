@@ -587,9 +587,9 @@ export default class AppEnvConstructor {
   center() {
     if (process.platform === 'linux') {
       let dimensions = this.getWindowDimensions();
-      let bounds = remote.screen.getDisplayMatching(dimensions).bounds;
-      let x = bounds.x + ((bounds.width - dimensions.width) / 2);
-      let y = bounds.y + ((bounds.height - dimensions.height) / 2);
+      let display = remote.screen.getDisplayMatching(dimensions) || remote.screen.getPrimaryDisplay();
+      let x = display.bounds.x + ((display.bounds.width - dimensions.width) / 2);
+      let y = display.bounds.y + ((display.bounds.height - dimensions.height) / 2);
 
       return this.setPosition(x, y);
     } else {
