@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import _ from 'underscore';
 
 import Task from './tasks/task';
@@ -20,6 +20,8 @@ import Utils from './models/utils';
 
 const MAX_CRASH_HISTORY = 10;
 const REPORTED_CRASH_STACKS = {};
+
+const VERBOSE_UNTIL_KEY = 'core.sync.verboseUntil';
 
 /*
 This class keeps track of how often Mailsync workers crash. If a mailsync
@@ -163,6 +165,30 @@ export default class MailsyncBridge {
     require('electron').shell.showItemInFolder(configDirItem); // eslint-disable-line
   }
 
+  toggleVerboseLogging() {
+    const { configDirPath } = AppEnv.getLoadSettings();
+    let message = 'Thank you for helping debug Mailspring. Mailspring will now restart.';
+    let phrase = 'disabled';
+
+    if (AppEnv.config.get(VERBOSE_UNTIL_KEY)) {
+      AppEnv.config.set(VERBOSE_UNTIL_KEY, 0);
+    } else {
+      AppEnv.config.set(VERBOSE_UNTIL_KEY, Date.now() + 30 * 60 * 1000);
+      phrase = 'enabled';
+      message =
+        `Verbose logging will be enabled for the next thirty minutes. This records ` +
+        `all network traffic to your mail providers and will be quite slow. Restart Mailspring ` +
+        `and wait for your problem to occur, and then submit mailsync-***.log files located ` +
+        `in the directory: \n\n${configDirPath}.\n\nMailspring will now restart.`;
+    }
+    AppEnv.showErrorDialog({
+      title: `Verbose logging is now ${phrase}`,
+      message,
+    });
+    remote.app.relaunch();
+    remote.app.quit();
+  }
+
   clients() {
     return this._clients;
   }
@@ -223,7 +249,18 @@ export default class MailsyncBridge {
       return;
     }
 
-    const client = new MailsyncProcess(AppEnv.getLoadSettings(), identity, fullAccountJSON);
+    const { configDirPath, resourcePath } = AppEnv.getLoadSettings();
+    const verboseUntil = AppEnv.config.get(VERBOSE_UNTIL_KEY) || 0;
+    const verbose = verboseUntil && verboseUntil / 1 > Date.now();
+    if (verbose) {
+      console.warn(`Verbose mailsync logging is enabled until ${new Date(verboseUntil)}`);
+    }
+
+    const client = new MailsyncProcess(
+      { configDirPath, resourcePath, verbose },
+      identity,
+      fullAccountJSON
+    );
     client.sync();
     client.on('deltas', this._onIncomingMessages);
     client.on('close', ({ code, error, signal }) => {

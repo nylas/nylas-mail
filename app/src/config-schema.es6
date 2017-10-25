@@ -2,6 +2,16 @@ export default {
   core: {
     type: 'object',
     properties: {
+      sync: {
+        type: 'object',
+        properties: {
+          verboseUntil: {
+            type: 'number',
+            default: 0,
+            title: 'Enable verbose IMAP / SMTP logging',
+          },
+        },
+      },
       workspace: {
         type: 'object',
         properties: {

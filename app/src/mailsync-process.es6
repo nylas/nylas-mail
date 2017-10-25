@@ -49,8 +49,9 @@ export const LocalizedErrorStrings = {
 };
 
 export default class MailsyncProcess extends EventEmitter {
-  constructor({ configDirPath, resourcePath }, identity, account) {
+  constructor({ configDirPath, resourcePath, verbose }, identity, account) {
     super();
+    this.verbose = verbose;
     this.configDirPath = configDirPath;
     this.account = account;
     this.identity = identity;
@@ -68,7 +69,11 @@ export default class MailsyncProcess extends EventEmitter {
       env.IDENTITY_SERVER = rootURLForServer('identity');
     }
 
-    this._proc = spawn(this.binaryPath, [`--mode`, mode], { env });
+    const args = [`--mode`, mode];
+    if (this.verbose) {
+      args.push('--verbose');
+    }
+    this._proc = spawn(this.binaryPath, args, { env });
 
     // stdout may not be present if an error occurred. Error handler hasn't been
     // attached yet, but will be by the caller of spawnProcess.
