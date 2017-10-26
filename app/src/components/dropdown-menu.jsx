@@ -67,7 +67,12 @@ export default class DropdownMenu extends React.Component {
       dropdown = <Menu {...this.props} onEscape={this._close} onSelect={this._onSelect} />;
     }
     return (
-      <div tabIndex="-1" onBlur={this._onBlur} style={{ display: 'inline-block' }}>
+      <div
+        className="dropdown-menu"
+        tabIndex="-1"
+        onBlur={this._onBlur}
+        style={{ display: 'inline-block' }}
+      >
         <div onClick={this._toggleExpanded} style={{ cursor: 'pointer', marginLeft: '12px' }}>
           {this.props.itemContent(this.state.currentSelection)}
         </div>

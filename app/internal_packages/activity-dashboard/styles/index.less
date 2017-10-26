@@ -1,14 +1,71 @@
 .activity-dashboard {
+  .section-divider {
+    margin: 0 20px;
+    border-bottom: 1px solid @border-color-divider;
+    div {
+      font-size: @font-size-base * 1.1;
+      font-weight: 500;
+      color: @text-color;
+      background: @background-primary;
+      position: relative;
+      top: 10px;
+      display: inline-block;
+      padding-right: 10px;
+    }
+  }
   .metric-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     margin: 20px;
     .footer {
-      border-top: 1px solid @text-color-very-subtle;
+      border-top: 1px solid @border-color-divider;
       color: @text-color-very-subtle;
     }
   }
+  .metric-histogram {
+    position: relative;
+    height: 120px;
+    .legend {
+      display: flex;
+      font-size: 14px;
+      color: @text-color-very-subtle;
+    }
+    .layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      .column {
+        display: inline-block;
+        background: fadeout(@accent-primary, 85%);
+        border-top: 2px solid @accent-primary;
+        transform-origin: bottom;
+        transform: scaleY(0.2);
+        opacity: 0;
+        transition: opacity 1s ease-out, transform 1s ease-out;
+      }
+    }
+    &.visible {
+      .layer .column {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+  }
+
+  .metric-stat {
+    .layer.text-overlay {
+      font-size: 60px;
+      display: flex;
+      align-items: flex-end;
+      .text {
+        line-height: 1em;
+      }
+    }
+  }
+
   .metric-graph {
     position: relative;
     height: 120px;
@@ -16,7 +73,7 @@
       width: 1;
       height: 100%;
       position: absolute;
-      border-left: 1px solid @text-color-very-subtle;
+      border-left: 1px solid mix(@text-color-very-subtle, @background-primary, 50%);
     }
     .layer {
       position: absolute;
@@ -40,9 +97,9 @@
     }
     path {
       stroke-dasharray: 1000 10000;
-      stroke-dashoffset: -100;
+      stroke-dashoffset: -200;
       stroke: @accent-primary;
-      stroke-width: 0.3pt;
+      stroke-width: 0.4pt;
       stroke-linejoin: round;
       stroke-linecap: round;
       fill: none;
