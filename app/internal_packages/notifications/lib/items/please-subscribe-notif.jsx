@@ -44,6 +44,7 @@ export default class PleaseSubscribeNotification extends React.Component {
     return (
       <Notification
         priority="0"
+        isDismissable={true}
         title={this.state.msg}
         actions={[
           {
