@@ -2,7 +2,7 @@
 
 Thanks for checking out Mailspring! We'd love for you to contribute. Whether you're a first-time open source contributor or an experienced developer, there are ways you can help make Mailspring great:
 
-1. Grab an issue tagged with **[Help Wanted](https://github.com/Foundry376/Mailspring/labels/help%20wanted)** and dig in! We try to add context to these issues when adding the label so you know where to get started in the codebase. Be wary working on issues without the **Help Wanted** label - just because someone has created an issue doesn't mean we'll accept a pull request for it. See [Where to Contribute](#where-to-contribute) below for more information.
+1. Grab an issue tagged with **[Help Wanted](https://github.com/Foundry376/Mailspring/labels/help%20wanted)** and dig in! We try to add context to these issues when adding the label so you know where to get started in the codebase. Be wary of working on issues without the **Help Wanted** label - just because someone has created an issue doesn't mean we'll accept a pull request for it. See [Where to Contribute](#where-to-contribute) below for more information.
 
 2. Triage issues that haven't been addressed. With a large community of users on many platforms, we have trouble keeping up GitHub issues and moving the project forward at the same time. If you're good at testing and addressing issues, we'd love your help!
 
@@ -74,7 +74,7 @@ From Mailspring, you can open the Developer Tools from the menu: `Menu > Develop
 
 We use `prettier` and `eslint` for linting our sources. You can run both of these by running `npm run lint` on the command line. Always do this before submitting a pull request to ensure the CI servers accept your code.
 
-### Discussion Etiquette
+#### Discussion Etiquette
 
 In order to keep the conversation clear and transparent, please limit discussion to English and keep things on topic with the issue. Be considerate to others and try to be courteous and professional at all times.
 
@@ -83,7 +83,7 @@ In order to keep the conversation clear and transparent, please limit discussion
 
 Check out the full issues list for a list of all potential areas for contributions. Note that just because an issue exists in the repository does not mean we will accept a contribution to the core mail client for it. There are several reasons we may not accepts a pull requests, like:
 
-- **Maintainability** - We're *extremely* wary of adding options / preferences and niche behaviors. Our general rule is that the code complexity of adding a preference isn't worth it unless the user base is fairly evenly divided about the desired behavior. [We don't want to end up with this!](https://cloud.githubusercontent.com/assets/1037212/14989123/2a74e810-110b-11e6-8b5d-6f343bca712f.png)
+- **Maintainability** - We're *extremely* wary of adding options and preferences for niche behaviors. Email is a wild west, and we can't afford to support every possible configuration. Our general rule is that the code complexity of adding a preference isn't worth it unless the user base is fairly evenly divided about the desired behavior. [We don't want to end up with this!](https://cloud.githubusercontent.com/assets/1037212/14989123/2a74e810-110b-11e6-8b5d-6f343bca712f.png)
 
 - **User experience** - We want to deliver a lightweight and smooth mail client, so UX and performance matter a lot. If you'd like to change or extend the UI, consider doing it in a plugin or theme.
 

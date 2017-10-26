@@ -79,7 +79,10 @@ class Matcher {
 
     switch (this.comparator) {
       case '=':
-        return modelValue === matcherValue;
+        // triple-equals would break this, because we convert false to 0, true to 1
+        return modelValue == matcherValue; // eslint-disable-line
+      case '!=':
+        return modelValue != matcherValue; // eslint-disable-line
       case '<':
         return modelValue < matcherValue;
       case '>':
