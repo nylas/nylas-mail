@@ -30,7 +30,7 @@ const AccountSidebarExtension = {
     return {
       id: 'Activity',
       name: 'Activity',
-      iconName: 'reminders.png',
+      iconName: 'activity.png',
       perspective: new ActivityMailboxPerspective(accountIds),
     };
   },

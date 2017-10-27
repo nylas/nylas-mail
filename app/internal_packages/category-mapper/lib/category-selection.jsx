@@ -90,7 +90,7 @@ export default class CategorySelection extends React.Component {
     ];
 
     return (
-      <div className="category-selection">
+      <div className="category-picker-dropdown">
         <DropdownMenu
           intitialSelectionItem={this.props.current || { empty: true }}
           headerComponents={headerComponents}

@@ -1,4 +1,72 @@
+@keyframes indicator-animation {
+  0% {
+    background-position-x: 200px;
+  }
+  100% {
+    background-position-x: 760px;
+  }
+}
+
 .activity-dashboard {
+  .header {
+    margin: 20px;
+    display: flex;
+    h2 {
+      flex: 1;
+      margin: 0;
+    }
+    .timespan-selector {
+      display: flex;
+      align-items: baseline;
+      .timespan-text {
+        margin-right: @padding-base-horizontal * 2;
+        color: @text-color-very-subtle;
+      }
+    }
+    .dropdown-menu .menu {
+      width: 160px;
+    }
+  }
+  .loading-cover {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-color: fade(@background-primary, 82%);
+    transition: opacity 200ms linear;
+    z-index: 5;
+
+    &.active {
+      pointer-events: auto;
+      opacity: 1;
+      .loading-indicator img {
+        animation: indicator-animation 1s linear infinite;
+      }
+    }
+  }
+
+  .loading-indicator {
+    position: absolute;
+    top: 30vh;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    img {
+      background-image: linear-gradient(
+        105deg,
+        @background-primary 0%,
+        @background-primary 15%,
+        @accent-primary 45%,
+        @background-primary 49%,
+        @background-primary 100%
+      );
+      background-position-x: 200px;
+      background-size: 590px;
+    }
+  }
+
   .section-divider {
     margin: 0 20px;
     border-bottom: 1px solid @border-color-divider;
@@ -13,6 +81,7 @@
       padding-right: 10px;
     }
   }
+
   .metric-container {
     flex: 1;
     display: flex;
@@ -21,6 +90,13 @@
     .footer {
       border-top: 1px solid @border-color-divider;
       color: @text-color-very-subtle;
+    }
+    .layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
   }
   .metric-histogram {
@@ -31,24 +107,17 @@
       font-size: 14px;
       color: @text-color-very-subtle;
     }
-    .layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      .column {
-        display: inline-block;
-        background: fadeout(@accent-primary, 85%);
-        border-top: 2px solid @accent-primary;
-        transform-origin: bottom;
-        transform: scaleY(0.2);
-        opacity: 0;
-        transition: opacity 1s ease-out, transform 1s ease-out;
-      }
+    .column {
+      display: inline-block;
+      background: fadeout(@accent-primary, 85%);
+      border-top: 2px solid @accent-primary;
+      transform-origin: bottom;
+      transform: scaleY(0.2);
+      opacity: 0;
+      transition: opacity 1s ease-out, transform 1s ease-out;
     }
     &.visible {
-      .layer .column {
+      .column {
         transform: scaleY(1);
         opacity: 1;
       }
@@ -56,6 +125,9 @@
   }
 
   .metric-stat {
+    height: 120px;
+    position: relative;
+
     .layer.text-overlay {
       font-size: 60px;
       display: flex;
@@ -74,13 +146,6 @@
       height: 100%;
       position: absolute;
       border-left: 1px solid mix(@text-color-very-subtle, @background-primary, 50%);
-    }
-    .layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
     }
     .layer.text-overlay {
       background: linear-gradient(

@@ -12,7 +12,8 @@ body.platform-win32 {
   margin-right: 0;
 }
 
-.category-picker-popover {
+.category-picker-popover,
+.category-picker-dropdown {
   .menu {
     background: @background-secondary;
     width: @popover-width;
@@ -47,8 +48,6 @@ body.platform-win32 {
 
   .item {
     img.content-mask {
-      position: relative;
-      top: 3px;
       background-color: @text-color-subtle;
     }
   }
@@ -66,6 +65,7 @@ body.platform-win32 {
   .category-item {
     font-size: 14px;
     display: flex;
+    align-items: center;
   }
 
   .category-create-new-tag {
