@@ -8,6 +8,8 @@
 }
 
 .activity-dashboard {
+  height: 100%;
+
   .header {
     margin: 20px;
     display: flex;
@@ -27,6 +29,16 @@
       width: 160px;
     }
   }
+
+  .usage-note {
+    color: mix(@color-warning, @text-color-subtle, 20%);
+    padding: @padding-base-vertical @padding-base-horizontal;
+    background: mix(@color-warning, @background-primary, 10%);
+    border: 1px solid mix(@color-warning, @border-color-divider, 20%);
+    margin: 0 20px;
+    margin-top: 20px;
+  }
+
   .loading-cover {
     opacity: 0;
     position: absolute;
@@ -128,6 +140,15 @@
     height: 120px;
     position: relative;
 
+    &.read-receipts img {
+      background-color: fade(@open-tracking-color, 20%);
+    }
+    &.link-tracking img {
+      background-color: fade(@link-tracking-color, 20%);
+    }
+    &.replies img {
+      background-color: fade(@text-color, 20%);
+    }
     .layer.text-overlay {
       font-size: 60px;
       display: flex;

@@ -1,91 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Message, DatabaseStore, FocusedPerspectiveStore } from 'mailspring-exports';
-import { DropdownMenu, Menu, ListensToFluxStore } from 'mailspring-component-kit';
+import { ScrollRegion, ListensToFluxStore, RetinaImg } from 'mailspring-component-kit';
 
 import { MetricContainer, MetricStat, MetricGraph, MetricHistogram } from './metrics-components';
+import { getTimespanStartEnd } from './timespan';
+import TimespanSelector from './timespan-selector';
 import LoadingCover from './loading-cover';
 
 const CHUNK_SIZE = 500;
 const MINIMUM_THINKING_TIME = 2000;
-
-function getTimespanOptions() {
-  return [
-    { id: '0', name: 'Today' },
-    { id: '6', name: 'Last 7 Days' },
-    { id: '13', name: 'Last 2 Weeks' },
-    { id: '27', name: 'Last 4 Weeks' },
-    { id: '-', name: '-', divider: true },
-    ...[0, 1, 2].map(n => {
-      return {
-        id: `month-${n}`,
-        name: moment()
-          .subtract(n, 'month')
-          .format('MMMM YYYY'),
-      };
-    }),
-  ];
-}
-
-function getTimespanStartEnd(id) {
-  if (id.startsWith('month-')) {
-    const n = id.split('-').pop() / 1;
-    const current = n === 0;
-    return [
-      moment()
-        .startOf('month')
-        .subtract(n, 'month')
-        .add(1, 'minute'),
-      current
-        ? moment()
-        : moment()
-            .startOf('month')
-            .subtract(n - 1, 'month')
-            .subtract(1, 'minute'),
-    ];
-  }
-  return [
-    moment()
-      .startOf('day')
-      .subtract(id / 1, 'day')
-      .add(1, 'minute'),
-    moment(),
-  ];
-}
-
-class TimespanSelector extends React.Component {
-  static propTypes = {
-    timespan: PropTypes.object,
-    onChange: PropTypes.func,
-  };
-
-  render() {
-    const { id, startDate, endDate } = this.props.timespan;
-
-    const options = getTimespanOptions();
-    const itemIdx = options.findIndex(item => item.id === id);
-
-    const longFormat = id.startsWith('month') ? 'MMMM Do, h:mmA' : 'dddd MMMM Do, h:mmA';
-    const endFormat = endDate.diff(moment(), 'days') === 0 ? 'Now' : endDate.format(longFormat);
-    return (
-      <div className="timespan-selector">
-        <div className="timespan-text">{`${startDate.format(longFormat)} - ${endFormat}`}</div>
-        <DropdownMenu
-          attachment={DropdownMenu.Attachment.RightEdge}
-          intitialSelectionItem={options[itemIdx]}
-          defaultSelectedIndex={itemIdx}
-          headerComponents={[]}
-          footerComponents={[]}
-          items={options}
-          itemKey={item => item.id}
-          itemContent={item => (item.divider ? <Menu.Item key="divider" divider /> : item.name)}
-          onSelect={item => this.props.onChange(item.id)}
-        />
-      </div>
-    );
-  }
-}
 
 class RootWithTimespan extends React.Component {
   static displayName = 'ActivityDashboardRootWithTimespan';
@@ -112,6 +36,7 @@ class RootWithTimespan extends React.Component {
         receivedByDay: Array(timespan.days).fill(0),
         receivedTimeOfDay: Array(24).fill(0),
         sentByDay: Array(timespan.days).fill(0),
+        percentUsingTracking: 0,
         percentOpened: 0,
         percentLinkClicked: 0,
         percentReplied: 0,
@@ -139,6 +64,7 @@ class RootWithTimespan extends React.Component {
     const sentByDay = Array(days).fill(0);
     const receivedByDay = Array(days).fill(0);
     const receivedTimeOfDay = Array(24).fill(0);
+    let sentTotal = 0;
     let openTrackingEnabled = 0;
     let openTrackingTriggered = 0;
     let linkTrackingEnabled = 0;
@@ -167,6 +93,7 @@ class RootWithTimespan extends React.Component {
 
         // Received and Sent
         if (message.isFromMe()) {
+          sentTotal += 1;
           sentByDay[dayIdx] += 1;
           if (threadHasNoReply[message.threadId] === undefined) {
             threadStarted += 1;
@@ -218,6 +145,9 @@ class RootWithTimespan extends React.Component {
           receivedByDay,
           receivedTimeOfDay,
           sentByDay,
+          percentUsingTracking: Math.ceil(
+            Math.max(openTrackingEnabled, linkTrackingEnabled) / (sentTotal || 1) * 100
+          ),
           percentOpened: Math.ceil(openTrackingTriggered / (openTrackingEnabled || 1) * 100),
           percentLinkClicked: Math.ceil(linkTrackingTriggered / (linkTrackingEnabled || 1) * 100),
           percentReplied: Math.ceil(threadStartedGotReply / (threadStarted || 1) * 100),
@@ -242,6 +172,11 @@ class RootWithTimespan extends React.Component {
 
   render() {
     const { metrics, version, loading } = this.state;
+    const lowTrackingUsage = !loading && metrics.percentUsingTracking < 75;
+    let lowTrackingPhrase = `only enabled on ${metrics.percentUsingTracking}%`;
+    if (metrics.percentUsingTracking <= 1) {
+      lowTrackingPhrase = `not enabled on any`;
+    }
 
     return (
       <div style={{ position: 'relative' }}>
@@ -267,11 +202,29 @@ class RootWithTimespan extends React.Component {
           </MetricContainer>
         </div>
         <div className="section-divider">
-          <div>Link and Open Tracking</div>
+          <div>Read Receipts and Link Tracking</div>
         </div>
+        {lowTrackingUsage && (
+          <div className="usage-note">
+            {`These features were ${lowTrackingPhrase} of the messages you sent
+            in this time period, so these numbers do not reflect all of your activity. To enable
+            read receipts and link tracking on emails you send, click the 
+            `}
+            <RetinaImg name="icon-activity-mailopen.png" mode={RetinaImg.Mode.ContentDark} />
+            {' or link tracking '}
+            <RetinaImg name="icon-activity-linkopen.png" mode={RetinaImg.Mode.ContentDark} />
+            {' icons in the composer.'}
+          </div>
+        )}
         <div className="section" style={{ display: 'flex' }}>
           <MetricContainer name="Of your emails are opened">
-            <MetricStat key={version} value={metrics.percentOpened} units="%" loading={loading} />
+            <MetricStat
+              key={version}
+              value={metrics.percentOpened}
+              units="%"
+              loading={loading}
+              name={'read-receipts'}
+            />
           </MetricContainer>
           <MetricContainer name="Of recipients click a link">
             <MetricStat
@@ -279,10 +232,17 @@ class RootWithTimespan extends React.Component {
               value={metrics.percentLinkClicked}
               units="%"
               loading={loading}
+              name={'link-tracking'}
             />
           </MetricContainer>
           <MetricContainer name="Of threads you start get a reply">
-            <MetricStat key={version} value={metrics.percentReplied} units="%" loading={loading} />
+            <MetricStat
+              key={version}
+              value={metrics.percentReplied}
+              units="%"
+              loading={loading}
+              name={'replies'}
+            />
           </MetricContainer>
         </div>
       </div>
@@ -322,13 +282,13 @@ class Root extends React.Component {
 
   render() {
     return (
-      <div className="activity-dashboard">
+      <ScrollRegion className="activity-dashboard">
         <div className="header">
           <h2>Activity</h2>
           <TimespanSelector timespan={this.state.timespan} onChange={this._onChangeTimespan} />
         </div>
         <RootWithTimespan accountIds={this.props.accountIds} timespan={this.state.timespan} />
-      </div>
+      </ScrollRegion>
     );
   }
 }

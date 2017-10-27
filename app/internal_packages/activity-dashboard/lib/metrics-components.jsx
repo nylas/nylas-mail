@@ -1,4 +1,5 @@
 import React from 'react';
+import { RetinaImg } from 'mailspring-component-kit';
 
 export class MetricContainer extends React.Component {
   render() {
@@ -13,10 +14,20 @@ export class MetricContainer extends React.Component {
 
 export class MetricStat extends React.Component {
   render() {
-    const { value, units } = this.props;
+    const { value, units, name } = this.props;
 
     return (
-      <div className="metric-stat" ref={el => (this._el = el)}>
+      <div className={`metric-stat ${name}`} ref={el => (this._el = el)}>
+        <div
+          className="layer"
+          style={{
+            zIndex: 1,
+            padding: `15px 5px`,
+            textAlign: 'right',
+          }}
+        >
+          <RetinaImg name={`metric-background-${name}.png`} mode={RetinaImg.Mode.ContentIsMask} />
+        </div>
         <div
           className="layer text-overlay"
           style={{
