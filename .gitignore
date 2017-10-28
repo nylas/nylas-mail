@@ -68,3 +68,7 @@ client_secret.json
 /app/dist-docs
 /app/mailsync.dSYM.zip
 /snap/snapcraft.yml
+
+**.so*
+**.bin
+**.tar.gz

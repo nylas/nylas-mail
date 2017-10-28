@@ -33,7 +33,7 @@ class LabelPicker extends React.Component
     @_account = AccountStore.accountForItems(nextProps.items)
 
   _keymapHandlers: ->
-    "core:change-category": @_onOpenCategoryPopover
+    "core:change-labels": @_onOpenCategoryPopover
 
   _onOpenCategoryPopover: =>
     return unless @props.items.length > 0
@@ -59,7 +59,7 @@ class LabelPicker extends React.Component
         globalMenuItems={[
           {
             "label": "Thread",
-            "submenu": [{ "label": "Apply Labels...", "command": "core:change-category", "position": "endof=thread-actions" }]
+            "submenu": [{ "label": "Apply Labels...", "command": "core:change-labels", "position": "endof=thread-actions" }]
           }
         ]}
         >

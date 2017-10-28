@@ -36,7 +36,8 @@
 
   "core:mute-conversation": "m",
   "core:focus-search": "/",
-  "core:change-category": ["l", "v"],
+  "core:change-labels": "l",
+  "core:change-folders": "v",
   "core:focus-toolbar": ",",
   "core:star-item": "s",
   "core:gmail-remove-from-view": "y",

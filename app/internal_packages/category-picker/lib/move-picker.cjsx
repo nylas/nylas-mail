@@ -33,7 +33,7 @@ class MovePicker extends React.Component
     @_account = AccountStore.accountForItems(nextProps.items)
 
   _keymapHandlers: ->
-    "core:change-category": @_onOpenCategoryPopover
+    "core:change-folders": @_onOpenCategoryPopover
 
   _onOpenCategoryPopover: =>
     return unless @props.items.length > 0
@@ -58,7 +58,7 @@ class MovePicker extends React.Component
         globalMenuItems={[
           {
             "label": "Thread",
-            "submenu": [{ "label": "Move to Folder...", "command": "core:change-category", "position": "endof=thread-actions" }]
+            "submenu": [{ "label": "Move to Folder...", "command": "core:change-folders", "position": "endof=thread-actions" }]
           }
         ]}
         >
