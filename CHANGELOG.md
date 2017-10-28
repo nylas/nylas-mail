@@ -2,8 +2,6 @@
 
 ### 1.0.7 (10/28/2017)
 
-Features:
-
 Fixes:
 
 - The `Starred` and `Unread` views now correctly show threads with many starred/unread messages. (#100)

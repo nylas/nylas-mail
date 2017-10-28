@@ -57,9 +57,7 @@ module.exports = class RavenErrorReporter {
     ).install();
 
     Raven.on('error', e => {
-      console.log(e.reason);
-      console.log(e.statusCode);
-      console.log(e.response);
+      console.log(`Raven: ${e.statusCode} - ${e.reason}`);
     });
   }
 };
