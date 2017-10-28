@@ -41,6 +41,7 @@ class RootWithTimespan extends React.Component {
         percentLinkClicked: 0,
         percentReplied: 0,
       },
+      metricsBySubjectLine: [],
     };
   }
 
@@ -69,9 +70,7 @@ class RootWithTimespan extends React.Component {
     let openTrackingTriggered = 0;
     let linkTrackingEnabled = 0;
     let linkTrackingTriggered = 0;
-    let threadStarted = 0;
-    let threadStartedGotReply = 0;
-    const threadHasNoReply = {};
+    const threadStats = {};
 
     let chunkStartUnix = startUnix;
     while (true) {
@@ -91,28 +90,40 @@ class RootWithTimespan extends React.Component {
           continue;
         }
 
-        // Received and Sent
+        // Received and Sent Metrics
         if (message.isFromMe()) {
           sentTotal += 1;
           sentByDay[dayIdx] += 1;
-          if (threadHasNoReply[message.threadId] === undefined) {
-            threadStarted += 1;
-            threadHasNoReply[message.threadId] = true;
+
+          if (threadStats[message.threadId] === undefined) {
+            threadStats[message.threadId] = {
+              outbound: true,
+              subject: message.subject,
+              tracked: false,
+              hasReply: false,
+              opened: false,
+              clicked: false,
+            };
           }
         } else {
           receivedByDay[dayIdx] += 1;
-          if (threadHasNoReply[message.threadId]) {
-            threadStartedGotReply += 1;
+          if (threadStats[message.threadId]) {
+            threadStats[message.threadId].hasReply = true;
+          } else {
+            threadStats[message.threadId] = {
+              outbound: false,
+            };
           }
-          threadHasNoReply[message.threadId] = false;
         }
 
+        // Time of Day Metrics
         const hourIdx = message.date.getHours();
         receivedTimeOfDay[hourIdx] += 1;
 
-        // Link and Open Tracking
+        // Link and Open Tracking Metrics
         const openM = message.metadataForPluginId('open-tracking');
         if (openM) {
+          threadStats[message.threadId].tracked = true;
           openTrackingEnabled += 1;
           if (openM.open_count > 0) {
             openTrackingTriggered += 1;
@@ -120,6 +131,7 @@ class RootWithTimespan extends React.Component {
         }
         const linkM = message.metadataForPluginId('link-tracking');
         if (linkM && linkM.tracked && linkM.links instanceof Array) {
+          threadStats[message.threadId].tracked = true;
           linkTrackingEnabled += 1;
           if (linkM.links.some(l => l.click_count > 0)) {
             linkTrackingTriggered += 1;
@@ -132,6 +144,48 @@ class RootWithTimespan extends React.Component {
       }
     }
 
+    const outboundThreadStats = Object.values(threadStats).filter(stats => stats.outbound);
+
+    // compute total reply rate for all sent messages
+    let threadsOutbound = 0;
+    let threadsOutboundGotReply = 0;
+    for (const stats of outboundThreadStats) {
+      threadsOutbound += 1;
+      if (stats.hasReply) {
+        threadsOutboundGotReply += 1;
+      }
+    }
+
+    // Aggregate open/link tracking of outbound threads by subject line
+    let bySubject = {};
+    for (const stats of outboundThreadStats) {
+      if (!stats.tracked) {
+        continue;
+      }
+      bySubject[stats.subject] = bySubject[stats.subject] || {
+        subject: stats.subject,
+        count: 0,
+        opens: 0,
+        clicks: 0,
+        replies: 0,
+      };
+      bySubject[stats.subject].count += 1;
+      if (stats.hasReply) {
+        bySubject[stats.subject].replies += 1;
+      }
+      if (stats.opened) {
+        bySubject[stats.subject].opens += 1;
+      }
+      if (stats.clicked) {
+        bySubject[stats.subject].clicks += 1;
+      }
+    }
+
+    const bySubjectSorted = Object.values(bySubject)
+      .sort((a, b) => a.opens - b.opens)
+      .filter(s => s.count > 1);
+
+    // Okay! Make sure we've taken at least 1500ms and then fade in the stats
     const animationDelay = Math.max(0, metricsComputeStarted + MINIMUM_THINKING_TIME - Date.now());
 
     setTimeout(() => {
@@ -141,6 +195,7 @@ class RootWithTimespan extends React.Component {
       this.setState({
         loading: false,
         version: this.state.version + 1,
+        metricsBySubjectLine: bySubjectSorted,
         metrics: {
           receivedByDay,
           receivedTimeOfDay,
@@ -150,7 +205,7 @@ class RootWithTimespan extends React.Component {
           ),
           percentOpened: Math.ceil(openTrackingTriggered / (openTrackingEnabled || 1) * 100),
           percentLinkClicked: Math.ceil(linkTrackingTriggered / (linkTrackingEnabled || 1) * 100),
-          percentReplied: Math.ceil(threadStartedGotReply / (threadStarted || 1) * 100),
+          percentReplied: Math.ceil(threadsOutboundGotReply / (threadsOutbound || 1) * 100),
         },
       });
     }, animationDelay);
@@ -171,7 +226,7 @@ class RootWithTimespan extends React.Component {
   }
 
   render() {
-    const { metrics, version, loading } = this.state;
+    const { metrics, metricsBySubjectLine, version, loading } = this.state;
     const lowTrackingUsage = !loading && metrics.percentUsingTracking < 75;
     let lowTrackingPhrase = `only enabled on ${metrics.percentUsingTracking}%`;
     if (metrics.percentUsingTracking <= 1) {
@@ -244,6 +299,50 @@ class RootWithTimespan extends React.Component {
               name={'replies'}
             />
           </MetricContainer>
+        </div>
+
+        <div className="section-divider">
+          <div>Best Templates and Subject Lines</div>
+        </div>
+        <div className="section" style={{ display: 'flex' }}>
+          <div className="table-container">
+            <table>
+              <tr>
+                <th>Subject Line</th>
+                <th>Messages Sent</th>
+                <th>Open Rate</th>
+                <th>Link Click Rate</th>
+                <th>Reply Rate</th>
+              </tr>
+              {metricsBySubjectLine.map(({ subject, count, opens, clicks, replies }) => (
+                <tr key={subject}>
+                  <td>{subject}</td>
+                  <td>{count}</td>
+                  <td>
+                    {opens ? (
+                      `${Math.ceil(opens / count * 100)}% (${opens})`
+                    ) : (
+                      <span className="empty">—</span>
+                    )}
+                  </td>
+                  <td>
+                    {clicks ? (
+                      `${Math.ceil(clicks / count * 100)}% (${clicks})`
+                    ) : (
+                      <span className="empty">—</span>
+                    )}
+                  </td>
+                  <td>
+                    {replies ? (
+                      `${Math.ceil(replies / count * 100)}% (${replies})`
+                    ) : (
+                      <span className="empty">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </table>
+          </div>
         </div>
       </div>
     );

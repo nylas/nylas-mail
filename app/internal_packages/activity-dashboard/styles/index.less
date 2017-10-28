@@ -79,8 +79,12 @@
     }
   }
 
+  .section {
+    margin-bottom: 25px;
+  }
+
   .section-divider {
-    margin: 0 20px;
+    margin: 0 20px 15px 20px;
     border-bottom: 1px solid @border-color-divider;
     div {
       font-size: @font-size-base * 1.1;
@@ -194,6 +198,29 @@
     }
     &.visible path {
       stroke-dashoffset: 0;
+    }
+  }
+
+  .table-container {
+    width: 100%;
+    margin: 15px 20px 40px 20px;
+
+    table {
+      width: 100%;
+      th {
+        text-align: left;
+        color: @text-color-very-subtle;
+        font-weight: 400;
+      }
+      tr {
+        border-bottom: 1px solid fade(@border-color-divider, 25%);
+      }
+      td {
+        padding: 6px 0;
+        .empty {
+          color: @text-color-very-subtle;
+        }
+      }
     }
   }
 }
