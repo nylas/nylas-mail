@@ -1,11 +1,13 @@
 import moment from 'moment';
 
+export const DEFAULT_TIMESPAN_ID = '14';
+
 export function getTimespanOptions() {
   return [
     { id: '0', name: 'Today' },
-    { id: '6', name: 'Last 7 Days' },
-    { id: '13', name: 'Last 2 Weeks' },
-    { id: '27', name: 'Last 4 Weeks' },
+    { id: '7', name: 'Last 7 Days' },
+    { id: '14', name: 'Last 2 Weeks' },
+    { id: '28', name: 'Last 4 Weeks' },
     { id: '-', name: '-', divider: true },
     ...[0, 1, 2].map(n => {
       return {
@@ -36,9 +38,11 @@ export function getTimespanStartEnd(id) {
     ];
   }
   return [
+    // Let's say its Friday at 6PM. "Last 7 days" is beginning of last friday through now?
+    // That'd technically be 8 days, inclusive. Instead, make it Saturday midnight -> Friday 6PM
     moment()
       .startOf('day')
-      .subtract(id / 1, 'day')
+      .subtract(Math.max(0, id / 1 - 1), 'day')
       .add(1, 'minute'),
     moment(),
   ];

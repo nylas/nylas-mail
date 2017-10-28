@@ -4,7 +4,7 @@ import { Message, DatabaseStore, FocusedPerspectiveStore } from 'mailspring-expo
 import { ScrollRegion, ListensToFluxStore, RetinaImg } from 'mailspring-component-kit';
 
 import { MetricContainer, MetricStat, MetricGraph, MetricHistogram } from './metrics-components';
-import { getTimespanStartEnd } from './timespan';
+import { DEFAULT_TIMESPAN_ID, getTimespanStartEnd } from './timespan';
 import TimespanSelector from './timespan-selector';
 import LoadingCover from './loading-cover';
 
@@ -126,6 +126,7 @@ class RootWithTimespan extends React.Component {
           threadStats[message.threadId].tracked = true;
           openTrackingEnabled += 1;
           if (openM.open_count > 0) {
+            threadStats[message.threadId].opened = true;
             openTrackingTriggered += 1;
           }
         }
@@ -134,6 +135,7 @@ class RootWithTimespan extends React.Component {
           threadStats[message.threadId].tracked = true;
           linkTrackingEnabled += 1;
           if (linkM.links.some(l => l.click_count > 0)) {
+            threadStats[message.threadId].clicked = true;
             linkTrackingTriggered += 1;
           }
         }
@@ -181,9 +183,7 @@ class RootWithTimespan extends React.Component {
       }
     }
 
-    const bySubjectSorted = Object.values(bySubject)
-      .sort((a, b) => a.opens - b.opens)
-      .filter(s => s.count > 1);
+    const bySubjectSorted = Object.values(bySubject).sort((a, b) => b.opens - a.opens);
 
     // Okay! Make sure we've taken at least 1500ms and then fade in the stats
     const animationDelay = Math.max(0, metricsComputeStarted + MINIMUM_THINKING_TIME - Date.now());
@@ -307,40 +307,46 @@ class RootWithTimespan extends React.Component {
         <div className="section" style={{ display: 'flex' }}>
           <div className="table-container">
             <table>
-              <tr>
-                <th>Subject Line</th>
-                <th>Messages Sent</th>
-                <th>Open Rate</th>
-                <th>Link Click Rate</th>
-                <th>Reply Rate</th>
-              </tr>
-              {metricsBySubjectLine.map(({ subject, count, opens, clicks, replies }) => (
-                <tr key={subject}>
-                  <td>{subject}</td>
-                  <td>{count}</td>
-                  <td>
-                    {opens ? (
-                      `${Math.ceil(opens / count * 100)}% (${opens})`
-                    ) : (
-                      <span className="empty">—</span>
-                    )}
-                  </td>
-                  <td>
-                    {clicks ? (
-                      `${Math.ceil(clicks / count * 100)}% (${clicks})`
-                    ) : (
-                      <span className="empty">—</span>
-                    )}
-                  </td>
-                  <td>
-                    {replies ? (
-                      `${Math.ceil(replies / count * 100)}% (${replies})`
-                    ) : (
-                      <span className="empty">—</span>
-                    )}
-                  </td>
+              <thead>
+                <tr>
+                  <th>Subject Line</th>
+                  <th style={{ width: '11vw' }}>Messages Sent</th>
+                  <th style={{ width: '9vw' }}>Open Rate</th>
+                  <th style={{ width: '11vw' }}>Link Click Rate</th>
+                  <th style={{ width: '9vw' }}>Reply Rate</th>
                 </tr>
-              ))}
+              </thead>
+              <tbody>
+                {metricsBySubjectLine.map(({ subject, count, opens, clicks, replies }) => (
+                  <tr key={subject}>
+                    <td className="ellipsis">
+                      <span title={subject}>{subject}</span>
+                    </td>
+                    <td>{count}</td>
+                    <td>
+                      {opens ? (
+                        `${Math.ceil(opens / count * 100)}% (${opens})`
+                      ) : (
+                        <span className="empty">—</span>
+                      )}
+                    </td>
+                    <td>
+                      {clicks ? (
+                        `${Math.ceil(clicks / count * 100)}% (${clicks})`
+                      ) : (
+                        <span className="empty">—</span>
+                      )}
+                    </td>
+                    <td>
+                      {replies ? (
+                        `${Math.ceil(replies / count * 100)}% (${replies})`
+                      ) : (
+                        <span className="empty">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
         </div>
@@ -359,12 +365,13 @@ class Root extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = this.getStateForTimespanId('13');
+    this.state = this.getStateForTimespanId(DEFAULT_TIMESPAN_ID);
   }
 
   getStateForTimespanId(timespanId) {
     const [startDate, endDate] = getTimespanStartEnd(timespanId);
-    const days = Math.max(1, endDate.diff(startDate, 'days'));
+    // if the difference in days is 1, we need to display [0, 1] = 2 items
+    const days = endDate.diff(startDate, 'days') + 1;
     return {
       timespan: {
         id: timespanId,

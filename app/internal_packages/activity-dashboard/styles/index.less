@@ -216,7 +216,21 @@
         border-bottom: 1px solid fade(@border-color-divider, 25%);
       }
       td {
-        padding: 6px 0;
+        line-height: 34px;
+
+        &.ellipsis {
+          position: relative;
+          span {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: @padding-base-horizontal;
+            bottom: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
         .empty {
           color: @text-color-very-subtle;
         }
