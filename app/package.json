@@ -1,7 +1,7 @@
 {
   "name": "mailspring",
   "productName": "Mailspring",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "commitHash": "COMMIT_INSERTED_DURING_PACKAGING",
   "description": "The best email app for people and teams at work",
   "license": "GPL-3.0",

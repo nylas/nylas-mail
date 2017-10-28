@@ -1,5 +1,30 @@
 # Mailspring Changelog
 
+### 1.0.7 (10/28/2017)
+
+Features:
+
+Fixes:
+
+- The `Starred` and `Unread` views now correctly show threads with many starred/unread messages. (#100)
+
+- The folder and label shortcuts are now separate and work properly for Gmail accounts. (#259 - thanks @casuallancelot)
+
+- Mailspring no longer segfaults when it's unable to connect to your SMTP server during onboarding,
+  and error messages no longer "destroy" the layout of the window.
+
+- Mailspring no longer uses all memory on the computer in a rare scenario where your mail provider return an infinite range of message IDs. (#91)
+
+- Mailspring can now be put in a verbose logging mode using `AppEnv.mailsyncBridge.toggleVerboseLogging()`, in which all IMAP and SMTP traffic is logged.
+
+- You can now dismiss the "Please pay for Mailspring Pro!" prompt in the bottom left when more than four accounts are syncing. (Thanks @mattlyons0)
+
+- On Linux, Mailspring no longer launches with the onboarding window in between monitors on dual-display setups. (Thanks @dbhowell)
+
+- The contact search index now includes the first names of contacts, so you can find them more easily when typing in address fields. (#227)
+
+- The default template no longer references Nylas incorrectly. (Thanks @Galaxias)
+ 
 ### 1.0.6 (10/19/2017)
 
 Features:
