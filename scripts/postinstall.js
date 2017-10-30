@@ -41,51 +41,57 @@ function npm(cmd, options) {
 }
 
 function downloadMailsync() {
-  safeExec('git rev-parse HEAD', (err, output) => {
-    const head = output.substr(0, 8);
-    const distKey = `${process.platform}-${process.arch}`;
-    const distDir = {
-      'darwin-x64': 'osx',
-      'darwin-ia32': null,
-      'win32-x64': 'win-ia32', // serve 32-bit since backwards compatibility is great
-      'win32-ia32': 'win-ia32',
-      'linux-x64': 'linux',
-      'linux-ia32': null,
-    }[distKey];
-    if (!distDir) {
-      console.error(
-        `\nSorry, a Mailspring Mailsync build for your machine (${distKey}) is not yet available.`
-      );
-      return;
-    }
+  https.get(`https://mailspring-builds.s3.amazonaws.com/stable.txt`, response => {
+    let data = '';
+    response.on('data', d => {
+      data += d;
+    });
+    response.on('end', () => {
+      const head = data.split('-').pop();
+      const distKey = `${process.platform}-${process.arch}`;
+      const distDir = {
+        'darwin-x64': 'osx',
+        'win32-x64': 'win-ia32', // serve 32-bit since backwards compatibility is great
+        'win32-ia32': 'win-ia32',
+        'linux-x64': 'linux',
+        'linux-ia32': null,
+      }[distKey];
 
-    const distS3URL = `https://mailspring-builds.s3.amazonaws.com/client/${head}/${distDir}/mailsync.tar.gz`;
-    https.get(distS3URL, response => {
-      if (response.statusCode === 200) {
-        response.pipe(fs.createWriteStream(`app/mailsync.tar.gz`));
-        response.on('end', () => {
-          console.log(`\nDownloaded Mailsync build ${distDir}-${head} to ./app/mailsync.tar.gz.`);
-          targz.decompress(
-            {
-              src: `app/mailsync.tar.gz`,
-              dest: 'app/',
-            },
-            err => {
-              if (!err) {
-                console.log(`\nUnpackaged Mailsync build.`);
-              } else {
-                console.error(`\nEncountered an error unpacking: ${err}`);
-              }
-            }
-          );
-        });
-      } else {
+      if (!distDir) {
         console.error(
-          `Sorry, an error occurred while fetching the Mailspring Mailsync build for your machine\n(${distS3URL})\n`
+          `\nSorry, a Mailspring Mailsync build for your machine (${distKey}) is not yet available.`
         );
-        response.pipe(process.stderr);
-        response.on('end', () => console.error('\n'));
+        return;
       }
+
+      const distS3URL = `https://mailspring-builds.s3.amazonaws.com/client/${head}/${distDir}/mailsync.tar.gz`;
+      https.get(distS3URL, response => {
+        if (response.statusCode === 200) {
+          response.pipe(fs.createWriteStream(`app/mailsync.tar.gz`));
+          response.on('end', () => {
+            console.log(`\nDownloaded Mailsync build ${distDir}-${head} to ./app/mailsync.tar.gz.`);
+            targz.decompress(
+              {
+                src: `app/mailsync.tar.gz`,
+                dest: 'app/',
+              },
+              err => {
+                if (!err) {
+                  console.log(`\nUnpackaged Mailsync build.`);
+                } else {
+                  console.error(`\nEncountered an error unpacking: ${err}`);
+                }
+              }
+            );
+          });
+        } else {
+          console.error(
+            `Sorry, an error occurred while fetching the Mailspring Mailsync build for your machine\n(${distS3URL})\n`
+          );
+          response.pipe(process.stderr);
+          response.on('end', () => console.error('\n'));
+        }
+      });
     });
   });
 }
@@ -113,7 +119,7 @@ npm('install', { cwd: './app', env: 'electron' }).then(() => {
     // if the user hasn't cloned the private mailsync module, download
     // the binary for their operating system that was shipped to S3.
     if (!fs.existsSync('./mailsync/build.sh')) {
-      console.log(`\n-- Downloading a compiled version of Mailspring mailsync --`);
+      console.log(`\n-- Downloading the last released version of Mailspring mailsync --`);
       downloadMailsync();
     }
   });
