@@ -52,3 +52,16 @@ export function moveThreads(threads, { snooze, description } = {}) {
 
   Actions.queueTasks(tasks);
 }
+
+export function markUnreadIfSet(threads, source) {
+  if (AppEnv.config.get('core.notifications.unreadOnSnooze')) {
+    Actions.queueTask(
+      TaskFactory.taskForSettingUnread({
+        unread: true,
+        threads: threads,
+        source: source,
+        canBeUndone: true,
+      })
+    );
+  }
+}

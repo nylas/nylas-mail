@@ -158,6 +158,11 @@ export default {
             default: true,
             title: 'Play sound when receiving new mail',
           },
+          unreadOnSnooze: {
+            type: 'boolean',
+            default: false,
+            title: 'Mark a message unread when returning from snooze',
+          },
           countBadge: {
             type: 'string',
             default: 'unread',

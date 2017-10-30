@@ -8,7 +8,7 @@ import {
   Thread,
 } from 'mailspring-exports';
 
-import { moveThreads, snoozedUntilMessage } from './snooze-utils';
+import { markUnreadIfSet, moveThreads, snoozedUntilMessage } from './snooze-utils';
 import { PLUGIN_ID } from './snooze-constants';
 import SnoozeActions from './snooze-actions';
 
@@ -90,6 +90,9 @@ class SnoozeStore extends MailspringStore {
   _onUnsnoozeThreads = threads => {
     // move the threads back to the inbox
     moveThreads(threads, { snooze: false, description: 'Unsnoozed' });
+
+    // mark the threads unread if setting is enabled
+    markUnreadIfSet(threads, 'Unsnoozed message');
 
     // remove the expiration on the metadata. note this is super important,
     // otherwise we'll receive a notification from the sync worker over and
