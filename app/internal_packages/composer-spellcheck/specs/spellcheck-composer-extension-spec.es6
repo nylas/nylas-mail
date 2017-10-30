@@ -71,6 +71,28 @@ describe('SpellcheckComposerExtension', function spellcheckComposerExtension() {
       This is back to <spelling class="misspelled">normall</spelling>.
       `);
     });
+
+    it('handles unicode letters in words correctly', () => {
+      //spyOn(Spellchecker, 'isMisspelled').andCallFake(word => true);
+      const node = document.createElement('div');
+      node.innerHTML = `
+        <br>
+        Schöße, égalité “пустынных”, ಸತ್ಯಾವತಾರ. misspellled.
+        `;
+
+      const editor = {
+        rootNode: node,
+        whilePreservingSelection: cb => cb(),
+      };
+
+      SpellcheckComposerExtension.onContentChanged({ editor });
+      advanceClock(1000); // Wait for debounce
+      advanceClock(1); // Wait for defer
+      expect(node.innerHTML).toEqual(`
+        <br>
+        <spelling class="misspelled">Schöße</spelling>, <spelling class="misspelled">égalité</spelling> “<spelling class="misspelled">пустынных</spelling>”, <spelling class="misspelled">ಸತ್ಯಾವತಾರ</spelling>. <spelling class="misspelled">misspellled</spelling>.
+        `);
+    });
   });
 
   describe('applyTransformsForSending', () => {
