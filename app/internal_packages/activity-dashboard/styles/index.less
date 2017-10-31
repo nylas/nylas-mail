@@ -1,3 +1,5 @@
+@import 'ui-variables';
+
 @keyframes indicator-animation {
   0% {
     background-position-x: 200px;
@@ -9,20 +11,27 @@
 
 .activity-dashboard {
   height: 100%;
+  color: @text-color;
 
   .header {
     margin: 20px;
+    margin-bottom: 6px;
     display: flex;
+    .accounts {
+      font-size: @font-size-base;
+      color: @text-color-very-subtle;
+    }
     h2 {
-      flex: 1;
       margin: 0;
     }
     .timespan-selector {
       display: flex;
       align-items: baseline;
       .timespan-text {
-        margin-right: @padding-base-horizontal * 2;
         color: @text-color-very-subtle;
+      }
+      .dropdown-menu {
+        margin-left: @padding-base-horizontal * 2;
       }
     }
     .dropdown-menu .menu {
@@ -34,9 +43,30 @@
     color: mix(@color-warning, @text-color-subtle, 20%);
     padding: @padding-base-vertical @padding-base-horizontal;
     background: mix(@color-warning, @background-primary, 10%);
-    border: 1px solid mix(@color-warning, @border-color-divider, 20%);
+    border-left: 4px solid mix(@color-warning, @border-color-divider, 20%);
     margin: 0 20px;
     margin-top: 20px;
+  }
+
+  .empty-note {
+    color: @text-color-very-subtle;
+    text-align: center;
+    max-width: 500px;
+    margin: 50px auto;
+  }
+
+  .copy-to-clipboard {
+    margin-left: 9px;
+    position: relative;
+    display: inline-block;
+    cursor: default;
+    top: -2px;
+    img {
+      background-color: @btn-icon-color;
+    }
+    img:active {
+      background-color: @black;
+    }
   }
 
   .loading-cover {

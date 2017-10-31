@@ -22,6 +22,7 @@ export default class TimespanSelector extends React.Component {
       <div className="timespan-selector">
         <div className="timespan-text">{`${startDate.format(longFormat)} - ${endFormat}`}</div>
         <DropdownMenu
+          className="hidden-on-web"
           attachment={DropdownMenu.Attachment.RightEdge}
           intitialSelectionItem={options[itemIdx]}
           defaultSelectedIndex={itemIdx}

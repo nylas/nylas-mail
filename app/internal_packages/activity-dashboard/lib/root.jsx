@@ -1,9 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Message, DatabaseStore, FocusedPerspectiveStore } from 'mailspring-exports';
 import { ScrollRegion, ListensToFluxStore, RetinaImg } from 'mailspring-component-kit';
+import {
+  AccountStore,
+  Message,
+  DatabaseStore,
+  FocusedPerspectiveStore,
+  Actions,
+} from 'mailspring-exports';
+import {
+  MetricContainer,
+  MetricStat,
+  MetricGraph,
+  MetricHistogram,
+  MetricsBySubjectTable,
+} from './metrics-components';
 
-import { MetricContainer, MetricStat, MetricGraph, MetricHistogram } from './metrics-components';
+import ShareButton from './share-button';
 import { DEFAULT_TIMESPAN_ID, getTimespanStartEnd } from './timespan';
 import TimespanSelector from './timespan-selector';
 import LoadingCover from './loading-cover';
@@ -183,7 +196,9 @@ class RootWithTimespan extends React.Component {
       }
     }
 
-    const bySubjectSorted = Object.values(bySubject).sort((a, b) => b.opens - a.opens);
+    const bySubjectSorted = Object.values(bySubject)
+      .filter(a => a.count > 1)
+      .sort((a, b) => b.opens - a.opens);
 
     // Okay! Make sure we've taken at least 1500ms and then fade in the stats
     const animationDelay = Math.max(0, metricsComputeStarted + MINIMUM_THINKING_TIME - Date.now());
@@ -215,7 +230,8 @@ class RootWithTimespan extends React.Component {
     return new Promise(resolve => {
       window.requestAnimationFrame(() => {
         DatabaseStore.findAll(Message)
-          .where(Message.attributes.accountId.equal(accountIds))
+          .background()
+          .where(Message.attributes.accountId.in(accountIds))
           .where(Message.attributes.date.greaterThan(startUnix))
           .where(Message.attributes.date.lessThan(endUnix))
           .order(Message.attributes.date.ascending())
@@ -224,6 +240,10 @@ class RootWithTimespan extends React.Component {
       });
     });
   }
+
+  _onShowTemplates = () => {
+    Actions.showTemplates();
+  };
 
   render() {
     const { metrics, metricsBySubjectLine, version, loading } = this.state;
@@ -265,9 +285,17 @@ class RootWithTimespan extends React.Component {
             in this time period, so these numbers do not reflect all of your activity. To enable
             read receipts and link tracking on emails you send, click the 
             `}
-            <RetinaImg name="icon-activity-mailopen.png" mode={RetinaImg.Mode.ContentDark} />
+            <RetinaImg
+              name="icon-activity-mailopen.png"
+              className="hidden-on-web"
+              mode={RetinaImg.Mode.ContentDark}
+            />
             {' or link tracking '}
-            <RetinaImg name="icon-activity-linkopen.png" mode={RetinaImg.Mode.ContentDark} />
+            <RetinaImg
+              name="icon-activity-linkopen.png"
+              className="hidden-on-web"
+              mode={RetinaImg.Mode.ContentDark}
+            />
             {' icons in the composer.'}
           </div>
         )}
@@ -305,50 +333,18 @@ class RootWithTimespan extends React.Component {
           <div>Best Templates and Subject Lines</div>
         </div>
         <div className="section" style={{ display: 'flex' }}>
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Subject Line</th>
-                  <th style={{ width: '11vw' }}>Messages Sent</th>
-                  <th style={{ width: '9vw' }}>Open Rate</th>
-                  <th style={{ width: '11vw' }}>Link Click Rate</th>
-                  <th style={{ width: '9vw' }}>Reply Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {metricsBySubjectLine.map(({ subject, count, opens, clicks, replies }) => (
-                  <tr key={subject}>
-                    <td className="ellipsis">
-                      <span title={subject}>{subject}</span>
-                    </td>
-                    <td>{count}</td>
-                    <td>
-                      {opens ? (
-                        `${Math.ceil(opens / count * 100)}% (${opens})`
-                      ) : (
-                        <span className="empty">—</span>
-                      )}
-                    </td>
-                    <td>
-                      {clicks ? (
-                        `${Math.ceil(clicks / count * 100)}% (${clicks})`
-                      ) : (
-                        <span className="empty">—</span>
-                      )}
-                    </td>
-                    <td>
-                      {replies ? (
-                        `${Math.ceil(replies / count * 100)}% (${replies})`
-                      ) : (
-                        <span className="empty">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {metricsBySubjectLine.length === 0 ? (
+            <div className="empty-note">
+              Send more than one message using the same{' '}
+              <a onClick={this._onShowTemplates}>template</a> or subject line to compare open rates
+              and reply rates.
+            </div>
+          ) : (
+            <MetricsBySubjectTable data={metricsBySubjectLine} />
+          )}
+        </div>
+        <div className="section hidden-on-web" style={{ display: 'flex', textAlign: 'center' }}>
+          <ShareButton />
         </div>
       </div>
     );
@@ -387,13 +383,22 @@ class Root extends React.Component {
   };
 
   render() {
+    const { accountIds } = this.props;
+
     return (
       <ScrollRegion className="activity-dashboard">
         <div className="header">
-          <h2>Activity</h2>
+          <div style={{ flex: 1 }}>
+            <h2>Activity</h2>
+            <div className="accounts">
+              {accountIds.length > 1
+                ? 'All Accounts'
+                : AccountStore.accountForId(accountIds[0]).label}
+            </div>
+          </div>
           <TimespanSelector timespan={this.state.timespan} onChange={this._onChangeTimespan} />
         </div>
-        <RootWithTimespan accountIds={this.props.accountIds} timespan={this.state.timespan} />
+        <RootWithTimespan accountIds={accountIds} timespan={this.state.timespan} />
       </ScrollRegion>
     );
   }

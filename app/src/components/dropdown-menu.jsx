@@ -10,6 +10,7 @@ export default class DropdownMenu extends React.Component {
   static Attachment = Attachment;
 
   static propTypes = {
+    className: PropTypes.string,
     intitialSelectionItem: PropTypes.object,
     attachment: PropTypes.string,
     onSelect: PropTypes.func,
@@ -82,7 +83,7 @@ export default class DropdownMenu extends React.Component {
 
     return (
       <div
-        className="btn dropdown-menu"
+        className={`btn dropdown-menu ${this.props.className}`}
         tabIndex="-1"
         onBlur={this._onBlur}
         style={{ display: 'inline-block', position: 'relative' }}

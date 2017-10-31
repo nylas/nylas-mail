@@ -19,7 +19,7 @@ export class MetricStat extends React.Component {
     return (
       <div className={`metric-stat ${name}`} ref={el => (this._el = el)}>
         <div
-          className="layer"
+          className="layer hidden-on-web"
           style={{
             zIndex: 1,
             padding: `15px 5px`,
@@ -141,6 +141,59 @@ export class MetricGraph extends React.Component {
         >
           <div className="text">{(total / 1).toLocaleString()}</div>
         </div>
+      </div>
+    );
+  }
+}
+
+export class MetricsBySubjectTable extends React.Component {
+  render() {
+    const { data } = this.props;
+
+    return (
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Subject Line</th>
+              <th style={{ width: '11vw' }}>Messages Sent</th>
+              <th style={{ width: '9vw' }}>Open Rate</th>
+              <th style={{ width: '11vw' }}>Link Click Rate</th>
+              <th style={{ width: '9vw' }}>Reply Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map(({ subject, count, opens, clicks, replies }) => (
+              <tr key={subject}>
+                <td className="ellipsis">
+                  <span title={subject}>{subject}</span>
+                </td>
+                <td>{count}</td>
+                <td>
+                  {opens ? (
+                    `${Math.ceil(opens / count * 100)}% (${opens})`
+                  ) : (
+                    <span className="empty">—</span>
+                  )}
+                </td>
+                <td>
+                  {clicks ? (
+                    `${Math.ceil(clicks / count * 100)}% (${clicks})`
+                  ) : (
+                    <span className="empty">—</span>
+                  )}
+                </td>
+                <td>
+                  {replies ? (
+                    `${Math.ceil(replies / count * 100)}% (${replies})`
+                  ) : (
+                    <span className="empty">—</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     );
   }
