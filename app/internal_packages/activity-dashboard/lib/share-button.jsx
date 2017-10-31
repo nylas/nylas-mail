@@ -94,7 +94,7 @@ export default class ShareButton extends React.Component {
 
   render() {
     return (
-      <div style={{ display: 'flex', margin: 'auto' }}>
+      <div style={{ display: 'flex' }}>
         <div className="btn" onClick={this._onShareReport} style={{ width: 150 }}>
           Share this Report
           {this.state.loading && (

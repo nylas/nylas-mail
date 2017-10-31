@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { shell } from 'electron';
+
 import { ScrollRegion, ListensToFluxStore, RetinaImg } from 'mailspring-component-kit';
 import {
   AccountStore,
@@ -245,6 +247,10 @@ class RootWithTimespan extends React.Component {
     Actions.showTemplates();
   };
 
+  _onLearnMore = () => {
+    shell.openExternal('http://support.getmailspring.com/hc/en-us/articles/115002507891');
+  };
+
   render() {
     const { metrics, metricsBySubjectLine, version, loading } = this.state;
     const lowTrackingUsage = !loading && metrics.percentUsingTracking < 75;
@@ -344,7 +350,16 @@ class RootWithTimespan extends React.Component {
           )}
         </div>
         <div className="section hidden-on-web" style={{ display: 'flex', textAlign: 'center' }}>
-          <ShareButton />
+          <div style={{ display: 'flex', margin: 'auto' }}>
+            <div
+              className="btn"
+              onClick={this._onLearnMore}
+              style={{ marginRight: 10, width: 115 }}
+            >
+              Learn More
+            </div>
+            <ShareButton key={version} />
+          </div>
         </div>
       </div>
     );
