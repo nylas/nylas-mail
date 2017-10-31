@@ -13,7 +13,7 @@
     "displayName": "Darkside Custom",
 
 > **Edit LESS files**  
-> Open the `darkside-variables.less` file. To change colors, just comment out the default `@sidebar` and `@accent` variables and uncomment another theme or simply replace with your own colors.
+> Open the `ui-variables.less` file. To change colors, just comment out the default `@sidebar` and `@accent` variables and uncomment another theme or simply replace with your own colors.
 
 ```sass
 // Default

@@ -49,7 +49,7 @@ class ThemeOption extends React.Component {
       `${resourcePath}/internal_packages/theme-picker/preview-styles`,
       this.props.theme.getStylesheetsPath()
     );
-    let varImports = `@import "../../../static/variables/ui-variables";`;
+    let varImports = `@import "../../../static/base/ui-variables";`;
     if (fs.existsSync(`${this.props.theme.getStylesheetsPath()}/ui-variables.less`)) {
       varImports += `@import "${themeVarPath}/ui-variables";`;
     }

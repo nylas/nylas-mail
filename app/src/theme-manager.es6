@@ -44,7 +44,7 @@ export default class ThemeManager {
       // reload all stylesheets attached to the dom
       for (const styleEl of Array.from(document.head.querySelectorAll('[source-path]'))) {
         if (styleEl.sourcePath.endsWith('.less')) {
-          styleEl.textContent = this.cssContentsOfStylesheet(styleEl.sourcePath, true);
+          styleEl.textContent = this.cssContentsOfStylesheet(styleEl.sourcePath);
         }
       }
       this.emitter.emit('did-change-active-themes');
@@ -62,7 +62,7 @@ export default class ThemeManager {
         }
         PathWatcher.watch(stylePath, () => {
           const styleEl = document.head.querySelector(`[source-path="${stylePath}"]`);
-          styleEl.textContent = this.cssContentsOfStylesheet(styleEl.sourcePath, true);
+          styleEl.textContent = this.cssContentsOfStylesheet(styleEl.sourcePath);
         });
       });
     };
@@ -164,11 +164,11 @@ export default class ThemeManager {
     return fs.resolveOnLoadPath(stylesheetPath, ['css', 'less']);
   }
 
-  cssContentsOfStylesheet(stylesheetPath, importFallbackVariables) {
+  cssContentsOfStylesheet(stylesheetPath) {
     const ext = path.extname(stylesheetPath);
 
     if (ext === '.less') {
-      return this.cssContentsOfLessStylesheet(stylesheetPath, importFallbackVariables);
+      return this.cssContentsOfLessStylesheet(stylesheetPath);
     } else if (ext === '.css') {
       return fs.readFileSync(stylesheetPath, 'utf8');
     } else {
@@ -176,12 +176,9 @@ export default class ThemeManager {
     }
   }
 
-  cssContentsOfLessStylesheet(lessStylesheetPath, importFallbackVariables = false) {
+  cssContentsOfLessStylesheet(lessStylesheetPath) {
     try {
       let less = fs.readFileSync(lessStylesheetPath, 'utf8').toString();
-      if (importFallbackVariables) {
-        less = `@import "variables/ui-variables";\n\n${less}`;
-      }
       return this.lessCache.cssForFile(lessStylesheetPath, less);
     } catch (error) {
       let message = `Error loading Less stylesheet: ${lessStylesheetPath}`;

@@ -1,3 +1,5 @@
+@import 'base/ui-variables';
+
 @gray-base: #ffffff;
 @gray-darker: darken(@gray-base, 13.5%);
 @gray-dark: darken(@gray-base, 20%);
@@ -63,4 +65,13 @@ img.content-light {
 
 .mail-label {
   -webkit-filter: contrast(110%) brightness(85%);
+}
+
+.sheet-toolbar .btn-toolbar {
+  box-shadow: 0 0.5px 0.05px rgba(255, 255, 255, 0.4), 0 -0.5px 0 rgba(255, 255, 255, 0.12);
+}
+.btn {
+  box-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.15), 0 -0.5px 0 rgba(255, 255, 255, 0.15),
+    0.5px 0 0 rgba(255, 255, 255, 0.15), -0.5px 0 0 rgba(255, 255, 255, 0.15),
+    0 0.5px 1px rgba(255, 255, 255, 0.15);
 }

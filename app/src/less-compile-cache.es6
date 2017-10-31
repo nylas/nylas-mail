@@ -4,23 +4,16 @@ import LessCache from 'less-cache';
 
 // {LessCache} wrapper used by {ThemeManager} to read stylesheets.
 export default class LessCompileCache {
-  constructor({ configDirPath, resourcePath, importPaths }) {
+  constructor({ configDirPath, resourcePath, importPaths = [] }) {
     this.lessSearchPaths = [
-      path.join(resourcePath, 'static', 'variables'),
+      path.join(resourcePath, 'static', 'base'),
       path.join(resourcePath, 'static'),
     ];
-
-    let allImportPaths = importPaths;
-    if (allImportPaths != null) {
-      allImportPaths = importPaths.concat(this.lessSearchPaths);
-    } else {
-      allImportPaths = this.lessSearchPaths;
-    }
 
     this.cache = new LessCache({
       cacheDir: path.join(configDirPath, 'compile-cache', 'less'),
       fallbackDir: path.join(resourcePath, 'less-compile-cache'),
-      importPaths: allImportPaths,
+      importPaths: importPaths.concat(this.lessSearchPaths),
       resourcePath: resourcePath,
     });
   }
