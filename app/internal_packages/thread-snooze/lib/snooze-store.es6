@@ -8,7 +8,7 @@ import {
   Thread,
 } from 'mailspring-exports';
 
-import { markUnreadIfSet, moveThreads, snoozedUntilMessage } from './snooze-utils';
+import { markUnreadOrResurfaceThreads, moveThreads, snoozedUntilMessage } from './snooze-utils';
 import { PLUGIN_ID } from './snooze-constants';
 import SnoozeActions from './snooze-actions';
 
@@ -92,23 +92,7 @@ class SnoozeStore extends MailspringStore {
     moveThreads(threads, { snooze: false, description: 'Unsnoozed' });
 
     // mark the threads unread if setting is enabled
-    markUnreadIfSet(threads, 'Unsnoozed message');
-
-    // remove the expiration on the metadata. note this is super important,
-    // otherwise we'll receive a notification from the sync worker over and
-    // over again.
-    Actions.queueTasks(
-      threads.map(
-        model =>
-          new SyncbackMetadataTask({
-            model,
-            pluginId: PLUGIN_ID,
-            value: {
-              expiration: null,
-            },
-          })
-      )
-    );
+    markUnreadOrResurfaceThreads(threads, 'Unsnoozed message');
   };
 
   _onMetadataExpired = threads => {
@@ -117,7 +101,25 @@ class SnoozeStore extends MailspringStore {
       return metadata && metadata.expiration && metadata.expiration < new Date();
     });
     if (unsnooze.length > 0) {
-      this._onUnsnoozeThreads(unsnooze);
+      // remove the expiration on the metadata. note this is super important,
+      // otherwise we'll receive a notification from the sync worker over and
+      // over again.
+      Actions.queueTasks(
+        threads.map(
+          model =>
+            new SyncbackMetadataTask({
+              model,
+              pluginId: PLUGIN_ID,
+              value: {
+                expiration: null,
+              },
+            })
+        )
+      );
+
+      // unsnooze messages that are still in the snoozed folder. (The user may have
+      // moved the thread out of the snoozed folder using another client )
+      this._onUnsnoozeThreads(unsnooze.filter(t => t.categories.find(c => c.role === 'snoozed')));
     }
   };
 }

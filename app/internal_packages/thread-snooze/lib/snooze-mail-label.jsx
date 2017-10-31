@@ -29,7 +29,7 @@ class SnoozeMailLabel extends Component {
     }
 
     const metadata = thread.metadataForPluginId(PLUGIN_ID);
-    if (!metadata) {
+    if (!metadata || !metadata.expiration) {
       return false;
     }
     const content = (

@@ -158,6 +158,33 @@ class DraftFactory
           </div>"""
       )
 
+  createDraftForResurfacing: (thread, threadMessageId, body) =>
+    account = AccountStore.accountForId(thread.accountId)
+    if threadMessageId
+      rthmsid = Promise.resolve(threadMessageId)
+    else
+      rthmsid = DatabaseStore
+        .findBy(Message, {accountId: thread.accountId, threadId: thread.id})
+        .order(Message.attributes.date.descending())
+        .limit(1)
+        .then((msg) =>
+          return (msg && msg.headerMessageId || "")
+        )    
+
+    return rthmsid.then((replyToHeaderMessageId) =>
+      @createDraft({
+        from: [new Contact({ email: account.emailAddress, name: "#{account.name} via Mailspring" })],
+        to: [account.defaultMe()],
+        cc: [],
+        pristine: false,
+        subject: thread.subject,
+        threadId: thread.id,
+        accountId: thread.accountId,
+        replyToHeaderMessageId: replyToHeaderMessageId,
+        body: body
+      })
+    )
+
   candidateDraftForUpdating: (message, behavior) =>
     if behavior not in ['prefer-existing-if-pristine', 'prefer-existing']
       return Promise.resolve(null)

@@ -146,6 +146,9 @@ class DraftStore extends MailspringStore {
   };
 
   _onSendQuickReply = ({ thread, threadId, message, messageId }, body) => {
+    if (AppEnv.config.get('core.sending.sounds')) {
+      SoundRegistry.playSound('hit-send');
+    }
     return Promise.props(this._modelifyContext({ thread, threadId, message, messageId }))
       .then(({ message: m, thread: t }) => {
         return DraftFactory.createDraftForReply({ message: m, thread: t, type: 'reply' });
@@ -344,10 +347,6 @@ class DraftStore extends MailspringStore {
     const sendAction = SendActionsStore.sendActionForKey(sendActionKey);
     if (!sendAction) {
       throw new Error(`Cant find send action ${sendActionKey} `);
-    }
-
-    if (AppEnv.config.get('core.sending.sounds')) {
-      SoundRegistry.playSound('hit-send');
     }
 
     // get the draft session, apply any last-minute edits and get the final draft.

@@ -67,7 +67,7 @@ export default class SendDraftTask extends Task {
   }
 
   label() {
-    return 'Sending message';
+    return this.silent ? null : 'Sending message';
   }
 
   validate() {

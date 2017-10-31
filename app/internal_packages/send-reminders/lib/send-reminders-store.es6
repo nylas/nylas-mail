@@ -1,12 +1,9 @@
 import {
   Actions,
   FocusedContentStore,
-  SyncbackDraftTask,
+  SendDraftTask,
   DatabaseStore,
-  AccountStore,
-  TaskQueue,
   Thread,
-  Contact,
   DraftFactory,
 } from 'mailspring-exports';
 import MailspringStore from 'mailspring-store';
@@ -36,26 +33,13 @@ class SendRemindersStore extends MailspringStore {
   }
 
   _sendReminderEmail = async (thread, sentHeaderMessageId) => {
-    const account = AccountStore.accountForId(thread.accountId);
-    const draft = await DraftFactory.createDraft({
-      from: [new Contact({ email: account.emailAddress, name: `${account.name} via Mailspring` })],
-      to: [account.defaultMe()],
-      cc: [],
-      pristine: false,
-      subject: thread.subject,
-      threadId: thread.id,
-      accountId: thread.accountId,
-      replyToHeaderMessageId: sentHeaderMessageId,
-      body: `
-        <strong>Mailspring Reminder:</strong> This thread has been moved to the top of
-        your inbox by Mailspring because no one has replied to your message.</p>
-        <p>--The Mailspring Team</p>`,
-    });
+    const body = `
+      <strong>Mailspring Reminder:</strong> This thread has been moved to the top of
+      your inbox by Mailspring because no one has replied to your message.</p>
+      <p>--The Mailspring Team</p>`;
 
-    const saveTask = new SyncbackDraftTask({ draft });
-    Actions.queueTask(saveTask);
-    await TaskQueue.waitForPerformLocal(saveTask);
-    Actions.sendDraft(draft.headerMessageId);
+    const draft = await DraftFactory.createDraftForResurfacing(thread, sentHeaderMessageId, body);
+    Actions.queueTask(new SendDraftTask({ draft, silent: true }));
   };
 
   _onDraftDeliverySucceeded = ({ headerMessageId, accountId }) => {

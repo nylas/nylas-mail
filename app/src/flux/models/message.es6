@@ -351,7 +351,7 @@ export default class Message extends ModelWithMetadata {
       this.to.length === 1 &&
       this.from.length === 1 &&
       this.to[0].email === this.from[0].email &&
-      (this.snippet || '').startsWith('Mailspring Reminder:');
+      (this.from[0].name || '').endsWith('via Mailspring');
     const isDraftBeingDeleted = this.id.startsWith('deleted-');
 
     return isReminder || isDraftBeingDeleted;

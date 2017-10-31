@@ -1,4 +1,4 @@
-import { React, PropTypes, Actions, SendActionsStore } from 'mailspring-exports';
+import { React, PropTypes, Actions, SendActionsStore, SoundRegistry } from 'mailspring-exports';
 import { Menu, RetinaImg, ButtonDropdown, ListensToFluxStore } from 'mailspring-component-kit';
 
 class SendActionButton extends React.Component {
@@ -26,6 +26,9 @@ class SendActionButton extends React.Component {
   _onSendWithAction = sendAction => {
     const { isValidDraft, draft } = this.props;
     if (isValidDraft()) {
+      if (AppEnv.config.get('core.sending.sounds')) {
+        SoundRegistry.playSound('hit-send');
+      }
       Actions.sendDraft(draft.headerMessageId, sendAction.configKey);
     }
   };
