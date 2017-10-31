@@ -100,7 +100,7 @@ class SidebarItem
         catch err
           console.error("JSON parse error: #{err}")
         return unless jsonData
-        item.perspective.receiveThreads(jsonData.threadIds)
+        item.perspective.receiveThreadIds(jsonData.threadIds)
 
       shouldAcceptDrop: (item, event) ->
         target = item.perspective

@@ -185,9 +185,20 @@ export default class MailboxPerspective {
     return areIncomingIdsInCurrent;
   }
 
-  receiveThreads(threadsOrIds) {
+  receiveThreadIds(threadIds) {
+    DatabaseStore.modelify(Thread, threadIds).then(threads => {
+      const tasks = TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
+        return this.actionsForReceivingThreads(accountThreads, accountId);
+      });
+      if (tasks.length > 0) {
+        Actions.queueTasks(tasks);
+      }
+    });
+  }
+
+  actionsForReceivingThreads(threads, accountId) {
     // eslint-disable-line
-    throw new Error('receiveThreads: Not implemented in base class.');
+    throw new Error('actionsForReceivingThreads: Not implemented in base class.');
   }
 
   canArchiveThreads(threads) {
@@ -269,10 +280,11 @@ class StarredMailboxPerspective extends MailboxPerspective {
     return super.canReceiveThreadsFromAccountIds(...args);
   }
 
-  receiveThreads(threadsOrIds) {
+  actionsForReceivingThreads(threads, accountId) {
     ChangeStarredTask = ChangeStarredTask || require('./flux/tasks/change-starred-task').default;
     const task = new ChangeStarredTask({
-      threads: threadsOrIds,
+      accountId,
+      threads,
       starred: true,
       source: 'Dragged Into List',
     });
@@ -399,7 +411,7 @@ class CategoryMailboxPerspective extends MailboxPerspective {
     );
   }
 
-  receiveThreads(threadsOrIds) {
+  actionsForReceivingThreads(threads, accountId) {
     FocusedPerspectiveStore =
       FocusedPerspectiveStore || require('./flux/stores/focused-perspective-store').default;
     ChangeLabelsTask = ChangeLabelsTask || require('./flux/tasks/change-labels-task').default;
@@ -407,54 +419,69 @@ class CategoryMailboxPerspective extends MailboxPerspective {
 
     const current = FocusedPerspectiveStore.current();
 
-    // This assumes that the we don't have more than one category per accountId
-    // attached to this perspective
-    return DatabaseStore.modelify(Thread, threadsOrIds).then(threads => {
-      const tasks = TaskFactory.tasksForThreadsByAccountId(threads, (accountThreads, accountId) => {
-        if (Category.LockedRoles.includes(current.categoriesSharedRole())) {
-          return null;
-        }
+    // This assumes that the we don't have more than one category per
+    // accountId attached to this perspective
+    if (Category.LockedRoles.includes(current.categoriesSharedRole())) {
+      return [];
+    }
 
-        const myCat = this.categories().find(c => c.accountId === accountId);
-        const currentCat = current.categories().find(c => c.accountId === accountId);
+    const myCat = this.categories().find(c => c.accountId === accountId);
+    const currentCat = current.categories().find(c => c.accountId === accountId);
 
-        if (myCat instanceof Folder) {
-          // folder/label to folder
-          return new ChangeFolderTask({
-            threads: accountThreads,
-            source: 'Dragged into list',
-            folder: myCat,
-          });
-        }
-        if (myCat instanceof Label && currentCat instanceof Folder) {
-          // folder to label
-          // dragging from trash or spam into a label? We need to both apply the label and move.
-          return [
-            new ChangeFolderTask({
-              threads: accountThreads,
-              source: 'Dragged into list',
-              folder: CategoryStore.getCategoryByRole(accountId, 'all'),
-            }),
-            new ChangeLabelsTask({
-              threads: accountThreads,
-              source: 'Dragged into list',
-              labelsToAdd: [myCat],
-              labelsToRemove: [],
-            }),
-          ];
-        }
-        // label to label
-        return [
-          new ChangeLabelsTask({
-            threads: accountThreads,
-            source: 'Dragged into list',
-            labelsToAdd: [myCat],
-            labelsToRemove: [currentCat],
-          }),
-        ];
-      });
-      Actions.queueTasks(tasks);
-    });
+    // Don't drag and drop on ourselves
+    if (myCat.id === currentCat.id) {
+      return [];
+    }
+
+    if (myCat.role === 'all' && currentCat instanceof Label) {
+      // dragging from a label into All Mail? Make this an "archive" by removing the
+      // label. Otherwise (Since labels are subsets of All Mail) it'd have no effect.
+      return [
+        new ChangeLabelsTask({
+          threads,
+          source: 'Dragged into list',
+          labelsToAdd: [],
+          labelsToRemove: [currentCat],
+        }),
+      ];
+    }
+    if (myCat instanceof Folder) {
+      // dragging to a folder like spam, trash or any IMAP folder? Just change the folder.
+      return [
+        new ChangeFolderTask({
+          threads,
+          source: 'Dragged into list',
+          folder: myCat,
+        }),
+      ];
+    }
+
+    if (myCat instanceof Label && currentCat instanceof Folder) {
+      // dragging from trash or spam into a label? We need to both apply the label and
+      // move to the "All Mail" folder.
+      return [
+        new ChangeFolderTask({
+          threads,
+          source: 'Dragged into list',
+          folder: CategoryStore.getCategoryByRole(accountId, 'all'),
+        }),
+        new ChangeLabelsTask({
+          threads,
+          source: 'Dragged into list',
+          labelsToAdd: [myCat],
+          labelsToRemove: [],
+        }),
+      ];
+    }
+    // label to label
+    return [
+      new ChangeLabelsTask({
+        threads,
+        source: 'Dragged into list',
+        labelsToAdd: [myCat],
+        labelsToRemove: [currentCat],
+      }),
+    ];
   }
 
   // Public:
@@ -523,22 +550,23 @@ class UnreadMailboxPerspective extends CategoryMailboxPerspective {
     return 0;
   }
 
-  receiveThreads(threadsOrIds) {
+  actionsForReceivingThreads(threads, accountId) {
     ChangeUnreadTask = ChangeUnreadTask || require('./flux/tasks/change-unread-task').default;
-
-    super.receiveThreads(threadsOrIds);
-    const task = new ChangeUnreadTask({
-      threads: threadsOrIds,
-      unread: true,
-      source: 'Dragged Into List',
-    });
-    Actions.queueTask(task);
+    const tasks = super.actionsForReceivingThreads(threads, accountId);
+    tasks.push(
+      new ChangeUnreadTask({
+        threads: threads,
+        unread: true,
+        source: 'Dragged Into List',
+      })
+    );
+    return tasks;
   }
 
   tasksForRemovingItems(threads, ruleset, source) {
     ChangeUnreadTask = ChangeUnreadTask || require('./flux/tasks/change-unread-task').default;
 
-    const tasks = super.tasksForRemovingItems(threads, ruleset);
+    const tasks = super.tasksForRemovingItems(threads, ruleset, source);
     tasks.push(
       new ChangeUnreadTask({ threads, unread: false, source: source || 'Removed From List' })
     );
