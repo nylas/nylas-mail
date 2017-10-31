@@ -14,7 +14,17 @@ function _getDimension(node, dim) {
   return [value / 1, units];
 }
 
-function _runOnImageNode(node) {
+function _correctMalformedSrc(node) {
+  let src = node.getAttribute('src');
+  if (src && src.startsWith('%20')) {
+    while (src.startsWith('%20')) {
+      src = src.substring(3);
+    }
+    node.setAttribute('src', src);
+  }
+}
+
+function _applyMaxWidthAndHeight(node) {
   const [width, widthUnits] = _getDimension(node, 'width');
   const [height, heightUnits] = _getDimension(node, 'height');
 
@@ -36,7 +46,7 @@ function _runOnImageNode(node) {
   }
 }
 
-export function autoscaleImages(doc) {
+export function adjustImages(doc) {
   const imgTagWalker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, {
     acceptNode: node => {
       if (node.nodeName === 'IMG') {
@@ -47,6 +57,7 @@ export function autoscaleImages(doc) {
   });
 
   while (imgTagWalker.nextNode()) {
-    _runOnImageNode(imgTagWalker.currentNode);
+    _applyMaxWidthAndHeight(imgTagWalker.currentNode);
+    _correctMalformedSrc(imgTagWalker.currentNode);
   }
 }
