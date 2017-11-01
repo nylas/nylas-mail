@@ -57,6 +57,9 @@ cp "$ROOT/build/resources/linux/debian/lintian-overrides" "$TARGET/usr/share/lin
 # Remove group write from all files
 chmod -R g-w "$TARGET";
 
+# Remove execstack bit from mailspring executable
+execstack --clear-execstack "$TARGET/usr/share/mailspring/mailspring"
+
 # Remove executable bit from .node files
 find "$TARGET" -type f -name "*.node" -exec chmod a-x {} \;
 
