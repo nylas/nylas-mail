@@ -26,6 +26,7 @@ addons:
     - build-essential
     - clang
     - cmake
+    - execstack
     - fakeroot
     - g++-5
     - git
