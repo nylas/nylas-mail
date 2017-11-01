@@ -43,6 +43,7 @@ apps:
       TMPDIR: $XDG_RUNTIME_DIR
     plugs:
      - avahi-observe
+     - bluez
      - browser-support
      - cups-control
      - gsettings
@@ -50,10 +51,10 @@ apps:
      - mount-observe
      - network
      - network-observe
+     - process-control
      - password-manager-service
      - pulseaudio
      - removable-media
      - screen-inhibit-control
-     - system-observe
      - unity7
      - x11
