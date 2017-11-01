@@ -169,7 +169,7 @@ class DraftFactory
         .limit(1)
         .then((msg) =>
           return (msg && msg.headerMessageId || "")
-        )    
+        )
 
     return rthmsid.then((replyToHeaderMessageId) =>
       @createDraft({
