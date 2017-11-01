@@ -49,6 +49,7 @@ apps:
      - home
      - mount-observe
      - network
+     - network-bind
      - network-observe
      - password-manager-service
      - pulseaudio
