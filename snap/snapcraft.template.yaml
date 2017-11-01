@@ -54,5 +54,6 @@ apps:
      - pulseaudio
      - removable-media
      - screen-inhibit-control
+     - system-observe
      - unity7
      - x11
