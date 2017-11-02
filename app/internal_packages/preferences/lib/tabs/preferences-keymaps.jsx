@@ -133,7 +133,10 @@ export default class PreferencesKeymaps extends React.Component {
         </section>
         <section>
           <h2>Customization</h2>
-          <p>You can manage your custom shortcuts directly by editing your shortcuts file.</p>
+          <p>
+            Click shortcuts above to edit them. For even more control, you can edit the shortcuts
+            file directly below.
+          </p>
           <button className="btn" onClick={this._onShowUserKeymaps}>
             Edit custom shortcuts
           </button>
