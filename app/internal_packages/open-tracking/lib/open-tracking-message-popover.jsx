@@ -1,6 +1,6 @@
 import { React, PropTypes, DateUtils } from 'mailspring-exports';
 import { Flexbox } from 'mailspring-component-kit';
-import ActivityListStore from '../../activity-list/lib/activity-list-store';
+import ActivityEventStore from '../../activity/lib/activity-event-store';
 
 class OpenTrackingMessagePopover extends React.Component {
   static displayName = 'OpenTrackingMessagePopover';
@@ -17,7 +17,7 @@ class OpenTrackingMessagePopover extends React.Component {
         this.props.message.cc,
         this.props.message.bcc
       );
-      const recipient = ActivityListStore.getRecipient(open.recipient, recipients);
+      const recipient = ActivityEventStore.getRecipient(open.recipient, recipients);
       const date = new Date(0);
       date.setUTCSeconds(open.timestamp);
       return (

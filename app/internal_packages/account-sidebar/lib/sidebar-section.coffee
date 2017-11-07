@@ -42,16 +42,20 @@ class SidebarSection
     starredItem = SidebarItem.forStarred([account.id])
     draftsItem = SidebarItem.forDrafts([account.id])
 
-    extensionItems = ExtensionRegistry.AccountSidebar.extensions()
-      .filter((ext) => ext.sidebarItem?)
-      .map((ext) => ext.sidebarItem([account.id]))
-      .map(({id, name, iconName, perspective}) =>
-        SidebarItem.forPerspective(id, perspective, {name, iconName})
-      )
-
     # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, extensionItems..., unreadItem, starredItem)
+    items.splice(1, 0, unreadItem, starredItem)
     items.push(draftsItem)
+    
+    ExtensionRegistry.AccountSidebar.extensions()
+      .filter((ext) => ext.sidebarItem?)
+      .forEach((ext) =>
+        {id, name, iconName, perspective, insertAtTop} = ext.sidebarItem([account.id])
+        item = SidebarItem.forPerspective(id, perspective, {name, iconName})
+        if insertAtTop
+          items.splice(3, 0, item)
+        else
+          items.push(item)
+      )
 
     return {
       title: account.label
@@ -101,11 +105,15 @@ class SidebarSection
       children: accounts.map (acc) -> SidebarItem.forDrafts([acc.id], name: acc.label)
     )
 
-    extensionItems =  ExtensionRegistry.AccountSidebar.extensions()
+    # Order correctly: Inbox, Unread, Starred, rest... , Drafts
+    items.splice(1, 0, unreadItem, starredItem)
+    items.push(draftsItem)
+
+    ExtensionRegistry.AccountSidebar.extensions()
     .filter((ext) => ext.sidebarItem?)
-    .map((ext) =>
-      {id, name, iconName, perspective} = ext.sidebarItem(accountIds)
-      return SidebarItem.forPerspective(id, perspective, {
+    .forEach((ext) =>
+      {id, name, iconName, perspective, insertAtTop} = ext.sidebarItem(accountIds)
+      item = SidebarItem.forPerspective(id, perspective, {
         name,
         iconName,
         children: accounts.map((acc) =>
@@ -117,11 +125,11 @@ class SidebarSection
           )
         )
       })
+      if insertAtTop
+        items.splice(3, 0, item)
+      else
+        items.push(item)
     )
-
-    # Order correctly: Inbox, Unread, Starred, rest... , Drafts
-    items.splice(1, 0, extensionItems..., unreadItem, starredItem)
-    items.push(draftsItem)
 
     return {
       title: 'All Accounts'

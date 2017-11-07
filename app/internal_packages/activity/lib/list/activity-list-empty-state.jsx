@@ -3,7 +3,7 @@ import { RetinaImg } from 'mailspring-component-kit';
 
 const ActivityListEmptyState = function ActivityListEmptyState() {
   return (
-    <div className="empty">
+    <div className="empty-state-container">
       <RetinaImg
         className="logo"
         name="activity-list-empty.png"

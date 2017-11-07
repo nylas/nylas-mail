@@ -8,5 +8,6 @@ export function sidebarItem(accountIds) {
     name: 'Reminders',
     iconName: 'reminders.png',
     perspective: new SendRemindersMailboxPerspective(accountIds),
+    insertAtTop: true,
   };
 }

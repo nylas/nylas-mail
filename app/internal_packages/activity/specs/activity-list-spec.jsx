@@ -9,7 +9,7 @@ import {
   FocusedPerspectiveStore,
 } from 'mailspring-exports';
 import ActivityList from '../lib/activity-list';
-import ActivityListStore from '../lib/activity-list-store';
+import ActivityEventStore from '../lib/activity-event-store';
 import TestDataSource from '../lib/test-data-source';
 
 const OPEN_TRACKING_ID = 'open-tracking-id';
@@ -138,7 +138,7 @@ describe('ActivityList', function activityList() {
       }
       return null;
     });
-    spyOn(ActivityListStore, '_dataSource').andReturn(this.testSource);
+    spyOn(ActivityEventStore, '_dataSource').andReturn(this.testSource);
     spyOn(FocusedPerspectiveStore, 'sidebarAccountIds').andReturn(['0000000000000000000000000']);
     spyOn(DatabaseStore, 'run').andCallFake(query => {
       if (query._klass === Thread) {
@@ -150,12 +150,12 @@ describe('ActivityList', function activityList() {
       }
       return null;
     });
-    spyOn(ActivityListStore, 'focusThread').andCallThrough();
+    spyOn(ActivityEventStore, 'focusThread').andCallThrough();
     spyOn(AppEnv, 'displayWindow');
     spyOn(Actions, 'closePopover');
     spyOn(Actions, 'setFocus');
     spyOn(Actions, 'ensureCategoryIsFocused');
-    ActivityListStore.activate();
+    ActivityEventStore.activate();
     this.component = ReactTestUtils.renderIntoDocument(<ActivityList />);
   });
 
@@ -231,7 +231,7 @@ describe('ActivityList', function activityList() {
         ReactTestUtils.Simulate.click(item);
       });
       waitsFor(() => {
-        return ActivityListStore.focusThread.calls.length > 0;
+        return ActivityEventStore.focusThread.calls.length > 0;
       });
       runs(() => {
         expect(AppEnv.displayWindow.calls.length).toBe(1);

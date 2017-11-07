@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { shell } from 'electron';
-
 import { ScrollRegion, ListensToFluxStore, RetinaImg } from 'mailspring-component-kit';
 import {
   AccountStore,
@@ -10,6 +9,7 @@ import {
   FocusedPerspectiveStore,
   Actions,
 } from 'mailspring-exports';
+
 import {
   MetricContainer,
   MetricStat,

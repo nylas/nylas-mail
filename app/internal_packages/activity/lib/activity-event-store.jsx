@@ -6,13 +6,14 @@ import {
   NativeNotifications,
   FocusedPerspectiveStore,
 } from 'mailspring-exports';
-import ActivityListActions from './activity-list-actions';
+
+import ActivityActions from './activity-actions';
 import ActivityDataSource from './activity-data-source';
 import { pluginFor } from './plugin-helpers';
 
-class ActivityListStore extends MailspringStore {
+class ActivityEventStore extends MailspringStore {
   activate() {
-    this.listenTo(ActivityListActions.resetSeen, this._onResetSeen);
+    this.listenTo(ActivityActions.resetSeen, this._onResetSeen);
     this.listenTo(FocusedPerspectiveStore, this._updateActivity);
 
     const start = () => this._getActivity();
@@ -51,7 +52,7 @@ class ActivityListStore extends MailspringStore {
     DatabaseStore.find(Thread, threadId).then(thread => {
       if (!thread) {
         AppEnv.reportError(
-          new Error(`ActivityListStore::focusThread: Can't find thread`, { threadId })
+          new Error(`ActivityEventStore::focusThread: Can't find thread`, { threadId })
         );
         AppEnv.showErrorDialog(`Can't find the selected thread in your mailbox`);
         return;
@@ -224,4 +225,4 @@ class ActivityListStore extends MailspringStore {
   }
 }
 
-export default new ActivityListStore();
+export default new ActivityEventStore();

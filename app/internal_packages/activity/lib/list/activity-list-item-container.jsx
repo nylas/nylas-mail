@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { DisclosureTriangle, Flexbox, RetinaImg } from 'mailspring-component-kit';
 import { DateUtils } from 'mailspring-exports';
-import ActivityListStore from './activity-list-store';
-import { pluginFor } from './plugin-helpers';
+
+import ActivityEventStore from '../activity-event-store';
+import { pluginFor } from '../plugin-helpers';
 
 class ActivityListItemContainer extends React.Component {
   static displayName = 'ActivityListItemContainer';
@@ -21,7 +21,7 @@ class ActivityListItemContainer extends React.Component {
   }
 
   _onClick(threadId) {
-    ActivityListStore.focusThread(threadId);
+    ActivityEventStore.focusThread(threadId);
   }
 
   _onCollapseToggled = event => {
@@ -55,7 +55,10 @@ class ActivityListItemContainer extends React.Component {
   }
 
   renderActivityContainer() {
-    if (this.props.group.length === 1) return null;
+    if (this.props.group.length === 1) {
+      return null;
+    }
+
     const actions = [];
     for (const action of this.props.group) {
       const date = new Date(0);
@@ -84,19 +87,13 @@ class ActivityListItemContainer extends React.Component {
 
   render() {
     const lastAction = this.props.group[0];
-    let className = 'activity-list-item';
-    if (!ActivityListStore.hasBeenViewed(lastAction)) className += ' unread';
     const text = this._getText();
-    let disclosureTriangle = <div style={{ width: '7px' }} />;
-    if (this.props.group.length > 1) {
-      disclosureTriangle = (
-        <DisclosureTriangle
-          visible
-          collapsed={this.state.collapsed}
-          onCollapseToggled={this._onCollapseToggled}
-        />
-      );
+
+    let className = 'activity-list-item';
+    if (!ActivityEventStore.hasBeenViewed(lastAction)) {
+      className += ' unread';
     }
+
     return (
       <div
         onClick={() => {
@@ -112,7 +109,15 @@ class ActivityListItemContainer extends React.Component {
                 mode={RetinaImg.Mode.ContentPreserve}
               />
             </div>
-            {disclosureTriangle}
+            {this.props.group.length > 1 ? (
+              <DisclosureTriangle
+                visible
+                collapsed={this.state.collapsed}
+                onCollapseToggled={this._onCollapseToggled}
+              />
+            ) : (
+              <div style={{ width: '7px' }} />
+            )}
             <div className="action-message">
               {text.recipient} {pluginFor(lastAction.pluginId).predicate}:
             </div>

@@ -41,9 +41,28 @@
   height: 282px;
   &.empty {
     height: 182px;
+    .activity-summary-cta {
+      display: none;
+    }
   }
 
-  .empty {
+  .activity-summary-cta {
+    border-top: 1px solid @border-color-divider;
+    border-bottom-right-radius: @border-radius-base;
+    border-bottom-left-radius: @border-radius-base;
+    background: @btn-default-bg-color;
+    text-align: center;
+    padding: @padding-base-vertical @padding-base-horizontal;
+    color: @text-color;
+    img {
+      vertical-align: baseline;
+    }
+    &:active {
+      background: darken(@btn-default-bg-color, 9%);
+    }
+  }
+
+  .empty-state-container {
     text-align: center;
     padding: @padding-base-horizontal * 2;
     padding-top: @padding-base-vertical * 8;

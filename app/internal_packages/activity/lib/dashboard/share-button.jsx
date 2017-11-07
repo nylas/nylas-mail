@@ -69,7 +69,7 @@ export default class ShareButton extends React.Component {
       body: {
         key: `activity-${Date.now()}`,
         html: buildShareHTML(
-          document.querySelector('style[source-path*="activity-dashboard/styles/index.less"]'),
+          document.querySelector('style[source-path*="activity/styles/index.less"]'),
           document.querySelector('.activity-dashboard')
         ),
       },
@@ -85,8 +85,8 @@ export default class ShareButton extends React.Component {
       },
       () => {
         if (this._linkEl) {
+          this._linkEl.setSelectionRange(0, this._linkEl.value.length);
           this._linkEl.focus();
-          this._linkEl.select();
         }
       }
     );

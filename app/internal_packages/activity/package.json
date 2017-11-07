@@ -1,5 +1,5 @@
 {
-  "name": "activity-list",
+  "name": "activity",
   "main": "./lib/main",
   "version": "0.1.0",
   "repository": {
@@ -12,7 +12,7 @@
 
   "isOptional": true,
 
-  "title":"Activity List",
+  "title":"Activity Notifications and Dashboard",
   "icon":"./assets/icon.png",
   "description": "Get notifications for open and link tracking activity.",
   "supportedEnvs": ["development", "staging", "production"],

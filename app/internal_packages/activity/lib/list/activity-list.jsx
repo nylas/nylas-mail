@@ -1,9 +1,11 @@
 import React from 'react';
 import classnames from 'classnames';
+import { Actions, FocusedPerspectiveStore } from 'mailspring-exports';
+import { Flexbox, ScrollRegion, RetinaImg } from 'mailspring-component-kit';
 
-import { Flexbox, ScrollRegion } from 'mailspring-component-kit';
-import ActivityListStore from './activity-list-store';
-import ActivityListActions from './activity-list-actions';
+import ActivityEventStore from '../activity-event-store';
+import ActivityActions from '../activity-actions';
+import ActivityMailboxPerspective from '../activity-mailbox-perspective';
 import ActivityListItemContainer from './activity-list-item-container';
 import ActivityListEmptyState from './activity-list-empty-state';
 
@@ -16,11 +18,11 @@ class ActivityList extends React.Component {
   }
 
   componentDidMount() {
-    this._unsub = ActivityListStore.listen(this._onDataChanged);
+    this._unsub = ActivityEventStore.listen(this._onDataChanged);
   }
 
   componentWillUnmount() {
-    ActivityListActions.resetSeen();
+    ActivityActions.resetSeen();
     this._unsub();
   }
 
@@ -28,8 +30,16 @@ class ActivityList extends React.Component {
     this.setState(this._getStateFromStores());
   };
 
+  _onViewSummary = () => {
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+    const aids = FocusedPerspectiveStore.sidebarAccountIds();
+    Actions.focusMailboxPerspective(new ActivityMailboxPerspective(aids));
+  };
+
   _getStateFromStores() {
-    const actions = ActivityListStore.actions();
+    const actions = ActivityEventStore.actions();
     return {
       actions: actions,
       empty: actions instanceof Array && actions.length === 0,
@@ -62,27 +72,36 @@ class ActivityList extends React.Component {
       return <ActivityListEmptyState />;
     }
 
-    const groupedActions = this._groupActions(this.state.actions);
-    return groupedActions.map(group => {
-      return (
-        <ActivityListItemContainer
-          key={`${group[0].messageId}-${group[0].timestamp}`}
-          group={group}
-        />
-      );
-    });
+    return this._groupActions(this.state.actions).map(group => (
+      <ActivityListItemContainer
+        key={`${group[0].messageId}-${group[0].timestamp}`}
+        group={group}
+      />
+    ));
   }
 
   render() {
-    if (!this.state.actions) return null;
+    const { actions, empty } = this.state;
+
+    if (!actions) return null;
 
     const classes = classnames({
       'activity-list-container': true,
-      empty: this.state.empty,
+      empty: empty,
     });
     return (
       <Flexbox direction="column" height="none" className={classes} tabIndex="-1">
         <ScrollRegion style={{ height: '100%' }}>{this.renderActions()}</ScrollRegion>
+        {!empty && (
+          <a className="activity-summary-cta" onClick={this._onViewSummary}>
+            View Activity Summary
+            <RetinaImg
+              name="activity-drill-down-arrow.png"
+              style={{ paddingLeft: 6 }}
+              mode={RetinaImg.Mode.ContentDark}
+            />
+          </a>
+        )}
       </Flexbox>
     );
   }

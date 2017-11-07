@@ -3,7 +3,7 @@ import { Actions, ReactDOM } from 'mailspring-exports';
 import { RetinaImg } from 'mailspring-component-kit';
 
 import ActivityList from './activity-list';
-import ActivityListStore from './activity-list-store';
+import ActivityEventStore from '../activity-event-store';
 
 class ActivityListButton extends React.Component {
   static displayName = 'ActivityListButton';
@@ -14,7 +14,7 @@ class ActivityListButton extends React.Component {
   }
 
   componentDidMount() {
-    this._unsub = ActivityListStore.listen(this._onDataChanged);
+    this._unsub = ActivityEventStore.listen(this._onDataChanged);
   }
 
   componentWillUnmount() {
@@ -32,7 +32,7 @@ class ActivityListButton extends React.Component {
 
   _getStateFromStores() {
     return {
-      unreadCount: ActivityListStore.unreadCount(),
+      unreadCount: ActivityEventStore.unreadCount(),
     };
   }
 
