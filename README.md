@@ -36,7 +36,7 @@ This repository contains the full source code to the Nylas Mail client and it's 
 1. [**Isomorphic Core**](https://github.com/nylas/nylas-mail/tree/master/packages/isomorphic-core): Shared code across local client and cloud servers
 1. [**Client App**](https://github.com/nylas/nylas-mail/tree/master/packages/client-app): The main Electron app for Nylas Mail
    mirrored to open source repo.
-1. [**Client Sync**](https://github.com/nylas/nylas-mail/tree/master/packages/client-sync): The local mailsync engine integreated in Nylas Mail
+1. [**Client Sync**](https://github.com/nylas/nylas-mail/tree/master/packages/client-sync): The local mailsync engine integrated in Nylas Mail
 1. [**Client Private Plugins**](https://github.com/nylas/nylas-mail/tree/master/packages/client-private-plugins): Private Nylas Mail plugins (like SFDC)
 1. [**Cloud API**](https://github.com/nylas/nylas-mail/tree/master/packages/cloud-api): The cloud-based auth and metadata APIs for N1
 1. [**Cloud Core**](https://github.com/nylas/nylas-mail/tree/master/packages/cloud-core): Shared code used in all remote cloud services
@@ -104,7 +104,7 @@ The Nylas Mail user interface is styled using CSS, which means it's easy to modi
 
 1. Download and unzip the repo
 2. In Nylas Mail, select `Developer > Install a Package Manually... `
-3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas-mail` folder for your convinence
+3. Navigate to where you downloaded the theme and select the root folder. The theme is copied into the `~/.nylas-mail` folder for your convenience
 5. Select `Change Theme...` from the top level menu, and you'll see the newly installed theme. That's it!
 
 Want to dive in more? Try [creating your own theme](https://github.com/nylas/nylas-mail-theme-starter)!
