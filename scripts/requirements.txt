@@ -8,5 +8,5 @@ pyasn1-modules==0.0.8
 pyparsing==2.2.0
 python-dateutil==2.6.0
 requests==2.13.0
-rsa==3.4.2
+rsa==4.7
 six==1.10.0
